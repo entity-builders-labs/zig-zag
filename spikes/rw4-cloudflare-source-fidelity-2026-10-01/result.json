@@ -1,0 +1,12 @@
+{
+  "targetUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+  "totalDurationMs": 2625,
+  "provider": "cloudflare",
+  "item": {
+    "requestedUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+    "status": "retrieved",
+    "durationMs": 2621,
+    "contentType": "markdown",
+    "contentChars": 88401
+  }
+}

@@ -1,0 +1,158 @@
+{
+  "label": "Materialización en catálogo",
+  "rules": [
+    {
+      "rule": "Persistir composites solo después de GEO_VERIFIED",
+      "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+      "result": "PASS",
+      "ruleId": "MAT-GEO-GATE-001"
+    },
+    {
+      "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+      "actual": 0,
+      "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+      "result": "WARN",
+      "ruleId": "MAT-CANONICAL-001"
+    }
+  ],
+  "stage": "catalog_materialization",
+  "inputs": {
+    "geoVerifiedCount": 0
+  },
+  "status": "WARN",
+  "outputs": {
+    "rejectedCount": 4,
+    "materializedCount": 0,
+    "persistedExperienceIds": []
+  },
+  "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 4 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+  "decision": {
+    "reason": "No hubo propuesta verificada que pudiera materializarse.",
+    "status": "WARN",
+    "outcome": "NO_EXPERIENCES_MATERIALIZED",
+    "reasonCodes": [
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT",
+      "UNRESOLVED_REQUIRED_COMPONENT"
+    ],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "ExperienceCatalogService",
+  "degradedReason": "no_experiences_materialized",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "San Telmo Self-Guided Historical Walk",
+      "name": "San Telmo Self-Guided Historical Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "San Telmo & Caminito History Walk",
+      "name": "San Telmo & Caminito History Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "La Boca and San Telmo History Walk",
+      "name": "La Boca and San Telmo History Walk",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    },
+    {
+      "id": "San Telmo Colonial Walking Tour",
+      "name": "San Telmo Colonial Walking Tour",
+      "reason": "UNRESOLVED_REQUIRED_COMPONENT",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ]
+    }
+  ],
+  "classificationAudit": [],
+  "materializationAudit": [
+    {
+      "accepted": false,
+      "candidateName": "San Telmo Self-Guided Historical Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo self-guided historical walk:ev-12:basilica:Basílica de San Francisco|defensa-street:Defensa Street"
+    },
+    {
+      "accepted": false,
+      "candidateName": "San Telmo & Caminito History Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo & caminito history walk:ev-14:mafalda:Mafalda Statue|san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|lezama-park:Lezama Park|caminito:Caminito"
+    },
+    {
+      "accepted": false,
+      "candidateName": "La Boca and San Telmo History Walk",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "la boca and san telmo history walk:ev-15:san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|defensa-street:Defensa Street|caminito-street:Caminito Street|boca-stadium:Boca Juniors Stadium"
+    },
+    {
+      "accepted": false,
+      "candidateName": "San Telmo Colonial Walking Tour",
+      "rejectionReasons": [
+        "UNRESOLVED_REQUIRED_COMPONENT"
+      ],
+      "candidateTraceKey": "san telmo colonial walking tour:ev-16:ezeiza-mansion:Ezeiza Mansion|lezama-park:Lezama Park|san-lorenzo-passage:San Lorenzo Passage|san-telmo-market:San Telmo Market"
+    }
+  ]
+}

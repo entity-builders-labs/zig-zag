@@ -1,0 +1,345 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-035",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Feria San Telmo",
+          "supportSpan": "Feria San Telmo",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "street Defensa",
+          "supportSpan": "street Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller to Feria San Telmo on street Defensa."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description and commentary."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "first restaurants in Buenos Aires",
+          "supportSpan": "pass the first restaurants in Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions restaurants passed along the way."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive information about food."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "oldest neighborhood of the capital city",
+          "supportSpan": "explore the oldest neighborhood of the capital city",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Tells the traveller to wander and experience the neighborhood."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the surroundings."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author note about San Telmo."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Estados Unidos",
+          "supportSpan": "go to the street Estados Unidos",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Tells traveller to take a detour to a street."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Atmosphere description."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive statement."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Bar Sur",
+          "supportSpan": "see Bar Sur",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out Bar Sur as a sight to see."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Paseo de Colon",
+          "supportSpan": "cross the street Paseo de Colon",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller to cross a specific street."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "MetroBus infrastructure",
+          "supportSpan": "see the first MetroBus infrastructure",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Points out infrastructure seen along the way."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the bus system."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "big building with columns",
+          "supportSpan": "see a big building with columns",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out a building to look at."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact about the building."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact about the building."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption/ad placeholder."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Defensa",
+          "supportSpan": "go back to the street Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller back to a street."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "pass the entrance of Mercado de San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions passing the entrance of the market."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Jump inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-055"
+        }
+      ],
+      "reason": "Tells traveller to enter the market."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommendation commentary."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of market renovations."
+    },
+    {
+      "atomId": "a-059",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of market features."
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Read more link."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Introduces Plaza Dorrego as a nearby stop."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the square."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of square features."
+    },
+    {
+      "atomId": "a-064",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida San Juan",
+          "supportSpan": "walk on the street “Avenida San Juan”",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller to walk on a specific avenue."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of Modern Arts",
+          "supportSpan": "Museum of Modern Arts",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out the Museum of Modern Arts."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida Paseo Colon",
+          "supportSpan": "Walk up to Avenida Paseo Colon",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller along an avenue."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Club Atlético",
+          "supportSpan": "memory of “Club Atlético",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out a memorial site."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical description."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical description."
+    },
+    {
+      "atomId": "a-070",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Opinion on the memorial."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary on history."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Defensa",
+          "supportSpan": "Head back to the street Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs traveller back to street Defensa."
+    }
+  ]
+}

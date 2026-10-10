@@ -1,0 +1,222 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":54972,\"name\":\"Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions\",\"slug\":\"54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions\",\"rating\":4.71,\"reviews_count\":782,\"duration\":150,\"languages\":[\"en\",\"es\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55661,\"name\":\"Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors\",\"slug\":\"55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors\",\"rating\":4.92,\"reviews_count\":592,\"duration\":150,\"languages\":[\"en\",\"pt\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45347,\"name\":\"Free tour of Buenos Aires: Heart of the city\",\"slug\":\"45347-free-tour-of-buenos-aires-heart-of-the-city\",\"rating\":4.91,\"reviews_count\":833,\"duration\":180,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63551,\"name\":\"Buenos Aires Origins: San Telmo and Monserrat\",\"slug\":\"63551-buenos-aires-origins-san-telmo-and-monserrat\",\"rating\":4.98,\"reviews_count\":44,\"duration\":165,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":68379,\"name\":\"Essential Tour of Buenos Aires\",\"slug\":\"68379-essential-tour-of-buenos-aires\",\"rating\":4.86,\"reviews_count\":7,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35557,\"name\":\"Walking Tour Retiro and Recoleta: History and Stories\",\"slug\":\"35557-walking-tour-retiro-and-recoleta-history-and-stories\",\"rating\":4.85,\"reviews_count\":380,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35557-walking-tour-retiro-and-recoleta-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":38312,\"name\":\"The Paris of South America! Icons, history, and myths of Buenos Aires. Free Tour. (max 6 people)\",\"slug\":\"38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people\",\"rating\":4.98,\"reviews_count\":317,\"duration\":210,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51609,\"name\":\"San Telmo essential free tour: Tango: History and legends, markets and museums\",\"slug\":\"51609-san-telmo-essential-free-tour-tango-history-and-legends-markets-and-museums\",\"rating\":4.83,\"reviews_count\":197,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51609-san-telmo-essential-free-tour-tango-history-and-legends-markets-and-museums?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35555,\"name\":\"Buenos Aires City Center Walking Tour: History and Stories 🏆 \",\"slug\":\"35555-buenos-aires-city-center-walking-tour-history-and-stories\",\"rating\":4.91,\"reviews_count\":611,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":56186,\"name\":\"Discover San Telmo: A Journey Through Time! ⌛\",\"slug\":\"56186-discover-san-telmo-a-journey-through-time\",\"rating\":4.89,\"reviews_count\":9,\"duration\":165,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":30657,\"name\":\"Buenos Aires \\\"Never sleep\\\"\",\"slug\":\"30657-buenos-aires-never-sleep\",\"rating\":4.77,\"reviews_count\":119,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/30657-buenos-aires-never-sleep?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69004,\"name\":\"Abasto, Cradle of Tango and Porteño Culture Buenos Aires Free Tour\",\"slug\":\"69004-abasto-cradle-of-tango-and-porteno-culture-buenos-aires-free-tour\",\"rating\":5.0,\"reviews_count\":7,\"duration\":120,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69004-abasto-cradle-of-tango-and-porteno-culture-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions",
+     "slug": "54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions",
+     "rating": 4.71,
+     "reviews_count": 782,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors",
+     "slug": "55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors",
+     "rating": 4.92,
+     "reviews_count": 592,
+     "duration": 150,
+     "languages": [
+      "en",
+      "pt",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Free tour of Buenos Aires: Heart of the city",
+     "slug": "45347-free-tour-of-buenos-aires-heart-of-the-city",
+     "rating": 4.91,
+     "reviews_count": 833,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63551,
+     "name": "Buenos Aires Origins: San Telmo and Monserrat",
+     "slug": "63551-buenos-aires-origins-san-telmo-and-monserrat",
+     "rating": 4.98,
+     "reviews_count": 44,
+     "duration": 165,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 68379,
+     "name": "Essential Tour of Buenos Aires",
+     "slug": "68379-essential-tour-of-buenos-aires",
+     "rating": 4.86,
+     "reviews_count": 7,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35557,
+     "name": "Walking Tour Retiro and Recoleta: History and Stories",
+     "slug": "35557-walking-tour-retiro-and-recoleta-history-and-stories",
+     "rating": 4.85,
+     "reviews_count": 380,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35557-walking-tour-retiro-and-recoleta-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 38312,
+     "name": "The Paris of South America! Icons, history, and myths of Buenos Aires. Free Tour. (max 6 people)",
+     "slug": "38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people",
+     "rating": 4.98,
+     "reviews_count": 317,
+     "duration": 210,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51609,
+     "name": "San Telmo essential free tour: Tango: History and legends, markets and museums",
+     "slug": "51609-san-telmo-essential-free-tour-tango-history-and-legends-markets-and-museums",
+     "rating": 4.83,
+     "reviews_count": 197,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51609-san-telmo-essential-free-tour-tango-history-and-legends-markets-and-museums?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35555,
+     "name": "Buenos Aires City Center Walking Tour: History and Stories 🏆 ",
+     "slug": "35555-buenos-aires-city-center-walking-tour-history-and-stories",
+     "rating": 4.91,
+     "reviews_count": 611,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 56186,
+     "name": "Discover San Telmo: A Journey Through Time! ⌛",
+     "slug": "56186-discover-san-telmo-a-journey-through-time",
+     "rating": 4.89,
+     "reviews_count": 9,
+     "duration": 165,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 30657,
+     "name": "Buenos Aires \"Never sleep\"",
+     "slug": "30657-buenos-aires-never-sleep",
+     "rating": 4.77,
+     "reviews_count": 119,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/30657-buenos-aires-never-sleep?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69004,
+     "name": "Abasto, Cradle of Tango and Porteño Culture Buenos Aires Free Tour",
+     "slug": "69004-abasto-cradle-of-tango-and-porteno-culture-buenos-aires-free-tour",
+     "rating": 5.0,
+     "reviews_count": 7,
+     "duration": 120,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69004-abasto-cradle-of-tango-and-porteno-culture-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

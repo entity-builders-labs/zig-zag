@@ -1,0 +1,1390 @@
+{
+  "generatedAt": "2026-10-02T18:28:41.903Z",
+  "placesProvider": "geoapify",
+  "probes": {
+    "Alfa Crux": [
+      {
+        "query": "Alfa Crux",
+        "justification": "exact source hint (COLD #11 query)",
+        "places": {
+          "resultCount": 0,
+          "results": []
+        },
+        "nominatim": []
+      },
+      {
+        "query": "Bodega Alfa Crux",
+        "justification": "source: \"This winery\" (es: bodega)",
+        "places": {
+          "resultCount": 10,
+          "results": [
+            {
+              "id": "512fd7474cf53351c0592ba4fca4da7340c0f00103f90118e6032e01000000c00201920311426f646567612043656e74656e6172696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303636393734373434",
+              "name": "Bodega Centenario",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Centenario, Pedro Vargas 2311, Las Cañas, M5521 AAR Departamento Guaymallén, Argentina",
+              "location": {
+                "latitude": -32.90511,
+                "longitude": -68.8118468
+              },
+              "kmFromDestinationCentroid": 5.3,
+              "details": {
+                "websiteUri": "www.bodegacentenario.com.ar",
+                "nationalPhoneNumber": "+54 261 431 4761",
+                "name": "Bodega Centenario",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5066974744"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "519eb12fd9f83151c059524fd5f3247e40c0f00103f9017ff3ac1701000000c0020192030e426f646567612042617564726f6ee203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363932313737373931",
+              "name": "Bodega Baudron",
+              "featureClass": "point_of_interest",
+              "types": [
+                "tourism.attraction"
+              ],
+              "formattedAddress": "Bodega Baudron, San Martín, 5515 Distrito Ciudad de Maipú, Argentina",
+              "location": {
+                "latitude": -32.9855027,
+                "longitude": -68.7808135
+              },
+              "kmFromDestinationCentroid": 13.7,
+              "details": {
+                "name": "Bodega Baudron",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4692177791"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ffd94587762f51c0596b63ec84977b40c0f00103f90101c36ef000000000c0020192030e426f6465676120416c616e646573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34303333373930373231",
+              "name": "Bodega Alandes",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Alandes, Adriano Gómez, 5522 Departamento Maipú, Argentina",
+              "location": {
+                "latitude": -32.9655615,
+                "longitude": -68.7416094
+              },
+              "kmFromDestinationCentroid": 14.5,
+              "details": {
+                "name": "Bodega Alandes",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4033790721"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "516e6e4c4fd82f51c059c82764e76d7c40c0f00103f901519741a700000000c0020192030f426f64656761205472617069636865e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32383036303933363439",
+              "name": "Bodega Trapiche",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trapiche, Roca, 5513 Departamento Maipú, Argentina",
+              "location": {
+                "latitude": -32.972104,
+                "longitude": -68.7475775
+              },
+              "kmFromDestinationCentroid": 14.6,
+              "details": {
+                "name": "Bodega Trapiche",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:2806093649"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "516cedd863fd3951c0591333b1af2b8240c0f00102f9011e62173000000000c0020192030c426f6465676120476965636fe203216f70656e7374726565746d61703a76656e75653a7761792f383036383338383134",
+              "name": "Bodega Gieco",
+              "featureClass": "point_of_interest",
+              "types": [
+                "building.commercial"
+              ],
+              "formattedAddress": "Bodega Gieco, Guardia Vieja 1687, La Toscana, M5507 ENT Vistalba, Argentina",
+              "location": {
+                "latitude": -33.0169582,
+                "longitude": -68.9060907
+              },
+              "kmFromDestinationCentroid": 15.4,
+              "details": {
+                "websiteUri": "https://bodegagieco.com/",
+                "nationalPhoneNumber": "+54 261 562-0354",
+                "name": "Bodega Gieco",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:806838814"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51f0805770e43751c059e1d7a3cbf68240c0f00103f9013026cd2c01000000c0020192030e426f64656761204c616761726465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303436363039343536",
+              "name": "Bodega Lagarde",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Lagarde, San Martín 1745, Mayor Drummond, 5507 Distrito Mayor Drummond, Argentina",
+              "location": {
+                "latitude": -33.0231566,
+                "longitude": -68.8733178
+              },
+              "kmFromDestinationCentroid": 15.6,
+              "details": {
+                "websiteUri": "https://www.lagarde.com.ar/",
+                "nationalPhoneNumber": "+54 261 498 5507",
+                "name": "Bodega Lagarde",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5046609456"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ba313d61893151c059ce18e6046d8240c0f00102f901da41d81200000000c00201e203216f70656e7374726565746d61703a76656e75653a7761792f333136313632353232",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trivento, 5517 Mendoza, Argentina",
+              "location": {
+                "latitude": -33.018952,
+                "longitude": -68.77401
+              },
+              "kmFromDestinationCentroid": 17.2,
+              "details": {
+                "websiteUri": "https://trivento.com/",
+                "name": "Bodega Trivento",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:316162522"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51261c7a8b873151c059133246da7c8240c0f00102f901da41d81200000000c0020192030f426f646567612054726976656e746f",
+              "name": "Bodega Trivento",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trivento, Departamento Maipú, M, Argentina",
+              "location": {
+                "latitude": -33.0194352,
+                "longitude": -68.773898
+              },
+              "kmFromDestinationCentroid": 17.3,
+              "details": {
+                "websiteUri": "https://trivento.com/",
+                "name": "Bodega Trivento",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:316162522"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ef0390dac43c51c059efe3688eac8440c0f00102f901756c9a4b00000000c00201e203226f70656e7374726565746d61703a76656e75653a7761792f31323638343131353039",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega, 5549 MZ, Argentina",
+              "location": {
+                "latitude": -33.036516,
+                "longitude": -68.949515
+              },
+              "kmFromDestinationCentroid": 18.9,
+              "details": {
+                "name": "Bodega",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1268411509"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "514b53a97eca3c51c059a55bc0159a8440c0f00102f901756c9a4b00000000c00201920306426f64656761",
+              "name": "Bodega",
+              "featureClass": "point_of_interest",
+              "types": [
+                "building.industrial"
+              ],
+              "formattedAddress": "Bodega, Roque Sáenz Peña, 5549 Distrito Las Compuertas, Argentina",
+              "location": {
+                "latitude": -33.0359523,
+                "longitude": -68.9498593
+              },
+              "kmFromDestinationCentroid": 18.9,
+              "details": {
+                "name": "Bodega",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1268411509"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": []
+      },
+      {
+        "query": "Alfa Crux winery",
+        "justification": "source: \"This winery\"",
+        "places": {
+          "resultCount": 0,
+          "results": []
+        },
+        "nominatim": []
+      },
+      {
+        "query": "Agostino",
+        "justification": "source hyperlink host agostinowinegroup.com (wine GROUP site) -- coverage probe only, NOT an alias",
+        "places": {
+          "resultCount": 0,
+          "results": []
+        },
+        "nominatim": [
+          {
+            "displayName": "Agostino, Diagonal Salta, Martínez Oeste, Martínez, Partido de San Isidro, Buenos Aires, B1640, Argentina",
+            "osm": "node/4591949104",
+            "class": "shop",
+            "type": "gift",
+            "addresstype": "shop",
+            "latitude": -34.4919025,
+            "longitude": -58.5114206,
+            "kmFromDestinationCentroid": 973.8
+          },
+          {
+            "displayName": "D'Agostino, Los Arces, Rafaela, Municipio de Rafaela, Departamento Castellanos, Santa Fe, S2300, Argentina",
+            "osm": "way/1318840870",
+            "class": "highway",
+            "type": "tertiary",
+            "addresstype": "road",
+            "latitude": -31.2240222,
+            "longitude": -61.4890794,
+            "kmFromDestinationCentroid": 718.8
+          },
+          {
+            "displayName": "Doctor Lucio Roque D’Agostino, Barrio Santa Lucía, Paraná, Municipio de Paraná, Distrito Sauce, Departamento Paraná, Entre Ríos, E3104HMA, Argentina",
+            "osm": "way/79304774",
+            "class": "highway",
+            "type": "residential",
+            "addresstype": "road",
+            "latitude": -31.7641947,
+            "longitude": -60.5212745,
+            "kmFromDestinationCentroid": 793.3
+          },
+          {
+            "displayName": "D'Agostino, Los Arces, Rafaela, Municipio de Rafaela, Departamento Castellanos, Santa Fe, S2300, Argentina",
+            "osm": "way/1321692381",
+            "class": "highway",
+            "type": "unclassified",
+            "addresstype": "road",
+            "latitude": -31.2229662,
+            "longitude": -61.4955328,
+            "kmFromDestinationCentroid": 718.2
+          },
+          {
+            "displayName": "D'Agostino, Los Arces, Municipio de Rafaela, Departamento Castellanos, Santa Fe, S2300, Argentina",
+            "osm": "way/1322948221",
+            "class": "highway",
+            "type": "unclassified",
+            "addresstype": "road",
+            "latitude": -31.22251,
+            "longitude": -61.4983212,
+            "kmFromDestinationCentroid": 718
+          }
+        ]
+      }
+    ],
+    "SuperUco": [
+      {
+        "query": "SuperUco",
+        "justification": "exact source hint (COLD #11 query)",
+        "places": {
+          "resultCount": 0,
+          "results": []
+        },
+        "nominatim": []
+      },
+      {
+        "query": "Super Uco",
+        "justification": "tokenization variant of the hint (normalization probe)",
+        "places": {
+          "resultCount": 10,
+          "results": [
+            {
+              "id": "5127af84a4053751c0597f56f4e21f7240c0f00103f9011cbfa99200000000c0020192030f537570657220436f6e646f7269746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343630353938303434",
+              "name": "Super Condorito",
+              "featureClass": "point_of_interest",
+              "types": [
+                "commercial.supermarket"
+              ],
+              "formattedAddress": "Super Condorito, Arístides Villanueva 644, M5500 EPA Mendoza, Argentina",
+              "location": {
+                "latitude": -32.8915981,
+                "longitude": -68.8597194
+              },
+              "kmFromDestinationCentroid": 1,
+              "details": {
+                "nationalPhoneNumber": "+54 261 420 2815",
+                "name": "Super Condorito",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:2460598044"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "514a703491633651c0594e4c721b687040c0f00103f9011cc3246202000000c0020192030b5375706572205661746f6de203246f70656e7374726565746d61703a76656e75653a6e6f64652f3130323336353131303034",
+              "name": "Super Vatom",
+              "featureClass": "point_of_interest",
+              "types": [
+                "commercial.supermarket"
+              ],
+              "formattedAddress": "Super Vatom, Suipacha, 5500 Mendoza, Argentina",
+              "location": {
+                "latitude": -32.8781771,
+                "longitude": -68.8498271
+              },
+              "kmFromDestinationCentroid": 1.3,
+              "details": {
+                "name": "Super Vatom",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:10236511004"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51105839b4c83651c059ac1c5a643b6f40c0c0020192031256616c6c652044652055636f204c6f646765e2031667656f6e616d65733a76656e75653a36343936393238",
+              "name": "Valle De Uco Lodge",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Valle De Uco Lodge, Mendoza, Guaymallén, Argentina",
+              "location": {
+                "latitude": -32.869,
+                "longitude": -68.856
+              },
+              "kmFromDestinationCentroid": 1.7,
+              "details": {
+                "name": "Valle De Uco Lodge"
+              }
+            },
+            {
+              "id": "51ecd973991a3651c059b889a427767240c0f00103f901fc45ceb001000000c0020192030d467275746f732064652055636fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f37323631323735363434",
+              "name": "Frutos de Uco",
+              "featureClass": "point_of_interest",
+              "types": [
+                "commercial"
+              ],
+              "formattedAddress": "Frutos de Uco, Avenida Colón, M5500 GEE Mendoza, Argentina",
+              "location": {
+                "latitude": -32.8942308,
+                "longitude": -68.8453735
+              },
+              "kmFromDestinationCentroid": 2,
+              "details": {
+                "name": "Frutos de Uco",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:7261275644"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "5173ae72b21e3651c0592f922c16757540c0f00102f901e5c81d0b00000000c00201920309537570657220566561e203216f70656e7374726565746d61703a76656e75653a7761792f313836353031333439",
+              "name": "Super Vea",
+              "featureClass": "point_of_interest",
+              "types": [
+                "commercial.supermarket"
+              ],
+              "formattedAddress": "Super Vea, Avenida General San Martín 698, Zona Centro Godoy Cruz, 5501 Distrito Ciudad de Godoy Cruz, Argentina",
+              "location": {
+                "latitude": -32.9176357,
+                "longitude": -68.8456236
+              },
+              "kmFromDestinationCentroid": 4.1,
+              "details": {
+                "websiteUri": "https://vea.com.ar",
+                "name": "Super Vea",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:186501349"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "5181cb63cdc83751c059971fb8ca137840c0c0020492031244697175652056616c6c652064652055636fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238323635313439",
+              "name": "Dique Valle de Uco",
+              "featureClass": "street",
+              "types": [],
+              "formattedAddress": "Dique Valle de Uco, 5544 Mendoza, Argentina",
+              "location": {
+                "latitude": -32.938104,
+                "longitude": -68.871631
+              },
+              "kmFromDestinationCentroid": 6.2,
+              "details": {
+                "name": "Dique Valle de Uco"
+              }
+            },
+            {
+              "id": "51209a79724d1e51c0593eb324404d9940c0c0020492030c56616c6c652064652055636fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238323933383231",
+              "name": "Valle de Uco",
+              "featureClass": "street",
+              "types": [],
+              "formattedAddress": "Valle de Uco, 5577 MZ, Argentina",
+              "location": {
+                "latitude": -33.19767,
+                "longitude": -68.473477
+              },
+              "kmFromDestinationCentroid": 50.4,
+              "details": {
+                "name": "Valle de Uco"
+              }
+            },
+            {
+              "id": "51a24cfe82b81d51c0599e0d5421799840c0f00102f901782ded0a00000000c00201920309537570657220566561e203216f70656e7374726565746d61703a76656e75653a7761792f313833333135383332",
+              "name": "Super Vea",
+              "featureClass": "point_of_interest",
+              "types": [
+                "building.commercial"
+              ],
+              "formattedAddress": "Super Vea, Juan Galo de Lavalle, 5577 Rivadavia, Argentina",
+              "location": {
+                "latitude": -33.1911966,
+                "longitude": -68.4643867
+              },
+              "kmFromDestinationCentroid": 50.5,
+              "details": {
+                "name": "Super Vea",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:183315832"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "514337fb03654951c059581d39d219ae40c0f00103f90182978b2f01000000c0020192031653616e61746f72696f2056616c6c652064652055636fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303932363434373338",
+              "name": "Sanatorio Valle de Uco",
+              "featureClass": "point_of_interest",
+              "types": [
+                "healthcare.clinic_or_praxis"
+              ],
+              "formattedAddress": "Sanatorio Valle de Uco, Los Cedros, 5561 Distrito Ciudad de Tupungato, Argentina",
+              "location": {
+                "latitude": -33.360163,
+                "longitude": -69.1467905
+              },
+              "kmFromDestinationCentroid": 59.3,
+              "details": {
+                "name": "Sanatorio Valle de Uco",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5092644738"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "514ee7d4dfdc3e51c0593a30ca7dbcbd40c0f00102f901f5eb9f4700000000c0020192032b5375626a6566617475726120646520506f6c6963c3ad61205669616c202d2056616c6c652064652055636fe203226f70656e7374726565746d61703a76656e75653a7761792f31323031363632393635",
+              "name": "Subjefatura de Policía Vial - Valle de Uco",
+              "featureClass": "point_of_interest",
+              "types": [
+                "service.police"
+              ],
+              "formattedAddress": "Subjefatura de Policía Vial - Valle de Uco, Ruta Nacional 40, 5560 M, Argentina",
+              "location": {
+                "latitude": -33.4823148,
+                "longitude": -68.9822311
+              },
+              "kmFromDestinationCentroid": 67.6,
+              "details": {
+                "name": "Subjefatura de Policía Vial - Valle de Uco",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1201662965"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": []
+      },
+      {
+        "query": "Bodega SuperUco",
+        "justification": "source: wineries itinerary (es: bodega)",
+        "places": {
+          "resultCount": 10,
+          "results": [
+            {
+              "id": "512fd7474cf53351c0592ba4fca4da7340c0f00103f90118e6032e01000000c00201920311426f646567612043656e74656e6172696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303636393734373434",
+              "name": "Bodega Centenario",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Centenario, Pedro Vargas 2311, Las Cañas, M5521 AAR Departamento Guaymallén, Argentina",
+              "location": {
+                "latitude": -32.90511,
+                "longitude": -68.8118468
+              },
+              "kmFromDestinationCentroid": 5.3,
+              "details": {
+                "websiteUri": "www.bodegacentenario.com.ar",
+                "nationalPhoneNumber": "+54 261 431 4761",
+                "name": "Bodega Centenario",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5066974744"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "519eb12fd9f83151c059524fd5f3247e40c0f00103f9017ff3ac1701000000c0020192030e426f646567612042617564726f6ee203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363932313737373931",
+              "name": "Bodega Baudron",
+              "featureClass": "point_of_interest",
+              "types": [
+                "tourism.attraction"
+              ],
+              "formattedAddress": "Bodega Baudron, San Martín, 5515 Distrito Ciudad de Maipú, Argentina",
+              "location": {
+                "latitude": -32.9855027,
+                "longitude": -68.7808135
+              },
+              "kmFromDestinationCentroid": 13.7,
+              "details": {
+                "name": "Bodega Baudron",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4692177791"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ffd94587762f51c0596b63ec84977b40c0f00103f90101c36ef000000000c0020192030e426f6465676120416c616e646573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34303333373930373231",
+              "name": "Bodega Alandes",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Alandes, Adriano Gómez, 5522 Departamento Maipú, Argentina",
+              "location": {
+                "latitude": -32.9655615,
+                "longitude": -68.7416094
+              },
+              "kmFromDestinationCentroid": 14.5,
+              "details": {
+                "name": "Bodega Alandes",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4033790721"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "516e6e4c4fd82f51c059c82764e76d7c40c0f00103f901519741a700000000c0020192030f426f64656761205472617069636865e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32383036303933363439",
+              "name": "Bodega Trapiche",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trapiche, Roca, 5513 Departamento Maipú, Argentina",
+              "location": {
+                "latitude": -32.972104,
+                "longitude": -68.7475775
+              },
+              "kmFromDestinationCentroid": 14.6,
+              "details": {
+                "name": "Bodega Trapiche",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:2806093649"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "516cedd863fd3951c0591333b1af2b8240c0f00102f9011e62173000000000c0020192030c426f6465676120476965636fe203216f70656e7374726565746d61703a76656e75653a7761792f383036383338383134",
+              "name": "Bodega Gieco",
+              "featureClass": "point_of_interest",
+              "types": [
+                "building.commercial"
+              ],
+              "formattedAddress": "Bodega Gieco, Guardia Vieja 1687, La Toscana, M5507 ENT Vistalba, Argentina",
+              "location": {
+                "latitude": -33.0169582,
+                "longitude": -68.9060907
+              },
+              "kmFromDestinationCentroid": 15.4,
+              "details": {
+                "websiteUri": "https://bodegagieco.com/",
+                "nationalPhoneNumber": "+54 261 562-0354",
+                "name": "Bodega Gieco",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:806838814"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "514b53a97eca3c51c059a55bc0159a8440c0f00102f901756c9a4b00000000c00201920306426f64656761",
+              "name": "Bodega",
+              "featureClass": "point_of_interest",
+              "types": [
+                "building.industrial"
+              ],
+              "formattedAddress": "Bodega, Roque Sáenz Peña, 5549 Distrito Las Compuertas, Argentina",
+              "location": {
+                "latitude": -33.0359523,
+                "longitude": -68.9498593
+              },
+              "kmFromDestinationCentroid": 18.9,
+              "details": {
+                "name": "Bodega",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1268411509"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51f0805770e43751c059e1d7a3cbf68240c0f00103f9013026cd2c01000000c0020192030e426f64656761204c616761726465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303436363039343536",
+              "name": "Bodega Lagarde",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Lagarde, San Martín 1745, Mayor Drummond, 5507 Distrito Mayor Drummond, Argentina",
+              "location": {
+                "latitude": -33.0231566,
+                "longitude": -68.8733178
+              },
+              "kmFromDestinationCentroid": 15.6,
+              "details": {
+                "websiteUri": "https://www.lagarde.com.ar/",
+                "nationalPhoneNumber": "+54 261 498 5507",
+                "name": "Bodega Lagarde",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5046609456"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ba313d61893151c059ce18e6046d8240c0f00102f901da41d81200000000c00201e203216f70656e7374726565746d61703a76656e75653a7761792f333136313632353232",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trivento, 5517 Mendoza, Argentina",
+              "location": {
+                "latitude": -33.018952,
+                "longitude": -68.77401
+              },
+              "kmFromDestinationCentroid": 17.2,
+              "details": {
+                "websiteUri": "https://trivento.com/",
+                "name": "Bodega Trivento",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:316162522"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51261c7a8b873151c059133246da7c8240c0f00102f901da41d81200000000c0020192030f426f646567612054726976656e746f",
+              "name": "Bodega Trivento",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trivento, Departamento Maipú, M, Argentina",
+              "location": {
+                "latitude": -33.0194352,
+                "longitude": -68.773898
+              },
+              "kmFromDestinationCentroid": 17.3,
+              "details": {
+                "websiteUri": "https://trivento.com/",
+                "name": "Bodega Trivento",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:316162522"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51ef0390dac43c51c059efe3688eac8440c0f00102f901756c9a4b00000000c00201e203226f70656e7374726565746d61703a76656e75653a7761792f31323638343131353039",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega, 5549 MZ, Argentina",
+              "location": {
+                "latitude": -33.036516,
+                "longitude": -68.949515
+              },
+              "kmFromDestinationCentroid": 18.9,
+              "details": {
+                "name": "Bodega",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1268411509"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": []
+      },
+      {
+        "query": "The Vines of Mendoza",
+        "justification": "source: \"same property as SuperUco (as they form part of The Vines)\" -- property context, NOT an alias",
+        "places": {
+          "resultCount": 0,
+          "results": []
+        },
+        "nominatim": []
+      }
+    ],
+    "Bodega Azul": [
+      {
+        "query": "Bodega Azul",
+        "justification": "exact source hint (COLD #11 query)",
+        "places": {
+          "resultCount": 1,
+          "results": [
+            {
+              "id": "51a7cf6971214e51c059fd38509610bc40c0f00103f901bf772d2101000000c0020192030e426f64656761204c6120417a756c",
+              "name": "Bodega La Azul",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega La Azul, Ruta Provincial 89, M5561 Distrito Cordón del Plata, Argentina",
+              "location": {
+                "latitude": -33.4692562,
+                "longitude": -69.2207912
+              },
+              "kmFromDestinationCentroid": 73.2,
+              "details": {
+                "name": "Bodega La Azul",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4851595199"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": [
+          {
+            "displayName": "Supermercado del Vino \"La Bodega de Azul\", Castellar, Del Carmen, Azul, Partido de Azul, Buenos Aires, 7300, Argentina",
+            "osm": "node/4082354791",
+            "class": "shop",
+            "type": "wine",
+            "addresstype": "shop",
+            "latitude": -36.7868206,
+            "longitude": -59.8591456,
+            "kmFromDestinationCentroid": 928.7
+          }
+        ]
+      },
+      {
+        "query": "Bodega La Azul",
+        "justification": "source hyperlink target bodegalaazul.com names the winery \"La Azul\"",
+        "places": {
+          "resultCount": 1,
+          "results": [
+            {
+              "id": "51a7cf6971214e51c059fd38509610bc40c0f00103f901bf772d2101000000c0020192030e426f64656761204c6120417a756c",
+              "name": "Bodega La Azul",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega La Azul, Ruta Provincial 89, M5561 Distrito Cordón del Plata, Argentina",
+              "location": {
+                "latitude": -33.4692562,
+                "longitude": -69.2207912
+              },
+              "kmFromDestinationCentroid": 73.2,
+              "details": {
+                "name": "Bodega La Azul",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4851595199"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": [
+          {
+            "displayName": "Bodega La Azul, Ruta Provincial 89, Distrito Cordón del Plata, Distrito Gualtallary, Departamento Tupungato, Mendoza, M5561, Argentina",
+            "osm": "node/4851595199",
+            "class": "craft",
+            "type": "winery",
+            "addresstype": "craft",
+            "latitude": -33.4692562,
+            "longitude": -69.2207912,
+            "kmFromDestinationCentroid": 73.2
+          }
+        ]
+      },
+      {
+        "query": "La Azul",
+        "justification": "name on the source-linked official domain",
+        "places": {
+          "resultCount": 1,
+          "results": [
+            {
+              "id": "517f70992e1f4e51c0590c8c61f316bc40c0f00103f901aa9b495901000000c002019203074c6120417a756c",
+              "name": "La Azul",
+              "featureClass": "point_of_interest",
+              "types": [
+                "catering.restaurant"
+              ],
+              "formattedAddress": "La Azul, Ruta Provincial 89, M5561 Distrito Cordón del Plata, Argentina",
+              "location": {
+                "latitude": -33.4694504,
+                "longitude": -69.2206532
+              },
+              "kmFromDestinationCentroid": 73.2,
+              "details": {
+                "name": "La Azul",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5792963498"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": [
+          {
+            "displayName": "La Azul, Ruta Provincial 89, Distrito Cordón del Plata, Distrito Gualtallary, Departamento Tupungato, Mendoza, M5561, Argentina",
+            "osm": "node/5792963498",
+            "class": "amenity",
+            "type": "restaurant",
+            "addresstype": "amenity",
+            "latitude": -33.4694504,
+            "longitude": -69.2206532,
+            "kmFromDestinationCentroid": 73.2
+          }
+        ]
+      }
+    ],
+    "A16": [
+      {
+        "query": "A16",
+        "justification": "exact source hint (COLD #11 query)",
+        "places": {
+          "resultCount": 3,
+          "results": [
+            {
+              "id": "5118d819958a4751c059fe261422e08140c0f00102f90122a52c0900000000c0020492030b46432042656c6772616e6f",
+              "name": "FC Belgrano",
+              "featureClass": "street",
+              "types": [],
+              "formattedAddress": "FC Belgrano, 5549 Distrito Cacheuta, Argentina",
+              "location": {
+                "latitude": -33.0146525,
+                "longitude": -69.1178334
+              },
+              "kmFromDestinationCentroid": 28,
+              "details": {
+                "name": "FC Belgrano",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:153920802"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51534145d5af4751c059af1e9cf4638140c0f00102f9012a64820700000000c0020492030b46432042656c6772616e6f",
+              "name": "FC Belgrano",
+              "featureClass": "street",
+              "types": [],
+              "formattedAddress": "FC Belgrano, Distrito El Challao, 5549 Distrito Cacheuta, Argentina",
+              "location": {
+                "latitude": -33.0108629,
+                "longitude": -69.120107
+              },
+              "kmFromDestinationCentroid": 27.9,
+              "details": {
+                "name": "FC Belgrano",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:125985834"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "513ec7ecd1404e51c05960ea4207b87640c0f00102f901ce26eb0200000000c0020192030b46432042656c6772616e6f",
+              "name": "FC Belgrano",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "FC Belgrano, Distrito El Challao, 5552 Distrito Potrerillos, Argentina",
+              "location": {
+                "latitude": -32.9274911,
+                "longitude": -69.2227063
+              },
+              "kmFromDestinationCentroid": 34,
+              "details": {
+                "name": "FC Belgrano",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:48965326"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": [
+          {
+            "displayName": "a16, Viento Santa Rosa, Barrio Vientos del Oeste, Costa Oeste, Municipio de Allen, Departamento General Roca, Río Negro, R8328, Argentina",
+            "osm": "way/1535885312",
+            "class": "building",
+            "type": "house",
+            "addresstype": "building",
+            "latitude": -39.0242835,
+            "longitude": -67.8419638,
+            "kmFromDestinationCentroid": 689
+          },
+          {
+            "displayName": "A16, Maestros de San Juan, Barrio Docentes Sanjuaninos, Comuna Sur, Rivadavia, San Juan, J5402AFK, Argentina",
+            "osm": "way/1169755120",
+            "class": "building",
+            "type": "house",
+            "addresstype": "building",
+            "latitude": -31.5535361,
+            "longitude": -68.5656739,
+            "kmFromDestinationCentroid": 150.4
+          },
+          {
+            "displayName": "A16, Country Club S.H.A., Pilar, Partido del Pilar, Buenos Aires, B1631, Argentina",
+            "osm": "node/8067336819",
+            "class": "place",
+            "type": "house",
+            "addresstype": "place",
+            "latitude": -34.4592759,
+            "longitude": -58.8772988,
+            "kmFromDestinationCentroid": 940.1
+          },
+          {
+            "displayName": "FC Belgrano, Distrito Cacheuta, Departamento Luján de Cuyo, Mendoza, Argentina",
+            "osm": "way/153920802",
+            "class": "highway",
+            "type": "residential",
+            "addresstype": "road",
+            "latitude": -33.0146525,
+            "longitude": -69.1178334,
+            "kmFromDestinationCentroid": 28
+          },
+          {
+            "displayName": "FC Belgrano, Distrito El Challao, Departamento Las Heras, Mendoza, Argentina",
+            "osm": "way/125985834",
+            "class": "highway",
+            "type": "residential",
+            "addresstype": "road",
+            "latitude": -33.0108629,
+            "longitude": -69.120107,
+            "kmFromDestinationCentroid": 27.9
+          }
+        ]
+      },
+      {
+        "query": "Bodega A16",
+        "justification": "source: tasting and tour at A16 (es: bodega)",
+        "places": {
+          "resultCount": 10,
+          "results": [
+            {
+              "id": "512fd7474cf53351c0592ba4fca4da7340c0f00103f90118e6032e01000000c00201920311426f646567612043656e74656e6172696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303636393734373434",
+              "name": "Bodega Centenario",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Centenario, Pedro Vargas 2311, Las Cañas, M5521 AAR Departamento Guaymallén, Argentina",
+              "location": {
+                "latitude": -32.90511,
+                "longitude": -68.8118468
+              },
+              "kmFromDestinationCentroid": 5.3,
+              "details": {
+                "websiteUri": "www.bodegacentenario.com.ar",
+                "nationalPhoneNumber": "+54 261 431 4761",
+                "name": "Bodega Centenario",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:5066974744"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "5151a96d1e623451c059e7df2efb757640c0f00102f90125bac61100000000c00201920316426f64656761204e61766172726f20436f7272656173",
+              "name": "Bodega Navarro Correas",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Navarro Correas, Distrito San Francisco del Monte, Departamento Guaymallén, Departamento Godoy Cruz, Argentina",
+              "location": {
+                "latitude": -32.9254755,
+                "longitude": -68.8184887
+              },
+              "kmFromDestinationCentroid": 6.2,
+              "details": {
+                "name": "Bodega Navarro Correas",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:298236453"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "510cd92f8e803351c059720d7dc1b87640c0f00102f90124bac61100000000c00203920319426f6465676120446f6d696e676f204c616e7a696c6f747461",
+              "name": "Bodega Domingo Lanzilotta",
+              "featureClass": "building",
+              "types": [],
+              "formattedAddress": "2640, Distrito San Francisco del Monte, Departamento Godoy Cruz, Argentina",
+              "location": {
+                "latitude": -32.9275133,
+                "longitude": -68.8047214
+              },
+              "kmFromDestinationCentroid": 7.3,
+              "details": {
+                "name": "Bodega Domingo Lanzilotta",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:298236452"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51290fc1278c3251c0599959958e837540c0f00102f90195fc4b0d00000000c00205920312426f646567612044c3ad617a2054656c6c69",
+              "name": "Bodega Díaz Telli",
+              "featureClass": "administrative_area",
+              "types": [],
+              "formattedAddress": "Bodega Díaz Telli, Departamento Guaymallén, Distrito San Francisco del Monte, Argentina",
+              "location": {
+                "latitude": -32.9180773,
+                "longitude": -68.7898044
+              },
+              "kmFromDestinationCentroid": 7.8,
+              "details": {
+                "name": "Bodega Díaz Telli",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:223083669"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "516b6c0abf2f3351c059c554fa09677740c0f00102f901d66e4c0b00000000c00201920318426f64656761202243617661732064656c20436f6e646522",
+              "name": "Bodega \"Cavas del Conde\"",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega \"Cavas del Conde\", Distrito Luzuriaga, Departamento Maipú, M, Argentina",
+              "location": {
+                "latitude": -32.932832,
+                "longitude": -68.7997892
+              },
+              "kmFromDestinationCentroid": 8,
+              "details": {
+                "name": "Bodega \"Cavas del Conde\"",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:189558486"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51979b5e189f3551c059ce554ed6037a40c0f00102f90127bac61100000000c0020192031445782d426f646567612046696c6c697070696e69",
+              "name": "Ex-Bodega Fillippini",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Ex-Bodega Fillippini, Las Tortugas, Distrito Las Tortugas, Departamento Godoy Cruz, Argentina",
+              "location": {
+                "latitude": -32.9532421,
+                "longitude": -68.8378354
+              },
+              "kmFromDestinationCentroid": 8.1,
+              "details": {
+                "name": "Ex-Bodega Fillippini",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:298236455"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "511ff46c56fd3651c059845e24592c7e40c0f00102f9013fc2a30800000000c002049203094c6120426f64656761",
+              "name": "La Bodega",
+              "featureClass": "street",
+              "types": [],
+              "formattedAddress": "La Bodega, Distrito Carrodilla, 5781 M, Argentina",
+              "location": {
+                "latitude": -32.9857284,
+                "longitude": -68.8592125
+              },
+              "kmFromDestinationCentroid": 11.4,
+              "details": {
+                "name": "La Bodega",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:144949823"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "519eb12fd9f83151c059524fd5f3247e40c0f00103f9017ff3ac1701000000c0020192030e426f646567612042617564726f6ee203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363932313737373931",
+              "name": "Bodega Baudron",
+              "featureClass": "point_of_interest",
+              "types": [
+                "tourism.attraction"
+              ],
+              "formattedAddress": "Bodega Baudron, San Martín, 5515 Distrito Ciudad de Maipú, Argentina",
+              "location": {
+                "latitude": -32.9855027,
+                "longitude": -68.7808135
+              },
+              "kmFromDestinationCentroid": 13.7,
+              "details": {
+                "name": "Bodega Baudron",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:4692177791"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "513181b630e62f51c059e22eb1e88c7c40c0f00102f901521dda4400000000c00201920310426f64656761205065c3b161666c6f72",
+              "name": "Bodega Peñaflor",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Peñaflor, Departamento Maipú, M, Argentina",
+              "location": {
+                "latitude": -32.9730502,
+                "longitude": -68.7484247
+              },
+              "kmFromDestinationCentroid": 14.6,
+              "details": {
+                "name": "Bodega Peñaflor",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1155145042"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51c64e7809ce2f51c059c7c848ac7b7c40c0f00102f901531dda4400000000c0020192030f426f64656761205472617069636865",
+              "name": "Bodega Trapiche",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Trapiche, Departamento Maipú, M, Argentina",
+              "location": {
+                "latitude": -32.9725242,
+                "longitude": -68.7469505
+              },
+              "kmFromDestinationCentroid": 14.7,
+              "details": {
+                "name": "Bodega Trapiche",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:1155145043"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": []
+      },
+      {
+        "query": "A16 winery",
+        "justification": "source: wineries itinerary",
+        "places": {
+          "resultCount": 5,
+          "results": [
+            {
+              "id": "519475ee2c303651c059526342cc257240c0f00102f901d6a9f60e00000000c0020192030657696e657279e203216f70656e7374726565746d61703a76656e75653a7761792f323531303436333538",
+              "name": "Winery",
+              "featureClass": "point_of_interest",
+              "types": [
+                "commercial.food_and_drink.drinks"
+              ],
+              "formattedAddress": "Winery, Chile 898, 5500 Mendoza, Argentina",
+              "location": {
+                "latitude": -32.8917785,
+                "longitude": -68.8466904
+              },
+              "kmFromDestinationCentroid": 1.7,
+              "details": {
+                "name": "Winery",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:way:251046358"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "511ac4622f6f3551c05943ae2f6d938040c0f00101f90156350f0100000000c002019203124f7465726f2052616d6f732057696e657279",
+              "name": "Otero Ramos Winery",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Otero Ramos Winery, Distrito Mayor Drummond, Departamento Luján de Cuyo, Argentina",
+              "location": {
+                "latitude": -33.0044991,
+                "longitude": -68.8349112
+              },
+              "kmFromDestinationCentroid": 13.7,
+              "details": {
+                "name": "Otero Ramos Winery",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:relation:17773910"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "518b187618933551c059616d8c9df08040c0f00101f90156350f0100000000c002019203124f7465726f2052616d6f732057696e657279e203256f70656e7374726565746d61703a76656e75653a72656c6174696f6e2f3137373733393130",
+              "name": "Otero Ramos Winery",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Otero Ramos Winery, Luján de Cuyo, Argentina",
+              "location": {
+                "latitude": -33.007343,
+                "longitude": -68.837103
+              },
+              "kmFromDestinationCentroid": 14,
+              "details": {
+                "name": "Otero Ramos Winery",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:relation:17773910"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51f6436cb0f02a51c059742843554c8d40c0f00103f901e988efa702000000c0020192031e426f646567612046696e63612041676f7374696e6f202d2057696e657279e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3131343037343237383137",
+              "name": "Bodega Finca Agostino - Winery",
+              "featureClass": "point_of_interest",
+              "types": [],
+              "formattedAddress": "Bodega Finca Agostino - Winery, Barrancas, Departamento Maipú, Argentina",
+              "location": {
+                "latitude": -33.103892,
+                "longitude": -68.6709405
+              },
+              "kmFromDestinationCentroid": 30.3,
+              "details": {
+                "websiteUri": "https://www.agostinowinegroup.com/",
+                "nationalPhoneNumber": "+542614614703",
+                "name": "Bodega Finca Agostino - Winery",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:11407427817"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "51efca89d14e4e51c059ab64b61ac8b940c0f00103f9015ac5c50b03000000c00201920315416e64656c756e612057696e657279204c6f646765e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133303832343132333738",
+              "name": "Andeluna Winery Lodge",
+              "featureClass": "point_of_interest",
+              "types": [
+                "accommodation.chalet"
+              ],
+              "formattedAddress": "Andeluna Winery Lodge, Ruta Provincial 89, M5561 Distrito Cordón del Plata, Argentina",
+              "location": {
+                "latitude": -33.4514192,
+                "longitude": -69.2235607
+              },
+              "kmFromDestinationCentroid": 71.6,
+              "details": {
+                "websiteUri": "https://andelunawinerylodge.com/",
+                "name": "Andeluna Winery Lodge",
+                "sourceIdentities": [
+                  {
+                    "provider": "openstreetmap",
+                    "externalId": "osm:node:13082412378"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "nominatim": []
+      }
+    ]
+  }
+}

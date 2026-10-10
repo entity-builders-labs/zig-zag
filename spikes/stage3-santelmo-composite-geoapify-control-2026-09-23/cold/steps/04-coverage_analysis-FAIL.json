@@ -1,0 +1,95 @@
+{
+  "label": "Cobertura de preferencias (facet-first)",
+  "rules": [
+    {
+      "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+      "actual": 0,
+      "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+      "result": "FAIL",
+      "ruleId": "PCOV-QUANTITY-001",
+      "expected": 4
+    },
+    {
+      "rule": "Cobertura del facet solicitado: theme:history",
+      "actual": 0,
+      "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+      "result": "FAIL",
+      "ruleId": "PCOV-FACET-THEME-HISTORY",
+      "expected": ">= 1"
+    },
+    {
+      "rule": "Cobertura del facet solicitado: intent:walk",
+      "actual": 0,
+      "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+      "result": "FAIL",
+      "ruleId": "PCOV-FACET-INTENT-WALK",
+      "expected": ">= 1"
+    }
+  ],
+  "stage": "coverage_analysis",
+  "inputs": {
+    "providerHealth": {
+      "status": "healthy"
+    },
+    "requestedFacetCount": 2,
+    "offeredCandidateCount": 0
+  },
+  "status": "FAIL",
+  "outputs": {
+    "sufficient": false,
+    "facetResults": [
+      {
+        "key": "history",
+        "dimension": "theme",
+        "satisfied": false,
+        "weakMatchCount": 0,
+        "strongMatchCount": 0
+      },
+      {
+        "key": "walk",
+        "dimension": "intent",
+        "satisfied": false,
+        "weakMatchCount": 0,
+        "strongMatchCount": 0
+      }
+    ],
+    "portfolioTarget": 4,
+    "allFacetsSatisfied": false,
+    "acquisitionDeficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "globalCapacityDeficit": null,
+    "totalDistinctEligibleExperiences": 0
+  },
+  "summary": "Facets sin cobertura fuerte: theme:history, intent:walk.",
+  "decision": {
+    "reason": "Facets sin cobertura fuerte: theme:history, intent:walk.",
+    "status": "FAIL",
+    "outcome": "needs_additional_discovery",
+    "reasonCodes": [
+      "preference_facet",
+      "preference_facet"
+    ],
+    "triggeredActions": [
+      "RUN_ACQUISITION"
+    ]
+  },
+  "component": "FacetRetrievalService",
+  "semanticRanking": {
+    "status": "applied",
+    "indexedCandidateCount": 0,
+    "offeredCandidateCount": 0,
+    "eligibleCandidateCount": 0
+  }
+}

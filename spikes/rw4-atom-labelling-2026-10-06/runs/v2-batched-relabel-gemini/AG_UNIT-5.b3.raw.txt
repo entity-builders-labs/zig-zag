@@ -1,0 +1,237 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-067",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the restaurant experience."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "OPTIONAL_STOP"
+        },
+        {
+          "sourceName": "Fundación Proa",
+          "supportSpan": "Fundación Proa",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Suggests wandering around Caminito Street and checking Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to Puente de la Mujer as starting point."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes crossing the bridge and street names."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General description and contrast of architecture."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes walking next to and through these places."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [],
+      "reason": "Recommends eating choripan at a kiosk."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "Centro Cultural Kirchner",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "building",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Provides tips about guided tours."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation and transport options."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Recommends Trade Sky Bar as an optional stop."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tip to book in advance."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes the view from Trade Sky Bar."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends external guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Conclusion and closing remarks."
+    },
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media and sharing prompts."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comments heading."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social share buttons."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Banner image."
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Banner image."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tag link."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment thank you note."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email address."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Pagination links."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author bio."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author bio."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog welcome message."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image."
+    }
+  ]
+}

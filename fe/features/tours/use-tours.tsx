@@ -54,7 +54,7 @@ export const useTours = (
           message:
             error instanceof Error
               ? error.message
-              : 'Failed to fetch activities',
+              : 'Failed to fetch experiences',
           code: 'API_ERROR',
         },
       };
@@ -65,7 +65,7 @@ export const useTours = (
     data: toursData,
     error: toursError,
     loading: toursLoading,
-  } = useApi<PaginatedResponse>(getTours);
+  } = useApi<PaginatedResponseTour>(getTours);
 
   useEffect(() => {
     if (toursData) {

@@ -1,0 +1,284 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Title of the walking tour."
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "PLAZA DE MAYO",
+          "supportSpan": "PLAZA DE MAYO",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading indicating start stop."
+    },
+    {
+      "atomId": "a-003",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to start at Plaza de Mayo."
+    },
+    {
+      "atomId": "a-004",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Museo del Cabildo",
+          "supportSpan": "Museo del Cabildo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "National Bank",
+          "supportSpan": "National Bank",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Surrounding places mentioned as context."
+    },
+    {
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical information."
+    },
+    {
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical note."
+    },
+    {
+      "atomId": "a-007",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of elements in the plaza."
+    },
+    {
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Background information."
+    },
+    {
+      "atomId": "a-009",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Sight pointed out to see."
+    },
+    {
+      "atomId": "a-010",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of Casa Rosada."
+    },
+    {
+      "atomId": "a-011",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Rhetorical question."
+    },
+    {
+      "atomId": "a-012",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary."
+    },
+    {
+      "atomId": "a-013",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth detail."
+    },
+    {
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth detail."
+    },
+    {
+      "atomId": "a-015",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth detail."
+    },
+    {
+      "atomId": "a-016",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth detail."
+    },
+    {
+      "atomId": "a-017",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption/content."
+    },
+    {
+      "atomId": "a-018",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Introductory sentence."
+    },
+    {
+      "atomId": "a-020",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-009"
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Sight pointed out to see."
+    },
+    {
+      "atomId": "a-021",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of Cabildo."
+    },
+    {
+      "atomId": "a-022",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-020"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Next stop introduced."
+    },
+    {
+      "atomId": "a-023",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of cathedral."
+    },
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Construction date."
+    },
+    {
+      "atomId": "a-025",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Catedral",
+          "supportSpan": "Catedral",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-022"
+        }
+      ],
+      "reason": "Visiting feature inside Catedral."
+    },
+    {
+      "atomId": "a-026",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical info about General San Martin."
+    },
+    {
+      "atomId": "a-027",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical info."
+    },
+    {
+      "atomId": "a-028",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Editorial remark."
+    },
+    {
+      "atomId": "a-029",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "External link/tip."
+    },
+    {
+      "atomId": "a-030",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General trivia."
+    },
+    {
+      "atomId": "a-031",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General context."
+    },
+    {
+      "atomId": "a-032",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transition sentence."
+    },
+    {
+      "atomId": "a-033",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Tells traveller to go to street Defensa."
+    },
+    {
+      "atomId": "a-034",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of the street name."
+    }
+  ]
+}

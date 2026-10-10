@@ -1,0 +1,224 @@
+
+GuruWalk
+            GuruWalk 
+ChatGPT App
+GuruWalk ChatGPT App
+Connect ChatGPT to explore free walking tours and activities in 1,000+ cities worldwide
+About GuruWalk
+GuruWalk is the world's largest free walking tour platform, connecting travelers with local guides in over 1,000 cities across 120+ countries. Founded in 2017 in Valencia, Spain, the platform operates on a unique 
+pay-what-you-want
+ model for free tours: travelers book for free and tip the guide based on their experience.
+Alongside free walking tours, GuruWalk offers paid activities including guided tours, skip-the-line tickets, food experiences, day trips, and more — all bookable in one place.
+1,000+
+Cities worldwide
+4,000+
+Local guides
+2M+
+Verified reviews
+5
+Tools
+What is this?
+GuruWalk's ChatGPT App renders an interactive widget inside the conversation. Ask about tours in any city and get a visual carousel with two actions per card: 
+"See details"
+ opens a fullscreen tour page, and 
+"Availability"
+ opens a fullscreen calendar to pick dates and book — all without leaving ChatGPT.
+Protocol
+MCP (Model Context Protocol) over Streamable HTTP
+Auth
+No authentication required
+Type
+Read-only app with interactive cards
+Setup
+ChatGPT App Directory
+Go to 
+Settings
+ → 
+Apps
+Search for 
+"GuruWalk"
+ in the App Directory
+Click 
+Connect
+Start chatting about travel destinations
+Developer Mode (for testing)
+Go to 
+Settings
+ → 
+Apps
+ → 
+Developer Mode
+Click 
+Add connector
+Paste the MCP server URL: 
+https://ai.guruwalk.com/mcp-openai
+The 5 tools will appear in the tools menu
+General MCP Server
+GuruWalk also has a general-purpose MCP server with 4 tools that works with any MCP-compatible client (Claude, Claude Code, and others). See 
+MCP Server documentation
+.
+Available Tools
+🔍
+discover-destination
+Search a city to explore free walking tours and paid activities on GuruWalk. Returns destination info, tour categories (free tours, food tours, day trips, tickets, and more), and featured listings with ratings and verified traveler reviews. Free tours operate on a pay-what-you-want model. Use this when the user asks about things to do, tours, or activities in a specific city. Do not use for weather, hotels, flights, or general city facts unrelated to tours.
+Input: city name, language (en/es/de/it), page
+📂
+browse-category
+Browse tours and activities within a specific category for a destination on GuruWalk. Categories include free walking tours, food tours, bike tours, day trips, skip-the-line tickets, and more. Returns listings with ratings, verified review counts, duration, available languages, and pricing. Use the category IDs returned by discover-destination. Do not use for hotel categories, restaurant lists, or non-tour content.
+Input: category/vertical ID, hub slug (for free tours), language, page
+📅
+check-availability
+Check real-time availability for a specific tour or activity on GuruWalk. Returns available time slots, remaining spots, and pricing details by traveler type (adult, child, infant). For free walking tours, no upfront price — travelers pay what they want after the tour. Includes direct booking links. Maximum date range: 3 days per request. Use this when the user asks if a specific tour has spots on a specific date.
+Input: product ID, type (product/free_tour), date range, language
+📋
+get-product-detail
+Get the full detail of any tour or activity on GuruWalk — description, itinerary with stops, highlights, what's included and excluded, images, verified traveler reviews, meeting point with instructions, accessibility info, cancellation policy, and available languages. Use this when the user asks what a tour covers, its itinerary, meeting point, or any content-related question about a specific tour.
+Input: product ID, type (product/free_tour), language
+🗓️
+get-available-dates
+Get dates that have availability for a specific tour or activity within a date range.
+Input: product ID, type (product/free_tour), month/date range
+Supported Languages
+All tools support four languages via the 
+language
+ parameter. Tour results, descriptions, and categories are returned in the requested language when available.
+en
+English (default)
+es
+Spanish
+de
+German
+it
+Italian
+What can you do with this?
+Ask ChatGPT anything about tours and activities — it renders an interactive widget with GuruWalk's full catalog in real time.
+Find free walking tours in any city
+discover-destination → browse-category
+Compare food tours by rating
+browse-category → get-product-detail
+See which dates have availability
+get-available-dates
+Check spots for a specific date
+check-availability
+Get itinerary and meeting point
+get-product-detail
+Plan a full day with tours
+discover → dates → availability
+Find night tours in a city
+browse-category
+Discover day trips and excursions
+browse-category
+Popular Destinations
+GuruWalk covers 
+1,000+ cities
+ across Europe, the Americas, Asia, Africa, and Oceania. Top destinations include 
+Rome
+, 
+Barcelona
+, 
+Paris
+, 
+London
+, 
+Istanbul
+, 
+Lisbon
+, 
+Prague
+, 
+Budapest
+, 
+Florence
+, 
+Vienna
+, 
+Amsterdam
+, 
+Berlin
+, 
+Madrid
+, 
+Porto
+, 
+Dublin
+, 
+Edinburgh
+, 
+New York
+, 
+Tokyo
+, 
+Bangkok
+, 
+Seville
+, 
+Venice
+, 
+Kraków
+, 
+Munich
+, 
+Dubrovnik
+, 
+Brussels
+, 
+Stockholm
+, 
+Copenhagen
+, 
+San Francisco
+, 
+Tirana
+, and 
+Sofia
+ — with new cities added regularly.
+How it works
+When you ask about tours, ChatGPT renders an interactive widget directly in the conversation — not just text. You can browse, explore details, and book without leaving the chat.
+1. Discover tours in a city
+"What can I do in Barcelona?"
+ChatGPT shows an interactive carousel with tour cards. Each card displays the photo, rating, reviews, duration, and price. Scroll through to explore, then use either button: 
+"See details"
+ to view the full tour page, or 
+"Availability"
+ to jump straight to the calendar.
+2. View tour details
+Click 
+"See details"
+ on any card to open the tour in fullscreen mode — the chat disappears and the widget takes over. You get the photo gallery, guide info, itinerary with stops, reviews, meeting point, and what's included. This view is read-only for focused browsing. Use ChatGPT's native X button to close and return to the carousel.
+3. Check availability and book
+Click 
+"Availability"
+ on any carousel card to open the calendar directly in fullscreen mode — no need to go through the detail page first. Select dates to see available time slots. Each slot shows the language and a 
+"Book now"
+ button that opens the booking page on GuruWalk. Use ChatGPT's native X button to close and return to the carousel.
+Privacy & Security
+✓
+All tools are 
+read-only
+ — no data is created, modified, or deleted. Annotations: 
+readOnlyHint: true
+, 
+destructiveHint: false
+, 
+openWorldHint: false
+.
+✓
+No authentication required — only public tour data is accessible.
+✓
+No personal data is collected or stored. No PII, session IDs, or internal identifiers in responses.
+✓
+Privacy Policy: 
+guruwalk.com/terms/privacy_policy
+Support
+Help Center: 
+support.guruwalk.com
+Email: 
+support@guruwalk.com
+Website: 
+guruwalk.com
+MCP Server docs: 
+ai.guruwalk.com/docs/walkers
+GuruWalk for AI
+MCP Server Docs
+Support
+Privacy Policy

@@ -1,0 +1,11 @@
+{"label":"COLD7 inputs","originalChars":88401,"excerpts":["0-647","35229-36327","41153-43907","55703-55737","72395-73787"],"retained":["Alfa Crux","SuperUco","Bodega Azul","Corazon del Sol","Solo Contigo"]}
+{"label":"COLD9 inputs","originalChars":88401,"excerpts":["9033-10465","17400-18757","23637-25694","35229-36327"],"retained":["Alfa Crux"]}
+{"label":"COLD9 query + COLD7 snippet","originalChars":88401,"excerpts":["0-647","35229-36327","41153-43907","55703-55737","72395-73787"],"retained":["Alfa Crux","SuperUco","Bodega Azul","Corazon del Sol","Solo Contigo"]}
+{"label":"COLD7 query + COLD9 snippet","originalChars":88401,"excerpts":["9033-10465","17400-18757","23637-24778","31463-32292","35229-36327","55703-55737"],"retained":[]}
+full source contains [
+  'Alfa Crux',
+  'SuperUco',
+  'Bodega Azul',
+  'Corazon del Sol',
+  'Solo Contigo'
+]

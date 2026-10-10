@@ -1,0 +1,654 @@
+{
+  "run": "c3-partial-cold",
+  "buildCommit": "df71a9cf621b34474c7c923982939e94b35f2c79",
+  "composites": [
+    {
+      "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+      "candidateName": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+      "accepted": true,
+      "experienceId": "42211eec-ae54-4733-a33b-21c068359a38",
+      "canonicalName": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+      "persistedComponentCount": 3,
+      "rejectionReasons": [],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0.2,
+          "totalComponents": 15,
+          "ambiguousComponents": 4,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [
+            "m-1",
+            "m-2",
+            "m-4",
+            "m-11"
+          ],
+          "unresolvedComponents": 8,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 3,
+          "geographicallyAcceptedComponents": 2
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "42211eec-ae54-4733-a33b-21c068359a38",
+          "dedupeDecision": "NEW",
+          "dedupeEvidence": {
+            "reasons": [
+              "no_existing_candidates"
+            ],
+            "containment": null,
+            "semanticScore": 0,
+            "nameSimilarity": 0,
+            "sourceRelation": "SOURCE_UNKNOWN",
+            "componentOverlap": 0,
+            "decisiveEvidence": "NO_EXISTING_CANDIDATES",
+            "sourceMemberCounts": {
+              "existing": 0,
+              "incoming": 15
+            },
+            "sharedSourceMembers": [],
+            "roleAwareComponentOverlap": 0,
+            "sharedResolvedGeoEntities": [],
+            "sourceCompositionRelation": "DISJOINT"
+          }
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "canonical_area"
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+      "candidateName": "Self Guided Walking Tour San Telmo (part 2 of 3)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "INCOMPLETE_SOURCE_COMPOSITION"
+      ],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0.5,
+          "totalComponents": 2,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 1,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-generic",
+      "candidateName": "Frequently Asked Questions",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "INCOMPLETE_SOURCE_COMPOSITION"
+      ],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0.3333333333333333,
+          "totalComponents": 9,
+          "ambiguousComponents": 1,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [
+            "m-7"
+          ],
+          "unresolvedComponents": 5,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 3,
+          "geographicallyAcceptedComponents": 3
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "AMBIGUOUS_DEDUPE"
+      ],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0.3846153846153846,
+          "totalComponents": 13,
+          "ambiguousComponents": 2,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [
+            "m-3",
+            "m-12"
+          ],
+          "unresolvedComponents": 6,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 5,
+          "geographicallyAcceptedComponents": 5
+        },
+        "persistence": {
+          "dedupe": {
+            "evidence": {
+              "reasons": [
+                "same_normalized_name",
+                "shared_geo_entities",
+                "shared_role_aware_components",
+                "shared_provenance",
+                "identity_signals_conflict_or_are_incomplete"
+              ],
+              "containment": null,
+              "semanticScore": 0.3333333333333333,
+              "nameSimilarity": 1,
+              "sourceRelation": "SAME_SOURCE",
+              "componentOverlap": 0.6666666666666666,
+              "decisiveEvidence": "STRUCTURAL_OVERLAP_WITH_SIMILAR_NAME",
+              "sourceMemberCounts": {
+                "existing": 15,
+                "incoming": 13
+              },
+              "sharedSourceMembers": [
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                }
+              ],
+              "roleAwareComponentOverlap": 0.6666666666666666,
+              "sharedResolvedGeoEntities": [
+                "4b5d466e-16b2-4b1e-b726-48b8c4b0df7b",
+                "0f3877a8-f2c2-489f-8eeb-4b98e899899c"
+              ],
+              "sourceCompositionRelation": "PARTIAL_OVERLAP"
+            },
+            "conflictingExperienceIds": [
+              "42211eec-ae54-4733-a33b-21c068359a38"
+            ]
+          },
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "AMBIGUOUS_DEDUPE"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "canonical_geometry"
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Self Guided Walking Tour San Telmo (part 2 of 3)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "insufficient_resolved_entities"
+      ],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 1,
+          "totalComponents": 2,
+          "ambiguousComponents": 0,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [],
+          "unresolvedComponents": 0,
+          "sourceCompositionComplete": true,
+          "identityResolvedComponents": 2,
+          "geographicallyAcceptedComponents": 2
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "insufficient_resolved_entities"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "status": "REJECTED",
+          "reasons": [
+            "insufficient_resolved_entities"
+          ]
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+      "accepted": true,
+      "experienceId": "03e3222c-e646-494c-ab99-7733e44d173a",
+      "canonicalName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+      "persistedComponentCount": 8,
+      "rejectionReasons": [],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0.5333333333333333,
+          "totalComponents": 15,
+          "ambiguousComponents": 2,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [
+            "m-1",
+            "m-5"
+          ],
+          "unresolvedComponents": 5,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 8,
+          "geographicallyAcceptedComponents": 8
+        },
+        "persistence": {
+          "status": "PERSISTED",
+          "experienceId": "03e3222c-e646-494c-ab99-7733e44d173a",
+          "dedupeDecision": "NEW",
+          "dedupeEvidence": {
+            "reasons": [
+              "shared_geo_entities",
+              "shared_role_aware_components",
+              "insufficient_identity_overlap"
+            ],
+            "containment": null,
+            "semanticScore": 0.2,
+            "nameSimilarity": 0.3571428571428572,
+            "sourceRelation": "DIFFERENT_SOURCE",
+            "componentOverlap": 0.2666666666666667,
+            "decisiveEvidence": "PARTIAL_OVERLAP_INSUFFICIENT",
+            "sourceMemberCounts": {
+              "existing": 15,
+              "incoming": 15
+            },
+            "sharedSourceMembers": [
+              {
+                "basis": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "existingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "incomingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                }
+              },
+              {
+                "basis": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "existingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "incomingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                }
+              },
+              {
+                "basis": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "existingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "incomingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                }
+              },
+              {
+                "basis": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "existingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                },
+                "incomingSourcePositions": {
+                  "reason": "MAX_DEPTH",
+                  "truncated": true
+                }
+              }
+            ],
+            "roleAwareComponentOverlap": 0.2666666666666667,
+            "sharedResolvedGeoEntities": [
+              "22c6f208-7798-41d2-a725-f7d9af09de90",
+              "4b5d466e-16b2-4b1e-b726-48b8c4b0df7b"
+            ],
+            "sourceCompositionRelation": "PARTIAL_OVERLAP"
+          }
+        },
+        "plannerEligible": true,
+        "geographicDecision": {
+          "status": "ACCEPTED",
+          "strategy": "component_defined"
+        }
+      }
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Walking tour Buenos Aires – Day 1 (part 2 of 2)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "NO_OSM_MATCH",
+        "UNCONFIRMED_MATCH"
+      ],
+      "compositeOutcome": {
+        "coverage": {
+          "resolutionRatio": 0,
+          "totalComponents": 2,
+          "ambiguousComponents": 1,
+          "conflictedComponents": 0,
+          "openResearchDeficits": [
+            "m-2"
+          ],
+          "unresolvedComponents": 1,
+          "sourceCompositionComplete": false,
+          "identityResolvedComponents": 0,
+          "geographicallyAcceptedComponents": 0
+        },
+        "persistence": {
+          "status": "NOT_PERSISTED",
+          "reasons": [
+            "NO_OSM_MATCH",
+            "UNCONFIRMED_MATCH"
+          ]
+        },
+        "plannerEligible": false,
+        "geographicDecision": {
+          "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+          "status": "NOT_EVALUATED"
+        }
+      }
+    }
+  ],
+  "componentIdentity": [
+    {
+      "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+      "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 1 of 3)\": 3/15 resueltos (política geográfica WALK)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "self guided walking tour san telmo (part 1 of 3):ev-2:m-1:Teatro Colón|m-2:Plaza de Mayo|m-3:Congress building|m-4:Plaza|m-5:Casa Rosada|m-6:Cathedral|m-7:Cabildo|m-8:San Telmo|m-9:Farmacia la Estrella|m-10:Museum of the city|m-11:La Librería del Avila|m-12:Monumento de Mafalda|m-13:Casa Mínima|m-14:The San Telmo Market|m-15:El Patio de los Ezeiza",
+          "outcome": "3_OF_15_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+      "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 2 of 3)\": 1/2 resueltos (política geográfica WALK)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "self guided walking tour san telmo (part 2 of 3):ev-2:m-1:Don Carlos|m-2:Caminito Street",
+          "outcome": "1_OF_2_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-generic",
+      "description": "Identidad por componente de \"Frequently Asked Questions\": 3/9 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "frequently asked questions:ev-5:m-1:San Telmo|m-2:Church of San Ignacio de Loyola|m-3:Casa Mínima|m-4:San Telmo Market|m-5:San Telmo Fair|m-6:Fair|m-7:Mafalda|m-8:Casa Mínima (Miniature House)|m-9:cobblestone streets of San Telmo",
+          "outcome": "3_OF_9_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 1 of 3)\": 5/13 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "self guided walking tour san telmo (part 1 of 3):ev-1:m-1:Teatro Colón|m-2:Obelisco|m-3:Plaza de Mayo|m-4:San Telmo|m-5:Defensa Street|m-6:Farmacia la Estrella|m-7:Museum of the city|m-8:La Librería del Avila|m-9:National School of Buenos Aires|m-10:Monumento de Mafalda|m-11:Casa Mínima|m-12:The San Telmo Market|m-13:El Patio de los Ezeiza",
+          "outcome": "5_OF_13_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Self Guided Walking Tour San Telmo (part 2 of 3)\": 2/2 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "PASS",
+        "outcome": "ALL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "self guided walking tour san telmo (part 2 of 3):ev-1:m-1:Caminito|m-2:Caminito Street",
+          "outcome": "2_OF_2_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Walking tour Buenos Aires – Day 1 (part 1 of 2)\": 8/15 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "walking tour buenos aires – day 1 (part 1 of 2):ev-2:m-1:PLAZA DE MAYO|m-2:Casa Rosada|m-3:Catedral Metropolitana|m-4:Cabildo|m-5:Feria San Telmo|m-6:the oldest neighborhood of the capital city|m-7:San Telmo|m-8:Bar Sur|m-9:a big building with columns|m-10:Mercado de San Telmo|m-11:Plaza Dorrego|m-12:Museum of Modern Arts|m-13:Parque Lezama|m-14:national history museum|m-15:red walkway",
+          "outcome": "8_OF_15_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Walking tour Buenos Aires – Day 1 (part 2 of 2)\": 0/2 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "walking tour buenos aires – day 1 (part 2 of 2):ev-2:m-1:El Caminito|m-2:La Bombonera",
+          "outcome": "0_OF_2_RESOLVED"
+        }
+      ]
+    }
+  ],
+  "selection": {
+    "candidate_pool.selection": {
+      "decision": {
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED"
+      },
+      "description": "Ranking y selección de experiencias (18 ofrecidas: 17 catálogo, 0 adquisición, 1 discovery).",
+      "facts": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 17,
+          "discovery": 1
+        },
+        "eligibleCount": 18,
+        "portfolioTarget": 4,
+        "initialCatalogCount": 0,
+        "postAcquisitionCatalogCount": 18
+      }
+    },
+    "ranking.semantic": {
+      "decision": {
+        "status": "PASS",
+        "outcome": "APPLIED"
+      },
+      "description": "Ranking semántico aplicado sobre 18 candidato(s) elegible(s).",
+      "facts": {
+        "model": "undefined",
+        "status": "applied",
+        "identity": {
+          "model": "nomic-embed-text",
+          "provider": "ollama",
+          "dimensions": 256,
+          "documentVersion": 3
+        },
+        "candidateCount": 18,
+        "indexedCandidateCount": 18,
+        "eligibleCandidateCount": 18
+      }
+    },
+    "planning.daily": {
+      "decision": {
+        "reason": "Itinerario factible construido con las restricciones de tiempo y ritmo.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT"
+      },
+      "description": "Solver GreedyDailyPlanningSolver planificó 1 día(s): 4 Experience(s) seleccionada(s), 0 sin seleccionar.",
+      "facts": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 45.85536666666666,
+            "utilizationMinutes": 570.2885833333335,
+            "totalWalkingMinutes": 90.28858333333332,
+            "totalExperienceMinutes": 524.4332166666667
+          }
+        ],
+        "score": 4,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 5
+          },
+          "externalEstimateCount": 3,
+          "internalEstimateCount": 2,
+          "approximateEstimateCount": 0
+        },
+        "iterations": 1,
+        "unselectedCount": 0,
+        "approximateTravel": false
+      }
+    }
+  },
+  "tour": {
+    "decision": {
+      "status": "PASS",
+      "outcome": "TOUR_EXPERIENCES_PERSISTED"
+    },
+    "facts": {
+      "tourId": "d90f4d5b-f158-4c00-aa8e-ade254d63a4f",
+      "experiences": [
+        {
+          "order": 1,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "577880f8-8af7-4c21-a3a6-d365dca421ba",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 2,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "a7cc39ab-174c-4ab5-a8fe-db3384ed1db0",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 3,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "5f113b51-1f7d-4164-bbde-325aefc68854",
+          "durationHours": 2,
+          "componentCount": 1
+        },
+        {
+          "order": 4,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "42211eec-ae54-4733-a33b-21c068359a38",
+          "durationHours": 2.740553611111113,
+          "componentCount": 3
+        }
+      ],
+      "materializedCount": 4
+    }
+  }
+}

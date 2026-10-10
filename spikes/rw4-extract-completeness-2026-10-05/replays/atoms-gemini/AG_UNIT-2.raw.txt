@@ -1,0 +1,763 @@
+{
+  "labels": [
+    {
+      "atom": "[A1] ### Self Guided Walking Tour San Telmo",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A2] I'm the type of person that do Excel sheet for each travel itinerary and like to plan ahead everything.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A3] That's how I come across for the first time to a Self-Guided Walking Tour post in Edinburgh, and I was like, wow this is amazing.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A4] After living 8 years in San Telmo, Buenos Aires I kind of feel ready to do a Guide myself.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A5] So here is a 24hs tour to the Center, San Telmo, La Boca and Defensa.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Center",
+          "span": "Center"
+        },
+        {
+          "name": "San Telmo",
+          "span": "San Telmo"
+        },
+        {
+          "name": "La Boca",
+          "span": "La Boca"
+        },
+        {
+          "name": "Defensa",
+          "span": "Defensa"
+        }
+      ]
+    },
+    {
+      "atom": "[A6] Be ready to walk around 15km and eat delicious food in the way :) I hope you enjoy it!",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A7] * Note: this tour was though to be done not on Sunday.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A8] Since San Telmo has a HUGE street fair during Sundays and is a bit crowded, but it can be done anyway maybe we a bit more time.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A9] * *There is a map at the end with all the stops mentioned!*",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A10] **9am - Teatro Colón** The itinerary starts from the Subte station \"Tribunales\".",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Teatro Colón",
+          "span": "Teatro Colón"
+        },
+        {
+          "name": "Tribunales",
+          "span": "Tribunales"
+        }
+      ]
+    },
+    {
+      "atom": "[A11] From there you can cross the park to see the stunning Teatro Colón from outside.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Teatro Colón",
+          "span": "Teatro Colón"
+        }
+      ]
+    },
+    {
+      "atom": "[A12] Then you can walk a few streets to see the Obelisco and then walkthrough Av.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Obelisco",
+          "span": "Obelisco"
+        }
+      ]
+    },
+    {
+      "atom": "[A13] Roque Saenz Peña directly to Plaza de Mayo.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        }
+      ]
+    },
+    {
+      "atom": "[A14] **10am - Have Breakfast and visit Plaza de Mayo**",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        }
+      ]
+    },
+    {
+      "atom": "[A15] Picture by@andregrevex",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A16] Once you arrive to Plaza de Mayo you can walk through Av. de Mayo (which is really beautiful avenue) at the end of this avenue you can see the Congress building.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        },
+        {
+          "name": "Congress building",
+          "span": "Congress building"
+        }
+      ]
+    },
+    {
+      "atom": "[A17] Here I recommend you 2 coffees shop: **-** the first is the iconic **Café** **Tortoni**, you can enjoy some \"Cafe con medialunas\" this is our typical breakfast.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Café Tortoni",
+          "span": "Café\nTortoni"
+        }
+      ]
+    },
+    {
+      "atom": "[A18] However Tortoni has also nice \"Churros con Chocolate\".",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Tortoni",
+          "span": "Tortoni"
+        }
+      ]
+    },
+    {
+      "atom": "[A19] **-**In case Tortoni is too crowded you can walk back to **London City Coffee** where multiple famous writers and iconic figures of Buenos Aires spent time there, such as our writer Cortázar.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "London City Coffee",
+          "span": "London City Coffee"
+        }
+      ]
+    },
+    {
+      "atom": "[A20] Counter of Tortoni Café, Buenos Aires",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A21] Then you can walk back through Av. de Mayo and reach Plaza de Mayo again.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        }
+      ]
+    },
+    {
+      "atom": "[A22] This Plaza is quite important here we have the Casa Rosada, the Cathedral (where the Pope use to give mass) and the Cabildo.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Casa Rosada",
+          "span": "Casa Rosada"
+        },
+        {
+          "name": "Cathedral",
+          "span": "Cathedral"
+        },
+        {
+          "name": "Cabildo",
+          "span": "Cabildo"
+        }
+      ]
+    },
+    {
+      "atom": "[A23] Is a place where most of the manifestation take place since is connected to Congress.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A24] TEXTALT You can see in the floor of Plaza de Mayo some white Scarfs draw in the floor, this represents the \"Grandmother of Plaza de Mayo\", this are grandmothers you ask until today for their missing grandchildren during the dictatorship.",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "[A25] ** If you want to enter Casa Rosada, you have to book a visit in advance, they are free.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Casa Rosada",
+          "span": "Casa Rosada"
+        }
+      ]
+    },
+    {
+      "atom": "[A26] Stunning picture by @aguspiluso",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A27] **12 am - Walk through Defensa Street** Now you are entering San Telmo.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa Street",
+          "span": "Defensa Street"
+        },
+        {
+          "name": "San Telmo",
+          "span": "San Telmo"
+        }
+      ]
+    },
+    {
+      "atom": "[A28] Defensa Street is the main street and on Sunday there is a huge street fair that starts from Plaza de Mayo and continues to Plaza Dorrego.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa Street",
+          "span": "Defensa Street"
+        },
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        },
+        {
+          "name": "Plaza Dorrego",
+          "span": "Plaza Dorrego"
+        }
+      ]
+    },
+    {
+      "atom": "[A29] - Stop 5: is a really old Pharmacy call **\"Farmacia la Estrella\"**, from 1834.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Farmacia la Estrella",
+          "span": "\"Farmacia la Estrella\""
+        }
+      ]
+    },
+    {
+      "atom": "[A30] Take a look inside and to its beautiful sealing!.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A31] Just in from is a small Museum of the city, sometimes they have exhibitions about local products or traditions, is free to enter so feel free to give it a look.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Museum of the city",
+          "span": "Museum of the city"
+        }
+      ]
+    },
+    {
+      "atom": "[A32] - Stop 6: Oldest library in town, **\"La Librería del Avila\"**!, this is the library it has more than 100.000 books and it has been witness of big part of our history.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "La Librería del Avila",
+          "span": "\"La Librería del Avila\""
+        }
+      ]
+    },
+    {
+      "atom": "[A33] Is used to be call the \"School Library\" because if you look just in front, you can see the prestigious National School of Buenos Aires.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "National School of Buenos Aires",
+          "span": "National School of Buenos Aires"
+        }
+      ]
+    },
+    {
+      "atom": "[A34] 🥩 If you are hungry at this point and want to have launch, I highly recommend having lunch at Alfonso (in Av.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Alfonso",
+          "span": "Alfonso"
+        }
+      ]
+    },
+    {
+      "atom": "[A35] Belgrano 782) cozy place with comfort food and very nice selection of wines and vermouth.",
+      "kind": "OTHER",
+      "reason": "ALTERNATIVE"
+    },
+    {
+      "atom": "[A36] - Stop 7: **Monumento de Mafalda**, this is one of our most loved cartoon characters created by Quino.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Monumento de Mafalda",
+          "span": "Monumento de Mafalda"
+        }
+      ]
+    },
+    {
+      "atom": "[A37] If you never heard of it, it was translated in almost any language and although it looks like a cartoon for kids it talks about world issues about politics and economics that is almost as relevant for adults.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A38] Mafalda use to live in San Telmo exactly in a house in Chile 371 that actually exists, so you can check it out!",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Chile 371",
+          "span": "Chile 371"
+        }
+      ]
+    },
+    {
+      "atom": "[A39] Casa Mínima, San Telmo, Buenos Aires",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A40] - Stop 8: **Casa Mínima**, this is known to be the narrowest house in Buenos Aires, not sure if this is true but is cute and the street as well ;)",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Casa Mínima",
+          "span": "Casa Mínima"
+        }
+      ]
+    },
+    {
+      "atom": "[A41] 4 días en Mendoza, Argentina - Itinerario completo día por día de que hacer.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A42] Stop 9: **The San Telmo Market**!!",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "The San Telmo Market",
+          "span": "The San Telmo Market"
+        }
+      ]
+    },
+    {
+      "atom": "[A43] My favorite place in the neighborhood, the oldest market in Buenos Aires and recently remodeled with a lot of restaurants (before there were antiquities and fruit and and vegetable stores).",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A44] Here there are also a lot of tourist traps, so be careful.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A45] Here you have 2 choices, have lunch in the market, or grab something small and wait to eat some big meal in La Boca.",
+      "kind": "OTHER",
+      "reason": "ALTERNATIVE"
+    },
+    {
+      "atom": "[A46] 🌭If you go for the small bite, I recommend eating *1 choripan* en **Nuestra Parrilla** (stop 10), is on the outside (over Bolivar street) of the market and not a tourist trap.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Nuestra Parrilla",
+          "span": "Nuestra Parrilla"
+        }
+      ]
+    },
+    {
+      "atom": "[A47] 🍦Exactly on the opposite side, also on the outside side, in Defensa street you have 2 icecream shops ( if you didn't notice we love ice cream here and we eat a lot of it!)",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa street",
+          "span": "Defensa street"
+        }
+      ]
+    },
+    {
+      "atom": "[A48] ☕️If you are craving for some coffee, go to **Coffee Town**, just in the middle of the market, is the best in area!",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Coffee Town",
+          "span": "Coffee Town"
+        }
+      ]
+    },
+    {
+      "atom": "[A49] 🥩 If you for the BIG meal, my favorite restaurant is **Saigón** is kind of Vietnamese - Argentine, I highly recommend trying the Bo Lu Lac (Is meat with rice).",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Saigón",
+          "span": "Saigón"
+        }
+      ]
+    },
+    {
+      "atom": "[A50] But I understand if you want to eat asado, so here I would recommend to go to **Desnivel**, is not fancy but you eat really good!",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Desnivel",
+          "span": "Desnivel"
+        }
+      ]
+    },
+    {
+      "atom": "[A51] Café Rivas, San Telmo, Bueos Aires",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A52] **Café Rivas y Galería Solar** This are two other places you can visit while you are around.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Café Rivas",
+          "span": "Café Rivas"
+        },
+        {
+          "name": "Galería Solar",
+          "span": "Galería Solar"
+        }
+      ]
+    },
+    {
+      "atom": "[A53] The first one is Café Rivas, a beautiful café.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Café Rivas",
+          "span": "Café Rivas"
+        }
+      ]
+    },
+    {
+      "atom": "[A54] Just one block from the San Telmo Market you can find the Galería Solar, this use to be an old house that is now full of shops.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "San Telmo Market",
+          "span": "San Telmo Market"
+        },
+        {
+          "name": "Galería Solar",
+          "span": "Galería Solar"
+        }
+      ]
+    },
+    {
+      "atom": "[A55] - Stop 10: Last stop, this is \"**El Patio de los Ezeiza**\".",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "El Patio de los Ezeiza",
+          "span": "\"El Patio de los Ezeiza\""
+        }
+      ]
+    },
+    {
+      "atom": "[A56] This is a house that was built around 1876 to house the Ezeiza family, an aristocratic family.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A57] Later, the Ezeiza would leave the house to move to Barrio Norte, like many other upper class families in Buenos Aires during the Yellow Fever Epidemic of 1871.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A58] After this is become a school, later a *conventillo* and right now is full of shop so you can just wonder around!",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A59] Patio Ezeiza, San Telmo, Buenos Aires, Argentina",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A60] **15hs - Go to Caminito en La Boca**",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Caminito",
+          "span": "Caminito"
+        },
+        {
+          "name": "La Boca",
+          "span": "La Boca"
+        }
+      ]
+    },
+    {
+      "atom": "[A61] From \"El Patio de los Ezeiza\" you can take bus 29 to Caminito or take a taxi.",
+      "kind": "TRANSFER",
+      "stops": [
+        {
+          "name": "El Patio de los Ezeiza",
+          "span": "\"El Patio de los Ezeiza\""
+        },
+        {
+          "name": "Caminito",
+          "span": "Caminito"
+        }
+      ]
+    },
+    {
+      "atom": "[A62] The taxi should cost about 3usd max (official USD, not the blue USD).",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A63] You can use Google Maps to get here, it works pretty ok with the buses.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A64] **CAMINITO, LA BOCA** An important note here, La Boca is the neighborhood and is not the type of neighborhood you want to be at night.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "CAMINITO",
+          "span": "CAMINITO"
+        },
+        {
+          "name": "LA BOCA",
+          "span": "LA BOCA"
+        }
+      ]
+    },
+    {
+      "atom": "[A65] However, Caminito is the tourist street of this neighborhood.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Caminito",
+          "span": "Caminito"
+        }
+      ]
+    },
+    {
+      "atom": "[A66] My advice here is: first, if it is getting darker rather leave this for another day, if you choose to go to Caminito, wonder only where you see tourists, don't go go beyond this, because as I said, is not the most friendly neighborhood out there.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Caminito",
+          "span": "Caminito"
+        }
+      ]
+    },
+    {
+      "atom": "[A67] The tourist part you will notice is the one with colorful houses and is about 3-4 blocks.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A68] You might be hungry by this point, so: - 🥩 Stop 13: **\"Don Carlos\"** also recommended by Anthony Bourdain in his episode of Parts Unknown in Buenos Aires.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Don Carlos",
+          "span": "\"Don Carlos\""
+        }
+      ]
+    },
+    {
+      "atom": "[A69] A small restaurant run by a family in front of the \"Estadio La Boca\".",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Estadio La Boca",
+          "span": "\"Estadio La Boca\""
+        }
+      ]
+    },
+    {
+      "atom": "[A70] You sit here and the owner will bring you food, no question ask, until you cant not walk anymore and decide to stop eating what it will become one of your best food memories.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A71] - Stop 12: After this, you can wander around **Caminito Street**, and maybe check the \"**Fundación Proa**\" sometimes they have interesting exhibitions.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Caminito Street",
+          "span": "Caminito Street"
+        },
+        {
+          "name": "Fundación Proa",
+          "span": "\"Fundación Proa\""
+        }
+      ]
+    },
+    {
+      "atom": "[A72] **17 / 18hs - Go to Puerto Madero** Here as well you can take a bus or a taxi for around 3,8usd.",
+      "kind": "TRANSFER",
+      "stops": [
+        {
+          "name": "Puerto Madero",
+          "span": "Puerto Madero"
+        }
+      ]
+    },
+    {
+      "atom": "[A73] The starting point here is the **Puente de la Mujer**, this is beautiful day or night.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Puente de la Mujer",
+          "span": "Puente de la Mujer"
+        }
+      ]
+    },
+    {
+      "atom": "[A74] By crossing this bridge you are officially in Puerto Madero, and no wonder that you will see that all streets have suddenly women names.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Puerto Madero",
+          "span": "Puerto Madero"
+        }
+      ]
+    },
+    {
+      "atom": "[A75] Here is there is not much to do more than walking and seeing the contrast of such a new architecture just in from of the oldest neighborhood such as San Telmo.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "San Telmo",
+          "span": "San Telmo"
+        }
+      ]
+    },
+    {
+      "atom": "[A76] I like to walk next to the \"Darsena Sur\" and then through Av.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Darsena Sur",
+          "span": "\"Darsena Sur\""
+        }
+      ]
+    },
+    {
+      "atom": "[A77] Int.",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "[A78] Hernan Giralt that is close to an ecological park.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Hernan Giralt",
+          "span": "Hernan Giralt"
+        }
+      ]
+    },
+    {
+      "atom": "[A79] If you are hungry at this point I can recommend: - 🌭 Salad: eat *a choripan* in some of the kiosk over Av.",
+      "kind": "OTHER",
+      "reason": "ALTERNATIVE"
+    },
+    {
+      "atom": "[A80] Int.",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "[A81] Hernan Giralt.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Hernan Giralt",
+          "span": "Hernan Giralt"
+        }
+      ]
+    },
+    {
+      "atom": "[A82] **20hs - Return home / hotel** If you return through the marked path, you can see the \"Centro Cultural Kirchner\" that used to be our old Central Post Office.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Centro Cultural Kirchner",
+          "span": "\"Centro Cultural Kirchner\""
+        }
+      ]
+    },
+    {
+      "atom": "[A83] They offer guided tours and maybe you can enter to see a part of the building.",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A84] From here you will see the Metrobus with the main buses or it is quite a busy street so you can take a taxi! 🍹 Stop 16: Or if you feel like continuing and having a little celebration drink, I highly recommend one of our few sky bars in town: Trade Sky Bar.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Trade Sky Bar",
+          "span": "Trade Sky Bar"
+        }
+      ]
+    },
+    {
+      "atom": "[A85] Is better to book in advance!",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "[A86] It has an amazing view of Puerto madero.",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Puerto madero",
+          "span": "Puerto madero"
+        }
+      ]
+    },
+    {
+      "atom": "[A87] I also recommend this 36hs in Buenos Aires New York Times Guide.",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "[A88] Totally love it an agree in all the places and you can have a taste of the other neighborhoods in Buenos Aires :) I really hope you liked this self-guided tour in San Telmo! and I would LOVE to know if you did it :) Follow me on Instagram for more pictures of Buenos Aires: View this post on Instagram A post shared by Agus Yornet (@agusyornet) on Please if you like this post feel free to share in Pinterest ;) here are some banners:",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    }
+  ]
+}

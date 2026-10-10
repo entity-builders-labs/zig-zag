@@ -1,0 +1,227 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-064",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "colorful houses",
+          "supportSpan": "colorful houses",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes the tourist part seen."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Recommends stopping at Don Carlos."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "\"Estadio La Boca\"",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions stadium as location reference."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the dining experience."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs to Caminito Street and optional Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Announces transport to Puerto Madero.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Highlights starting point Puente de la Mujer."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Mentions crossing bridge into Puerto Madero."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Suggests walking and seeing architecture contrast."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "\"Darsena Sur\"",
+          "supportSpan": "\"Darsena Sur\"",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "ecological park",
+          "supportSpan": "ecological park",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Suggests walking next to Darsena Sur and Av. Int. Hernan Giralt."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Recommends eating a choripan as an alternative food spot."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "\"Centro Cultural Kirchner\"",
+          "supportSpan": "\"Centro Cultural Kirchner\"",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Announces return home/hotel transfer.",
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Centro Cultural Kirchner\"",
+          "supportSpan": "building",
+          "role": "OPTIONAL_STOP",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Suggests optional guided tours inside the building."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Metrobus",
+          "supportSpan": "Metrobus",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Describes transport options for leaving.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends Trade Sky Bar as an alternative choice."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Gives booking tip."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions view of Puerto Madero."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends an external guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Closing remarks and tour outro."
+    }
+  ]
+}

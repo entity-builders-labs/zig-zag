@@ -4,8 +4,6 @@ import { generateTour, GenerateTourDto, Tour } from '@/api/tours';
 
 interface UseCreateTourOptions {
   category?: string;
-  initialLatitude?: number;
-  initialLongitude?: number;
 }
 
 interface UseCreateTourReturn {
@@ -22,7 +20,7 @@ interface UseCreateTourReturn {
 export function useCreateTour(
   options: UseCreateTourOptions = {}
 ): UseCreateTourReturn {
-  const { category, initialLatitude, initialLongitude } = options;
+  const { category } = options;
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -34,30 +32,20 @@ export function useCreateTour(
   const validatePreferences = (
     preferences: GenerateTourDto
   ): { valid: boolean; errorMessage?: string } => {
-    const hasLatitude =
-      preferences.latitude !== undefined ||
-      preferences.destinationLatitude !== undefined ||
-      initialLatitude !== undefined;
-    const hasLongitude =
-      preferences.longitude !== undefined ||
-      preferences.destinationLongitude !== undefined ||
-      initialLongitude !== undefined;
-    const hasDestination = !!preferences.destination;
+    const { latitude, longitude } = preferences.destination || {};
 
-    if (!hasLatitude && !hasLongitude && !hasDestination) {
+    if (latitude === undefined || longitude === undefined) {
       return {
         valid: false,
-        errorMessage: 'Se requiere un destino o coordenadas para crear el tour',
+        errorMessage: 'Se requiere un destino o coordenadas para crear el tour'
       };
     }
-
-    if ((hasLatitude && !hasLongitude) || (!hasLatitude && hasLongitude)) {
+    if (preferences.mobility?.allowedTransportationModes?.length === 0) {
       return {
         valid: false,
-        errorMessage: 'Se requieren ambas coordenadas (latitud y longitud)',
+        errorMessage: 'Elegí al menos un medio de transporte'
       };
     }
-
     return { valid: true };
   };
 
@@ -81,23 +69,11 @@ export function useCreateTour(
           throw validationError;
         }
 
-        // Merge preferences with initial options
-        const lat =
-          preferences.latitude ||
-          preferences.destinationLatitude ||
-          initialLatitude;
-        const lng =
-          preferences.longitude ||
-          preferences.destinationLongitude ||
-          initialLongitude;
-
         const tourData: GenerateTourDto = {
           ...preferences,
           categories: category
             ? [category, ...(preferences.categories || [])]
-            : preferences.categories,
-          latitude: lat || preferences.latitude,
-          longitude: lng || preferences.longitude,
+            : preferences.categories
         };
 
         // Call API to generate tour
@@ -141,13 +117,13 @@ export function useCreateTour(
         throw error;
       }
     },
-    [category, initialLatitude, initialLongitude, router]
+    [category, router]
   );
 
   return {
     createTour,
     isLoading,
     error,
-    tour,
+    tour
   };
 }

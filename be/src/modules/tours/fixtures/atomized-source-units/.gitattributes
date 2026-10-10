@@ -1,0 +1,3 @@
+# Frozen source evidence: byte-exact page text (trailing whitespace included)
+# whose SHA-256 and offsets the tests pin. Never reformat these files.
+*.md -whitespace

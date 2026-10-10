@@ -6,7 +6,8 @@ import { PrismaModule } from '../../core/database/database.module';
 import aiConfig from './ai.config';
 import { AiCacheService } from './services/ai-cache.service';
 import { AiEmbeddingService } from './services/ai-embedding.service';
-import { VectorStoreService } from './services/vector-store.service';
+import { ExperienceVectorStoreService } from './services/experience-vector-store.service';
+import { ExperienceEmbeddingIndexerService } from './services/experience-embedding-indexer.service';
 
 @Module({
   imports: [ConfigModule.forFeature(aiConfig), PrismaModule],
@@ -15,14 +16,16 @@ import { VectorStoreService } from './services/vector-store.service';
     ImageGenerationService,
     AiCacheService,
     AiEmbeddingService,
-    VectorStoreService,
+    ExperienceVectorStoreService,
+    ExperienceEmbeddingIndexerService,
   ],
   exports: [
     LangChainService,
     ImageGenerationService,
     AiCacheService,
     AiEmbeddingService,
-    VectorStoreService,
+    ExperienceVectorStoreService,
+    ExperienceEmbeddingIndexerService,
   ],
 })
 export class AiModule {}

@@ -1,0 +1,1461 @@
+{
+ "compositeCatalogComponents": [
+  {
+   "order": 2,
+   "sourcePosition": 1,
+   "role": "venue",
+   "name": "Obelisco",
+   "lat": -34.6037093,
+   "lng": -58.3816296,
+   "geometryType": "Point"
+  },
+  {
+   "order": 5,
+   "sourcePosition": 4,
+   "role": "area",
+   "name": "San Telmo",
+   "lat": -34.62262612999997,
+   "lng": -58.3701690988235,
+   "geometryType": "Polygon"
+  },
+  {
+   "order": 6,
+   "sourcePosition": 5,
+   "role": "route",
+   "name": "Defensa",
+   "lat": -34.6195152,
+   "lng": -58.3715225,
+   "geometryType": "MultiLineString"
+  },
+  {
+   "order": 11,
+   "sourcePosition": 10,
+   "role": "venue",
+   "name": "Casa Mínima",
+   "lat": -34.6167555,
+   "lng": -58.3713487,
+   "geometryType": "Point"
+  }
+ ],
+ "compositePlanner": {
+  "spatialFootprint": {
+   "type": "AREA",
+   "centroid": {
+    "lat": -34.62262612999997,
+    "lng": -58.370169098823496
+   }
+  },
+  "componentFootprints": [
+   {
+    "type": "POINT",
+    "centroid": {
+     "lat": -34.6037093,
+     "lng": -58.3816296
+    }
+   },
+   {
+    "type": "AREA",
+    "centroid": {
+     "lat": -34.62262612999997,
+     "lng": -58.370169098823496
+    }
+   },
+   {
+    "type": "POINT",
+    "centroid": {
+     "lat": -34.6195152,
+     "lng": -58.3715225
+    }
+   },
+   {
+    "type": "POINT",
+    "centroid": {
+     "lat": -34.6167555,
+     "lng": -58.3713487
+    }
+   }
+  ],
+  "startFootprint": {
+   "lat": -34.6037093,
+   "lng": -58.3816296
+  },
+  "endFootprint": {
+   "lat": -34.6167555,
+   "lng": -58.3713487
+  }
+ },
+ "otherFootprints": [
+  {
+   "id": "638f2eeb-00d8-4efc-9983-a45039eaa904",
+   "name": "Manzana de las Luces",
+   "start": null
+  },
+  {
+   "id": "209127e2-a8d8-4470-8ded-3c2a68a654b7",
+   "name": "Museo Histórico Nacional",
+   "start": null
+  },
+  {
+   "id": "f2476cf1-5419-453e-a634-c68b0e0f8085",
+   "name": "Plaza Dorrego",
+   "start": null
+  },
+  {
+   "id": "32656b95-d509-4e0d-afca-af00680b2dd8",
+   "name": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "start": null
+  },
+  {
+   "id": "b2f139de-c7d5-4014-94c8-73cbb0ec8657",
+   "name": "Museo Casa Taller 'Celia Chevalier'",
+   "start": null
+  },
+  {
+   "id": "04f964f2-16ec-4237-b280-da3e1d70f4ec",
+   "name": "Museo Histórico de Cera",
+   "start": null
+  },
+  {
+   "id": "12463e36-90af-47b5-badc-2ee680939649",
+   "name": "Museo del Cine Pablo Ducrós Hicken",
+   "start": null
+  },
+  {
+   "id": "d6a3e19d-63f0-4233-9e7f-ad40bd05a782",
+   "name": "La flor de la vida",
+   "start": null
+  },
+  {
+   "id": "fabd109b-8a3d-46a5-ac93-011464535f50",
+   "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+   "start": null
+  },
+  {
+   "id": "0ee58ccb-465b-4298-af3b-28f916ec6d1a",
+   "name": "Juventud",
+   "start": null
+  },
+  {
+   "id": "402b0b34-88b1-46c3-91b9-62a3f4722ee4",
+   "name": "Himalaya",
+   "start": null
+  },
+  {
+   "id": "256a1f9e-b875-43d0-b0d8-b96236e6037c",
+   "name": "Nestor Kirchner",
+   "start": null
+  },
+  {
+   "id": "8894fde6-5e72-4651-af0f-bf1196586577",
+   "name": "Hidrovértigo",
+   "start": null
+  },
+  {
+   "id": "35ee889f-2ce6-4347-85cc-b4565e82c7dc",
+   "name": "Colón Fábrica",
+   "start": null
+  },
+  {
+   "id": "9e6b5d19-8347-4f8a-b374-6fdf45af1d31",
+   "name": "Estatua Hugo del Carril",
+   "start": null
+  },
+  {
+   "id": "a5edd2ee-9d63-4246-be72-737faf75e767",
+   "name": "Roca granitica",
+   "start": null
+  },
+  {
+   "id": "c69c9def-0691-4a47-a04f-030932f69465",
+   "name": "Mercado San Telmo",
+   "start": null
+  },
+  {
+   "id": "9b8b13e7-cb9b-48e9-aee0-513aae3cc354",
+   "name": "La Madre",
+   "start": null
+  }
+ ],
+ "provisional": {
+  "name": "provisional-set",
+  "dayOrder": [
+   {
+    "id": "638f2eeb-00d8-4efc-9983-a45039eaa904",
+    "name": "Manzana de las Luces",
+    "start": 540,
+    "end": 630
+   },
+   {
+    "id": "c69c9def-0691-4a47-a04f-030932f69465",
+    "name": "Mercado San Telmo",
+    "start": 647.976,
+    "end": 737.976,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 17.976,
+     "distanceMeters": 1212,
+     "walkingMinutes": 17.976,
+     "walkingDistanceMeters": 1212,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "f2476cf1-5419-453e-a634-c68b0e0f8085",
+    "name": "Plaza Dorrego",
+    "start": 740.7397833333333,
+    "end": 830.7397833333333,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 2.7637833333333335,
+     "distanceMeters": 176,
+     "walkingMinutes": 2.7637833333333335,
+     "walkingDistanceMeters": 176,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "209127e2-a8d8-4470-8ded-3c2a68a654b7",
+    "name": "Museo Histórico Nacional",
+    "start": 843.5378333333333,
+    "end": 933.5378333333333,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 12.79805,
+     "distanceMeters": 805,
+     "walkingMinutes": 12.79805,
+     "walkingDistanceMeters": 805,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "32656b95-d509-4e0d-afca-af00680b2dd8",
+    "name": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+    "start": 986.5289666666666,
+    "end": 1134.3529833333332,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 52.99113333333333,
+     "distanceMeters": 3336,
+     "walkingMinutes": 52.99113333333333,
+     "walkingDistanceMeters": 3336,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   }
+  ],
+  "unselected": [],
+  "validator": {
+   "valid": false,
+   "issues": [
+    {
+     "code": "MAX_CONTINUOUS_WALKING_EXCEEDED",
+     "message": "Day 1: the leg into Experience 32656b95-d509-4e0d-afca-af00680b2dd8 exceeds the continuous walking limit."
+    }
+   ]
+  }
+ },
+ "initialReport": {
+  "name": "final-initial-solve",
+  "dayOrder": [
+   {
+    "id": "638f2eeb-00d8-4efc-9983-a45039eaa904",
+    "name": "Manzana de las Luces",
+    "start": 540,
+    "end": 630
+   },
+   {
+    "id": "32656b95-d509-4e0d-afca-af00680b2dd8",
+    "name": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+    "start": 648.6493833333334,
+    "end": 796.4734000000001,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 18.649383333333333,
+     "distanceMeters": 1155,
+     "walkingMinutes": 18.649383333333333,
+     "walkingDistanceMeters": 1155,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "f2476cf1-5419-453e-a634-c68b0e0f8085",
+    "name": "Plaza Dorrego",
+    "start": 803.9830333333334,
+    "end": 893.9830333333334,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 7.5096333333333325,
+     "distanceMeters": 467,
+     "walkingMinutes": 7.5096333333333325,
+     "walkingDistanceMeters": 467,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "209127e2-a8d8-4470-8ded-3c2a68a654b7",
+    "name": "Museo Histórico Nacional",
+    "start": 906.7810833333334,
+    "end": 996.7810833333334,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 12.79805,
+     "distanceMeters": 805,
+     "walkingMinutes": 12.79805,
+     "walkingDistanceMeters": 805,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   }
+  ],
+  "unselected": [],
+  "validator": {
+   "valid": true,
+   "issues": []
+  }
+ },
+ "promotionLog": [
+  {
+   "id": "b2f139de-c7d5-4014-94c8-73cbb0ec8657",
+   "name": "Museo Casa Taller 'Celia Chevalier'",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "04f964f2-16ec-4237-b280-da3e1d70f4ec",
+   "name": "Museo Histórico de Cera",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "12463e36-90af-47b5-badc-2ee680939649",
+   "name": "Museo del Cine Pablo Ducrós Hicken",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "d6a3e19d-63f0-4233-9e7f-ad40bd05a782",
+   "name": "La flor de la vida",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "fabd109b-8a3d-46a5-ac93-011464535f50",
+   "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "0ee58ccb-465b-4298-af3b-28f916ec6d1a",
+   "name": "Juventud",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "402b0b34-88b1-46c3-91b9-62a3f4722ee4",
+   "name": "Himalaya",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "256a1f9e-b875-43d0-b0d8-b96236e6037c",
+   "name": "Nestor Kirchner",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "8894fde6-5e72-4651-af0f-bf1196586577",
+   "name": "Hidrovértigo",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "35ee889f-2ce6-4347-85cc-b4565e82c7dc",
+   "name": "Colón Fábrica",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "9e6b5d19-8347-4f8a-b374-6fdf45af1d31",
+   "name": "Estatua Hugo del Carril",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "a5edd2ee-9d63-4246-be72-737faf75e767",
+   "name": "Roca granitica",
+   "promoted": false,
+   "progress": false,
+   "count": 4
+  },
+  {
+   "id": "c69c9def-0691-4a47-a04f-030932f69465",
+   "name": "Mercado San Telmo",
+   "promoted": true,
+   "progress": true,
+   "count": 5
+  },
+  {
+   "id": "9b8b13e7-cb9b-48e9-aee0-513aae3cc354",
+   "name": "La Madre",
+   "promoted": false,
+   "progress": false,
+   "count": 5
+  }
+ ],
+ "finalReport": {
+  "name": "final-after-promotion (relevance-noDegradation check approximated)",
+  "dayOrder": [
+   {
+    "id": "638f2eeb-00d8-4efc-9983-a45039eaa904",
+    "name": "Manzana de las Luces",
+    "start": 540,
+    "end": 630
+   },
+   {
+    "id": "c69c9def-0691-4a47-a04f-030932f69465",
+    "name": "Mercado San Telmo",
+    "start": 647.976,
+    "end": 737.976,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 17.976,
+     "distanceMeters": 1212,
+     "walkingMinutes": 17.976,
+     "walkingDistanceMeters": 1212,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "f2476cf1-5419-453e-a634-c68b0e0f8085",
+    "name": "Plaza Dorrego",
+    "start": 740.7397833333333,
+    "end": 830.7397833333333,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 2.7637833333333335,
+     "distanceMeters": 176,
+     "walkingMinutes": 2.7637833333333335,
+     "walkingDistanceMeters": 176,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "209127e2-a8d8-4470-8ded-3c2a68a654b7",
+    "name": "Museo Histórico Nacional",
+    "start": 843.5378333333333,
+    "end": 933.5378333333333,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 12.79805,
+     "distanceMeters": 805,
+     "walkingMinutes": 12.79805,
+     "walkingDistanceMeters": 805,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   },
+   {
+    "id": "32656b95-d509-4e0d-afca-af00680b2dd8",
+    "name": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+    "start": 986.5289666666666,
+    "end": 1134.3529833333332,
+    "travelFromPrevious": {
+     "mode": "walking",
+     "durationMinutes": 52.99113333333333,
+     "distanceMeters": 3336,
+     "walkingMinutes": 52.99113333333333,
+     "walkingDistanceMeters": 3336,
+     "approximate": false,
+     "provider": "geoapify"
+    }
+   }
+  ],
+  "unselected": [],
+  "validator": {
+   "valid": false,
+   "issues": [
+    {
+     "code": "MAX_CONTINUOUS_WALKING_EXCEEDED",
+     "message": "Day 1: the leg into Experience 32656b95-d509-4e0d-afca-af00680b2dd8 exceeds the continuous walking limit."
+    }
+   ]
+  }
+ },
+ "placement": {
+  "placementOrder": [
+   "Manzana de las Luces",
+   "Museo Histórico Nacional",
+   "Plaza Dorrego",
+   "Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "Mercado San Telmo"
+  ],
+  "assignedAppendOrder": [
+   "Manzana de las Luces",
+   "Museo Histórico Nacional",
+   "Plaza Dorrego",
+   "Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "Mercado San Telmo"
+  ],
+  "compositeMobility": {
+   "internalTravelMinutes": 57.824016666666665,
+   "internalWalkingMinutes": 57.824016666666665,
+   "internalWalkingDistanceMeters": 3756,
+   "maxInternalContinuousWalkingDistanceMeters": 2906,
+   "routingProviderCounts": {
+    "geoapify": 3
+   },
+   "routingFallbackCount": 0
+  },
+  "unselected": [],
+  "legsCheckedAtPlacement": [
+   {
+    "from": {
+     "lat": -34.6105156,
+     "lng": -58.3745373
+    },
+    "to": {
+     "lat": -34.6269637,
+     "lng": -58.3705905
+    },
+    "walkingDistanceMeters": 2177
+   },
+   {
+    "from": {
+     "lat": -34.6105156,
+     "lng": -58.3745373
+    },
+    "to": {
+     "lat": -34.6269637,
+     "lng": -58.3705905
+    },
+    "walkingDistanceMeters": 2177
+   },
+   {
+    "from": {
+     "lat": -34.6269637,
+     "lng": -58.3705905
+    },
+    "to": {
+     "lat": -34.6204739,
+     "lng": -58.3717792
+    },
+    "walkingDistanceMeters": 844
+   },
+   {
+    "from": {
+     "lat": -34.6269637,
+     "lng": -58.3705905
+    },
+    "to": {
+     "lat": -34.6204739,
+     "lng": -58.3717792
+    },
+    "walkingDistanceMeters": 844
+   },
+   {
+    "from": {
+     "lat": -34.6204739,
+     "lng": -58.3717792
+    },
+    "to": {
+     "lat": -34.6037093,
+     "lng": -58.3816296
+    },
+    "walkingDistanceMeters": 2552
+   },
+   {
+    "from": {
+     "lat": -34.6204739,
+     "lng": -58.3717792
+    },
+    "to": {
+     "lat": -34.6037093,
+     "lng": -58.3816296
+    },
+    "walkingDistanceMeters": 2552
+   },
+   {
+    "from": {
+     "lat": -34.6167555,
+     "lng": -58.3713487
+    },
+    "to": {
+     "lat": -34.6190607,
+     "lng": -58.3722354
+    },
+    "walkingDistanceMeters": 412
+   },
+   {
+    "from": {
+     "lat": -34.6167555,
+     "lng": -58.3713487
+    },
+    "to": {
+     "lat": -34.6190607,
+     "lng": -58.3722354
+    },
+    "walkingDistanceMeters": 412
+   }
+  ]
+ },
+ "estimates": [
+  {
+   "from": {
+    "lat": -34.6037093,
+    "lng": -58.3816296
+   },
+   "to": {
+    "lat": -34.62262612999997,
+    "lng": -58.370169098823496
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 44.82926666666666,
+    "distanceMeters": 2906,
+    "walkingMinutes": 44.82926666666666,
+    "walkingDistanceMeters": 2906,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 40.74071075654421,
+    "distanceMeters": 3055.5533067408155,
+    "walkingMinutes": 40.74071075654421,
+    "walkingDistanceMeters": 3055.5533067408155,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.62262612999997,
+    "lng": -58.370169098823496
+   },
+   "to": {
+    "lat": -34.6195152,
+    "lng": -58.3715225
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 7.562916666666666,
+    "distanceMeters": 499,
+    "walkingMinutes": 7.562916666666666,
+    "walkingDistanceMeters": 499,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 6.368616629795604,
+    "distanceMeters": 477.6462472346703,
+    "walkingMinutes": 6.368616629795604,
+    "walkingDistanceMeters": 477.6462472346703,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6195152,
+    "lng": -58.3715225
+   },
+   "to": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 5.4318333333333335,
+    "distanceMeters": 351,
+    "walkingMinutes": 5.4318333333333335,
+    "walkingDistanceMeters": 351,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 5.3261260747683545,
+    "distanceMeters": 399.4594556076266,
+    "walkingMinutes": 5.3261260747683545,
+    "walkingDistanceMeters": 399.4594556076266,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6105156,
+    "lng": -58.3745373
+   },
+   "to": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 32.67865,
+    "distanceMeters": 2177,
+    "walkingMinutes": 32.67865,
+    "walkingDistanceMeters": 2177,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 32.31390758849273,
+    "distanceMeters": 2423.5430691369547,
+    "walkingMinutes": 32.31390758849273,
+    "walkingDistanceMeters": 2423.5430691369547,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 12.661483333333333,
+    "distanceMeters": 844,
+    "walkingMinutes": 12.661483333333333,
+    "walkingDistanceMeters": 844,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 12.649588701053363,
+    "distanceMeters": 948.7191525790022,
+    "walkingMinutes": 12.649588701053363,
+    "walkingDistanceMeters": 948.7191525790022,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "to": {
+    "lat": -34.6037093,
+    "lng": -58.3816296
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 40.93516666666667,
+    "distanceMeters": 2552,
+    "walkingMinutes": 40.93516666666667,
+    "walkingDistanceMeters": 2552,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 35.89149431721512,
+    "distanceMeters": 2691.8620737911338,
+    "walkingMinutes": 35.89149431721512,
+    "walkingDistanceMeters": 2691.8620737911338,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6105156,
+    "lng": -58.3745373
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 20.912249999999997,
+    "distanceMeters": 1429,
+    "walkingMinutes": 20.912249999999997,
+    "walkingDistanceMeters": 1429,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 19.68570354747021,
+    "distanceMeters": 1476.427766060266,
+    "walkingMinutes": 19.68570354747021,
+    "walkingDistanceMeters": 1476.427766060266,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6105156,
+    "lng": -58.3745373
+   },
+   "to": {
+    "lat": -34.6037093,
+    "lng": -58.3816296
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 18.649383333333333,
+    "distanceMeters": 1155,
+    "walkingMinutes": 18.649383333333333,
+    "walkingDistanceMeters": 1155,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 17.282183932278276,
+    "distanceMeters": 1296.1637949208707,
+    "walkingMinutes": 17.282183932278276,
+    "walkingDistanceMeters": 1296.1637949208707,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 19.373866666666668,
+    "distanceMeters": 1211,
+    "walkingMinutes": 19.373866666666668,
+    "walkingDistanceMeters": 1211,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 19.711784375761056,
+    "distanceMeters": 1478.3838281820792,
+    "walkingMinutes": 19.711784375761056,
+    "walkingDistanceMeters": 1478.3838281820792,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 7.5096333333333325,
+    "distanceMeters": 467,
+    "walkingMinutes": 7.5096333333333325,
+    "walkingDistanceMeters": 467,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 7.199220977417458,
+    "distanceMeters": 539.9415733063094,
+    "walkingMinutes": 7.199220977417458,
+    "walkingDistanceMeters": 539.9415733063094,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "to": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 12.79805,
+    "distanceMeters": 805,
+    "walkingMinutes": 12.79805,
+    "walkingDistanceMeters": 805,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 12.649588701053363,
+    "distanceMeters": 948.7191525790022,
+    "walkingMinutes": 12.649588701053363,
+    "walkingDistanceMeters": 948.7191525790022,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6392944,
+    "lng": -58.3660483
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 43.13168333333333,
+    "distanceMeters": 2824,
+    "walkingMinutes": 43.13168333333333,
+    "walkingDistanceMeters": 2824,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 44.2468614016836,
+    "distanceMeters": 3318.51460512627,
+    "walkingMinutes": 44.2468614016836,
+    "walkingDistanceMeters": 3318.51460512627,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6383941,
+    "lng": -58.3625843
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 47.61615,
+    "distanceMeters": 3110,
+    "walkingMinutes": 47.61615,
+    "walkingDistanceMeters": 3110,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 43.96116035769648,
+    "distanceMeters": 3297.087026827236,
+    "walkingMinutes": 43.96116035769648,
+    "walkingDistanceMeters": 3297.087026827236,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6296278,
+    "lng": -58.3571489
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 39.570166666666665,
+    "distanceMeters": 2534,
+    "walkingMinutes": 39.570166666666665,
+    "walkingDistanceMeters": 2534,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 33.50745746615776,
+    "distanceMeters": 2513.0593099618322,
+    "walkingMinutes": 33.50745746615776,
+    "walkingDistanceMeters": 2513.0593099618322,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6396122,
+    "lng": -58.3605496
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 48.587383333333335,
+    "distanceMeters": 3099,
+    "walkingMinutes": 48.587383333333335,
+    "walkingDistanceMeters": 3099,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 47.26566788398105,
+    "distanceMeters": 3544.9250912985785,
+    "walkingMinutes": 47.26566788398105,
+    "walkingDistanceMeters": 3544.9250912985785,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6389831,
+    "lng": -58.3613682
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 48.676950000000005,
+    "distanceMeters": 3119,
+    "walkingMinutes": 48.676950000000005,
+    "walkingDistanceMeters": 3119,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 45.67164792439424,
+    "distanceMeters": 3425.3735943295683,
+    "walkingMinutes": 45.67164792439424,
+    "walkingDistanceMeters": 3425.3735943295683,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6444976,
+    "lng": -58.3643762
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 53.03175,
+    "distanceMeters": 3457,
+    "walkingMinutes": 53.03175,
+    "walkingDistanceMeters": 3457,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 54.6009619170612,
+    "distanceMeters": 4095.0721437795896,
+    "walkingMinutes": 54.6009619170612,
+    "walkingDistanceMeters": 4095.0721437795896,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.668978,
+    "lng": -58.4507096
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 166.59985,
+    "distanceMeters": 10809,
+    "walkingMinutes": 166.59985,
+    "walkingDistanceMeters": 10809,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 161.1422038363114,
+    "distanceMeters": 12085.665287723357,
+    "walkingMinutes": 161.1422038363114,
+    "walkingDistanceMeters": 12085.665287723357,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6588512,
+    "lng": -58.4267538
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 117.5958,
+    "distanceMeters": 7807,
+    "walkingMinutes": 117.5958,
+    "walkingDistanceMeters": 7807,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 119.59158656702947,
+    "distanceMeters": 8969.36899252721,
+    "walkingMinutes": 119.59158656702947,
+    "walkingDistanceMeters": 8969.36899252721,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.668706,
+    "lng": -58.4497761
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 164.43265000000002,
+    "distanceMeters": 10659,
+    "walkingMinutes": 164.43265000000002,
+    "walkingDistanceMeters": 10659,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 159.65978519220965,
+    "distanceMeters": 11974.483889415722,
+    "walkingMinutes": 159.65978519220965,
+    "walkingDistanceMeters": 11974.483889415722,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6415293,
+    "lng": -58.3613498
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 54.14635,
+    "distanceMeters": 3561,
+    "walkingMinutes": 54.14635,
+    "walkingDistanceMeters": 3561,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 50.31285708403781,
+    "distanceMeters": 3773.464281302836,
+    "walkingMinutes": 50.31285708403781,
+    "walkingDistanceMeters": 3773.464281302836,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6773343,
+    "lng": -58.4765402
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 200.73748333333333,
+    "distanceMeters": 13054,
+    "walkingMinutes": 200.73748333333333,
+    "walkingDistanceMeters": 13054,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 203.5971845543413,
+    "distanceMeters": 15269.788841575599,
+    "walkingMinutes": 203.5971845543413,
+    "walkingDistanceMeters": 15269.788841575599,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6310798,
+    "lng": -58.3679784
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 29.50838333333333,
+    "distanceMeters": 1863,
+    "walkingMinutes": 29.50838333333333,
+    "walkingDistanceMeters": 1863,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 28.121070860574378,
+    "distanceMeters": 2109.080314543078,
+    "walkingMinutes": 28.121070860574378,
+    "walkingDistanceMeters": 2109.080314543078,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6167555,
+    "lng": -58.3713487
+   },
+   "to": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 6.691483333333333,
+    "distanceMeters": 412,
+    "walkingMinutes": 6.691483333333333,
+    "walkingDistanceMeters": 412,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 4.660286515154219,
+    "distanceMeters": 349.52148863656646,
+    "walkingMinutes": 4.660286515154219,
+    "walkingDistanceMeters": 349.52148863656646,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6105156,
+    "lng": -58.3745373
+   },
+   "to": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 17.976,
+    "distanceMeters": 1212,
+    "walkingMinutes": 17.976,
+    "walkingDistanceMeters": 1212,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 16.869534409510575,
+    "distanceMeters": 1265.2150807132932,
+    "walkingMinutes": 16.869534409510575,
+    "walkingDistanceMeters": 1265.2150807132932,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 14.628033333333333,
+    "distanceMeters": 920,
+    "walkingMinutes": 14.628033333333333,
+    "walkingDistanceMeters": 920,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 15.453881620903637,
+    "distanceMeters": 1159.0411215677727,
+    "walkingMinutes": 15.453881620903637,
+    "walkingDistanceMeters": 1159.0411215677727,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 2.7637833333333335,
+    "distanceMeters": 176,
+    "walkingMinutes": 2.7637833333333335,
+    "walkingDistanceMeters": 176,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 2.8182458944659587,
+    "distanceMeters": 211.3684420849469,
+    "walkingMinutes": 2.8182458944659587,
+    "walkingDistanceMeters": 211.3684420849469,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6037093,
+    "lng": -58.3816296
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 38.87663333333333,
+    "distanceMeters": 2389,
+    "walkingMinutes": 38.87663333333333,
+    "walkingDistanceMeters": 2389,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 33.128711286778824,
+    "distanceMeters": 2484.653346508412,
+    "walkingMinutes": 33.128711286778824,
+    "walkingDistanceMeters": 2484.653346508412,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6269637,
+    "lng": -58.3705905
+   },
+   "to": {
+    "lat": -34.6037093,
+    "lng": -58.3816296
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 52.99113333333333,
+    "distanceMeters": 3336,
+    "walkingMinutes": 52.99113333333333,
+    "walkingDistanceMeters": 3336,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 48.119064828086174,
+    "distanceMeters": 3608.9298621064636,
+    "walkingMinutes": 48.119064828086174,
+    "walkingDistanceMeters": 3608.9298621064636,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6376636,
+    "lng": -58.3740134
+   },
+   "est": {
+    "mode": "walking",
+    "durationMinutes": 34.8257,
+    "distanceMeters": 2227,
+    "walkingMinutes": 34.8257,
+    "walkingDistanceMeters": 2227,
+    "approximate": false,
+    "provider": "geoapify"
+   },
+   "approx": {
+    "mode": "walking",
+    "durationMinutes": 35.965546269732926,
+    "distanceMeters": 2697.415970229969,
+    "walkingMinutes": 35.965546269732926,
+    "walkingDistanceMeters": 2697.415970229969,
+    "approximate": true,
+    "provider": "approximate"
+   }
+  }
+ ]
+}

@@ -1,0 +1,351 @@
+import { TourGenerationHarness } from './support/harness';
+import { osmPoi } from './support/fakes';
+import { seedTour } from '../support/seed';
+import { OsmCandidate } from 'src/modules/integrations/osm/services/osm-places.service';
+
+/**
+ * The full productive path, empty catalog → materialized Tour, against real
+ * Postgres. Acquisition returns BOTH a structured source result (Wikivoyage
+ * SEE listing) and a web SourcePlan result (grounded evidence → discovery
+ * extractor), and every internal layer between coverage and TourExperience
+ * materialization runs for real.
+ */
+const DEST = { latitude: -34.6083, longitude: -58.3712 };
+
+describe('tour-generation integration · canonical orchestration', () => {
+  let harness: TourGenerationHarness;
+
+  beforeAll(async () => {
+    harness = await TourGenerationHarness.create();
+  });
+
+  afterAll(async () => {
+    await harness.close();
+  });
+
+  beforeEach(async () => {
+    await harness.reset();
+  });
+
+  it('acquires from a structured source AND a web SourcePlan, persists, re-queries and plans a Tour', async () => {
+    harness.configure({
+      wikivoyage: {
+        status: 'ok',
+        title: 'Buenos Aires',
+        entries: [
+          {
+            name: 'Museo Histórico Nacional',
+            sectionType: 'SEE',
+            lat: DEST.latitude,
+            long: DEST.longitude,
+            description: 'National history museum in Parque Lezama.',
+          },
+        ],
+      },
+      groundedSearch: {
+        evidence: [
+          {
+            key: 'web:ev:history-walk-1',
+            title: 'A history walk through San Telmo',
+            snippet: 'Casa Mínima and the old colonial quarter.',
+          },
+        ],
+      },
+      discoveryExtractor: {
+        candidates: [
+          {
+            name: 'San Telmo colonial history walk',
+            themes: ['history'],
+            intents: ['visit'],
+            evidenceKeys: ['web:ev:history-walk-1'],
+          },
+        ],
+      },
+      osm: {
+        pois: [
+          osmPoi('Museo Histórico Nacional', DEST.latitude, DEST.longitude),
+          osmPoi(
+            'San Telmo colonial history walk',
+            DEST.latitude + 0.0004,
+            DEST.longitude + 0.0004,
+          ),
+        ],
+      },
+    });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'Buenos Aires',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 2,
+      interests: ['history'],
+      intents: ['visit'],
+    });
+
+    const outcome = await harness.generate(tourId);
+    expect(outcome.error?.message ?? 'ok').toBe('ok');
+    expect(outcome.ok).toBe(true);
+
+    // ── Real Postgres persistence ──
+    const verified = await harness.prisma.experience.findMany({
+      where: { status: 'VERIFIED' },
+      include: {
+        components: { include: { geoEntity: true } },
+        evidence: true,
+      },
+    });
+    expect(verified.length).toBeGreaterThanOrEqual(1);
+    const names = verified.map((e) => e.canonicalName);
+    expect(names).toEqual(
+      expect.arrayContaining(['San Telmo colonial history walk']),
+    );
+
+    // The structured Wikivoyage candidate completed the same resolver-backed
+    // persistence path as web candidates; receiving its observation alone is
+    // not enough. ExperienceEvidence intentionally persists source/title/
+    // snippet (not the acquisition-only evidenceKey).
+    const structuredExperience = verified.find(
+      (experience) => experience.canonicalName === 'Museo Histórico Nacional',
+    );
+    expect(structuredExperience).toBeDefined();
+    expect(structuredExperience!.components.length).toBeGreaterThanOrEqual(1);
+    expect(
+      structuredExperience!.components.some(
+        (component) =>
+          component.geoEntityId != null &&
+          component.geoEntity?.kind === 'PLACE' &&
+          component.geoEntity.name === 'Museo Histórico Nacional',
+      ),
+    ).toBe(true);
+    expect(structuredExperience!.evidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          source: 'wikivoyage',
+          title: 'Museo Histórico Nacional',
+          snippet: 'National history museum in Parque Lezama.',
+        }),
+      ]),
+    );
+
+    for (const experience of verified) {
+      expect(experience.components.length).toBeGreaterThanOrEqual(1);
+      expect(experience.components.every((c) => c.geoEntityId != null)).toBe(
+        true,
+      );
+      expect(
+        experience.components.every((c) => c.geoEntity?.kind === 'PLACE'),
+      ).toBe(true);
+    }
+
+    // ── Both acquisition channels were exercised ──
+    expect(harness.fakes.wikivoyage.fetchArticle).toHaveBeenCalled();
+    expect(harness.fakes.groundedSearch.search).toHaveBeenCalled();
+    expect(
+      harness.fakes.discoveryExtractor.extractExperiences,
+    ).toHaveBeenCalled();
+
+    // ── Trace + executionSummary reflect the real acquisition ──
+    const tour = await harness.loadTour(tourId);
+    expect(tour.generationStatus).toBe('completed');
+
+    const acquisitionSteps = harness
+      .traceSteps(tour.trace)
+      .filter((s) => s.component === 'ExperienceAcquisitionService');
+    expect(acquisitionSteps.length).toBeGreaterThanOrEqual(1);
+    expect(acquisitionSteps[0].stage).toBe('discovery');
+    // No legacy "Places crawl" step on the canonical path.
+    expect(
+      harness.traceSteps(tour.trace).some((s) => s.stage === 'places_crawl'),
+    ).toBe(false);
+
+    expect(tour.executionSummary).toBeDefined();
+    expect(tour.executionSummary.acquisition).toBeDefined();
+    expect(tour.executionSummary.acquisition.passes).toBeGreaterThanOrEqual(1);
+    expect(
+      tour.executionSummary.acquisition.webCandidateCount +
+        tour.executionSummary.acquisition.structuredCandidateCount,
+    ).toBeGreaterThanOrEqual(1);
+
+    // ── The re-queried catalog fed ranking + planner ──
+    expect(tour.tourExperiences.length).toBeGreaterThanOrEqual(1);
+    const plannedIds = new Set(
+      tour.tourExperiences.map((te) => te.experienceId),
+    );
+    expect(verified.some((e) => plannedIds.has(e.id))).toBe(true);
+    for (const te of tour.tourExperiences) {
+      expect(te.dayNumber).toBeGreaterThanOrEqual(1);
+      expect(te.components.length).toBeGreaterThanOrEqual(1);
+    }
+  });
+
+  it('routes an arbitrary area anchor plus an unsatisfied walk facet through the live B5 boundary', async () => {
+    const boundary: OsmCandidate = {
+      id: 'osm:relation:99001',
+      name: 'Historic District',
+      osmType: 'relation',
+      osmId: 99001,
+      geometry: {
+        type: 'Polygon',
+        coordinates: [
+          [
+            [DEST.longitude - 0.01, DEST.latitude - 0.01],
+            [DEST.longitude + 0.01, DEST.latitude - 0.01],
+            [DEST.longitude + 0.01, DEST.latitude + 0.01],
+            [DEST.longitude - 0.01, DEST.latitude + 0.01],
+            [DEST.longitude - 0.01, DEST.latitude - 0.01],
+          ],
+        ],
+      },
+      tags: { boundary: 'administrative' },
+    };
+    harness.configure({
+      destination: {
+        scale: 'area',
+        boundary,
+        country: 'Argentina',
+        countryCode: 'AR',
+      },
+    });
+    harness.fakes.nominatim.search.mockResolvedValue([
+      {
+        osmType: 'relation',
+        osmId: 99001,
+        addresstype: 'suburb',
+        placeRank: 20,
+        class: 'place',
+        type: 'suburb',
+        displayName: 'Historic District, Buenos Aires, Argentina',
+        importance: 0.5,
+        latitude: DEST.latitude,
+        longitude: DEST.longitude,
+      },
+    ]);
+    harness.fakes.osm.configure({ boundary });
+    harness.fakes.langChain.generateChatResponse.mockResolvedValue(
+      JSON.stringify({
+        preferredFacets: [],
+        anchoredPlaces: [
+          {
+            rawName: 'Historic District',
+            usage: 'geographic_scope',
+            priority: 'must',
+          },
+        ],
+        excludedThemes: [],
+        excludedTraits: [],
+        hardExclusions: [],
+        softConstraints: [],
+        ambiguities: [],
+        dietaryPreferences: [],
+        accessibilityPreferences: [],
+        budgetPreferences: [],
+        groupPreferences: [],
+        positiveSemanticQuery: '',
+        notes: [],
+      }),
+    );
+    harness.areaRouteWalkAcquire.mockResolvedValue({
+      outcome: 'no_result',
+    });
+
+    const tourId = await seedTour(harness.prisma, {
+      destinationLabel: 'Buenos Aires',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: [],
+      intents: ['walk'],
+      additionalPreferences: 'Historic District',
+    });
+
+    const outcome = await harness.generate(tourId);
+    expect(outcome.ok).toBe(false);
+    expect(outcome.error?.message).toContain('intent:walk');
+
+    const tour = await harness.loadTour(tourId);
+    const interpretation = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'preference_interpretation');
+    const coverage = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'coverage_analysis');
+    const routing = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.component === 'partitionDeficitsIntoWorkUnits');
+    const destination = harness
+      .traceSteps(tour.trace)
+      .find((step) => step.stage === 'destination_resolution');
+    expect(destination?.outputs).toHaveProperty('boundaryId');
+    expect(interpretation.outputs.intent.anchoredPlaces).toEqual([
+      {
+        rawName: 'Historic District',
+        usage: 'geographic_scope',
+        priority: 'must',
+      },
+    ]);
+    expect(interpretation.outputs.preferenceSpec.anchors).toEqual(
+      interpretation.outputs.intent.anchoredPlaces,
+    );
+    expect(interpretation.outputs.preferenceSpec.facets).toEqual([
+      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
+    ]);
+    expect(coverage.outputs.acquisitionDeficits).toEqual([
+      expect.objectContaining({
+        origin: 'preference_facet',
+        dimension: 'intent',
+        key: 'walk',
+      }),
+    ]);
+    expect(routing.outputs.workUnits).toEqual([
+      expect.objectContaining({
+        kind: 'AREA_ROUTE_WALK',
+        anchor: expect.objectContaining({
+          rawName: 'Historic District',
+          usage: 'geographic_scope',
+          priority: 'must',
+          status: 'resolved',
+          kind: 'area',
+          canonicalName: 'Historic District',
+        }),
+        intentKey: 'walk',
+        deficit: expect.objectContaining({
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+        }),
+        // RW3-F4: a resolved canonical area anchor routes as 'canonical'
+        // (vs the 'tourism_route' fallback for unresolved named paths).
+        anchorMode: 'canonical',
+        // The unit that owns intent:walk is the only geographic authority.
+        geographicGrant: {
+          kind: 'OWNED_INTENT',
+          intent: 'walk',
+          workUnit: 'AREA_ROUTE_WALK',
+          ownedDeficit: 'intent:walk',
+        },
+      }),
+    ]);
+    expect(harness.areaRouteWalkAcquire).toHaveBeenCalled();
+    expect(harness.areaRouteWalkAcquire.mock.calls[0][0]).toEqual(
+      expect.objectContaining({
+        anchor: expect.objectContaining({
+          rawName: 'Historic District',
+          usage: 'geographic_scope',
+          priority: 'must',
+          status: 'resolved',
+          kind: 'area',
+          canonicalName: 'Historic District',
+        }),
+        deficit: expect.objectContaining({
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+        }),
+      }),
+    );
+    expect(harness.fakes.groundedSearch.search).not.toHaveBeenCalled();
+    expect(harness.fakes.wikivoyage.fetchArticle).not.toHaveBeenCalled();
+  });
+});

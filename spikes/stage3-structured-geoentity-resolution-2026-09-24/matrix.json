@@ -1,0 +1,1195 @@
+[
+  {
+    "hint": "Defensa Street",
+    "expectedKind": "ROUTE",
+    "query": "Defensa Street",
+    "provider": "nominatim",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Dorrego Square",
+    "expectedKind": "PLACE",
+    "query": "Dorrego Square",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "San Lorenzo Passage",
+    "expectedKind": "ROUTE",
+    "query": "San Lorenzo Passage",
+    "provider": "nominatim",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "El Zanjón de Granados",
+    "expectedKind": "PLACE",
+    "query": "El Zanjón de Granados",
+    "provider": "geoapify",
+    "providerResultCount": 1,
+    "rawResults": [
+      {
+        "id": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329e203236f70656e7374726565746d61703a76656e75653a6e6f64652f39393533303237383834",
+        "name": "El Zanjón de Granados (historic ruins)",
+        "displayName": {
+          "text": "El Zanjón de Granados (historic ruins)"
+        },
+        "formattedAddress": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6166864,
+          "longitude": -58.3717972
+        },
+        "types": [
+          "entertainment.museum"
+        ],
+        "primaryType": "entertainment.museum"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329e203236f70656e7374726565746d61703a76656e75653a6e6f64652f39393533303237383834",
+        "canonicalName": "El Zanjón de Granados (historic ruins)",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "entertainment.museum",
+        "latitude": -34.6166864,
+        "longitude": -58.3717972,
+        "adminContext": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina"
+      }
+    ],
+    "finalStatus": "RESOLVED",
+    "reason": "RESOLVED",
+    "isAddendum": false
+  },
+  {
+    "hint": "Mafalda Statue",
+    "expectedKind": "PLACE",
+    "query": "Mafalda Statue",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Caminito Street",
+    "expectedKind": "ROUTE",
+    "query": "Caminito Street",
+    "provider": "nominatim",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Boca Juniors Stadium",
+    "expectedKind": "PLACE",
+    "query": "Boca Juniors Stadium",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Ezeiza Mansion",
+    "expectedKind": "PLACE",
+    "query": "Ezeiza Mansion",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Galería Güemes",
+    "expectedKind": "PLACE",
+    "query": "Galería Güemes",
+    "provider": "geoapify",
+    "providerResultCount": 2,
+    "rawResults": [
+      {
+        "id": "518610a15bf92f4dc0596eda311a9e4d41c0f00103f9019c1cf09300000000c002019203184d697261646f722047616c6572c3ad612047c3bc656d6573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343831393836373136",
+        "name": "Mirador Galería Güemes",
+        "displayName": {
+          "text": "Mirador Galería Güemes"
+        },
+        "formattedAddress": "Mirador Galería Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6063874,
+          "longitude": -58.3747973
+        },
+        "types": [
+          "tourism.attraction.viewpoint"
+        ],
+        "primaryType": "tourism.attraction.viewpoint"
+      },
+      {
+        "id": "51557ab7c370484dc0597331618fe45141c0f00103f901c3f2063403000000c0020192031347616c6572c3ad612047c3bc656d6573203531e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133373537373732343833",
+        "name": "Galería Güemes 51",
+        "displayName": {
+          "text": "Galería Güemes 51"
+        },
+        "formattedAddress": "Galería Güemes 51, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "location": {
+          "latitude": -34.6397876,
+          "longitude": -58.5659413
+        },
+        "types": [
+          "commercial.shopping_mall"
+        ],
+        "primaryType": "commercial.shopping_mall"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:518610a15bf92f4dc0596eda311a9e4d41c0f00103f9019c1cf09300000000c002019203184d697261646f722047616c6572c3ad612047c3bc656d6573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343831393836373136",
+        "canonicalName": "Mirador Galería Güemes",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "tourism.attraction.viewpoint",
+        "latitude": -34.6063874,
+        "longitude": -58.3747973,
+        "adminContext": "Mirador Galería Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:51557ab7c370484dc0597331618fe45141c0f00103f901c3f2063403000000c0020192031347616c6572c3ad612047c3bc656d6573203531e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3133373537373732343833",
+        "canonicalName": "Galería Güemes 51",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "commercial.shopping_mall",
+        "latitude": -34.6397876,
+        "longitude": -58.5659413,
+        "adminContext": "Galería Güemes 51, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina"
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": false
+  },
+  {
+    "hint": "Recoleta Cemetery",
+    "expectedKind": "PLACE",
+    "query": "Recoleta Cemetery",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": false
+  },
+  {
+    "hint": "Plaza Dorrego",
+    "expectedKind": "PLACE",
+    "query": "Plaza Dorrego",
+    "provider": "geoapify",
+    "providerResultCount": 5,
+    "rawResults": [
+      {
+        "id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "name": "Plaza Dorrego",
+        "displayName": {
+          "text": "Plaza Dorrego"
+        },
+        "formattedAddress": "Plaza Dorrego, San Telmo, 1871 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6204917,
+          "longitude": -58.3717807
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "51055a70f552304dc059f2c4bd439b4f41c0f00103f901acae083101000000c0020192035943656e74726f20646520416c6661626574697a616369c3b36e2c2045647563616369c3b36e2042c3a17369636120792054726162616a6f203739204173616d626c656120506f70756c617220506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137363139383834",
+        "name": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego",
+        "displayName": {
+          "text": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego"
+        },
+        "formattedAddress": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego, Avenida San Juan, Constitución, 1102 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6219258,
+          "longitude": -58.3775317
+        },
+        "types": [
+          "education.school"
+        ],
+        "primaryType": "education.school"
+      },
+      {
+        "id": "5101f8a754892f4dc05915353dcd6e4f41c0f00103f9016f353f7101000000c00201920313436166c3a920506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313934393335313531",
+        "name": "Café Plaza Dorrego",
+        "displayName": {
+          "text": "Café Plaza Dorrego"
+        },
+        "formattedAddress": "Café Plaza Dorrego, Defensa, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6205689,
+          "longitude": -58.3713785
+        },
+        "types": [
+          "catering.cafe"
+        ],
+        "primaryType": "catering.cafe"
+      },
+      {
+        "id": "517903cc7c07334dc0596de34f54365c41c0f00102f9016cf65e4d00000000c00201920314506c617a61204d616e75656c20446f727265676fe203226f70656e7374726565746d61703a76656e75653a7761792f31323938303639313030",
+        "name": "Plaza Manuel Dorrego",
+        "displayName": {
+          "text": "Plaza Manuel Dorrego"
+        },
+        "formattedAddress": "Plaza Manuel Dorrego, Villa Remedios de Escalada, 1824 Partido de Lanús, Argentina",
+        "location": {
+          "latitude": -34.720408,
+          "longitude": -58.398666
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "5142881a3b974e4dc059d08c8f60f46241c0f00102f901267ac81100000000c0020192030d506c617a6120446f727265676f",
+        "name": "Plaza Dorrego",
+        "displayName": {
+          "text": "Plaza Dorrego"
+        },
+        "formattedAddress": "Plaza Dorrego, Dorrego, González Catán, Partido de La Matanza, Argentina",
+        "location": {
+          "latitude": -34.7730828,
+          "longitude": -58.6139902
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "canonicalName": "Plaza Dorrego",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.6204917,
+        "longitude": -58.3717807,
+        "adminContext": "Plaza Dorrego, San Telmo, 1871 Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:51055a70f552304dc059f2c4bd439b4f41c0f00103f901acae083101000000c0020192035943656e74726f20646520416c6661626574697a616369c3b36e2c2045647563616369c3b36e2042c3a17369636120792054726162616a6f203739204173616d626c656120506f70756c617220506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137363139383834",
+        "canonicalName": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "education.school",
+        "latitude": -34.6219258,
+        "longitude": -58.3775317,
+        "adminContext": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego, Avenida San Juan, Constitución, 1102 Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:5101f8a754892f4dc05915353dcd6e4f41c0f00103f9016f353f7101000000c00201920313436166c3a920506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313934393335313531",
+        "canonicalName": "Café Plaza Dorrego",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "catering.cafe",
+        "latitude": -34.6205689,
+        "longitude": -58.3713785,
+        "adminContext": "Café Plaza Dorrego, Defensa, San Telmo, C1065 AAR Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:517903cc7c07334dc0596de34f54365c41c0f00102f9016cf65e4d00000000c00201920314506c617a61204d616e75656c20446f727265676fe203226f70656e7374726565746d61703a76656e75653a7761792f31323938303639313030",
+        "canonicalName": "Plaza Manuel Dorrego",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.720408,
+        "longitude": -58.398666,
+        "adminContext": "Plaza Manuel Dorrego, Villa Remedios de Escalada, 1824 Partido de Lanús, Argentina"
+      },
+      {
+        "externalId": "geoapify:5142881a3b974e4dc059d08c8f60f46241c0f00102f901267ac81100000000c0020192030d506c617a6120446f727265676f",
+        "canonicalName": "Plaza Dorrego",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.7730828,
+        "longitude": -58.6139902,
+        "adminContext": "Plaza Dorrego, Dorrego, González Catán, Partido de La Matanza, Argentina"
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": false
+  },
+  {
+    "hint": "San Martín",
+    "expectedKind": "AREA",
+    "query": "San Martín",
+    "provider": "nominatim",
+    "providerResultCount": 2,
+    "rawResults": [
+      {
+        "osmType": "relation",
+        "osmId": 9168783,
+        "addresstype": "town",
+        "placeRank": 16,
+        "class": "boundary",
+        "type": "administrative",
+        "displayName": "Ciudad del Libertador General San Martín, Partido de General San Martín, Buenos Aires, B1650, Argentina",
+        "importance": 0.18667666666666663,
+        "latitude": -34.5771577,
+        "longitude": -58.5377237,
+        "address": {
+          "town": "Ciudad del Libertador General San Martín",
+          "stateDistrict": "Partido de General San Martín",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "node",
+        "osmId": 11810699196,
+        "addresstype": "quarter",
+        "placeRank": 20,
+        "class": "place",
+        "type": "quarter",
+        "displayName": "San Martín, Virrey Del Pino, Partido de La Matanza, Buenos Aires, B1763, Argentina",
+        "importance": 0.1333433333333333,
+        "latitude": -34.8553307,
+        "longitude": -58.6663378,
+        "address": {
+          "city": "Virrey Del Pino",
+          "stateDistrict": "Partido de La Matanza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "osm:relation:9168783",
+        "canonicalName": "Ciudad del Libertador General San Martín, Partido de General San Martín, Buenos Aires, B1650, Argentina",
+        "provider": "nominatim",
+        "kind": "AREA",
+        "structuralType": "boundary/administrative",
+        "latitude": -34.5771577,
+        "longitude": -58.5377237,
+        "adminContext": "Ciudad del Libertador General San Martín, Partido de General San Martín, Buenos Aires, B1650, Argentina",
+        "ranking": 0.18667666666666663
+      }
+    ],
+    "finalStatus": "RESOLVED",
+    "reason": "RESOLVED",
+    "isAddendum": false
+  },
+  {
+    "hint": "Plaza San Martín",
+    "expectedKind": "PLACE",
+    "query": "Plaza San Martín",
+    "provider": "geoapify",
+    "providerResultCount": 5,
+    "rawResults": [
+      {
+        "id": "51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "name": "Plaza San Martín",
+        "displayName": {
+          "text": "Plaza San Martín"
+        },
+        "formattedAddress": "Plaza San Martín, Retiro, C1059 ABO Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.5946395,
+          "longitude": -58.3759048
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "51d586d4fe18344dc059aec4f29d4e5841c0f00102f901698cea0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "name": "Plaza San Martín",
+        "displayName": {
+          "text": "Plaza San Martín"
+        },
+        "formattedAddress": "Plaza San Martín, Villa de los Industriales, Lanús Oeste, B, Argentina",
+        "location": {
+          "latitude": -34.6898992,
+          "longitude": -58.4070128
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "518158dbb9d5444dc059dfae4d19ee4941c0f00102f901f7389e0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "name": "Plaza San Martín",
+        "displayName": {
+          "text": "Plaza San Martín"
+        },
+        "formattedAddress": "Plaza San Martín, B1650 Ciudad del Libertador General San Martín, Argentina",
+        "location": {
+          "latitude": -34.5775787,
+          "longitude": -58.5377724
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "515b2d0b81b72d4dc05970a422049a6141c0f00102f9013c46021200000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "name": "Plaza San Martín",
+        "displayName": {
+          "text": "Plaza San Martín"
+        },
+        "formattedAddress": "Plaza San Martín, San José, Partido de Lomas de Zamora, Argentina",
+        "location": {
+          "latitude": -34.7625127,
+          "longitude": -58.3571626
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      },
+      {
+        "id": "5190977f3edb334dc05975a103dc3d6541c0f00101f901b82f2c0000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "name": "Plaza San Martín",
+        "displayName": {
+          "text": "Plaza San Martín"
+        },
+        "formattedAddress": "Plaza San Martín, Turdera, Partido de Lomas de Zamora, Argentina",
+        "location": {
+          "latitude": -34.7909503,
+          "longitude": -58.4051283
+        },
+        "types": [
+          "leisure.park"
+        ],
+        "primaryType": "leisure.park"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:51683403a61d304dc05974b4aa251d4c41c0f00101f901811a080000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.5946395,
+        "longitude": -58.3759048,
+        "adminContext": "Plaza San Martín, Retiro, C1059 ABO Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:51d586d4fe18344dc059aec4f29d4e5841c0f00102f901698cea0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.6898992,
+        "longitude": -58.4070128,
+        "adminContext": "Plaza San Martín, Villa de los Industriales, Lanús Oeste, B, Argentina"
+      },
+      {
+        "externalId": "geoapify:518158dbb9d5444dc059dfae4d19ee4941c0f00102f901f7389e0500000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.5775787,
+        "longitude": -58.5377724,
+        "adminContext": "Plaza San Martín, B1650 Ciudad del Libertador General San Martín, Argentina"
+      },
+      {
+        "externalId": "geoapify:515b2d0b81b72d4dc05970a422049a6141c0f00102f9013c46021200000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.7625127,
+        "longitude": -58.3571626,
+        "adminContext": "Plaza San Martín, San José, Partido de Lomas de Zamora, Argentina"
+      },
+      {
+        "externalId": "geoapify:5190977f3edb334dc05975a103dc3d6541c0f00101f901b82f2c0000000000c00201920311506c617a612053616e204d617274c3ad6e",
+        "canonicalName": "Plaza San Martín",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "leisure.park",
+        "latitude": -34.7909503,
+        "longitude": -58.4051283,
+        "adminContext": "Plaza San Martín, Turdera, Partido de Lomas de Zamora, Argentina"
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": false
+  },
+  {
+    "hint": "Caminito",
+    "expectedKind": "PLACE",
+    "query": "Caminito",
+    "provider": "geoapify",
+    "providerResultCount": 4,
+    "rawResults": [
+      {
+        "id": "51744ea214632e4dc059e93ea5efda5141c0f00102f9010c33da2700000000c00201920311436163686166617a2043616d696e69746fe203216f70656e7374726565746d61703a76656e75653a7761792f363638363131333430",
+        "name": "Cachafaz Caminito",
+        "displayName": {
+          "text": "Cachafaz Caminito"
+        },
+        "formattedAddress": "Cachafaz Caminito, Caminito, La Boca, C1169 AAD Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6394939,
+          "longitude": -58.3623987
+        },
+        "types": [
+          "commercial.food_and_drink.chocolate"
+        ],
+        "primaryType": "commercial.food_and_drink.chocolate"
+      },
+      {
+        "id": "517caf6bc5482e4dc059674c1cd4d95141c0f00103f9018962f91301000000c0020192032243616d696e69746f20546f757269737420417373697374616e63652043656e746572e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363330303738303839",
+        "name": "Caminito Tourist Assistance Center",
+        "displayName": {
+          "text": "Caminito Tourist Assistance Center"
+        },
+        "formattedAddress": "Caminito Tourist Assistance Center, Avenida Don Pedro de Mendoza 1900, La Boca, C1169 AAC Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6394601,
+          "longitude": -58.3615958
+        },
+        "types": []
+      },
+      {
+        "id": "51063708292e2e4dc0595cf9d115115241c0f00103f90135e2ca0403000000c0020192031c43616d696e69746f20e2809320436f6cc3b36e2046c3a16272696361e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3132393635333036393333",
+        "name": "Caminito – Colón Fábrica",
+        "displayName": {
+          "text": "Caminito – Colón Fábrica"
+        },
+        "formattedAddress": "Caminito – Colón Fábrica, Avenida Don Pedro de Mendoza, La Boca, C1169 AAF Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6411464,
+          "longitude": -58.3607837
+        },
+        "types": [
+          "public_transport.bus"
+        ],
+        "primaryType": "public_transport.bus"
+      },
+      {
+        "id": "512ae0432edd374dc0591074b4aa254e41c0f00103f901d0f4053101000000c0020192032445736375656c6120496e66616e74696c2043616d696e69746f20646520436f6c6f726573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137343431323332",
+        "name": "Escuela Infantil Caminito de Colores",
+        "displayName": {
+          "text": "Escuela Infantil Caminito de Colores"
+        },
+        "formattedAddress": "Escuela Infantil Caminito de Colores, Arturo Jauretche, Caballito, 1405 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6105245,
+          "longitude": -58.4364374
+        },
+        "types": [
+          "childcare.kindergarten"
+        ],
+        "primaryType": "childcare.kindergarten"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:51744ea214632e4dc059e93ea5efda5141c0f00102f9010c33da2700000000c00201920311436163686166617a2043616d696e69746fe203216f70656e7374726565746d61703a76656e75653a7761792f363638363131333430",
+        "canonicalName": "Cachafaz Caminito",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "commercial.food_and_drink.chocolate",
+        "latitude": -34.6394939,
+        "longitude": -58.3623987,
+        "adminContext": "Cachafaz Caminito, Caminito, La Boca, C1169 AAD Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:517caf6bc5482e4dc059674c1cd4d95141c0f00103f9018962f91301000000c0020192032243616d696e69746f20546f757269737420417373697374616e63652043656e746572e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363330303738303839",
+        "canonicalName": "Caminito Tourist Assistance Center",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "unknown",
+        "latitude": -34.6394601,
+        "longitude": -58.3615958,
+        "adminContext": "Caminito Tourist Assistance Center, Avenida Don Pedro de Mendoza 1900, La Boca, C1169 AAC Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:51063708292e2e4dc0595cf9d115115241c0f00103f90135e2ca0403000000c0020192031c43616d696e69746f20e2809320436f6cc3b36e2046c3a16272696361e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3132393635333036393333",
+        "canonicalName": "Caminito – Colón Fábrica",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "public_transport.bus",
+        "latitude": -34.6411464,
+        "longitude": -58.3607837,
+        "adminContext": "Caminito – Colón Fábrica, Avenida Don Pedro de Mendoza, La Boca, C1169 AAF Buenos Aires, Argentina"
+      },
+      {
+        "externalId": "geoapify:512ae0432edd374dc0591074b4aa254e41c0f00103f901d0f4053101000000c0020192032445736375656c6120496e66616e74696c2043616d696e69746f20646520436f6c6f726573e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137343431323332",
+        "canonicalName": "Escuela Infantil Caminito de Colores",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "childcare.kindergarten",
+        "latitude": -34.6105245,
+        "longitude": -58.4364374,
+        "adminContext": "Escuela Infantil Caminito de Colores, Arturo Jauretche, Caballito, 1405 Buenos Aires, Argentina"
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": false
+  },
+  {
+    "hint": "Defensa",
+    "expectedKind": "ROUTE",
+    "query": "Defensa",
+    "provider": "nominatim",
+    "providerResultCount": 5,
+    "rawResults": [
+      {
+        "osmType": "way",
+        "osmId": 255969742,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "tertiary",
+        "displayName": "Defensa, Constantini, Santa María, Partido de San Miguel, Buenos Aires, 1662, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.5611808,
+        "longitude": -58.742149,
+        "address": {
+          "city": "Santa María",
+          "cityDistrict": "Constantini",
+          "stateDistrict": "Partido de San Miguel",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 370540410,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Defensa, General San Martin, Presidente Roca, La Tablada, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.6991762,
+        "longitude": -58.5223341,
+        "address": {
+          "town": "La Tablada",
+          "stateDistrict": "Partido de La Matanza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 535712750,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Defensa, Güemes, Haedo, Partido de Morón, Buenos Aires, B1706CGO, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.6417015,
+        "longitude": -58.6007452,
+        "address": {
+          "town": "Haedo",
+          "stateDistrict": "Partido de Morón",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 1171448024,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Defensa, Mendeville, Aldo Bonzi, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.7132256,
+        "longitude": -58.5158979,
+        "address": {
+          "town": "Aldo Bonzi",
+          "stateDistrict": "Partido de La Matanza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 57732868,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Defensa, Villa Sambrizzi, Paso del Rey, Partido de Moreno, Buenos Aires, 1742, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.6377986,
+        "longitude": -58.7601925,
+        "address": {
+          "town": "Paso del Rey",
+          "stateDistrict": "Partido de Moreno",
+          "suburb": "Villa Sambrizzi",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "osm:way:255969742",
+        "canonicalName": "Defensa, Constantini, Santa María, Partido de San Miguel, Buenos Aires, 1662, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/tertiary",
+        "latitude": -34.5611808,
+        "longitude": -58.742149,
+        "adminContext": "Defensa, Constantini, Santa María, Partido de San Miguel, Buenos Aires, 1662, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:370540410",
+        "canonicalName": "Defensa, General San Martin, Presidente Roca, La Tablada, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.6991762,
+        "longitude": -58.5223341,
+        "adminContext": "Defensa, General San Martin, Presidente Roca, La Tablada, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:535712750",
+        "canonicalName": "Defensa, Güemes, Haedo, Partido de Morón, Buenos Aires, B1706CGO, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.6417015,
+        "longitude": -58.6007452,
+        "adminContext": "Defensa, Güemes, Haedo, Partido de Morón, Buenos Aires, B1706CGO, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:1171448024",
+        "canonicalName": "Defensa, Mendeville, Aldo Bonzi, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.7132256,
+        "longitude": -58.5158979,
+        "adminContext": "Defensa, Mendeville, Aldo Bonzi, Partido de La Matanza, Buenos Aires, 1770, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:57732868",
+        "canonicalName": "Defensa, Villa Sambrizzi, Paso del Rey, Partido de Moreno, Buenos Aires, 1742, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.6377986,
+        "longitude": -58.7601925,
+        "adminContext": "Defensa, Villa Sambrizzi, Paso del Rey, Partido de Moreno, Buenos Aires, 1742, Argentina",
+        "ranking": 0.0533433333333333
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": true
+  },
+  {
+    "hint": "Pasaje San Lorenzo",
+    "expectedKind": "ROUTE",
+    "query": "Pasaje San Lorenzo",
+    "provider": "nominatim",
+    "providerResultCount": 5,
+    "rawResults": [
+      {
+        "osmType": "node",
+        "osmId": 11637341969,
+        "addresstype": "amenity",
+        "placeRank": 30,
+        "class": "amenity",
+        "type": "pub",
+        "displayName": "El Pasaje De La Luna / Luna Porteña (Cooperativa Cultural Gastronómica), 365, San Lorenzo, San Telmo, Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, 1064, Argentina",
+        "importance": 0.00000999999999995449,
+        "latitude": -34.616585,
+        "longitude": -58.3710948,
+        "address": {
+          "city": "Buenos Aires",
+          "cityDistrict": "Comuna 1",
+          "suburb": "San Telmo",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 243006500,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Pasaje San Lorenzo, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -27.4858826,
+        "longitude": -59.0119568,
+        "address": {
+          "city": "Resistencia",
+          "stateDistrict": "Departamento San Fernando",
+          "state": "Chaco",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 285943103,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "unclassified",
+        "displayName": "Pasaje San Lorenzo, Municipio de Soldini, Gran Rosario, Departamento Rosario, Santa Fe, 2107, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -33.0294895,
+        "longitude": -60.7403941,
+        "address": {
+          "municipality": "Municipio de Soldini",
+          "stateDistrict": "Departamento Rosario",
+          "state": "Santa Fe",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 105617037,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Pasaje San Lorenzo, Resistiré, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -27.4819767,
+        "longitude": -59.0074412,
+        "address": {
+          "city": "Resistencia",
+          "stateDistrict": "Departamento San Fernando",
+          "suburb": "Villa Palermo 2",
+          "state": "Chaco",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 535225688,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Pasaje San Lorenzo, Villa Saralegui, Municipio de Villa Saralegui, Departamento San Cristóbal, Santa Fe, S3046, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -30.5432927,
+        "longitude": -60.7451683,
+        "address": {
+          "village": "Villa Saralegui",
+          "stateDistrict": "Departamento San Cristóbal",
+          "state": "Santa Fe",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "osm:way:243006500",
+        "canonicalName": "Pasaje San Lorenzo, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -27.4858826,
+        "longitude": -59.0119568,
+        "adminContext": "Pasaje San Lorenzo, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:285943103",
+        "canonicalName": "Pasaje San Lorenzo, Municipio de Soldini, Gran Rosario, Departamento Rosario, Santa Fe, 2107, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/unclassified",
+        "latitude": -33.0294895,
+        "longitude": -60.7403941,
+        "adminContext": "Pasaje San Lorenzo, Municipio de Soldini, Gran Rosario, Departamento Rosario, Santa Fe, 2107, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:105617037",
+        "canonicalName": "Pasaje San Lorenzo, Resistiré, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -27.4819767,
+        "longitude": -59.0074412,
+        "adminContext": "Pasaje San Lorenzo, Resistiré, Villa Palermo 2, Resistencia, Municipio de Resistencia, Departamento San Fernando, Chaco, H3504BHB, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:535225688",
+        "canonicalName": "Pasaje San Lorenzo, Villa Saralegui, Municipio de Villa Saralegui, Departamento San Cristóbal, Santa Fe, S3046, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -30.5432927,
+        "longitude": -60.7451683,
+        "adminContext": "Pasaje San Lorenzo, Villa Saralegui, Municipio de Villa Saralegui, Departamento San Cristóbal, Santa Fe, S3046, Argentina",
+        "ranking": 0.0533433333333333
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": true
+  },
+  {
+    "hint": "Caminito",
+    "expectedKind": "ROUTE",
+    "query": "Caminito",
+    "provider": "nominatim",
+    "providerResultCount": 5,
+    "rawResults": [
+      {
+        "osmType": "way",
+        "osmId": 269972048,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Caminito, La Unión, Partido de Ezeiza, Buenos Aires, B1803HAA, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.8878122,
+        "longitude": -58.5383852,
+        "address": {
+          "town": "La Unión",
+          "stateDistrict": "Partido de Ezeiza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 50223078,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "unclassified",
+        "displayName": "Caminito, Carlos Spegazzini, Partido de Ezeiza, Buenos Aires, 1812, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.9431526,
+        "longitude": -58.5798981,
+        "address": {
+          "town": "Carlos Spegazzini",
+          "stateDistrict": "Partido de Ezeiza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 83598837,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Caminito, Lasalle, González Catán, Partido de La Matanza, Buenos Aires, 1759, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.7625421,
+        "longitude": -58.6646945,
+        "address": {
+          "city": "González Catán",
+          "stateDistrict": "Partido de La Matanza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 203430334,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Caminito, Santa Catalina, Partido de Lomas de Zamora, Buenos Aires, 1839, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.7506117,
+        "longitude": -58.4797931,
+        "address": {
+          "stateDistrict": "Partido de Lomas de Zamora",
+          "suburb": "Santa Catalina",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      },
+      {
+        "osmType": "way",
+        "osmId": 49612848,
+        "addresstype": "road",
+        "placeRank": 26,
+        "class": "highway",
+        "type": "residential",
+        "displayName": "Caminito, La Unión, Partido de Ezeiza, Buenos Aires, 1806, Argentina",
+        "importance": 0.0533433333333333,
+        "latitude": -34.891995,
+        "longitude": -58.5472965,
+        "address": {
+          "town": "La Unión",
+          "stateDistrict": "Partido de Ezeiza",
+          "state": "Buenos Aires",
+          "country": "Argentina",
+          "countryCode": "AR"
+        }
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "osm:way:269972048",
+        "canonicalName": "Caminito, La Unión, Partido de Ezeiza, Buenos Aires, B1803HAA, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.8878122,
+        "longitude": -58.5383852,
+        "adminContext": "Caminito, La Unión, Partido de Ezeiza, Buenos Aires, B1803HAA, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:50223078",
+        "canonicalName": "Caminito, Carlos Spegazzini, Partido de Ezeiza, Buenos Aires, 1812, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/unclassified",
+        "latitude": -34.9431526,
+        "longitude": -58.5798981,
+        "adminContext": "Caminito, Carlos Spegazzini, Partido de Ezeiza, Buenos Aires, 1812, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:83598837",
+        "canonicalName": "Caminito, Lasalle, González Catán, Partido de La Matanza, Buenos Aires, 1759, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.7625421,
+        "longitude": -58.6646945,
+        "adminContext": "Caminito, Lasalle, González Catán, Partido de La Matanza, Buenos Aires, 1759, Argentina",
+        "ranking": 0.0533433333333333
+      },
+      {
+        "externalId": "osm:way:203430334",
+        "canonicalName": "Caminito, Santa Catalina, Partido de Lomas de Zamora, Buenos Aires, 1839, Argentina",
+        "provider": "nominatim",
+        "kind": "ROUTE",
+        "structuralType": "highway/residential",
+        "latitude": -34.7506117,
+        "longitude": -58.4797931,
+        "adminContext": "Caminito, Santa Catalina, Partido de Lomas de Zamora, Buenos Aires, 1839, Argentina",
+        "ranking": 0.0533433333333333
+      }
+    ],
+    "finalStatus": "AMBIGUOUS",
+    "reason": "AMBIGUOUS",
+    "isAddendum": true
+  },
+  {
+    "hint": "Estadio Alberto J. Armando",
+    "expectedKind": "PLACE",
+    "query": "Estadio Alberto J. Armando",
+    "provider": "geoapify",
+    "providerResultCount": 1,
+    "rawResults": [
+      {
+        "id": "517f23cb93b52e4dc0593e46d49f585141c0f00102f9016551d10e00000000c0020192030c4c6120426f6d626f6e657261",
+        "name": "La Bombonera",
+        "displayName": {
+          "text": "La Bombonera"
+        },
+        "formattedAddress": "La Bombonera, Brandsen 805, La Boca, 1162 Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.6355171,
+          "longitude": -58.3649163
+        },
+        "types": [
+          "sport.stadium"
+        ],
+        "primaryType": "sport.stadium"
+      }
+    ],
+    "candidateList": [
+      {
+        "externalId": "geoapify:517f23cb93b52e4dc0593e46d49f585141c0f00102f9016551d10e00000000c0020192030c4c6120426f6d626f6e657261",
+        "canonicalName": "La Bombonera",
+        "provider": "geoapify",
+        "kind": "PLACE",
+        "structuralType": "sport.stadium",
+        "latitude": -34.6355171,
+        "longitude": -58.3649163,
+        "adminContext": "La Bombonera, Brandsen 805, La Boca, 1162 Buenos Aires, Argentina"
+      }
+    ],
+    "finalStatus": "RESOLVED",
+    "reason": "RESOLVED",
+    "isAddendum": true
+  },
+  {
+    "hint": "Cementerio de la Recoleta",
+    "expectedKind": "PLACE",
+    "query": "Cementerio de la Recoleta",
+    "provider": "geoapify",
+    "providerResultCount": 0,
+    "rawResults": [],
+    "candidateList": [],
+    "finalStatus": "NOT_FOUND",
+    "reason": "NOT_FOUND",
+    "isAddendum": true
+  }
+]

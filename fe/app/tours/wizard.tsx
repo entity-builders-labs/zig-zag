@@ -11,10 +11,12 @@ export default function TourWizardScreen() {
   const router = useRouter();
   const {
     category,
+    destination,
     latitude: latParam,
-    longitude: lngParam,
+    longitude: lngParam
   } = useLocalSearchParams<{
     category?: string;
+    destination?: string;
     latitude?: string;
     longitude?: string;
   }>();
@@ -23,8 +25,6 @@ export default function TourWizardScreen() {
   // Use the createTour hook
   const { createTour, isLoading, error } = useCreateTour({
     category,
-    initialLatitude: latParam ? parseFloat(latParam) : address?.lat,
-    initialLongitude: lngParam ? parseFloat(lngParam) : address?.lng,
   });
 
   const handleSubmit = async (preferences: GenerateTourDto) => {
@@ -46,25 +46,36 @@ export default function TourWizardScreen() {
     router.back();
   };
 
+  const initialLocation = React.useMemo(() => {
+    if (destination) {
+      return latParam && lngParam
+        ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
+        : undefined;
+    }
+    if (address?.lat && address?.lng) {
+      return { lat: address.lat, lng: address.lng };
+    }
+    if (latParam && lngParam) {
+      return { lat: parseFloat(latParam), lng: parseFloat(lngParam) };
+    }
+    return undefined;
+  }, [destination, latParam, lngParam, address?.lat, address?.lng]);
+
   return (
     <>
       <Stack.Screen
         options={{
           title: 'Nuevo Tour',
           presentation: 'modal',
-          headerShown: false,
+          headerShown: false
         }}
       />
       <TourWizardForm
+        isLoading={isLoading}
         onSubmit={handleSubmit}
         onCancel={handleCancel}
-        initialLocation={
-          address?.lat && address?.lng
-            ? { lat: address.lat, lng: address.lng }
-            : latParam && lngParam
-              ? { lat: parseFloat(latParam), lng: parseFloat(lngParam) }
-              : undefined
-        }
+        initialDestination={destination}
+        initialLocation={initialLocation}
       />
     </>
   );

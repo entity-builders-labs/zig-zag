@@ -1,0 +1,48 @@
+{
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "variant": "A0",
+  "run": "3",
+  "ms": 5250,
+  "summary": [
+    {
+      "name": "Uco Valley Wine Tasting Itinerary",
+      "components": [
+        {
+          "name": "Valle de Uco",
+          "localityAssertion": null
+        },
+        {
+          "name": "Alfa Crux",
+          "localityAssertion": null
+        },
+        {
+          "name": "SuperUco",
+          "localityAssertion": null
+        },
+        {
+          "name": "Bodega Azul",
+          "localityAssertion": null
+        }
+      ]
+    },
+    {
+      "name": "Lujan de Cuyo Wine Tasting Itinerary",
+      "components": [
+        {
+          "name": "Luján de Cuyo",
+          "localityAssertion": null
+        },
+        {
+          "name": "A16",
+          "localityAssertion": null
+        },
+        {
+          "name": "Ojo de Agua",
+          "localityAssertion": null
+        }
+      ]
+    }
+  ],
+  "raw": "{\n  \"candidates\": [\n    {\n      \"name\": \"Uco Valley Wine Tasting Itinerary\",\n      \"description\": \"A tried and tested day of wine tasting in the Uco Valley, starting at Alfa Crux, continuing to SuperUco, and finishing with lunch at Bodega Azul.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\",\n        \"food\"\n      ],\n      \"traits\": [\n        \"wineries\",\n        \"tasting\",\n        \"lunch\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"visit\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"valle-de-uco\",\n          \"name\": \"Valle de Uco\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"If I were to plan a wine tasting in Valle de Uco Itinerary for a friend, this is the day I’d schedule for them.\"\n        },\n        {\n          \"key\": \"alfa-crux\",\n          \"name\": \"Alfa Crux\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Alfa Crux – 10 am – This winery is the furthest, so start here and work your way back up.\"\n        },\n        {\n          \"key\": \"superuco\",\n          \"name\": \"SuperUco\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"SuperUco – 12 pm – It will take you 40 minutes to drive here from Alfa Crux so you’ll need to schedule SuperUco for no earlier than noon.\"\n        },\n        {\n          \"key\": \"bodega-azul\",\n          \"name\": \"Bodega Azul\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Bodega Azul – 2:30 pm for lunch – You’ll spend the remaining hours of your afternoon hours here, so sit back and enjoy the meal.\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 360,\n      \"shortReason\": \"An evidence-backed multi-stop wine tasting route through the Uco Valley featuring Alfa Crux, SuperUco, and Bodega Azul.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    },\n    {\n      \"name\": \"Lujan de Cuyo Wine Tasting Itinerary\",\n      \"description\": \"An ideal day of wine tasting in Lujan de Cuyo, featuring a morning tour at A16 and a leisurely lunch at Ojo de Agua.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\",\n        \"food\"\n      ],\n      \"traits\": [\n        \"wineries\",\n        \"tasting\",\n        \"lunch\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"visit\"\n      ],\n      \"componentHints\": [\n        {\n          \"key\": \"lujan-de-cuyo\",\n          \"name\": \"Luján de Cuyo\",\n          \"role\": \"area\",\n          \"expectedKind\": \"AREA\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"This is my ideal day in Lujan de Cuyo, and it’s tried and tested because this is how we spent a day here this year.\",\n          \"normalizationKind\": \"CANONICAL_NAME\",\n          \"sourceName\": \"Lujan de Cuyo\"\n        },\n        {\n          \"key\": \"a16\",\n          \"name\": \"A16\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"A16 – 10 am – Start your day with a tasting and a tour at A16.\"\n        },\n        {\n          \"key\": \"ojo-de-agua\",\n          \"name\": \"Ojo de Agua\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-1\"\n          ],\n          \"supportSpan\": \"Ojo de Agua – 1:30 pm for a winery lunch – It took us about 15-20 minutes to drive to Ojo de Agua from Melipal\"\n        }\n      ],\n      \"suggestedDurationMinutes\": 360,\n      \"shortReason\": \"A structured day itinerary visiting wineries in Lujan de Cuyo including A16 and Ojo de Agua.\",\n      \"evidenceKeys\": [\n        \"ev-1\"\n      ],\n      \"orderedByEvidence\": true\n    }\n  ]\n}"
+}

@@ -1,0 +1,51 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "51b80f2f3ebb314dc059164ca198614d41c0f00103f90132a90b6400000000c0020192031a54656174726f2047656e6572616c2053616e204d617274c3ad6e",
+      "name": "Teatro General San Martín",
+      "displayName": {
+        "text": "Teatro General San Martín"
+      },
+      "formattedAddress": "Teatro General San Martín, Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6045409,
+        "longitude": -58.3885267
+      },
+      "types": [
+        "entertainment.culture.theatre"
+      ],
+      "primaryType": "entertainment.culture.theatre"
+    },
+    {
+      "id": "51ed365e70bc314dc059e8dced7a694d41c0f00102f901958dc90100000000c0020192032343656e74726f2043756c747572616c2047656e6572616c2053616e204d617274c3ad6e",
+      "name": "Centro Cultural General San Martín",
+      "displayName": {
+        "text": "Centro Cultural General San Martín"
+      },
+      "formattedAddress": "Centro Cultural General San Martín, Avenida Corrientes, San Nicolás, C1042 AAO Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6047815,
+        "longitude": -58.3885632
+      },
+      "types": [
+        "entertainment.culture.arts_centre"
+      ],
+      "primaryType": "entertainment.culture.arts_centre"
+    },
+    {
+      "id": "51b8d90efc5e304dc059fd6ce4ba294c41c0f00103f901cc8e82cd00000000c0020192031347656e6572616c2053616e204d617274c3ad6e",
+      "name": "General San Martín",
+      "displayName": {
+        "text": "General San Martín"
+      },
+      "formattedAddress": "General San Martín, Avenida Santa Fe, Retiro, 1006 Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.5950235,
+        "longitude": -58.3778987
+      },
+      "types": []
+    }
+  ],
+  "failure": null
+}

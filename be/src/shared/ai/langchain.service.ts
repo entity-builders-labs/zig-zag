@@ -10,16 +10,55 @@ import {
 } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
+import { HumanMessage, SystemMessage } from '@langchain/core/messages';
 import { BaseLanguageModel } from '@langchain/core/language_models/base';
 import aiConfig from './ai.config';
-import { Activity } from '@prisma/client';
 import { AiCacheService } from './services/ai-cache.service';
+import { normalizeOllamaStructuredResponse } from './ollama-response.util';
+import { AiProviderError } from './ai-provider.error';
+
+export type GroqResponseFormat =
+  | { type: 'json_object' }
+  | {
+      type: 'json_schema';
+      json_schema: {
+        name: string;
+        strict: true;
+        schema: Record<string, unknown>;
+      };
+    };
+
+export type ChatResponseOptions = Partial<
+  ConstructorParameters<typeof ChatOpenAI>[0]
+> & {
+  responseFormat?: GroqResponseFormat;
+  groq?: {
+    maxCompletionTokens?: number;
+    reasoningEffort?: 'low' | 'medium' | 'high';
+    includeReasoning?: boolean;
+  };
+  /**
+   * Force a specific transport for this one call, independent of the global
+   * `AI_PROVIDER`. Used by the discovery extractors so that
+   * `DISCOVERY_EXTRACTOR_PROVIDER` — not `AI_PROVIDER` — decides where the
+   * extraction request actually goes.
+   */
+  providerOverride?: 'openai' | 'groq' | 'gemini' | 'ollama';
+  /** Force a specific model for this one call, independent of provider config. */
+  modelOverride?: string;
+  /**
+   * Skip the file-based AI response cache for this one call (both read and
+   * write). Live characterization tests need a guaranteed real outbound call.
+   */
+  bypassCache?: boolean;
+};
 
 @Injectable()
 export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
   private chatModel: any;
   private completionModel: any;
+  private readonly groqMaxRateLimitRetries = 3;
 
   constructor(
     @Inject(aiConfig.KEY)
@@ -27,6 +66,11 @@ export class LangChainService {
     private readonly aiCache: AiCacheService,
   ) {
     this.initializeModels();
+  }
+
+  /** Provider/model metadata for redacted generation audit records. */
+  getProviderMetadata(): { provider: string; model: string } {
+    return { provider: this.config.provider, model: this.config.defaultModel };
   }
 
   // Helper to get Ollama request headers with authentication if configured
@@ -48,6 +92,77 @@ export class LangChainService {
     return this.config.ollamaBaseUrl || 'http://localhost:11434';
   }
 
+  private groqRetryDelayMs(resp: Response, errorBody: string): number {
+    const retryAfter = resp.headers?.get?.('retry-after');
+    const retryAfterSeconds = retryAfter ? Number(retryAfter) : NaN;
+    if (Number.isFinite(retryAfterSeconds)) {
+      return Math.min(60_000, Math.max(250, retryAfterSeconds * 1000 + 250));
+    }
+
+    const messageDelay = errorBody.match(
+      /(?:try again|retry)\s+in\s+([\d.]+)\s*(ms|s)/i,
+    );
+    if (messageDelay) {
+      const value = Number(messageDelay[1]);
+      const milliseconds =
+        messageDelay[2].toLowerCase() === 'ms' ? value : value * 1000;
+      return Math.min(60_000, Math.max(250, Math.ceil(milliseconds) + 500));
+    }
+    return 1500;
+  }
+
+  private async fetchGroq(init: RequestInit): Promise<Response> {
+    for (let attempt = 0; ; attempt++) {
+      let resp: Response;
+      try {
+        resp = await fetch(
+          'https://api.groq.com/openai/v1/chat/completions',
+          init,
+        );
+      } catch (error: any) {
+        if (error instanceof AiProviderError) throw error;
+        if (
+          error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? '')
+        ) {
+          throw new AiProviderError({
+            message: `Groq call timed out: ${error?.message}`,
+            provider: 'groq',
+            providerStatus: 'TIMEOUT',
+            cause: error,
+          });
+        }
+        throw error;
+      }
+      if (resp.ok) return resp;
+
+      const errorBody = await resp.text();
+      if (resp.status === 429 && attempt < this.groqMaxRateLimitRetries) {
+        const delayMs = this.groqRetryDelayMs(resp, errorBody);
+        this.logger.warn(
+          `Groq rate limited the request (attempt ${attempt + 1}/${this.groqMaxRateLimitRetries}); waiting ${delayMs}ms before retrying.`,
+        );
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
+        continue;
+      }
+
+      let providerStatus: string | undefined;
+      try {
+        const parsed = JSON.parse(errorBody);
+        providerStatus = parsed?.error?.code ?? parsed?.error?.type;
+      } catch {}
+      this.logger.error(`Groq error ${resp.status}: ${errorBody}`);
+      throw new AiProviderError({
+        message: `Groq error ${resp.status}: ${errorBody}`,
+        provider: 'groq',
+        httpStatus: resp.status,
+        providerStatus,
+      });
+    }
+  }
+
   private initializeModels(): void {
     try {
       const provider = this.config.provider;
@@ -56,8 +171,12 @@ export class LangChainService {
         return;
       }
 
-      // Validate chat model is not an embedding model (for Ollama/Groq)
-      if (provider === 'ollama' || provider === 'groq') {
+      // Validate chat model is not an embedding model (for Ollama/Groq/Gemini)
+      if (
+        provider === 'ollama' ||
+        provider === 'groq' ||
+        provider === 'gemini'
+      ) {
         const model = this.config.defaultModel;
         try {
           this.validateChatModel(model);
@@ -93,6 +212,8 @@ export class LangChainService {
         const ollamaConfig: any = {
           baseUrl,
           model,
+          // Keep structured-output enforcement at the Ollama boundary.
+          format: 'json',
           temperature: this.config.temperature,
           timeout: this.config.ollamaTimeout || this.config.timeout * 4,
         };
@@ -110,7 +231,7 @@ export class LangChainService {
         this.chatModel = new ChatOllama(ollamaConfig);
         this.completionModel = new ChatOllama(ollamaConfig);
       } else {
-        // For groq we use HTTP endpoints in generateChatResponse/generateCompletionResponse
+        // For gemini and groq we use direct API calls in generateChatResponse/generateCompletionResponse
         this.chatModel = null;
         this.completionModel = null;
       }
@@ -213,7 +334,7 @@ export class LangChainService {
     if (isEmbeddingModel) {
       throw new Error(
         `Invalid model "${model}" for chat/generation. This is an embedding model and cannot be used for chat. ` +
-          `Please set AI_MODEL to a chat model like "llama3.2", "llama3.2:1b", or "gpt-oss:20b". ` +
+          `Please set the active provider's model variable to a chat model like "llama3.2", "llama3.2:1b", or "gpt-oss:20b". ` +
           `Embedding models (like "nomic-embed-text") should only be set in EMBEDDINGS_MODEL.`,
       );
     }
@@ -223,76 +344,219 @@ export class LangChainService {
     systemPrompt: string,
     userPrompt: string,
     variables: Record<string, string> = {},
-    customOptions?: Partial<ConstructorParameters<typeof ChatOpenAI>[0]>,
+    options: ChatResponseOptions = {},
   ): Promise<string> {
-    // Check cache first
-    const cached = await this.aiCache.getCachedResponse(
-      systemPrompt + '|' + userPrompt,
-      { type: 'chat', variables },
-    );
+    const {
+      responseFormat: requestedResponseFormat,
+      groq: groqOptions,
+      providerOverride,
+      modelOverride,
+      bypassCache,
+      ...modelOptions
+    } = options;
+    const responseShapeOptions = {
+      responseFormat: requestedResponseFormat,
+      groq: groqOptions,
+    };
+    const cachePrompt =
+      requestedResponseFormat || groqOptions
+        ? `${systemPrompt}|${userPrompt}|${JSON.stringify(responseShapeOptions)}`
+        : `${systemPrompt}|${userPrompt}`;
+    // Check cache first (unless this call explicitly opts out)
+    const cached = bypassCache
+      ? null
+      : await this.aiCache.getCachedResponse(cachePrompt, {
+          type: 'chat',
+          variables,
+        });
     if (cached) return cached;
 
     try {
       let response = '';
-      const provider = this.config.provider;
+      const provider = providerOverride ?? this.config.provider;
 
       if (provider === 'ollama') {
-        const model = this.chatModel;
+        const model = modelOverride
+          ? new ChatOllama({
+              baseUrl: this.getOllamaBaseUrl(),
+              model: modelOverride,
+              // Keep structured-output enforcement at the Ollama boundary.
+              format: 'json',
+              temperature: this.config.temperature,
+              timeout: this.config.ollamaTimeout || this.config.timeout * 4,
+              ...(this.config.ollamaNumCtx
+                ? { numCtx: this.config.ollamaNumCtx }
+                : {}),
+              ...(this.config.ollamaApiKey
+                ? { headers: this.getOllamaHeaders() }
+                : {}),
+            } as any)
+          : this.chatModel;
         if (!model) {
           throw new Error(
             'Ollama chat model not initialized. Please check your Ollama configuration.',
           );
         }
 
-        const chatPrompt = ChatPromptTemplate.fromMessages([
-          SystemMessagePromptTemplate.fromTemplate(systemPrompt),
-          HumanMessagePromptTemplate.fromTemplate(userPrompt),
+        // Send literal messages instead of PromptTemplate instances. Ollama
+        // must receive JSON examples such as `{facet, evidenceKeys, reason}`
+        // verbatim; treating the system prompt as a template turns those
+        // fields into phantom input variables before the model is called.
+        const userText = await PromptTemplate.fromTemplate(userPrompt).format(
+          variables as any,
+        );
+        const result = await model.invoke([
+          new SystemMessage(systemPrompt),
+          new HumanMessage(userText),
         ]);
-
-        const chain = RunnableSequence.from([
-          chatPrompt,
-          model,
-          new StringOutputParser(),
-        ]);
-
-        try {
-          response = await chain.invoke(variables);
-        } catch (error: any) {
-          // Handle errors (truncated for brevity, same as original)
-          throw error;
-        }
-      } else if (provider === 'groq') {
-        // Groq HTTP implementation (truncated for brevity, same as original)
-        // Re-implementing minimal Groq support
+        response =
+          typeof result.content === 'string'
+            ? result.content
+            : result.content
+                .map((part: any) =>
+                  typeof part === 'string' ? part : (part.text ?? ''),
+                )
+                .join('');
+        response = normalizeOllamaStructuredResponse(response);
+      } else if (provider === 'gemini') {
         const userTmpl = PromptTemplate.fromTemplate(userPrompt);
         const userText = await userTmpl.format(variables as any);
-        const model = this.config.defaultModel || 'llama-3.1-8b-instant';
+        const model =
+          modelOverride ?? (this.config.defaultModel || 'gemini-3.6-flash');
 
-        const resp = await fetch(
-          'https://api.groq.com/openai/v1/chat/completions',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${this.config.groqApiKey}`,
+        const payload: any = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text: userText }],
             },
-            body: JSON.stringify({
-              model,
-              messages: [
-                { role: 'system', content: systemPrompt },
-                { role: 'user', content: userText },
-              ],
-              temperature: this.config.temperature,
-            }),
-          } as any,
-        );
-        if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
+          ],
+          systemInstruction: {
+            parts: [{ text: systemPrompt }],
+          },
+          generationConfig: {
+            temperature: this.config.temperature,
+            responseMimeType: 'application/json',
+          },
+        };
+
+        let resp: Response;
+        try {
+          resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(this.config.timeout),
+            } as any,
+          );
+        } catch (error: any) {
+          if (error instanceof AiProviderError) throw error;
+          if (
+            error?.name === 'TimeoutError' ||
+            error?.name === 'AbortError' ||
+            error?.code === 'ETIMEDOUT' ||
+            /timeout/i.test(error?.message ?? '')
+          ) {
+            throw new AiProviderError({
+              message: `Gemini call timed out: ${error?.message}`,
+              provider: 'gemini',
+              providerStatus: 'TIMEOUT',
+              cause: error,
+            });
+          }
+          throw error;
+        }
+
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          let providerStatus: string | undefined;
+          try {
+            const parsed = JSON.parse(errorBody);
+            providerStatus = parsed?.error?.status;
+          } catch {}
+          this.logger.error(`Gemini error ${resp.status}: ${errorBody}`);
+          throw new AiProviderError({
+            message: `Gemini error ${resp.status}: ${errorBody}`,
+            provider: 'gemini',
+            httpStatus: resp.status,
+            providerStatus,
+          });
+        }
+
         const data = await resp.json();
-        response = data.choices?.[0]?.message?.content || '';
+        const candidateText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        response = candidateText.trim();
+      } else if (provider === 'groq') {
+        const userTmpl = PromptTemplate.fromTemplate(userPrompt);
+        const userText = await userTmpl.format(variables as any);
+        const model =
+          modelOverride ?? (this.config.defaultModel || 'llama-3.1-8b-instant');
+        const responseFormat = requestedResponseFormat ?? {
+          type: 'json_object' as const,
+        };
+        if (
+          responseFormat.type === 'json_schema' &&
+          !/^openai\/gpt-oss-(20b|120b)$/.test(model)
+        ) {
+          throw new Error(
+            `Groq model "${model}" does not support strict JSON Schema output. ` +
+              'Use openai/gpt-oss-20b or openai/gpt-oss-120b.',
+          );
+        }
+
+        const resp = await this.fetchGroq({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.config.groqApiKey}`,
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userText },
+            ],
+            temperature:
+              responseFormat.type === 'json_schema'
+                ? 0
+                : (modelOptions.temperature ?? this.config.temperature),
+            ...(groqOptions?.maxCompletionTokens
+              ? {
+                  max_completion_tokens: groqOptions.maxCompletionTokens,
+                }
+              : model.includes('qwen')
+                ? { max_completion_tokens: 800 }
+                : {}),
+            ...(groqOptions?.reasoningEffort
+              ? { reasoning_effort: groqOptions.reasoningEffort }
+              : {}),
+            ...(groqOptions?.includeReasoning !== undefined
+              ? { include_reasoning: groqOptions.includeReasoning }
+              : {}),
+            // Every caller of generateChatResponse (tour generation,
+            // composite generation, activity metadata) parses the result
+            // as JSON — without this, Groq's chat models are free to
+            // return "pretty" JSON with unescaped characters (em-dashes,
+            // stray quotes) that reliably breaks JSON.parse on long
+            // responses. Forcing JSON mode at the API level, not just via
+            // prompt instructions, is what actually fixes it. Unlike
+            // generateCompletionResponse below, every current caller here
+            // expects JSON, so this is safe unconditionally.
+            response_format: responseFormat,
+          }),
+        } as any);
+        const data = await resp.json();
+        const rawContent = data.choices?.[0]?.message?.content || '';
+        response = rawContent.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
       } else {
         // Default: OpenAI via LangChain
-        const model = customOptions
-          ? this.getChatModel(customOptions)
+        const model = Object.keys(modelOptions).length
+          ? this.getChatModel(modelOptions)
           : this.chatModel;
         const chatPrompt = ChatPromptTemplate.fromMessages([
           SystemMessagePromptTemplate.fromTemplate(systemPrompt),
@@ -306,15 +570,35 @@ export class LangChainService {
         response = await chain.invoke(variables);
       }
 
-      // Save to cache
-      await this.aiCache.cacheResponse(
-        systemPrompt + '|' + userPrompt,
-        response,
-        { type: 'chat', variables },
-      );
+      // Save to cache (unless this call explicitly opts out)
+      if (!bypassCache) {
+        await this.aiCache.cacheResponse(cachePrompt, response, {
+          type: 'chat',
+          variables,
+        });
+      }
       return response;
-    } catch (error) {
-      this.logger.error(`Error generating chat response: ${error.message}`);
+    } catch (error: any) {
+      if (
+        !(error instanceof AiProviderError) &&
+        (error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? ''))
+      ) {
+        const provider = providerOverride ?? this.config.provider;
+        const normalizedError = new AiProviderError({
+          message: `${provider} call timed out: ${error?.message}`,
+          provider,
+          providerStatus: 'TIMEOUT',
+          cause: error,
+        });
+        this.logger.error(
+          `Error generating chat response: ${normalizedError.message}`,
+        );
+        throw normalizedError;
+      }
+      this.logger.error(`Error generating chat response: ${error?.message}`);
       throw error;
     }
   }
@@ -340,13 +624,82 @@ export class LangChainService {
         const prompt = PromptTemplate.fromTemplate(promptText);
         const chain = this.createChain(prompt, model);
         response = await chain.invoke(variables);
-      } else if (provider === 'groq') {
-        // Groq implementation
+      } else if (provider === 'gemini') {
         const tmpl = PromptTemplate.fromTemplate(promptText);
         const text = await tmpl.format(variables as any);
-        const model = this.config.defaultModel || 'llama-3.1-8b-instant';
+        const model = this.config.defaultModel || 'gemini-3.6-flash';
 
-        const resp = await fetch('https://api.groq.com/openai/v1/completions', {
+        const payload: any = {
+          contents: [
+            {
+              role: 'user',
+              parts: [{ text }],
+            },
+          ],
+          generationConfig: {
+            temperature: this.config.temperature,
+          },
+        };
+
+        let resp: Response;
+        try {
+          resp = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${this.config.geminiApiKey}`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify(payload),
+              signal: AbortSignal.timeout(this.config.timeout),
+            } as any,
+          );
+        } catch (error: any) {
+          if (error instanceof AiProviderError) throw error;
+          if (
+            error?.name === 'TimeoutError' ||
+            error?.name === 'AbortError' ||
+            error?.code === 'ETIMEDOUT' ||
+            /timeout/i.test(error?.message ?? '')
+          ) {
+            throw new AiProviderError({
+              message: `Gemini completion timed out: ${error?.message}`,
+              provider: 'gemini',
+              providerStatus: 'TIMEOUT',
+              cause: error,
+            });
+          }
+          throw error;
+        }
+
+        if (!resp.ok) {
+          const errorBody = await resp.text();
+          let providerStatus: string | undefined;
+          try {
+            const parsed = JSON.parse(errorBody);
+            providerStatus = parsed?.error?.status;
+          } catch {}
+          this.logger.error(
+            `Gemini completion error ${resp.status}: ${errorBody}`,
+          );
+          throw new AiProviderError({
+            message: `Gemini completion error ${resp.status}: ${errorBody}`,
+            provider: 'gemini',
+            httpStatus: resp.status,
+            providerStatus,
+          });
+        }
+
+        const data = await resp.json();
+        const candidateText =
+          data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+        response = candidateText.trim();
+      } else if (provider === 'groq') {
+        const tmpl = PromptTemplate.fromTemplate(promptText);
+        const text = await tmpl.format(variables as any);
+        const model = this.config.defaultModel || 'llama-3.3-70b-versatile';
+
+        const resp = await this.fetchGroq({
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -354,13 +707,15 @@ export class LangChainService {
           },
           body: JSON.stringify({
             model,
-            prompt: text,
+            messages: [{ role: 'user', content: text }],
             temperature: this.config.temperature,
           }),
         } as any);
-        if (!resp.ok) throw new Error(`Groq error ${resp.status}`);
         const data = await resp.json();
-        response = data.choices?.[0]?.text || '';
+        const rawCompletion = data.choices?.[0]?.message?.content || '';
+        response = rawCompletion
+          .replace(/<think>[\s\S]*?<\/think>/gi, '')
+          .trim();
       } else {
         const model = customOptions
           ? this.getCompletionModel(customOptions)
@@ -375,19 +730,38 @@ export class LangChainService {
         variables,
       });
       return response;
-    } catch (error) {
+    } catch (error: any) {
+      if (
+        !(error instanceof AiProviderError) &&
+        (error?.name === 'TimeoutError' ||
+          error?.name === 'AbortError' ||
+          error?.code === 'ETIMEDOUT' ||
+          /timeout/i.test(error?.message ?? ''))
+      ) {
+        const provider = this.config.provider;
+        const normalizedError = new AiProviderError({
+          message: `${provider} completion timed out: ${error?.message}`,
+          provider,
+          providerStatus: 'TIMEOUT',
+          cause: error,
+        });
+        this.logger.error(
+          `Error generating completion response: ${normalizedError.message}`,
+        );
+        throw normalizedError;
+      }
       this.logger.error(
-        `Error generating completion response: ${error.message}`,
-        error.stack,
+        `Error generating completion response: ${error?.message}`,
+        error?.stack,
       );
       throw error;
     }
   }
 
-  async analyzeActivity(activity: Activity, distanceKm: number): Promise<any> {
+  async analyzeExperience(experience: any, distanceKm: number): Promise<any> {
     const prompt = new PromptTemplate({
-      template: `As an AI expert in activity planning and tourism, analyze this activity 
-Activity
+      template: `As an AI expert in Experience planning and tourism, analyze this Experience
+Experience
 Name: {name}
 Type: {type}
 Duration: {duration} minutes
@@ -453,19 +827,19 @@ Response format:
       const resultText = await this.generateCompletionResponse(
         prompt.template as string,
         {
-          name: activity.name,
-          type: activity.type,
-          duration: String(activity.duration),
-          description: activity.description || '',
-          metadata: JSON.stringify(activity.metadata || ''),
+          name: experience.name,
+          type: experience.type,
+          duration: String(experience.duration),
+          description: experience.description || '',
+          metadata: JSON.stringify(experience.metadata || ''),
           distanceKm: distanceKm.toFixed(1),
         } as any,
       );
 
       return JSON.parse(resultText);
     } catch (error) {
-      console.error('Error analyzing activity relationship:', error);
-      throw new Error('Failed to analyze activity relationship');
+      console.error('Error analyzing experience relationship:', error);
+      throw new Error('Failed to analyze experience relationship');
     }
   }
 }

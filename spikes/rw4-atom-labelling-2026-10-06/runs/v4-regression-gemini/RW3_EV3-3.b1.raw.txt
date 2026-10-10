@@ -1,0 +1,38 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Market",
+          "supportSpan": "Caminito Market",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Museo Benito Quinquela Martin",
+          "supportSpan": "Museo Benito Quinquela Martin",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Puente Transbordador Nicolás Avellaneda",
+          "supportSpan": "Puente Transbordador Nicolás Avellaneda",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to visit three specific places."
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Estadio Alberto J. Armando",
+          "supportSpan": "Estadio Alberto J. Armando",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Concludes the tour at the stadium destination."
+    }
+  ]
+}

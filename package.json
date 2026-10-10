@@ -11,9 +11,6 @@
     "start": "cd fe && FAST_REFRESH=true expo start --dev-client",
     "web": "cd fe && FAST_REFRESH=true expo start --web",
     "build:web": "cd fe && yarn build:web",
-    "deploy:fe": "./fly/deploy-fe.sh",
-    "deploy:be": "./fly/deploy-be.sh --force-update DATABASE_URL,DIRECT_URL,SUPABASE_PASSWORD",
-    "deploy": "yarn deploy:be && yarn deploy:fe",
     "prisma:generate": "cd be && yarn prisma:generate",
     "preview:example": "node tools/site-preview/example.js",
     "android": "expo run:android",
@@ -29,13 +26,16 @@
   "dependencies": {
     "cors": "^2.8.5",
     "express": "^5.1.0",
-    "http-proxy-middleware": "^3.0.5",
-    "expo": "~54.0.25",
-    "react": "19.1.0",
-    "react-native": "0.81.5"
+    "http-proxy-middleware": "^3.0.5"
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "resolutions": {
+    "@react-navigation/native": "7.1.28",
+    "@react-navigation/bottom-tabs": "7.10.1",
+    "@react-navigation/native-stack": "7.10.1",
+    "@react-navigation/elements": "2.9.5"
   },
   "version": "1.0.0"
 }

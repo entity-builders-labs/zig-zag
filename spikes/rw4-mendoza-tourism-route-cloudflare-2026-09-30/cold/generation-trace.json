@@ -1,0 +1,3744 @@
+{
+  "steps": [
+    {
+      "id": "trace-step-1",
+      "name": "preference.interpretation",
+      "facts": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 1466,
+        "userPrompt": "Quiero recorrer la Ruta del Vino de Mendoza y conocer sus bodegas más representativas.",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"wine\",\n      \"confidence\": 1.0,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"Ruta del Vino de Mendoza\",\n        \"bodegas\"\n      ]\n    },\n    {\n      \"dimension\": \"winery_scale\",\n      \"key\": \"representative\",\n      \"confidence\": 0.8,\n      \"strength\": \"medium\",\n      \"evidence\": [\n        \"bodegas más representativas\"\n      ]\n    },\n    {\n      \"dimension\": \"intent\",\n      \"key\": \"tour\",\n      \"confidence\": 0.9,\n      \"strength\": \"medium\",\n      \"evidence\": [\n        \"recorrer la Ruta\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"Ruta del Vino de Mendoza\",\n      \"usage\": \"named_path\",\n      \"priority\": \"must\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [\n    \"whether 'representative' implies specific famous brands or just high-quality/large-scale wineries\"\n  ],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"wine route tour mendoza representative wineries\",\n  \"notes\": \"User explicitly wants to travel the Mendoza Wine Route and visit its most representative wineries.\"\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [
+            "whether 'representative' implies specific famous brands or just high-quality/large-scale wineries"
+          ],
+          "anchoredPlaces": [
+            {
+              "usage": "named_path",
+              "rawName": "Ruta del Vino de Mendoza",
+              "priority": "must"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "wine",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "Ruta del Vino de Mendoza",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "bodegas",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 1,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "wine route tour mendoza representative wineries",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "wine",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "wine",
+            "normalizedDimension": "theme"
+          },
+          {
+            "rawKey": "representative",
+            "reason": "UNKNOWN_KEY",
+            "accepted": false,
+            "rawDimension": "winery_scale"
+          },
+          {
+            "rawKey": "tour",
+            "reason": "UNKNOWN_KEY",
+            "accepted": false,
+            "rawDimension": "intent"
+          }
+        ]
+      },
+      "input": {
+        "intents": [
+          "route_like"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "output": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [
+            "whether 'representative' implies specific famous brands or just high-quality/large-scale wineries"
+          ],
+          "anchoredPlaces": [
+            {
+              "usage": "named_path",
+              "rawName": "Ruta del Vino de Mendoza",
+              "priority": "must"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "wine",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "Ruta del Vino de Mendoza",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "bodegas",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 1,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "wine route tour mendoza representative wineries",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "wine",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "route_like",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [
+            {
+              "usage": "named_path",
+              "rawName": "Ruta del Vino de Mendoza",
+              "priority": "must"
+            }
+          ],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "wine route tour mendoza representative wineries",
+          "resolvedAnchors": [],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "timing": {
+        "durationMs": 1466
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "APPLIED"
+      },
+      "sequence": 1,
+      "component": "PreferenceInterpreterService",
+      "description": "Preferencias libres normalizadas y combinadas con filtros."
+    },
+    {
+      "id": "trace-step-2",
+      "name": "request.intent",
+      "facts": {
+        "days": 1,
+        "facets": [
+          {
+            "key": "wine",
+            "source": "wizard",
+            "weight": 1,
+            "required": false,
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "source": "wizard",
+            "weight": 1,
+            "required": false,
+            "dimension": "intent"
+          }
+        ],
+        "themes": [
+          "wine"
+        ],
+        "travelPace": "moderate",
+        "destination": "Mendoza, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "Quiero recorrer la Ruta del Vino de Mendoza y conocer sus bodegas más representativas.",
+        "allowedTransportationModes": [
+          "driving",
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 50000,
+        "maxContinuousWalkingDistanceMeters": 20000
+      },
+      "rules": [
+        {
+          "id": "INTENT-CANONICAL-001",
+          "name": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "facts": {
+            "contractVersion": 1
+          },
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "status": "PASS"
+        },
+        {
+          "id": "INTENT-FREETEXT-001",
+          "name": "Conservar preferencias adicionales como intención suplementaria",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "status": "PASS"
+        }
+      ],
+      "decision": {
+        "status": "PASS",
+        "outcome": "ACCEPTED"
+      },
+      "sequence": 2,
+      "component": "TourGenerationRequest",
+      "description": "Intención y movilidad solicitadas"
+    },
+    {
+      "id": "trace-step-3",
+      "name": "destination.resolution",
+      "input": {
+        "destinationText": "Mendoza, Argentina",
+        "attemptedQueries": [
+          "forward:Mendoza, Argentina"
+        ]
+      },
+      "rules": [
+        {
+          "id": "DEST-SCALE-001",
+          "name": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "facts": {
+            "scale": "area"
+          },
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "status": "PASS"
+        }
+      ],
+      "output": {
+        "scale": "area",
+        "boundaryId": "osm:relation:4206710",
+        "countryCode": "AR",
+        "boundaryName": "Ciudad de Mendoza",
+        "canonicalName": "Ciudad de Mendoza"
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ]
+      },
+      "sequence": 3,
+      "component": "DestinationResolutionService",
+      "description": "\"Mendoza, Argentina\" resolvió a un límite real de ciudad: Ciudad de Mendoza. Se usa ese límite real en vez de un único punto+radio."
+    },
+    {
+      "id": "trace-step-4",
+      "name": "anchor.geo_resolution",
+      "facts": {
+        "resolvedCount": 0,
+        "totalRequested": 1,
+        "unresolvedCount": 1
+      },
+      "input": {
+        "anchors": [
+          {
+            "usage": "named_path",
+            "rawName": "Ruta del Vino de Mendoza",
+            "priority": "must"
+          }
+        ]
+      },
+      "output": {
+        "anchors": [
+          {
+            "usage": "named_path",
+            "status": "unresolved",
+            "rawName": "Ruta del Vino de Mendoza",
+            "priority": "must",
+            "candidateFacts": [
+              {
+                "branch": "area",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "route",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "place",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+                "discoveryStatus": "no_match"
+              }
+            ],
+            "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+          }
+        ]
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIALLY_RESOLVED"
+      },
+      "sequence": 4,
+      "component": "AreaRouteAnchorResolverService",
+      "description": "Resolución geográfica de anchors solicitados"
+    },
+    {
+      "id": "trace-step-5",
+      "name": "coverage.analysis",
+      "facts": {
+        "facetSummaries": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "semanticRanking": {
+          "reason": "undefined",
+          "status": "applied",
+          "identity": {
+            "model": "nomic-embed-text",
+            "provider": "ollama",
+            "dimensions": 256,
+            "documentVersion": 3
+          },
+          "indexedCandidateCount": 0,
+          "eligibleCandidateCount": 0
+        },
+        "offeredCandidateCount": 0
+      },
+      "input": {
+        "facets": [
+          "theme:wine",
+          "intent:route_like"
+        ],
+        "portfolioTarget": 4
+      },
+      "rules": [
+        {
+          "id": "PCOV-QUANTITY-001",
+          "name": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "facts": {
+            "actual": 0,
+            "target": 4
+          },
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-THEME-WINE",
+          "name": "Cobertura del facet solicitado: theme:wine",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "name": "Cobertura del facet solicitado: intent:route_like",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        }
+      ],
+      "output": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "sufficient": false,
+        "deficitCount": 2,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "totalDistinctEligibleExperiences": 0
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NEEDS_ACQUISITION",
+        "reasonCodes": [
+          "Preference facet [theme:wine] has no strong catalog match yet.",
+          "Preference facet [intent:route_like] has no strong catalog match yet."
+        ]
+      },
+      "sequence": 5,
+      "component": "FacetRetrievalService",
+      "description": "Facets sin cobertura fuerte: theme:wine, intent:route_like."
+    },
+    {
+      "id": "trace-step-6",
+      "name": "catalog.search",
+      "input": {
+        "radiusKm": 12.96399367296917
+      },
+      "rules": [
+        {
+          "id": "CATALOG-RETRIEVAL-001",
+          "name": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "facts": {
+            "candidateCount": 0
+          },
+          "reason": "El catálogo no aportó candidatos; la cobertura decidirá si adquirir nuevos.",
+          "status": "WARN"
+        }
+      ],
+      "output": {
+        "candidateCount": 0
+      },
+      "decision": {
+        "reason": "No hay candidatos persistidos para este alcance.",
+        "status": "WARN",
+        "outcome": "CATALOG_POOL_EMPTY"
+      },
+      "sequence": 6,
+      "subjects": [],
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "description": "No se recuperaron actividades del catálogo en el alcance inicial (12.963993672969167km)."
+    },
+    {
+      "id": "trace-step-7",
+      "name": "acquisition.routing",
+      "input": {
+        "anchors": [
+          {
+            "usage": "named_path",
+            "status": "unresolved",
+            "rawName": "Ruta del Vino de Mendoza",
+            "priority": "must",
+            "candidateFacts": [
+              {
+                "branch": "area",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "route",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "place",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+                "discoveryStatus": "no_match"
+              }
+            ],
+            "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+          }
+        ],
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "output": {
+        "generic": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "areaRouteWalk": [
+          {
+            "anchor": {
+              "usage": "named_path",
+              "status": "unresolved",
+              "rawName": "Ruta del Vino de Mendoza",
+              "priority": "must",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "branch": "route",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "branch": "place",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+                  "discoveryStatus": "no_match"
+                }
+              ],
+              "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+            },
+            "deficit": {
+              "key": "route_like",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "route_like",
+            "anchorMode": "tourism_route"
+          }
+        ]
+      },
+      "decision": {
+        "status": "INFO",
+        "outcome": "ROUTED"
+      },
+      "sequence": 7,
+      "component": "partitionDeficitsByStrategy",
+      "description": "Enrutamiento de déficits de adquisición: AREA_ROUTE_WALK=1; GENERIC=1."
+    },
+    {
+      "id": "trace-step-8",
+      "name": "acquisition.area_route_walk",
+      "input": {
+        "anchor": {
+          "usage": "named_path",
+          "status": "unresolved",
+          "rawName": "Ruta del Vino de Mendoza",
+          "priority": "must",
+          "candidateFacts": [
+            {
+              "branch": "area",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "route",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "place",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+              "discoveryStatus": "no_match"
+            }
+          ],
+          "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+        },
+        "deficit": {
+          "key": "route_like",
+          "origin": "preference_facet",
+          "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+          "dimension": "intent"
+        },
+        "intentKey": "route_like"
+      },
+      "output": {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [
+              {
+                "status": "success",
+                "evidenceCount": 10,
+                "failureReason": "undefined",
+                "candidateCount": 1,
+                "extractorModel": "@cf/qwen/qwen3.8-27b",
+                "groundingStatus": "applied",
+                "validationErrors": [],
+                "extractorProvider": "cloudflare"
+              }
+            ],
+            "candidateCount": 1,
+            "webCandidateCount": 1,
+            "structuredCandidateCount": 0
+          },
+          "anchorResolved": false,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 1,
+            "resolvedCount": 1,
+            "rejectionReasons": {
+              "INCOMPLETE_SOURCE_COMPOSITION": 1
+            },
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      },
+      "decision": {
+        "reason": "no_accepted_results",
+        "status": "WARN",
+        "outcome": "NO_RESULT"
+      },
+      "sequence": 8,
+      "component": "AreaRouteWalkAcquisitionService",
+      "description": "Resultado AREA_ROUTE_WALK: no_result."
+    },
+    {
+      "id": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "name": "acquisition.pass",
+      "facts": {
+        "anchor": {
+          "usage": "named_path",
+          "status": "unresolved",
+          "rawName": "Ruta del Vino de Mendoza",
+          "priority": "must",
+          "candidateFacts": [
+            {
+              "branch": "area",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "route",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "place",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+              "discoveryStatus": "no_match"
+            }
+          ],
+          "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 1,
+        "candidateCount": 1,
+        "observationCount": 0
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "PASS_1_EXECUTED"
+      },
+      "sequence": 9,
+      "component": "ExperienceAcquisitionService",
+      "description": "Pase de adquisición #1 (area_route_walk)"
+    },
+    {
+      "id": "trace-step-10",
+      "name": "acquisition.plan",
+      "facts": {
+        "providers": [
+          "wikivoyage",
+          "web"
+        ],
+        "sourceCount": 2
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "output": {
+        "sourcePlans": [
+          {
+            "provider": "wikivoyage",
+            "wikivoyage": {
+              "sections": [
+                "DO"
+              ]
+            }
+          },
+          {
+            "web": {
+              "query": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route tour mendoza representative wineries",
+              "anchorNames": [
+                "Ruta del Vino de Mendoza"
+              ],
+              "semanticQuery": "wine route tour mendoza representative wineries",
+              "requestedIntents": [
+                "route_like"
+              ]
+            },
+            "provider": "web"
+          }
+        ]
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 10,
+      "component": "ExperienceAcquisitionPlannerService",
+      "description": "Plan de adquisición (2 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-11",
+      "name": "acquisition.structured_source",
+      "facts": {
+        "status": "success",
+        "provider": "wikivoyage",
+        "provenance": {
+          "parser": "undefined",
+          "article": {
+            "pageid": "undefined",
+            "status": "not_found",
+            "resolvedTitle": "undefined"
+          },
+          "targets": [
+            {
+              "parser": "undefined",
+              "article": {
+                "pageid": "undefined",
+                "status": "not_found",
+                "resolvedTitle": "undefined"
+              },
+              "requestedTitle": "Ciudad de Mendoza",
+              "requestedSections": [
+                "DO"
+              ],
+              "preFilterEntryCount": 0,
+              "postSectionFilterEntryCount": 0
+            }
+          ],
+          "requestedTitle": "Ciudad de Mendoza",
+          "requestedSections": [
+            "DO"
+          ],
+          "preFilterEntryCount": 0,
+          "postSectionFilterEntryCount": 0
+        },
+        "observations": [],
+        "candidateCount": 0
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 11,
+      "component": "ExperienceAcquisitionService",
+      "description": "Ejecución de fuente estructurada: wikivoyage"
+    },
+    {
+      "id": "trace-step-12",
+      "name": "acquisition.web_search",
+      "facts": {
+        "query": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route tour mendoza representative wineries",
+        "evidenceKeys": [
+          "ev-1",
+          "ev-2",
+          "ev-3",
+          "ev-4",
+          "ev-5",
+          "ev-6",
+          "ev-7",
+          "ev-8",
+          "ev-9",
+          "ev-10"
+        ],
+        "evidenceCount": 10,
+        "groundedModel": "google-search",
+        "groundingStatus": "applied",
+        "groundedProvider": "serper",
+        "destinationCountryCode": "AR",
+        "groundedProviderLocale": {
+          "gl": "ar"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 12,
+      "component": "ExperienceAcquisitionService",
+      "description": "Búsqueda web con grounding: \"Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route tour mendoza representative wineries\""
+    },
+    {
+      "id": "trace-step-13",
+      "name": "acquisition.deep_source_selection",
+      "facts": {
+        "anchorNames": [
+          "Ruta del Vino de Mendoza"
+        ],
+        "selectedUrls": [
+          "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "evidenceCount": 10,
+        "selectionLimit": 2
+      },
+      "input": {
+        "anchorNames": [
+          "Ruta del Vino de Mendoza"
+        ],
+        "evidenceCount": 10,
+        "selectionLimit": 2
+      },
+      "decision": {
+        "reason": "2 fuentes seleccionadas para recuperación profunda.",
+        "status": "PASS",
+        "outcome": "SOURCES_SELECTED"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 13,
+      "subjects": [
+        {
+          "facts": {
+            "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+            "title": "The Best Wineries in Mendoza, A Wine Tasting Guide",
+            "selected": true,
+            "finalScore": 5,
+            "evidenceKey": "ev-1",
+            "originalRank": 1,
+            "decisionReason": "SELECTED",
+            "rankedPosition": 2,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-1",
+            "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+            "kind": "grounded_evidence",
+            "label": "The Best Wineries in Mendoza, A Wine Tasting Guide"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+            "title": "Mendoza Wine Route 2026: Map, Wineries and How to ...",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-2",
+            "originalRank": 2,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 3,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-2",
+            "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+            "kind": "grounded_evidence",
+            "label": "Mendoza Wine Route 2026: Map, Wineries and How to ..."
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.mendozawinetours.com/",
+            "title": "Mendoza Wine Tours - Ampora Wine Tours Mendoza",
+            "selected": false,
+            "finalScore": 0,
+            "evidenceKey": "ev-3",
+            "originalRank": 3,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 8,
+            "tourContentScore": 0,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-3",
+            "url": "https://www.mendozawinetours.com/",
+            "kind": "grounded_evidence",
+            "label": "Mendoza Wine Tours - Ampora Wine Tours Mendoza"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://vivelosandes.com/en/descubre-la-experiencia-completa-del-vino-en-mendoza-guia-2025-para-viajeros/",
+            "title": "Wine Route in Mendoza: Guide 2025 for Travelers",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-4",
+            "originalRank": 4,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 4,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-4",
+            "url": "https://vivelosandes.com/en/descubre-la-experiencia-completa-del-vino-en-mendoza-guia-2025-para-viajeros/",
+            "kind": "grounded_evidence",
+            "label": "Wine Route in Mendoza: Guide 2025 for Travelers"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.torntackies.com/wineries-mendoza/",
+            "title": "Best Wineries in Mendoza: Detailed Wine Tasting Guide",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-5",
+            "originalRank": 5,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 5,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-5",
+            "url": "https://www.torntackies.com/wineries-mendoza/",
+            "kind": "grounded_evidence",
+            "label": "Best Wineries in Mendoza: Detailed Wine Tasting Guide"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.youtube.com/watch?v=Jzkf84yPjQc",
+            "title": "Exploring the Vineyards and High Mountains of MENDOZA",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-6",
+            "originalRank": 6,
+            "decisionReason": "NON_EDITORIAL_SOURCE",
+            "tourContentScore": 5,
+            "editorialEligible": false,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-6",
+            "url": "https://www.youtube.com/watch?v=Jzkf84yPjQc",
+            "kind": "grounded_evidence",
+            "label": "Exploring the Vineyards and High Mountains of MENDOZA"
+          },
+          "decision": {
+            "status": "FAIL",
+            "outcome": "NON_EDITORIAL_SOURCE"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+            "title": "Mendoza: Three Wineries To Visit Close To The City Center",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-7",
+            "originalRank": 7,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 6,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-7",
+            "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+            "kind": "grounded_evidence",
+            "label": "Mendoza: Three Wineries To Visit Close To The City Center"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+            "title": "Discover the Wine Bus Tour in Mendoza - Argentina",
+            "selected": true,
+            "finalScore": 15,
+            "evidenceKey": "ev-8",
+            "originalRank": 8,
+            "decisionReason": "SELECTED",
+            "rankedPosition": 1,
+            "tourContentScore": 15,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-8",
+            "url": "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+            "kind": "grounded_evidence",
+            "label": "Discover the Wine Bus Tour in Mendoza - Argentina"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+            "title": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-9",
+            "originalRank": 9,
+            "decisionReason": "NON_EDITORIAL_SOURCE",
+            "tourContentScore": 5,
+            "editorialEligible": false,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-9",
+            "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+            "kind": "grounded_evidence",
+            "label": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)"
+          },
+          "decision": {
+            "status": "FAIL",
+            "outcome": "NON_EDITORIAL_SOURCE"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.timeout.com/buenos-aires/mendoza-wineries-without-a-car-bike-wine-bus-wine-experiences",
+            "title": "How to Visit Wineries in Mendoza Without a Car",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-10",
+            "originalRank": 10,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 7,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-10",
+            "url": "https://www.timeout.com/buenos-aires/mendoza-wineries-without-a-car-bike-wine-bus-wine-experiences",
+            "kind": "grounded_evidence",
+            "label": "How to Visit Wineries in Mendoza Without a Car"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        }
+      ],
+      "component": "ExperienceAcquisitionService",
+      "description": "Selección de fuentes web para contenido profundo (2 de 10 candidatas seleccionadas)"
+    },
+    {
+      "id": "trace-step-14",
+      "name": "acquisition.source_retrieval",
+      "facts": {
+        "items": [
+          {
+            "status": "retrieved",
+            "content": "# Wine Bus in Mendoza: Enjoy the Best Wine Tour in Argentina\n\n5.0/5 Stars - [Based on 15 Reviews](#reviews)\n\n## Discover the Mendoza Wine Tour with Bus Vitivinícola: Book Today!\n\n![BUS VITIVINICOLA](https://www.tangol.com/Fotos/Tours/bus-vitivinicola_2490_202303271606460.JPG)\n\n![BUS VITIVINICOLA](https://www.tangol.com/Fotos/Tours/bus-vitivinicola_2490_202303271606514.JPG)\n\n![BUS VITIVINICOLA](https://www.tangol.com/Fotos/Tours/bus-vitivinicola_2490_202303271606525.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738320.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738351.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738402.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738443.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738494.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161738545.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161739006.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161739057.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161746120.JPG)\n\n![TOUR DE VINO EN BUS](https://www.tangol.com/Fotos/Tours/tour-de-vino-en-bus_2490_202510161746171.JPG)\n\nWould you like to do the **Wine Route**? 🍷  \nWe have an excellent proposal for you.\n\nThe **Wine Bus** is the new way to **explore and experience the Wine Routes of Mendoza**, with guaranteed departures and no minimum number of passengers required. Ideal for those who want to **immerse themselves in wine culture** and visit wineries open to tourism, with **guided tours, tastings, wine sales, and gastronomic offerings**.\n\nThis service operates with the **Hop On Hop Off** system, which allows you to **hop on and off throughout the day**. You choose the wineries you want to visit and the type of tour: data-end=\"1056\">Full Day: 10 hours of experience among the vineyards.\n\n- 🕔 **Half Day:** 5 hours\n\n\\* Full Day: 10 hours \\* Half Day (Morning/Afternoon): 5 hours\n\nMonday, Tuesday, Friday, Sunday\n\nFixed Stops and Estimated Times for the Full Day or Half Day Morning Tour: MENDOZA CITY 1) Recoleta Colón Building, Av. Colón 423 > 7:55 a.m. 2) Chill Inn Hostel > 8:00 a.m. 3) Wine Deli A16 | Av. Emilio Civit 757, across from the gates of General San Martín Park > 8:05 a.m. 4) Apart Hotel Soltigua | Av. Juan B. Justo 626 > 8:08 a.m. 5) Carlos Alonso Museum, Stoppel Mansion | Av. Emilio Civit 348 > 8:12 a.m. 6) Hotel Diplomatic | Av. Belgrano 1041 > 8:15 a.m. 7) Hotel Internacional | Av. Sarmiento 720 > 8:18 a.m. 8) Hyatt Hotel | Chile 1124 > 8:21 a.m. 9) Hotel Argentino - H. San Martin | Espejo 455 > 8:23 a.m. 10) NH Cordillera Hotel | Av. España 1324 > 8:25 a.m. 11) Portal Plaza Suites | Necochea 661 > 8:28 a.m. 12) CATA Turismo > 8:30 a.m. 13) Aconcagua Hotel > 8:35 a.m. 14) Hualta Hotel > 8:39 a.m. 15) Huentala Hotel > 8:40 a.m. 16) Sheraton Hotel > 8:41 a.m. 17) Tourist Information Center II, Garibaldi 10 > 8:45 a.m. 18) Hotel The MOD > 8:50 a.m. 19) Bus Terminal, Reconquista 52 > 8:55 a.m. 20) Hotel Hilton Mendoza > 8:57 a.m. 21) Hotel Hathor > 9:00 a.m. 22) Hotel Esplendor > 9:10 a.m. 21) Club Tapiz > 9:22 a.m. 22) Quick Point Araoz, Luján de Cuyo > 9:25 a.m. 23) Liniers Green Market, Luján de Cuyo > 9:30 a.m. \\* Check schedules in Guaymallén, Maipú, Luján de Cuyo, Tunguato, and Tunuyán. Only one fixed stop for the Half Day Afternoon: CATA Turismo. Av. Las Heras 601, corner of 25 de Mayo > 2:15 PM\n\nHalf Day Morning: 2:10 PM at the Municipal Information Center, Garibaldi 10. Full Day and Half Day Afternoon: between 6:00 PM and 6:30 PM, return to the established fixed stops.\n\n## About this tour\n\n## **TOURS:**\n\n### 🍇 **Wine Route “Wine and Olive Groves of Maipú” – Monday**\n\n**Wineries and places visited:**  \n Santa Julia Winery (Zuccardi Family) • Zuelo Olive Mill – Maipú Estate (Zuccardi Family) • Pan Oliva • Visitor Center • La Rural Winery and Felipe Rutini Wine Museum\n\n**Full Day Transfer Ticket**: Availability to visit the Santa Julia Winery, the Zuelo Olive Mill, lunch at 1 winery (choose between Visitor Center or Pan Oliva) and the La Rural Winery.\n\nHalf Day Transfer Ticket Tomorrow: Availability to visit the Oil Mill and the Santa Julia Winery\n\nHalf Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Bodega Santa Julia and Bodega La; Rural.\n\n### 🌞 Wine Route “El Sol” – Tuesday\n\n**Wineries and spaces visited:**  \n Casa El Enemigo Vigil • Bressia • Viña Las Perdices • Séptima • Tierras Altas • Cruzat\n\n**Full Transfer Ticket Day:**  Availability to visit up to 3 wineries and have lunch at one during the tour: Casa Vigil + Bressia or Viña las Perdices + lunch to choose from Terrazas de los Andes or Séptima + Tierras Altas or Cruzat.\n\n* Those who have lunch at Tierras Altas will participate in the Malbec Experience at Tierras Altas.\n* Those who have lunch at Séptima will participate in the visit and tasting at Bodega Cruzat.\n\n**Half Day Transfer Ticket Morning:**  Availability to visit **2 wineries**: Casa El Enemigo Vigil and a choice between Bressia or Viña Las Perdices.\n\n**Half-Day Afternoon Transfer Ticket:** Availability to visit **2 wineries**: Séptima and Cruzat.\n\n### 🍷 “Luján Sur” Wine Route – Friday\n\n**Wineries and places visited:**  \n Chandon • Zolo • Budeguer • Casarena • Terrazas de Los Andes\n\n**Full Day Transfer Ticket:** Availability to visit up to **3 wineries and have lunch at one** within the tour: Chandon + Zolo or Budeguer + lunch, visit and tasting to choose between Terrazas de los Andes or Casarena.\n\n**Half Day Morning Transfer Ticket:** Availability to visit **2 wineries**: Chandon + Zolo or Budeguer.\n\n**Half Day Afternoon Transfer Ticket:** Availability to vis",
+            "provider": "tavily",
+            "truncated": true,
+            "durationMs": 562,
+            "contentType": "markdown",
+            "contentChars": 16562,
+            "requestedUrl": "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490"
+          },
+          {
+            "status": "retrieved",
+            "content": "![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAAyAQAAAABdLPtJAAAAAnRSTlMAAHaTzTgAAAAVSURBVDjLY2AYBaNgFIyCUTAK6AEABnIAAXaE8bwAAAAASUVORK5CYII=)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/cropped-1.png?strip=all&fit=250%2C50)\n![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAA3AQAAAAAN4Wr6AAAAAnRSTlMAAHaTzTgAAAAXSURBVDjLY2AYBaNgFIyCUTAKRgEUAAAHFwAB29QhuQAAAABJRU5ErkJggg==)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/1.png?strip=all)\n![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAA3AQAAAAAN4Wr6AAAAAnRSTlMAAHaTzTgAAAAXSURBVDjLY2AYBaNgFIyCUTAKRgEUAAAHFwAB29QhuQAAAABJRU5ErkJggg==)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/1.png?strip=all)\n\n# The Best Wineries in Mendoza, A Wine Tasting Guide\n\nMendoza is one of my favorite destinations in Argentina.\n\nThe vineyards are beautiful, wine is abundant and views of the Andes Mountains are epic.\n\nThe air is crisp, the weather is generally always sunny, and the people are warm.\n\nThere are also traditional ranches, horseback rides, hikes included in [the many things to do in Mendoza](https://solsalute.com/blog/things-to-do-in-mendoza-argentina/)…\n\nBut this post isn’t about those things.\n\nThis post is all about the best wineries in Mendoza, as well as best winery hotels, wine tours and winery lunches.\n\nI have been to Mendoza three times over the past 10 years and have seen the wine tourism situation here change. What was once a massive effort involving emails back and forth with unresponsive wineries to schedule tours is now as easy as a click on the link in their Instagram bio.\n\nHundreds of wineries are now open for tourism, finally embracing this new aspect to the industry, and most use online booking platforms making it easy to plan tours yourself.\n\nThat said, going on a winery tour is still a good idea so no one needs to sacrifice and be the designated driver. Relax and let a guide take you.\n\nHowever you decide to visit the best bodegas in Mendoza, you may be researching *which* wineries to visit, so keep reading for my favorites!\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4AAAAUAAQAAAACO9nKaAAAAAnRSTlMAAHaTzTgAAAFCSURBVHja7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAXA7U8AAGRQ3nKAAAAAElFTkSuQmCC)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2024/12/Best-Mendoza-wineries-12.jpg?strip=all)\n\n*QUICK NOTE: This post contains affiliate links and Sol Salute may receive a commission for purchases made through these links, at no extra cost to you.*\n\nIn this post:\n\n## A Complete Guide to Wine Tasting in Mendoza\n\nOne thing you need to know before you plan your Mendoza wine tour is that it’s huge.\n\nThere are actually three wine regions that make up Mendoza: Maipu, Lujan de Cuyo, and the Uco Valley.\n\nWhile you will taste incredible wine anywhere you go in Mendoza, all wineries and wine regions were not created equal regarding experience.\n\nThe three Mendoza wine regions are:\n\nAs I edit and update this post in December 2024, it pains me to delete my descriptions of wine tastings in Mendoza as cheap. Tastings and visits are now very pricey and on par with the US or Europe.\n\nOne bodega we visited for $7 in 2018 now charges $50 for the same experience. This seems to be the case across the board, prices are up.\n\nLuckily, however, the quality of the Mendoza wine you will taste here is excellent and so is the quantity.\n\nTasting sizes tend to be full pours here (which makes [the private drivers](https://solsalute.com/go/uco-driver/ \"Uco Driver\") worth their weight in gold).\n\n*NOTE: You’ll also want to read my guide on [Where to Stay in Mendoza](https://solsalute.com/blog/where-to-stay-in-mendoza-argentina/) (with all of the best hotels and neighborhoods).*\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAKrAQAAAABHbcI5AAAAAnRSTlMAAHaTzTgAAABsSURBVHja7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgbWDoAAdt1W50AAAAASUVORK5CYII=)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2024/12/Best-Mendoza-wineries-06-1024x683.jpg?strip=all)\n\n## The Best Mendoza Wine Tours\n\nThere are SO many top Mendoza wineries to visit but how does one visit them?\n\nHere are the best tours to help you get around. With so many options there is really something for all budgets and interests.\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqsAAAQAAQAAAADuay1LAAAAAnRSTlMAAHaTzTgAAABtSURBVHja7cExAQAAAMKg9U9tCU+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4GlwPAAGjkrJcAAAAAElFTkSuQmCC)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2023/05/Best-Mendoza-Wineries-PIN-683x1024.jpg?strip=all)\n\n## The Best Wineries In Mendoza\n\n*Updated December 13, 2024*\n\nFor what feels like the umpteenth time since originally publishing this article in 2018, I am once again re-writing this list of Mendoza’s best wineries.\n\nIn November 2024, we visited Mendoza for a third time and in the meantime I’ve also been collecting a long list of wineries I wish I had time (and funds) to visit from fellow wine loving friends.\n\nBelow is the list of wineries I’ve been to and wineries I will visit one day (come hell or high water).\n\nI break the list down geographically by the three wine regions, then provide two more lists – one for family friendly bodegas and architectural stunners.\n\n![Dried vines in a vineyard in winter in front of a mountain range](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwAAAAQAAQAAAAB+X",
+            "provider": "tavily",
+            "truncated": true,
+            "durationMs": 562,
+            "contentType": "markdown",
+            "contentChars": 52974,
+            "requestedUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          }
+        ],
+        "provider": "tavily",
+        "attempted": true,
+        "failedUrls": [],
+        "requestedUrls": [
+          "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "retrievedUrls": [
+          "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "triggerReason": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+        "selectionAudit": {
+          "items": [
+            {
+              "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+              "title": "The Best Wineries in Mendoza, A Wine Tasting Guide",
+              "selected": true,
+              "finalScore": 5,
+              "evidenceKey": "ev-1",
+              "originalRank": 1,
+              "decisionReason": "SELECTED",
+              "rankedPosition": 2,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+              "title": "Mendoza Wine Route 2026: Map, Wineries and How to ...",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-2",
+              "originalRank": 2,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 3,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.mendozawinetours.com/",
+              "title": "Mendoza Wine Tours - Ampora Wine Tours Mendoza",
+              "selected": false,
+              "finalScore": 0,
+              "evidenceKey": "ev-3",
+              "originalRank": 3,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 8,
+              "tourContentScore": 0,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://vivelosandes.com/en/descubre-la-experiencia-completa-del-vino-en-mendoza-guia-2025-para-viajeros/",
+              "title": "Wine Route in Mendoza: Guide 2025 for Travelers",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-4",
+              "originalRank": 4,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 4,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.torntackies.com/wineries-mendoza/",
+              "title": "Best Wineries in Mendoza: Detailed Wine Tasting Guide",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-5",
+              "originalRank": 5,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 5,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.youtube.com/watch?v=Jzkf84yPjQc",
+              "title": "Exploring the Vineyards and High Mountains of MENDOZA",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-6",
+              "originalRank": 6,
+              "decisionReason": "NON_EDITORIAL_SOURCE",
+              "tourContentScore": 5,
+              "editorialEligible": false,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+              "title": "Mendoza: Three Wineries To Visit Close To The City Center",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-7",
+              "originalRank": 7,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 6,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+              "title": "Discover the Wine Bus Tour in Mendoza - Argentina",
+              "selected": true,
+              "finalScore": 15,
+              "evidenceKey": "ev-8",
+              "originalRank": 8,
+              "decisionReason": "SELECTED",
+              "rankedPosition": 1,
+              "tourContentScore": 15,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+              "title": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-9",
+              "originalRank": 9,
+              "decisionReason": "NON_EDITORIAL_SOURCE",
+              "tourContentScore": 5,
+              "editorialEligible": false,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.timeout.com/buenos-aires/mendoza-wineries-without-a-car-bike-wine-bus-wine-experiences",
+              "title": "How to Visit Wineries in Mendoza Without a Car",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-10",
+              "originalRank": 10,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 7,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            }
+          ],
+          "anchorNames": [
+            "Ruta del Vino de Mendoza"
+          ],
+          "selectedUrls": [
+            "https://www.tangol.com/eng/argentina/mendoza/day-tours/classic/wine-tour-by-bus_t_2490",
+            "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          ],
+          "evidenceCount": 10,
+          "selectionLimit": 2
+        },
+        "totalDurationMs": 872,
+        "reExtractionAttempted": true
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "RETRIEVED"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 14,
+      "component": "WebSourceContentRetrievalService",
+      "description": "Recuperación de contenido web (2 páginas obtenidas)"
+    },
+    {
+      "id": "trace-step-15",
+      "name": "acquisition.semantic_extraction",
+      "facts": {
+        "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"Ruta del Vino de Mendoza: Wine Bus Tour\",\n      \"description\": \"A guided wine route experience using the Hop On Hop Off Wine Bus system, visiting representative wineries in the Maipú, Luján de Cuyo, and Uco Valley regions. The tour includes stops at specific wineries such as Santa Julia, La Rural, Chandon, and Terrazas de los Andes, with options for full-day or half-day itineraries.\",\n      \"themes\": [\n        \"wine\",\n        \"gastronomy\"\n      ],\n      \"traits\": [\n        \"guided tour\",\n        \"hop on hop off\",\n        \"winery visits\",\n        \"Andes views\"\n      ],\n      \"intents\": [\n        \"route_like\",\n        \"visit\"\n      ],\n      \"suggestedDurationMinutes\": 600,\n      \"componentHints\": [\n        {\n          \"key\": \"ruta-del-vino-de-mendoza\",\n          \"name\": \"Ruta del Vino de Mendoza\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"evidenceKeys\": [\n            \"ev-8\"\n          ],\n          \"supportSpan\": \"The Wine Bus is the new way to explore and experience the Wine Routes of Mendoza\"\n        },\n        {\n          \"key\": \"bodega-santa-julia\",\n          \"name\": \"Bodega Santa Julia\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-8\"\n          ],\n          \"supportSpan\": \"Santa Julia Winery (Zuccardi Family)\"\n        },\n        {\n          \"key\": \"bodega-la-rural\",\n          \"name\": \"Bodega La Rural\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-8\"\n          ],\n          \"supportSpan\": \"La Rural Winery and Felipe Rutini Wine Museum\"\n        },\n        {\n          \"key\": \"chandon\",\n          \"name\": \"Chandon\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-8\"\n          ],\n          \"supportSpan\": \"Chandon • Zolo • Budeguer • Casarena • Terrazas de Los Andes\"\n        },\n        {\n          \"key\": \"terrazas-de-los-andes\",\n          \"name\": \"Terrazas de los Andes\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"evidenceKeys\": [\n            \"ev-8\"\n          ],\n          \"supportSpan\": \"Chandon • Zolo • Budeguer • Casarena • Terrazas de Los Andes\"\n        }\n      ],\n      \"evidenceKeys\": [\n        \"ev-8\"\n      ],\n      \"shortReason\": \"Evidence explicitly describes the 'Wine Bus' as a service to explore the 'Wine Routes of Mendoza' (Ruta del Vino de Mendoza) with specific named winery stops (Santa Julia, La Rural, Chandon, Terrazas de los Andes) included in the itinerary.\",\n      \"orderedByEvidence\": true\n    }\n  ]\n}",
+        "candidateCount": 1,
+        "extractorModel": "@cf/qwen/qwen3.8-27b",
+        "validationErrors": [],
+        "extractorProvider": "cloudflare",
+        "sourceSupportAudits": [
+          {
+            "status": "SUPPORTED",
+            "components": [
+              {
+                "key": "ruta-del-vino-de-mendoza",
+                "name": "Ruta del Vino de Mendoza",
+                "role": "route",
+                "index": 0,
+                "status": "SUPPORTED",
+                "sourceName": "Ruta del Vino de Mendoza",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "ROUTE",
+                "attributionStatus": "DECLARED_KEY_VERIFIED",
+                "verifiedSupportSpan": "The **Wine Bus** is the new way to **explore and experience the Wine Routes of Mendoza",
+                "declaredEvidenceKeys": [
+                  "ev-8"
+                ],
+                "verifiedEvidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "key": "bodega-santa-julia",
+                "name": "Bodega Santa Julia",
+                "role": "venue",
+                "index": 1,
+                "status": "SUPPORTED",
+                "sourceName": "Bodega Santa Julia",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "attributionStatus": "DECLARED_KEY_VERIFIED",
+                "verifiedSupportSpan": "Santa Julia Winery (Zuccardi Family)",
+                "declaredEvidenceKeys": [
+                  "ev-8"
+                ],
+                "verifiedEvidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "key": "bodega-la-rural",
+                "name": "Bodega La Rural",
+                "role": "venue",
+                "index": 2,
+                "status": "SUPPORTED",
+                "sourceName": "Bodega La Rural",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "attributionStatus": "DECLARED_KEY_VERIFIED",
+                "verifiedSupportSpan": "La Rural Winery and Felipe Rutini Wine Museum",
+                "declaredEvidenceKeys": [
+                  "ev-8"
+                ],
+                "verifiedEvidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "key": "chandon",
+                "name": "Chandon",
+                "role": "venue",
+                "index": 3,
+                "status": "SUPPORTED",
+                "sourceName": "Chandon",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "attributionStatus": "DECLARED_KEY_VERIFIED",
+                "verifiedSupportSpan": "Chandon • Zolo • Budeguer • Casarena • Terrazas de Los Andes",
+                "declaredEvidenceKeys": [
+                  "ev-8"
+                ],
+                "verifiedEvidenceKeys": [
+                  "ev-8"
+                ]
+              },
+              {
+                "key": "terrazas-de-los-andes",
+                "name": "Terrazas de los Andes",
+                "role": "venue",
+                "index": 4,
+                "status": "SUPPORTED",
+                "sourceName": "Terrazas de los Andes",
+                "evidenceKeys": [
+                  "ev-8"
+                ],
+                "expectedKind": "PLACE",
+                "attributionStatus": "DECLARED_KEY_VERIFIED",
+                "verifiedSupportSpan": "Chandon • Zolo • Budeguer • Casarena • Terrazas de Los Andes",
+                "declaredEvidenceKeys": [
+                  "ev-8"
+                ],
+                "verifiedEvidenceKeys": [
+                  "ev-8"
+                ]
+              }
+            ],
+            "candidateName": "Ruta del Vino de Mendoza: Wine Bus Tour",
+            "declaredEvidenceKeys": [
+              "ev-8"
+            ],
+            "verifiedEvidenceKeys": [
+              "ev-8"
+            ],
+            "emittedComponentCount": 5,
+            "supportedComponentCount": 5,
+            "unsupportedComponentCount": 0
+          }
+        ],
+        "extractedCandidateCount": 1
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "CANDIDATES_EXTRACTED"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 15,
+      "subjects": [
+        {
+          "subject": {
+            "id": "ruta del vino de mendoza: wine bus tour:ev-8:ruta-del-vino-de-mendoza:Ruta del Vino de Mendoza|bodega-santa-julia:Bodega Santa Julia|bodega-la-rural:Bodega La Rural|chandon:Chandon|terrazas-de-los-andes:Terrazas de los Andes",
+            "kind": "candidate",
+            "label": "Ruta del Vino de Mendoza: Wine Bus Tour"
+          },
+          "decision": {
+            "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+            "status": "PASS",
+            "outcome": "ACCEPTED"
+          }
+        }
+      ],
+      "component": "ExperienceDiscoveryExtractor",
+      "description": "Extracción semántica de candidatos (1 admitidos de 1 extraídos)"
+    },
+    {
+      "id": "trace-step-16",
+      "name": "resolution.entity",
+      "facts": {
+        "acceptedCount": 0,
+        "rejectedCount": 1,
+        "totalCandidates": 1,
+        "acquisitionContext": {
+          "strategy": "area_route_walk",
+          "passNumber": 1
+        },
+        "entityResolutionAudit": [
+          {
+            "hints": [
+              {
+                "key": "ruta-del-vino-de-mendoza",
+                "name": "Ruta del Vino de Mendoza",
+                "reason": "NO_OSM_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "NO_CANDIDATE_ACQUIRED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Ruta del Vino de Mendoza",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Ruta del Vino de Mendoza",
+                    "provider": "openstreetmap",
+                    "strategy": "TARGETED_ROUTE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "routeResolution": {
+                      "reason": "NO_ROUTE_OBJECT_ACQUIRED",
+                      "status": "NOT_FOUND",
+                      "variants": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "clusterCount": 0,
+                      "compatibleClusterCount": 0
+                    },
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": 0,
+                    "providerResultCount": 0,
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "sourceName": "Ruta del Vino de Mendoza",
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              },
+              {
+                "key": "bodega-santa-julia",
+                "name": "Bodega Santa Julia",
+                "reason": "UNCONFIRMED_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "CANDIDATE_REJECTED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Bodega Santa Julia",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega Santa Julia",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega Santa Julia",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": 176,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega Santa Julia",
+                    "provider": "nominatim",
+                    "strategy": "NOMINATIM",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 0,
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega Santa Julia",
+                    "provider": "geoapify",
+                    "strategy": "PLACES",
+                    "placeSearch": {
+                      "rejected": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "resultCount": 10,
+                      "viableCount": 10,
+                      "identityEnrichment": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    },
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "geoapify:512fd7474cf53351c0592ba4fca4da7340c0f00103f90118e6032e01000000c00201920311426f646567612043656e74656e6172696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35303636393734373434",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Bodega Centenario"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 10,
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "sourceName": "Bodega Santa Julia",
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              },
+              {
+                "key": "bodega-la-rural",
+                "name": "Bodega La Rural",
+                "reason": "undefined",
+                "status": "resolved",
+                "attempts": [
+                  {
+                    "query": "Bodega La Rural",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega La Rural",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega La Rural",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": 176,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Bodega La Rural",
+                    "provider": "nominatim",
+                    "strategy": "NOMINATIM",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:way:425175968",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Bodega La Rural"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 1,
+                    "verificationDecision": "VERIFIED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "geography": {
+                  "geoEntityId": "a984cfba-72e6-4df1-bdfe-d45da5ada07e",
+                  "geoEntityKind": "PLACE",
+                  "canonicalGeometry": "POINT",
+                  "geographicRelation": "OUTSIDE",
+                  "distanceToBoundaryMeters": 10440.49048889032
+                },
+                "sourceName": "Bodega La Rural",
+                "identityStatus": "RESOLVED",
+                "resolvedGeoEntity": {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:425175968",
+                  "geoEntityId": "a984cfba-72e6-4df1-bdfe-d45da5ada07e",
+                  "canonicalName": "Bodega La Rural"
+                }
+              },
+              {
+                "key": "chandon",
+                "name": "Chandon",
+                "reason": "UNCONFIRMED_MATCH",
+                "status": "unresolved",
+                "deficit": {
+                  "reason": "CANDIDATE_REJECTED",
+                  "classification": "PENDING_CLASSIFICATION"
+                },
+                "attempts": [
+                  {
+                    "query": "Chandon",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Chandon",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Chandon",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": 176,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Chandon",
+                    "provider": "nominatim",
+                    "strategy": "NOMINATIM",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:node:4219095090",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Bodega Chandon"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 1,
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Chandon",
+                    "provider": "geoapify",
+                    "strategy": "PLACES",
+                    "placeSearch": {
+                      "rejected": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "resultCount": 0,
+                      "viableCount": 0
+                    },
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 0,
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "sourceName": "Chandon",
+                "identityStatus": "UNRESOLVED",
+                "resolvedGeoEntity": "undefined"
+              },
+              {
+                "key": "terrazas-de-los-andes",
+                "name": "Terrazas de los Andes",
+                "reason": "undefined",
+                "status": "resolved",
+                "attempts": [
+                  {
+                    "query": "Terrazas de los Andes",
+                    "provider": "catalog",
+                    "strategy": "CATALOG_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Terrazas de los Andes",
+                    "provider": "trusted_observation",
+                    "strategy": "TRUSTED_OBSERVATION_REUSE",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [],
+                    "candidateAcquired": false,
+                    "selectedCandidate": "undefined",
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "undefined",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Terrazas de los Andes",
+                    "provider": "openstreetmap",
+                    "strategy": "LOCAL_OSM_POOL",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:node:1937244450",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Memorial de la Bandera de Los Andes"
+                    },
+                    "poolCandidateCount": 176,
+                    "providerResultCount": "undefined",
+                    "verificationDecision": "REJECTED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  },
+                  {
+                    "query": "Terrazas de los Andes",
+                    "provider": "nominatim",
+                    "strategy": "NOMINATIM",
+                    "failureStage": "undefined",
+                    "failureReason": "undefined",
+                    "executionStatus": "completed",
+                    "identityEvidence": [
+                      {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      }
+                    ],
+                    "candidateAcquired": true,
+                    "selectedCandidate": {
+                      "kind": "PLACE",
+                      "externalId": "osm:way:931488145",
+                      "identities": {
+                        "reason": "MAX_DEPTH",
+                        "truncated": true
+                      },
+                      "canonicalName": "Terrazas de los Andes"
+                    },
+                    "poolCandidateCount": "undefined",
+                    "providerResultCount": 1,
+                    "verificationDecision": "VERIFIED",
+                    "candidateFoundBeforeFailure": "undefined"
+                  }
+                ],
+                "geography": {
+                  "geoEntityId": "95d63e75-eaa4-458a-b142-099175546fbd",
+                  "geoEntityKind": "PLACE",
+                  "canonicalGeometry": "POINT",
+                  "geographicRelation": "OUTSIDE",
+                  "distanceToBoundaryMeters": 19729.82015677014
+                },
+                "sourceName": "Terrazas de los Andes",
+                "identityStatus": "RESOLVED",
+                "resolvedGeoEntity": {
+                  "provider": "openstreetmap",
+                  "externalId": "osm:way:931488145",
+                  "geoEntityId": "95d63e75-eaa4-458a-b142-099175546fbd",
+                  "canonicalName": "Terrazas de los Andes"
+                }
+              }
+            ],
+            "coverage": {
+              "resolutionRatio": 0.4,
+              "totalComponents": 5,
+              "ambiguousComponents": 0,
+              "conflictedComponents": 0,
+              "openResearchDeficits": [],
+              "unresolvedComponents": 3,
+              "sourceCompositionComplete": false,
+              "identityResolvedComponents": 2,
+              "geographicallyAcceptedComponents": 0
+            },
+            "candidateName": "Ruta del Vino de Mendoza: Wine Bus Tour",
+            "componentScope": {
+              "kind": "DESTINATION_AREA",
+              "name": "Ciudad de Mendoza"
+            },
+            "candidateTraceKey": "ruta del vino de mendoza: wine bus tour:ev-8:ruta-del-vino-de-mendoza:Ruta del Vino de Mendoza|bodega-santa-julia:Bodega Santa Julia|bodega-la-rural:Bodega La Rural|chandon:Chandon|terrazas-de-los-andes:Terrazas de los Andes"
+          }
+        ]
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_ENTITIES_RESOLVED",
+        "reasonCodes": [
+          "INCOMPLETE_SOURCE_COMPOSITION"
+        ]
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 16,
+      "subjects": [
+        {
+          "subject": {
+            "id": "ruta del vino de mendoza: wine bus tour:ev-8:ruta-del-vino-de-mendoza:Ruta del Vino de Mendoza|bodega-santa-julia:Bodega Santa Julia|bodega-la-rural:Bodega La Rural|chandon:Chandon|terrazas-de-los-andes:Terrazas de los Andes",
+            "kind": "candidate",
+            "label": "Ruta del Vino de Mendoza: Wine Bus Tour"
+          },
+          "decision": {
+            "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 2/5: Ruta del Vino de Mendoza=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Bodega Santa Julia=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Bodega La Rural=RESOLVED/OUTSIDE 10440m, Chandon=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Terrazas de los Andes=RESOLVED/OUTSIDE 19730m]",
+            "status": "FAIL",
+            "outcome": "REJECTED",
+            "reasonCodes": [
+              "INCOMPLETE_SOURCE_COMPOSITION"
+            ]
+          }
+        }
+      ],
+      "component": "ExperienceProposalResolverService",
+      "description": "Resolución de identidades reales: 0 aceptadas, 1 rechazadas [resueltos 2/5: Ruta del Vino de Mendoza=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Bodega Santa Julia=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Bodega La Rural=RESOLVED/OUTSIDE 10440m, Chandon=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Terrazas de los Andes=RESOLVED/OUTSIDE 19730m]"
+    },
+    {
+      "id": "trace-step-17",
+      "name": "geography.validation",
+      "facts": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "validationScope": "undefined",
+        "validationIntent": "route_like",
+        "destinationBoundary": {
+          "name": "Ciudad de Mendoza",
+          "externalId": "osm:relation:4206710"
+        },
+        "geographicValidationAudit": []
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "ALL_ACCEPTED",
+        "reasonCodes": []
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 17,
+      "component": "CompositeGeographicValidationService",
+      "description": "Validación geográfica: 0 aceptadas, 0 rechazadas"
+    },
+    {
+      "id": "trace-step-18",
+      "name": "catalog.materialization",
+      "facts": {
+        "rejectedCount": 1,
+        "materializedCount": 0,
+        "materializationAudit": [
+          {
+            "accepted": false,
+            "experienceId": "undefined",
+            "candidateName": "Ruta del Vino de Mendoza: Wine Bus Tour",
+            "canonicalName": "undefined",
+            "compositeOutcome": {
+              "coverage": {
+                "resolutionRatio": 0.4,
+                "totalComponents": 5,
+                "ambiguousComponents": 0,
+                "conflictedComponents": 0,
+                "openResearchDeficits": [],
+                "unresolvedComponents": 3,
+                "sourceCompositionComplete": false,
+                "identityResolvedComponents": 2,
+                "geographicallyAcceptedComponents": 0
+              },
+              "persistence": {
+                "status": "NOT_PERSISTED",
+                "reasons": [
+                  "INCOMPLETE_SOURCE_COMPOSITION"
+                ]
+              },
+              "plannerEligible": false,
+              "geographicDecision": {
+                "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+                "status": "NOT_EVALUATED"
+              }
+            },
+            "rejectionReasons": [
+              "INCOMPLETE_SOURCE_COMPOSITION"
+            ],
+            "candidateTraceKey": "ruta del vino de mendoza: wine bus tour:ev-8:ruta-del-vino-de-mendoza:Ruta del Vino de Mendoza|bodega-santa-julia:Bodega Santa Julia|bodega-la-rural:Bodega La Rural|chandon:Chandon|terrazas-de-los-andes:Terrazas de los Andes",
+            "persistedComponentCount": "undefined"
+          }
+        ],
+        "persistedExperienceIds": []
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_MATERIALIZED_EXPERIENCES"
+      },
+      "parentId": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 18,
+      "component": "ExperienceCatalogService",
+      "references": [],
+      "description": "Materialización en catálogo (0 creadas/actualizadas, 1 no materializadas) — Ruta del Vino de Mendoza: Wine Bus Tour: 2/5 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner"
+    },
+    {
+      "id": "acquisition-pass-1-generic",
+      "name": "acquisition.pass",
+      "facts": {
+        "strategy": "generic",
+        "passNumber": 1,
+        "candidateCount": 0,
+        "observationCount": 0
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "PASS_1_EXECUTED"
+      },
+      "sequence": 19,
+      "component": "ExperienceAcquisitionService",
+      "description": "Pase de adquisición #1 (generic)"
+    },
+    {
+      "id": "trace-step-20",
+      "name": "acquisition.plan",
+      "facts": {
+        "providers": [
+          "wikivoyage",
+          "google_places",
+          "web"
+        ],
+        "sourceCount": 3
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "output": {
+        "sourcePlans": [
+          {
+            "provider": "wikivoyage",
+            "wikivoyage": {
+              "sections": [
+                "EAT"
+              ]
+            }
+          },
+          {
+            "places": {
+              "searchTypes": [
+                "winery"
+              ]
+            },
+            "provider": "google_places"
+          },
+          {
+            "web": {
+              "query": "Ciudad de Mendoza wine tasting wineries wine route tour mendoza representative wineries",
+              "semanticQuery": "wine route tour mendoza representative wineries",
+              "requestedThemes": [
+                "wine"
+              ]
+            },
+            "provider": "web"
+          }
+        ]
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 20,
+      "component": "ExperienceAcquisitionPlannerService",
+      "description": "Plan de adquisición (3 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-21",
+      "name": "acquisition.structured_source",
+      "facts": {
+        "status": "success",
+        "provider": "wikivoyage",
+        "provenance": {
+          "parser": "undefined",
+          "article": {
+            "pageid": "undefined",
+            "status": "not_found",
+            "resolvedTitle": "undefined"
+          },
+          "targets": [
+            {
+              "parser": "undefined",
+              "article": {
+                "pageid": "undefined",
+                "status": "not_found",
+                "resolvedTitle": "undefined"
+              },
+              "requestedTitle": "Ciudad de Mendoza",
+              "requestedSections": [
+                "EAT"
+              ],
+              "preFilterEntryCount": 0,
+              "postSectionFilterEntryCount": 0
+            }
+          ],
+          "requestedTitle": "Ciudad de Mendoza",
+          "requestedSections": [
+            "EAT"
+          ],
+          "preFilterEntryCount": 0,
+          "postSectionFilterEntryCount": 0
+        },
+        "observations": [],
+        "candidateCount": 0
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 21,
+      "component": "ExperienceAcquisitionService",
+      "description": "Ejecución de fuente estructurada: wikivoyage"
+    },
+    {
+      "id": "trace-step-22",
+      "name": "acquisition.structured_source",
+      "facts": {
+        "status": "success",
+        "provider": "google_places",
+        "provenance": "undefined",
+        "observations": [],
+        "candidateCount": 0
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 22,
+      "component": "ExperienceAcquisitionService",
+      "description": "Ejecución de fuente estructurada: google_places"
+    },
+    {
+      "id": "trace-step-23",
+      "name": "acquisition.web_search",
+      "facts": {
+        "query": "Ciudad de Mendoza wine tasting wineries wine route tour mendoza representative wineries",
+        "evidenceKeys": [
+          "ev-1",
+          "ev-2",
+          "ev-3",
+          "ev-4",
+          "ev-5",
+          "ev-6",
+          "ev-7",
+          "ev-8",
+          "ev-9",
+          "ev-10"
+        ],
+        "evidenceCount": 10,
+        "groundedModel": "google-search",
+        "groundingStatus": "applied",
+        "groundedProvider": "serper",
+        "destinationCountryCode": "AR",
+        "groundedProviderLocale": {
+          "gl": "ar"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "SUCCESS"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 23,
+      "component": "ExperienceAcquisitionService",
+      "description": "Búsqueda web con grounding: \"Ciudad de Mendoza wine tasting wineries wine route tour mendoza representative wineries\""
+    },
+    {
+      "id": "trace-step-24",
+      "name": "acquisition.deep_source_selection",
+      "facts": {
+        "anchorNames": "undefined",
+        "selectedUrls": [
+          "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "evidenceCount": 10,
+        "selectionLimit": 2
+      },
+      "input": {
+        "evidenceCount": 10,
+        "selectionLimit": 2
+      },
+      "decision": {
+        "reason": "2 fuentes seleccionadas para recuperación profunda.",
+        "status": "PASS",
+        "outcome": "SOURCES_SELECTED"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 24,
+      "subjects": [
+        {
+          "facts": {
+            "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+            "title": "The Best Wineries in Mendoza, A Wine Tasting Guide",
+            "selected": true,
+            "finalScore": 5,
+            "evidenceKey": "ev-1",
+            "originalRank": 1,
+            "decisionReason": "SELECTED",
+            "rankedPosition": 2,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-1",
+            "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+            "kind": "grounded_evidence",
+            "label": "The Best Wineries in Mendoza, A Wine Tasting Guide"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+            "title": "Mendoza: Three Wineries To Visit Close To The City Center",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-2",
+            "originalRank": 2,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 3,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-2",
+            "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+            "kind": "grounded_evidence",
+            "label": "Mendoza: Three Wineries To Visit Close To The City Center"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.mendozawinetours.com/",
+            "title": "Mendoza Wine Tours - Ampora Wine Tours Mendoza",
+            "selected": false,
+            "finalScore": 0,
+            "evidenceKey": "ev-3",
+            "originalRank": 3,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 9,
+            "tourContentScore": 0,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-3",
+            "url": "https://www.mendozawinetours.com/",
+            "kind": "grounded_evidence",
+            "label": "Mendoza Wine Tours - Ampora Wine Tours Mendoza"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.torntackies.com/wineries-mendoza/",
+            "title": "Best Wineries in Mendoza: Detailed Wine Tasting Guide",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-4",
+            "originalRank": 4,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 4,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-4",
+            "url": "https://www.torntackies.com/wineries-mendoza/",
+            "kind": "grounded_evidence",
+            "label": "Best Wineries in Mendoza: Detailed Wine Tasting Guide"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.welcomeargentina.com/vino/mendoza_i.html",
+            "title": "Route of wine: wineries in Mendoza",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-5",
+            "originalRank": 5,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 5,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-5",
+            "url": "https://www.welcomeargentina.com/vino/mendoza_i.html",
+            "kind": "grounded_evidence",
+            "label": "Route of wine: wineries in Mendoza"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+            "title": "HALF DAY WINE TOURS in Mendoza",
+            "selected": true,
+            "finalScore": 15,
+            "evidenceKey": "ev-6",
+            "originalRank": 6,
+            "decisionReason": "SELECTED",
+            "rankedPosition": 1,
+            "tourContentScore": 15,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-6",
+            "url": "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+            "kind": "grounded_evidence",
+            "label": "HALF DAY WINE TOURS in Mendoza"
+          },
+          "decision": {
+            "status": "PASS",
+            "outcome": "SELECTED"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+            "title": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-7",
+            "originalRank": 7,
+            "decisionReason": "NON_EDITORIAL_SOURCE",
+            "tourContentScore": 5,
+            "editorialEligible": false,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-7",
+            "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+            "kind": "grounded_evidence",
+            "label": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)"
+          },
+          "decision": {
+            "status": "FAIL",
+            "outcome": "NON_EDITORIAL_SOURCE"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+            "title": "Mendoza Wine Route 2026: Map, Wineries and How to ...",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-8",
+            "originalRank": 8,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 6,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-8",
+            "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+            "kind": "grounded_evidence",
+            "label": "Mendoza Wine Route 2026: Map, Wineries and How to ..."
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://troutandwine.com/en/",
+            "title": "The Perfect Wine Tours - Trout & Wine",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-9",
+            "originalRank": 9,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 7,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-9",
+            "url": "https://troutandwine.com/en/",
+            "kind": "grounded_evidence",
+            "label": "The Perfect Wine Tours - Trout & Wine"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        },
+        {
+          "facts": {
+            "url": "https://carolyncovington.com/the-best-wineries-to-visit-in-mendoza-argentina/",
+            "title": "The Best Wineries to Visit in Mendoza, Argentina",
+            "selected": false,
+            "finalScore": 5,
+            "evidenceKey": "ev-10",
+            "originalRank": 10,
+            "decisionReason": "BELOW_SELECTION_LIMIT",
+            "rankedPosition": 8,
+            "tourContentScore": 5,
+            "editorialEligible": true,
+            "citedCandidateBonus": 0
+          },
+          "subject": {
+            "id": "ev-10",
+            "url": "https://carolyncovington.com/the-best-wineries-to-visit-in-mendoza-argentina/",
+            "kind": "grounded_evidence",
+            "label": "The Best Wineries to Visit in Mendoza, Argentina"
+          },
+          "decision": {
+            "status": "INFO",
+            "outcome": "BELOW_SELECTION_LIMIT"
+          }
+        }
+      ],
+      "component": "ExperienceAcquisitionService",
+      "description": "Selección de fuentes web para contenido profundo (2 de 10 candidatas seleccionadas)"
+    },
+    {
+      "id": "trace-step-25",
+      "name": "acquisition.source_retrieval",
+      "facts": {
+        "items": [
+          {
+            "status": "retrieved",
+            "content": "[Skip to content](#main)\n\n[![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDIwIiBoZWlnaHQ9IjI5NyIgdmlld0JveD0iMCAwIDEwMjAgMjk3Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iZmlsbDojY2ZkNGRiO2ZpbGwtb3BhY2l0eTogMC4xOyIvPjwvc3ZnPg==)![](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDIwIiBoZWlnaHQ9IjI5NyIgdmlld0JveD0iMCAwIDEwMjAgMjk3Ij48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBzdHlsZT0iZmlsbDojY2ZkNGRiO2ZpbGwtb3BhY2l0eTogMC4xOyIvPjwvc3ZnPg==)](https://sakwinetravel.com/ \"Best Tour Company in Mendoza Argentina. Creating Wine and adventure Tours\")\n\n* [Wine tours](https://sakwinetravel.com/mendoza-day-trips/wine-tours/)\n  + [Uco valley](https://sakwinetravel.com/mendoza-day-trips/wine-tours/uco-valley/)\n  + [Lujan de Cuyo Tours](https://sakwinetravel.com/mendoza-day-trips/wine-tours/lujan-de-cuyo/)\n  + [Bike wine tours](https://sakwinetravel.com/mendoza-day-trips/wine-tours/bike/)\n* [Other Tours](https://sakwinetravel.com/mendoza-day-trips/)\n  + [High mountain tours](https://sakwinetravel.com/mendoza-day-trips/high-mountain-tours/)\n  + [Mendoza City Tours](https://sakwinetravel.com/mendoza-day-trips/mendoza-city-tours/)\n  + [Horseback riding](https://sakwinetravel.com/mendoza-day-trips/horseback-riding/)\n  + [Hiking tours](https://sakwinetravel.com/mendoza-day-trips/hiking-tours/)\n  + [Olive oil tours](https://sakwinetravel.com/mendoza-day-trips/olive-oil-tours/)\n  + [Rafting tours](https://sakwinetravel.com/mendoza-day-trips/rafting-tours/)\n* [Aconcagua](https://sakwinetravel.com/mendoza-packages/climb-aconcagua/)\n* [Packages](https://sakwinetravel.com/mendoza-packages/)\n  + [Luxury trips](https://sakwinetravel.com/mendoza-packages/luxury-trips/)\n  + [Adventure tours](https://sakwinetravel.com/mendoza-packages/adventure-tours/)\n  + [Honeymoon](https://sakwinetravel.com/mendoza-packages/honeymoon/)\n  + [3 Days trips](https://sakwinetravel.com/mendoza-packages/3-days-trips/)\n  + [Customized trips](https://sakwinetravel.com/mendoza-packages/customized-trips/)\n  + [100% Sustainable route](https://sakwinetravel.com/travel-destinations/mendoza-tours/packages/sustainable-100/)\n* [Las Leñas](https://sakwinetravel.com/mendoza-packages/las-lenas/)\n\n\n\n![Wine being poured during a tasting on the 2-winery bike tour in Chacras de Coria.](data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI4MDAiIGhlaWdodD0iODAwIiB2aWV3Qm94PSIwIDAgODAwIDgwMCI+PHJlY3Qgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgc3R5bGU9ImZpbGw6I2NmZDRkYjtmaWxsLW9wYWNpdHk6IDAuMTsiLz48L3N2Zz4=)\n\nExplore Mendoza vineyards\n\n# **HALF DAY WINE TOURS IN mendoza**\n\n [REQUEST A QUOTE](#)\n\nHalf-day wine tours in Mendoza are perfect for travelers looking to get a taste of Argentina’s famed wine region without committing an entire day. These expeditions usually cover two to three vineyards, offering a balanced blend of education and tastings. Guided by experts, visitors have the opportunity to sample iconic Malbecs and learn about the winemaking process, all set against the stunning backdrop of the Andes Mountains. Convenient and engaging, half-day wine tours provide a rich, yet time-efficient way to experience the essence of Mendoza’s wine culture.\n\n## HALF DAY WINE TOURS IN MENDOZA\n\n[![Catena Zapata winery illuminated at night with pyramid-inspired architecture](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)![Modern winery building with vineyards and Andes mountain backdrop](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-south-lunch-two-wine-regions/)\n\nSelected Wineries\n\n[Private wine tour to 2 wineries in Luján de Cuyo and South Uco Valley with lunch](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-south-lunch-two-wine-regions/)\n\n[Book Now](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-south-lunch-two-wine-regions/)\n\n[![Underground wine cellar with vintage bottles and arched stone architecture](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)![Modern winery restaurant with panoramic vineyard views](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-uco-north-lunch-two-wine-regions/)\n\nSelected Wineries\n\n[Private wine tour to 2 wineries in Luján de Cuyo and North Uco Valley with lunch](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-uco-north-lunch-two-wine-regions/)\n\n[Book Now](https://sakwinetravel.com/mendoza-tours/private-2-wineries-lujan-uco-north-lunch-two-wine-regions/)\n\n[![Gourmet plate with wine bottle and vineyard view from outdoor table](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)![Group of friends toasting with sparkling wine inside a winery](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)](https://sakwinetravel.com/mendoza-tours/private-tour-2-wineries-lujan-maipu-lunch-2-wine-regions/)\n\nSelected Wineries\n\n[Private wine tour to 2 wineries in Luján de Cuyo and Maipú with lunch](https://sakwinetravel.com/mendoza-tours/private-tour-2-wineries-lujan-maipu-lunch-2-wine-regions/)\n\n[Book Now](https://sakwinetravel.com/mendoza-tours/private-tour-2-wineries-lujan-maipu-lunch-2-wine-regions/)\n\n[![Circular barrel room at Bodega Salentein with oak barrels](data:image/svg+xml,%3Csvg%20viewBox%3D%220%200%20247%20247%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3C%2Fsvg%3E)![Tasting room at Bodega Salentein with long table and soft lighting]",
+            "provider": "tavily",
+            "truncated": true,
+            "durationMs": 1126,
+            "contentType": "markdown",
+            "contentChars": 26058,
+            "requestedUrl": "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/"
+          },
+          {
+            "status": "retrieved",
+            "content": "![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAAyAQAAAABdLPtJAAAAAnRSTlMAAHaTzTgAAAAVSURBVDjLY2AYBaNgFIyCUTAK6AEABnIAAXaE8bwAAAAASUVORK5CYII=)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/cropped-1.png?strip=all&fit=250%2C50)\n![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAA3AQAAAAAN4Wr6AAAAAnRSTlMAAHaTzTgAAAAXSURBVDjLY2AYBaNgFIyCUTAKRgEUAAAHFwAB29QhuQAAAABJRU5ErkJggg==)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/1.png?strip=all)\n![solsalute.com](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAA3AQAAAAAN4Wr6AAAAAnRSTlMAAHaTzTgAAAAXSURBVDjLY2AYBaNgFIyCUTAKRgEUAAAHFwAB29QhuQAAAABJRU5ErkJggg==)\n![solsalute.com](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2021/05/1.png?strip=all)\n\n# The Best Wineries in Mendoza, A Wine Tasting Guide\n\nMendoza is one of my favorite destinations in Argentina.\n\nThe vineyards are beautiful, wine is abundant and views of the Andes Mountains are epic.\n\nThe air is crisp, the weather is generally always sunny, and the people are warm.\n\nThere are also traditional ranches, horseback rides, hikes included in [the many things to do in Mendoza](https://solsalute.com/blog/things-to-do-in-mendoza-argentina/)…\n\nBut this post isn’t about those things.\n\nThis post is all about the best wineries in Mendoza, as well as best winery hotels, wine tours and winery lunches.\n\nI have been to Mendoza three times over the past 10 years and have seen the wine tourism situation here change. What was once a massive effort involving emails back and forth with unresponsive wineries to schedule tours is now as easy as a click on the link in their Instagram bio.\n\nHundreds of wineries are now open for tourism, finally embracing this new aspect to the industry, and most use online booking platforms making it easy to plan tours yourself.\n\nThat said, going on a winery tour is still a good idea so no one needs to sacrifice and be the designated driver. Relax and let a guide take you.\n\nHowever you decide to visit the best bodegas in Mendoza, you may be researching *which* wineries to visit, so keep reading for my favorites!\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAB4AAAAUAAQAAAACO9nKaAAAAAnRSTlMAAHaTzTgAAAFCSURBVHja7cEBDQAAAMKg909tDjegAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAXA7U8AAGRQ3nKAAAAAElFTkSuQmCC)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2024/12/Best-Mendoza-wineries-12.jpg?strip=all)\n\n*QUICK NOTE: This post contains affiliate links and Sol Salute may receive a commission for purchases made through these links, at no extra cost to you.*\n\nIn this post:\n\n## A Complete Guide to Wine Tasting in Mendoza\n\nOne thing you need to know before you plan your Mendoza wine tour is that it’s huge.\n\nThere are actually three wine regions that make up Mendoza: Maipu, Lujan de Cuyo, and the Uco Valley.\n\nWhile you will taste incredible wine anywhere you go in Mendoza, all wineries and wine regions were not created equal regarding experience.\n\nThe three Mendoza wine regions are:\n\nAs I edit and update this post in December 2024, it pains me to delete my descriptions of wine tastings in Mendoza as cheap. Tastings and visits are now very pricey and on par with the US or Europe.\n\nOne bodega we visited for $7 in 2018 now charges $50 for the same experience. This seems to be the case across the board, prices are up.\n\nLuckily, however, the quality of the Mendoza wine you will taste here is excellent and so is the quantity.\n\nTasting sizes tend to be full pours here (which makes [the private drivers](https://solsalute.com/go/uco-driver/ \"Uco Driver\") worth their weight in gold).\n\n*NOTE: You’ll also want to read my guide on [Where to Stay in Mendoza](https://solsalute.com/blog/where-to-stay-in-mendoza-argentina/) (with all of the best hotels and neighborhoods).*\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABAAAAAKrAQAAAABHbcI5AAAAAnRSTlMAAHaTzTgAAABsSURBVHja7cExAQAAAMKg9U9tDB+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADgbWDoAAdt1W50AAAAASUVORK5CYII=)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2024/12/Best-Mendoza-wineries-06-1024x683.jpg?strip=all)\n\n## The Best Mendoza Wine Tours\n\nThere are SO many top Mendoza wineries to visit but how does one visit them?\n\nHere are the best tours to help you get around. With so many options there is really something for all budgets and interests.\n\n![](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAqsAAAQAAQAAAADuay1LAAAAAnRSTlMAAHaTzTgAAABtSURBVHja7cExAQAAAMKg9U9tCU+gAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB4GlwPAAGjkrJcAAAAAElFTkSuQmCC)\n![](https://ewj43icfkoo.exactdn.com/wp-content/uploads/2023/05/Best-Mendoza-Wineries-PIN-683x1024.jpg?strip=all)\n\n## The Best Wineries In Mendoza\n\n*Updated December 13, 2024*\n\nFor what feels like the umpteenth time since originally publishing this article in 2018, I am once again re-writing this list of Mendoza’s best wineries.\n\nIn November 2024, we visited Mendoza for a third time and in the meantime I’ve also been collecting a long list of wineries I wish I had time (and funds) to visit from fellow wine loving friends.\n\nBelow is the list of wineries I’ve been to and wineries I will visit one day (come hell or high water).\n\nI break the list down geographically by the three wine regions, then provide two more lists – one for family friendly bodegas and architectural stunners.\n\n![Dried vines in a vineyard in winter in front of a mountain range](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAwAAAAQAAQAAAAB+X",
+            "provider": "tavily",
+            "truncated": true,
+            "durationMs": 1126,
+            "contentType": "markdown",
+            "contentChars": 52974,
+            "requestedUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          }
+        ],
+        "provider": "tavily",
+        "attempted": true,
+        "failedUrls": [],
+        "requestedUrls": [
+          "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "retrievedUrls": [
+          "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+          "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+        ],
+        "triggerReason": "MULTI_COMPONENT_EXPERIENCE required but initial extraction produced no admissible multi-component candidate",
+        "selectionAudit": {
+          "items": [
+            {
+              "url": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+              "title": "The Best Wineries in Mendoza, A Wine Tasting Guide",
+              "selected": true,
+              "finalScore": 5,
+              "evidenceKey": "ev-1",
+              "originalRank": 1,
+              "decisionReason": "SELECTED",
+              "rankedPosition": 2,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://blog.winesofargentina.com/destacadas/wineries-in-mendoza-city/",
+              "title": "Mendoza: Three Wineries To Visit Close To The City Center",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-2",
+              "originalRank": 2,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 3,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.mendozawinetours.com/",
+              "title": "Mendoza Wine Tours - Ampora Wine Tours Mendoza",
+              "selected": false,
+              "finalScore": 0,
+              "evidenceKey": "ev-3",
+              "originalRank": 3,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 9,
+              "tourContentScore": 0,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.torntackies.com/wineries-mendoza/",
+              "title": "Best Wineries in Mendoza: Detailed Wine Tasting Guide",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-4",
+              "originalRank": 4,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 4,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.welcomeargentina.com/vino/mendoza_i.html",
+              "title": "Route of wine: wineries in Mendoza",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-5",
+              "originalRank": 5,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 5,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+              "title": "HALF DAY WINE TOURS in Mendoza",
+              "selected": true,
+              "finalScore": 15,
+              "evidenceKey": "ev-6",
+              "originalRank": 6,
+              "decisionReason": "SELECTED",
+              "rankedPosition": 1,
+              "tourContentScore": 15,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.tripadvisor.com/Attractions-g312781-Activities-c42-t205-Mendoza_Province_of_Mendoza_Cuyo.html",
+              "title": "THE 15 BEST Mendoza Wine Tasting Tours (with Prices)",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-7",
+              "originalRank": 7,
+              "decisionReason": "NON_EDITORIAL_SOURCE",
+              "tourContentScore": 5,
+              "editorialEligible": false,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html",
+              "title": "Mendoza Wine Route 2026: Map, Wineries and How to ...",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-8",
+              "originalRank": 8,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 6,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://troutandwine.com/en/",
+              "title": "The Perfect Wine Tours - Trout & Wine",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-9",
+              "originalRank": 9,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 7,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            },
+            {
+              "url": "https://carolyncovington.com/the-best-wineries-to-visit-in-mendoza-argentina/",
+              "title": "The Best Wineries to Visit in Mendoza, Argentina",
+              "selected": false,
+              "finalScore": 5,
+              "evidenceKey": "ev-10",
+              "originalRank": 10,
+              "decisionReason": "BELOW_SELECTION_LIMIT",
+              "rankedPosition": 8,
+              "tourContentScore": 5,
+              "editorialEligible": true,
+              "citedCandidateBonus": 0
+            }
+          ],
+          "selectedUrls": [
+            "https://sakwinetravel.com/mendoza-day-trips/wine-tours/half-day/",
+            "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          ],
+          "evidenceCount": 10,
+          "selectionLimit": 2
+        },
+        "totalDurationMs": 2048,
+        "reExtractionAttempted": true
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "RETRIEVED"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 25,
+      "component": "WebSourceContentRetrievalService",
+      "description": "Recuperación de contenido web (2 páginas obtenidas)"
+    },
+    {
+      "id": "trace-step-26",
+      "name": "acquisition.semantic_extraction",
+      "facts": {
+        "rawOutput": "{\n  \"candidates\": []\n}",
+        "candidateCount": 0,
+        "extractorModel": "@cf/qwen/qwen3.8-27b",
+        "validationErrors": [],
+        "extractorProvider": "cloudflare",
+        "sourceSupportAudits": [],
+        "extractedCandidateCount": 0
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_CANDIDATES"
+      },
+      "parentId": "acquisition-pass-1-generic",
+      "sequence": 26,
+      "subjects": [],
+      "component": "ExperienceDiscoveryExtractor",
+      "description": "Extracción semántica de candidatos (0 admitidos de 0 extraídos)"
+    },
+    {
+      "id": "trace-step-27",
+      "name": "coverage.analysis",
+      "facts": {
+        "facetSummaries": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "semanticRanking": {
+          "reason": "undefined",
+          "status": "applied",
+          "identity": {
+            "model": "nomic-embed-text",
+            "provider": "ollama",
+            "dimensions": 256,
+            "documentVersion": 3
+          },
+          "indexedCandidateCount": 0,
+          "eligibleCandidateCount": 0
+        },
+        "offeredCandidateCount": 0
+      },
+      "input": {
+        "facets": [
+          "theme:wine",
+          "intent:route_like"
+        ],
+        "portfolioTarget": 4
+      },
+      "rules": [
+        {
+          "id": "PCOV-QUANTITY-001",
+          "name": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "facts": {
+            "actual": 0,
+            "target": 4
+          },
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-THEME-WINE",
+          "name": "Cobertura del facet solicitado: theme:wine",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "name": "Cobertura del facet solicitado: intent:route_like",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        }
+      ],
+      "output": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "sufficient": false,
+        "deficitCount": 2,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "totalDistinctEligibleExperiences": 0
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NEEDS_ACQUISITION",
+        "reasonCodes": [
+          "Preference facet [theme:wine] has no strong catalog match yet.",
+          "Preference facet [intent:route_like] has no strong catalog match yet."
+        ]
+      },
+      "sequence": 27,
+      "component": "FacetRetrievalService",
+      "description": "Facets sin cobertura fuerte: theme:wine, intent:route_like."
+    },
+    {
+      "id": "trace-step-28",
+      "name": "acquisition.routing",
+      "input": {
+        "anchors": [
+          {
+            "usage": "named_path",
+            "status": "unresolved",
+            "rawName": "Ruta del Vino de Mendoza",
+            "priority": "must",
+            "candidateFacts": [
+              {
+                "branch": "area",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "route",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+                "discoveryStatus": "no_match"
+              },
+              {
+                "branch": "place",
+                "eligibility": "NO_CANDIDATE",
+                "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+                "discoveryStatus": "no_match"
+              }
+            ],
+            "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+          }
+        ],
+        "acquisitionDeficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ]
+      },
+      "output": {
+        "generic": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "areaRouteWalk": [
+          {
+            "anchor": {
+              "usage": "named_path",
+              "status": "unresolved",
+              "rawName": "Ruta del Vino de Mendoza",
+              "priority": "must",
+              "candidateFacts": [
+                {
+                  "branch": "area",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "branch": "route",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+                  "discoveryStatus": "no_match"
+                },
+                {
+                  "branch": "place",
+                  "eligibility": "NO_CANDIDATE",
+                  "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+                  "discoveryStatus": "no_match"
+                }
+              ],
+              "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+            },
+            "deficit": {
+              "key": "route_like",
+              "origin": "preference_facet",
+              "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+              "dimension": "intent"
+            },
+            "intentKey": "route_like",
+            "anchorMode": "tourism_route"
+          }
+        ]
+      },
+      "decision": {
+        "status": "INFO",
+        "outcome": "ROUTED"
+      },
+      "sequence": 28,
+      "component": "partitionDeficitsByStrategy",
+      "description": "Enrutamiento de déficits de adquisición: AREA_ROUTE_WALK=1; GENERIC=1."
+    },
+    {
+      "id": "trace-step-29",
+      "name": "acquisition.area_route_walk",
+      "input": {
+        "anchor": {
+          "usage": "named_path",
+          "status": "unresolved",
+          "rawName": "Ruta del Vino de Mendoza",
+          "priority": "must",
+          "candidateFacts": [
+            {
+              "branch": "area",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "route",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "place",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+              "discoveryStatus": "no_match"
+            }
+          ],
+          "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+        },
+        "deficit": {
+          "key": "route_like",
+          "origin": "preference_facet",
+          "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+          "dimension": "intent"
+        },
+        "intentKey": "route_like"
+      },
+      "output": {
+        "reason": "no_accepted_results",
+        "outcome": "no_result",
+        "diagnostics": {
+          "execution": {
+            "webResults": [],
+            "candidateCount": 0,
+            "webCandidateCount": "undefined",
+            "structuredCandidateCount": "undefined"
+          },
+          "anchorResolved": false,
+          "materialization": {
+            "acceptedCount": 0,
+            "rejectedCount": 0,
+            "resolvedCount": 0,
+            "rejectionReasons": {},
+            "semanticallyEligibleCount": 0
+          },
+          "sourcePlanProviders": [
+            "wikivoyage",
+            "web"
+          ]
+        }
+      },
+      "decision": {
+        "reason": "no_accepted_results",
+        "status": "WARN",
+        "outcome": "NO_RESULT"
+      },
+      "sequence": 29,
+      "component": "AreaRouteWalkAcquisitionService",
+      "description": "Resultado AREA_ROUTE_WALK: no_result."
+    },
+    {
+      "id": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "name": "acquisition.pass",
+      "facts": {
+        "anchor": {
+          "usage": "named_path",
+          "status": "unresolved",
+          "rawName": "Ruta del Vino de Mendoza",
+          "priority": "must",
+          "candidateFacts": [
+            {
+              "branch": "area",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_AREA_MATCH",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "route",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "TARGETED_ROUTE_NOT_FOUND",
+              "discoveryStatus": "no_match"
+            },
+            {
+              "branch": "place",
+              "eligibility": "NO_CANDIDATE",
+              "discoveryReason": "NO_CONFIDENT_PLACE_MATCH",
+              "discoveryStatus": "no_match"
+            }
+          ],
+          "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+        },
+        "strategy": "area_route_walk",
+        "passNumber": 2,
+        "candidateCount": 0,
+        "observationCount": 0
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "PASS_2_EXECUTED"
+      },
+      "sequence": 30,
+      "component": "ExperienceAcquisitionService",
+      "description": "Pase de adquisición #2 (area_route_walk)"
+    },
+    {
+      "id": "trace-step-31",
+      "name": "acquisition.plan",
+      "facts": {
+        "providers": [
+          "wikivoyage",
+          "web"
+        ],
+        "sourceCount": 2
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "output": {
+        "sourcePlans": [
+          {
+            "provider": "wikivoyage",
+            "wikivoyage": {
+              "sections": [
+                "DO"
+              ]
+            }
+          },
+          {
+            "web": {
+              "query": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route tour mendoza representative wineries",
+              "anchorNames": [
+                "Ruta del Vino de Mendoza"
+              ],
+              "semanticQuery": "wine route tour mendoza representative wineries",
+              "requestedIntents": [
+                "route_like"
+              ]
+            },
+            "provider": "web"
+          }
+        ]
+      },
+      "parentId": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 31,
+      "component": "ExperienceAcquisitionPlannerService",
+      "description": "Plan de adquisición (2 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-32",
+      "name": "resolution.entity",
+      "facts": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "totalCandidates": 0,
+        "acquisitionContext": {
+          "strategy": "area_route_walk",
+          "passNumber": 2
+        },
+        "entityResolutionAudit": []
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_ENTITIES_RESOLVED",
+        "reasonCodes": []
+      },
+      "parentId": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 32,
+      "subjects": [],
+      "component": "ExperienceProposalResolverService",
+      "description": "Resolución de identidades reales: 0 aceptadas, 0 rechazadas"
+    },
+    {
+      "id": "trace-step-33",
+      "name": "geography.validation",
+      "facts": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "validationScope": "undefined",
+        "validationIntent": "route_like",
+        "destinationBoundary": {
+          "name": "Ciudad de Mendoza",
+          "externalId": "osm:relation:4206710"
+        },
+        "geographicValidationAudit": []
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "ALL_ACCEPTED",
+        "reasonCodes": []
+      },
+      "parentId": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 33,
+      "component": "CompositeGeographicValidationService",
+      "description": "Validación geográfica: 0 aceptadas, 0 rechazadas"
+    },
+    {
+      "id": "trace-step-34",
+      "name": "catalog.materialization",
+      "facts": {
+        "rejectedCount": 0,
+        "materializedCount": 0,
+        "materializationAudit": [],
+        "persistedExperienceIds": []
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NO_MATERIALIZED_EXPERIENCES"
+      },
+      "parentId": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "sequence": 34,
+      "component": "ExperienceCatalogService",
+      "references": [],
+      "description": "Materialización en catálogo (0 creadas/actualizadas, 0 no materializadas)"
+    },
+    {
+      "id": "acquisition-pass-2-generic",
+      "name": "acquisition.pass",
+      "facts": {
+        "strategy": "generic",
+        "passNumber": 2,
+        "candidateCount": 0,
+        "observationCount": 0
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "decision": {
+        "status": "PASS",
+        "outcome": "PASS_2_EXECUTED"
+      },
+      "sequence": 35,
+      "component": "ExperienceAcquisitionService",
+      "description": "Pase de adquisición #2 (generic)"
+    },
+    {
+      "id": "trace-step-36",
+      "name": "acquisition.plan",
+      "facts": {
+        "providers": [
+          "wikivoyage",
+          "google_places",
+          "web"
+        ],
+        "sourceCount": 3
+      },
+      "input": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          }
+        ],
+        "destination": {
+          "latitude": -32.883334,
+          "longitude": -68.95373835000001,
+          "radiusMeters": 12963.99367296917,
+          "destinationName": "Ciudad de Mendoza",
+          "destinationCountryCode": "AR"
+        }
+      },
+      "output": {
+        "sourcePlans": [
+          {
+            "provider": "wikivoyage",
+            "wikivoyage": {
+              "sections": [
+                "EAT"
+              ]
+            }
+          },
+          {
+            "places": {
+              "searchTypes": [
+                "winery"
+              ]
+            },
+            "provider": "google_places"
+          },
+          {
+            "web": {
+              "query": "Ciudad de Mendoza wine tasting wineries wine route tour mendoza representative wineries",
+              "semanticQuery": "wine route tour mendoza representative wineries",
+              "requestedThemes": [
+                "wine"
+              ]
+            },
+            "provider": "web"
+          }
+        ]
+      },
+      "parentId": "acquisition-pass-2-generic",
+      "sequence": 36,
+      "component": "ExperienceAcquisitionPlannerService",
+      "description": "Plan de adquisición (3 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-37",
+      "name": "coverage.analysis",
+      "facts": {
+        "facetSummaries": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "semanticRanking": {
+          "reason": "undefined",
+          "status": "applied",
+          "identity": {
+            "model": "nomic-embed-text",
+            "provider": "ollama",
+            "dimensions": 256,
+            "documentVersion": 3
+          },
+          "indexedCandidateCount": 0,
+          "eligibleCandidateCount": 0
+        },
+        "offeredCandidateCount": 0
+      },
+      "input": {
+        "facets": [
+          "theme:wine",
+          "intent:route_like"
+        ],
+        "portfolioTarget": 4
+      },
+      "rules": [
+        {
+          "id": "PCOV-QUANTITY-001",
+          "name": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "facts": {
+            "actual": 0,
+            "target": 4
+          },
+          "reason": "0 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-THEME-WINE",
+          "name": "Cobertura del facet solicitado: theme:wine",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        },
+        {
+          "id": "PCOV-FACET-INTENT-ROUTE_LIKE",
+          "name": "Cobertura del facet solicitado: intent:route_like",
+          "facts": {
+            "weakMatches": 0,
+            "strongMatches": 0
+          },
+          "reason": "0 coincidencia(s) fuerte(s), 0 débil(es).",
+          "status": "FAIL"
+        }
+      ],
+      "output": {
+        "deficits": [
+          {
+            "key": "wine",
+            "origin": "preference_facet",
+            "reason": "Preference facet [theme:wine] has no strong catalog match yet.",
+            "dimension": "theme"
+          },
+          {
+            "key": "route_like",
+            "origin": "preference_facet",
+            "reason": "Preference facet [intent:route_like] has no strong catalog match yet.",
+            "dimension": "intent"
+          }
+        ],
+        "sufficient": false,
+        "deficitCount": 2,
+        "facetResults": [
+          {
+            "key": "wine",
+            "dimension": "theme",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          },
+          {
+            "key": "route_like",
+            "dimension": "intent",
+            "satisfied": false,
+            "weakMatchCount": 0,
+            "strongMatchCount": 0
+          }
+        ],
+        "totalDistinctEligibleExperiences": 0
+      },
+      "decision": {
+        "status": "WARN",
+        "outcome": "NEEDS_ACQUISITION",
+        "reasonCodes": [
+          "Preference facet [theme:wine] has no strong catalog match yet.",
+          "Preference facet [intent:route_like] has no strong catalog match yet."
+        ]
+      },
+      "sequence": 37,
+      "component": "FacetRetrievalService",
+      "description": "Facets sin cobertura fuerte: theme:wine, intent:route_like."
+    }
+  ],
+  "result": {
+    "facts": {
+      "error": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.",
+      "degradedAcquisitionReason": null,
+      "acquisitionProvidersFailed": [],
+      "acquisitionProvidersAttempted": [
+        "wikivoyage",
+        "google_places",
+        "serper"
+      ]
+    },
+    "reason": "Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.",
+    "status": "FAILED",
+    "outcome": "GENERATION_FAILED"
+  },
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 5,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "route_like"
+      ],
+      "interests": [
+        "wine"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "Quiero recorrer la Ruta del Vino de Mendoza y conocer sus bodegas más representativas."
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "driving",
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 50000,
+      "maxContinuousWalkingDistanceMeters": 20000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "Mendoza, Argentina",
+      "latitude": -32.8895,
+      "longitude": -68.8458,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  }
+}

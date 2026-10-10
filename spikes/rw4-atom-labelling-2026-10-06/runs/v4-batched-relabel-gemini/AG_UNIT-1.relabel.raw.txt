@@ -1,0 +1,76 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-032",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "National School of Buenos Aires",
+          "supportSpan": "National School of Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions National School of Buenos Aires as a pass by sight."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "house in Chile 371",
+          "supportSpan": "house in Chile 371",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Recommends checking out a house as an optional stop."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "oldest market in Buenos Aires",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-040"
+        }
+      ],
+      "reason": "Describes the San Telmo Market mentioned earlier."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Presents Caminito Street and Fundación Proa as stops."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Here",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-069"
+        },
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions seeing contrast with San Telmo."
+    }
+  ]
+}

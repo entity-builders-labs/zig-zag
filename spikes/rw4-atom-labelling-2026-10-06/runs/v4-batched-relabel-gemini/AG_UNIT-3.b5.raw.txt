@@ -1,0 +1,99 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media sharing links and blog author notes."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment count heading."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media share buttons."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media share image link."
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image link."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "buenos aires",
+          "supportSpan": "buenos aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "City name tag or link."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment reply text."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email address."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog pagination links."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blogger bio description."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Argentina",
+          "supportSpan": "Argentina",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Author location profile information."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog welcome message."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author social media graphic."
+    }
+  ]
+}

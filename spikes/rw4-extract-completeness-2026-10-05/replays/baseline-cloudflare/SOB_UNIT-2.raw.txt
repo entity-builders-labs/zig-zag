@@ -1,0 +1,59 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Historical Walk in San Telmo",
+      "description": "A self-guided walking itinerary through the historic San Telmo neighborhood, visiting key landmarks including Plaza Dorrego, Mercado de San Telmo, and Parque Lezama.",
+      "themes": [
+        "history",
+        "culture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic landmarks",
+        "cobblestone streets"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "mercado-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On your left side, you will see Parque Lezama."
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "shortReason": "Evidence ev-2 explicitly describes a self-guided walking sequence in San Telmo that includes visiting Plaza Dorrego, Mercado de San Telmo, and Parque Lezama.",
+      "orderedByEvidence": true
+    }
+  ]
+}

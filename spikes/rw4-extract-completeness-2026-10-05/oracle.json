@@ -1,0 +1,145 @@
+{
+  "frozenAt": "2026-10-05T11:10:00-03:00",
+  "frozenBefore": "any production change for RW4-EXTRACT-COMPLETENESS-1 and any live run",
+  "rules": {
+    "MANDATORY": "a place the source directs the traveller to visit, stop at, enter, see, or that the source numbers as a stop; every MANDATORY item of an emitted segment must appear, in source order",
+    "ACCEPTABLE": "a real place the source names along the way (passing mention, street walked, building seen, context) or a clearly optional suggestion; present or absent are both faithful",
+    "ALTERNATIVE": "one of several options the source offers (A or B, 'if you go for...'); emitting it as a plain member is an over-inclusion warning",
+    "segments": "the source's own motorized transfers (bus, taxi) split the itinerary into segments; each segment is its own candidate; no segment may be silently dropped",
+    "orderGroups": "items in one group are described together at one stop; their internal order is not asserted by the source",
+    "matching": "case/accent-insensitive; an emitted name matches an item when it equals the item name, one of its aliases, or the canonical local-language name of the same entity"
+  },
+  "sources": {
+    "secretsofbuenosaires-day1": {
+      "url": "https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/",
+      "fixture": "sources/secretsofbuenosaires-day1.md",
+      "unit": "## Walking tour Buenos Aires – Day 1 (offsets 2098–10551 of the 17027-char Tavily markdown)",
+      "segments": [
+        {
+          "id": "S1-walk",
+          "boundary": "ends at 'Get on the public bus now ... La Boca is a little bit too far to walk'",
+          "orderGroups": [
+            [{ "name": "Plaza de Mayo", "role": "MANDATORY", "span": "START AT PLAZA DE MAYO" }],
+            [
+              { "name": "Casa Rosada", "role": "MANDATORY", "span": "In front, you will see Casa Rosada" },
+              { "name": "Cabildo", "aliases": ["Museo del Cabildo", "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo"], "role": "MANDATORY", "span": "you will see a white building: Cabildo" },
+              { "name": "Catedral Metropolitana", "aliases": ["Catedral Metropolitana de Buenos Aires"], "role": "MANDATORY", "span": "Close to the Cabildo is Catedral Metropolitana" },
+              { "name": "Banco de la Nación Argentina", "aliases": ["National Bank"], "role": "ACCEPTABLE", "span": "the headquarters of the **National Bank**" }
+            ],
+            [{ "name": "Defensa", "aliases": ["Calle Defensa", "Defensa Street"], "role": "ACCEPTABLE", "span": "Go to the street Defensa" }],
+            [
+              { "name": "Estados Unidos", "aliases": ["Calle Estados Unidos"], "role": "ACCEPTABLE", "span": "go to the street Estados Unidos" },
+              { "name": "Bar Sur", "role": "ACCEPTABLE", "span": "On the corner, you will see Bar Sur" }
+            ],
+            [
+              { "name": "Paseo Colón", "aliases": ["Avenida Paseo Colón"], "role": "ACCEPTABLE", "span": "cross the street Paseo de Colon" },
+              { "name": "Facultad de Ingeniería (UBA)", "aliases": ["Fundación Eva Perón", "Evita Foundation"], "role": "ACCEPTABLE", "span": "University of Buenos Aires department of engineers" }
+            ],
+            [{ "name": "Mercado de San Telmo", "aliases": ["San Telmo Market"], "role": "MANDATORY", "span": "While walking you will pass the entrance of Mercado de San Telmo. Jump inside." }],
+            [{ "name": "Plaza Dorrego", "role": "MANDATORY", "span": "Not far from Mercado de San Telmo is Plaza Dorrego." }],
+            [
+              { "name": "Avenida San Juan", "role": "ACCEPTABLE", "span": "walk on the street “Avenida San Juan”" },
+              { "name": "Museo de Arte Moderno de Buenos Aires", "aliases": ["Museum of Modern Arts", "MAMBA"], "role": "ACCEPTABLE", "span": "there is the Museum of Modern Arts" }
+            ],
+            [{ "name": "Ex Centro Clandestino Club Atlético", "aliases": ["Club Atlético memorial", "Club Atlético"], "role": "ACCEPTABLE", "span": "you see you a memory of “Club Atlético" }],
+            [
+              { "name": "Parque Lezama", "role": "MANDATORY", "span": "On your left side, you will see Parque Lezama" },
+              { "name": "Monumento a Pedro de Mendoza", "role": "ACCEPTABLE", "span": "The big statue refers to Pedro de Mendoza" }
+            ],
+            [{ "name": "Museo Histórico Nacional", "role": "MANDATORY", "span": "Make a stop at the national history museum" }],
+            [{ "name": "Avenida Caseros", "role": "ACCEPTABLE", "span": "you will see Avenida Caseros" }]
+          ]
+        },
+        {
+          "id": "S2-la-boca",
+          "boundary": "after 'Get on the public bus now ... direction “Boca”'",
+          "orderGroups": [
+            [{ "name": "La Boca", "role": "ACCEPTABLE", "span": "direction “Boca”" }],
+            [{ "name": "Caminito", "aliases": ["El Caminito"], "role": "MANDATORY", "span": "Arrive at “El Caminito“" }],
+            [{ "name": "La Bombonera", "aliases": ["Estadio Alberto J. Armando"], "role": "MANDATORY", "span": "Visit La Bombonera" }]
+          ]
+        }
+      ]
+    },
+    "agusyornet-san-telmo": {
+      "url": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+      "fixture": "sources/agusyornet-san-telmo.md",
+      "unit": "### Self Guided Walking Tour San Telmo (offsets 3478–14483 of the 33440-char Tavily markdown)",
+      "segments": [
+        {
+          "id": "S1-walk",
+          "boundary": "from Subte Tribunales to 'El Patio de los Ezeiza' (Stop 10: Last stop), before 'take bus 29 to Caminito or take a taxi'",
+          "orderGroups": [
+            [{ "name": "Teatro Colón", "role": "MANDATORY", "span": "see the stunning Teatro Colón from outside" }],
+            [{ "name": "Obelisco", "role": "MANDATORY", "span": "see the Obelisco" }],
+            [{ "name": "Avenida Roque Sáenz Peña", "aliases": ["Diagonal Norte"], "role": "ACCEPTABLE", "span": "Av. Roque Saenz Peña" }],
+            [{ "name": "Plaza de Mayo", "role": "MANDATORY", "span": "visit Plaza de Mayo" }],
+            [
+              { "name": "Avenida de Mayo", "role": "ACCEPTABLE", "span": "walk through Av. de Mayo" },
+              { "name": "Congreso de la Nación Argentina", "aliases": ["Congress building", "Palacio del Congreso"], "role": "ACCEPTABLE", "span": "you can see the Congress building" },
+              { "name": "Café Tortoni", "role": "ALTERNATIVE", "span": "the first is the iconic" },
+              { "name": "London City", "role": "ALTERNATIVE", "span": "London City Coffee" }
+            ],
+            [
+              { "name": "Casa Rosada", "role": "ACCEPTABLE", "span": "here we have the Casa Rosada" },
+              { "name": "Catedral Metropolitana", "aliases": ["Cathedral"], "role": "ACCEPTABLE", "span": "the Cathedral" },
+              { "name": "Cabildo", "role": "ACCEPTABLE", "span": "and the Cabildo" }
+            ],
+            [{ "name": "Defensa", "aliases": ["Calle Defensa", "Defensa Street"], "role": "ACCEPTABLE", "span": "Walk through Defensa Street" }],
+            [
+              { "name": "Farmacia La Estrella", "role": "MANDATORY", "span": "Stop 5" },
+              { "name": "Museo de la Ciudad", "role": "ACCEPTABLE", "span": "a small Museum of the city" }
+            ],
+            [
+              { "name": "Librería de Ávila", "aliases": ["La Librería del Avila"], "role": "MANDATORY", "span": "Stop 6" },
+              { "name": "Colegio Nacional de Buenos Aires", "role": "ACCEPTABLE", "span": "National School of Buenos Aires" }
+            ],
+            [{ "name": "Alfonso", "role": "ALTERNATIVE", "span": "If you are hungry at this point" }],
+            [{ "name": "Monumento de Mafalda", "aliases": ["Mafalda"], "role": "MANDATORY", "span": "Stop 7" }],
+            [{ "name": "Casa Mínima", "role": "MANDATORY", "span": "Stop 8" }],
+            [
+              { "name": "Mercado de San Telmo", "aliases": ["San Telmo Market"], "role": "MANDATORY", "span": "Stop 9" },
+              { "name": "Nuestra Parrilla", "role": "ALTERNATIVE", "span": "If you go for the small bite" },
+              { "name": "Coffee Town", "role": "ALTERNATIVE", "span": "If you are craving for some coffee" },
+              { "name": "Saigón", "role": "ALTERNATIVE", "span": "If you for the BIG meal" },
+              { "name": "Desnivel", "role": "ALTERNATIVE", "span": "go to" }
+            ],
+            [
+              { "name": "Café Rivas", "role": "ACCEPTABLE", "span": "two other places you can visit" },
+              { "name": "Galería Solar", "aliases": ["Galería Solar de French"], "role": "ACCEPTABLE", "span": "Galería Solar" }
+            ],
+            [{ "name": "El Patio de los Ezeiza", "aliases": ["Pasaje de la Defensa", "Casa Ezeiza"], "role": "MANDATORY", "span": "Stop 10: Last stop" }]
+          ]
+        },
+        {
+          "id": "S2-la-boca",
+          "boundary": "after 'take bus 29 to Caminito or take a taxi'",
+          "orderGroups": [
+            [{ "name": "Caminito", "role": "MANDATORY", "span": "Go to Caminito en La Boca" }],
+            [
+              { "name": "Don Carlos", "role": "ACCEPTABLE", "span": "Stop 13" },
+              { "name": "La Bombonera", "aliases": ["Estadio La Boca", "Estadio Alberto J. Armando"], "role": "ACCEPTABLE", "span": "Estadio La Boca" },
+              { "name": "Fundación Proa", "role": "ACCEPTABLE", "span": "maybe check the" }
+            ]
+          ]
+        },
+        {
+          "id": "S3-puerto-madero",
+          "boundary": "after 'Go to Puerto Madero ... take a bus or a taxi'",
+          "orderGroups": [
+            [{ "name": "Puente de la Mujer", "role": "MANDATORY", "span": "The starting point here is the" }],
+            [
+              { "name": "Puerto Madero", "role": "ACCEPTABLE", "span": "you are officially in Puerto Madero" },
+              { "name": "Dársena Sur", "role": "ACCEPTABLE", "span": "Darsena Sur" },
+              { "name": "Avenida Ingeniero Huergo / Hernán Giralt", "aliases": ["Av. Int. Hernan Giralt", "Avenida Intendente Hernán M. Giralt"], "role": "ACCEPTABLE", "span": "Av. Int. Hernan Giralt" }
+            ],
+            [
+              { "name": "Centro Cultural Kirchner", "role": "ACCEPTABLE", "span": "Centro Cultural Kirchner" },
+              { "name": "Trade Sky Bar", "role": "ALTERNATIVE", "span": "Or if you feel like continuing" }
+            ]
+          ]
+        }
+      ]
+    }
+  }
+}

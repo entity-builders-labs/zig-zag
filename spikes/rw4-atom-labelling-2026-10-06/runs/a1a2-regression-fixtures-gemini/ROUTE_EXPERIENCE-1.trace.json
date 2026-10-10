@@ -1,0 +1,190 @@
+{
+  "sourceUnitId": "ROUTE_EXPERIENCE",
+  "sourceUrl": "fixtures/route-experience-synthetic.md",
+  "sectionComplete": true,
+  "versions": {
+    "atomizer": "atomizer-v1",
+    "structure": "editorial-structure-v1",
+    "prompt": "labelling-prompt-v4"
+  },
+  "atomCount": 6,
+  "editorialAtomCount": 6,
+  "nonEditorialBlocks": [],
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "sourceStart": 0,
+      "sourceEnd": 24,
+      "editorial": true,
+      "label": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-002",
+      "sourceStart": 26,
+      "sourceEnd": 80,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Start at Harbour Square",
+          "sourceStart": 26,
+          "sourceEnd": 49
+        }
+      ]
+    },
+    {
+      "atomId": "a-003",
+      "sourceStart": 81,
+      "sourceEnd": 129,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "role": "ROUTE_LEG",
+          "supportSpan": "Walk down Mill Street",
+          "sourceStart": 81,
+          "sourceEnd": 102
+        }
+      ]
+    },
+    {
+      "atomId": "a-004",
+      "sourceStart": 130,
+      "sourceEnd": 270,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Painted Lane",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "Painted Lane is the reason to come: stroll its whole 150-metre curve slowly",
+          "sourceStart": 134,
+          "sourceEnd": 209
+        }
+      ]
+    },
+    {
+      "atomId": "a-005",
+      "sourceStart": 271,
+      "sourceEnd": 334,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Sailors' Church",
+          "role": "PASS_BY",
+          "supportSpan": "pass the Sailors' Church on your right",
+          "sourceStart": 295,
+          "sourceEnd": 333
+        }
+      ]
+    },
+    {
+      "atomId": "a-006",
+      "sourceStart": 335,
+      "sourceEnd": 390,
+      "editorial": true,
+      "label": "CONTENT",
+      "modelClassification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Riverside Art Museum",
+          "role": "ITINERARY_STOP",
+          "supportSpan": "visit the Riverside Art Museum",
+          "sourceStart": 359,
+          "sourceEnd": 389
+        }
+      ]
+    }
+  ],
+  "batches": [
+    {
+      "batchIndex": 1,
+      "atomCount": 6,
+      "firstAtomId": "a-001",
+      "lastAtomId": "a-006",
+      "contextAtomIds": []
+    }
+  ],
+  "calls": [
+    {
+      "kind": "batch",
+      "batchIndex": 1,
+      "atomCount": 6,
+      "promptChars": 5084
+    }
+  ],
+  "relabel": null,
+  "contractOutcome": "ASSEMBLED",
+  "issues": [],
+  "providerFailure": null,
+  "assembledSegmentCount": 1,
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "transferBoundary": [],
+      "transferDestinations": [],
+      "mandatoryBeforeIdentity": [
+        {
+          "position": 1,
+          "sourceName": "Harbour Square",
+          "provenance": [
+            {
+              "atomId": "a-002",
+              "supportSpan": "Start at Harbour Square",
+              "sourceStart": 26,
+              "sourceEnd": 49,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        },
+        {
+          "position": 3,
+          "sourceName": "Painted Lane",
+          "provenance": [
+            {
+              "atomId": "a-004",
+              "supportSpan": "Painted Lane is the reason to come: stroll its whole 150-metre curve slowly",
+              "sourceStart": 134,
+              "sourceEnd": 209,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        },
+        {
+          "position": 5,
+          "sourceName": "Riverside Art Museum",
+          "provenance": [
+            {
+              "atomId": "a-006",
+              "supportSpan": "visit the Riverside Art Museum",
+              "sourceStart": 359,
+              "sourceEnd": 389,
+              "role": "ITINERARY_STOP",
+              "viaTransfer": false
+            }
+          ]
+        }
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [
+        "Mill Street"
+      ],
+      "passBy": [
+        "Sailors' Church"
+      ],
+      "conflicts": []
+    }
+  ]
+}

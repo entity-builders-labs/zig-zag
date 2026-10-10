@@ -1,0 +1,58 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description about San Telmo's character."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive atmosphere statement."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Descriptive commentary."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact about the building."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact about the building."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of market renovation history."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of Plaza Dorrego."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical description of the site."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author commentary and context."
+    }
+  ]
+}

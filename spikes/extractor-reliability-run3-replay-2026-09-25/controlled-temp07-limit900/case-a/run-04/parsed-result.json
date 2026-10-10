@@ -1,0 +1,121 @@
+{
+  "classification": "CANDIDATE",
+  "provider": "groq",
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "elapsedMs": 16634,
+  "candidates": [
+    {
+      "name": "San Telmo & Market Tour",
+      "description": "A walking tour through the oldest streets of San Telmo that highlights colonial architecture, Argentine history, and the neighborhood's traditional market.",
+      "themes": [
+        "history",
+        "architecture"
+      ],
+      "traits": [
+        "colonial era",
+        "street market"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "oldest-streets",
+          "name": "oldest streets of Buenos Aires",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ]
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ]
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "shortReason": "Evidence explicitly names a tour that includes the oldest streets and the San Telmo market.",
+      "orderedByEvidence": false
+    }
+  ],
+  "validationErrors": [
+    "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically"
+  ],
+  "sourceSupportAudits": [
+    {
+      "candidateName": "San Telmo & Market Tour",
+      "status": "SUPPORTED",
+      "emittedComponentCount": 2,
+      "supportedComponentCount": 2,
+      "unsupportedComponentCount": 0,
+      "components": [
+        {
+          "index": 0,
+          "key": "oldest-streets",
+          "name": "oldest streets of Buenos Aires",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "status": "SUPPORTED"
+        },
+        {
+          "index": 1,
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "status": "SUPPORTED"
+        }
+      ]
+    }
+  ],
+  "rawComponentFacts": [
+    {
+      "name": "San Telmo & Market Tour",
+      "components": [
+        {
+          "index": 0,
+          "key": "oldest-streets",
+          "name": "oldest streets of Buenos Aires",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "walk the oldest streets of Buenos Aires"
+        },
+        {
+          "index": 1,
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "San Telmo & Market Tour"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": false
+    }
+  ]
+}

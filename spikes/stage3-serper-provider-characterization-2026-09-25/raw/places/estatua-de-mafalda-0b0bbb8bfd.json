@@ -1,0 +1,39 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Estatua de Mafalda",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:24.544Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 818
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Estatua de Mafalda",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "latitude": -34.615833,
+        "longitude": -58.371647,
+        "rating": 4.6,
+        "ratingCount": 8300,
+        "category": "Tourist attraction",
+        "cid": "10819767908987080422"
+      }
+    ],
+    "credits": 1
+  }
+}

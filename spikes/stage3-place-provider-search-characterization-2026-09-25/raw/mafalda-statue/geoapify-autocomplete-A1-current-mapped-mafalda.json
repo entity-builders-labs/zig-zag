@@ -1,0 +1,48 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746f",
+      "name": "Mafalda, Susanita and Manolito",
+      "displayName": {
+        "text": "Mafalda, Susanita and Manolito"
+      },
+      "formattedAddress": "Mafalda, Susanita and Manolito, Defensa, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6159617,
+        "longitude": -58.3716913
+      },
+      "types": []
+    },
+    {
+      "id": "513d9cc0745a4b4dc059c2572a5e1b4b41c0f00103f901b302bc1301000000c002019203074d6166616c6461",
+      "name": "Mafalda",
+      "displayName": {
+        "text": "Mafalda"
+      },
+      "formattedAddress": "Mafalda, 821 - San Lorenzo, B1683 AEV Martín Coronado, Argentina",
+      "location": {
+        "latitude": -34.5867727,
+        "longitude": -58.588698
+      },
+      "types": [
+        "commercial"
+      ],
+      "primaryType": "commercial"
+    },
+    {
+      "id": "5178efa83121464dc05956c09888123f41c0f00102f90136b0511c00000000c002019203074d6166616c6461",
+      "name": "Mafalda",
+      "displayName": {
+        "text": "Mafalda"
+      },
+      "formattedAddress": "Mafalda, Avenida Bernabé Márquez 2938, Lomas de San Isidro, 1642 San Isidro, Argentina",
+      "location": {
+        "latitude": -34.4927531,
+        "longitude": -58.547888
+      },
+      "types": []
+    }
+  ],
+  "failure": null
+}

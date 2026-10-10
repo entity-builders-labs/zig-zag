@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Caminito & La Boca Walking Tour",
+    "description": "A walking experience through the La Boca neighborhood, featuring the colorful streets of Caminito, the Benito Quinquela Martin Museum, and the La Bombonera stadium.",
+    "themes": [
+      "culture",
+      "art",
+      "architecture"
+    ],
+    "traits": [
+      "colorful streets",
+      "street art",
+      "live tango"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "suggestedDurationMinutes": 120,
+    "componentHints": [
+      {
+        "key": "caminito",
+        "name": "Caminito",
+        "role": "route",
+        "expectedKind": "ROUTE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "supportSpan": "Visit Caminito, Benito Quinquela Martin Museum, and La Bambonera stadium"
+      },
+      {
+        "key": "benito-quinquela-martin-museum",
+        "name": "Benito Quinquela Martin Museum",
+        "role": "venue",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "supportSpan": "Visit Caminito, Benito Quinquela Martin Museum, and La Bambonera stadium"
+      },
+      {
+        "key": "la-bombonera",
+        "name": "La Bombonera",
+        "role": "venue",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "supportSpan": "Visit Caminito, Benito Quinquela Martin Museum, and La Bambonera stadium",
+        "sourceName": "La Bambonera stadium",
+        "normalizationKind": "TYPO_CORRECTION"
+      }
+    ],
+    "evidenceKeys": [
+      "ev-5"
+    ],
+    "shortReason": "Evidence explicitly describes a walking tour containing Caminito, the museum, and the stadium.",
+    "orderedByEvidence": false
+  }
+]

@@ -1,0 +1,262 @@
+[
+ {
+  "label": "acquisition-pass-1-area_route_walk-san-telmo|Self Guided Walking Tour San Telmo (part 1 of 3)",
+  "cabildo": [
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:OVERLAP/DECLARES_QID"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo de Buenos Aires",
+    "externalId": "osm:way:293947112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:1",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo de Buenos Aires",
+    "externalId": "osm:way:293947112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:1",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:NONE/NONE"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 1 of 3)",
+  "cabildo": [
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:OVERLAP/DECLARES_QID"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo de Buenos Aires",
+    "externalId": "osm:way:293947112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:1",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo de Buenos Aires",
+    "externalId": "osm:way:293947112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:1",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:NONE/NONE"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 2 of 3)",
+  "cabildo": []
+ },
+ {
+  "label": "acquisition-pass-1-planner_capacity|Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+  "cabildo": [
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:OVERLAP/DECLARES_QID"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo",
+    "externalId": "osm:node:5029112112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "EXACT_NAME:MULTIPLE",
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:2",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo",
+    "externalId": "osm:node:5029112112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "EXACT_NAME:MULTIPLE",
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:2",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:NONE/NONE"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "single|Cabildo",
+  "cabildo": [
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "LOCAL_OSM_POOL",
+    "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "externalId": "osm:node:767690911",
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "evidence": [
+     "DECLARED_ALIAS_MATCH:OVERLAP:SINGLE",
+     "COMPETITOR_EXAMINATION:NO_MATERIAL_COMPETITOR:0",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:OVERLAP/DECLARES_QID"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo",
+    "externalId": "osm:node:5029112112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "EXACT_NAME:MULTIPLE",
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:2",
+     "GEOGRAPHIC_CORRESPONDENCE"
+    ]
+   },
+   {
+    "hint": "Cabildo",
+    "strategy": "NOMINATIM",
+    "candidate": "Cabildo",
+    "externalId": "osm:node:5029112112",
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "evidence": [
+     "EXACT_NAME:MULTIPLE",
+     "COMPETITOR_EXAMINATION:MATERIAL_COMPETITOR_KNOWN:2",
+     "GEOGRAPHIC_CORRESPONDENCE",
+     "WIKIDATA_IDENTITY_MATCH:NONE/NONE"
+    ]
+   }
+  ]
+ },
+ {
+  "label": "single|Cabildo de Buenos Aires",
+  "cabildo": []
+ },
+ {
+  "label": "single|Cabildo de Mayo",
+  "cabildo": []
+ },
+ {
+  "label": "single|Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "cabildo": []
+ },
+ {
+  "label": "single|Don Carlos",
+  "cabildo": []
+ },
+ {
+  "label": "single|El Zanjón de Granados",
+  "cabildo": []
+ },
+ {
+  "label": "single|Farmacia la Estrella",
+  "cabildo": []
+ }
+]

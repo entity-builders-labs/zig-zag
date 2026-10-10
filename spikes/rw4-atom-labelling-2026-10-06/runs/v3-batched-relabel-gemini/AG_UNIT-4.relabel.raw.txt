@@ -1,0 +1,21 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "wander around Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Fundación Proa",
+          "supportSpan": "check the Fundación Proa",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs traveler to visit Caminito Street and optionally Fundación Proa."
+    }
+  ]
+}

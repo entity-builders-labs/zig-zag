@@ -1,0 +1,59 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Farmacia la Estrella",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar",
+    "hl": "es"
+  },
+  "capturedAt": "2026-09-25T12:56:49.362Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1188
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Farmacia la Estrella",
+      "gl": "ar",
+      "hl": "es",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6101871,-58.3747204,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Farmacia De La Estrella",
+        "address": "Defensa 201, C1065AAD Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6101871,
+        "longitude": -58.372145499999995,
+        "rating": 4.4,
+        "ratingCount": 196,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "website": "https://www.instagram.com/farmaciadelaestrella.ba?igsh=MTd1MGk1ZnQxc3k1cQ==",
+        "phoneNumber": "+54 11 4343-4040",
+        "openingHours": {
+          "viernes": "8 a.m.–7 p.m.",
+          "sábado": "Cerrado",
+          "domingo": "Cerrado",
+          "lunes": "8 a.m.–7 p.m.",
+          "martes": "8 a.m.–7 p.m.",
+          "miércoles": "8 a.m.–7 p.m.",
+          "jueves": "8 a.m.–7 p.m."
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmOPQ3VN8s-9klwhYyVxR2WrIczhM29S2Gu2_ZXAEYrlWb42X-47FlVjbW2sJsDrfLS8AWvg_8HLZqw1V1KhUKWV1g10AOWZAejWhMAmmvKj7LxSHg-f6rjpZC-aMg0qwyMbEBvyBMGiVmhP",
+        "cid": "16187983576554178413",
+        "fid": "0x95bccad4ae7c1b93:0xe0a7454b965e876d",
+        "placeId": "ChIJkxt8rtTKvJURbYdelktFp-A"
+      }
+    ],
+    "credits": 3
+  }
+}

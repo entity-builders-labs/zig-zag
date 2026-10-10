@@ -1,0 +1,4 @@
+["青山カフェ","銀座カフェ"] normalizeGeoName equal: true "" | foldLiteralText equal: false
+["Кафе Пушкин","Кафе Москва"] normalizeGeoName equal: true "" | foldLiteralText equal: false
+["Café 青山","Café 渋谷"] normalizeGeoName equal: true "cafe" | foldLiteralText equal: false
+["Ojo de Agua","Ojo de Água"] normalizeGeoName equal: true "ojo de agua" | foldLiteralText equal: true

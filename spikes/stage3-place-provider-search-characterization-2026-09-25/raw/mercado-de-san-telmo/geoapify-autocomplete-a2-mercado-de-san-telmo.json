@@ -1,0 +1,168 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Mercado de San Telmo",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 836,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mercado de San Telmo",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAR",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Defensa",
+        "housenumber": "963",
+        "iso3166_2": "AR-C",
+        "lon": -58.372512,
+        "lat": -34.6190492,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1898.6146731644876,
+        "formatted": "Mercado de San Telmo, Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "address_line1": "Mercado de San Telmo",
+        "address_line2": "Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "category": "commercial.marketplace",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JJG+9X",
+        "plus_code_short": "JG+9X Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f",
+        "bbox": {
+          "lon1": -58.372879,
+          "lat1": -34.6195639,
+          "lon2": -58.3715918,
+          "lat2": -34.6185575
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Mercado de San Telmo",
+        "housenumber": "963",
+        "street": "Defensa",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.372811,
+        "lat": -34.619543,
+        "result_type": "amenity",
+        "distance": 1936.5977572527574,
+        "postcode": "1871",
+        "formatted": "Mercado de San Telmo, Defensa 963, San Telmo, 1871 Buenos Aires, Argentina",
+        "address_line1": "Mercado de San Telmo",
+        "address_line2": "Defensa 963, San Telmo, 1871 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JJG+5V",
+        "plus_code_short": "JG+5V Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51664b5645b82f4dc0599dbb5d2f4d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6fe203216f70656e7374726565746d61703a76656e75653a7761792f313538383933323731",
+        "bbox": {
+          "lon1": -58.372879,
+          "lat1": -34.6195639,
+          "lon2": -58.3715918,
+          "lat2": -34.6185575
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "La Licoreria Del Mercado",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1102",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "Estados Unidos",
+        "housenumber": "460",
+        "iso3166_2": "AR-C",
+        "lon": -58.372765,
+        "lat": -34.619431,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1927.0385683593884,
+        "formatted": "La Licoreria Del Mercado, Estados Unidos 460, San Telmo, 1102 Buenos Aires, Argentina",
+        "address_line1": "La Licoreria Del Mercado",
+        "address_line2": "Estados Unidos 460, San Telmo, 1102 Buenos Aires, Argentina",
+        "category": "catering.bar",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JJG+6V",
+        "plus_code_short": "JG+6V Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51f60b76c3b62f4dc0597590d783494f41c0f00103f9010dfd896f01000000c002019203184c61204c69636f72657269612044656c204d65726361646f",
+        "bbox": {
+          "lon1": -58.372815,
+          "lat1": -34.619481,
+          "lon2": -58.372715,
+          "lat2": -34.619381
+        }
+      }
+    ],
+    "query": {
+      "text": "Mercado de San Telmo",
+      "categories": []
+    }
+  }
+}

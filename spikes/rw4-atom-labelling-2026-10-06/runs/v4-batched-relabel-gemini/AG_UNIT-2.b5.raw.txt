@@ -1,0 +1,82 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media sharing links and call to action."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment section heading."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social sharing buttons."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social sharing image link."
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social sharing widget."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tag link."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author reply note."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email address information."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog pagination links."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author bio description."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author origin and location."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog welcome message."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media banner image."
+    }
+  ]
+}

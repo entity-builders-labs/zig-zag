@@ -1,0 +1,138 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour Part 1: Teatro Colón to Plaza de Mayo",
+      "description": "The itinerary starts from the Subte station Tribunales, passes the Teatro Colón and the Obelisco, walks through Av. Roque Saenz Peña to Plaza de Mayo and Av. de Mayo.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historical tour"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Teatro Colón"
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Plaza de Mayo"
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "First part of the self-guided walking tour starting at Tribunales and visiting Teatro Colón and Plaza de Mayo.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    },
+    {
+      "name": "Self-Guided Walking Tour Part 2: San Telmo Historic Walk through Defensa Street",
+      "description": "Walking through Defensa Street in San Telmo, visiting Farmacia la Estrella, La Librería del Avila, Monumento de Mafalda, Casa Mínima, The San Telmo Market and El Patio de los Ezeiza.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic street"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "\"Farmacia la Estrella\""
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "Librería de Ávila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "\"La Librería del Avila\"",
+          "normalizationKind": "CANONICAL_NAME",
+          "sourceName": "\"La Librería del Avila\""
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Monumento de Mafalda"
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Casa Mínima"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "The San Telmo Market",
+          "normalizationKind": "TRANSLATION",
+          "sourceName": "The San Telmo Market"
+        },
+        {
+          "key": "el-patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "\"El Patio de los Ezeiza\""
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "San Telmo leg of the self-guided itinerary exploring historic stops along Defensa Street.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

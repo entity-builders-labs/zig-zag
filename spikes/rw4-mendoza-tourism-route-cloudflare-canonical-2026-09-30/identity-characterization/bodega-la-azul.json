@@ -1,0 +1,88 @@
+{
+  "component": "Bodega Azul (source) / Bodega La Azul (provider)",
+  "sourceComposite": "Uco Valley Wine Tasting Itinerary",
+  "source": {
+    "span": "4. [Bodega Azul](https://bodegalaazul.com/) – 2:30 pm for lunch – …",
+    "hyperlinkTarget": "https://bodegalaazul.com/",
+    "addressText": null,
+    "note": "source visit purpose is lunch"
+  },
+  "officialSite": {
+    "status": 200,
+    "finalUrl": "https://bodegalaazul.com/",
+    "title": "Bodega La azul",
+    "declared": [
+      "Nos encontramos en Tupungato, Mendoza",
+      "vineyards Vista Flores-Tunuyán / Agua Amarga-Tupungato"
+    ],
+    "jsonLd": "none",
+    "phone": "none found"
+  },
+  "acquisition": {
+    "strategiesAttempted": [
+      "CATALOG_REUSE (stub/empty in probe; COLD #11 fresh DB)",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES (geoapify, ROUTE_SCALE 80 km)"
+    ],
+    "queriesAttempted": [
+      "Bodega Azul"
+    ],
+    "nominatim": "'Bodega Azul' -> 1 result: Supermercado del Vino 'La Bodega de Azul', Azul (Buenos Aires), ~929 km -> INCOMPATIBLE (OUTSIDE_ROUTE_DESTINATION_RADIUS); 'Bodega La Azul' -> node/4851595199 (craft=winery) 73.2 km",
+    "places": "geoapify 'Bodega Azul' -> 1 result 'Bodega La Azul' (point_of_interest, Ruta Provincial 89, Distrito Cordón del Plata) -33.4692562,-69.2207912, 73.2 km from the destination centroid; viable ONLY under ROUTE_SCALE (DEFAULT rejects it OUTSIDE_DESTINATION_BOUNDARY)",
+    "candidateAcquired": true,
+    "candidate": {
+      "provider": "geoapify",
+      "canonicalName": "Bodega La Azul",
+      "strongIdentities": [
+        "geoapify:<opaque place id>",
+        "osm:node:4851595199 (Place Details ENRICHED)"
+      ],
+      "websiteUri": null,
+      "phone": null,
+      "declaredAliases": "none (OSM node has no alt_name/old_name)",
+      "wikidata": "none"
+    },
+    "osmLocalOverpass": {
+      "node/4851595199": {
+        "name": "Bodega La Azul",
+        "craft": "winery",
+        "shop": "winery",
+        "tourism": "attraction",
+        "website": null
+      },
+      "node/5792963498": {
+        "name": "La Azul",
+        "amenity": "restaurant",
+        "note": "~20 m away, same site"
+      }
+    }
+  },
+  "verification": {
+    "evidencePresent": [
+      {
+        "type": "WIKIDATA_IDENTITY_MATCH",
+        "source": "NEARBY",
+        "hintMatched": false,
+        "candidateMatched": false
+      }
+    ],
+    "evidenceAbsent": [
+      "EXACT_NAME (names differ)",
+      "DECLARED_ALIAS_MATCH (no alias on the OSM node)",
+      "ADDRESS_MATCH (hint has no addressHint)",
+      "IDENTITY_CONVERGENCE (Nominatim 'Bodega Azul' found a different object)",
+      "WIKIDATA identity (no QID on either side)"
+    ],
+    "verdict": "REJECTED",
+    "exactReason": "IdentityVerifier rule 4: a WIKIDATA_IDENTITY_MATCH exists and corroborates neither side, and no MULTIPLE name evidence -> REJECTED. The collector emits that evidence when the nearby Wikidata search COMPLETES with no matching item (no Wikidata item exists for this winery). Absence of corroboration is encoded as rejection; without it the verdict would be INSUFFICIENT_EVIDENCE -- still not verified."
+  },
+  "sameIdentityStronglyEstablished": false,
+  "assessment": "Plausibly the same winery (official site names itself 'Bodega La azul' in Tupungato; OSM node in Cordón del Plata, Tupungato), but no strong fact links them in the current model: the provider exposes no website, no alias, no QID, and the source address is absent. Additional ambiguity: the same site has a winery node and a 'La Azul' restaurant node, and the source visit is 'for lunch'.",
+  "classification": [
+    "E_CANDIDATE_EXISTS_VERIFIER_LACKS_CORROBORATION",
+    "F_SOURCE_HYPERLINK_TO_OFFICIAL_DOMAIN_NOT_CAPTURED",
+    "H_SITE_HAS_WINERY_AND_RESTAURANT_OBJECTS"
+  ]
+}

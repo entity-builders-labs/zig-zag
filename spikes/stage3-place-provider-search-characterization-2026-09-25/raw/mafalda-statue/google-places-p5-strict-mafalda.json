@@ -1,0 +1,32 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
+    "body": "{\"textQuery\":\"Mafalda\",\"locationBias\":{\"circle\":{\"center\":{\"latitude\":-34.6037,\"longitude\":-58.3816},\"radius\":50000}},\"includedType\":\"sculpture\",\"strictTypeFiltering\":true,\"pageSize\":10}"
+  },
+  "status": 200,
+  "durationMs": 447,
+  "response": {
+    "places": [
+      {
+        "id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+        "types": [
+          "sculpture",
+          "tourist_attraction",
+          "point_of_interest",
+          "establishment"
+        ],
+        "formattedAddress": "9JMH+J8W, Defensa 700, C1065 Cdad. Autónoma de Buenos Aires, Argentina",
+        "location": {
+          "latitude": -34.615832,
+          "longitude": -58.3716461
+        },
+        "displayName": {
+          "text": "Estatua de Mafalda",
+          "languageCode": "pt"
+        },
+        "primaryType": "sculpture"
+      }
+    ]
+  }
+}

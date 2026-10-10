@@ -1,0 +1,162 @@
+{
+  "findVerifiedWithin": [
+    {
+      "id": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+      "name": "Solar French",
+      "componentGeoEntityIds": [
+        "6229787c-d26e-40ec-a1ea-4cd7c847ba68"
+      ]
+    },
+    {
+      "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+      "name": "Mercado San Telmo",
+      "componentGeoEntityIds": [
+        "8552e758-239f-4b2c-89e6-b56cd349ea02"
+      ]
+    },
+    {
+      "id": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+      "name": "Plaza 30'000 compañeros",
+      "componentGeoEntityIds": [
+        "8399f480-1370-4e7c-bf4a-3ed8d7c99f3e"
+      ]
+    },
+    {
+      "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "componentGeoEntityIds": [
+        "fa1cd059-7f6d-4301-b65c-dec303b41486"
+      ]
+    },
+    {
+      "id": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+      "name": "Monumento a Pedro de Mendoza",
+      "componentGeoEntityIds": [
+        "00a7d4f3-8008-452d-b076-3952fd609a31"
+      ]
+    },
+    {
+      "id": "607ad17e-10c1-4e02-a463-f6a368a74652",
+      "name": "Casa Mínima",
+      "componentGeoEntityIds": [
+        "d41753be-e798-4436-af7c-986d2d55eeaf"
+      ]
+    },
+    {
+      "id": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+      "name": "Museo de las Escuelas",
+      "componentGeoEntityIds": [
+        "4701f2a6-a9de-41a5-a3b1-8805efe587db"
+      ]
+    },
+    {
+      "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+      "name": "Monumento Canto al Trabajo",
+      "componentGeoEntityIds": [
+        "6d3a051a-e2d5-47c4-a492-583025eecbe3"
+      ]
+    },
+    {
+      "id": "f7f3d091-ede4-4473-ac81-262700af8526",
+      "name": "Carnavales de la Calle Defensa",
+      "componentGeoEntityIds": [
+        "8accac92-c979-4470-aaf9-2abfa78844e2"
+      ]
+    },
+    {
+      "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "name": "Museo Histórico Nacional",
+      "componentGeoEntityIds": [
+        "0ba03a2c-354f-4b3d-b24f-68fd3676b752"
+      ]
+    },
+    {
+      "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+      "name": "San Telmo Walking Tour",
+      "componentGeoEntityIds": [
+        "57677762-3787-406f-9bee-739b03bd3897",
+        "754209cf-baa8-4aa5-bd46-6d2024322134"
+      ]
+    }
+  ],
+  "findVerifiedWithinForMatching": [
+    {
+      "id": "46554d95-891c-48b7-9b10-39e5667f369f",
+      "name": "San Telmo Walking Tour",
+      "componentGeoEntityIds": [
+        "57677762-3787-406f-9bee-739b03bd3897",
+        "754209cf-baa8-4aa5-bd46-6d2024322134"
+      ]
+    },
+    {
+      "id": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+      "name": "Solar French",
+      "componentGeoEntityIds": [
+        "6229787c-d26e-40ec-a1ea-4cd7c847ba68"
+      ]
+    },
+    {
+      "id": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+      "name": "Mercado San Telmo",
+      "componentGeoEntityIds": [
+        "8552e758-239f-4b2c-89e6-b56cd349ea02"
+      ]
+    },
+    {
+      "id": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+      "name": "Plaza 30'000 compañeros",
+      "componentGeoEntityIds": [
+        "8399f480-1370-4e7c-bf4a-3ed8d7c99f3e"
+      ]
+    },
+    {
+      "id": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "componentGeoEntityIds": [
+        "fa1cd059-7f6d-4301-b65c-dec303b41486"
+      ]
+    },
+    {
+      "id": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+      "name": "Monumento a Pedro de Mendoza",
+      "componentGeoEntityIds": [
+        "00a7d4f3-8008-452d-b076-3952fd609a31"
+      ]
+    },
+    {
+      "id": "607ad17e-10c1-4e02-a463-f6a368a74652",
+      "name": "Casa Mínima",
+      "componentGeoEntityIds": [
+        "d41753be-e798-4436-af7c-986d2d55eeaf"
+      ]
+    },
+    {
+      "id": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+      "name": "Museo de las Escuelas",
+      "componentGeoEntityIds": [
+        "4701f2a6-a9de-41a5-a3b1-8805efe587db"
+      ]
+    },
+    {
+      "id": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+      "name": "Monumento Canto al Trabajo",
+      "componentGeoEntityIds": [
+        "6d3a051a-e2d5-47c4-a492-583025eecbe3"
+      ]
+    },
+    {
+      "id": "f7f3d091-ede4-4473-ac81-262700af8526",
+      "name": "Carnavales de la Calle Defensa",
+      "componentGeoEntityIds": [
+        "8accac92-c979-4470-aaf9-2abfa78844e2"
+      ]
+    },
+    {
+      "id": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "name": "Museo Histórico Nacional",
+      "componentGeoEntityIds": [
+        "0ba03a2c-354f-4b3d-b24f-68fd3676b752"
+      ]
+    }
+  ]
+}

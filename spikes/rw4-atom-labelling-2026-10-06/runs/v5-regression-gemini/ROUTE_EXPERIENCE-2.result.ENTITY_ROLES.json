@@ -1,0 +1,161 @@
+{
+  "input": "ROUTE_EXPERIENCE",
+  "run": 2,
+  "validity": "VALID",
+  "promptVersion": "labelling-prompt-v4",
+  "consistency": "ENTITY_ROLES",
+  "batches": 1,
+  "atoms": 6,
+  "classified": 6,
+  "firstPassValid": true,
+  "firstPassIssueCount": 0,
+  "relabel": null,
+  "missingAtomIds": [],
+  "duplicateAtomIds": [],
+  "unknownAtomIds": [],
+  "malformed": [],
+  "spanIssues": [],
+  "notes": [],
+  "labellingValid": true,
+  "outcome": "ASSEMBLED",
+  "histogram": {
+    "NON_ITINERARY": 1,
+    "ITINERARY_STOP": 3,
+    "ROUTE_LEG": 1,
+    "PASS_BY": 1
+  },
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "openedBy": [],
+      "mandatory": [
+        "Harbour Square",
+        "The Painted Lane",
+        "Riverside Art Museum"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [
+        "Mill Street",
+        "Painted Lane"
+      ],
+      "passBy": [
+        "Sailors' Church"
+      ],
+      "conflicts": []
+    }
+  ],
+  "segmentsAreDiagnosticShadow": false,
+  "verdicts": [
+    {
+      "segment": "ALL",
+      "success": true,
+      "mandatoryRecall": "3/3",
+      "reasons": [],
+      "acceptablePromoted": [],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    }
+  ],
+  "alternatives": [],
+  "mandatoryDecisions": {},
+  "routeAreaPromoted": [],
+  "routeLegMissing": [],
+  "labels": [
+    {
+      "text": "## The Painted Lane walk",
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "kind": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "text": "Start at Harbour Square, next to the old fire station.",
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "kind": "CONTENT",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "supportSpan": "Start at Harbour Square",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 26,
+          "sourceEnd": 49
+        }
+      ],
+      "reason": "Starting destination"
+    },
+    {
+      "text": "Walk down Mill Street to reach the Painted Lane.",
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "kind": "CONTENT",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Mill Street",
+          "role": "ROUTE_LEG",
+          "sourceStart": 91,
+          "sourceEnd": 102
+        },
+        {
+          "sourceName": "Painted Lane",
+          "supportSpan": "Painted Lane",
+          "role": "ROUTE_LEG",
+          "sourceStart": 116,
+          "sourceEnd": 128
+        }
+      ],
+      "reason": "Streets used as a route leg"
+    },
+    {
+      "text": "The Painted Lane is the reason to come: stroll its whole 150-metre curve slowly, looking at every painted tin house and the murals along it.",
+      "atomId": "a-004",
+      "classification": "ITINERARY_STOP",
+      "kind": "CONTENT",
+      "entities": [
+        {
+          "sourceName": "The Painted Lane",
+          "supportSpan": "The Painted Lane",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 130,
+          "sourceEnd": 146
+        }
+      ],
+      "reason": "Main attraction to visit"
+    },
+    {
+      "text": "Halfway along, you will pass the Sailors' Church on your right.",
+      "atomId": "a-005",
+      "classification": "PASS_BY",
+      "kind": "CONTENT",
+      "entities": [
+        {
+          "sourceName": "Sailors' Church",
+          "supportSpan": "Sailors' Church",
+          "role": "PASS_BY",
+          "sourceStart": 304,
+          "sourceEnd": 319
+        }
+      ],
+      "reason": "Passed by on the right"
+    },
+    {
+      "text": "At the end of the lane, visit the Riverside Art Museum.",
+      "atomId": "a-006",
+      "classification": "ITINERARY_STOP",
+      "kind": "CONTENT",
+      "entities": [
+        {
+          "sourceName": "Riverside Art Museum",
+          "supportSpan": "Riverside Art Museum",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 369,
+          "sourceEnd": 389
+        }
+      ],
+      "reason": "Destination museum to visit"
+    }
+  ],
+  "issues": []
+}

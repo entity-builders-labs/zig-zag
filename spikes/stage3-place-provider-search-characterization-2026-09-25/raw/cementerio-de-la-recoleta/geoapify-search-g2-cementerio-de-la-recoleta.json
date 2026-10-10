@@ -1,0 +1,391 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Cementerio de la Recoleta",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1080,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "housenumber": "3508",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.413853,
+        "lat": -34.594758,
+        "result_type": "building",
+        "distance": 3115.0533604064567,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3508, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3508",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+3F",
+        "plus_code_short": "CH4P+3F Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51fe2c9622f9344dc0596684b707214c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a64333761356633363533643439643661"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3510",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.413947,
+        "lat": -34.594758,
+        "result_type": "building",
+        "distance": 3123.208277789873,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3510, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3510",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+3C",
+        "plus_code_short": "CH4P+3C Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "517fa31d37fc344dc0596684b707214c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a38646432303039656233333963656362"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3512",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.413947,
+        "lat": -34.594758,
+        "result_type": "building",
+        "distance": 3123.208277789873,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3512, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3512",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+3C",
+        "plus_code_short": "CH4P+3C Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "517fa31d37fc344dc0596684b707214c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a32626362653765623865343533373732"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3526",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414054,
+        "lat": -34.594798,
+        "result_type": "building",
+        "distance": 3131.084279939397,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3526, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3526",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+39",
+        "plus_code_short": "CH4P+39 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.35137387944696,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "519563b2b8ff344dc059f4dc4257224c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a34306334663461636335333130313333"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3528",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414054,
+        "lat": -34.594798,
+        "result_type": "building",
+        "distance": 3131.084279939397,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3528, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3528",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+39",
+        "plus_code_short": "CH4P+39 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.35137387944696,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "519563b2b8ff344dc059f4dc4257224c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a34356334346637306134313664393431"
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1186AAN",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "street": "De la Cárcova",
+        "housenumber": "3508",
+        "iso3166_2": "AR-C",
+        "lon": -58.4137877,
+        "lat": -34.5946362,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "building",
+        "distance": 3113.7491037981454,
+        "formatted": "De la Cárcova 3508, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "De la Cárcova 3508",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+4F",
+        "plus_code_short": "CH4P+4F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51587ecffef6344dc0594402fc091d4c41c0f00103f901795522b700000000c00203e203256f70656e7374726565746d61703a616464726573733a6e6f64652f33303732343830363333",
+        "bbox": {
+          "lon1": -58.4138377,
+          "lat1": -34.5946862,
+          "lon2": -58.4137377,
+          "lat2": -34.5945862
+        }
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3530",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414146,
+        "lat": -34.594798,
+        "result_type": "building",
+        "distance": 3139.074251488132,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3530, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3530",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+38",
+        "plus_code_short": "CH4P+38 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.35137387944696,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5176e272bc02354dc059f4dc4257224c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a36396232636538326463633733633664"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3554",
+        "street": "Carcova, De La",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414198,
+        "lat": -34.594723,
+        "result_type": "building",
+        "distance": 3146.2285465392856,
+        "postcode": "C1186AAN",
+        "formatted": "Carcova, De La 3554, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "Carcova, De La 3554",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+48",
+        "plus_code_short": "CH4P+48 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51c808a87004354dc059ea961de21f4c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a31356663303833303631376231623264"
+      },
+      {
+        "country_code": "ar",
+        "housenumber": "3521",
+        "street": "De La Carcova",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openaddresses",
+          "attribution": "© OpenAddresses contributors",
+          "license": "BSD-3-Clause License"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "iso3166_2": "AR-C",
+        "lon": -58.414098,
+        "lat": -34.594458,
+        "result_type": "building",
+        "distance": 3147.0529935068466,
+        "postcode": "C1186AAN",
+        "formatted": "De La Carcova 3521, Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "address_line1": "De La Carcova 3521",
+        "address_line2": "Recoleta, C1186 AAN Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH4P+69",
+        "plus_code_short": "CH4P+69 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.36436103549111,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5165abcb2901354dc0593c6c2233174c41c0c00203e2034f6f70656e6164647265737365733a616464726573733a61722f632f636974795f6f665f6275656e6f735f61697265732d6164647265737365732d636974793a34306130663865353631306165396364"
+      }
+    ],
+    "query": {
+      "text": "Cementerio de la Recoleta"
+    }
+  }
+}

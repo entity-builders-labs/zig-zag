@@ -1,0 +1,232 @@
+{
+  "label": "Recuperación inicial del catálogo",
+  "rules": [
+    {
+      "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+      "actual": 11,
+      "reason": "El catálogo aportó 11 candidato(s).",
+      "result": "PASS",
+      "ruleId": "CATALOG-RETRIEVAL-001"
+    }
+  ],
+  "stage": "db_search",
+  "inputs": {
+    "radiusKm": 1.012179374902135
+  },
+  "status": "PASS",
+  "outputs": {
+    "candidateCount": 11
+  },
+  "summary": "11 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+  "decision": {
+    "reason": "Hay candidatos persistidos para evaluar.",
+    "status": "PASS",
+    "outcome": "CATALOG_POOL_AVAILABLE",
+    "triggeredActions": [
+      "ANALYZE_COVERAGE"
+    ]
+  },
+  "component": "ExperienceCatalog.findVerifiedWithin",
+  "candidates": [
+    {
+      "id": "977a857d-dc05-4ef0-aaec-a69583433054",
+      "name": "Plaza 30'000 compañeros",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "956ad29b-0e88-4e0f-bc0d-ad4c94a74771",
+      "name": "Museo de las Escuelas",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "e6735914-d266-4b2e-a374-da3476fb32c5",
+      "name": "Plaza Dorrego",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "4d02f41d-4efe-48a6-85d4-59f6a4f20876",
+      "name": "Solar French",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "3af3b665-c67a-4455-bfc3-a9af493f5915",
+      "name": "Monumento a Pedro de Mendoza",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "c58d86f0-ca07-460e-89c5-44c8547548d5",
+      "name": "Mercado San Telmo",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "bd6a1c5b-38e7-409d-94e1-4c567ce3ef65",
+      "name": "Museo Histórico Nacional",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "7623a464-8bd5-4927-8878-42077c7f7aec",
+      "name": "Monumento Canto al Trabajo",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "804c1021-b992-4620-b252-1adf6b88db94",
+      "name": "Casa Mínima",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "9b345dcf-2021-45fa-85a2-33d05e852cda",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    },
+    {
+      "id": "c703b23e-96de-4866-a711-2a5e01d65dbd",
+      "name": "Carnavales de la Calle Defensa",
+      "chosen": false,
+      "detail": "sin datos adicionales",
+      "source": "db",
+      "offered": true
+    }
+  ],
+  "candidateDecisions": [
+    {
+      "id": "977a857d-dc05-4ef0-aaec-a69583433054",
+      "name": "Plaza 30'000 compañeros",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "956ad29b-0e88-4e0f-bc0d-ad4c94a74771",
+      "name": "Museo de las Escuelas",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "e6735914-d266-4b2e-a374-da3476fb32c5",
+      "name": "Plaza Dorrego",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "4d02f41d-4efe-48a6-85d4-59f6a4f20876",
+      "name": "Solar French",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "3af3b665-c67a-4455-bfc3-a9af493f5915",
+      "name": "Monumento a Pedro de Mendoza",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "c58d86f0-ca07-460e-89c5-44c8547548d5",
+      "name": "Mercado San Telmo",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "bd6a1c5b-38e7-409d-94e1-4c567ce3ef65",
+      "name": "Museo Histórico Nacional",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "7623a464-8bd5-4927-8878-42077c7f7aec",
+      "name": "Monumento Canto al Trabajo",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "804c1021-b992-4620-b252-1adf6b88db94",
+      "name": "Casa Mínima",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "9b345dcf-2021-45fa-85a2-33d05e852cda",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    },
+    {
+      "id": "c703b23e-96de-4866-a711-2a5e01d65dbd",
+      "name": "Carnavales de la Calle Defensa",
+      "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+      "source": "db",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "CATALOG_MATCH"
+      ]
+    }
+  ]
+}

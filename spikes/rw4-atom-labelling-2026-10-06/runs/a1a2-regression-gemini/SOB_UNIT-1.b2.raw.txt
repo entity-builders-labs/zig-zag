@@ -1,0 +1,347 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-035",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Feria San Telmo",
+          "supportSpan": "Feria San Telmo",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "street Defensa",
+          "supportSpan": "street Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Visit Feria San Telmo on street Defensa."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary about the hotspot."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Pass restaurants along the way."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of local food."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "oldest neighborhood of the capital city",
+          "supportSpan": "oldest neighborhood of the capital city",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Explore the oldest neighborhood."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Visual description."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary on character."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Estados Unidos",
+          "supportSpan": "street Estados Unidos",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Go to street Estados Unidos."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Atmosphere description."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the spot."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Bar Sur",
+          "supportSpan": "Bar Sur",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "See Bar Sur on the corner."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Paseo de Colon",
+          "supportSpan": "street Paseo de Colon",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Cross street Paseo de Colon."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "MetroBus infrastructure",
+          "supportSpan": "MetroBus infrastructure",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See the MetroBus infrastructure."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of fast bus system."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "big building with columns",
+          "supportSpan": "big building with columns",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See a big building in front."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of the building."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "More history of the building."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo title."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "street Defensa",
+          "supportSpan": "street Defensa",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Go back to street Defensa."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Pass the entrance of Mercado de San Telmo."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Jump inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-055"
+        }
+      ],
+      "reason": "Jump inside the market."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommendation tip."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Renovation history."
+    },
+    {
+      "atomId": "a-059",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of market features."
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Read more link."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-055"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Plaza Dorrego is near the market."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the square."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of seats and dancing."
+    },
+    {
+      "atomId": "a-064",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida San Juan",
+          "supportSpan": "street “Avenida San Juan”",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Walk on Avenida San Juan."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of Modern Arts",
+          "supportSpan": "Museum of Modern Arts",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Locate the Museum of Modern Arts."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Avenida Paseo Colon",
+          "supportSpan": "Avenida Paseo Colon",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Walk up to Avenida Paseo Colon."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Club Atlético",
+          "supportSpan": "Club Atlético",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See memory of Club Atletico under bridge."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of the site."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Demolition history."
+    },
+    {
+      "atomId": "a-070",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Opinion on memorial."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical context."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "street Defensa",
+          "role": "ROUTE_LEG",
+          "mentionAtomId": "a-033"
+        }
+      ],
+      "reason": "Head back to street Defensa."
+    }
+  ]
+}

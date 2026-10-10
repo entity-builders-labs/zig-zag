@@ -1,0 +1,513 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Farmacia la Estrella",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "lang": "es",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1870,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Estrella",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1064",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "housenumber": "201",
+        "iso3166_2": "AR-C",
+        "lon": -58.3721513,
+        "lat": -34.6102605,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1131.3549723914916,
+        "formatted": "Farmacia de la Estrella, Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Estrella",
+        "address_line2": "Defensa 201, Monserrat, 1064 Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQH+V4",
+        "plus_code_short": "QH+V4 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.953640848669934,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "51fa545fa7a22f4dc05933c51c041d4e41c0f00103f901522e97c700000000c002019203174661726d61636961206465206c612045737472656c6c61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f33333438353733373738",
+        "bbox": {
+          "lon1": -58.3722013,
+          "lat1": -34.6103105,
+          "lon2": -58.3721013,
+          "lat2": -34.6102105
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Sanidad",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1225AAS",
+        "district": "Comuna 3",
+        "suburb": "Balvanera",
+        "street": "Pichincha",
+        "iso3166_2": "AR-C",
+        "lon": -58.3993697,
+        "lat": -34.6150425,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2058.0098423468366,
+        "formatted": "Farmacia de la Sanidad, Pichincha, Balvanera, C1225 AAS Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Sanidad",
+        "address_line2": "Pichincha, Balvanera, C1225 AAS Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JM2+X7",
+        "plus_code_short": "9JM2+X7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.298533007908549,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51b541dc8b1e334dc05936936fb6b94e41c0f00103f90130a870a601000000c002019203164661726d61636961206465206c612053616e69646164e203236f70656e7374726565746d61703a76656e75653a6e6f64652f37303837333638323430",
+        "bbox": {
+          "lon1": -58.3994197,
+          "lat1": -34.6150925,
+          "lon2": -58.3993197,
+          "lat2": -34.6149925
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia ABC",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1424CEN",
+        "district": "Comuna 5",
+        "suburb": "Almagro",
+        "street": "Avenida La Plata",
+        "iso3166_2": "AR-C",
+        "lon": -58.4288459,
+        "lat": -34.6160618,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4537.075625636681,
+        "formatted": "Farmacia ABC, Avenida La Plata, Almagro, C1424 CEN Buenos Aires, Argentina",
+        "address_line1": "Farmacia ABC",
+        "address_line2": "Avenida La Plata, Almagro, C1424 CEN Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39HMC+HF",
+        "plus_code_short": "9HMC+HF Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.7664671798809675,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5108c3256ce4364dc0594ea8f11cdb4e41c0f00103f9012a3aa91801000000c0020192030c4661726d6163696120414243e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34373038373130393534",
+        "bbox": {
+          "lon1": -58.4288959,
+          "lat1": -34.6161118,
+          "lon2": -58.4287959,
+          "lat2": -34.6160118
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Sante",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1416DNU",
+        "district": "Comuna 11",
+        "suburb": "Villa Santa Rita",
+        "street": "Avenida Nazca",
+        "iso3166_2": "AR-C",
+        "lon": -58.4745185,
+        "lat": -34.6202923,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 8701.331146614242,
+        "formatted": "Farmacia La Sante, Avenida Nazca, Villa Santa Rita, C1416 DNU Buenos Aires, Argentina",
+        "address_line1": "Farmacia La Sante",
+        "address_line2": "Avenida Nazca, Villa Santa Rita, C1416 DNU Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39GHG+V5",
+        "plus_code_short": "9GHG+V5 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.863379850541865,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "516a6caf05bd3c4dc059f63af3bc654f41c0f00103f901ae5c521701000000c002019203114661726d61636961204c612053616e7465e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363836323430393432",
+        "bbox": {
+          "lon1": -58.4745685,
+          "lat1": -34.6203423,
+          "lon2": -58.4744685,
+          "lat2": -34.6202423
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Avellaneda",
+        "city": "Gerli",
+        "postcode": "1869",
+        "street": "José Martín de la Serna",
+        "iso3166_2": "AR-B",
+        "lon": -58.3701146,
+        "lat": -34.6874015,
+        "state_code": "B",
+        "county_code": "AV",
+        "result_type": "amenity",
+        "distance": 9366.310886861102,
+        "formatted": "Farmacia, José Martín de la Serna, 1869 Gerli, Argentina",
+        "address_line1": "Farmacia",
+        "address_line2": "José Martín de la Serna, 1869 Gerli, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38J7H+2X",
+        "rank": {
+          "importance": 0.00005013427939264542,
+          "popularity": 6.308617019533099,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51d5624bea5f2f4dc05955dcb8c5fc5741c0f00103f901d179593c01000000c002019203084661726d61636961e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35333037343634313435",
+        "bbox": {
+          "lon1": -58.3701646,
+          "lat1": -34.6874515,
+          "lon2": -58.3700646,
+          "lat2": -34.6873515
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia de la Facultad",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1439BSN",
+        "district": "Comuna 9",
+        "suburb": "Parque Avellaneda",
+        "street": "Avenida Eva Perón",
+        "iso3166_2": "AR-C",
+        "lon": -58.472662,
+        "lat": -34.6525269,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 9944.80032253419,
+        "formatted": "Farmacia de la Facultad, Avenida Eva Perón, Parque Avellaneda, C1439 BSN Buenos Aires, Argentina",
+        "address_line1": "Farmacia de la Facultad",
+        "address_line2": "Avenida Eva Perón, Parque Avellaneda, C1439 BSN Buenos Aires, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q38GWG+XW",
+        "plus_code_short": "8GWG+XW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.667957400023546,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51ee073c30803c4dc05950a15f00865341c0f00102f901bb3a6e1c00000000c002019203174661726d61636961206465206c6120466163756c746164e203216f70656e7374726565746d61703a76656e75653a7761792f343736393836303433",
+        "bbox": {
+          "lon1": -58.4727331,
+          "lat1": -34.6525871,
+          "lon2": -58.4725909,
+          "lat2": -34.6524829
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Paz",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de San Isidro",
+        "city": "Martínez",
+        "postcode": "B1640",
+        "district": "Barrio Alemán",
+        "street": "Edison",
+        "housenumber": "1799",
+        "iso3166_2": "AR-B",
+        "lon": -58.5195238,
+        "lat": -34.5021711,
+        "state_code": "B",
+        "county_code": "SI",
+        "result_type": "amenity",
+        "distance": 16941.03414081762,
+        "formatted": "Farmacia La Paz, Edison 1799, Barrio Alemán, B1640 Martínez, Argentina",
+        "address_line1": "Farmacia La Paz",
+        "address_line2": "Edison 1799, Barrio Alemán, B1640 Martínez, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3FFXJ+45",
+        "rank": {
+          "importance": 0.000049012741283238234,
+          "popularity": 6.275242904249018,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51303f81c17f424dc05988bf8124474041c0f00103f901ad8c7c1201000000c0020192030f4661726d61636961204c612050617ae203236f70656e7374726565746d61703a76656e75653a6e6f64652f34363035313139363631",
+        "bbox": {
+          "lon1": -58.5195738,
+          "lat1": -34.5022211,
+          "lon2": -58.5194738,
+          "lat2": -34.5021211
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Gemma",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Quilmes",
+        "postcode": "B1879BTQ",
+        "street": "Avenida La Plata",
+        "iso3166_2": "AR-B",
+        "lon": -58.2729973,
+        "lat": -34.7435222,
+        "state_code": "B",
+        "county": "Quilmes",
+        "county_code": "QU",
+        "result_type": "amenity",
+        "distance": 18448.83575114389,
+        "formatted": "Farmacia Gemma, Avenida La Plata, B1879 BTQ Quilmes, Argentina",
+        "address_line1": "Farmacia Gemma",
+        "address_line2": "Avenida La Plata, B1879 BTQ Quilmes, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37P4G+HR",
+        "plus_code_short": "4G+HR Quilmes, Argentina",
+        "rank": {
+          "importance": 0.00005837567711905115,
+          "popularity": 6.097890720933708,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51bab25593f1224dc059cc6c46bc2b5f41c0f00103f901578f463a01000000c0020192030e4661726d616369612047656d6d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f35323732363730303339",
+        "bbox": {
+          "lon1": -58.2730473,
+          "lat1": -34.7435722,
+          "lon2": -58.2729473,
+          "lat2": -34.7434722
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia La Carra",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Ezeiza",
+        "city": "Ezeiza",
+        "postcode": "1801",
+        "street": "Avenida Maipú",
+        "iso3166_2": "AR-B",
+        "lon": -58.5142236,
+        "lat": -34.8696719,
+        "state_code": "B",
+        "county_code": "EB",
+        "result_type": "amenity",
+        "distance": 31961.427218284032,
+        "formatted": "Farmacia La Carra, Avenida Maipú, 1801 Ezeiza, Argentina",
+        "address_line1": "Farmacia La Carra",
+        "address_line2": "Avenida Maipú, 1801 Ezeiza, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34FJP+48",
+        "rank": {
+          "importance": 0.00005135957885095014,
+          "popularity": 4.82817595871013,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "516b6a3414d2414dc0590660a868516f41c0f00102f9011f4ee51b00000000c002019203114661726d61636961204c61204361727261e203216f70656e7374726565746d61703a76656e75653a7761792f343638303132353735",
+        "bbox": {
+          "lon1": -58.5143049,
+          "lat1": -34.8697333,
+          "lon2": -58.514164,
+          "lat2": -34.8696295
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Farmacia Plaza la Carolina",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Florencio Varela",
+        "city": "Ingeniero Juan Allan",
+        "postcode": "1891",
+        "suburb": "Ingeniero Allan",
+        "street": "1148- Guana Cache",
+        "iso3166_2": "AR-B",
+        "lon": -58.1929156,
+        "lat": -34.872236,
+        "state_code": "B",
+        "county_code": "FC",
+        "result_type": "amenity",
+        "distance": 34480.046993927535,
+        "formatted": "Farmacia Plaza la Carolina, 1148- Guana Cache, Ingeniero Allan, 1891 Ingeniero Juan Allan, Argentina",
+        "address_line1": "Farmacia Plaza la Carolina",
+        "address_line2": "1148- Guana Cache, Ingeniero Allan, 1891 Ingeniero Juan Allan, Argentina",
+        "category": "commercial.health_and_beauty.pharmacy;healthcare.pharmacy",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34RH4+4R",
+        "rank": {
+          "importance": 0.000040000762951049326,
+          "popularity": 4.3056884288713615,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51b1715875b1184dc0596a32e36da56f41c0f00102f901db9eeb1700000000c0020192031a4661726d6163696120506c617a61206c61204361726f6c696e61e203216f70656e7374726565746d61703a76656e75653a7761792f343031333137353935",
+        "bbox": {
+          "lon1": -58.1930031,
+          "lat1": -34.872304,
+          "lon2": -58.192838,
+          "lat2": -34.872182
+        }
+      }
+    ],
+    "query": {
+      "text": "Farmacia la Estrella"
+    }
+  }
+}

@@ -1,0 +1,66 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "San Martín",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "es",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1119,
+  "response": {
+    "search_metadata": {
+      "id": "6ab66466550cc49242030e86",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/O_ERDzfHOg-bTpKJCBgFvoj3MpW6NGowIwgGrtnWrfw/6ab66466550cc49242030e86.json",
+      "markdown_endpoint": "https://serpapi.com/searches/O_ERDzfHOg-bTpKJCBgFvoj3MpW6NGowIwgGrtnWrfw/6ab66466550cc49242030e86.md",
+      "created_at": "2026-09-25 12:09:10 UTC",
+      "processed_at": "2026-09-25 12:09:10 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/San+Mart%C3%ADn/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=es&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/O_ERDzfHOg-bTpKJCBgFvoj3MpW6NGowIwgGrtnWrfw/6ab66466550cc49242030e86.html",
+      "prettify_html_file": "https://serpapi.com/searches/O_ERDzfHOg-bTpKJCBgFvoj3MpW6NGowIwgGrtnWrfw/6ab66466550cc49242030e86.prettify",
+      "total_time_taken": 0.92
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "San Martín",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "es",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Showing results for type: \"place\" instead of type: \"search\"",
+      "query_displayed": "San Martín"
+    },
+    "place_results": {
+      "title": "San Martín",
+      "place_id": "ChIJgzckYHG3vJURV1mmwNOiIV4",
+      "data_id": "0x95bcb77160243783:0x5e21a2d3c0a65957",
+      "data_cid": "6782881544150604119",
+      "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb77160243783%3A0x5e21a2d3c0a65957&engine=google_maps_reviews&hl=es",
+      "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb77160243783%3A0x5e21a2d3c0a65957&engine=google_maps_photos&hl=es",
+      "gps_coordinates": {
+        "latitude": -34.575752099999995,
+        "longitude": -58.5370965
+      },
+      "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJgzckYHG3vJURV1mmwNOiIV4",
+      "provider_id": "/m/03c_642",
+      "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmP1F6hiJi2dmxVnNr5BZs0Udbrr9nG6C27X8vt5CHDqdBE7OXADTKz4gyjEJJIaZI9WQVaAh8cuZ6U3Bz9UZLQJnQ79GLVuvTAR4tm9HZzHZjvq1fcoJeoVEl68GiRKwEeLbNDB6w=w1000-h1000-c-n",
+      "serpapi_thumbnail": "https://serpapi.com/images/url/xOS7m3icHcRdboIwAADgEyGgUuiSPfAnWIkbRtD0DUqlGGi1LbBxQ4_gbZbse_jeL6b1Q32YZs82q1aItqejopIIrinXKyIGs5WVUgZRph9Oj374tneAdahbN8NPyY_SCbCyiqaWEvIEhGv36k3aCdPo2QSx-3X1o_Nh2ba_9xihfYX38JKXlc88MmJQbIIFFjjLEc9dmGTlOJ3901YPMMVLiu_T074Rgago4x54SXc6zDHN6mMUgPlzti3LMtj_xOB_x2FEkg",
+      "description": {
+        "snippet": "La Ciudad del Libertador General Don José de San Martín, más conocida como San Martín, es una ciudad del área metropolitana de Buenos Aires, en Argentina. Es ciudad cabecera del Partido de General San Martín. El centro de esta ciudad se encuentra a 2,5 km de su acceso más cercano a la Ciudad Autónoma de Buenos Aires.",
+        "link": "https://es.wikipedia.org/wiki/Ciudad_de_San_Mart%C3%ADn",
+        "source": "Wikipedia"
+      },
+      "address": "B1650, Provincia de Buenos Aires",
+      "country": "Argentina"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000c00201920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329e203236f70656e7374726565746d61703a76656e75653a6e6f64652f39393533303237383834",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "displayName": {
+        "text": "El Zanjón de Granados (historic ruins)"
+      },
+      "formattedAddress": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6166864,
+        "longitude": -58.3717972
+      },
+      "types": [
+        "entertainment.museum"
+      ],
+      "primaryType": "entertainment.museum"
+    }
+  ],
+  "failure": null
+}

@@ -1,0 +1,661 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Farmacia la Estrella",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "es",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1139,
+  "response": {
+    "search_metadata": {
+      "id": "6ab66464f2593a9842c31db5",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/4CnITQ6CiQxc0mP0hrim-qiowfxjIcXJ3UrX5ADgalI/6ab66464f2593a9842c31db5.json",
+      "markdown_endpoint": "https://serpapi.com/searches/4CnITQ6CiQxc0mP0hrim-qiowfxjIcXJ3UrX5ADgalI/6ab66464f2593a9842c31db5.md",
+      "created_at": "2026-09-25 12:09:08 UTC",
+      "processed_at": "2026-09-25 12:09:08 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Farmacia+la+Estrella/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=es&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/4CnITQ6CiQxc0mP0hrim-qiowfxjIcXJ3UrX5ADgalI/6ab66464f2593a9842c31db5.html",
+      "prettify_html_file": "https://serpapi.com/searches/4CnITQ6CiQxc0mP0hrim-qiowfxjIcXJ3UrX5ADgalI/6ab66464f2593a9842c31db5.prettify",
+      "total_time_taken": 0.91
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Farmacia la Estrella",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "es",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Results for exact spelling",
+      "query_displayed": "Farmacia la Estrella"
+    },
+    "local_results": [
+      {
+        "position": 1,
+        "title": "Farmacia De La Estrella",
+        "place_id": "ChIJkxt8rtTKvJURbYdelktFp-A",
+        "data_id": "0x95bccad4ae7c1b93:0xe0a7454b965e876d",
+        "data_cid": "16187983576554178413",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccad4ae7c1b93%3A0xe0a7454b965e876d&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccad4ae7c1b93%3A0xe0a7454b965e876d&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.6101871,
+          "longitude": -58.372145499999995
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJkxt8rtTKvJURbYdelktFp-A",
+        "provider_id": "/g/1tdgr05q",
+        "rating": 4.4,
+        "reviews": 196,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy"
+        ],
+        "address": "Defensa 201, C1065AAD Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 7 p. m.",
+        "hours": "Abierto · Cierra a las 7 p. m.",
+        "operating_hours": {
+          "viernes": "8 a. m.–7 p. m.",
+          "sábado": "Cerrado",
+          "domingo": "Cerrado",
+          "lunes": "8 a. m.–7 p. m.",
+          "martes": "8 a. m.–7 p. m.",
+          "miércoles": "8 a. m.–7 p. m.",
+          "jueves": "8 a. m.–7 p. m."
+        },
+        "phone": "011 4343-4040",
+        "website": "https://www.instagram.com/farmaciadelaestrella.ba?igsh=MTd1MGk1ZnQxc3k1cQ==",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Estacionamiento accesible para personas en silla de ruedas"
+            ]
+          }
+        ],
+        "service_options": {
+          "entrega_a_domicilio": true
+        },
+        "user_review": "\"... atencion, y precios muy razonables, recomiendo esta farmacia\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLedoN9Yp4yUD4XWGqK1lbe6q1WHeSTJYdMVsMxotNbZIvT_Lf3y5gqSeLLSa7dj-QzwnPP1pqp0YCZNvM_7sLEJQooJ08GXuFDOpHbyO9-QZ-LeAnHFISg6wOY9EBZKIW4ccsoH=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/yeVlJ3icHcRbjoIwFADQFVVKRB1M_MDxAVhAgg6PHyOllozYW2wVcYOuwd2YeD7O-1VrLdXUMJp6OOAAvGE3xa4UhGZCDyhcDH49KoWoMhxnfr4QVkFo59Lq9wsrS9ftxmxKNm7N1GXJzs-r4E8FD9BhWXj33YGchv2ItwkjJDlOqn8UPzux3ZqylTj_LcJ7cJgosvRjAB__rLPbahFJt-wjG8UFIswR7spL-LiLcns5LzZealGqwJ11JsYY1d8pEh-OIkRr"
+      },
+      {
+        "position": 2,
+        "title": "La Estrella Celeste",
+        "place_id": "ChIJY-2Vi9bGvJURClEqMm89BG4",
+        "data_id": "0x95bcc6d68b95ed63:0x6e043d6f322a510a",
+        "data_cid": "7927528791871213834",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc6d68b95ed63%3A0x6e043d6f322a510a&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc6d68b95ed63%3A0x6e043d6f322a510a&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.6938623,
+          "longitude": -58.6389402
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJY-2Vi9bGvJURClEqMm89BG4",
+        "provider_id": "/g/11rd9fcncc",
+        "rating": 5,
+        "reviews": 1,
+        "unclaimed_listing": true,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy"
+        ],
+        "address": "B1712 Castelar, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "extensions": [
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=MTeSpSejer3YP5IHlq3rtQ&cb_client=search.gws-prod.grass&w=80&h=92&yaw=300.4617&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/Ds6HOXicHc1LDsIgEADQ27ATqPWfELe6MNHUjStDcQQMLSOMRY_jsbyNxgu893k7IswrITIlABo8FPRPCHmEmtsYbQCNPnMTOzFUgtyja3vtwxp1H_1F7Y7QYAM3SPVpP91uwr1OdGCmPZvgoSeVQSfjuC0_McULt0nnzIpaSObUcsxeuqhaSj6ZVXOGnoxTkv2baxxUJeUX0Jc6Tw"
+      },
+      {
+        "position": 3,
+        "title": "Florería La Estrella",
+        "place_id": "ChIJNYFp0d3JvJURchHm8qVlcEo",
+        "data_id": "0x95bcc9ddd1698135:0x4a7065a5f2e61172",
+        "data_cid": "5363898919617433970",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc9ddd1698135%3A0x4a7065a5f2e61172&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc9ddd1698135%3A0x4a7065a5f2e61172&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.6134275,
+          "longitude": -58.4882305
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJNYFp0d3JvJURchHm8qVlcEo",
+        "provider_id": "/g/1hc2705td",
+        "rating": 4.3,
+        "reviews": 129,
+        "type": "Floristería",
+        "types": [
+          "Floristería"
+        ],
+        "type_id": "florist",
+        "type_ids": [
+          "florist"
+        ],
+        "address": "Juan Agustín García 3399, C1407 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 8 p. m.",
+        "hours": "Abierto · Cierra a las 8 p. m.",
+        "operating_hours": {
+          "viernes": "9 a. m.–8 p. m.",
+          "sábado": "9 a. m.–8 p. m.",
+          "domingo": "10 a. m.–2 p. m.",
+          "lunes": "9 a. m.–8 p. m.",
+          "martes": "9 a. m.–8 p. m.",
+          "miércoles": "9 a. m.–8 p. m.",
+          "jueves": "9 a. m.–8 p. m."
+        },
+        "phone": "011 4566-6493",
+        "website": "https://instagram.com/laestrellafloreria?igshid=OGQ5ZDc2ODk2ZA%3D%3D&utm_source=qr",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio",
+              "Retiro en tienda",
+              "Compras en tienda"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Estacionamiento accesible para personas en silla de ruedas"
+            ]
+          }
+        ],
+        "service_options": {
+          "compras_en_tienda": true,
+          "retiro_en_tienda": true,
+          "entrega_a_domicilio": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLc6QB85wh9NDv4eLUVyAunSXVLwGzh_irjGYDJSPT2fqwUIBFtovpLLF3VRNPM96xmK9K3BmBUEQu5ry6YHwMQNmBZSt7aEos5ILyRK72YYZFnmLjFysjbqy2lxhgTp4bsT-8G1jg=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/Mr5YG3icHcRLroIwAADAEyEIgmLigkZBpRKRT8SN0QZbkbZIi7Xvhu8I3sbEWcznn0jZiblptsQZYc5xWw-i7hFnsmZyhDg1cX8RwkDCDALwoBB5KZi5ivjJ8jWpYVHqYGDZsYQq-iPne99E1XKb7XP79lTFBoSSvzoIQ6c8JPud771p7McOoKBYpYPba69aq12aUHDK5PSy4sLdQH2Ip3ZVnUJGYRNq0Vyf2m7fBOfd5CpyYxaNG7xQY8uyDPIbGewLC9lFrQ"
+      },
+      {
+        "position": 4,
+        "title": "Museo de la Ciudad -Farmacia la Estrella",
+        "place_id": "ChIJ8-9y59LLvJURS93MNMZrE9E",
+        "data_id": "0x95bccbd2e772eff3:0xd1136bc634ccdd4b",
+        "data_cid": "15065503677517978955",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccbd2e772eff3%3A0xd1136bc634ccdd4b&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccbd2e772eff3%3A0xd1136bc634ccdd4b&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.6102019,
+          "longitude": -58.372111
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJ8-9y59LLvJURS93MNMZrE9E",
+        "provider_id": "/g/11l6wypg03",
+        "rating": 5,
+        "reviews": 1,
+        "type": "Institución educativa",
+        "types": [
+          "Institución educativa"
+        ],
+        "type_id": "educational_institution",
+        "type_ids": [
+          "educational_institution"
+        ],
+        "address": "Adolfo Alsina, Alsina 402, C1087 Buenos Aires",
+        "country": "Argentina",
+        "user_review": "\"Estás en La Farmacia de la Estrella.\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLfGr12rDxl0zyIeNx1Y1lxOE2GPApR2KnSTYsATaebllWzrsc9Eq7YneffvWHPzzcI0wkbjenAGC0wzo_M7yW91Hm3FneC85nRfLTvIanccwYUVHKPVXN8uUlzOon7mnFSCWO6XaLBUmfEs=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/M_wtxHicHcRBjoIwFADQEyEtRlGTWVQGgYhCFERWE2xaiLa_TouCveSs5zYmvsX7_-v6_m5Wriu66aRVqhXsYZimCnoG_YQq6ba6McahxiVkfZMpjzT29PcokH0lbD_iGosxC70oJ_eDt4VjURtSNOwiRGW1ocvw16-Bcf6s4txamqDhdrkyIFGABqt-dv6rWuJYTjfAgsUMDjwtnkkDlA51eYq3-em8XzxKYTMFvoTNMaiy-blJ16XkofkaMELI6T5TB95Bo0jg"
+      },
+      {
+        "position": 5,
+        "title": "Ex Droguería La Estrella",
+        "place_id": "ChIJa5BOscTKvJURc8yr6lwke8w",
+        "data_id": "0x95bccac4b14e906b:0xcc7b245ceaabcc73",
+        "data_cid": "14734410587365428339",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bccac4b14e906b%3A0xcc7b245ceaabcc73&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bccac4b14e906b%3A0xcc7b245ceaabcc73&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.6087644,
+          "longitude": -58.3878936
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJa5BOscTKvJURc8yr6lwke8w",
+        "provider_id": "/g/11dxblqh3g",
+        "unclaimed_listing": true,
+        "type": "Edificio de apartamentos",
+        "types": [
+          "Edificio de apartamentos"
+        ],
+        "type_id": "apartment_building",
+        "type_ids": [
+          "apartment_building"
+        ],
+        "address": "Av. Rivadavia 1501, C1085 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "thumbnail": "https://streetviewpixels-pa.googleapis.com/v1/thumbnail?panoid=-ghSUiHNdyp6aUX2z2gEog&cb_client=search.gws-prod.grass&w=80&h=92&yaw=337.52414&pitch=0&thumbfov=100",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/RNaYvXicHc1LDsIgFADA27ArUFq_CXFl4sqNaeLOvFKEl9BCAIv1ON7K22i8wMznbXMOac9YylHrPKMuAZ_apSoANd4bpyFgosqPbK5Zto-xnwDdIcDkcZCVsZcOT-dhCWvoruIlzNEbovqbcqinLJOGqCw15SdGP1ATISVS5JYTK3eCLFBk02zoSrR1SwJmZSUn_-fuZ1lz_gUAjzpx"
+      },
+      {
+        "position": 6,
+        "title": "La Santé | Devoto",
+        "place_id": "ChIJo0LhLtG3vJURsRg-dM9r71w",
+        "data_id": "0x95bcb7d12ee142a3:0x5cef6bcf743e18b1",
+        "data_cid": "6696689709675845809",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcb7d12ee142a3%3A0x5cef6bcf743e18b1&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcb7d12ee142a3%3A0x5cef6bcf743e18b1&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.610566399999996,
+          "longitude": -58.5157057
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJo0LhLtG3vJURsRg-dM9r71w",
+        "provider_id": "/g/11gbkw1zd4",
+        "rating": 3.5,
+        "reviews": 109,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia",
+          "Perfumería"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy",
+          "perfume_store"
+        ],
+        "address": "José Pedro Varela 4720, C1417 Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 9 p. m.",
+        "hours": "Abierto · Cierra a las 9 p. m.",
+        "operating_hours": {
+          "viernes": "8 a. m.–9 p. m.",
+          "sábado": "8 a. m.–9 p. m.",
+          "domingo": "8 a. m.–9 p. m.",
+          "lunes": "8 a. m.–9 p. m.",
+          "martes": "8 a. m.–9 p. m.",
+          "miércoles": "8 a. m.–9 p. m.",
+          "jueves": "8 a. m.–9 p. m."
+        },
+        "phone": "0800-345-0072",
+        "website": "https://www.farmatodo.com.ar/",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio",
+              "Retiro en tienda",
+              "Compras en tienda"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas",
+              "Estacionamiento accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "service_options": {
+          "compras_en_tienda": true,
+          "retiro_en_tienda": true,
+          "entrega_a_domicilio": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLcL4PZJFT099SbKsMt3JCMnS9csomnNH16pdh7AbupRc7wgJcbSLm6N7NPSfQxjuorOMi2X9SWDmGs1HXQkmcoEe8QlJhVS6cjKAoQvMXVmd1Eo_KiHeJ-BZebKRJVk37YNj2RlBg=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/qX9D4nicHcTdboIwGADQJ0JADIwlXoC6kfIzoQuiN2Z8dq1A-xFa1Ff0EfY2JjsX5-8pjBn1u20PwltwRD6wWbMJUBmmzAJQ2nz60doCbUdR3MsMstX-RD6-nTCkbapz45FNrmgIGqUqEtcfLyKI2nmsILhzAi3NpF8ExZ7-lo9uxukrvy6bkB628lO7SVP2EnDH3sqBiJr60KURlre8qeXF3eE5vSaMWPGJtWlF6t4LjkW3rIaYr--u4ziW-B8s9QLc0UT7"
+      },
+      {
+        "position": 7,
+        "title": "Farmacias Vilela - Farmacia La Plaza Central",
+        "place_id": "ChIJj2RsX6XFvJUROsFQQDoOb48",
+        "data_id": "0x95bcc5a55f6c648f:0x8f6f0e3a4050c13a",
+        "data_cid": "10335495313188503866",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc5a55f6c648f%3A0x8f6f0e3a4050c13a&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc5a55f6c648f%3A0x8f6f0e3a4050c13a&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.7475976,
+          "longitude": -58.5885416
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJj2RsX6XFvJUROsFQQDoOb48",
+        "provider_id": "/g/1tdmlnrn",
+        "rating": 4,
+        "reviews": 259,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy"
+        ],
+        "address": "Av. Luro 5881, B1757 Gregorio de Laferrere, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 9 p. m.",
+        "hours": "Abierto · Cierra a las 9 p. m.",
+        "operating_hours": {
+          "viernes": "8 a. m.–9 p. m.",
+          "sábado": "8 a. m.–9 p. m.",
+          "domingo": "Cerrado",
+          "lunes": "8 a. m.–9 p. m.",
+          "martes": "8 a. m.–9 p. m.",
+          "miércoles": "8 a. m.–9 p. m.",
+          "jueves": "8 a. m.–9 p. m."
+        },
+        "phone": "011 7078-1373",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio",
+              "Retiro en tienda",
+              "Compras en tienda"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "service_options": {
+          "compras_en_tienda": true,
+          "retiro_en_tienda": true,
+          "entrega_a_domicilio": true
+        },
+        "user_review": "\"Fui a Farmacia La Plaza a buscar un regalo y Ximena me salvó.\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/AABkmLelm85EgRtV1Gm8jLp1VYQzBUVLWkUshmgheG41QbqqEFrfB83eswV3mn3kT5hHDilIuFnUGlO9jilEIunhL2EbPZkqJiczJPAUkoLN3O2T6GWM6OhmIZxPmmUE4rvAIhVqmiTb=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/MeWYEXicHcRRboIwGADgEyFg1bAle4BYGaYbaGiNvo2ma7H9W6FlLl7QM3gbE7-H73FXIVz8exwbhWbSOWnE5MXInQ3Chhl3EMvxx_uI-zjPCw1EGMiWWO4DS0vIzuSSsuPuVlBGDpp6BVKJcpHuumHAm_G3yJDwV4bAIt0u1ee6N9W0sbQ09du5N7iarCJz3DUnPWx7fts2OdWOfKN63q7Kw9eqVlCd_hsAihfjX14pNkDfdh_XNEmSSL3mkX0Cr6tFgQ"
+      },
+      {
+        "position": 8,
+        "title": "Farmacity",
+        "place_id": "ChIJOVK2qpfJvJURZN3piYH2oSc",
+        "data_id": "0x95bcc997aab65239:0x27a1f68189e9dd64",
+        "data_cid": "2855834674954624356",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcc997aab65239%3A0x27a1f68189e9dd64&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcc997aab65239%3A0x27a1f68189e9dd64&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.633976499999996,
+          "longitude": -58.4831583
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJOVK2qpfJvJURZN3piYH2oSc",
+        "provider_id": "/g/12cp66l2m",
+        "rating": 4.1,
+        "reviews": 554,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia",
+          "Tienda de comestibles, periódicos y medicamentos",
+          "Perfumería"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy",
+          "drugstore",
+          "perfume_store"
+        ],
+        "address": "Av. Rivadavia 8503, C1407 DYH, Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 11 p. m.",
+        "hours": "Abierto · Cierra a las 11 p. m.",
+        "operating_hours": {
+          "viernes": "7:30 a. m.–11 p. m.",
+          "sábado": "8 a. m.–12 a. m.",
+          "domingo": "10 a. m.–10 p. m.",
+          "lunes": "7:30 a. m.–11 p. m.",
+          "martes": "7:30 a. m.–11 p. m.",
+          "miércoles": "7:30 a. m.–11 p. m.",
+          "jueves": "7:30 a. m.–11 p. m."
+        },
+        "phone": "011 4672-4178",
+        "website": "https://www.farmacity.com/",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "service_options": {
+          "entrega_a_domicilio": true
+        },
+        "user_review": "\"La atención en farmacia es muy buena y conseguí lo que estaba buscando.\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW2hPtUtkZKxLeTGBkuiga6MsyfnW8eq_jj0UWAwR4_rYdw_-mMEzl-Cnsp1WORfOstBkycL3Tx8Af6jzeW-T9OPHHc6XeM8jI3msVwJIWpbPj_HuFW_y_5uNmG6qq01GORoQsTfnXK4xYkujL5hb_5wwvEisyYdC2z-KIFIELfa2E2AHUzC9npjZiIf8VeUj715kTSp=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/J0UGW3icHcRLcoIwAADQ6bZ3iXwUxM50gQ4CBQqlYNRNRjF8AoRIQvkctafpTN_i_b68lkIw_iZJTbleFV1XNHjguM86KjAVq6xrpaK_cQ5Y302zZLrBtoBqGYlU1Fdv8nFi7-uhKm56wOecQgM_ESFyCs0x3qD-8hgRaANracCBcqbAMM5DLvb1nPnrZDLMXCcLhiDZhZHjZPoZBwZx1y0_jR8uZPeIIGc4QjQjbfhsbf35lBU7jLsvnuT07G2mSz0QXyvvSBvHH6vi8-VxUBfguUfX8vObaqmmky6HHWXkWrm5ccIp2SpanXyz91GRZRmU_2eA_gFm3FxR"
+      },
+      {
+        "position": 9,
+        "title": "Farmacity",
+        "place_id": "ChIJPSFNKYXKvJUR8aapZplGk6w",
+        "data_id": "0x95bcca85294d213d:0xac93469966a9a6f1",
+        "data_cid": "12435360620766406385",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95bcca85294d213d%3A0xac93469966a9a6f1&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95bcca85294d213d%3A0xac93469966a9a6f1&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.5924754,
+          "longitude": -58.4064853
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJPSFNKYXKvJUR8aapZplGk6w",
+        "provider_id": "/g/1tmqhd50",
+        "rating": 3.8,
+        "reviews": 511,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy"
+        ],
+        "address": "Av. Sta. Fe 2822, C1425 BGQ, Cdad. Autónoma de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto las 24 horas",
+        "hours": "Abierto las 24 horas",
+        "operating_hours": {
+          "viernes": "Abierto las 24 horas",
+          "sábado": "Abierto las 24 horas",
+          "domingo": "Abierto las 24 horas",
+          "lunes": "Abierto las 24 horas",
+          "martes": "Abierto las 24 horas",
+          "miércoles": "Abierto las 24 horas",
+          "jueves": "Abierto las 24 horas"
+        },
+        "website": "http://www.farmacity.com.ar/",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "unsupported_extensions": [
+          {
+            "accessibility": [
+              "Estacionamiento accesible para personas en silla de ruedas"
+            ]
+          }
+        ],
+        "service_options": {
+          "entrega_a_domicilio": true
+        },
+        "user_review": "\"Una sucursal de la cadena Farmacity que permanece abierta las 24h.\"",
+        "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPbj4ckjlUHJKH_41KLbPVFUjiGbdhkuEYb2D__DGA-sAxx5ExWIwcwj88WiTZ7jlypJOb3XES_Mjp3Vnd5_s3Gyy3BZappwXj6LBsv0iZeaNNQJ23notNhlxQfvJoITXc7AWWB=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/YttOnHicHcRJDoIwAADAFyFoRY2JBxBkUVHjAnJpaEVKrW1jK8sLfYO_MXEO8_0QraWamyYjYFAJUbHyrcoXFlyXXA-weJrVq1DKwMp0lo1kzz2iY_yg7BzG6xCOh-sN2l9WZ1oH6EYeb_-KRh6EXuAYyuk62-_SqMUtnc3S-pRPKetlvEMg849wSyW48JsNFQj6Hrh5IWWb0cnGVY1V52WRJId4BLjQCWHd4d7EIjpleOqkqbtoh5ZlGeQ_NvgP2ztF0w"
+      },
+      {
+        "position": 10,
+        "title": "Farmacia La Estrella",
+        "place_id": "ChIJgVMRKzLmopUR5KGnPVRzW6U",
+        "data_id": "0x95a2e6322b115381:0xa55b73543da7a1e4",
+        "data_cid": "11915244044787622372",
+        "reviews_link": "https://serpapi.com/search.json?data_id=0x95a2e6322b115381%3A0xa55b73543da7a1e4&engine=google_maps_reviews&hl=es",
+        "photos_link": "https://serpapi.com/search.json?data_id=0x95a2e6322b115381%3A0xa55b73543da7a1e4&engine=google_maps_photos&hl=es",
+        "gps_coordinates": {
+          "latitude": -34.918350499999995,
+          "longitude": -57.956094
+        },
+        "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJgVMRKzLmopUR5KGnPVRzW6U",
+        "provider_id": "/g/1q62pxscq",
+        "rating": 4.4,
+        "reviews": 54,
+        "type": "Farmacia",
+        "types": [
+          "Farmacia"
+        ],
+        "type_id": "pharmacy",
+        "type_ids": [
+          "pharmacy"
+        ],
+        "address": "C. 48 848, B1900ANH La Plata, Provincia de Buenos Aires",
+        "country": "Argentina",
+        "open_state": "Abierto · Cierra a las 8 p. m.",
+        "hours": "Abierto · Cierra a las 8 p. m.",
+        "operating_hours": {
+          "viernes": "8 a. m.–8 p. m.",
+          "sábado": "8 a. m.–1 p. m.",
+          "domingo": "Cerrado",
+          "lunes": "8 a. m.–8 p. m.",
+          "martes": "8 a. m.–8 p. m.",
+          "miércoles": "8 a. m.–8 p. m.",
+          "jueves": "8 a. m.–8 p. m."
+        },
+        "phone": "0221 421-8244",
+        "website": "https://farmacialaestrella.com/",
+        "extensions": [
+          {
+            "service_options": [
+              "Entrega a domicilio"
+            ]
+          },
+          {
+            "accessibility": [
+              "Entrada accesible para personas en silla de ruedas",
+              "Espacio accesible para personas en silla de ruedas"
+            ]
+          },
+          {
+            "planning": [
+              "Visita rápida"
+            ]
+          },
+          {
+            "payments": [
+              "Pagos móviles mediante NFC",
+              "Tarjetas de crédito",
+              "Tarjetas de débito"
+            ]
+          }
+        ],
+        "service_options": {
+          "entrega_a_domicilio": true
+        },
+        "thumbnail": "https://lh3.googleusercontent.com/grass-proxy/AIM7gW3jKC_2_mTHT0iNdPFFaD4Jyq7drpIyWem3K6fg5lYpt9qaZwR6HTquuiBBaAdDmR1O6JGlTxUH5UWRquVohl7qwuyXAjTHdhOzHU3WwQ8PMBf_aUou8gCfQVW6_0XSEjcgC6ue9AhFNsnYH7I1Ai6JK0-Q7MUeLkTwMF-1Bz6yWkqKnE5p-FyCzs05LxzS8zu43TRe=w1000-h1000-c-n",
+        "serpapi_thumbnail": "https://serpapi.com/images/url/VMHoonicHcTNckNAAADg6bXvIlbFks70gET9RBKyIunFGNYiWKwd4VH7NJ3pd_h-397LaerZpyg2pbwhlJIGc4bHjHYT7qZNRluRjCljQj_S1yLqjq-SWK49M_lIWmQjUJ3yi2Wl-627DGo-9s4S41b2YEGU5tFPuyH9mUNoo4HzyjBSPd-3oXSG7neDXpGtRHE48BstG3WY-XLXa2Tn5Xm1IzmeA-3iG0WSRpRrxCyCWwwTcL8e6oyYkOOdXlon1j1s1ZH0CroeEALVj_DxiWbfEiRjhUv8HLzuoPSCtZgrA8rxtV61lW9lFOKvWQIACOX_mdD9AVt2Wlw"
+      }
+    ]
+  }
+}

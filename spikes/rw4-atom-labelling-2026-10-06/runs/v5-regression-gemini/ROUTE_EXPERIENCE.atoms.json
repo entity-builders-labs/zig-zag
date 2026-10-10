@@ -1,0 +1,114 @@
+{
+  "version": "atomizer-v1",
+  "maxAtomChars": 600,
+  "unitLength": 391,
+  "unitSha256": "6e1788b77cc29da83f83a6dd550bdff94fa285dedd152d72b74a9258d9dc1603",
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "ordinal": 1,
+      "sourceStart": 0,
+      "sourceEnd": 24,
+      "text": "## The Painted Lane walk",
+      "blockKind": "HEADING",
+      "blockOrdinal": 1
+    },
+    {
+      "atomId": "a-002",
+      "ordinal": 2,
+      "sourceStart": 26,
+      "sourceEnd": 80,
+      "text": "Start at Harbour Square, next to the old fire station.",
+      "blockKind": "LINE",
+      "blockOrdinal": 3
+    },
+    {
+      "atomId": "a-003",
+      "ordinal": 3,
+      "sourceStart": 81,
+      "sourceEnd": 129,
+      "text": "Walk down Mill Street to reach the Painted Lane.",
+      "blockKind": "LINE",
+      "blockOrdinal": 4
+    },
+    {
+      "atomId": "a-004",
+      "ordinal": 4,
+      "sourceStart": 130,
+      "sourceEnd": 270,
+      "text": "The Painted Lane is the reason to come: stroll its whole 150-metre curve slowly, looking at every painted tin house and the murals along it.",
+      "blockKind": "LINE",
+      "blockOrdinal": 5
+    },
+    {
+      "atomId": "a-005",
+      "ordinal": 5,
+      "sourceStart": 271,
+      "sourceEnd": 334,
+      "text": "Halfway along, you will pass the Sailors' Church on your right.",
+      "blockKind": "LINE",
+      "blockOrdinal": 6
+    },
+    {
+      "atomId": "a-006",
+      "ordinal": 6,
+      "sourceStart": 335,
+      "sourceEnd": 390,
+      "text": "At the end of the lane, visit the Riverside Art Museum.",
+      "blockKind": "LINE",
+      "blockOrdinal": 7
+    }
+  ],
+  "separators": [
+    {
+      "start": 24,
+      "end": 25,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 25,
+      "end": 26,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 80,
+      "end": 81,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 129,
+      "end": 130,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 270,
+      "end": 271,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 334,
+      "end": 335,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 390,
+      "end": 391,
+      "kind": "NEWLINE"
+    }
+  ],
+  "batches": [
+    {
+      "batchIndex": 1,
+      "batchCount": 1,
+      "atomIds": [
+        "a-001",
+        "a-002",
+        "a-003",
+        "a-004",
+        "a-005",
+        "a-006"
+      ],
+      "contextAtomIds": []
+    }
+  ]
+}

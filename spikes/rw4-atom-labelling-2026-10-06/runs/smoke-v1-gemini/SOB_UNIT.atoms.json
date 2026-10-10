@@ -1,0 +1,3279 @@
+{
+  "version": "atomizer-v1",
+  "maxAtomChars": 600,
+  "unitLength": 14926,
+  "unitSha256": "403bb88ffa9a9ae3862c474408de94e41c0b0c3a42d09fd0f8b9d142cbd0cf38",
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "ordinal": 1,
+      "sourceStart": 0,
+      "sourceEnd": 36,
+      "text": "## Walking tour Buenos Aires – Day 1",
+      "blockKind": "HEADING",
+      "blockOrdinal": 1
+    },
+    {
+      "atomId": "a-002",
+      "ordinal": 2,
+      "sourceStart": 44,
+      "sourceEnd": 71,
+      "text": "**START AT PLAZA DE MAYO:**",
+      "blockKind": "LINE",
+      "blockOrdinal": 5
+    },
+    {
+      "atomId": "a-003",
+      "ordinal": 3,
+      "sourceStart": 73,
+      "sourceEnd": 162,
+      "text": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 7
+    },
+    {
+      "atomId": "a-004",
+      "ordinal": 4,
+      "sourceStart": 163,
+      "sourceEnd": 336,
+      "text": "This historic place is surrounded by **Casa Rosada** (presidential palace), **Catedral Metropolitana**, **Museo del Cabildo**, and the headquarters of the **National Bank**.",
+      "blockKind": "LINE",
+      "blockOrdinal": 7
+    },
+    {
+      "atomId": "a-005",
+      "ordinal": 5,
+      "sourceStart": 337,
+      "sourceEnd": 439,
+      "text": "Plaza de Mayo was the center of the revolution in May 1810 where Argentina declares itself from Spain.",
+      "blockKind": "LINE",
+      "blockOrdinal": 7
+    },
+    {
+      "atomId": "a-006",
+      "ordinal": 6,
+      "sourceStart": 440,
+      "sourceEnd": 488,
+      "text": "The actual independence was several years later.",
+      "blockKind": "LINE",
+      "blockOrdinal": 7
+    },
+    {
+      "atomId": "a-007",
+      "ordinal": 7,
+      "sourceStart": 490,
+      "sourceEnd": 551,
+      "text": "In the center of Plaza de Mayo you find a small white statue.",
+      "blockKind": "LINE",
+      "blockOrdinal": 9
+    },
+    {
+      "atomId": "a-008",
+      "ordinal": 8,
+      "sourceStart": 552,
+      "sourceEnd": 691,
+      "text": "Every Thursday grandmothers get together to remember the disappearance of their grandchildren during the military dictatorship in the 70’s.",
+      "blockKind": "LINE",
+      "blockOrdinal": 9
+    },
+    {
+      "atomId": "a-009",
+      "ordinal": 9,
+      "sourceStart": 693,
+      "sourceEnd": 728,
+      "text": "In front, you will see Casa Rosada.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-010",
+      "ordinal": 10,
+      "sourceStart": 729,
+      "sourceEnd": 766,
+      "text": "The presidential palace of Argentina.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-011",
+      "ordinal": 11,
+      "sourceStart": 767,
+      "sourceEnd": 776,
+      "text": "Why pink?",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-012",
+      "ordinal": 12,
+      "sourceStart": 777,
+      "sourceEnd": 800,
+      "text": "That’s a powerful myth.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-013",
+      "ordinal": 13,
+      "sourceStart": 801,
+      "sourceEnd": 853,
+      "text": "Some say it was a colorful mixture of red and white.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-014",
+      "ordinal": 14,
+      "sourceStart": 854,
+      "sourceEnd": 904,
+      "text": "At that time the colors of both political parties.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-015",
+      "ordinal": 15,
+      "sourceStart": 905,
+      "sourceEnd": 946,
+      "text": "Others say, there was no paint available.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-016",
+      "ordinal": 16,
+      "sourceStart": 947,
+      "sourceEnd": 1009,
+      "text": "So they took the blood of cows and painted the palace with it.",
+      "blockKind": "LINE",
+      "blockOrdinal": 11
+    },
+    {
+      "atomId": "a-017",
+      "ordinal": 17,
+      "sourceStart": 1013,
+      "sourceEnd": 1162,
+      "text": "![Self guided tour Walking Buenos Aires](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2023/02/Self-guided-tour-Walking-Buenos-Aires.jpg)",
+      "blockKind": "LINE",
+      "blockOrdinal": 13
+    },
+    {
+      "atomId": "a-018",
+      "ordinal": 18,
+      "sourceStart": 1166,
+      "sourceEnd": 1194,
+      "text": "Casa Rosada on Plaza de Mayo",
+      "blockKind": "LINE",
+      "blockOrdinal": 15
+    },
+    {
+      "atomId": "a-019",
+      "ordinal": 19,
+      "sourceStart": 1196,
+      "sourceEnd": 1234,
+      "text": "There is more to see on Plaza de Mayo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 17
+    },
+    {
+      "atomId": "a-020",
+      "ordinal": 20,
+      "sourceStart": 1235,
+      "sourceEnd": 1298,
+      "text": "In front of Casa Rosada you will see a white building: Cabildo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 17
+    },
+    {
+      "atomId": "a-021",
+      "ordinal": 21,
+      "sourceStart": 1299,
+      "sourceEnd": 1438,
+      "text": "Cabildo was used as the seat of the town council during the Spanish colonial era. In 1931 three columns were removed to build a new avenue.",
+      "blockKind": "LINE",
+      "blockOrdinal": 17
+    },
+    {
+      "atomId": "a-022",
+      "ordinal": 22,
+      "sourceStart": 1440,
+      "sourceEnd": 1487,
+      "text": "Close to the Cabildo is Catedral Metropolitana.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-023",
+      "ordinal": 23,
+      "sourceStart": 1488,
+      "sourceEnd": 1573,
+      "text": "It has a neoclassical facade with inside Neo-Renaissance and Neo-Baroque decorations.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-024",
+      "ordinal": 24,
+      "sourceStart": 1574,
+      "sourceEnd": 1588,
+      "text": "Build in 1791.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-025",
+      "ordinal": 25,
+      "sourceStart": 1589,
+      "sourceEnd": 1659,
+      "text": "Inside the Catedral you will find the Mausoleum of General San Martín.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-026",
+      "ordinal": 26,
+      "sourceStart": 1660,
+      "sourceEnd": 1791,
+      "text": "General San Martín was an Argentine general and the most important southern leader of the South American struggle for independence.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-027",
+      "ordinal": 27,
+      "sourceStart": 1792,
+      "sourceEnd": 1829,
+      "text": "He is the national hero of Argentina.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-028",
+      "ordinal": 28,
+      "sourceStart": 1830,
+      "sourceEnd": 1880,
+      "text": "The name San Martín will appear a couple of times.",
+      "blockKind": "LINE",
+      "blockOrdinal": 19
+    },
+    {
+      "atomId": "a-029",
+      "ordinal": 29,
+      "sourceStart": 1882,
+      "sourceEnd": 2028,
+      "text": "**[Read here the why Jose de San Martin is popular in Argentina.](https://secretsofbuenosaires.com/jose-de-san-martin-argentinas-national-hero/)**",
+      "blockKind": "LINE",
+      "blockOrdinal": 21
+    },
+    {
+      "atomId": "a-030",
+      "ordinal": 30,
+      "sourceStart": 2030,
+      "sourceEnd": 2100,
+      "text": "Also, the current pope of the Roman Catholic Church is an Argentinian.",
+      "blockKind": "LINE",
+      "blockOrdinal": 23
+    },
+    {
+      "atomId": "a-031",
+      "ordinal": 31,
+      "sourceStart": 2101,
+      "sourceEnd": 2163,
+      "text": "The Catholic Church has still a lot of influence in Argentina.",
+      "blockKind": "LINE",
+      "blockOrdinal": 23
+    },
+    {
+      "atomId": "a-032",
+      "ordinal": 32,
+      "sourceStart": 2340,
+      "sourceEnd": 2407,
+      "text": "Let’s move on during this self guided walking tour in Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 27
+    },
+    {
+      "atomId": "a-033",
+      "ordinal": 33,
+      "sourceStart": 2409,
+      "sourceEnd": 2434,
+      "text": "Go to the street Defensa.",
+      "blockKind": "LINE",
+      "blockOrdinal": 29
+    },
+    {
+      "atomId": "a-034",
+      "ordinal": 34,
+      "sourceStart": 2435,
+      "sourceEnd": 2567,
+      "text": "The name itself explains what that street former was. It was literally the defensive line during a war against the British invasion.",
+      "blockKind": "LINE",
+      "blockOrdinal": 29
+    },
+    {
+      "atomId": "a-035",
+      "ordinal": 35,
+      "sourceStart": 2569,
+      "sourceEnd": 2628,
+      "text": "Every Sunday Feria San Telmo takes place in street Defensa.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-036",
+      "ordinal": 36,
+      "sourceStart": 2629,
+      "sourceEnd": 2649,
+      "text": "A hotspot on Sunday.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-037",
+      "ordinal": 37,
+      "sourceStart": 2650,
+      "sourceEnd": 2773,
+      "text": "Locals are selling antiques, handmade products, … Continue walking and you will pass the first restaurants in Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-038",
+      "ordinal": 38,
+      "sourceStart": 2774,
+      "sourceEnd": 2829,
+      "text": "Local food, such as asado, empanadas, are here to find.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-039",
+      "ordinal": 39,
+      "sourceStart": 2830,
+      "sourceEnd": 2898,
+      "text": "Wander around and enjoy the oldest neighborhood of the capital city.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-040",
+      "ordinal": 40,
+      "sourceStart": 2899,
+      "sourceEnd": 2962,
+      "text": "You will see that there not that much high apartment buildings.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-041",
+      "ordinal": 41,
+      "sourceStart": 2963,
+      "sourceEnd": 3013,
+      "text": "It gives just that special character to San Telmo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 31
+    },
+    {
+      "atomId": "a-042",
+      "ordinal": 42,
+      "sourceStart": 3015,
+      "sourceEnd": 3083,
+      "text": "We going to make a small detour and go to the street Estados Unidos.",
+      "blockKind": "LINE",
+      "blockOrdinal": 33
+    },
+    {
+      "atomId": "a-043",
+      "ordinal": 43,
+      "sourceStart": 3084,
+      "sourceEnd": 3127,
+      "text": "You will feel the calmness of Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 33
+    },
+    {
+      "atomId": "a-044",
+      "ordinal": 44,
+      "sourceStart": 3128,
+      "sourceEnd": 3180,
+      "text": "This will maybe the quietest spot of the whole city.",
+      "blockKind": "LINE",
+      "blockOrdinal": 33
+    },
+    {
+      "atomId": "a-045",
+      "ordinal": 45,
+      "sourceStart": 3181,
+      "sourceEnd": 3249,
+      "text": "On the corner, you will see Bar Sur. Well known for the tango shows.",
+      "blockKind": "LINE",
+      "blockOrdinal": 33
+    },
+    {
+      "atomId": "a-046",
+      "ordinal": 46,
+      "sourceStart": 3251,
+      "sourceEnd": 3296,
+      "text": "Continue and cross the street Paseo de Colon.",
+      "blockKind": "LINE",
+      "blockOrdinal": 35
+    },
+    {
+      "atomId": "a-047",
+      "ordinal": 47,
+      "sourceStart": 3297,
+      "sourceEnd": 3344,
+      "text": "You will see the first MetroBus infrastructure.",
+      "blockKind": "LINE",
+      "blockOrdinal": 35
+    },
+    {
+      "atomId": "a-048",
+      "ordinal": 48,
+      "sourceStart": 3345,
+      "sourceEnd": 3379,
+      "text": "A fast bus system across the city.",
+      "blockKind": "LINE",
+      "blockOrdinal": 35
+    },
+    {
+      "atomId": "a-049",
+      "ordinal": 49,
+      "sourceStart": 3381,
+      "sourceEnd": 3432,
+      "text": "In front, you will see a big building with columns.",
+      "blockKind": "LINE",
+      "blockOrdinal": 37
+    },
+    {
+      "atomId": "a-050",
+      "ordinal": 50,
+      "sourceStart": 3433,
+      "sourceEnd": 3509,
+      "text": "Now the University of Buenos Aires department of engineers is there located.",
+      "blockKind": "LINE",
+      "blockOrdinal": 37
+    },
+    {
+      "atomId": "a-051",
+      "ordinal": 51,
+      "sourceStart": 3510,
+      "sourceEnd": 3594,
+      "text": "Before the building was destined to be the headquarters of Evita Peron’s foundation.",
+      "blockKind": "LINE",
+      "blockOrdinal": 37
+    },
+    {
+      "atomId": "a-052",
+      "ordinal": 52,
+      "sourceStart": 3598,
+      "sourceEnd": 3758,
+      "text": "![Evita Foundation in Buenos Aires](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2023/02/Fundacion-Evita-self-guided-walking-tour-Buenos-Aires.jpg)",
+      "blockKind": "LINE",
+      "blockOrdinal": 39
+    },
+    {
+      "atomId": "a-053",
+      "ordinal": 53,
+      "sourceStart": 3762,
+      "sourceEnd": 3794,
+      "text": "Evita Foundation in Buenos Aires",
+      "blockKind": "LINE",
+      "blockOrdinal": 41
+    },
+    {
+      "atomId": "a-054",
+      "ordinal": 54,
+      "sourceStart": 3796,
+      "sourceEnd": 3832,
+      "text": "Let’s go back to the street Defensa.",
+      "blockKind": "LINE",
+      "blockOrdinal": 43
+    },
+    {
+      "atomId": "a-055",
+      "ordinal": 55,
+      "sourceStart": 3834,
+      "sourceEnd": 3899,
+      "text": "While walking you will pass the entrance of Mercado de San Telmo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 45
+    },
+    {
+      "atomId": "a-056",
+      "ordinal": 56,
+      "sourceStart": 3900,
+      "sourceEnd": 3912,
+      "text": "Jump inside.",
+      "blockKind": "LINE",
+      "blockOrdinal": 45
+    },
+    {
+      "atomId": "a-057",
+      "ordinal": 57,
+      "sourceStart": 3913,
+      "sourceEnd": 3932,
+      "text": "Highly recommended.",
+      "blockKind": "LINE",
+      "blockOrdinal": 45
+    },
+    {
+      "atomId": "a-058",
+      "ordinal": 58,
+      "sourceStart": 3933,
+      "sourceEnd": 3995,
+      "text": "The market went through a style renovation for the last years.",
+      "blockKind": "LINE",
+      "blockOrdinal": 45
+    },
+    {
+      "atomId": "a-059",
+      "ordinal": 59,
+      "sourceStart": 3996,
+      "sourceEnd": 4063,
+      "text": "Trendy bars opened, but also you can still buy vegetables and meet.",
+      "blockKind": "LINE",
+      "blockOrdinal": 45
+    },
+    {
+      "atomId": "a-060",
+      "ordinal": 60,
+      "sourceStart": 4065,
+      "sourceEnd": 4170,
+      "text": "[**Read here more facts about Mercado de San Telmo**](https://secretsofbuenosaires.com/san-telmo-market/)",
+      "blockKind": "LINE",
+      "blockOrdinal": 47
+    },
+    {
+      "atomId": "a-061",
+      "ordinal": 61,
+      "sourceStart": 4172,
+      "sourceEnd": 4223,
+      "text": "Not far from Mercado de San Telmo is Plaza Dorrego.",
+      "blockKind": "LINE",
+      "blockOrdinal": 49
+    },
+    {
+      "atomId": "a-062",
+      "ordinal": 62,
+      "sourceStart": 4224,
+      "sourceEnd": 4264,
+      "text": "A cozy square in the heart of San Telmo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 49
+    },
+    {
+      "atomId": "a-063",
+      "ordinal": 63,
+      "sourceStart": 4265,
+      "sourceEnd": 4365,
+      "text": "Typical blue seats, bars around the square, and if you’re lucky you will spot the first tango dance.",
+      "blockKind": "LINE",
+      "blockOrdinal": 49
+    },
+    {
+      "atomId": "a-064",
+      "ordinal": 64,
+      "sourceStart": 4367,
+      "sourceEnd": 4420,
+      "text": "Further, let’s walk on the street “Avenida San Juan”.",
+      "blockKind": "LINE",
+      "blockOrdinal": 51
+    },
+    {
+      "atomId": "a-065",
+      "ordinal": 65,
+      "sourceStart": 4421,
+      "sourceEnd": 4487,
+      "text": "A little bit to the right side there is the Museum of Modern Arts.",
+      "blockKind": "LINE",
+      "blockOrdinal": 51
+    },
+    {
+      "atomId": "a-066",
+      "ordinal": 66,
+      "sourceStart": 4489,
+      "sourceEnd": 4542,
+      "text": "Walk up to Avenida Paseo Colon and take a right turn.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-067",
+      "ordinal": 67,
+      "sourceStart": 4543,
+      "sourceEnd": 4600,
+      "text": "Under the bridge, you see you a memory of “Club Atlético.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-068",
+      "ordinal": 68,
+      "sourceStart": 4601,
+      "sourceEnd": 4709,
+      "text": "It was a clandestine center of detention, torture and extermination that worked in the city of Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-069",
+      "ordinal": 69,
+      "sourceStart": 4710,
+      "sourceEnd": 4778,
+      "text": "In 1978 the building was demolished for the building of the highway.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-070",
+      "ordinal": 70,
+      "sourceStart": 4779,
+      "sourceEnd": 4828,
+      "text": "It’s maybe not the most beautiful memorial place.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-071",
+      "ordinal": 71,
+      "sourceStart": 4829,
+      "sourceEnd": 4877,
+      "text": "However, it’s also part of Buenos Aires history.",
+      "blockKind": "LINE",
+      "blockOrdinal": 53
+    },
+    {
+      "atomId": "a-072",
+      "ordinal": 72,
+      "sourceStart": 5054,
+      "sourceEnd": 5107,
+      "text": "Head back to the street Defensa and continue walking.",
+      "blockKind": "LINE",
+      "blockOrdinal": 57
+    },
+    {
+      "atomId": "a-073",
+      "ordinal": 73,
+      "sourceStart": 5109,
+      "sourceEnd": 5155,
+      "text": "On your left side, you will see Parque Lezama.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-074",
+      "ordinal": 74,
+      "sourceStart": 5156,
+      "sourceEnd": 5198,
+      "text": "The big statue refers to Pedro de Mendoza.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-075",
+      "ordinal": 75,
+      "sourceStart": 5199,
+      "sourceEnd": 5260,
+      "text": "In 1529, he went to explore South America at his own expense.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-076",
+      "ordinal": 76,
+      "sourceStart": 5261,
+      "sourceEnd": 5305,
+      "text": "He founded Buenos Aires on February 3, 1536.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-077",
+      "ordinal": 77,
+      "sourceStart": 5306,
+      "sourceEnd": 5460,
+      "text": "The legend says that Pedo de Mendoza put first steps on the ground where now Parque Lezama is. The coastline was in that time close to the street Defensa.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-078",
+      "ordinal": 78,
+      "sourceStart": 5461,
+      "sourceEnd": 5495,
+      "text": "Take your time and enjoy the park.",
+      "blockKind": "LINE",
+      "blockOrdinal": 59
+    },
+    {
+      "atomId": "a-079",
+      "ordinal": 79,
+      "sourceStart": 5497,
+      "sourceEnd": 5540,
+      "text": "Make a stop at the national history museum.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-080",
+      "ordinal": 80,
+      "sourceStart": 5541,
+      "sourceEnd": 5590,
+      "text": "Also located at the street side of Parque Lezama.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-081",
+      "ordinal": 81,
+      "sourceStart": 5591,
+      "sourceEnd": 5612,
+      "text": "The entrance is free.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-082",
+      "ordinal": 82,
+      "sourceStart": 5613,
+      "sourceEnd": 5661,
+      "text": "Across the museum, you will see Avenida Caseros.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-083",
+      "ordinal": 83,
+      "sourceStart": 5662,
+      "sourceEnd": 5714,
+      "text": "This street is known in the Argentinian movie scene.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-084",
+      "ordinal": 84,
+      "sourceStart": 5715,
+      "sourceEnd": 5765,
+      "text": "Walk on the typical red walkway and wander around.",
+      "blockKind": "LINE",
+      "blockOrdinal": 61
+    },
+    {
+      "atomId": "a-085",
+      "ordinal": 85,
+      "sourceStart": 5767,
+      "sourceEnd": 5848,
+      "text": "Get on the public bus now. You can take line 29 or 152 with the direction “Boca”.",
+      "blockKind": "LINE",
+      "blockOrdinal": 63
+    },
+    {
+      "atomId": "a-086",
+      "ordinal": 86,
+      "sourceStart": 5849,
+      "sourceEnd": 5864,
+      "text": "Or take a taxi.",
+      "blockKind": "LINE",
+      "blockOrdinal": 63
+    },
+    {
+      "atomId": "a-087",
+      "ordinal": 87,
+      "sourceStart": 5865,
+      "sourceEnd": 5974,
+      "text": "(I prefer to take a bus or taxi because La Boca is a little bit too far to walk and also for safety reasons).",
+      "blockKind": "LINE",
+      "blockOrdinal": 63
+    },
+    {
+      "atomId": "a-088",
+      "ordinal": 88,
+      "sourceStart": 5975,
+      "sourceEnd": 6051,
+      "text": "Let’s continue the self guided walking tour in Buenos Aires under the video.",
+      "blockKind": "LINE",
+      "blockOrdinal": 63
+    },
+    {
+      "atomId": "a-089",
+      "ordinal": 89,
+      "sourceStart": 6053,
+      "sourceEnd": 6145,
+      "text": "[**SEE MORE VIDEOS ON THE YOUTUBE CHANNEL**](https://www.youtube.com/c/SecretsofBuenosAires)",
+      "blockKind": "LINE",
+      "blockOrdinal": 65
+    },
+    {
+      "atomId": "a-090",
+      "ordinal": 90,
+      "sourceStart": 6147,
+      "sourceEnd": 6171,
+      "text": "Arrive at “El Caminito“.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-091",
+      "ordinal": 91,
+      "sourceStart": 6172,
+      "sourceEnd": 6235,
+      "text": "El Caminito is Argentian most famous street with typical charm.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-092",
+      "ordinal": 92,
+      "sourceStart": 6236,
+      "sourceEnd": 6291,
+      "text": "Houses are built with scrapyard materials in that time.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-093",
+      "ordinal": 93,
+      "sourceStart": 6292,
+      "sourceEnd": 6363,
+      "text": "In the 19th century, it was the home of Italian and Spanish immigrants.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-094",
+      "ordinal": 94,
+      "sourceStart": 6364,
+      "sourceEnd": 6417,
+      "text": "The colors vary because of the limit paint available.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-095",
+      "ordinal": 95,
+      "sourceStart": 6418,
+      "sourceEnd": 6532,
+      "text": "All combination and mixes were more than ok. It’s a very artistic neighborhood and the area was tango was founded.",
+      "blockKind": "LINE",
+      "blockOrdinal": 67
+    },
+    {
+      "atomId": "a-096",
+      "ordinal": 96,
+      "sourceStart": 6534,
+      "sourceEnd": 6647,
+      "text": "[**Read more about the founding of La Boca**](https://secretsofbuenosaires.com/la-boca-buenos-aires-visit-guide/)",
+      "blockKind": "LINE",
+      "blockOrdinal": 69
+    },
+    {
+      "atomId": "a-097",
+      "ordinal": 97,
+      "sourceStart": 6649,
+      "sourceEnd": 6706,
+      "text": "La Boca is also the home of the same named football club.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-098",
+      "ordinal": 98,
+      "sourceStart": 6707,
+      "sourceEnd": 6845,
+      "text": "**[Visit La Bombonera](https://secretsofbuenosaires.com/how-to-buy-tourist-tickets-for-boca-juniors/)**, the stadium of the football club.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-099",
+      "ordinal": 99,
+      "sourceStart": 6846,
+      "sourceEnd": 6882,
+      "text": "The team colors are blue and yellow.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-100",
+      "ordinal": 100,
+      "sourceStart": 6883,
+      "sourceEnd": 6958,
+      "text": "The myth tells us that they didn’t know to choose the colors of their team.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-101",
+      "ordinal": 101,
+      "sourceStart": 6959,
+      "sourceEnd": 7059,
+      "text": "They made an agreement to take the flag colors of the first ship that entered the harbor at La Boca.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-102",
+      "ordinal": 102,
+      "sourceStart": 7060,
+      "sourceEnd": 7102,
+      "text": "The first vessel arrived came from Sweden.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-103",
+      "ordinal": 103,
+      "sourceStart": 7103,
+      "sourceEnd": 7133,
+      "text": "So simple can it be sometimes.",
+      "blockKind": "LINE",
+      "blockOrdinal": 71
+    },
+    {
+      "atomId": "a-104",
+      "ordinal": 104,
+      "sourceStart": 7135,
+      "sourceEnd": 7165,
+      "text": "Visit La Boca during daylight.",
+      "blockKind": "LINE",
+      "blockOrdinal": 73
+    },
+    {
+      "atomId": "a-105",
+      "ordinal": 105,
+      "sourceStart": 7167,
+      "sourceEnd": 7204,
+      "text": "Take a bus or taxi back to San Telmo.",
+      "blockKind": "LINE",
+      "blockOrdinal": 75
+    },
+    {
+      "atomId": "a-106",
+      "ordinal": 106,
+      "sourceStart": 7205,
+      "sourceEnd": 7269,
+      "text": "I hope that you took the time to visit some museums and markets.",
+      "blockKind": "LINE",
+      "blockOrdinal": 75
+    },
+    {
+      "atomId": "a-107",
+      "ordinal": 107,
+      "sourceStart": 7270,
+      "sourceEnd": 7312,
+      "text": "This is the heart of Buenos Aires history.",
+      "blockKind": "LINE",
+      "blockOrdinal": 75
+    },
+    {
+      "atomId": "a-108",
+      "ordinal": 108,
+      "sourceStart": 7313,
+      "sourceEnd": 7376,
+      "text": "Enjoy your evening in one of the cozy beer bars or restaurants.",
+      "blockKind": "LINE",
+      "blockOrdinal": 75
+    },
+    {
+      "atomId": "a-109",
+      "ordinal": 109,
+      "sourceStart": 7378,
+      "sourceEnd": 7443,
+      "text": "This was your first day self guided walking tour in Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 77
+    },
+    {
+      "atomId": "a-110",
+      "ordinal": 110,
+      "sourceStart": 7598,
+      "sourceEnd": 7664,
+      "text": "[Walking tour](https://secretsofbuenosaires.com/tag/walking-tour/)",
+      "blockKind": "LINE",
+      "blockOrdinal": 81
+    },
+    {
+      "atomId": "a-111",
+      "ordinal": 111,
+      "sourceStart": 7666,
+      "sourceEnd": 7672,
+      "text": "[3](#)",
+      "blockKind": "LINE",
+      "blockOrdinal": 83
+    },
+    {
+      "atomId": "a-112",
+      "ordinal": 112,
+      "sourceStart": 7794,
+      "sourceEnd": 7856,
+      "text": "Author [Glenn](https://secretsofbuenosaires.com/author/glenn/)",
+      "blockKind": "LINE",
+      "blockOrdinal": 87
+    },
+    {
+      "atomId": "a-113",
+      "ordinal": 113,
+      "sourceStart": 7859,
+      "sourceEnd": 7905,
+      "text": "My roots in Buenos Aires started as a tourist.",
+      "blockKind": "LINE",
+      "blockOrdinal": 89
+    },
+    {
+      "atomId": "a-114",
+      "ordinal": 114,
+      "sourceStart": 7906,
+      "sourceEnd": 8005,
+      "text": "After some great adventures in Argentina, I moved in 2017 to the metropolitan city of Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 89
+    },
+    {
+      "atomId": "a-115",
+      "ordinal": 115,
+      "sourceStart": 8006,
+      "sourceEnd": 8068,
+      "text": "I felt a need for correct and honest information for tourists.",
+      "blockKind": "LINE",
+      "blockOrdinal": 89
+    },
+    {
+      "atomId": "a-116",
+      "ordinal": 116,
+      "sourceStart": 8069,
+      "sourceEnd": 8143,
+      "text": "That's why I love to write to you. Sharing my discoveries in Buenos Aires.",
+      "blockKind": "LINE",
+      "blockOrdinal": 89
+    },
+    {
+      "atomId": "a-117",
+      "ordinal": 117,
+      "sourceStart": 8144,
+      "sourceEnd": 8202,
+      "text": "I hope you enjoy the city as much as I do! Buenos Aires ❤️",
+      "blockKind": "LINE",
+      "blockOrdinal": 89
+    },
+    {
+      "atomId": "a-118",
+      "ordinal": 118,
+      "sourceStart": 8204,
+      "sourceEnd": 8259,
+      "text": "* [Website](https://secretsofbuenosaires.com \"Website\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 91
+    },
+    {
+      "atomId": "a-119",
+      "ordinal": 119,
+      "sourceStart": 8260,
+      "sourceEnd": 8325,
+      "text": "* [Facebook](http://facebook.com/secretsofbuenosaires \"Facebook\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 92
+    },
+    {
+      "atomId": "a-120",
+      "ordinal": 120,
+      "sourceStart": 8326,
+      "sourceEnd": 8381,
+      "text": "* [Twitter](https://twitter.com/Secretsof_BA \"Twitter\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 93
+    },
+    {
+      "atomId": "a-121",
+      "ordinal": 121,
+      "sourceStart": 8382,
+      "sourceEnd": 8451,
+      "text": "* [Instagram](https://instagram.com/secretsofbuenosaires \"Instagram\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 94
+    },
+    {
+      "atomId": "a-122",
+      "ordinal": 122,
+      "sourceStart": 8453,
+      "sourceEnd": 8471,
+      "text": "#### Related Posts",
+      "blockKind": "HEADING",
+      "blockOrdinal": 96
+    },
+    {
+      "atomId": "a-123",
+      "ordinal": 123,
+      "sourceStart": 8473,
+      "sourceEnd": 8748,
+      "text": "[![3 Days in Buenos Aires Itinerary](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2024/06/3-Days-in-Buenos-Aires-Itinerary-370x245.jpeg)](https://secretsofbuenosaires.com/3-days-in-buenos-aires-itinerary/ \"3 Days in Buenos Aires: The Best Way to Spend 72 Hours\")",
+      "blockKind": "LINE",
+      "blockOrdinal": 98
+    },
+    {
+      "atomId": "a-124",
+      "ordinal": 124,
+      "sourceStart": 8751,
+      "sourceEnd": 8879,
+      "text": "### [3 Days in Buenos Aires: The Best Way to Spend 72 Hours](https://secretsofbuenosaires.com/3-days-in-buenos-aires-itinerary/)",
+      "blockKind": "HEADING",
+      "blockOrdinal": 100
+    },
+    {
+      "atomId": "a-125",
+      "ordinal": 125,
+      "sourceStart": 8881,
+      "sourceEnd": 9208,
+      "text": "[![La Boca Buenos Aires things to do history](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2022/06/La-Boca-Buenos-Aires-things-to-do-history-370x245.jpg \"La Boca and El Caminito: What to See and Do\")](https://secretsofbuenosaires.com/la-boca-buenos-aires-visit-guide/ \"La Boca and El Caminito: What to See and Do\")",
+      "blockKind": "LINE",
+      "blockOrdinal": 102
+    },
+    {
+      "atomId": "a-126",
+      "ordinal": 126,
+      "sourceStart": 9211,
+      "sourceEnd": 9328,
+      "text": "### [La Boca and El Caminito: What to See and Do](https://secretsofbuenosaires.com/la-boca-buenos-aires-visit-guide/)",
+      "blockKind": "HEADING",
+      "blockOrdinal": 104
+    },
+    {
+      "atomId": "a-127",
+      "ordinal": 127,
+      "sourceStart": 9330,
+      "sourceEnd": 9581,
+      "text": "[![One Day in Buenos Aires](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2025/02/One-Day-in-Buenos-Aires-370x245.jpeg)](https://secretsofbuenosaires.com/one-day-in-buenos-aires/ \"One Day in Buenos Aires for First-Timers & Must-See Spots\")",
+      "blockKind": "LINE",
+      "blockOrdinal": 106
+    },
+    {
+      "atomId": "a-128",
+      "ordinal": 128,
+      "sourceStart": 9584,
+      "sourceEnd": 9706,
+      "text": "### [One Day in Buenos Aires for First-Timers & Must-See Spots](https://secretsofbuenosaires.com/one-day-in-buenos-aires/)",
+      "blockKind": "HEADING",
+      "blockOrdinal": 108
+    },
+    {
+      "atomId": "a-129",
+      "ordinal": 129,
+      "sourceStart": 9708,
+      "sourceEnd": 9978,
+      "text": "[![Puerto Madero walking video](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2020/08/Puerto-Madero-walking-video-370x245.jpg)](https://secretsofbuenosaires.com/walking-in-puerto-madero-during-lockdown/ \"Video: Walking in Puerto Madero during lockdown [4K]\")",
+      "blockKind": "LINE",
+      "blockOrdinal": 110
+    },
+    {
+      "atomId": "a-130",
+      "ordinal": 130,
+      "sourceStart": 9981,
+      "sourceEnd": 10115,
+      "text": "### [Video: Walking in Puerto Madero during lockdown [4K]](https://secretsofbuenosaires.com/walking-in-puerto-madero-during-lockdown/)",
+      "blockKind": "HEADING",
+      "blockOrdinal": 112
+    },
+    {
+      "atomId": "a-131",
+      "ordinal": 131,
+      "sourceStart": 10117,
+      "sourceEnd": 10209,
+      "text": "### Write A Comment [Cancel Reply](/day-1-self-guided-walking-tour-in-buenos-aires/#respond)",
+      "blockKind": "HEADING",
+      "blockOrdinal": 114
+    },
+    {
+      "atomId": "a-132",
+      "ordinal": 132,
+      "sourceStart": 10211,
+      "sourceEnd": 10277,
+      "text": "* [Book Tango Show](https://secretsofbuenosaires.com/tango-shows/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 116
+    },
+    {
+      "atomId": "a-133",
+      "ordinal": 133,
+      "sourceStart": 10278,
+      "sourceEnd": 10358,
+      "text": "* [Things to Do](https://secretsofbuenosaires.com/things-to-do-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 117
+    },
+    {
+      "atomId": "a-134",
+      "ordinal": 134,
+      "sourceStart": 10359,
+      "sourceEnd": 10425,
+      "text": "* [Airport Transfers](https://transfers-secretsofbuenosaires.com/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 118
+    },
+    {
+      "atomId": "a-135",
+      "ordinal": 135,
+      "sourceStart": 10426,
+      "sourceEnd": 10503,
+      "text": "* [Experiences](https://secretsofbuenosaires.com/activities-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 119
+    },
+    {
+      "atomId": "a-136",
+      "ordinal": 136,
+      "sourceStart": 10504,
+      "sourceEnd": 10555,
+      "text": "* [Video](https://youtube.com/secretsofbuenosaires)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 120
+    },
+    {
+      "atomId": "a-137",
+      "ordinal": 137,
+      "sourceStart": 10556,
+      "sourceEnd": 10625,
+      "text": "* [Follow Instagram](https://www.instagram.com/secretsofbuenosaires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 121
+    },
+    {
+      "atomId": "a-138",
+      "ordinal": 138,
+      "sourceStart": 10627,
+      "sourceEnd": 10794,
+      "text": "[![Secrets of Buenos Aires](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/2021/10/Secrets-of-Buenos-Aires-logo-2021.jpg)](https://secretsofbuenosaires.com)",
+      "blockKind": "LINE",
+      "blockOrdinal": 123
+    },
+    {
+      "atomId": "a-139",
+      "ordinal": 139,
+      "sourceStart": 10796,
+      "sourceEnd": 10862,
+      "text": "* [Book Tango Show](https://secretsofbuenosaires.com/tango-shows/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 125
+    },
+    {
+      "atomId": "a-140",
+      "ordinal": 140,
+      "sourceStart": 10863,
+      "sourceEnd": 10943,
+      "text": "* [Things to Do](https://secretsofbuenosaires.com/things-to-do-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 126
+    },
+    {
+      "atomId": "a-141",
+      "ordinal": 141,
+      "sourceStart": 10944,
+      "sourceEnd": 11010,
+      "text": "* [Airport Transfers](https://transfers-secretsofbuenosaires.com/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 127
+    },
+    {
+      "atomId": "a-142",
+      "ordinal": 142,
+      "sourceStart": 11011,
+      "sourceEnd": 11088,
+      "text": "* [Experiences](https://secretsofbuenosaires.com/activities-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 128
+    },
+    {
+      "atomId": "a-143",
+      "ordinal": 143,
+      "sourceStart": 11089,
+      "sourceEnd": 11140,
+      "text": "* [Video](https://youtube.com/secretsofbuenosaires)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 129
+    },
+    {
+      "atomId": "a-144",
+      "ordinal": 144,
+      "sourceStart": 11141,
+      "sourceEnd": 11210,
+      "text": "* [Follow Instagram](https://www.instagram.com/secretsofbuenosaires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 130
+    },
+    {
+      "atomId": "a-145",
+      "ordinal": 145,
+      "sourceStart": 11212,
+      "sourceEnd": 11255,
+      "text": "* [Home](https://secretsofbuenosaires.com/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 132
+    },
+    {
+      "atomId": "a-146",
+      "ordinal": 146,
+      "sourceStart": 11256,
+      "sourceEnd": 11329,
+      "text": "* [Things to do](https://secretsofbuenosaires.com/category/things-to-do/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 133
+    },
+    {
+      "atomId": "a-147",
+      "ordinal": 147,
+      "sourceStart": 11332,
+      "sourceEnd": 11416,
+      "text": "+ [Top Things to do](https://secretsofbuenosaires.com/things-to-do-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 134
+    },
+    {
+      "atomId": "a-148",
+      "ordinal": 148,
+      "sourceStart": 11419,
+      "sourceEnd": 11506,
+      "text": "+ [See a Tango Show](https://secretsofbuenosaires.com/best-tango-show-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 135
+    },
+    {
+      "atomId": "a-149",
+      "ordinal": 149,
+      "sourceStart": 11509,
+      "sourceEnd": 11601,
+      "text": "+ [Activities in Buenos Aires](https://secretsofbuenosaires.com/activities-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 136
+    },
+    {
+      "atomId": "a-150",
+      "ordinal": 150,
+      "sourceStart": 11604,
+      "sourceEnd": 11689,
+      "text": "+ [Best Day Trips](https://secretsofbuenosaires.com/category/things-to-do/day-trips/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 137
+    },
+    {
+      "atomId": "a-151",
+      "ordinal": 151,
+      "sourceStart": 11692,
+      "sourceEnd": 11782,
+      "text": "+ [Hidden Secrets](https://secretsofbuenosaires.com/category/things-to-do/hidden-secrets/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 138
+    },
+    {
+      "atomId": "a-152",
+      "ordinal": 152,
+      "sourceStart": 11785,
+      "sourceEnd": 11889,
+      "text": "+ [Itineraries and Walks](https://secretsofbuenosaires.com/category/things-to-do/itineraries-and-walks/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 139
+    },
+    {
+      "atomId": "a-153",
+      "ordinal": 153,
+      "sourceStart": 11892,
+      "sourceEnd": 11980,
+      "text": "+ [Football in Buenos Aires](https://secretsofbuenosaires.com/football-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 140
+    },
+    {
+      "atomId": "a-154",
+      "ordinal": 154,
+      "sourceStart": 11981,
+      "sourceEnd": 12058,
+      "text": "* [Experiences](https://secretsofbuenosaires.com/activities-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 141
+    },
+    {
+      "atomId": "a-155",
+      "ordinal": 155,
+      "sourceStart": 12059,
+      "sourceEnd": 12147,
+      "text": "* [Eat & Drink](https://secretsofbuenosaires.com/category/things-to-do/food-and-drinks/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 142
+    },
+    {
+      "atomId": "a-156",
+      "ordinal": 156,
+      "sourceStart": 12150,
+      "sourceEnd": 12239,
+      "text": "+ [Restaurants in Palermo](https://secretsofbuenosaires.com/best-restaurants-in-palermo/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 143
+    },
+    {
+      "atomId": "a-157",
+      "ordinal": 157,
+      "sourceStart": 12242,
+      "sourceEnd": 12336,
+      "text": "+ [Restaurants in Recoleta](https://secretsofbuenosaires.com/10-best-restaurants-in-recoleta/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 144
+    },
+    {
+      "atomId": "a-158",
+      "ordinal": 158,
+      "sourceStart": 12339,
+      "sourceEnd": 12427,
+      "text": "+ [Restaurants in San Telmo](https://secretsofbuenosaires.com/restaurants-in-san-telmo/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 145
+    },
+    {
+      "atomId": "a-159",
+      "ordinal": 159,
+      "sourceStart": 12430,
+      "sourceEnd": 12539,
+      "text": "+ [Best Steakhouses in Buenos Aires](https://secretsofbuenosaires.com/best-steakhouse-buenos-aires-parrilla/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 146
+    },
+    {
+      "atomId": "a-160",
+      "ordinal": 160,
+      "sourceStart": 12542,
+      "sourceEnd": 12626,
+      "text": "+ [Buenos Aires Food Tour](https://secretsofbuenosaires.com/tour/palermo-food-tour/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 147
+    },
+    {
+      "atomId": "a-161",
+      "ordinal": 161,
+      "sourceStart": 12629,
+      "sourceEnd": 12734,
+      "text": "+ [Rooftop bars in Buenos Aires](https://secretsofbuenosaires.com/the-best-rooftop-bars-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 148
+    },
+    {
+      "atomId": "a-162",
+      "ordinal": 162,
+      "sourceStart": 12737,
+      "sourceEnd": 12821,
+      "text": "+ [Traditional Argentina Foods](https://secretsofbuenosaires.com/food-in-argentina/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 149
+    },
+    {
+      "atomId": "a-163",
+      "ordinal": 163,
+      "sourceStart": 12822,
+      "sourceEnd": 12887,
+      "text": "* [Planning](https://secretsofbuenosaires.com/category/planning/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 150
+    },
+    {
+      "atomId": "a-164",
+      "ordinal": 164,
+      "sourceStart": 12890,
+      "sourceEnd": 12983,
+      "text": "+ [Travel Checklist](https://secretsofbuenosaires.com/trip-to-buenos-aires-travel-checklist/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 151
+    },
+    {
+      "atomId": "a-165",
+      "ordinal": 165,
+      "sourceStart": 12986,
+      "sourceEnd": 13086,
+      "text": "+ [Airports and airlines](https://secretsofbuenosaires.com/category/planning/airports-and-airlines/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 152
+    },
+    {
+      "atomId": "a-166",
+      "ordinal": 166,
+      "sourceStart": 13089,
+      "sourceEnd": 13175,
+      "text": "+ [Exchange money](https://secretsofbuenosaires.com/category/planning/exchange-money/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 153
+    },
+    {
+      "atomId": "a-167",
+      "ordinal": 167,
+      "sourceStart": 13178,
+      "sourceEnd": 13267,
+      "text": "+ [Best Time to Visit](https://secretsofbuenosaires.com/best-time-to-visit-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 154
+    },
+    {
+      "atomId": "a-168",
+      "ordinal": 168,
+      "sourceStart": 13270,
+      "sourceEnd": 13361,
+      "text": "+ [Get a Sim Card](https://secretsofbuenosaires.com/where-to-buy-sim-card-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 155
+    },
+    {
+      "atomId": "a-169",
+      "ordinal": 169,
+      "sourceStart": 13362,
+      "sourceEnd": 13419,
+      "text": "* [Stay](https://secretsofbuenosaires.com/category/stay/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 156
+    },
+    {
+      "atomId": "a-170",
+      "ordinal": 170,
+      "sourceStart": 13422,
+      "sourceEnd": 13502,
+      "text": "+ [Where to Stay](https://secretsofbuenosaires.com/category/stay/where-to-stay/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 157
+    },
+    {
+      "atomId": "a-171",
+      "ordinal": 171,
+      "sourceStart": 13505,
+      "sourceEnd": 13599,
+      "text": "+ [Best hotels in Buenos Aires](https://secretsofbuenosaires.com/best-hotels-in-buenos-aires/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 158
+    },
+    {
+      "atomId": "a-172",
+      "ordinal": 172,
+      "sourceStart": 13602,
+      "sourceEnd": 13690,
+      "text": "+ [Best hotels in San Telmo](https://secretsofbuenosaires.com/best-hotels-in-san-telmo/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 159
+    },
+    {
+      "atomId": "a-173",
+      "ordinal": 173,
+      "sourceStart": 13693,
+      "sourceEnd": 13777,
+      "text": "+ [Best hotels in Palermo](https://secretsofbuenosaires.com/best-hotels-in-palermo/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 160
+    },
+    {
+      "atomId": "a-174",
+      "ordinal": 174,
+      "sourceStart": 13778,
+      "sourceEnd": 13844,
+      "text": "* [Tips & Tricks](https://secretsofbuenosaires.com/category/tips/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 161
+    },
+    {
+      "atomId": "a-175",
+      "ordinal": 175,
+      "sourceStart": 13847,
+      "sourceEnd": 13940,
+      "text": "+ [Public transport and taxi](https://secretsofbuenosaires.com/category/tips/transport-taxi/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 162
+    },
+    {
+      "atomId": "a-176",
+      "ordinal": 176,
+      "sourceStart": 13943,
+      "sourceEnd": 14027,
+      "text": "+ [History and Facts](https://secretsofbuenosaires.com/category/tips/history-facts/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 163
+    },
+    {
+      "atomId": "a-177",
+      "ordinal": 177,
+      "sourceStart": 14030,
+      "sourceEnd": 14114,
+      "text": "+ [Cycling in Buenos Aires](https://secretsofbuenosaires.com/category/tips/cycling/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 164
+    },
+    {
+      "atomId": "a-178",
+      "ordinal": 178,
+      "sourceStart": 14117,
+      "sourceEnd": 14215,
+      "text": "+ [Christmas and New Year](https://secretsofbuenosaires.com/category/tips/christmas-and-new-year/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 165
+    },
+    {
+      "atomId": "a-179",
+      "ordinal": 179,
+      "sourceStart": 14216,
+      "sourceEnd": 14274,
+      "text": "* [Patagonia travel tips](https://secretsofpatagonia.com/)",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 166
+    },
+    {
+      "atomId": "a-180",
+      "ordinal": 180,
+      "sourceStart": 14276,
+      "sourceEnd": 14464,
+      "text": "* [![](https://4175a044.delivery.rocketcdn.me/wp-content/uploads/flags/us.svg)English](https://secretsofbuenosaires.com/day-1-self-guided-walking-tour-in-buenos-aires/ \"Switch to English\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 168
+    },
+    {
+      "atomId": "a-181",
+      "ordinal": 181,
+      "sourceStart": 14465,
+      "sourceEnd": 14696,
+      "text": "* [![](https://4175a044.delivery.rocketcdn.me/wp-content/plugins/sitepress-multilingual-cms/res/flags/pt-br.svg)Português](https://secretsofbuenosaires.com/pt-br/dia-1-roteiro-a-pe-autoguiado-em-buenos-aires/ \"Switch to Português\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 169
+    },
+    {
+      "atomId": "a-182",
+      "ordinal": 182,
+      "sourceStart": 14697,
+      "sourceEnd": 14926,
+      "text": "* [![](https://4175a044.delivery.rocketcdn.me/wp-content/plugins/sitepress-multilingual-cms/res/flags/es.svg)Español](https://secretsofbuenosaires.com/es/dia-1-del-recorrido-a-pie-autoguiado-por-buenos-aires/ \"Switch to Español\")",
+      "blockKind": "LIST_ITEM",
+      "blockOrdinal": 170
+    }
+  ],
+  "separators": [
+    {
+      "start": 36,
+      "end": 37,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 37,
+      "end": 38,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 38,
+      "end": 41,
+      "kind": "MARKUP"
+    },
+    {
+      "start": 41,
+      "end": 42,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 42,
+      "end": 43,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 43,
+      "end": 44,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 71,
+      "end": 72,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 72,
+      "end": 73,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 162,
+      "end": 163,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 336,
+      "end": 337,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 439,
+      "end": 440,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 488,
+      "end": 489,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 489,
+      "end": 490,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 551,
+      "end": 552,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 691,
+      "end": 692,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 692,
+      "end": 693,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 728,
+      "end": 729,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 766,
+      "end": 767,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 776,
+      "end": 777,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 800,
+      "end": 801,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 853,
+      "end": 854,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 904,
+      "end": 905,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 946,
+      "end": 947,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1009,
+      "end": 1010,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1010,
+      "end": 1011,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1011,
+      "end": 1013,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1162,
+      "end": 1164,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1164,
+      "end": 1165,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1165,
+      "end": 1166,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1194,
+      "end": 1195,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1195,
+      "end": 1196,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1234,
+      "end": 1235,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1298,
+      "end": 1299,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1438,
+      "end": 1439,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1439,
+      "end": 1440,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1487,
+      "end": 1488,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1573,
+      "end": 1574,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1588,
+      "end": 1589,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1659,
+      "end": 1660,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1791,
+      "end": 1792,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1829,
+      "end": 1830,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 1880,
+      "end": 1881,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 1881,
+      "end": 1882,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2028,
+      "end": 2029,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2029,
+      "end": 2030,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2100,
+      "end": 2101,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2163,
+      "end": 2164,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2164,
+      "end": 2165,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2165,
+      "end": 2338,
+      "kind": "MARKUP"
+    },
+    {
+      "start": 2338,
+      "end": 2339,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2339,
+      "end": 2340,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2407,
+      "end": 2408,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2408,
+      "end": 2409,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2434,
+      "end": 2435,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2567,
+      "end": 2568,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2568,
+      "end": 2569,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 2628,
+      "end": 2629,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2649,
+      "end": 2650,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2773,
+      "end": 2774,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2829,
+      "end": 2830,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2898,
+      "end": 2899,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 2962,
+      "end": 2963,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3013,
+      "end": 3014,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3014,
+      "end": 3015,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3083,
+      "end": 3084,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3127,
+      "end": 3128,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3180,
+      "end": 3181,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3249,
+      "end": 3250,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3250,
+      "end": 3251,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3296,
+      "end": 3297,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3344,
+      "end": 3345,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3379,
+      "end": 3380,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3380,
+      "end": 3381,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3432,
+      "end": 3433,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3509,
+      "end": 3510,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3594,
+      "end": 3595,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3595,
+      "end": 3596,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3596,
+      "end": 3598,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3758,
+      "end": 3760,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3760,
+      "end": 3761,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3761,
+      "end": 3762,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3794,
+      "end": 3795,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3795,
+      "end": 3796,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3832,
+      "end": 3833,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3833,
+      "end": 3834,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 3899,
+      "end": 3900,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3912,
+      "end": 3913,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3932,
+      "end": 3933,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 3995,
+      "end": 3996,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4063,
+      "end": 4064,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4064,
+      "end": 4065,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4170,
+      "end": 4171,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4171,
+      "end": 4172,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4223,
+      "end": 4224,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4264,
+      "end": 4265,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4365,
+      "end": 4366,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4366,
+      "end": 4367,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4420,
+      "end": 4421,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4487,
+      "end": 4488,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4488,
+      "end": 4489,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4542,
+      "end": 4543,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4600,
+      "end": 4601,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4709,
+      "end": 4710,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4778,
+      "end": 4779,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4828,
+      "end": 4829,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 4877,
+      "end": 4878,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4878,
+      "end": 4879,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 4879,
+      "end": 5052,
+      "kind": "MARKUP"
+    },
+    {
+      "start": 5052,
+      "end": 5053,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5053,
+      "end": 5054,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5107,
+      "end": 5108,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5108,
+      "end": 5109,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5155,
+      "end": 5156,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5198,
+      "end": 5199,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5260,
+      "end": 5261,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5305,
+      "end": 5306,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5460,
+      "end": 5461,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5495,
+      "end": 5496,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5496,
+      "end": 5497,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5540,
+      "end": 5541,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5590,
+      "end": 5591,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5612,
+      "end": 5613,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5661,
+      "end": 5662,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5714,
+      "end": 5715,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5765,
+      "end": 5766,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5766,
+      "end": 5767,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 5848,
+      "end": 5849,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5864,
+      "end": 5865,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 5974,
+      "end": 5975,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6051,
+      "end": 6052,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6052,
+      "end": 6053,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6145,
+      "end": 6146,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6146,
+      "end": 6147,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6171,
+      "end": 6172,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6235,
+      "end": 6236,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6291,
+      "end": 6292,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6363,
+      "end": 6364,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6417,
+      "end": 6418,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6532,
+      "end": 6533,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6533,
+      "end": 6534,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6647,
+      "end": 6648,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6648,
+      "end": 6649,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 6706,
+      "end": 6707,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6845,
+      "end": 6846,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6882,
+      "end": 6883,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 6958,
+      "end": 6959,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7059,
+      "end": 7060,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7102,
+      "end": 7103,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7133,
+      "end": 7134,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7134,
+      "end": 7135,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7165,
+      "end": 7166,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7166,
+      "end": 7167,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7204,
+      "end": 7205,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7269,
+      "end": 7270,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7312,
+      "end": 7313,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7376,
+      "end": 7377,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7377,
+      "end": 7378,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7443,
+      "end": 7444,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7444,
+      "end": 7445,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7445,
+      "end": 7596,
+      "kind": "MARKUP"
+    },
+    {
+      "start": 7596,
+      "end": 7597,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7597,
+      "end": 7598,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7664,
+      "end": 7665,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7665,
+      "end": 7666,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7672,
+      "end": 7673,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7673,
+      "end": 7674,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7674,
+      "end": 7792,
+      "kind": "MARKUP"
+    },
+    {
+      "start": 7792,
+      "end": 7793,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7793,
+      "end": 7794,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7856,
+      "end": 7857,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 7857,
+      "end": 7858,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7858,
+      "end": 7859,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 7905,
+      "end": 7906,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 8005,
+      "end": 8006,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 8068,
+      "end": 8069,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 8143,
+      "end": 8144,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 8202,
+      "end": 8203,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8203,
+      "end": 8204,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8259,
+      "end": 8260,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8325,
+      "end": 8326,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8381,
+      "end": 8382,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8451,
+      "end": 8452,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8452,
+      "end": 8453,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8471,
+      "end": 8472,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8472,
+      "end": 8473,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8748,
+      "end": 8749,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 8749,
+      "end": 8750,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8750,
+      "end": 8751,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8879,
+      "end": 8880,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 8880,
+      "end": 8881,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9208,
+      "end": 9209,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 9209,
+      "end": 9210,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9210,
+      "end": 9211,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9328,
+      "end": 9329,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9329,
+      "end": 9330,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9581,
+      "end": 9582,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 9582,
+      "end": 9583,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9583,
+      "end": 9584,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9706,
+      "end": 9707,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9707,
+      "end": 9708,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9978,
+      "end": 9979,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 9979,
+      "end": 9980,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 9980,
+      "end": 9981,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10115,
+      "end": 10116,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10116,
+      "end": 10117,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10209,
+      "end": 10210,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10210,
+      "end": 10211,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10277,
+      "end": 10278,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10358,
+      "end": 10359,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10425,
+      "end": 10426,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10503,
+      "end": 10504,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10555,
+      "end": 10556,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10625,
+      "end": 10626,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10626,
+      "end": 10627,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10794,
+      "end": 10795,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10795,
+      "end": 10796,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10862,
+      "end": 10863,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 10943,
+      "end": 10944,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11010,
+      "end": 11011,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11088,
+      "end": 11089,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11140,
+      "end": 11141,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11210,
+      "end": 11211,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11211,
+      "end": 11212,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11255,
+      "end": 11256,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11329,
+      "end": 11330,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11330,
+      "end": 11332,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11416,
+      "end": 11417,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11417,
+      "end": 11419,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11506,
+      "end": 11507,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11507,
+      "end": 11509,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11601,
+      "end": 11602,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11602,
+      "end": 11604,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11689,
+      "end": 11690,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11690,
+      "end": 11692,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11782,
+      "end": 11783,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11783,
+      "end": 11785,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11889,
+      "end": 11890,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 11890,
+      "end": 11892,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 11980,
+      "end": 11981,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12058,
+      "end": 12059,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12147,
+      "end": 12148,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12148,
+      "end": 12150,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12239,
+      "end": 12240,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12240,
+      "end": 12242,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12336,
+      "end": 12337,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12337,
+      "end": 12339,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12427,
+      "end": 12428,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12428,
+      "end": 12430,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12539,
+      "end": 12540,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12540,
+      "end": 12542,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12626,
+      "end": 12627,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12627,
+      "end": 12629,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12734,
+      "end": 12735,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12735,
+      "end": 12737,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12821,
+      "end": 12822,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12887,
+      "end": 12888,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12888,
+      "end": 12890,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 12983,
+      "end": 12984,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 12984,
+      "end": 12986,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13086,
+      "end": 13087,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13087,
+      "end": 13089,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13175,
+      "end": 13176,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13176,
+      "end": 13178,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13267,
+      "end": 13268,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13268,
+      "end": 13270,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13361,
+      "end": 13362,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13419,
+      "end": 13420,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13420,
+      "end": 13422,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13502,
+      "end": 13503,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13503,
+      "end": 13505,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13599,
+      "end": 13600,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13600,
+      "end": 13602,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13690,
+      "end": 13691,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13691,
+      "end": 13693,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13777,
+      "end": 13778,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13844,
+      "end": 13845,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13845,
+      "end": 13847,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 13940,
+      "end": 13941,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 13941,
+      "end": 13943,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 14027,
+      "end": 14028,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14028,
+      "end": 14030,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 14114,
+      "end": 14115,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14115,
+      "end": 14117,
+      "kind": "WHITESPACE"
+    },
+    {
+      "start": 14215,
+      "end": 14216,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14274,
+      "end": 14275,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14275,
+      "end": 14276,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14464,
+      "end": 14465,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 14696,
+      "end": 14697,
+      "kind": "NEWLINE"
+    }
+  ],
+  "batches": [
+    {
+      "batchIndex": 1,
+      "batchCount": 1,
+      "atomIds": [
+        "a-001",
+        "a-002",
+        "a-003",
+        "a-004",
+        "a-005",
+        "a-006",
+        "a-007",
+        "a-008",
+        "a-009",
+        "a-010",
+        "a-011",
+        "a-012",
+        "a-013",
+        "a-014",
+        "a-015",
+        "a-016",
+        "a-017",
+        "a-018",
+        "a-019",
+        "a-020",
+        "a-021",
+        "a-022",
+        "a-023",
+        "a-024",
+        "a-025",
+        "a-026",
+        "a-027",
+        "a-028",
+        "a-029",
+        "a-030",
+        "a-031",
+        "a-032",
+        "a-033",
+        "a-034",
+        "a-035",
+        "a-036",
+        "a-037",
+        "a-038",
+        "a-039",
+        "a-040",
+        "a-041",
+        "a-042",
+        "a-043",
+        "a-044",
+        "a-045",
+        "a-046",
+        "a-047",
+        "a-048",
+        "a-049",
+        "a-050",
+        "a-051",
+        "a-052",
+        "a-053",
+        "a-054",
+        "a-055",
+        "a-056",
+        "a-057",
+        "a-058",
+        "a-059",
+        "a-060",
+        "a-061",
+        "a-062",
+        "a-063",
+        "a-064",
+        "a-065",
+        "a-066",
+        "a-067",
+        "a-068",
+        "a-069",
+        "a-070",
+        "a-071",
+        "a-072",
+        "a-073",
+        "a-074",
+        "a-075",
+        "a-076",
+        "a-077",
+        "a-078",
+        "a-079",
+        "a-080",
+        "a-081",
+        "a-082",
+        "a-083",
+        "a-084",
+        "a-085",
+        "a-086",
+        "a-087",
+        "a-088",
+        "a-089",
+        "a-090",
+        "a-091",
+        "a-092",
+        "a-093",
+        "a-094",
+        "a-095",
+        "a-096",
+        "a-097",
+        "a-098",
+        "a-099",
+        "a-100",
+        "a-101",
+        "a-102",
+        "a-103",
+        "a-104",
+        "a-105",
+        "a-106",
+        "a-107",
+        "a-108",
+        "a-109",
+        "a-110",
+        "a-111",
+        "a-112",
+        "a-113",
+        "a-114",
+        "a-115",
+        "a-116",
+        "a-117",
+        "a-118",
+        "a-119",
+        "a-120",
+        "a-121",
+        "a-122",
+        "a-123",
+        "a-124",
+        "a-125",
+        "a-126",
+        "a-127",
+        "a-128",
+        "a-129",
+        "a-130",
+        "a-131",
+        "a-132",
+        "a-133",
+        "a-134",
+        "a-135",
+        "a-136",
+        "a-137",
+        "a-138",
+        "a-139",
+        "a-140",
+        "a-141",
+        "a-142",
+        "a-143",
+        "a-144",
+        "a-145",
+        "a-146",
+        "a-147",
+        "a-148",
+        "a-149",
+        "a-150",
+        "a-151",
+        "a-152",
+        "a-153",
+        "a-154",
+        "a-155",
+        "a-156",
+        "a-157",
+        "a-158",
+        "a-159",
+        "a-160",
+        "a-161",
+        "a-162",
+        "a-163",
+        "a-164",
+        "a-165",
+        "a-166",
+        "a-167",
+        "a-168",
+        "a-169",
+        "a-170",
+        "a-171",
+        "a-172",
+        "a-173",
+        "a-174",
+        "a-175",
+        "a-176",
+        "a-177",
+        "a-178",
+        "a-179",
+        "a-180",
+        "a-181",
+        "a-182"
+      ],
+      "contextAtomIds": []
+    }
+  ]
+}

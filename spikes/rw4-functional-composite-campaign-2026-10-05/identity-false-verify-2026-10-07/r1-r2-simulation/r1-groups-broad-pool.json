@@ -1,0 +1,4807 @@
+{
+ "Buenos Aires": {
+  "poolSize": 1663,
+  "withQid": 1663,
+  "distinctQids": 1609,
+  "sharedQidGroups": 31,
+  "r1Groups": 2,
+  "groups": [
+   {
+    "qid": "Q1024829",
+    "label": "Cabildo de Buenos Aires",
+    "p31": [
+     "Q33506",
+     "Q5773747",
+     "Q1024827"
+    ],
+    "located": true,
+    "itemNames": [
+     "Cabildo of Buenos Aires",
+     "Cabildo de Buenos Aires",
+     "Cabildo building",
+     "Cabildo historico",
+     "Museo Historico Nacional del Cabildo y de la Revolucion de Mayo",
+     "Cabildo histórico"
+    ],
+    "r1": true,
+    "r1Sets": [
+     {
+      "address": "bolivar 65",
+      "ids": [
+       "osm:node:767690911",
+       "osm:way:293947112"
+      ]
+     }
+    ],
+    "records": [
+     {
+      "id": "osm:node:767690911",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "bolivar 65",
+      "names": {
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo"
+      },
+      "declaredAliases": [
+       "Ратуша Буэнос-Айреса",
+       "Ратуша Буенос-Айреса",
+       "Cabildo de Buenos Aires"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3738806,
+       -34.6087695
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "museum": "history",
+       "tourism": "museum"
+      }
+     },
+     {
+      "id": "osm:way:293947112",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "bolivar 65",
+      "names": {
+       "name": "Cabildo de Buenos Aires",
+       "short_name": "Cabildo",
+       "alt_name": "Cabildo de Mayo"
+      },
+      "declaredAliases": [
+       "Cabildo de Mayo",
+       "Cabildo de Buenos Aires",
+       "ブエノスアイレスのカビルド",
+       "布宜诺斯艾利斯卡比尔多",
+       "Cabildo",
+       "Cabildo de Buenos Aires"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.37364361666667,
+       -34.60882995
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "yes",
+       "heritage": "4",
+       "historic": "building",
+       "museum": "history",
+       "tourism": "yes"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:767690911",
+      "b": "osm:way:293947112",
+      "sameAddress": true,
+      "meters": 23,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q5844300",
+    "label": "Apeadero Presidente Illia",
+    "p31": [
+     "Q2175765"
+    ],
+    "located": true,
+    "itemNames": [
+     "Presidente Illia Premetro station",
+     "Apeadero Presidente Illia",
+     "Estacion presidente Illia Premetro",
+     "estación Presidente Illia Premetro",
+     "Apeadero Presidente Illia Premetro"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:1557575321",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Presidente Illia"
+      },
+      "declaredAliases": [
+       "Presidente Illia (premetro de Buenos Aires)"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4485141,
+       -34.665321
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "stop_position",
+       "railway": "tram_stop"
+      }
+     },
+     {
+      "id": "osm:node:2714458523",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Presidente Illia"
+      },
+      "declaredAliases": [
+       "Presidente Illia (premetro de Buenos Aires)"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4485663,
+       -34.6651047
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "stop_position",
+       "railway": "tram_stop"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:1557575321",
+      "b": "osm:node:2714458523",
+      "sameAddress": false,
+      "meters": 25,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q130642790",
+    "label": "Galicia Más",
+    "p31": [
+     "Q22687"
+    ],
+    "located": false,
+    "itemNames": [
+     "Galicia Más",
+     "Galicia Más",
+     "Banco Galicia Más",
+     "HSBC Argentina",
+     "Banco Galicia"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:2225540179",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3751019,
+       -34.6075789
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:2333960379",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4013456,
+       -34.6100131
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:3276777900",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida manuel a montes de oca 1701",
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3733016,
+       -34.6468684
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:3919858396",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3826935,
+       -34.6277605
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4289352420",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3728875,
+       -34.5955351
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4309910225",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3737029,
+       -34.6033723
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4379876092",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3870243,
+       -34.5961574
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4568963800",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.370935,
+       -34.6301922
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4670216285",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3623783,
+       -34.6114936
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4687888574",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4219951,
+       -34.611729
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:4702138284",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3749447,
+       -34.6056474
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:node:7149378231",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.3704247,
+       -34.600051
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "bank"
+      }
+     },
+     {
+      "id": "osm:way:473155025",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.39126146666666,
+       -34.62206693333333
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:473167769",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.39035582222222,
+       -34.59084362222222
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:473420603",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.40332546,
+       -34.583681139999996
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:474415279",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.5223719,
+       -34.63908246666667
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:476138489",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.515509439999995,
+       -34.66067896
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:476362814",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida cordoba 2376",
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.400254350000004,
+       -34.59985635
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "retail"
+      }
+     },
+     {
+      "id": "osm:way:476377672",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.37080792857143,
+       -34.604347985714284
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:476748304",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Galicia Más"
+      },
+      "declaredAliases": [
+       "Galicia Más"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3771339,
+       -34.597736014285715
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "bank",
+       "building": "yes"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:2333960379",
+      "sameAddress": false,
+      "meters": 2417,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:3276777900",
+      "sameAddress": false,
+      "meters": 4372,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:3919858396",
+      "sameAddress": false,
+      "meters": 2349,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4289352420",
+      "sameAddress": false,
+      "meters": 1354,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4309910225",
+      "sameAddress": false,
+      "meters": 485,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 1674,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 2543,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 1243,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 4316,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 215,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 940,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2187,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 2326,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3706,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13923,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 14138,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2457,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 532,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2225540179",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 1110,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:3276777900",
+      "sameAddress": false,
+      "meters": 4835,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:3919858396",
+      "sameAddress": false,
+      "meters": 2609,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4289352420",
+      "sameAddress": false,
+      "meters": 3062,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4309910225",
+      "sameAddress": false,
+      "meters": 2635,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 2023,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 3575,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 3570,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 1899,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 2464,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 3039,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 1627,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 2357,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 2934,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 11536,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 11867,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 1134,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2865,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:2333960379",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 2603,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:3919858396",
+      "sameAddress": false,
+      "meters": 2292,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4289352420",
+      "sameAddress": false,
+      "meters": 5708,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4309910225",
+      "sameAddress": false,
+      "meters": 4837,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 5777,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 1867,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 4058,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 5926,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 4586,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 5213,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 3210,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 6422,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 7544,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13665,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 13098,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 5780,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 4734,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3276777900",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 5475,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4289352420",
+      "sameAddress": false,
+      "meters": 3694,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4309910225",
+      "sameAddress": false,
+      "meters": 2834,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 3536,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 1109,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 2594,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 4014,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 2559,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 3279,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 1008,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 4164,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 5253,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 12841,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 12689,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 3494,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2821,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:3919858396",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 3377,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4309910225",
+      "sameAddress": false,
+      "meters": 875,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 1296,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 3858,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 2018,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 4842,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 1140,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 550,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 3396,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 1682,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3082,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 14511,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 14925,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2551,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 998,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4289352420",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 459,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:4379876092",
+      "sameAddress": false,
+      "meters": 1460,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 2993,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 1375,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 4516,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 277,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 476,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2627,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 2065,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3485,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 14172,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 14455,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2461,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 286,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4309910225",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 701,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:node:4568963800",
+      "sameAddress": false,
+      "meters": 4061,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 2828,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 3639,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 1528,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 1580,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2907,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 665,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 2037,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13273,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 13772,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 1279,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 1741,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4379876092",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 922,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:node:4670216285",
+      "sameAddress": false,
+      "meters": 2222,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 5103,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 2754,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 3352,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2068,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 4723,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 5961,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13890,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 13653,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 4310,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2874,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4568963800",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 3653,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:node:4687888574",
+      "sameAddress": false,
+      "meters": 5456,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 1321,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 1470,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2893,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 3439,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 4859,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 14957,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 15039,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 3700,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 1107,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4670216285",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 2041,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:node:4702138284",
+      "sameAddress": false,
+      "meters": 4359,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 4895,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 3038,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 3712,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3556,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 9675,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 10140,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2388,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 4756,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4687888574",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 4391,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:node:7149378231",
+      "sameAddress": false,
+      "meters": 747,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 2359,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 2168,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3566,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13993,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 14242,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2404,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 405,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:4702138284",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 902,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:473155025",
+      "sameAddress": false,
+      "meters": 3103,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 2092,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 3519,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 14566,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 14888,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2730,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 479,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:7149378231",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 666,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:473167769",
+      "sameAddress": false,
+      "meters": 3473,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 4409,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 12144,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 12150,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 2603,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2718,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473155025",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 2999,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:473420603",
+      "sameAddress": false,
+      "meters": 1430,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 13218,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 13836,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 1351,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2336,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473167769",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 1433,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:473420603",
+      "b": "osm:way:474415279",
+      "sameAddress": false,
+      "meters": 12516,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473420603",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 13367,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473420603",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 1820,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473420603",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 3760,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:473420603",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 2862,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:474415279",
+      "b": "osm:way:476138489",
+      "sameAddress": false,
+      "meters": 2482,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:474415279",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 11996,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:474415279",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 14397,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:474415279",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 14063,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476138489",
+      "b": "osm:way:476362814",
+      "sameAddress": false,
+      "meters": 12528,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476138489",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 14646,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476138489",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 14467,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476362814",
+      "b": "osm:way:476377672",
+      "sameAddress": false,
+      "meters": 2741,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476362814",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 2129,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:476377672",
+      "b": "osm:way:476748304",
+      "sameAddress": false,
+      "meters": 936,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5755704",
+    "label": "Casal de Catalunya",
+    "p31": [
+     "Q11912890"
+    ],
+    "located": false,
+    "itemNames": [
+     "Casal de Catalunya",
+     "Casal de Catalunya"
+    ],
+    "r1": false,
+    "r1Sets": [
+     {
+      "address": "chacabuco 863",
+      "ids": [
+       "osm:node:2734380684",
+       "osm:node:2734380703"
+      ]
+     }
+    ],
+    "records": [
+     {
+      "id": "osm:node:2734380684",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "chacabuco 863",
+      "names": {
+       "name": "Casal de Catalunya"
+      },
+      "declaredAliases": [
+       "Casal de Catalunya"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3759359,
+       -34.6181178
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "community_centre"
+      }
+     },
+     {
+      "id": "osm:node:2734380703",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "chacabuco 863",
+      "names": {
+       "name": "Casal de Catalunya"
+      },
+      "declaredAliases": [
+       "Casal de Catalunya"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3760086,
+       -34.618115
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "restaurant"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:2734380684",
+      "b": "osm:node:2734380703",
+      "sameAddress": true,
+      "meters": 7,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5844527",
+    "label": "Estación Rivadavia",
+    "p31": [
+     "Q55488"
+    ],
+    "located": true,
+    "itemNames": [
+     "Rivadavia train station",
+     "Estación Rivadavia",
+     "Estacion Rivadavia"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3448079330",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Rivadavia"
+      },
+      "declaredAliases": [
+       "Estación Rivadavia"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4680033,
+       -34.5366131
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1896138",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Estación Rivadavia"
+      },
+      "declaredAliases": [
+       "Estación Rivadavia"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3448079330",
+      "b": "osm:relation:1896138",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q5841983",
+    "label": "Estación Luis María Drago",
+    "p31": [
+     "Q55488"
+    ],
+    "located": true,
+    "itemNames": [
+     "Luis María Drago train station",
+     "Estación Luis María Drago",
+     "Dr. Luis Maria Drago train station",
+     "Estacion Drago",
+     "Estación Dr. Luis M. Drago",
+     "Doctor Luis Maria Drago train station"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3449432059",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Doctor Luis María Drago",
+       "short_name": "Drago"
+      },
+      "declaredAliases": [
+       "Drago",
+       "Estación Dr. Luis María Drago"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4791248,
+       -34.5684608
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1975618",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Doctor Luis María Drago"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3449432059",
+      "b": "osm:relation:1975618",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5840655",
+    "label": "Estación 3 de Febrero",
+    "p31": [
+     "Q55488"
+    ],
+    "located": true,
+    "itemNames": [
+     "3 de Febrero train station",
+     "Estación 3 de Febrero",
+     "Estacion 3 de Febrero",
+     "Estacion Tres de Febrero"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3449432068",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "3 de Febrero",
+       "alt_name": "Tres de Febrero"
+      },
+      "declaredAliases": [
+       "Tres de Febrero",
+       "Estación 3 de Febrero"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4251993,
+       -34.5718753
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1914530",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Estación 3 de Febrero",
+       "alt_name": "Tres de Febrero"
+      },
+      "declaredAliases": [
+       "Tres de Febrero"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3449432068",
+      "b": "osm:relation:1914530",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5572984",
+    "label": "Estación Palermo",
+    "p31": [
+     "Q55488",
+     "Q11670533"
+    ],
+    "located": true,
+    "itemNames": [
+     "Palermo train station",
+     "Estación Palermo",
+     "Estacion Palermo"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3451071472",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Palermo"
+      },
+      "declaredAliases": [
+       "Estación Palermo"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4268327,
+       -34.5789369
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1894746",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Palermo"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3451071472",
+      "b": "osm:relation:1894746",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5842051",
+    "label": "Estación El Libertador",
+    "p31": [
+     "Q55488",
+     "Q13433889"
+    ],
+    "located": true,
+    "itemNames": [
+     "El Libertador train station",
+     "Estación El Libertador",
+     "Estacion El Libertador"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3451129264",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "El Libertador"
+      },
+      "declaredAliases": [
+       "Estación El Libertador"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.5031175,
+       -34.5944659
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1412621",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Estación El Libertador"
+      },
+      "declaredAliases": [
+       "Estación El Libertador"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3451129264",
+      "b": "osm:relation:1412621",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q5796926",
+    "label": "Córdoba",
+    "p31": [
+     "Q928830",
+     "Q55491"
+    ],
+    "located": true,
+    "itemNames": [
+     "Córdoba",
+     "Córdoba",
+     "Cordoba"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:3898413284",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Córdoba"
+      },
+      "declaredAliases": [
+       "Córdoba (subte de Buenos Aires)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4039723,
+       -34.5991908
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "stop_position",
+       "railway": "stop"
+      }
+     },
+     {
+      "id": "osm:node:3905676973",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Córdoba"
+      },
+      "declaredAliases": [
+       "Córdoba (Subte de Buenos Aires)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4039401,
+       -34.5991974
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "public_transport": "station",
+       "railway": "station"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:3898413284",
+      "b": "osm:node:3905676973",
+      "sameAddress": false,
+      "meters": 3,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q111694361",
+    "label": "Convivencia y Paz",
+    "p31": [
+     "Q4989906"
+    ],
+    "located": true,
+    "itemNames": [
+     "Convivencia y Paz",
+     "Monumento a la convivencia y la paz"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:4538872748",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Convivencia y Paz"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4551136,
+       -34.5288464
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     },
+     {
+      "id": "osm:node:12196390177",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Rojo Flor"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4550266,
+       -34.5284678
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:4538872748",
+      "b": "osm:node:12196390177",
+      "sameAddress": false,
+      "meters": 43,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q64764396",
+    "label": "Museo Del Patrimonio Del Palacio De Las Aguas Corrientes",
+    "p31": [
+     "Q33506"
+    ],
+    "located": true,
+    "itemNames": [
+     "Heritage Museum of the Palacio de las Aguas Corrientes",
+     "Museo Del Patrimonio Del Palacio De Las Aguas Corrientes",
+     "Museo del Patrimonio del Palacio de las Aguas Corrientes",
+     "Museo del Agua"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:5850576502",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "riobamba 750",
+      "names": {
+       "name": "Museo del agua y de la historia sanitaria",
+       "alt_name": "Museo del Patrimonio del Palacio de las Aguas Corrientes"
+      },
+      "declaredAliases": [
+       "Museo del Patrimonio del Palacio de las Aguas Corrientes",
+       "tuvalet müzesi free"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3945971,
+       -34.6004835
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "museum": "history",
+       "tourism": "museum"
+      }
+     },
+     {
+      "id": "osm:node:6439772343",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida doctor jose maria ramos mejia 1398",
+      "names": {
+       "name": "Museo Iser"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3730355,
+       -34.5892616
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "museum": "history",
+       "tourism": "museum"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:5850576502",
+      "b": "osm:node:6439772343",
+      "sameAddress": false,
+      "meters": 2335,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5982348",
+    "label": "Lucio Vicente López",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Lucio Vicente López",
+     "Lucio Vicente López",
+     "Lucio Vicente Lopez"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6045956890",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Lucio Vicente López"
+      },
+      "declaredAliases": [
+       "Lucio Vicente López"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3939245,
+       -34.5864219
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:node:6046335618",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Lucio Vicente López"
+      },
+      "declaredAliases": [
+       "Lucio Vicente López"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3936928,
+       -34.5881515
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6045956890",
+      "b": "osm:node:6046335618",
+      "sameAddress": false,
+      "meters": 193,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5772461",
+    "label": "Clemente Onelli",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Clemente Onelli",
+     "Clemente Onelli"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6046335622",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Clemente Onelli"
+      },
+      "declaredAliases": [
+       "Clemente Onelli"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3938246,
+       -34.5883706
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:way:456246525",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Cantero Clemente Onelli"
+      },
+      "declaredAliases": [
+       "Clemente Onelli"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.40577835454546,
+       -34.65052928181817
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6046335622",
+      "b": "osm:way:456246525",
+      "sameAddress": false,
+      "meters": 6998,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q1269826",
+    "label": "Joaquín Samuel de Anchorena",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Joaquín Samuel de Anchorena",
+     "Joaquín Samuel de Anchorena",
+     "Joaquín de Anchorena",
+     "Joaquin Samuel de Anchorena",
+     "Joaquin de Anchorena"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6049608099",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Joaquín Samuel de Anchorena"
+      },
+      "declaredAliases": [
+       "Joaquín Samuel de Anchorena"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3927926,
+       -34.5881929
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:way:135234943",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plazoleta Intendente Joaquín S. de Anchorena"
+      },
+      "declaredAliases": [
+       "Joaquín Samuel de Anchorena"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.377874174999995,
+       -34.6132079
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6049608099",
+      "b": "osm:way:135234943",
+      "sameAddress": false,
+      "meters": 3099,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5835236",
+    "label": "Erasmo Obligado",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Erasmo Obligado",
+     "Erasmo Obligado"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6052717164",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Erasmo Obligado"
+      },
+      "declaredAliases": [
+       "Erasmo Obligado"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3921234,
+       -34.5871592
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:node:6052740665",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Erasmo Obligado"
+      },
+      "declaredAliases": [
+       "Erasmo Obligado"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3924533,
+       -34.5870463
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6052717164",
+      "b": "osm:node:6052740665",
+      "sameAddress": false,
+      "meters": 33,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q90206189",
+    "label": "Centro de Salud Nivel 1 Mataderos 2 (CeSAC N° 37)",
+    "p31": [
+     "Q569500"
+    ],
+    "located": true,
+    "itemNames": [
+     "Centro de Salud Nivel 1 Mataderos 2 (CeSAC N° 37)"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:7502474886",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "COI 1",
+       "official_name": "Centro Odontológico Infantil COI Nº1"
+      },
+      "declaredAliases": [
+       "Centro Odontológico Infantil COI Nº1"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.5041741,
+       -34.6656237
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "clinic"
+      }
+     },
+     {
+      "id": "osm:way:802204073",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida de los corrales 6999",
+      "names": {
+       "name": "Centro de Salud y Acción Comunitaria - CeSAC 37"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.50407061666667,
+       -34.66550535
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "clinic",
+       "building": "yes"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:7502474886",
+      "b": "osm:way:802204073",
+      "sameAddress": false,
+      "meters": 16,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q96377188",
+    "label": "embajada de Filipinas en Argentina",
+    "p31": [
+     "Q3917681"
+    ],
+    "located": false,
+    "itemNames": [
+     "Embassy of the Philippines, Buenos Aires",
+     "embajada de Filipinas en Argentina"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:9368700137",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "11 de septiembre de 1888 1011",
+      "names": {
+       "name": "Embajada de Filipinas"
+      },
+      "declaredAliases": [
+       "Embassy of the Philippines",
+       "Ambassade des Philippines",
+       "Embajada de Filipinas en Argentina"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.4422126,
+       -34.5683829
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "office": "diplomatic"
+      }
+     },
+     {
+      "id": "osm:way:436806187",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "zapiola 1701",
+      "names": {
+       "name": "Embajada de Filipinas",
+       "official_name": "Embajada de la República de Filipinas"
+      },
+      "declaredAliases": [
+       "Embassy of the Philippines",
+       "Embajada de Filipinas",
+       "Embahada ng Pilipinas",
+       "Ambassade des Philippines",
+       "Embaixada das Filipinas",
+       "Pasuguan ng Pilipinas",
+       "Embajada de la República de Filipinas",
+       "Embajada de Filipinas en Argentina"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.459805457142856,
+       -34.56986248571429
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "yes",
+       "office": "diplomatic"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:9368700137",
+      "b": "osm:way:436806187",
+      "sameAddress": false,
+      "meters": 1619,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5854525",
+    "label": "Facultad de Arquitectura, Diseño y Urbanismo (UBA)",
+    "p31": [
+     "Q180958"
+    ],
+    "located": true,
+    "itemNames": [
+     "School of Architecture, Design and Urbanism",
+     "Facultad de Arquitectura, Diseño y Urbanismo (UBA)",
+     "FAU",
+     "FADU",
+     "FADU-UBA",
+     "Facultad de Arquitectura, Diseño y Urbanismo de la Universidad de Buenos Aires"
+    ],
+    "r1": true,
+    "r1Sets": [
+     {
+      "address": "intendente guiraldes 2160",
+      "ids": [
+       "osm:node:11254256164",
+       "osm:node:11254256165"
+      ]
+     }
+    ],
+    "records": [
+     {
+      "id": "osm:node:11254256164",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "intendente guiraldes 2160",
+      "names": {
+       "name": "Facultad de Arquitectura, Diseño y Urbanismo",
+       "short_name": "FADU"
+      },
+      "declaredAliases": [
+       "FADU",
+       "Facultad de Arquitectura, Diseño y Urbanismo (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4438533,
+       -34.5411603
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:11254256165",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "intendente guiraldes 2160",
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales",
+       "short_name": "FCEN"
+      },
+      "declaredAliases": [
+       "FCEN",
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.442406,
+       -34.5419716
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:way:23633683",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Facultad de Arquitectura, Diseño y Urbanismo - Pabellón 3"
+      },
+      "declaredAliases": [
+       "Facultad de Arquitectura, Diseño y Urbanismo (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.44374118461539,
+       -34.541108738461546
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "university"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:11254256164",
+      "b": "osm:node:11254256165",
+      "sameAddress": true,
+      "meters": 160,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:11254256164",
+      "b": "osm:way:23633683",
+      "sameAddress": false,
+      "meters": 12,
+      "contained": true,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:11254256165",
+      "b": "osm:way:23633683",
+      "sameAddress": false,
+      "meters": 155,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5719936",
+    "label": "Barrancas de Belgrano",
+    "p31": [
+     "Q174782"
+    ],
+    "located": true,
+    "itemNames": [
+     "Barrancas de Belgrano",
+     "Barrancas de Belgrano",
+     "Plaza Barrancas de Belgrano"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:10241456",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Barrancas de Belgrano"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.45051576000001,
+       -34.55912974
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:20458525",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza General A. J. Sucre"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.44938466071427,
+       -34.559942867857146
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:20458526",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Barrancas de Belgrano"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.448548596666676,
+       -34.560705903333336
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:10241456",
+      "b": "osm:way:20458525",
+      "sameAddress": false,
+      "meters": 137,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:10241456",
+      "b": "osm:way:20458526",
+      "sameAddress": false,
+      "meters": 251,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:20458525",
+      "b": "osm:way:20458526",
+      "sameAddress": false,
+      "meters": 114,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5854907",
+    "label": "Facultad de Filosofía y Letras (UBA)",
+    "p31": [
+     "Q180958",
+     "Q10922451"
+    ],
+    "located": true,
+    "itemNames": [
+     "Facultad de Filosofía y Letras de la Universidad de Buenos Aires",
+     "Facultad de Filosofía y Letras (UBA)",
+     "Facultad de Filosofia y Letras de la Universidad de Buenos Aires",
+     "Universidad de Buenos Aires. Facultad de Filosofía y Letras",
+     "FFyL"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:22771677",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "puan 480",
+      "names": {
+       "name": "UBA Facultad de Filosofía y Letras"
+      },
+      "declaredAliases": [
+       "Facultad de Filosofía y Letras (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.44626339166666,
+       -34.62803965833333
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:23633865",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "25 de mayo 221",
+      "names": {
+       "name": "Facultad de Filosofía y Letras UBA",
+       "short_name": "Filo"
+      },
+      "declaredAliases": [
+       "Filo",
+       "Facultad de Filosofía y Letras (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.37073255000001,
+       -34.60519548333334
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:22771677",
+      "b": "osm:way:23633865",
+      "sameAddress": false,
+      "meters": 7364,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5428851",
+    "label": "Facultad de Ciencias Exactas y Naturales (UBA)",
+    "p31": [
+     "Q180958"
+    ],
+    "located": true,
+    "itemNames": [
+     "Faculty of Exact and Natural Sciences (UBA)",
+     "Facultad de Ciencias Exactas y Naturales (UBA)",
+     "FCEN",
+     "Facultad de Ciencias Exactas, Fisicas y Naturales de Buenos Aires",
+     "Facultad de Ciencias Exactas Fisicas y Naturales de Buenos Aires",
+     "Facultad de Ciencias Exactas Físicas y Naturales de Buenos Aires",
+     "Facultad de Ciencias Exactas, Físicas y Naturales de Buenos Aires",
+     "FCEyN"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:23633678",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales - Pabellón 2"
+      },
+      "declaredAliases": [
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.44267811666666,
+       -34.542169175
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "university"
+      }
+     },
+     {
+      "id": "osm:way:23633691",
+      "structuralKind": "UNKNOWN",
+      "address": "intendente guiraldes 2160",
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales - Pabellón 1",
+       "alt_name": "Profesor Rolando García"
+      },
+      "declaredAliases": [
+       "Profesor Rolando García",
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.439611657142855,
+       -34.544409571428574
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "university"
+      }
+     },
+     {
+      "id": "osm:way:23650082",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales - Pabellón de Industrias"
+      },
+      "declaredAliases": [
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.43888185,
+       -34.5433232
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "university"
+      }
+     },
+     {
+      "id": "osm:relation:9400515",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales - Cero + Infinito"
+      },
+      "declaredAliases": [
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "keyTags": {
+       "building": "university"
+      }
+     },
+     {
+      "id": "osm:relation:16233405",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Exactas y Naturales - Bioterio",
+       "official_name": "Bioterio Central Doctora Adela Rosenkranz"
+      },
+      "declaredAliases": [
+       "Bioterio Central Doctora Adela Rosenkranz",
+       "Facultad de Ciencias Exactas y Naturales (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "keyTags": {
+       "building": "university"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:23633678",
+      "b": "osm:way:23633691",
+      "sameAddress": false,
+      "meters": 375,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:23633678",
+      "b": "osm:way:23650082",
+      "sameAddress": false,
+      "meters": 371,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:23633678",
+      "b": "osm:relation:9400515",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:23633678",
+      "b": "osm:relation:16233405",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:23633691",
+      "b": "osm:way:23650082",
+      "sameAddress": false,
+      "meters": 138,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:way:23633691",
+      "b": "osm:relation:9400515",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:23633691",
+      "b": "osm:relation:16233405",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:23650082",
+      "b": "osm:relation:9400515",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:23650082",
+      "b": "osm:relation:16233405",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:relation:9400515",
+      "b": "osm:relation:16233405",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5855136",
+    "label": "Facultad de Psicología, Universidad de Buenos Aires",
+    "p31": [
+     "Q180958",
+     "Q45400320",
+     "Q17212463"
+    ],
+    "located": true,
+    "itemNames": [
+     "Faculty of Psychology, University of Buenos Aires",
+     "Facultad de Psicología, Universidad de Buenos Aires",
+     "Faculty of Psychology, UBA",
+     "Faculty of Psychology UBA",
+     "UBA Psicologia",
+     "Facultad de Psicologia UBA"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:23633983",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida independencia 3065",
+      "names": {
+       "name": "Facultad de Psicología"
+      },
+      "declaredAliases": [
+       "Facultad de Psicología (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.408897375,
+       -34.619557487499996
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:23633986",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "hipolito yrigoyen 3242",
+      "names": {
+       "name": "Facultad de Psicología"
+      },
+      "declaredAliases": [
+       "Facultad de Psicología (Universidad de Buenos Aires)"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.41230564,
+       -34.61246369999999
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university",
+       "building": "yes"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:23633983",
+      "b": "osm:way:23633986",
+      "sameAddress": false,
+      "meters": 848,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q6978865",
+    "label": "Facultad Regional Buenos Aires (UTN)",
+    "p31": [
+     "Q180958"
+    ],
+    "located": true,
+    "itemNames": [
+     "National Technological University – Buenos Aires Regional Faculty",
+     "Facultad Regional Buenos Aires (UTN)",
+     "Facultad Regional Buenos Aires",
+     "FRBA",
+     "UTN-FRBA"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:23634263",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida medrano 951",
+      "names": {
+       "name": "Universidad Tecnológica Nacional - FRBA"
+      },
+      "declaredAliases": [
+       "Facultad Regional Buenos Aires (UTN)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.41999742,
+       -34.598702079999995
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:way:154080091",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "FRBA UTN"
+      },
+      "declaredAliases": [
+       "Facultad Regional Buenos Aires (UTN)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.46786404000001,
+       -34.65968040999999
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "university"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:23634263",
+      "b": "osm:way:154080091",
+      "sameAddress": false,
+      "meters": 8072,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q28501895",
+    "label": "Plaza Amadeo Sabattini",
+    "p31": [
+     "Q174782"
+    ],
+    "located": true,
+    "itemNames": [
+     "Plaza Amadeo Sabattini",
+     "Plaza Amadeo Sabattini"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:205997365",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Doctor Amadeo Sabattini"
+      },
+      "declaredAliases": [
+       "Plaza Amadeo Sabattini"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.44370802857143,
+       -34.61210632857143
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:205997366",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Doctor Amadeo Sabattini"
+      },
+      "declaredAliases": [
+       "Plaza Amadeo Sabattini"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.443427233333345,
+       -34.61265893333333
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:205997365",
+      "b": "osm:way:205997366",
+      "sameAddress": false,
+      "meters": 67,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5708426",
+    "label": "Asociación Argentina Amigos de la Astronomía",
+    "p31": [
+     "Q43229",
+     "Q62832"
+    ],
+    "located": true,
+    "itemNames": [
+     "Argentine Association of Amateur Astronomers",
+     "Asociación Argentina Amigos de la Astronomía",
+     "Asociacion Argentina Amigos de la Astronomia"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:227229591",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Asociación Argentina Amigos de la Astronomía",
+       "alt_name": "AAAA"
+      },
+      "declaredAliases": [
+       "AAAA",
+       "Asociación Argentina Amigos de la Astronomía"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.43506390869566,
+       -34.604970193478266
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "college"
+      }
+     },
+     {
+      "id": "osm:way:1148665792",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Asociación Argentina Amigos de la Astronomía"
+      },
+      "declaredAliases": [
+       "Asociación Argentina Amigos de la Astronomía"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.435045411111105,
+       -34.60486548888889
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "research_institute"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:227229591",
+      "b": "osm:way:1148665792",
+      "sameAddress": false,
+      "meters": 12,
+      "contained": true,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q2860529",
+    "label": "Archivo General de la Nación",
+    "p31": [
+     "Q2122214"
+    ],
+    "located": true,
+    "itemNames": [
+     "General Archive of the Nation of Argentina",
+     "Archivo General de la Nación",
+     "Archivo General de la Nacion Argentina",
+     "General Archive of the Argentine Nation",
+     "General Archive of the Nation"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:256933987",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida leandro n alem 246",
+      "names": {
+       "name": "Archivo General de la Nación"
+      },
+      "declaredAliases": [
+       "Archivo General de la Nación (Argentina)"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3706134,
+       -34.6047704
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "office",
+       "office": "government"
+      }
+     },
+     {
+      "id": "osm:way:895381302",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "rondeau 2277",
+      "names": {
+       "name": "Archivo General de la Nación",
+       "short_name": "AGN"
+      },
+      "declaredAliases": [
+       "AGN"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.395020033333346,
+       -34.63323831428572
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "archive",
+       "office": "archive"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:256933987",
+      "b": "osm:way:895381302",
+      "sameAddress": false,
+      "meters": 3874,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q4579815",
+    "label": "basílica de San Francisco",
+    "p31": [
+     "Q120560"
+    ],
+    "located": true,
+    "itemNames": [
+     "Basilique Saint-François",
+     "basílica de San Francisco",
+     "Templo de San Francisco",
+     "Convento de San Francisco",
+     "Basílica de San Francisco de Asís",
+     "convento de San Francisco de Asís",
+     "Iglesia y Convento de San Francisco - Capilla San Roque"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:321205687",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plazoleta San Francisco"
+      },
+      "declaredAliases": [
+       "Basílica de San Francisco (Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3718245,
+       -34.60991496
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:relation:2354152",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Basílica de San Francisco"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "keyTags": {
+       "amenity": "place_of_worship",
+       "tourism": "attraction"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:321205687",
+      "b": "osm:relation:2354152",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q3149120",
+    "label": "Inmortal polaca",
+    "p31": [
+     "Q2683596"
+    ],
+    "located": false,
+    "itemNames": [
+     "Polish Immortal",
+     "Inmortal polaca"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:449621610",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf"
+      },
+      "declaredAliases": [
+       "Inmortal polaca"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.367068149999994,
+       -34.63331886666667
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     },
+     {
+      "id": "osm:way:449621622",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf"
+      },
+      "declaredAliases": [
+       "Inmortal polaca"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3670249,
+       -34.63344846666667
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:449621610",
+      "b": "osm:way:449621622",
+      "sameAddress": false,
+      "meters": 15,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5841090",
+    "label": "Estación Belgrano C",
+    "p31": [
+     "Q55488",
+     "Q22808404",
+     "Q11670533"
+    ],
+    "located": true,
+    "itemNames": [
+     "Belgrano C train station",
+     "Estación Belgrano C",
+     "Estacion Belgrano C"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:688813356",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Belgrano C"
+      },
+      "declaredAliases": [
+       "Estación Belgrano C"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.44892468421054,
+       -34.55893041578947
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "train_station",
+       "public_transport": "station",
+       "railway": "station"
+      }
+     },
+     {
+      "id": "osm:relation:1410251",
+      "structuralKind": "TRANSPORT_STOP",
+      "address": null,
+      "names": {
+       "name": "Belgrano C"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "keyTags": {
+       "public_transport": "stop_area"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:688813356",
+      "b": "osm:relation:1410251",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5384418",
+    "label": "General Manuel Belgrano",
+    "p31": [
+     "Q860861"
+    ],
+    "located": true,
+    "itemNames": [
+     "Manuel Belgrano equestrian monument",
+     "General Manuel Belgrano",
+     "Monumento ecuestre al general manuel belgrano"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:720034722",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Monumento al General Manuel Belgrano"
+      },
+      "declaredAliases": [
+       "Equestrian monument to General Manuel Belgrano",
+       "Monumento ecuestre al General Manuel Belgrano"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.37119782,
+       -34.60834852
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "building": "yes",
+       "historic": "memorial"
+      }
+     },
+     {
+      "id": "osm:relation:17076041",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Monumento ecuestre al General Manuel Belgrano"
+      },
+      "declaredAliases": [
+       "Monumento ecuestre al General Manuel Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "keyTags": {
+       "historic": "monument",
+       "tourism": "attraction"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:720034722",
+      "b": "osm:relation:17076041",
+      "sameAddress": false,
+      "meters": null,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   }
+  ]
+ },
+ "Ciudad de Mendoza": {
+  "poolSize": 55,
+  "withQid": 55,
+  "distinctQids": 47,
+  "sharedQidGroups": 2,
+  "r1Groups": 0,
+  "groups": [
+   {
+    "qid": "Q2883574",
+    "label": "Universidad de Mendoza",
+    "p31": [
+     "Q902104"
+    ],
+    "located": true,
+    "itemNames": [
+     "University of Mendoza",
+     "Universidad de Mendoza"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:2874454999",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad de Arquitectura, Urbanismo y Diseño - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8613616,
+       -32.8919379
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:2874455000",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Médicas - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8607623,
+       -32.8916491
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:5078098948",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "boulogne sur mer 683",
+      "names": {
+       "name": "Universidad de Mendoza - Rectorado"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8619054,
+       -32.8912992
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university",
+       "building": "yes"
+      }
+     },
+     {
+      "id": "osm:node:5078098949",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad Relaciones Internacionales - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8616924,
+       -32.8912722
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:5078098950",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias de la Salud - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8605899,
+       -32.8916887
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:5078098951",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ingenieria - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8610852,
+       -32.8917012
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:node:5078098952",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Facultad de Ciencias Juridicas y Sociales - UM"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8617293,
+       -32.8917223
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "university"
+      }
+     },
+     {
+      "id": "osm:way:207743519",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "dr emilio descotte 750",
+      "names": {
+       "name": "Universidad de Mendoza"
+      },
+      "declaredAliases": [
+       "Universidad de Mendoza"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -68.8612115477273,
+       -32.89187007499999
+      ],
+      "geometryType": "Polygon",
+      "keyTags": {
+       "amenity": "university"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:2874455000",
+      "sameAddress": false,
+      "meters": 65,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:5078098948",
+      "sameAddress": false,
+      "meters": 87,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:5078098949",
+      "sameAddress": false,
+      "meters": 80,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:5078098950",
+      "sameAddress": false,
+      "meters": 77,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:5078098951",
+      "sameAddress": false,
+      "meters": 37,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 42,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874454999",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 16,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:node:5078098948",
+      "sameAddress": false,
+      "meters": 114,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:node:5078098949",
+      "sameAddress": false,
+      "meters": 96,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:node:5078098950",
+      "sameAddress": false,
+      "meters": 17,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:node:5078098951",
+      "sameAddress": false,
+      "meters": 31,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 91,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:2874455000",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 49,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098948",
+      "b": "osm:node:5078098949",
+      "sameAddress": false,
+      "meters": 20,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098948",
+      "b": "osm:node:5078098950",
+      "sameAddress": false,
+      "meters": 130,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098948",
+      "b": "osm:node:5078098951",
+      "sameAddress": false,
+      "meters": 89,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098948",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 50,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098948",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 91,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     },
+     {
+      "a": "osm:node:5078098949",
+      "b": "osm:node:5078098950",
+      "sameAddress": false,
+      "meters": 113,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098949",
+      "b": "osm:node:5078098951",
+      "sameAddress": false,
+      "meters": 74,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098949",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 50,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098949",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 80,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098950",
+      "b": "osm:node:5078098951",
+      "sameAddress": false,
+      "meters": 46,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098950",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 106,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098950",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 61,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098951",
+      "b": "osm:node:5078098952",
+      "sameAddress": false,
+      "meters": 60,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098951",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 22,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:node:5078098952",
+      "b": "osm:way:207743519",
+      "sameAddress": false,
+      "meters": 51,
+      "contained": true,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q100998388",
+    "label": "Clinica Montes",
+    "p31": [
+     "Q16917"
+    ],
+    "located": true,
+    "itemNames": [
+     "Clinica Montes"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:4934492904",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "ituzaingo 1445",
+      "names": {
+       "name": "Clínica Montes"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -68.830105,
+       -32.8870664
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "clinic"
+      }
+     },
+     {
+      "id": "osm:node:11561142767",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "ituzaingo 1512",
+      "names": {
+       "name": "Clínica Santa María - PAMI"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -68.8299812,
+       -32.8859382
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "clinic"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:4934492904",
+      "b": "osm:node:11561142767",
+      "sameAddress": false,
+      "meters": 126,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   }
+  ]
+ }
+}

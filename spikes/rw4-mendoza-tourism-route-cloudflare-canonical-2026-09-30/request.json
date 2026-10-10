@@ -1,0 +1,32 @@
+{
+  "destination": {
+    "label": "Mendoza, Argentina",
+    "latitude": -32.8895,
+    "longitude": -68.8458,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": [
+      "wine"
+    ],
+    "intents": [
+      "route_like",
+      "visit"
+    ],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "Quiero recorrer la Ruta del Vino de Mendoza y conocer sus bodegas más representativas."
+  },
+  "mobility": {
+    "allowedTransportationModes": [
+      "driving",
+      "walking"
+    ],
+    "maxWalkingDistancePerDayMeters": 50000,
+    "maxContinuousWalkingDistanceMeters": 20000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

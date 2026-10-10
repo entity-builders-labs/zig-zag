@@ -1,0 +1,733 @@
+{
+  "runtime": {
+    "buildCommit": "4da75fac260dfc0d83a90e1764ae169ba6fe9443",
+    "buildTimestamp": "2026-10-02T15:38:14Z"
+  },
+  "result": {
+    "status": "COMPLETED",
+    "outcome": "TOUR_EXPERIENCES_MATERIALIZED"
+  },
+  "routing": [
+    [
+      {
+        "kind": "AREA_ROUTE_WALK",
+        "deficit": "intent:route_like",
+        "anchor": "Ruta del Vino de Mendoza",
+        "grant": {
+          "kind": "OWNED_INTENT",
+          "intent": "route_like",
+          "workUnit": "AREA_ROUTE_WALK",
+          "ownedDeficit": "intent:route_like"
+        }
+      },
+      {
+        "kind": "GENERIC",
+        "deficit": [
+          "theme:wine",
+          "intent:visit"
+        ],
+        "grant": {
+          "kind": "NONE"
+        }
+      }
+    ],
+    [
+      {
+        "kind": "AREA_ROUTE_WALK",
+        "deficit": "intent:route_like",
+        "anchor": "Ruta del Vino de Mendoza",
+        "grant": {
+          "kind": "OWNED_INTENT",
+          "intent": "route_like",
+          "workUnit": "AREA_ROUTE_WALK",
+          "ownedDeficit": "intent:route_like"
+        }
+      },
+      {
+        "kind": "GENERIC",
+        "deficit": [
+          "theme:wine",
+          "intent:visit"
+        ],
+        "grant": {
+          "kind": "NONE"
+        }
+      }
+    ]
+  ],
+  "arwSteps": [
+    {
+      "intentKey": "route_like",
+      "anchor": "Ruta del Vino de Mendoza",
+      "outcome": "no_result",
+      "reason": "no_accepted_results",
+      "diagnostics": {
+        "acceptedCount": 0,
+        "rejectedCount": 2,
+        "resolvedCount": 2,
+        "rejectionReasons": {
+          "NO_OSM_MATCH": 1,
+          "UNCONFIRMED_MATCH": 1,
+          "INCOMPLETE_SOURCE_COMPOSITION": 1
+        },
+        "semanticallyEligibleCount": 0
+      }
+    },
+    {
+      "intentKey": "route_like",
+      "anchor": "Ruta del Vino de Mendoza",
+      "outcome": "no_result",
+      "reason": "no_accepted_results",
+      "diagnostics": {
+        "acceptedCount": 0,
+        "rejectedCount": 0,
+        "resolvedCount": 0,
+        "rejectionReasons": {},
+        "semanticallyEligibleCount": 0
+      }
+    }
+  ],
+  "passes": [
+    {
+      "id": "acquisition-pass-1-area_route_walk-ruta-del-vino-de-mendoza",
+      "strategy": "area_route_walk",
+      "workUnit": {
+        "kind": "AREA_ROUTE_WALK",
+        "deficit": "intent:route_like",
+        "anchor": "Ruta del Vino de Mendoza"
+      },
+      "grant": {
+        "kind": "OWNED_INTENT",
+        "intent": "route_like",
+        "workUnit": "AREA_ROUTE_WALK",
+        "ownedDeficit": "intent:route_like"
+      },
+      "webQuery": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route mendoza wineries representative tasting",
+      "requestedIntents": [
+        "route_like"
+      ],
+      "requestedThemes": [],
+      "anchorNames": [
+        "Ruta del Vino de Mendoza"
+      ],
+      "evidenceRequirements": [
+        "MULTI_COMPONENT_EXPERIENCE"
+      ],
+      "candidateCount": 2,
+      "web": [
+        {
+          "query": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route mendoza wineries representative tasting",
+          "status": "SUCCESS",
+          "evidenceCount": 10
+        }
+      ],
+      "retrieval": [
+        {
+          "retrieved": [
+            "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          ],
+          "failed": [
+            "https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html"
+          ]
+        }
+      ],
+      "extraction": [
+        {
+          "extracted": 2,
+          "admitted": 2,
+          "attempts": [
+            {
+              "inputKind": "grounded_snippets",
+              "extracted": 0,
+              "admitted": 0,
+              "failureReason": "undefined",
+              "decisions": []
+            },
+            {
+              "inputKind": "deep_source_content",
+              "sourceUrl": "https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+              "window": "1/17",
+              "extracted": 2,
+              "admitted": 2,
+              "scanDecision": "STOP_REQUIREMENT_SATISFIED",
+              "failureReason": "undefined",
+              "decisions": []
+            }
+          ],
+          "subjects": [
+            {
+              "name": "Uco Valley Wine Tasting Itinerary",
+              "outcome": "ACCEPTED"
+            },
+            {
+              "name": "Lujan de Cuyo Wine Tasting Itinerary",
+              "outcome": "ACCEPTED"
+            }
+          ]
+        }
+      ],
+      "entity": [
+        {
+          "truncated": false,
+          "subjects": [
+            {
+              "name": "Uco Valley Wine Tasting Itinerary",
+              "outcome": "REJECTED",
+              "reason": "NO_OSM_MATCH, UNCONFIRMED_MATCH [resueltos 0/3: Alfa Crux=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), SuperUco=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Bodega Azul=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]"
+            },
+            {
+              "name": "Lujan de Cuyo Wine Tasting Itinerary",
+              "outcome": "REJECTED",
+              "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 1/2: A16=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), Ojo de Agua=RESOLVED/OUTSIDE 25072m]"
+            }
+          ]
+        }
+      ],
+      "compact": [
+        {
+          "chars": 4339,
+          "candidate": "Uco Valley Wine Tasting Itinerary",
+          "authorization": "[REDACTED]",
+          "candidateStatus": "rejected",
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "UNCONFIRMED_MATCH"
+          ],
+          "components": [
+            {
+              "hintKey": "alfa-crux",
+              "name": "Alfa Crux",
+              "strategies": [
+                "CATALOG_REUSE",
+                "TRUSTED_OBSERVATION_REUSE",
+                "LOCAL_OSM_POOL",
+                "NOMINATIM",
+                "PLACES"
+              ],
+              "candidateAcquired": false,
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "placeSearchScopes": [
+                "ROUTE_SCALE"
+              ]
+            },
+            {
+              "hintKey": "superuco",
+              "name": "SuperUco",
+              "strategies": [
+                "CATALOG_REUSE",
+                "TRUSTED_OBSERVATION_REUSE",
+                "LOCAL_OSM_POOL",
+                "NOMINATIM",
+                "PLACES"
+              ],
+              "candidateAcquired": false,
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "placeSearchScopes": [
+                "ROUTE_SCALE"
+              ]
+            },
+            {
+              "hintKey": "bodega-azul",
+              "name": "Bodega Azul",
+              "strategies": [
+                "CATALOG_REUSE",
+                "TRUSTED_OBSERVATION_REUSE",
+                "LOCAL_OSM_POOL",
+                "NOMINATIM",
+                "PLACES"
+              ],
+              "candidateAcquired": true,
+              "selected": {
+                "name": "Bodega La Azul",
+                "latitude": -33.4692562,
+                "provider": "geoapify",
+                "longitude": -69.2207912
+              },
+              "identityVerdict": "REJECTED",
+              "finalStatus": "unresolved",
+              "finalReason": "UNCONFIRMED_MATCH",
+              "placeSearchScopes": [
+                "ROUTE_SCALE"
+              ]
+            }
+          ]
+        },
+        {
+          "chars": 3238,
+          "candidate": "Lujan de Cuyo Wine Tasting Itinerary",
+          "authorization": "[REDACTED]",
+          "candidateStatus": "rejected",
+          "rejectionReasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ],
+          "components": [
+            {
+              "hintKey": "a16",
+              "name": "A16",
+              "strategies": [
+                "CATALOG_REUSE",
+                "TRUSTED_OBSERVATION_REUSE",
+                "LOCAL_OSM_POOL",
+                "NOMINATIM",
+                "PLACES"
+              ],
+              "candidateAcquired": true,
+              "selected": {
+                "name": "FC Belgrano",
+                "latitude": -32.9274911,
+                "provider": "geoapify",
+                "longitude": -69.2227063
+              },
+              "identityVerdict": "REJECTED",
+              "finalStatus": "unresolved",
+              "finalReason": "UNCONFIRMED_MATCH",
+              "placeSearchScopes": [
+                "ROUTE_SCALE"
+              ]
+            },
+            {
+              "hintKey": "ojo-de-agua",
+              "name": "Ojo de Agua",
+              "strategies": [
+                "CATALOG_REUSE",
+                "TRUSTED_OBSERVATION_REUSE",
+                "LOCAL_OSM_POOL",
+                "NOMINATIM"
+              ],
+              "candidateAcquired": true,
+              "selected": {
+                "name": "Ojo de Agua",
+                "latitude": -33.1300868,
+                "provider": "nominatim",
+                "longitude": -68.9641048
+              },
+              "identityVerdict": "VERIFIED",
+              "finalStatus": "resolved",
+              "placeSearchScopes": []
+            }
+          ]
+        }
+      ],
+      "geography": [],
+      "materialization": [
+        {
+          "outcome": "NO_MATERIALIZED_EXPERIENCES",
+          "references": [],
+          "subjects": []
+        }
+      ]
+    },
+    {
+      "id": "acquisition-pass-1-generic",
+      "strategy": "generic",
+      "workUnit": {
+        "kind": "GENERIC",
+        "deficit": [
+          "theme:wine",
+          "intent:visit"
+        ]
+      },
+      "grant": {
+        "kind": "NONE"
+      },
+      "webQuery": "Ciudad de Mendoza attractions places to visit wine tasting wineries wine route mendoza wineries representative tasting",
+      "requestedIntents": [
+        "visit"
+      ],
+      "requestedThemes": [
+        "wine"
+      ],
+      "anchorNames": [],
+      "evidenceRequirements": [
+        "SINGLE_PLACE",
+        "MULTI_COMPONENT_EXPERIENCE"
+      ],
+      "candidateCount": 14,
+      "web": [
+        {
+          "query": "Ciudad de Mendoza attractions places to visit wine tasting wineries wine route mendoza wineries representative tasting",
+          "status": "SUCCESS",
+          "evidenceCount": 10
+        }
+      ],
+      "retrieval": [
+        {
+          "retrieved": [
+            "https://www.argentina4u.com/en/mendoza/wine-tour-by-bus"
+          ],
+          "failed": [
+            "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          ]
+        }
+      ],
+      "extraction": [
+        {
+          "extracted": 0,
+          "admitted": 0,
+          "attempts": [
+            {
+              "inputKind": "grounded_snippets",
+              "extracted": 0,
+              "admitted": 0,
+              "failureReason": "undefined",
+              "decisions": []
+            },
+            {
+              "inputKind": "deep_source_content",
+              "sourceUrl": "https://www.argentina4u.com/en/mendoza/wine-tour-by-bus",
+              "window": "1/7",
+              "extracted": 0,
+              "admitted": 0,
+              "scanDecision": "undefined",
+              "failureReason": "The operation was aborted due to timeout",
+              "decisions": []
+            }
+          ],
+          "subjects": []
+        }
+      ],
+      "entity": [
+        {
+          "truncated": true,
+          "originalChars": 55002,
+          "subjects": [
+            {
+              "name": "Arquitectura colonial",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Arquitectura colonial=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Museo Mineralógico \"Prof. Manuel Tellechea\"",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Museo Mineralógico \"Prof. Manuel Tellechea\"=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Museo Argentino de Motos Antiguas \"Luis Paludet\"",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Museo Argentino de Motos Antiguas \"Luis Paludet\"=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Mural",
+              "outcome": "REJECTED",
+              "reason": "NO_OSM_MATCH [resueltos 0/1: Mural=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]"
+            },
+            {
+              "name": "Tumba Doctor Godoy Cruz",
+              "outcome": "REJECTED",
+              "reason": "DESTINATION_INCOMPATIBLE [resueltos 0/1: Tumba Doctor Godoy Cruz=UNRESOLVED/DESTINATION_INCOMPATIBLE(PENDING_CLASSIFICATION)]"
+            },
+            {
+              "name": "Estatua equestre General San Martín",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Estatua equestre General San Martín=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Bus de compras (gratuito)",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Bus de compras (gratuito)=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "El jardinero",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: El jardinero=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Murales",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Murales=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Memorial de la Bandera de Los Andes",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Memorial de la Bandera de Los Andes=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Cerro Santo Tomás de Aquino",
+              "outcome": "REJECTED",
+              "reason": "DESTINATION_INCOMPATIBLE [resueltos 0/1: Cerro Santo Tomás de Aquino=UNRESOLVED/DESTINATION_INCOMPATIBLE(PENDING_CLASSIFICATION)]"
+            },
+            {
+              "name": "Espacio Contemporaneo de Arte",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Espacio Contemporaneo de Arte=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Caballitos de Marly",
+              "outcome": "ACCEPTED",
+              "reason": " [resueltos 1/1: Caballitos de Marly=RESOLVED/INSIDE]"
+            },
+            {
+              "name": "Arquitecturas",
+              "outcome": "REJECTED",
+              "reason": "DESTINATION_INCOMPATIBLE [resueltos 0/1: Arquitecturas=UNRESOLVED/DESTINATION_INCOMPATIBLE(PENDING_CLASSIFICATION)]"
+            }
+          ]
+        }
+      ],
+      "compact": [],
+      "geography": [
+        {
+          "candidate": "Arquitectura colonial",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Museo Mineralógico \"Prof. Manuel Tellechea\"",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Museo Argentino de Motos Antiguas \"Luis Paludet\"",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Estatua equestre General San Martín",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Bus de compras (gratuito)",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "El jardinero",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Murales",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Memorial de la Bandera de Los Andes",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Espacio Contemporaneo de Arte",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        },
+        {
+          "candidate": "Caballitos de Marly",
+          "accepted": true,
+          "strategy": "venue_centric",
+          "authorization": "[REDACTED]",
+          "reasons": []
+        }
+      ],
+      "materialization": [
+        {
+          "outcome": "MATERIALIZED",
+          "references": [
+            {
+              "id": "b6d33183-4f3b-4ee1-a972-f1cd4b8142d7",
+              "kind": "experience"
+            },
+            {
+              "id": "0e381fea-a570-495a-839f-2dd9102ab4e5",
+              "kind": "experience"
+            },
+            {
+              "id": "fe30a7d1-8ce0-4d40-a3d5-1ae5fd9b25e0",
+              "kind": "experience"
+            },
+            {
+              "id": "0e76e787-2c1b-4473-b98b-66eed06937f2",
+              "kind": "experience"
+            },
+            {
+              "id": "9a40a1e8-022a-4dc0-8a12-5ce4d4ee972e",
+              "kind": "experience"
+            },
+            {
+              "id": "16e6ef11-3bbe-48ed-a165-61abc37250f3",
+              "kind": "experience"
+            },
+            {
+              "id": "91cc04c2-be40-4451-a1fe-1f9a9c84bfdf",
+              "kind": "experience"
+            },
+            {
+              "id": "cebacd6f-11b6-4c92-8098-c2b9e5e483d4",
+              "kind": "experience"
+            },
+            {
+              "id": "b919f2ab-f889-4006-a8ce-35589378a168",
+              "kind": "experience"
+            },
+            {
+              "id": "ee7c0fd8-8b51-4ab2-accd-8fb65b2e349c",
+              "kind": "experience"
+            }
+          ],
+          "subjects": []
+        }
+      ]
+    },
+    {
+      "id": "acquisition-pass-2-area_route_walk-ruta-del-vino-de-mendoza",
+      "strategy": "area_route_walk",
+      "workUnit": {
+        "kind": "AREA_ROUTE_WALK",
+        "deficit": "intent:route_like",
+        "anchor": "Ruta del Vino de Mendoza"
+      },
+      "grant": {
+        "kind": "OWNED_INTENT",
+        "intent": "route_like",
+        "workUnit": "AREA_ROUTE_WALK",
+        "ownedDeficit": "intent:route_like"
+      },
+      "webQuery": "Ciudad de Mendoza Ruta del Vino de Mendoza scenic routes tours wine route mendoza wineries representative tasting",
+      "requestedIntents": [
+        "route_like"
+      ],
+      "requestedThemes": [],
+      "anchorNames": [
+        "Ruta del Vino de Mendoza"
+      ],
+      "evidenceRequirements": [
+        "MULTI_COMPONENT_EXPERIENCE"
+      ],
+      "candidateCount": 0,
+      "web": [],
+      "retrieval": [],
+      "extraction": [],
+      "entity": [
+        {
+          "truncated": false,
+          "subjects": []
+        }
+      ],
+      "compact": [],
+      "geography": [],
+      "materialization": [
+        {
+          "outcome": "NO_MATERIALIZED_EXPERIENCES",
+          "references": [],
+          "subjects": []
+        }
+      ]
+    },
+    {
+      "id": "acquisition-pass-2-generic",
+      "strategy": "generic",
+      "workUnit": {
+        "kind": "GENERIC",
+        "deficit": [
+          "theme:wine",
+          "intent:visit"
+        ]
+      },
+      "grant": {
+        "kind": "NONE"
+      },
+      "webQuery": "Ciudad de Mendoza attractions places to visit wine tasting wineries wine route mendoza wineries representative tasting",
+      "requestedIntents": [
+        "visit"
+      ],
+      "requestedThemes": [
+        "wine"
+      ],
+      "anchorNames": [],
+      "evidenceRequirements": [
+        "SINGLE_PLACE",
+        "MULTI_COMPONENT_EXPERIENCE"
+      ],
+      "candidateCount": 0,
+      "web": [],
+      "retrieval": [],
+      "extraction": [],
+      "entity": [],
+      "compact": [],
+      "geography": [],
+      "materialization": []
+    },
+    {
+      "id": "acquisition-pass-1-planner_capacity",
+      "strategy": "planner_capacity",
+      "workUnit": {
+        "kind": "PLANNER_CAPACITY",
+        "deficit": "global_capacity:"
+      },
+      "grant": {
+        "kind": "NONE"
+      },
+      "webQuery": "Ciudad de Mendoza things to do top attractions wine route mendoza wineries representative tasting",
+      "requestedIntents": [],
+      "requestedThemes": [],
+      "anchorNames": [],
+      "evidenceRequirements": [
+        "SINGLE_PLACE",
+        "MULTI_COMPONENT_EXPERIENCE"
+      ],
+      "candidateCount": 0,
+      "web": [
+        {
+          "query": "Ciudad de Mendoza things to do top attractions wine route mendoza wineries representative tasting",
+          "status": "SUCCESS",
+          "evidenceCount": 10
+        }
+      ],
+      "retrieval": [
+        {
+          "retrieved": [],
+          "failed": [
+            "https://cuppatocopatravels.com/south-america/argentina/wine-tours-around-mendoza-argentina-guide/",
+            "https://solsalute.com/blog/mendoza-argentina-wine-capital/"
+          ]
+        }
+      ],
+      "extraction": [
+        {
+          "extracted": 0,
+          "admitted": 0,
+          "attempts": [
+            {
+              "inputKind": "grounded_snippets",
+              "extracted": 0,
+              "admitted": 0,
+              "failureReason": "undefined",
+              "decisions": []
+            }
+          ],
+          "subjects": []
+        }
+      ],
+      "entity": [],
+      "compact": [],
+      "geography": [],
+      "materialization": []
+    }
+  ],
+  "truncatedSteps": [
+    {
+      "name": "resolution.entity",
+      "originalChars": 55002
+    }
+  ]
+}

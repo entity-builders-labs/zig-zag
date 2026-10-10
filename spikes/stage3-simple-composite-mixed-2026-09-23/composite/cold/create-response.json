@@ -1,0 +1,63 @@
+{
+  "id": "14054cff-eb8f-4d36-ba52-c1af1022781c",
+  "name": "Luján de Cuyo, Mendoza, Argentina",
+  "description": "Tour personalizado",
+  "ownerId": "ba65672c-6c64-4af9-be68-6ca1de2303bd",
+  "price": null,
+  "duration": null,
+  "maxGroupSize": null,
+  "startDates": [],
+  "totalDays": 1,
+  "totalDistance": null,
+  "estimatedBudget": null,
+  "recommendedGroupSize": null,
+  "coverImage": null,
+  "prompt": "Create a tour from this canonical wizard intent:\nDestination: Luján de Cuyo, Mendoza, Argentina\nNumber of days: 1\nBudget level: medium\nGroup type: solo\nInterests: wine\nExploration style: balanced\nAllowed transportation modes: driving\nTravel pace: moderate\nWalking limits captured (deterministic enforcement arrives in the spatial-feasibility stage): 6000 meters per day; 3000 meters maximum continuous leg\nAdditional preferences: quiero hacer una ruta del vino por bodegas de Luján de Cuyo",
+  "query": null,
+  "categories": [],
+  "metadata": {
+    "generatedAt": "2026-09-23T18:48:23.590Z",
+    "generationStatus": "pending",
+    "generationRequest": {
+      "days": 1,
+      "intent": {
+        "intents": [
+          "route_like"
+        ],
+        "interests": [
+          "wine"
+        ],
+        "explorationStyle": "balanced",
+        "additionalPreferences": "quiero hacer una ruta del vino por bodegas de Luján de Cuyo"
+      },
+      "mobility": {
+        "travelPace": "moderate",
+        "accessibilityNeeds": [],
+        "allowedTransportationModes": [
+          "driving"
+        ],
+        "maxWalkingDistancePerDayMeters": 6000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "groupType": "solo",
+      "categories": [],
+      "startDates": [],
+      "budgetLevel": "medium",
+      "destination": {
+        "label": "Luján de Cuyo, Mendoza, Argentina",
+        "latitude": -33.0391,
+        "longitude": -68.8796,
+        "scaleHint": "settlement"
+      },
+      "excludeTours": [],
+      "contractVersion": 1,
+      "dietaryRestrictions": [],
+      "skipImageGeneration": true,
+      "includeExistingExperiences": true
+    }
+  },
+  "createdAt": "2026-09-23T18:48:23.604Z",
+  "updatedAt": "2026-09-23T18:48:23.604Z",
+  "experiences": [],
+  "dayTotals": []
+}

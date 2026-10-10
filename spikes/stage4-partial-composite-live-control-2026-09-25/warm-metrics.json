@@ -1,0 +1,52 @@
+{
+  "label": "stage4-warm",
+  "tourId": "0d046085-3ad9-4d71-b5ce-916188704aeb",
+  "generationStatus": "completed",
+  "pollElapsedMs": 34306,
+  "discovery": {},
+  "candidates": {
+    "total": 0,
+    "simple": 0,
+    "multiComponent": 0,
+    "acceptedAfterResolution": 0
+  },
+  "components": {
+    "unresolvedByReason": {}
+  },
+  "strategies": {
+    "attempts": {},
+    "verified": {}
+  },
+  "route": {
+    "avgSegmentsPerResolved": null,
+    "maxSegments": null,
+    "clustersPerTargetedHint": [],
+    "details": []
+  },
+  "knownDebt": {},
+  "composites": {
+    "multiComponentCandidates": 0,
+    "resolutionBuckets": {},
+    "geographicValidation": {},
+    "persistedThisRun": 0
+  },
+  "providerCallsDerived": {},
+  "db": {
+    "experiences": 12,
+    "experienceComponents": 14,
+    "geoEntities": 13,
+    "geoEntityIdentities": 19,
+    "routeGeoEntities": 0,
+    "duplicateIdentityRows": 0,
+    "multiComponentExperiences": [
+      {
+        "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+        "name": "San Telmo Historic Walking Tour",
+        "components": 3
+      }
+    ],
+    "routeGeoEntities_detail": []
+  },
+  "forensicControls": {},
+  "candidateDetails": []
+}

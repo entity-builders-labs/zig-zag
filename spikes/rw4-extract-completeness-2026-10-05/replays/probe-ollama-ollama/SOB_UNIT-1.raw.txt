@@ -1,0 +1,89 @@
+{
+  "candidates": [
+    {
+      "name": "Self-guided Walking Tour of San Telmo",
+      "description": "A self-guided walking tour through the historic neighborhood of San Telmo, starting at Plaza de Mayo and ending at Parque Lezama.",
+      "themes": [],
+      "traits": ["history", "architecture"],
+      "intents": ["walk"],
+      "componentHints": [
+        {
+          "key": "plaza_de_mayo",
+          "name": "Plaza de Mayo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo. This historic place is surrounded by Casa Rosada, the Cathedral and the Cabildo."
+        },
+        {
+          "key": "casa_rosada",
+          "name": "Casa Rosada",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "In the center of Plaza de Mayo you find a small white statue. Every Thursday grandmothers get together to remember the disappearance of their grandchildren during the military dictatorship in the 70’s."
+        },
+        {
+          "key": "catedral_metropolitana",
+          "name": "Catedral Metropolitana",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "In front, you will see Casa Rosada. The presidential palace of Argentina."
+        },
+        {
+          "key": "cabildo",
+          "name": "Cabildo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Close to the Cabildo is Catedral Metropolitana. It has a neoclassical facade with inside Neo-Renaissance and Neo-Baroque decorations."
+        },
+        {
+          "key": "defensa_street",
+          "name": "Defensa Street",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Close to the Cabildo is Catedral Metropolitana. It has a neoclassical facade with inside Neo-Renaissance and Neo-Baroque decorations."
+        },
+        {
+          "key": "bar_sur",
+          "name": "Bar Sur",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Every Sunday Feria San Telmo takes place in street Defensa. A hotspot on Sunday. Locals are selling antiques, handmade products, … Continue walking and you will pass the first restaurants in Buenos Aires."
+        },
+        {
+          "key": "mercado_de_san_telmo",
+          "name": "Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo. Jump inside. Highly recommended."
+        },
+        {
+          "key": "plaza_dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Further, let’s walk on the street “Avenida San Juan”. A little bit to the right side there is the Museum of Modern Arts."
+        },
+        {
+          "key": "parque_lezama",
+          "name": "Parque Lezama",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": ["ev-2", "ev-10"],
+          "supportSpan": "Make a stop at the national history museum. Also located at the street side of Parque Lezama."
+        }
+      ],
+      "suggestedDurationMinutes": 360,
+      "shortReason": "A self-guided tour through San Telmo's historic landmarks and markets.",
+      "evidenceKeys": ["ev-2", "ev-10"],
+      "orderedByEvidence": true
+    }
+  ]
+}

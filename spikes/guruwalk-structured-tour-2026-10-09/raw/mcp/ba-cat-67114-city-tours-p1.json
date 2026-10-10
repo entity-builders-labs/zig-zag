@@ -1,0 +1,259 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"67114\",\"name\":\"City Tours & Sightseeing\",\"slug\":\"city-tours-sightseeing-buenos-aires\",\"place\":\"Buenos Aires\",\"url\":\"https://www.guruwalk.com/en/a/buenos-aires/v67114-city-tours-sightseeing-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"product\",\"id\":97108,\"name\":\"Buenos Aires: La Boca Guided Walking Tour in English\",\"slug\":\"buenos-aires-la-boca-guided-walking-tour-in-english\",\"rating\":4.8,\"reviews_count\":1812,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":{\"retail\":11.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":67013,\"name\":\"Guided Bus Tour of Buenos Aires\",\"slug\":\"guided-bus-tour-of-buenos-aires\",\"rating\":4.2,\"reviews_count\":270,\"duration\":180,\"languages\":[\"en\"],\"pricing_from\":{\"retail\":34.95,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p67013-guided-bus-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":66940,\"name\":\"Buenos Aires Graffiti Tour\",\"slug\":\"buenos-aires-graffiti-tour\",\"rating\":4.85,\"reviews_count\":6,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":{\"retail\":12.5,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p66940-buenos-aires-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":97142,\"name\":\"Palermo: Graffiti and Street Art Guided Tour in English\",\"slug\":\"palermo-graffiti-and-street-art-guided-tour-in-english\",\"rating\":4.8,\"reviews_count\":775,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":{\"retail\":11.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p97142-palermo-graffiti-and-street-art-guided-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":121084,\"name\":\"The Wealthy Buenos Aires: Recoleta, Alvear, Arroyo & Retiro\",\"slug\":\"the-wealthy-buenos-aires-recoleta-alvear-arroyo-retiro\",\"rating\":5.0,\"reviews_count\":3,\"duration\":240,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":53.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p121084-the-wealthy-buenos-aires-recoleta-alvear-arroyo-retiro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":120094,\"name\":\"Buenos Aires: La Recoleta Cemetery Private Tour with Tickets\",\"slug\":\"buenos-aires-la-recoleta-cemetery-private-tour-with-tickets\",\"rating\":5.0,\"reviews_count\":2,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":38.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p120094-buenos-aires-la-recoleta-cemetery-private-tour-with-tickets?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":162994,\"name\":\"Buenos Aires: San Telmo Food Walking Tour with Tastings\",\"slug\":\"buenos-aires-san-telmo-food-walking-tour-with-tastings\",\"rating\":1.0,\"reviews_count\":1,\"duration\":180,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":40.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":107440,\"name\":\"Hidden Belgrano: Chinatown & British Buenos Aires\",\"slug\":\"hidden-belgrano-chinatown-british-buenos-aires\",\"rating\":5.0,\"reviews_count\":7,\"duration\":1440,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":26.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p107440-hidden-belgrano-chinatown-british-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":129501,\"name\":\"Buenos Aires in a Day, North and South: Bike Tour and River Cruise\",\"slug\":\"buenos-aires-in-a-day-north-and-south-bike-tour-and-river-cruise\",\"rating\":5.0,\"reviews_count\":1,\"duration\":420,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":103.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p129501-buenos-aires-in-a-day-north-and-south-bike-tour-and-river-cruise?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":249936,\"name\":\"Buenos Aires: The Palaces Route\",\"slug\":\"buenos-aires-the-palaces-route\",\"rating\":4.5,\"reviews_count\":2,\"duration\":120,\"languages\":[\"ar\",\"en\",\"es\",\"pt\"],\"pricing_from\":{\"retail\":22.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p249936-buenos-aires-the-palaces-route?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":46839,\"name\":\"Buenos Aires: Plaza de Mayo Walking Tour\",\"slug\":\"buenos-aires-plaza-de-mayo-walking-tour\",\"rating\":0.0,\"reviews_count\":0,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":{\"retail\":43.65,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":84836,\"name\":\"Buenos Aires : Highlights Walking Tour With A Guide\",\"slug\":\"buenos-aires-highlights-walking-tour-with-a-guide\",\"rating\":4.9,\"reviews_count\":14,\"duration\":180,\"languages\":[\"en\",\"es\",\"fr\",\"it\"],\"pricing_from\":{\"retail\":31.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":141},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires/v67114-city-tours-sightseeing-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "67114",
+    "name": "City Tours & Sightseeing",
+    "slug": "city-tours-sightseeing-buenos-aires",
+    "place": "Buenos Aires",
+    "url": "https://www.guruwalk.com/en/a/buenos-aires/v67114-city-tours-sightseeing-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "product",
+     "id": 97108,
+     "name": "Buenos Aires: La Boca Guided Walking Tour in English",
+     "slug": "buenos-aires-la-boca-guided-walking-tour-in-english",
+     "rating": 4.8,
+     "reviews_count": 1812,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": {
+      "retail": 11.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 67013,
+     "name": "Guided Bus Tour of Buenos Aires",
+     "slug": "guided-bus-tour-of-buenos-aires",
+     "rating": 4.2,
+     "reviews_count": 270,
+     "duration": 180,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": {
+      "retail": 34.95,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p67013-guided-bus-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 66940,
+     "name": "Buenos Aires Graffiti Tour",
+     "slug": "buenos-aires-graffiti-tour",
+     "rating": 4.85,
+     "reviews_count": 6,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": {
+      "retail": 12.5,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p66940-buenos-aires-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 97142,
+     "name": "Palermo: Graffiti and Street Art Guided Tour in English",
+     "slug": "palermo-graffiti-and-street-art-guided-tour-in-english",
+     "rating": 4.8,
+     "reviews_count": 775,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": {
+      "retail": 11.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p97142-palermo-graffiti-and-street-art-guided-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 121084,
+     "name": "The Wealthy Buenos Aires: Recoleta, Alvear, Arroyo & Retiro",
+     "slug": "the-wealthy-buenos-aires-recoleta-alvear-arroyo-retiro",
+     "rating": 5.0,
+     "reviews_count": 3,
+     "duration": 240,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 53.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p121084-the-wealthy-buenos-aires-recoleta-alvear-arroyo-retiro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 120094,
+     "name": "Buenos Aires: La Recoleta Cemetery Private Tour with Tickets",
+     "slug": "buenos-aires-la-recoleta-cemetery-private-tour-with-tickets",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 38.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p120094-buenos-aires-la-recoleta-cemetery-private-tour-with-tickets?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 162994,
+     "name": "Buenos Aires: San Telmo Food Walking Tour with Tastings",
+     "slug": "buenos-aires-san-telmo-food-walking-tour-with-tastings",
+     "rating": 1.0,
+     "reviews_count": 1,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 40.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 107440,
+     "name": "Hidden Belgrano: Chinatown & British Buenos Aires",
+     "slug": "hidden-belgrano-chinatown-british-buenos-aires",
+     "rating": 5.0,
+     "reviews_count": 7,
+     "duration": 1440,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 26.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p107440-hidden-belgrano-chinatown-british-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 129501,
+     "name": "Buenos Aires in a Day, North and South: Bike Tour and River Cruise",
+     "slug": "buenos-aires-in-a-day-north-and-south-bike-tour-and-river-cruise",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 420,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 103.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p129501-buenos-aires-in-a-day-north-and-south-bike-tour-and-river-cruise?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 249936,
+     "name": "Buenos Aires: The Palaces Route",
+     "slug": "buenos-aires-the-palaces-route",
+     "rating": 4.5,
+     "reviews_count": 2,
+     "duration": 120,
+     "languages": [
+      "ar",
+      "en",
+      "es",
+      "pt"
+     ],
+     "pricing_from": {
+      "retail": 22.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p249936-buenos-aires-the-palaces-route?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 46839,
+     "name": "Buenos Aires: Plaza de Mayo Walking Tour",
+     "slug": "buenos-aires-plaza-de-mayo-walking-tour",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": {
+      "retail": 43.65,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 84836,
+     "name": "Buenos Aires : Highlights Walking Tour With A Guide",
+     "slug": "buenos-aires-highlights-walking-tour-with-a-guide",
+     "rating": 4.9,
+     "reviews_count": 14,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es",
+      "fr",
+      "it"
+     ],
+     "pricing_from": {
+      "retail": 31.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 141
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires/v67114-city-tours-sightseeing-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

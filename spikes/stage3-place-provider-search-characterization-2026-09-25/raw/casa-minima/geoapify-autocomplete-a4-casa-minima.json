@@ -1,0 +1,503 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Casa Mínima",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 851,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Casa Mínima",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1098AAH",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "street": "San Lorenzo",
+        "housenumber": "380",
+        "iso3166_2": "AR-C",
+        "lon": -58.3713487,
+        "lat": -34.6167555,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1728.4740061033845,
+        "formatted": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "address_line1": "Casa Mínima",
+        "address_line2": "San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "category": "tourism.attraction",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+7F",
+        "plus_code_short": "MH+7F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.12743869505990896,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61",
+        "bbox": {
+          "lon1": -58.3713987,
+          "lat1": -34.6168055,
+          "lon2": -58.3712987,
+          "lat2": -34.6167055
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Casa del Ahorro",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Santiago",
+        "city": "Santiago",
+        "postcode": "8320000",
+        "district": "Villa Nueva México",
+        "suburb": "Pedro Aguirre Cerda",
+        "street": "Avenida Central Cardenal Raúl Silva Henríquez",
+        "iso3166_2": "CL-RM",
+        "lon": -70.6864841,
+        "lat": -33.4949715,
+        "state_code": "RM",
+        "result_type": "amenity",
+        "distance": 1139626.402440658,
+        "formatted": "Minimarket Casa del Ahorro, Avenida Central Cardenal Raúl Silva Henríquez, 832 0000 Santiago, Chile",
+        "address_line1": "Minimarket Casa del Ahorro",
+        "address_line2": "Avenida Central Cardenal Raúl Silva Henríquez, 832 0000 Santiago, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RFG847+2C",
+        "plus_code_short": "G847+2C Santiago, Provincia de Santiago, Chile",
+        "rank": {
+          "importance": 0.00004801174944681495,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5156ae015befab51c059dd79e2395bbf40c0f00103f90157cc9b0c03000000c0020192031a4d696e696d61726b657420436173612064656c2041686f72726f",
+        "bbox": {
+          "lon1": -70.6865341,
+          "lat1": -33.4950215,
+          "lon2": -70.6864341,
+          "lat2": -33.4949215
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Casablanca",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Santiago Metropolitan Region",
+        "county": "Provincia de Maipo",
+        "city": "Calera de Tango",
+        "hamlet": "Parque Residencial Las Araucarias",
+        "postcode": "8071112",
+        "district": "Villa Los Almendros",
+        "suburb": "Los Bajos de San Agustín",
+        "street": "Los Álamos",
+        "iso3166_2": "CL-RM",
+        "lon": -70.7625275,
+        "lat": -33.6316894,
+        "state_code": "RM",
+        "result_type": "amenity",
+        "distance": 1144135.0719338527,
+        "formatted": "Minimarket Casablanca, Los Álamos, 807 1112 Calera de Tango, Chile",
+        "address_line1": "Minimarket Casablanca",
+        "address_line2": "Los Álamos, 807 1112 Calera de Tango, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RF969P+8X",
+        "rank": {
+          "importance": 0.00004827725642781746,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513eb32440cdb051c0596c1dc132dbd040c0f00103f90123320f6e01000000c002019203154d696e696d61726b65742043617361626c616e6361",
+        "bbox": {
+          "lon1": -70.7625775,
+          "lat1": -33.6317394,
+          "lon2": -70.7624775,
+          "lat2": -33.6316394
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket - El Cisne",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Valparaiso Region",
+        "county": "Provincia de Valparaíso",
+        "city": "Casablanca",
+        "street": "Avenida Bernardo O'Higgins",
+        "iso3166_2": "CL-VS",
+        "lon": -71.3997714,
+        "lat": -33.32362,
+        "state_code": "VS",
+        "result_type": "amenity",
+        "distance": 1208138.4380134766,
+        "postcode": "2480000",
+        "formatted": "Minimarket - El Cisne, Avenida Bernardo O'Higgins, 248 0000 Casablanca, Chile",
+        "address_line1": "Minimarket - El Cisne",
+        "address_line2": "Avenida Bernardo O'Higgins, 248 0000 Casablanca, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RCMJG2+H3",
+        "rank": {
+          "importance": 0.00005060120546268433,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "511338c8da95d951c0596f2a52616ca940c0f00103f90125f1932c01000000c002019203154d696e696d61726b6574202d20456c204369736e65",
+        "bbox": {
+          "lon1": -71.3998214,
+          "lat1": -33.32367,
+          "lon2": -71.3997214,
+          "lat2": -33.32357
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Piura",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Valparaiso Region",
+        "county": "Provincia de Valparaíso",
+        "city": "Casablanca",
+        "district": "Villa Magallanes",
+        "street": "Ricardo Gómez Montt",
+        "housenumber": "112",
+        "iso3166_2": "CL-VS",
+        "lon": -71.4127499,
+        "lat": -33.3184718,
+        "state_code": "VS",
+        "result_type": "amenity",
+        "distance": 1209427.8141380944,
+        "postcode": "2480000",
+        "formatted": "Minimarket Piura, Ricardo Gómez Montt 112, 248 0000 Casablanca, Chile",
+        "address_line1": "Minimarket Piura",
+        "address_line2": "Ricardo Gómez Montt 112, 248 0000 Casablanca, Chile",
+        "category": "commercial.discount_store",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RCMHJP+JW",
+        "rank": {
+          "importance": 0.00005060120546268433,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51587b8e7e6ada51c05960d916afc3a840c0f00103f9015cdc5ae202000000c002019203104d696e696d61726b6574205069757261",
+        "bbox": {
+          "lon1": -71.4127999,
+          "lat1": -33.3185218,
+          "lon2": -71.4126999,
+          "lat2": -33.3184218
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Los Maitenes",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Valparaiso Region",
+        "county": "Provincia de Valparaíso",
+        "city": "Casablanca",
+        "hamlet": "Los Maitenes Sur",
+        "district": "Hacienda Maitenes",
+        "street": "Ruta F-74-G",
+        "iso3166_2": "CL-VS",
+        "lon": -71.3924441,
+        "lat": -33.4193816,
+        "state_code": "VS",
+        "result_type": "amenity",
+        "distance": 1205594.923239343,
+        "formatted": "Minimarket Los Maitenes, Ruta F-74-G, Casablanca, Chile",
+        "address_line1": "Minimarket Los Maitenes",
+        "address_line2": "Ruta F-74-G, Casablanca, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RCHJJ5+62",
+        "rank": {
+          "importance": 0.00005060120546268433,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5186c0dbcd1dd951c059a745d84baeb540c0f00103f901e972780d03000000c002019203174d696e696d61726b6574204c6f73204d616974656e6573",
+        "bbox": {
+          "lon1": -71.3924941,
+          "lat1": -33.4194316,
+          "lon2": -71.3923941,
+          "lat2": -33.4193316
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Amasandería",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Valparaiso Region",
+        "county": "Provincia de Valparaíso",
+        "city": "Casablanca",
+        "hamlet": "Las Dichas",
+        "street": "Ruta F-840-G",
+        "iso3166_2": "CL-VS",
+        "lon": -71.4996397,
+        "lat": -33.2912201,
+        "state_code": "VS",
+        "district": "Las Dichas",
+        "result_type": "amenity",
+        "distance": 1217918.7097959786,
+        "formatted": "Minimarket Amasandería, Ruta F-840-G, Casablanca, Chile",
+        "address_line1": "Minimarket Amasandería",
+        "address_line2": "Ruta F-840-G, Casablanca, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RCPG52+G4",
+        "rank": {
+          "importance": 0.00005060120546268433,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5121d2ca18fadf51c0590bb842b346a540c0f00103f901d172487701000000c002019203174d696e696d61726b657420416d6173616e646572c3ad61",
+        "bbox": {
+          "lon1": -71.4996897,
+          "lat1": -33.2912701,
+          "lon2": -71.4995897,
+          "lat2": -33.2911701
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Donde La Yita",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Valparaiso Region",
+        "county": "Provincia de Valparaíso",
+        "city": "Casablanca",
+        "hamlet": "Los Maitenes Sur",
+        "district": "Hacienda Maitenes",
+        "street": "Ruta F-74-G",
+        "iso3166_2": "CL-VS",
+        "lon": -71.3935857,
+        "lat": -33.418427,
+        "state_code": "VS",
+        "result_type": "amenity",
+        "distance": 1205717.5359205522,
+        "formatted": "Minimarket Donde La Yita, Ruta F-74-G, Casablanca, Chile",
+        "address_line1": "Minimarket Donde La Yita",
+        "address_line2": "Ruta F-74-G, Casablanca, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47RCHJJ4+JH",
+        "rank": {
+          "importance": 0.00005060120546268433,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51176b138230d951c059b76114048fb540c0f00103f901eb72780d03000000c002019203184d696e696d61726b657420446f6e6465204c612059697461",
+        "bbox": {
+          "lon1": -71.3936357,
+          "lat1": -33.418477,
+          "lon2": -71.3935357,
+          "lat2": -33.418377
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket Paola",
+        "other_names": {
+          "name": "Provisiones Paola",
+          "name:es": "Provisiones Paola"
+        },
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Araucania Region",
+        "county": "Provincia de Cautín",
+        "city": "Padre Las Casas",
+        "postcode": "4861600",
+        "district": "Nueva República",
+        "street": "San Petersburgo",
+        "housenumber": "1680",
+        "iso3166_2": "CL-AR",
+        "lon": -72.6009696,
+        "lat": -38.7668511,
+        "state_code": "AR",
+        "result_type": "amenity",
+        "distance": 1348017.603277161,
+        "formatted": "Minimarket Paola, San Petersburgo 1680, 486 1600 Padre Las Casas, Chile",
+        "address_line1": "Minimarket Paola",
+        "address_line2": "San Petersburgo 1680, 486 1600 Padre Las Casas, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47H969MX+7J",
+        "rank": {
+          "importance": 0.00004740138857094709,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51f9783249762652c05968b3452d286243c0f00103f9017970b80b01000000c002019203104d696e696d61726b65742050616f6c61",
+        "bbox": {
+          "lon1": -72.6010196,
+          "lat1": -38.7669011,
+          "lon2": -72.6009196,
+          "lat2": -38.7668011
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Minimarket El Bosque",
+        "country": "Chile",
+        "country_code": "cl",
+        "state": "Araucania Region",
+        "county": "Provincia de Cautín",
+        "city": "Padre Las Casas",
+        "postcode": "4850000",
+        "district": "Villa El Bosque",
+        "street": "Las Araucarias",
+        "iso3166_2": "CL-AR",
+        "lon": -72.5794042,
+        "lat": -38.7707756,
+        "state_code": "AR",
+        "result_type": "amenity",
+        "distance": 1346336.1183330272,
+        "formatted": "Minimarket El Bosque, Las Araucarias, 485 0000 Padre Las Casas, Chile",
+        "address_line1": "Minimarket El Bosque",
+        "address_line2": "Las Araucarias, 485 0000 Padre Las Casas, Chile",
+        "category": "commercial.convenience",
+        "timezone": {
+          "name": "America/Santiago",
+          "offset_STD": "-04:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "47H96CHC+M6",
+        "rank": {
+          "importance": 0.00004740138857094709,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51908a5af5142552c05903475dc6a86243c0f00103f901cfeeaac102000000c002019203144d696e696d61726b657420456c20426f73717565",
+        "bbox": {
+          "lon1": -72.5794542,
+          "lat1": -38.7708256,
+          "lon2": -72.5793542,
+          "lat2": -38.7707256
+        }
+      }
+    ],
+    "query": {
+      "text": "Casa Mínima",
+      "categories": []
+    }
+  }
+}

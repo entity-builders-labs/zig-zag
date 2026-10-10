@@ -1,0 +1,216 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":43134,\"name\":\"¡Tras los pasos de Mamá Antula, primera santa argentina!\",\"slug\":\"43134-tras-los-pasos-de-mama-antula-primera-santa-argentina\",\"rating\":5.0,\"reviews_count\":2,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43134-tras-los-pasos-de-mama-antula-primera-santa-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63487,\"name\":\"SAN NICOLÁS: De Plaza Lavalle al Luna Park, el corazón que nunca duerme\",\"slug\":\"63487-san-nicolas-historia-glamour-y-microcentro\",\"rating\":5.0,\"reviews_count\":1,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63487-san-nicolas-historia-glamour-y-microcentro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":59376,\"name\":\"Free tour de los Misterios y Leyendas de Buenos Aires\",\"slug\":\"59376-free-tour-de-los-misterios-y-leyendas-de-buenos-aires\",\"rating\":5.0,\"reviews_count\":1,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/59376-free-tour-de-los-misterios-y-leyendas-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":52012,\"name\":\"Casco Histórico. Donde ha nacido nuestra identidad.\",\"slug\":\"52012-casco-historico-donde-ha-nacido-nuestra-identidad\",\"rating\":5.0,\"reviews_count\":13,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/52012-casco-historico-donde-ha-nacido-nuestra-identidad?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55178,\"name\":\"Free Tour Nocturno: Buenos Aires Iluminada – Un Viaje por su Historia\",\"slug\":\"55178-free-tour-nocturno-buenos-aires-iluminada-un-viaje-por-su-historia\",\"rating\":4.9,\"reviews_count\":39,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55178-free-tour-nocturno-buenos-aires-iluminada-un-viaje-por-su-historia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51609,\"name\":\"San Telmo free tour esencial: Tango: Historia y leyendas, mercados y museos\",\"slug\":\"51609-san-telmo-free-tour-esencial-tango-historia-y-leyendas-mercados-y-museos\",\"rating\":4.67,\"reviews_count\":6,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51609-san-telmo-free-tour-esencial-tango-historia-y-leyendas-mercados-y-museos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51665,\"name\":\"Bienvenidos a Buenos Aires! (max 12 personas)\",\"slug\":\"51665-bienvenidos-a-buenos-aires-max-12-personas\",\"rating\":4.86,\"reviews_count\":7,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51665-bienvenidos-a-buenos-aires-max-12-personas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":64119,\"name\":\"Mujeres en la historia argentina\",\"slug\":\"64119-mujeres-en-la-historia-argentina\",\"rating\":4.6,\"reviews_count\":25,\"duration\":120,\"languages\":[\"es\",\"pt\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/64119-mujeres-en-la-historia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69009,\"name\":\"Los íconos porteños del microcentro de Bs. As. \",\"slug\":\"69009-los-iconos-portenos-del-microcentro-de-bs-as\",\"rating\":0.0,\"reviews_count\":0,\"duration\":120,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69009-los-iconos-portenos-del-microcentro-de-bs-as?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":65736,\"name\":\" Monserrat, cuna del virreinato.\",\"slug\":\"65736-monserrat-cuna-del-virreinato\",\"rating\":0.0,\"reviews_count\":0,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/65736-monserrat-cuna-del-virreinato?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":60076,\"name\":\"Free Tour de Conspiraciones de la Historia Argentina\",\"slug\":\"60076-free-tour-de-conspiraciones-de-la-historia-argentina\",\"rating\":4.86,\"reviews_count\":178,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/60076-free-tour-de-conspiraciones-de-la-historia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":62981,\"name\":\"Historias de poderes y amores en el Cementerio Recoleta: recorrido intelectual y divertido\",\"slug\":\"62981-historias-de-poderes-y-amores-en-el-cementerio-recoleta-recorrido-intelectual-y-divertido\",\"rating\":4.58,\"reviews_count\":31,\"duration\":105,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/62981-historias-de-poderes-y-amores-en-el-cementerio-recoleta-recorrido-intelectual-y-divertido?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":3,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 43134,
+     "name": "¡Tras los pasos de Mamá Antula, primera santa argentina!",
+     "slug": "43134-tras-los-pasos-de-mama-antula-primera-santa-argentina",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43134-tras-los-pasos-de-mama-antula-primera-santa-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63487,
+     "name": "SAN NICOLÁS: De Plaza Lavalle al Luna Park, el corazón que nunca duerme",
+     "slug": "63487-san-nicolas-historia-glamour-y-microcentro",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63487-san-nicolas-historia-glamour-y-microcentro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 59376,
+     "name": "Free tour de los Misterios y Leyendas de Buenos Aires",
+     "slug": "59376-free-tour-de-los-misterios-y-leyendas-de-buenos-aires",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/59376-free-tour-de-los-misterios-y-leyendas-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 52012,
+     "name": "Casco Histórico. Donde ha nacido nuestra identidad.",
+     "slug": "52012-casco-historico-donde-ha-nacido-nuestra-identidad",
+     "rating": 5.0,
+     "reviews_count": 13,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/52012-casco-historico-donde-ha-nacido-nuestra-identidad?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55178,
+     "name": "Free Tour Nocturno: Buenos Aires Iluminada – Un Viaje por su Historia",
+     "slug": "55178-free-tour-nocturno-buenos-aires-iluminada-un-viaje-por-su-historia",
+     "rating": 4.9,
+     "reviews_count": 39,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55178-free-tour-nocturno-buenos-aires-iluminada-un-viaje-por-su-historia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51609,
+     "name": "San Telmo free tour esencial: Tango: Historia y leyendas, mercados y museos",
+     "slug": "51609-san-telmo-free-tour-esencial-tango-historia-y-leyendas-mercados-y-museos",
+     "rating": 4.67,
+     "reviews_count": 6,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51609-san-telmo-free-tour-esencial-tango-historia-y-leyendas-mercados-y-museos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51665,
+     "name": "Bienvenidos a Buenos Aires! (max 12 personas)",
+     "slug": "51665-bienvenidos-a-buenos-aires-max-12-personas",
+     "rating": 4.86,
+     "reviews_count": 7,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51665-bienvenidos-a-buenos-aires-max-12-personas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 64119,
+     "name": "Mujeres en la historia argentina",
+     "slug": "64119-mujeres-en-la-historia-argentina",
+     "rating": 4.6,
+     "reviews_count": 25,
+     "duration": 120,
+     "languages": [
+      "es",
+      "pt"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/64119-mujeres-en-la-historia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69009,
+     "name": "Los íconos porteños del microcentro de Bs. As. ",
+     "slug": "69009-los-iconos-portenos-del-microcentro-de-bs-as",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 120,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69009-los-iconos-portenos-del-microcentro-de-bs-as?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 65736,
+     "name": " Monserrat, cuna del virreinato.",
+     "slug": "65736-monserrat-cuna-del-virreinato",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/65736-monserrat-cuna-del-virreinato?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 60076,
+     "name": "Free Tour de Conspiraciones de la Historia Argentina",
+     "slug": "60076-free-tour-de-conspiraciones-de-la-historia-argentina",
+     "rating": 4.86,
+     "reviews_count": 178,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/60076-free-tour-de-conspiraciones-de-la-historia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 62981,
+     "name": "Historias de poderes y amores en el Cementerio Recoleta: recorrido intelectual y divertido",
+     "slug": "62981-historias-de-poderes-y-amores-en-el-cementerio-recoleta-recorrido-intelectual-y-divertido",
+     "rating": 4.58,
+     "reviews_count": 31,
+     "duration": 105,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/62981-historias-de-poderes-y-amores-en-el-cementerio-recoleta-recorrido-intelectual-y-divertido?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 3,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

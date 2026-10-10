@@ -1,0 +1,8 @@
+{
+  "runLabel": "main",
+  "tourId": "9c248758-cf3d-44ec-8670-51d6e9acbdee",
+  "email": "stage3-nominatim-bias-main-1790277927494104000@example.com",
+  "baseUrl": "http://localhost:4017",
+  "requestFile": "spikes/stage3-buenosaires-walks-component-survey-2026-09-24/request.json",
+  "generationStatus": "completed"
+}

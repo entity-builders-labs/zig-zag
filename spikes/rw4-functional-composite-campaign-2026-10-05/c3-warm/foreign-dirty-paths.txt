@@ -1,0 +1,6 @@
+?? spikes/rw4-functional-composite-campaign-2026-10-05/c1-cold/
+?? spikes/rw4-functional-composite-campaign-2026-10-05/c2-cold/
+?? spikes/rw4-functional-composite-campaign-2026-10-05/c3-cold/
+?? spikes/rw4-functional-composite-campaign-2026-10-05/c3-warm/
+?? spikes/rw4-functional-composite-campaign-2026-10-05/campaign-log.md
+?? spikes/rw4-functional-composite-campaign-2026-10-05/requests/c3-buenos-aires-san-telmo-self-guided.json

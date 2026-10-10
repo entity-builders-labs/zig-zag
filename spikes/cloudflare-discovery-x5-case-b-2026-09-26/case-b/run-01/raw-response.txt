@@ -1,0 +1,48 @@
+[
+  {
+    "name": "San Telmo Walking Tour",
+    "description": "A 2-hour walking tour through the historic heart of San Telmo, exploring colonial architecture, the bohemian spirit of the neighborhood, and iconic landmarks such as Plaza Dorrego and the San Telmo Market.",
+    "themes": [
+      "history",
+      "architecture",
+      "culture"
+    ],
+    "traits": [
+      "colonial architecture",
+      "bohemian spirit",
+      "historic neighborhood"
+    ],
+    "intents": [
+      "walk"
+    ],
+    "suggestedDurationMinutes": 120,
+    "componentHints": [
+      {
+        "key": "plaza-dorrego",
+        "name": "Plaza Dorrego",
+        "role": "venue",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-4"
+        ],
+        "supportSpan": "Plaza Dorrego"
+      },
+      {
+        "key": "mercado-san-telmo",
+        "name": "El Mercado de San Telmo",
+        "role": "venue",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-4"
+        ],
+        "supportSpan": "El Mercado de San Telmo"
+      }
+    ],
+    "evidenceKeys": [
+      "ev-4",
+      "ev-5"
+    ],
+    "shortReason": "Evidence explicitly describes a walking tour itinerary that includes specific stops at Plaza Dorrego and El Mercado de San Telmo.",
+    "orderedByEvidence": false
+  }
+]

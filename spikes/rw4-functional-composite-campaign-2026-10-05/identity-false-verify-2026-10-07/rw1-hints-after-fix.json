@@ -1,0 +1,702 @@
+{
+ "poolStatus": "success",
+ "poolSize": 2712,
+ "poolMembersNamedDonCarlos": [],
+ "poolMembersContainingCarlos": [
+  {
+   "id": "osm:node:2619558669",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:2830477540",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:2853424950",
+   "name": "Monumento Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:3237238553",
+   "name": "Carlos Thays"
+  },
+  {
+   "id": "osm:node:4450016794",
+   "name": "Carlos Bernardo González Pecotche"
+  },
+  {
+   "id": "osm:node:4467271088",
+   "name": "Diputado Nacional Carlos Bello"
+  },
+  {
+   "id": "osm:node:4504572775",
+   "name": "Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:5332434913",
+   "name": "Carlos Pellegrini"
+  },
+  {
+   "id": "osm:node:5333292823",
+   "name": "Carlos Tejedor"
+  },
+  {
+   "id": "osm:node:5333608111",
+   "name": "Carlos Morra"
+  },
+  {
+   "id": "osm:node:5333987618",
+   "name": "Carlos Saavedra Lamas"
+  },
+  {
+   "id": "osm:node:6044053785",
+   "name": "Carlos Cisnetto Olivera"
+  },
+  {
+   "id": "osm:node:6046039490",
+   "name": "Carlos Bonorino Udaondo"
+  },
+  {
+   "id": "osm:node:6048854369",
+   "name": "Carlos Noel"
+  },
+  {
+   "id": "osm:node:6048878647",
+   "name": "Carlos Alberto Menditéguy"
+  },
+  {
+   "id": "osm:node:6049049260",
+   "name": "Carlos Calvo"
+  },
+  {
+   "id": "osm:node:6052636172",
+   "name": "Carlos Mayer"
+  },
+  {
+   "id": "osm:node:6052636177",
+   "name": "Carlos María de Alvear"
+  },
+  {
+   "id": "osm:node:6052717168",
+   "name": "Carlos Durand"
+  },
+  {
+   "id": "osm:node:6054975401",
+   "name": "Carlos Guido y Spano"
+  },
+  {
+   "id": "osm:node:6340469047",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:8189378790",
+   "name": "Pedro Leopoldo Barraza y Carlos Laham"
+  },
+  {
+   "id": "osm:node:11522462177",
+   "name": "Carlos \"Petete\" Almirón"
+  },
+  {
+   "id": "osm:node:12389302377",
+   "name": "Tumba Carlos Gardel"
+  },
+  {
+   "id": "osm:node:12470569853",
+   "name": "Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:12709235030",
+   "name": "Román Carlos Vega"
+  },
+  {
+   "id": "osm:way:9937501",
+   "name": "Jardín Botánico Carlos Thays"
+  },
+  {
+   "id": "osm:way:23651010",
+   "name": "Parque Carlos Thays"
+  },
+  {
+   "id": "osm:way:26610905",
+   "name": "Plazoleta Carlos de la Púa"
+  },
+  {
+   "id": "osm:way:52773349",
+   "name": "Plazoleta Doctor Carlos A. Erro"
+  },
+  {
+   "id": "osm:way:52990882",
+   "name": "Plazoleta Doctor Carlos Pellegrini"
+  },
+  {
+   "id": "osm:way:114352739",
+   "name": "Plazoleta Carlos María Della Paolera"
+  },
+  {
+   "id": "osm:way:126149655",
+   "name": "Plazoleta Carlos Pellegrini"
+  },
+  {
+   "id": "osm:way:136792897",
+   "name": "Plaza Carlos Jáuregui"
+  },
+  {
+   "id": "osm:way:265725522",
+   "name": "Plazoleta Carlos Gardel"
+  },
+  {
+   "id": "osm:way:349372197",
+   "name": "Carlos Malagarriga"
+  },
+  {
+   "id": "osm:way:429288345",
+   "name": "Plazoleta Doctor Carlos Saavedra Lamas"
+  },
+  {
+   "id": "osm:way:439638630",
+   "name": "Plaza de los Niños, Doctor Carlos Arturo Gianantonio"
+  },
+  {
+   "id": "osm:way:442227803",
+   "name": "Plazoleta Carlos Norberto Vergara"
+  },
+  {
+   "id": "osm:way:450520806",
+   "name": "Plazoleta Carlos Di Sarli"
+  },
+  {
+   "id": "osm:way:477569998",
+   "name": "Basílica María Auxiliadora y San Carlos"
+  },
+  {
+   "id": "osm:way:619211859",
+   "name": "Museo Casa Carlos Gardel"
+  },
+  {
+   "id": "osm:way:679619857",
+   "name": "Monumento ecuestre a Carlos María de Alvear"
+  },
+  {
+   "id": "osm:way:710383626",
+   "name": "Carlos Sánchez Viamonte"
+  },
+  {
+   "id": "osm:way:907779810",
+   "name": "Plaza Carlos Gardel"
+  },
+  {
+   "id": "osm:relation:1282348",
+   "name": "Plaza Licenciado Carlos Campelo"
+  },
+  {
+   "id": "osm:relation:1959571",
+   "name": "Plazoleta Miguel Carlos Victorica"
+  }
+ ],
+ "matchOsmCandidateByName": {
+  "id": "osm:node:5332434913",
+  "name": "Carlos Pellegrini",
+  "osmType": "node",
+  "osmId": 5332434913,
+  "geometry": {
+   "type": "Point",
+   "coordinates": [
+    -58.3935416,
+    -34.5871795
+   ]
+  },
+  "tags": {
+   "historic": "tomb",
+   "name": "Carlos Pellegrini",
+   "wikidata": "Q270446",
+   "wikimedia_commons": "Category:Carlos Pellegrini",
+   "wikipedia": "es:Carlos Pellegrini"
+  }
+ },
+ "wikidata": {
+  "Q3392154": {
+   "qid": "Q3392154",
+   "label": "plaza Dorrego",
+   "description": "square in Buenos Aires, Argentina",
+   "aliases": [
+    "Plaza Dorrego",
+    "Plaza Coronel Manuel Dorrego"
+   ],
+   "sitelinkCount": 7,
+   "extract": "Plaza Dorrego (Spanish: Dorrego Square) is a square located in the heart of San Telmo, in Buenos Aires, Argentina. In the 19th century, San Telmo was the main residential barrio (neighbourhood) of the city and Plaza Dorrego was its focal point.\nIn the past it was referred to as Hueco del Alto or Alto de la carretas as it was the place where wagons would stop before crossing the Tercero del Sur stream (today called Pasaje San Lorenzo) on their way downtown. The name had been Alto de San Pedro and later changed to Plaza del Comercio in 1822. In 1905, the name was changed once again to its current form.\nThe buildings located in the square maintain its original design thanks to the help of the Comisión del Museo de la Ciudad.\nCurrently, its surroundings are full of cafes, bars and pubs, which fill the square with tables from those shops. There are also several antique stores. Musicians and dancers particularly tango exhibitions are seen, like the Argentine tango. The Feria de San Telmo (San Telmo Fair), mainly of antiques, runs every Sunday.\nPlaza Dorrego is located at the intersection of Humberto Primero and Defensa streets. Along with La Boca, Recoleta, Florida Street, and others, the Plaza Dorrego is one of the main tourist attractions of Buenos Aires."
+  },
+  "Q1133613": {
+   "qid": "Q1133613",
+   "label": "Lezama Park",
+   "description": "urban park in Buenos Aires, Argentina",
+   "aliases": [
+    "Parque Lezama",
+    "Plaza Lezama",
+    "Canale buenos aires ar.parque lezama"
+   ],
+   "sitelinkCount": 9,
+   "extract": "Lezama Park is a public park in the La Boca district of Buenos Aires, Argentina."
+  },
+  "Q263127": {
+   "qid": "Q263127",
+   "label": "Illuminated Block",
+   "description": "museum in Buenos Aires, Argentina",
+   "aliases": [
+    "Manzana de las Luces"
+   ],
+   "sitelinkCount": 6,
+   "extract": "The Illuminated Block (Spanish: Manzana de las Luces) is a historical landmark in the Monserrat neighbourhood of Buenos Aires, Argentina."
+  }
+ },
+ "verifierCalls": [
+  {
+   "hint": "El Zanjón de Granados",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:9953027884",
+    "canonicalName": "El Zanjón de Granados (historic ruins)",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "El Zanjón de Granados",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:9953027884",
+    "canonicalName": "El Zanjón de Granados (historic ruins)",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "EQUIVALENT",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "El Zanjón de Granados",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:9953027884",
+    "canonicalName": "El Zanjón de Granados (historic ruins)",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "IDENTITY_CONVERGENCE",
+     "priorStrategy": "LOCAL_OSM_POOL",
+     "identity": {
+      "provider": "openstreetmap",
+      "externalId": "osm:node:9953027884"
+     }
+    },
+    {
+     "type": "CONVERGENCE_PROVENANCE",
+     "identity": {
+      "provider": "openstreetmap",
+      "externalId": "osm:node:9953027884"
+     },
+     "upstream": "SHARED_UPSTREAM"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_CONVERGENCE",
+    "decisiveEvidence": [
+     {
+      "type": "IDENTITY_CONVERGENCE",
+      "priorStrategy": "LOCAL_OSM_POOL",
+      "identity": {
+       "provider": "openstreetmap",
+       "externalId": "osm:node:9953027884"
+      }
+     },
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "NO_MATERIAL_COMPETITOR",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 0
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Farmacia la Estrella",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:294910341",
+    "canonicalName": "Estrella de la Fortuna",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Farmacia la Estrella",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:294910341",
+    "canonicalName": "Estrella de la Fortuna",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Farmacia la Estrella",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:3348573778",
+    "canonicalName": "Farmacia de la Estrella",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Farmacia la Estrella",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:3348573778",
+    "canonicalName": "Farmacia de la Estrella",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Plaza Dorrego",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:31364659",
+    "canonicalName": "Plaza Dorrego",
+    "wikidataQid": "Q3392154",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "SINGLE"
+    },
+    "nameAliasCandidates": [
+     "Plaza Dorrego"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "SINGLE",
+     "correspondence": "EQUIVALENT"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+    "decisiveEvidence": [
+     {
+      "type": "EXACT_NAME",
+      "identityMultiplicity": "SINGLE"
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Parque Lezama",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:17441757",
+    "canonicalName": "Parque Lezama",
+    "wikidataQid": "Q1133613",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "SINGLE"
+    },
+    "nameAliasCandidates": [
+     "Parque Lezama"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "SINGLE",
+     "correspondence": "EQUIVALENT"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+    "decisiveEvidence": [
+     {
+      "type": "EXACT_NAME",
+      "identityMultiplicity": "SINGLE"
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Manzana de las Luces",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:relation:3228119",
+    "canonicalName": "Manzana de las Luces",
+    "wikidataQid": "Q263127",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "SINGLE"
+    },
+    "nameAliasCandidates": [
+     "Complejo Histórico Cultural Manzana de las Luces",
+     "Manzana de las Luces"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "SINGLE",
+     "correspondence": "EQUIVALENT"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+    "decisiveEvidence": [
+     {
+      "type": "EXACT_NAME",
+      "identityMultiplicity": "SINGLE"
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,3 +1,4 @@
+
 export interface BadgeData {
   text: string;
   action: 'info' | 'success' | 'warning' | 'error' | 'muted';
@@ -6,9 +7,25 @@ export interface BadgeData {
 export interface TourStopLocation {
   type: 'location';
   id: string;
+  experienceId?: string;
   title: string;
   image: string;
   description?: string;
+  badges: BadgeData[];
+}
+
+// A multi-component Experience snapshot, as opposed to a plain location.
+export interface TourStopComposite {
+  type: 'composite';
+  id: string;
+  experienceId?: string;
+  // Immutable snapshot identity, distinct from the persisted Experience id.
+  experienceSnapshotId: string;
+  title: string;
+  themeReasoning?: string;
+  kind: string;
+  boundary?: unknown;
+  components: Array<{ order: number | null; component: { id: string; name: string; latitude?: number; longitude?: number } }>;
   badges: BadgeData[];
 }
 
@@ -27,4 +44,8 @@ export interface TourStopDayHeader {
   title: string;
 }
 
-export type TourStop = TourStopLocation | TourStopTransport | TourStopDayHeader;
+export type TourStop =
+  | TourStopLocation
+  | TourStopComposite
+  | TourStopTransport
+  | TourStopDayHeader;

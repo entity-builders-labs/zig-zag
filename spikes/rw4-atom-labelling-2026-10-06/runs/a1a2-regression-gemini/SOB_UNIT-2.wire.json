@@ -1,0 +1,15 @@
+[
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>"
+  },
+  {
+    "kind": "batch",
+    "batchIndex": 1,
+    "atoms": 34,
+    "elapsedMs": 50007,
+    "error": "The operation was aborted due to timeout"
+  }
+]

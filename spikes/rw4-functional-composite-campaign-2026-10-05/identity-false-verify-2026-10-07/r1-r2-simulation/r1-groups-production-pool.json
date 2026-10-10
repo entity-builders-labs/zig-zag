@@ -1,0 +1,915 @@
+{
+ "Buenos Aires": {
+  "poolSize": 2712,
+  "withQid": 818,
+  "distinctQids": 805,
+  "sharedQidGroups": 12,
+  "r1Groups": 1,
+  "groups": [
+   {
+    "qid": "Q1024829",
+    "label": "Cabildo de Buenos Aires",
+    "p31": [
+     "Q33506",
+     "Q5773747",
+     "Q1024827"
+    ],
+    "located": true,
+    "itemNames": [
+     "Cabildo of Buenos Aires",
+     "Cabildo de Buenos Aires",
+     "Cabildo building",
+     "Cabildo historico",
+     "Museo Historico Nacional del Cabildo y de la Revolucion de Mayo",
+     "Cabildo histórico"
+    ],
+    "r1": true,
+    "r1Sets": [
+     {
+      "address": "bolivar 65",
+      "ids": [
+       "osm:node:767690911",
+       "osm:way:293947112"
+      ]
+     }
+    ],
+    "records": [
+     {
+      "id": "osm:node:767690911",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "bolivar 65",
+      "names": {
+       "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo"
+      },
+      "declaredAliases": [
+       "Ратуша Буэнос-Айреса",
+       "Ратуша Буенос-Айреса",
+       "Cabildo de Buenos Aires"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3738806,
+       -34.6087695
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "museum": "history",
+       "tourism": "museum"
+      }
+     },
+     {
+      "id": "osm:way:293947112",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "bolivar 65",
+      "names": {
+       "name": "Cabildo de Buenos Aires",
+       "short_name": "Cabildo",
+       "alt_name": "Cabildo de Mayo"
+      },
+      "declaredAliases": [
+       "Cabildo de Mayo",
+       "Cabildo de Buenos Aires",
+       "ブエノスアイレスのカビルド",
+       "布宜诺斯艾利斯卡比尔多",
+       "Cabildo",
+       "Cabildo de Buenos Aires"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3736802,
+       -34.6088055
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "heritage": "4",
+       "historic": "building",
+       "museum": "history",
+       "tourism": "yes"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:767690911",
+      "b": "osm:way:293947112",
+      "sameAddress": true,
+      "meters": 19,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q111694361",
+    "label": "Convivencia y Paz",
+    "p31": [
+     "Q4989906"
+    ],
+    "located": true,
+    "itemNames": [
+     "Convivencia y Paz",
+     "Monumento a la convivencia y la paz"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:4538872748",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Convivencia y Paz"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4551136,
+       -34.5288464
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     },
+     {
+      "id": "osm:node:12196390177",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Rojo Flor"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4550266,
+       -34.5284678
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:4538872748",
+      "b": "osm:node:12196390177",
+      "sameAddress": false,
+      "meters": 43,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q64764396",
+    "label": "Museo Del Patrimonio Del Palacio De Las Aguas Corrientes",
+    "p31": [
+     "Q33506"
+    ],
+    "located": true,
+    "itemNames": [
+     "Heritage Museum of the Palacio de las Aguas Corrientes",
+     "Museo Del Patrimonio Del Palacio De Las Aguas Corrientes",
+     "Museo del Patrimonio del Palacio de las Aguas Corrientes",
+     "Museo del Agua"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:5850576502",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "riobamba 750",
+      "names": {
+       "name": "Museo del agua y de la historia sanitaria",
+       "alt_name": "Museo del Patrimonio del Palacio de las Aguas Corrientes"
+      },
+      "declaredAliases": [
+       "Museo del Patrimonio del Palacio de las Aguas Corrientes",
+       "tuvalet müzesi free"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3945971,
+       -34.6004835
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "museum": "history",
+       "tourism": "museum"
+      }
+     },
+     {
+      "id": "osm:node:6439772343",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": "avenida doctor jose maria ramos mejia 1398",
+      "names": {
+       "name": "Museo Iser"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3730355,
+       -34.5892616
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "museum": "history",
+       "tourism": "museum"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:5850576502",
+      "b": "osm:node:6439772343",
+      "sameAddress": false,
+      "meters": 2335,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5982348",
+    "label": "Lucio Vicente López",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Lucio Vicente López",
+     "Lucio Vicente López",
+     "Lucio Vicente Lopez"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6045956890",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Lucio Vicente López"
+      },
+      "declaredAliases": [
+       "Lucio Vicente López"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3939245,
+       -34.5864219
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:node:6046335618",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Lucio Vicente López"
+      },
+      "declaredAliases": [
+       "Lucio Vicente López"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3936928,
+       -34.5881515
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6045956890",
+      "b": "osm:node:6046335618",
+      "sameAddress": false,
+      "meters": 193,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5772461",
+    "label": "Clemente Onelli",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Clemente Onelli",
+     "Clemente Onelli"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6046335622",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Clemente Onelli"
+      },
+      "declaredAliases": [
+       "Clemente Onelli"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3938246,
+       -34.5883706
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:way:456246525",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Cantero Clemente Onelli"
+      },
+      "declaredAliases": [
+       "Clemente Onelli"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4057681,
+       -34.6505362
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6046335622",
+      "b": "osm:way:456246525",
+      "sameAddress": false,
+      "meters": 6998,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   },
+   {
+    "qid": "Q1269826",
+    "label": "Joaquín Samuel de Anchorena",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Joaquín Samuel de Anchorena",
+     "Joaquín Samuel de Anchorena",
+     "Joaquín de Anchorena",
+     "Joaquin Samuel de Anchorena",
+     "Joaquin de Anchorena"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6049608099",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Joaquín Samuel de Anchorena"
+      },
+      "declaredAliases": [
+       "Joaquín Samuel de Anchorena"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3927926,
+       -34.5881929
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:way:135234943",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plazoleta Intendente Joaquín S. de Anchorena"
+      },
+      "declaredAliases": [
+       "Joaquín Samuel de Anchorena"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3778535,
+       -34.6132455
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6049608099",
+      "b": "osm:way:135234943",
+      "sameAddress": false,
+      "meters": 3103,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q5835236",
+    "label": "Erasmo Obligado",
+    "p31": [
+     "Q5"
+    ],
+    "located": false,
+    "itemNames": [
+     "Erasmo Obligado",
+     "Erasmo Obligado"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:node:6052717164",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Erasmo Obligado"
+      },
+      "declaredAliases": [
+       "Erasmo Obligado"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3921234,
+       -34.5871592
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     },
+     {
+      "id": "osm:node:6052740665",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Erasmo Obligado"
+      },
+      "declaredAliases": [
+       "Erasmo Obligado"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3924533,
+       -34.5870463
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "tomb"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:node:6052717164",
+      "b": "osm:node:6052740665",
+      "sameAddress": false,
+      "meters": 33,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5719936",
+    "label": "Barrancas de Belgrano",
+    "p31": [
+     "Q174782"
+    ],
+    "located": true,
+    "itemNames": [
+     "Barrancas de Belgrano",
+     "Barrancas de Belgrano",
+     "Plaza Barrancas de Belgrano"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:10241456",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Barrancas de Belgrano"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4506691,
+       -34.5590718
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:20458525",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza General A. J. Sucre"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4492638,
+       -34.5598593
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:20458526",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Barrancas de Belgrano"
+      },
+      "declaredAliases": [
+       "Barrancas de Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.4481461,
+       -34.5607208
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:10241456",
+      "b": "osm:way:20458525",
+      "sameAddress": false,
+      "meters": 156,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     },
+     {
+      "a": "osm:way:10241456",
+      "b": "osm:way:20458526",
+      "sameAddress": false,
+      "meters": 295,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     },
+     {
+      "a": "osm:way:20458525",
+      "b": "osm:way:20458526",
+      "sameAddress": false,
+      "meters": 140,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q28501895",
+    "label": "Plaza Amadeo Sabattini",
+    "p31": [
+     "Q174782"
+    ],
+    "located": true,
+    "itemNames": [
+     "Plaza Amadeo Sabattini",
+     "Plaza Amadeo Sabattini"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:205997365",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Doctor Amadeo Sabattini"
+      },
+      "declaredAliases": [
+       "Plaza Amadeo Sabattini"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4436979,
+       -34.6121107
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:way:205997366",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plaza Doctor Amadeo Sabattini"
+      },
+      "declaredAliases": [
+       "Plaza Amadeo Sabattini"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.4434543,
+       -34.6126852
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:205997365",
+      "b": "osm:way:205997366",
+      "sameAddress": false,
+      "meters": 68,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q4579815",
+    "label": "basílica de San Francisco",
+    "p31": [
+     "Q120560"
+    ],
+    "located": true,
+    "itemNames": [
+     "Basilique Saint-François",
+     "basílica de San Francisco",
+     "Templo de San Francisco",
+     "Convento de San Francisco",
+     "Basílica de San Francisco de Asís",
+     "convento de San Francisco de Asís",
+     "Iglesia y Convento de San Francisco - Capilla San Roque"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:321205687",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Plazoleta San Francisco"
+      },
+      "declaredAliases": [
+       "Basílica de San Francisco (Buenos Aires)"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3718514,
+       -34.6099402
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "leisure": "park"
+      }
+     },
+     {
+      "id": "osm:relation:2354152",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Basílica de San Francisco"
+      },
+      "declaredAliases": [],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3713912,
+       -34.6107164
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "amenity": "place_of_worship",
+       "tourism": "attraction"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:321205687",
+      "b": "osm:relation:2354152",
+      "sameAddress": false,
+      "meters": 96,
+      "contained": false,
+      "recordNameAgreement": "NONE"
+     }
+    ]
+   },
+   {
+    "qid": "Q3149120",
+    "label": "Inmortal polaca",
+    "p31": [
+     "Q2683596"
+    ],
+    "located": false,
+    "itemNames": [
+     "Polish Immortal",
+     "Inmortal polaca"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:449621610",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf"
+      },
+      "declaredAliases": [
+       "Inmortal polaca"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3670588,
+       -34.6333165
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     },
+     {
+      "id": "osm:way:449621622",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf"
+      },
+      "declaredAliases": [
+       "Inmortal polaca"
+      ],
+      "recordVsItem": "NONE",
+      "recordAnyNameVsItem": "NONE",
+      "point": [
+       -58.3670125,
+       -34.6334568
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "tourism": "artwork"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:449621610",
+      "b": "osm:way:449621622",
+      "sameAddress": false,
+      "meters": 16,
+      "contained": false,
+      "recordNameAgreement": "EQUIVALENT"
+     }
+    ]
+   },
+   {
+    "qid": "Q5384418",
+    "label": "General Manuel Belgrano",
+    "p31": [
+     "Q860861"
+    ],
+    "located": true,
+    "itemNames": [
+     "Manuel Belgrano equestrian monument",
+     "General Manuel Belgrano",
+     "Monumento ecuestre al general manuel belgrano"
+    ],
+    "r1": false,
+    "r1Sets": [],
+    "records": [
+     {
+      "id": "osm:way:720034722",
+      "structuralKind": "UNKNOWN",
+      "address": null,
+      "names": {
+       "name": "Monumento al General Manuel Belgrano"
+      },
+      "declaredAliases": [
+       "Equestrian monument to General Manuel Belgrano",
+       "Monumento ecuestre al General Manuel Belgrano"
+      ],
+      "recordVsItem": "OVERLAP",
+      "recordAnyNameVsItem": "OVERLAP",
+      "point": [
+       -58.3711909,
+       -34.6083543
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "building": "yes",
+       "historic": "memorial"
+      }
+     },
+     {
+      "id": "osm:relation:17076041",
+      "structuralKind": "POINT_OF_INTEREST",
+      "address": null,
+      "names": {
+       "name": "Monumento ecuestre al General Manuel Belgrano"
+      },
+      "declaredAliases": [
+       "Monumento ecuestre al General Manuel Belgrano"
+      ],
+      "recordVsItem": "EQUIVALENT",
+      "recordAnyNameVsItem": "EQUIVALENT",
+      "point": [
+       -58.3712484,
+       -34.6083586
+      ],
+      "geometryType": "Point",
+      "keyTags": {
+       "historic": "monument",
+       "tourism": "attraction"
+      }
+     }
+    ],
+    "pairs": [
+     {
+      "a": "osm:way:720034722",
+      "b": "osm:relation:17076041",
+      "sameAddress": false,
+      "meters": 5,
+      "contained": false,
+      "recordNameAgreement": "OVERLAP"
+     }
+    ]
+   }
+  ]
+ },
+ "Ciudad de Mendoza": {
+  "poolSize": 176,
+  "withQid": 12,
+  "distinctQids": 12,
+  "sharedQidGroups": 0,
+  "r1Groups": 0,
+  "groups": []
+ }
+}

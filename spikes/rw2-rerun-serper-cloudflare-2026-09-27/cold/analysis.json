@@ -1,0 +1,228 @@
+{
+  "runLabel": "rw3-cold",
+  "tourId": "b204bece-1803-46d0-a22f-8016a93fd597",
+  "generationStatus": "completed",
+  "pollElapsedMs": 74548,
+  "steps": [
+    "preference_interpretation",
+    "tour_intent",
+    "destination_resolution",
+    "anchor_geo_resolution",
+    "coverage_analysis",
+    "db_search",
+    "coverage_analysis",
+    "discovery",
+    "entity_resolution",
+    "geographic_validation",
+    "catalog_materialization",
+    "coverage_analysis",
+    "coverage_analysis",
+    "discovery",
+    "coverage_analysis",
+    "candidate_pool",
+    "embeddings",
+    "daily_planning",
+    "tour_completeness"
+  ],
+  "providers": {
+    "cloudflare.workers-ai": 1,
+    "commons.wikimedia.org": 7,
+    "es.wikivoyage.org": 1,
+    "geoapify.geocode-search": 2,
+    "geoapify.place-details": 16,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 30,
+    "google(generativelanguage.googleapis.com)": 14,
+    "groq": 1,
+    "localhost:11434": 16,
+    "nominatim.local/search": 7,
+    "overpass.local": 6,
+    "serper": 1,
+    "wikidata": 25,
+    "wikipedia(en.wikipedia.org)": 7,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "preferenceInterpretation": {
+    "model": "qwen/qwen3.8-27b",
+    "anchoredPlaces": [
+      {
+        "usage": "specific_destination",
+        "rawName": "San Telmo",
+        "priority": "soft"
+      },
+      {
+        "usage": "specific_destination",
+        "rawName": "La Boca",
+        "priority": "soft"
+      }
+    ],
+    "preferredFacets": [
+      {
+        "key": "history",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "especialmente su historia",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.9,
+        "importance": 1
+      },
+      {
+        "key": "architecture",
+        "source": "free_text",
+        "evidence": [
+          {
+            "text": "arquitectura",
+            "source": "user_free_text"
+          }
+        ],
+        "dimension": "theme",
+        "confidence": 0.9,
+        "importance": 1
+      }
+    ],
+    "positiveSemanticQuery": "history architecture iconic places San Telmo La Boca",
+    "preferenceSpec_facets": [
+      {
+        "key": "history",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "architecture",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "source": "wizard",
+        "weight": 1,
+        "required": false,
+        "dimension": "intent"
+      }
+    ],
+    "preferenceSpec_semanticQuery": "history architecture iconic places San Telmo La Boca"
+  },
+  "resolvedAnchors": [
+    {
+      "rawName": "San Telmo",
+      "usage": "specific_destination",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "San Telmo",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069"
+    },
+    {
+      "rawName": "La Boca",
+      "usage": "specific_destination",
+      "priority": "soft",
+      "status": "resolved",
+      "kind": "area",
+      "canonicalName": "La Boca",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223879"
+    }
+  ],
+  "routing": {
+    "summary": "AREA_ROUTE_WALK=0; GENERIC=3.",
+    "areaRouteWalk": [],
+    "generic": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "architecture",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:architecture] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ]
+  },
+  "discovery": {
+    "summary": "Pase 2: fuentes [wikivoyage, google_places, web] → 0 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+    "routedProviders": [
+      "wikivoyage",
+      "google_places",
+      "web"
+    ],
+    "webResults": [],
+    "webEvidence": []
+  },
+  "entity_resolution": {
+    "summary": "Entity resolution procesó 20 candidato(s): 14 quedaron con entidades concretas suficientes para continuar y 6 no pudieron resolverse. Se obtuvieron 14 entidad(es) provider-backed, 14 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Ferroclub de Remedios de Escalada: UNCONFIRMED_MATCH [resueltos 0/1: Ferroclub de Remedios de Escalada=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; Paseo de las Esculturas: UNCONFIRMED_MATCH [resueltos 0/1: Paseo de las Esculturas=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; José de San Martín: UNCONFIRMED_MATCH [resueltos 0/1: José de San Martín=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT)]; Centro Científico Tecnológicos.: NO_OSM_MATCH [resueltos 0/1: Centro Científico Tecnológicos.=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)]; Galería Güemes: UNCONFIRMED_MATCH [resueltos 0/1: Galería Güemes=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)]; Iglesia San Ignacio de Loyola: UNCONFIRMED_MATCH [resueltos 0/1: Iglesia San Ignacio de Loyola=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION)].",
+    "status": "PASS"
+  },
+  "geographic_validation": {
+    "summary": "Validación geográfica: 14 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+    "status": "PASS"
+  },
+  "catalog_materialization": {
+    "summary": "14 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 6 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution. La Madre: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La flor de la vida: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Roca granitica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo de Artistas Argentinos Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Ferroclub de Remedios de Escalada: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Paseo de las Esculturas: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Estatua Hugo del Carril: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Juventud: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Guillermo Brown: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo Histórico de Cera: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Colón Fábrica: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Museo del Cine Pablo Ducrós Hicken: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; José de San Martín: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Museo Casa Taller 'Celia Chevalier': 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Benito Quinquela Martín: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Hidrovértigo: 1/1 componentes resueltos, composición completa → geografía ACCEPTED, persistida, elegible para planner; Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Galería Güemes: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner; Iglesia San Ignacio de Loyola: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible para planner.",
+    "status": "WARN"
+  },
+  "materializedTour": [
+    {
+      "order": 1,
+      "name": "La flor de la vida",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 2,
+      "name": "Museo de Artistas Argentinos Benito Quinquela Martín",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 3,
+      "name": "Museo Histórico de Cera",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 4,
+      "name": "Museo Casa Taller 'Celia Chevalier'",
+      "componentCount": 1,
+      "durationMinutes": 120
+    },
+    {
+      "order": 5,
+      "name": "La “Inmortal Polaca” del maestro ajedrecista Miguel Najdorf",
+      "componentCount": 1,
+      "durationMinutes": 120
+    }
+  ],
+  "dbAfter": {
+    "experience": 14,
+    "experienceByStatus": {
+      "VERIFIED": 14
+    },
+    "geoEntity": 16,
+    "geoEntityByKind": {
+      "AREA": 2,
+      "PLACE": 14
+    },
+    "experienceComponent": 14,
+    "duplicateExperienceNames": 0,
+    "duplicateIdentityRows": 0
+  },
+  "composites": []
+}

@@ -1,0 +1,840 @@
+{
+  "generatedAt": "2026-10-02T18:28:41.900Z",
+  "destination": {
+    "name": "Ciudad de Mendoza",
+    "countryCode": "AR",
+    "routeScaleCenter": {
+      "latitude": -32.88309217907325,
+      "longitude": -68.86223810433484
+    },
+    "routeScaleRadiusMeters": 80000
+  },
+  "catalog": "STUB (empty; no reads of canonical state, no writes)",
+  "wouldPersistCalls": [
+    "upsertGeoEntity",
+    "rememberVerifiedHintName"
+  ],
+  "replay": {
+    "ROUTE_LIKE (COLD #11 policy)": {
+      "candidates": [
+        {
+          "name": "Uco Valley Wine Tasting Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "UNCONFIRMED_MATCH"
+          ],
+          "geographicPolicy": "ROUTE_LIKE"
+        },
+        {
+          "name": "Lujan de Cuyo Wine Tasting Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "INCOMPLETE_SOURCE_COMPOSITION"
+          ],
+          "geographicPolicy": "ROUTE_LIKE"
+        }
+      ],
+      "forensicAudit": [
+        {
+          "candidateName": "Uco Valley Wine Tasting Itinerary",
+          "geographicPolicy": "ROUTE_LIKE",
+          "components": [
+            {
+              "hintName": "Alfa Crux",
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Alfa Crux",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Alfa Crux",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Alfa Crux",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Alfa Crux",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 0,
+                    "rejected": [],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "ROUTE_SCALE",
+                      "radiusMeters": 80000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "Alfa Crux",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            },
+            {
+              "hintName": "SuperUco",
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "SuperUco",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "SuperUco",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "SuperUco",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "SuperUco",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 0,
+                    "rejected": [],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "ROUTE_SCALE",
+                      "radiusMeters": 80000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "SuperUco",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            },
+            {
+              "hintName": "Bodega Azul",
+              "finalStatus": "unresolved",
+              "finalReason": "UNCONFIRMED_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Bodega Azul",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Bodega Azul",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Bodega Azul",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "destinationCompatibility": {
+                    "verdict": "INCOMPATIBLE",
+                    "reason": "OUTSIDE_ROUTE_DESTINATION_RADIUS"
+                  },
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Bodega Azul",
+                  "providerResultCount": 1,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 1,
+                    "rejected": [],
+                    "viableCount": 1,
+                    "searchScope": {
+                      "kind": "ROUTE_SCALE",
+                      "radiusMeters": 80000
+                    },
+                    "identityEnrichment": {
+                      "status": "ENRICHED",
+                      "identities": [
+                        {
+                          "provider": "openstreetmap",
+                          "externalId": "osm:node:4851595199"
+                        }
+                      ]
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "Bodega Azul",
+                  "providerResultCount": 1,
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "canonicalName": "Bodega La Azul",
+                    "externalId": "geoapify:51a7cf6971214e51c059fd38509610bc40c0f00103f901bf772d2101000000c0020192030e426f64656761204c6120417a756c",
+                    "kind": "PLACE",
+                    "identities": [
+                      {
+                        "provider": "geoapify",
+                        "externalId": "geoapify:51a7cf6971214e51c059fd38509610bc40c0f00103f901bf772d2101000000c0020192030e426f64656761204c6120417a756c"
+                      },
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:node:4851595199"
+                      }
+                    ],
+                    "latitude": -33.4692562,
+                    "longitude": -69.2207912
+                  },
+                  "identityEvidence": [
+                    {
+                      "type": "WIKIDATA_IDENTITY_MATCH",
+                      "source": "NEARBY",
+                      "hintMatched": false,
+                      "candidateMatched": false
+                    }
+                  ],
+                  "verificationDecision": "REJECTED"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "candidateName": "Lujan de Cuyo Wine Tasting Itinerary",
+          "geographicPolicy": "ROUTE_LIKE",
+          "components": [
+            {
+              "hintName": "A16",
+              "finalStatus": "unresolved",
+              "finalReason": "UNCONFIRMED_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "A16",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "A16",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "A16",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "A16",
+                  "providerResultCount": 5,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 3,
+                    "rejected": [
+                      {
+                        "name": "FC Belgrano",
+                        "reason": "STRUCTURALLY_INCOMPATIBLE",
+                        "featureClass": "street"
+                      },
+                      {
+                        "name": "FC Belgrano",
+                        "reason": "STRUCTURALLY_INCOMPATIBLE",
+                        "featureClass": "street"
+                      }
+                    ],
+                    "viableCount": 1,
+                    "searchScope": {
+                      "kind": "ROUTE_SCALE",
+                      "radiusMeters": 80000
+                    },
+                    "identityEnrichment": {
+                      "status": "ENRICHED",
+                      "identities": [
+                        {
+                          "provider": "openstreetmap",
+                          "externalId": "osm:way:48965326"
+                        }
+                      ]
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "A16",
+                  "providerResultCount": 3,
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "canonicalName": "FC Belgrano",
+                    "externalId": "geoapify:513ec7ecd1404e51c05960ea4207b87640c0f00102f901ce26eb0200000000c0020192030b46432042656c6772616e6f",
+                    "kind": "PLACE",
+                    "identities": [
+                      {
+                        "provider": "geoapify",
+                        "externalId": "geoapify:513ec7ecd1404e51c05960ea4207b87640c0f00102f901ce26eb0200000000c0020192030b46432042656c6772616e6f"
+                      },
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:way:48965326"
+                      }
+                    ],
+                    "latitude": -32.9274911,
+                    "longitude": -69.2227063
+                  },
+                  "identityEvidence": [
+                    {
+                      "type": "WIKIDATA_IDENTITY_MATCH",
+                      "source": "NEARBY",
+                      "hintMatched": false,
+                      "candidateMatched": false
+                    }
+                  ],
+                  "verificationDecision": "REJECTED"
+                }
+              ]
+            },
+            {
+              "hintName": "Ojo de Agua",
+              "finalStatus": "resolved",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Ojo de Agua",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Ojo de Agua",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Ojo de Agua",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Ojo de Agua",
+                  "providerResultCount": 1,
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "canonicalName": "Ojo de Agua",
+                    "externalId": "osm:node:4797394430",
+                    "kind": "PLACE",
+                    "identities": [
+                      {
+                        "provider": "openstreetmap",
+                        "externalId": "osm:node:4797394430"
+                      }
+                    ],
+                    "latitude": -33.1300868,
+                    "longitude": -68.9641048
+                  },
+                  "identityEvidence": [
+                    {
+                      "type": "EXACT_NAME",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "verificationDecision": "VERIFIED"
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "geographicValidation": []
+    },
+    "DEFAULT (contrast)": {
+      "candidates": [
+        {
+          "name": "Uco Valley Wine Tasting Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "DESTINATION_INCOMPATIBLE"
+          ],
+          "geographicPolicy": "DEFAULT"
+        },
+        {
+          "name": "Lujan de Cuyo Wine Tasting Itinerary",
+          "status": "rejected",
+          "rejectionReasons": [
+            "NO_OSM_MATCH",
+            "DESTINATION_INCOMPATIBLE"
+          ],
+          "geographicPolicy": "DEFAULT"
+        }
+      ],
+      "forensicAudit": [
+        {
+          "candidateName": "Uco Valley Wine Tasting Itinerary",
+          "geographicPolicy": "DEFAULT",
+          "components": [
+            {
+              "hintName": "Alfa Crux",
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Alfa Crux",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Alfa Crux",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Alfa Crux",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Alfa Crux",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 0,
+                    "rejected": [],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "DEFAULT",
+                      "radiusMeters": 50000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "Alfa Crux",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            },
+            {
+              "hintName": "SuperUco",
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "SuperUco",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "SuperUco",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "SuperUco",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "SuperUco",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 0,
+                    "rejected": [],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "DEFAULT",
+                      "radiusMeters": 50000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "SuperUco",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            },
+            {
+              "hintName": "Bodega Azul",
+              "finalStatus": "unresolved",
+              "finalReason": "DESTINATION_INCOMPATIBLE",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Bodega Azul",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Bodega Azul",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Bodega Azul",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "destinationCompatibility": {
+                    "verdict": "INCOMPATIBLE",
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY"
+                  },
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Bodega Azul",
+                  "providerResultCount": 1,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 10,
+                    "rejected": [
+                      {
+                        "name": "Bodega Centenario",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Baudron",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Alandes",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Trapiche",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Gieco",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Lagarde",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "Bodega Trivento",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      },
+                      {
+                        "name": "",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      }
+                    ],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "DEFAULT",
+                      "radiusMeters": 50000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "Bodega Azul",
+                  "providerResultCount": 10,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "candidateName": "Lujan de Cuyo Wine Tasting Itinerary",
+          "geographicPolicy": "DEFAULT",
+          "components": [
+            {
+              "hintName": "A16",
+              "finalStatus": "unresolved",
+              "finalReason": "NO_OSM_MATCH",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "A16",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "A16",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "A16",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "A16",
+                  "providerResultCount": 5,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 3,
+                    "rejected": [
+                      {
+                        "name": "FC Belgrano",
+                        "reason": "STRUCTURALLY_INCOMPATIBLE",
+                        "featureClass": "street"
+                      },
+                      {
+                        "name": "FC Belgrano",
+                        "reason": "STRUCTURALLY_INCOMPATIBLE",
+                        "featureClass": "street"
+                      },
+                      {
+                        "name": "FC Belgrano",
+                        "reason": "DESTINATION_INCOMPATIBLE",
+                        "destinationReason": "OUTSIDE_DESTINATION_BOUNDARY"
+                      }
+                    ],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "DEFAULT",
+                      "radiusMeters": 50000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "A16",
+                  "providerResultCount": 3,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            },
+            {
+              "hintName": "Ojo de Agua",
+              "finalStatus": "unresolved",
+              "finalReason": "DESTINATION_INCOMPATIBLE",
+              "attempts": [
+                {
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "catalog",
+                  "query": "Ojo de Agua",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "provider": "trusted_observation",
+                  "query": "Ojo de Agua",
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "provider": "openstreetmap",
+                  "query": "Ojo de Agua",
+                  "poolCandidateCount": 176,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "destinationCompatibility": {
+                    "verdict": "INCOMPATIBLE",
+                    "reason": "OUTSIDE_DESTINATION_BOUNDARY"
+                  },
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "provider": "nominatim",
+                  "query": "Ojo de Agua",
+                  "providerResultCount": 1,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                },
+                {
+                  "placeSearch": {
+                    "resultCount": 0,
+                    "rejected": [],
+                    "viableCount": 0,
+                    "searchScope": {
+                      "kind": "DEFAULT",
+                      "radiusMeters": 50000
+                    }
+                  },
+                  "strategy": "PLACES",
+                  "executionStatus": "completed",
+                  "provider": "geoapify",
+                  "query": "Ojo de Agua",
+                  "providerResultCount": 0,
+                  "candidateAcquired": false,
+                  "identityEvidence": []
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "geographicValidation": []
+    }
+  }
+}

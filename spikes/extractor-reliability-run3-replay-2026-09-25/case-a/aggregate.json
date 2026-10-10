@@ -1,0 +1,21 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "runs": 10,
+  "distribution": {
+    "CANDIDATE": 3,
+    "NO_CANDIDATE": 6,
+    "PROVIDER_FAILURE": 1
+  },
+  "outcomes": [
+    "CANDIDATE",
+    "PROVIDER_FAILURE",
+    "CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "NO_CANDIDATE",
+    "CANDIDATE"
+  ]
+}

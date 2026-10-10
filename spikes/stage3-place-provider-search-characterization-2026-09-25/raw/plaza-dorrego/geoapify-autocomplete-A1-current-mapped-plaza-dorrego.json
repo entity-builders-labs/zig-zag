@@ -1,0 +1,54 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+      "name": "Plaza Dorrego",
+      "displayName": {
+        "text": "Plaza Dorrego"
+      },
+      "formattedAddress": "Plaza Dorrego, San Telmo, 1871 Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6204917,
+        "longitude": -58.3717807
+      },
+      "types": [
+        "leisure.park"
+      ],
+      "primaryType": "leisure.park"
+    },
+    {
+      "id": "51055a70f552304dc059f2c4bd439b4f41c0f00103f901acae083101000000c0020192035943656e74726f20646520416c6661626574697a616369c3b36e2c2045647563616369c3b36e2042c3a17369636120792054726162616a6f203739204173616d626c656120506f70756c617220506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f35313137363139383834",
+      "name": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego",
+      "displayName": {
+        "text": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego"
+      },
+      "formattedAddress": "Centro de Alfabetización, Educación Básica y Trabajo 79 Asamblea Popular Plaza Dorrego, Avenida San Juan, Constitución, 1102 Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6219258,
+        "longitude": -58.3775317
+      },
+      "types": [
+        "education.school"
+      ],
+      "primaryType": "education.school"
+    },
+    {
+      "id": "5101f8a754892f4dc05915353dcd6e4f41c0f00103f9016f353f7101000000c00201920313436166c3a920506c617a6120446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313934393335313531",
+      "name": "Café Plaza Dorrego",
+      "displayName": {
+        "text": "Café Plaza Dorrego"
+      },
+      "formattedAddress": "Café Plaza Dorrego, Defensa, San Telmo, C1065 AAR Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6205689,
+        "longitude": -58.3713785
+      },
+      "types": [
+        "catering.cafe"
+      ],
+      "primaryType": "catering.cafe"
+    }
+  ],
+  "failure": null
+}

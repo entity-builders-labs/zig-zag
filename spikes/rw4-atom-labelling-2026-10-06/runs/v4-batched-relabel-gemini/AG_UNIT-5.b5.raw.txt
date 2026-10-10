@@ -1,0 +1,82 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media call to action and sharing prompts."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment count link."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social share buttons."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Guided walking tour image banner share link."
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image link."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tag link."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment reply message."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email information."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Blog pagination links."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author description."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author biography detail."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Welcome blog greeting."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media image banner."
+    }
+  ]
+}

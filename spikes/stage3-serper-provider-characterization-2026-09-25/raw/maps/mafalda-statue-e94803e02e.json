@@ -1,0 +1,113 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Mafalda Statue",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:53:34.551Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 855
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda Statue",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.598231,-58.4493568,14.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.615832,
+        "longitude": -58.3716461,
+        "rating": 4.6,
+        "ratingCount": 8296,
+        "type": "Sculpture",
+        "types": [
+          "Sculpture",
+          "Tourist attraction"
+        ],
+        "phoneNumber": "+54 11 7125-4793",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkr-QixZM6HXZ8UfJtN1vLFfRCVYmUiB53uWYHlYikB7VQ6TUQGRZFZNaaSRV2J4yF6B0xPRC5zY5VLbyKJgiZKjD7otT5WcYzkZuFM_RjUgVKA-irDfpDwpe1bjOokT28qVbxS",
+        "cid": "10819767908987080422",
+        "fid": "0x95a3354dd6271479:0x962789966f588ee6",
+        "placeId": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y"
+      },
+      {
+        "position": 2,
+        "title": "Plaza Mafalda",
+        "address": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.5806439,
+        "longitude": -58.4456115,
+        "rating": 4.3,
+        "ratingCount": 11626,
+        "type": "City park",
+        "types": [
+          "City park",
+          "Park",
+          "Tourist attraction"
+        ],
+        "website": "https://www.buenosaires.gob.ar/participacionciudadana/participa-en-obras-de-tu-barrio",
+        "description": "Street art at this kid-friendly park includes a mural of cartoon & comic strip character \"Mafalda\".",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlgrpNLXNYkIGK7qC8mRVbAHfDB44DOfoLPlTFVJfHH6fOV0Alos9rkn5cBb1ST6te3Z3klbbrsdB1CyrBDqnZEgVw7gxlqysriwt1Akdn86KKyWfCPEh3fa_NuKSt4diNzOSJuyQ",
+        "cid": "11831447559535372241",
+        "fid": "0x95bcb5ebf9363d9f:0xa431bedea4c4a7d1",
+        "placeId": "ChIJnz02-eu1vJUR0afEpN6-MaQ"
+      },
+      {
+        "position": 3,
+        "title": "Camino de la historieta",
+        "address": "Balcarce 678, C1064AAN C1064AAN, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6154692,
+        "longitude": -58.3707005,
+        "rating": 4.4,
+        "ratingCount": 45,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction"
+        ],
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkdaw0qN2_zfYhKfv2T4P_oPvnuaCWaZnHzJ-238h8WimWvsJK9syeujJKIzFHGUjYLPhLeWDNENtwBUnUL2XXq4SIEL3x4fOW9fQpSJ-w-2qAEpdZyAY-DKHpB6EShpCdZA2aSQjzE3SA",
+        "cid": "4529232000318682457",
+        "fid": "0x95a335000902768d:0x3edb1081e453b559",
+        "placeId": "ChIJjXYCCQA1o5URWbVT5IEQ2z4"
+      }
+    ],
+    "credits": 3
+  }
+}

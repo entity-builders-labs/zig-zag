@@ -1,0 +1,220 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":20351,\"name\":\"Buenos Aires, \\\"The Paris of Latin America\\\"\",\"slug\":\"20351-buenos-aires-the-paris-of-latin-america\",\"rating\":4.57,\"reviews_count\":69,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/20351-buenos-aires-the-paris-of-latin-america?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":62076,\"name\":\"Palermo Soho: Street Art Tour\",\"slug\":\"62076-palermo-soho-street-art-tour\",\"rating\":4.98,\"reviews_count\":111,\"duration\":150,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/62076-palermo-soho-street-art-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55455,\"name\":\"Recoleta - History, Art, and Architecture of an Iconic Neighborhood\",\"slug\":\"55455-recoleta-history-art-and-architecture-of-an-iconic-neighborhood\",\"rating\":5.0,\"reviews_count\":18,\"duration\":150,\"languages\":[\"es\",\"en\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55455-recoleta-history-art-and-architecture-of-an-iconic-neighborhood?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45349,\"name\":\"Free tour Retiro and Recoleta: Aristocratic Buenos Aires\",\"slug\":\"45349-free-tour-retiro-and-recoleta-aristocratic-buenos-aires\",\"rating\":4.83,\"reviews_count\":115,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45349-free-tour-retiro-and-recoleta-aristocratic-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51665,\"name\":\"Welcome to Buenos Aires! (max 12 people)\",\"slug\":\"51665-welcome-to-buenos-aires-max-12-people\",\"rating\":4.76,\"reviews_count\":21,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55258,\"name\":\"A Natural Oasis in Buenos Aires: Discover Costanera Sur!\",\"slug\":\"55258-a-natural-oasis-in-buenos-aires-discover-costanera-sur\",\"rating\":4.69,\"reviews_count\":13,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55258-a-natural-oasis-in-buenos-aires-discover-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63797,\"name\":\"Hidden Stories of the Recoleta Cemetery\",\"slug\":\"63797-hidden-stories-of-the-recoleta-cemetery\",\"rating\":5.0,\"reviews_count\":13,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63797-hidden-stories-of-the-recoleta-cemetery?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":46563,\"name\":\"Chacarita Cemetery: free walking tour\",\"slug\":\"46563-chacarita-cemetery-free-walking-tour\",\"rating\":5.0,\"reviews_count\":3,\"duration\":90,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/46563-chacarita-cemetery-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":23191,\"name\":\"Barracas Free Tour, the thousand faces of the deep south\",\"slug\":\"23191-barracas-free-tour-the-thousand-faces-of-the-deep-south\",\"rating\":4.99,\"reviews_count\":281,\"duration\":210,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":65401,\"name\":\"City classics for children\",\"slug\":\"65401-city-classics-for-children\",\"rating\":0.0,\"reviews_count\":0,\"duration\":105,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35018,\"name\":\"Buenos Aires Urban Walks - Free Tour of the City Center\",\"slug\":\"35018-buenos-aires-urban-walks-free-tour-of-the-city-center\",\"rating\":5.0,\"reviews_count\":21,\"duration\":150,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":52891,\"name\":\"Secrets of the National Fine Arts Museum\",\"slug\":\"52891-secrets-of-the-national-fine-arts-museum\",\"rating\":4.57,\"reviews_count\":14,\"duration\":60,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":2,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 20351,
+     "name": "Buenos Aires, \"The Paris of Latin America\"",
+     "slug": "20351-buenos-aires-the-paris-of-latin-america",
+     "rating": 4.57,
+     "reviews_count": 69,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/20351-buenos-aires-the-paris-of-latin-america?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 62076,
+     "name": "Palermo Soho: Street Art Tour",
+     "slug": "62076-palermo-soho-street-art-tour",
+     "rating": 4.98,
+     "reviews_count": 111,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/62076-palermo-soho-street-art-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55455,
+     "name": "Recoleta - History, Art, and Architecture of an Iconic Neighborhood",
+     "slug": "55455-recoleta-history-art-and-architecture-of-an-iconic-neighborhood",
+     "rating": 5.0,
+     "reviews_count": 18,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55455-recoleta-history-art-and-architecture-of-an-iconic-neighborhood?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45349,
+     "name": "Free tour Retiro and Recoleta: Aristocratic Buenos Aires",
+     "slug": "45349-free-tour-retiro-and-recoleta-aristocratic-buenos-aires",
+     "rating": 4.83,
+     "reviews_count": 115,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45349-free-tour-retiro-and-recoleta-aristocratic-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51665,
+     "name": "Welcome to Buenos Aires! (max 12 people)",
+     "slug": "51665-welcome-to-buenos-aires-max-12-people",
+     "rating": 4.76,
+     "reviews_count": 21,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55258,
+     "name": "A Natural Oasis in Buenos Aires: Discover Costanera Sur!",
+     "slug": "55258-a-natural-oasis-in-buenos-aires-discover-costanera-sur",
+     "rating": 4.69,
+     "reviews_count": 13,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55258-a-natural-oasis-in-buenos-aires-discover-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63797,
+     "name": "Hidden Stories of the Recoleta Cemetery",
+     "slug": "63797-hidden-stories-of-the-recoleta-cemetery",
+     "rating": 5.0,
+     "reviews_count": 13,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63797-hidden-stories-of-the-recoleta-cemetery?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 46563,
+     "name": "Chacarita Cemetery: free walking tour",
+     "slug": "46563-chacarita-cemetery-free-walking-tour",
+     "rating": 5.0,
+     "reviews_count": 3,
+     "duration": 90,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/46563-chacarita-cemetery-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 23191,
+     "name": "Barracas Free Tour, the thousand faces of the deep south",
+     "slug": "23191-barracas-free-tour-the-thousand-faces-of-the-deep-south",
+     "rating": 4.99,
+     "reviews_count": 281,
+     "duration": 210,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 65401,
+     "name": "City classics for children",
+     "slug": "65401-city-classics-for-children",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 105,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35018,
+     "name": "Buenos Aires Urban Walks - Free Tour of the City Center",
+     "slug": "35018-buenos-aires-urban-walks-free-tour-of-the-city-center",
+     "rating": 5.0,
+     "reviews_count": 21,
+     "duration": 150,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 52891,
+     "name": "Secrets of the National Fine Arts Museum",
+     "slug": "52891-secrets-of-the-national-fine-arts-museum",
+     "rating": 4.57,
+     "reviews_count": 14,
+     "duration": 60,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 2,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

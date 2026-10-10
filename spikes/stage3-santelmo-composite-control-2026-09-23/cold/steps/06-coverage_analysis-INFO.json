@@ -1,0 +1,108 @@
+{
+  "label": "Enrutamiento de déficits de adquisición",
+  "stage": "coverage_analysis",
+  "inputs": {
+    "anchors": [
+      {
+        "kind": "area",
+        "usage": "geographic_scope",
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "geometry": {
+          "type": "Polygon"
+        },
+        "priority": "soft",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "tags": {
+            "name": "San Telmo",
+            "type": "boundary",
+            "boundary": "administrative",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)",
+            "admin_level": "9"
+          },
+          "osmId": 2223069,
+          "osmType": "relation",
+          "geometry": {
+            "type": "Polygon"
+          }
+        },
+        "canonicalName": "San Telmo"
+      }
+    ],
+    "acquisitionDeficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      },
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ]
+  },
+  "status": "INFO",
+  "outputs": {
+    "generic": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ],
+    "areaRouteWalk": [
+      {
+        "anchor": {
+          "kind": "area",
+          "usage": "geographic_scope",
+          "status": "resolved",
+          "rawName": "San Telmo",
+          "geometry": {
+            "type": "Polygon"
+          },
+          "priority": "soft",
+          "provider": "openstreetmap",
+          "externalId": "osm:relation:2223069",
+          "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+          "osmBoundary": {
+            "id": "osm:relation:2223069",
+            "name": "San Telmo",
+            "tags": {
+              "name": "San Telmo",
+              "type": "boundary",
+              "boundary": "administrative",
+              "wikidata": "Q1026688",
+              "wikipedia": "es:San Telmo (Buenos Aires)",
+              "admin_level": "9"
+            },
+            "osmId": 2223069,
+            "osmType": "relation",
+            "geometry": {
+              "type": "Polygon"
+            }
+          },
+          "canonicalName": "San Telmo"
+        },
+        "deficit": {
+          "key": "walk",
+          "origin": "preference_facet",
+          "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+          "dimension": "intent"
+        },
+        "intentKey": "walk"
+      }
+    ]
+  },
+  "summary": "AREA_ROUTE_WALK=1; GENERIC=1.",
+  "component": "partitionDeficitsByStrategy"
+}

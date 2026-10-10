@@ -1,0 +1,84 @@
+{
+  "request": {
+    "id": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae0801000000c0020192030c43617361204dc3ad6e696d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343430353838363839"
+  },
+  "status": 200,
+  "durationMs": 587,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "name": "Casa Mínima",
+          "wiki_and_media": {
+            "wikidata": "Q5966085",
+            "wikipedia": "es:La casa mínima",
+            "wikimedia_commons": "Category:Casa Mínima"
+          },
+          "categories": [
+            "tourism",
+            "tourism.attraction"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Casa Mínima",
+              "osm_id": 4440588689,
+              "tourism": "attraction",
+              "osm_type": "n",
+              "wikidata": "Q5966085",
+              "addr:city": "Ciudad Autónoma de Buenos Aires",
+              "wikipedia": "es:La casa mínima",
+              "addr:street": "San Lorenzo",
+              "addr:country": "AR",
+              "addr:housenumber": 380,
+              "wikimedia_commons": "Category:Casa Mínima"
+            }
+          },
+          "housenumber": "380",
+          "street": "San Lorenzo",
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "postcode": "C1098AAH",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "San Telmo",
+          "formatted": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+          "address_line1": "Casa Mínima",
+          "address_line2": "San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+          "lat": -34.6167555,
+          "lon": -58.3713487,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "51c1f4ac5a882f4dc05980a71ed8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.3713487,
+            -34.6167555
+          ]
+        },
+        "bbox": [
+          -58.3713987,
+          -34.6168055,
+          -58.3712987,
+          -34.6167055
+        ]
+      }
+    ]
+  }
+}

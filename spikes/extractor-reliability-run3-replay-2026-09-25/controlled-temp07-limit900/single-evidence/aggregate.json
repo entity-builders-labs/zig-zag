@@ -1,0 +1,12 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "runs": 10,
+  "completedRuns": 0,
+  "blockedRuns": 10,
+  "blockedReason": "TPD daily limit (200000 tokens/day) exhausted",
+  "distribution": {},
+  "outcomes": []
+}

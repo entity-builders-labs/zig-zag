@@ -1,0 +1,35 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "510caf2479ae2f4dc059b74e12013d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6f",
+      "name": "Mercado de San Telmo",
+      "displayName": {
+        "text": "Mercado de San Telmo"
+      },
+      "formattedAddress": "Mercado de San Telmo, Defensa 963, San Telmo, C1065 AAR Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6190492,
+        "longitude": -58.372512
+      },
+      "types": [
+        "commercial.marketplace"
+      ],
+      "primaryType": "commercial.marketplace"
+    },
+    {
+      "id": "51664b5645b82f4dc0599dbb5d2f4d4f41c0f00102f901d784780900000000c002019203144d65726361646f2064652053616e2054656c6d6fe203216f70656e7374726565746d61703a76656e75653a7761792f313538383933323731",
+      "name": "Mercado de San Telmo",
+      "displayName": {
+        "text": "Mercado de San Telmo"
+      },
+      "formattedAddress": "Mercado de San Telmo, Defensa 963, San Telmo, 1871 Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.619543,
+        "longitude": -58.372811
+      },
+      "types": []
+    }
+  ],
+  "failure": null
+}

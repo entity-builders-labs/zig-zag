@@ -1,0 +1,3 @@
+56186 stops=16 authored=1931m greedyNN=1841m ratio=1.05 meeting->first=159m max_from_meeting=1340m
+63551 stops=12 authored=10303m greedyNN=5307m ratio=1.94 meeting->first=845m max_from_meeting=2273m
+62981 stops=9 authored=63533m greedyNN=31864m ratio=1.99 meeting->first=208m max_from_meeting=31790m

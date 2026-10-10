@@ -1,0 +1,122 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Mafalda",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "lang": "en",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 574,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "city_district": "Comuna 13",
+        "district": "Distrito Audiovisual",
+        "suburb": "Colegiales",
+        "city_block": "Plaza Mafalda",
+        "iso3166_2": "AR-C",
+        "lon": -58.4455726,
+        "lat": -34.5807258,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 6388.8486573848,
+        "formatted": "Plaza Mafalda, Colegiales, Plaza Mafalda, Buenos Aires, Distrito Audiovisual, Argentina",
+        "address_line1": "Plaza Mafalda",
+        "address_line2": "Colegiales, Plaza Mafalda, Buenos Aires, Distrito Audiovisual, Argentina",
+        "category": "populated_place",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH93+PQ",
+        "plus_code_short": "CH93+PQ Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.07194870560319186,
+          "popularity": 7.076846279201344,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51317fe08508394dc059c3781739554a41c0f00102f901f2b1a10000000000c0020192030d506c617a61204d6166616c6461",
+        "bbox": {
+          "lon1": -58.4463,
+          "lat1": -34.5813436,
+          "lon2": -58.4447202,
+          "lat2": -34.580032
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Villa Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Bernal Este",
+        "suburb": "Villa Mafalda",
+        "iso3166_2": "AR-B",
+        "lon": -58.2670476,
+        "lat": -34.7107545,
+        "state_code": "B",
+        "result_type": "suburb",
+        "distance": 15858.238902213607,
+        "formatted": "Villa Mafalda, Bernal Este, B, Argentina",
+        "address_line1": "Villa Mafalda",
+        "address_line2": "Bernal Este, B, Argentina",
+        "category": "administrative",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37PQM+M5",
+        "rank": {
+          "importance": 0.16005837567711909,
+          "popularity": 6.203995181090077,
+          "confidence": 1,
+          "confidence_city_level": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51d63ca29d2e224dc0590f7ee200fa5a41c0f00101f901b1722d0100000000c0020592030d56696c6c61204d6166616c6461",
+        "bbox": {
+          "lon1": -58.2721165,
+          "lat1": -34.7141313,
+          "lon2": -58.2611243,
+          "lat2": -34.7073892
+        }
+      }
+    ],
+    "query": {
+      "text": "Mafalda",
+      "parsed": {
+        "city": "mafalda",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

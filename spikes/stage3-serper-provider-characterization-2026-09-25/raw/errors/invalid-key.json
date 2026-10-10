@@ -1,0 +1,6 @@
+{
+  "code": "http_error",
+  "httpStatus": 403,
+  "responseBody": "{\"message\":\"Unauthorized.\",\"statusCode\":403}",
+  "durationMs": 314
+}

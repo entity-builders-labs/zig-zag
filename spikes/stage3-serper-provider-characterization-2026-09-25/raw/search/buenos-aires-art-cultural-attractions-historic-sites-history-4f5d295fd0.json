@@ -1,0 +1,108 @@
+{
+  "endpoint": "search",
+  "request": {
+    "q": "Buenos Aires art cultural attractions historic sites history walking tours walks caminata cultural por La Boca",
+    "num": 10
+  },
+  "capturedAt": "2026-09-25T12:54:14.645Z",
+  "meta": {
+    "endpoint": "search",
+    "httpStatus": 200,
+    "durationMs": 1484
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Buenos Aires art cultural attractions historic sites history walking tours walks caminata cultural por La Boca",
+      "type": "search",
+      "num": 10,
+      "engine": "google"
+    },
+    "organic": [
+      {
+        "title": "Walk This Way - Stowaway Magazine - BYU",
+        "link": "https://stowawaymag.byu.edu/walk-this-way",
+        "snippet": "On the Recoleta Walking Tour, you'll see beautiful parks, monuments, and palaces in one of the most luxurious areas in Buenos Aires. This tour starts at the ...",
+        "position": 1
+      },
+      {
+        "title": "La Boca art and history walking tour in Buenos Aires",
+        "link": "https://www.facebook.com/groups/759447375483950/posts/1782491623179515/",
+        "snippet": "Let´s explore together! $35.000 - pesos - per person 🗓️ When: Mondays, Wednesdays, Thursdays and Fridays | 3:30pm ⏰ Duration: 1hs 15min ...",
+        "date": "1 month ago",
+        "position": 2
+      },
+      {
+        "title": "Cultural Tours",
+        "link": "https://cultourbuenosaires.com/trip-types/cultural-tours/",
+        "snippet": "Discover Buenos Aires tours, rich culture, history & unforgettable city experiences. Explore the best cultural trips and tours.",
+        "position": 3
+      },
+      {
+        "title": "La Boca Buenos Aires Walking Tour - All You SHOULD ...",
+        "link": "https://www.tripadvisor.com/Attraction_Review-g312741-d7594618-Reviews-La_Boca_Buenos_Aires_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "Excellent tour of La Boca with Santiago. Very informative with historical context and background of the area. Plenty of details to paint a vivid ...",
+        "date": "Feb 23, 2025",
+        "rating": 4.5,
+        "ratingCount": 254,
+        "position": 4
+      },
+      {
+        "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+        "link": "https://www.youtube.com/watch?v=HBuv95C64z8",
+        "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant ...",
+        "date": "6 months ago",
+        "position": 5
+      },
+      {
+        "title": "The best Buenos Aires Walking tours",
+        "link": "https://www.getyourguide.com/buenos-aires-l1/walking-tours-tc3/",
+        "snippet": "Buenos Aires: La Boca Guided Walking Tour in English. Join a 2-hour walking tour around La Boca and discover one of the most picturesque places in Buenos Aires.",
+        "rating": 4.7,
+        "ratingCount": 10658,
+        "position": 6
+      },
+      {
+        "title": "Walking tour through the neighborhood of La Boca",
+        "link": "https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions",
+        "snippet": "Embark on a visual journey as art permeates every corner of La Boca. The streets are brimming with colorful murals that tell stories of passion and tradition.",
+        "rating": 4.7,
+        "ratingCount": 767,
+        "position": 7
+      },
+      {
+        "title": "Caminito | Official English Website for the City of Buenos ...",
+        "link": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/caminito",
+        "snippet": "Located in La boca, the Caminito (little path, in Spanish) is a street museum of colourful painted houses typical of the immigrant dwellings that came to ...",
+        "position": 8
+      },
+      {
+        "title": "Things to Do in La Boca: A Guide to Exploring Buenos ...",
+        "link": "https://www.timeout.com/buenos-aires/things-to-do-la-boca-neighborhood-restaurants-caminito-museums-traditional-eateries-art-history",
+        "snippet": "Museums, traditional eateries, art, history, and hidden gems: a guide to discovering the very best of La Boca in a single day.",
+        "date": "Aug 4, 2026",
+        "position": 9
+      },
+      {
+        "title": "La Boca Barrio and Caminito Street, Buenos Aires",
+        "link": "https://www.gpsmycity.com/attractions/la-boca-barrio-and-caminito-street-356.html",
+        "snippet": "Caminito, holds significant cultural and tourist value as an alley, museum, and pathway. This site garnered cultural importance due to its inspiration behind ...",
+        "position": 10
+      }
+    ],
+    "peopleAlsoAsk": [
+      {
+        "question": "What are the top 3 tourist attractions in Argentina?"
+      },
+      {
+        "question": "What not to miss in Buenos Aires, Argentina?"
+      },
+      {
+        "question": "Is it safe to walk around Buenos Aires, Argentina?"
+      },
+      {
+        "question": "What are some hidden gems in Argentina that travelers should not miss?"
+      }
+    ],
+    "credits": 1
+  }
+}

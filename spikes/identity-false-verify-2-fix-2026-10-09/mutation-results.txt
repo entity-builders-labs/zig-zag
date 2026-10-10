@@ -1,0 +1,24 @@
+# Mutation proof (2026-10-09)
+
+## M1: role policy makes OVERLAP convergence CORROBORATING again (src/modules/tours, unit)
+  ● ExperienceProposalResolverService › RW1 forensic-rerun-2026-09-22 characterization (Stage 1) › Case A: NOMINATIM records IDENTITY_CONVERGENCE with LOCAL_OSM_POOL's osm:node:9953027884 acquisition for "El Zanjón de Granados", but OVERLAP convergence does not verify it
+  ● ExperienceProposalResolverService -- competitors at the candidate grade (RW4-ID-FALSE-VERIFY-2) › control (RW1 El Zanjón / Farmacia / National Bank shape): the same OVERLAP convergence with no other record at that grade is not VERIFIED
+  ● ExperienceProposalResolverService -- OVERLAP convergence is retrieval-only (RW4-ID-FALSE-VERIFY-2) › R1: Nominatim + Geoapify converging on an OVERLAP record, with no material competitor in a bounded geography, is not VERIFIED, persisted or remembered
+  ● ExperienceProposalResolverService -- Stage 3 PLACE cutover › Farmacia gate: exact strong-identity convergence › the real OVERLAP spelling: Nominatim + Geoapify converge on osm:node:3348573778, but convergence alone is not identity
+  ● identity verification trust (RW4-ID-FALSE-VERIFY-1) › 4. convergence over an examined set decides only at an EQUIVALENT name grade › an OVERLAP name ("Kestrel Hall Annex"): not identity
+  ● IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › INDEPENDENT_UPSTREAMS OVERLAP convergence over an examined set with no material competitor is INSUFFICIENT_EVIDENCE
+  ● IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › SHARED_UPSTREAM OVERLAP convergence over an examined set with no material competitor is INSUFFICIENT_EVIDENCE
+  ● IdentityVerifier › convergence provenance and competitor examination (defects A, B, C) › UNDETERMINED_UPSTREAM OVERLAP convergence over an examined set with no material competitor is INSUFFICIENT_EVIDENCE
+  ● IdentityVerifier › RW1 El Zanjón facts, projected: convergence over an examined competitor set › a NEARBY item that matches only the hint text does not repair OVERLAP convergence
+  ● IdentityVerifier › RW1 El Zanjón facts, projected: convergence over an examined competitor set › the real OVERLAP grade is INSUFFICIENT_EVIDENCE, not VERIFIED (RW4-ID-FALSE-VERIFY-2)
+  ● RW4-ID-FALSE-VERIFY-2: convergence inherits the name grade › R1/R2: OVERLAP convergence over INDEPENDENT_UPSTREAMS, NO_MATERIAL_COMPETITOR and a bounded geography is not VERIFIED
+  ● RW4-ID-FALSE-VERIFY-2: convergence inherits the name grade › R1/R2: OVERLAP convergence over SHARED_UPSTREAM, NO_MATERIAL_COMPETITOR and a bounded geography is not VERIFIED
+  ● RW4-ID-FALSE-VERIFY-2: convergence inherits the name grade › R3: the role matrix of IDENTITY_CONVERGENCE by name grade
+Tests:       13 failed, 2509 passed, 2522 total
+
+## M2: verifier rule 5 ignores the convergence role (policy unchanged)
+Tests:       16 failed, 2506 passed, 2522 total
+
+Both sources restored byte-for-byte (shasum before = after):
+identity-evidence-role.policy.ts 66d3e794b30271e455b279a1282a528242f59f5b
+identity-verifier.service.ts     49db1ea23b8db845290b29a168734bd6d3b95ef4

@@ -1,0 +1,96 @@
+{
+ "experienceId": "0613fabb-459b-4c10-aa9f-2f13783dc44c",
+ "canonicalName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+ "durationMinutes": null,
+ "plannerDurationMinutes": 90,
+ "componentFootprintCount": 7,
+ "legs": [
+  {
+   "from": {
+    "lat": -34.607476,
+    "lng": -58.3732471
+   },
+   "to": {
+    "lat": -34.6070608,
+    "lng": -58.3748214
+   },
+   "walkingDistanceMeters": 252,
+   "walkingMinutes": 4.186633333333334,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6070608,
+    "lng": -58.3748214
+   },
+   "to": {
+    "lat": -34.6087695,
+    "lng": -58.3738806
+   },
+   "walkingDistanceMeters": 315,
+   "walkingMinutes": 5.331766666666667,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6087695,
+    "lng": -58.3738806
+   },
+   "to": {
+    "lat": -34.6183462,
+    "lng": -58.3700905
+   },
+   "walkingDistanceMeters": 1363,
+   "walkingMinutes": 20.1298,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6183462,
+    "lng": -58.3700905
+   },
+   "to": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "walkingDistanceMeters": 317,
+   "walkingMinutes": 4.856583333333333,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "walkingDistanceMeters": 176,
+   "walkingMinutes": 2.7637833333333335,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "to": {
+    "lat": -34.6271301,
+    "lng": -58.369574
+   },
+   "walkingDistanceMeters": 873,
+   "walkingMinutes": 13.815716666666667,
+   "provider": "geoapify",
+   "approximate": false
+  }
+ ],
+ "internalWalkingDistanceMeters": 3296,
+ "maxInternalContinuousWalkingDistanceMeters": 1363,
+ "internalWalkingMinutes": 51.08428333333334
+}

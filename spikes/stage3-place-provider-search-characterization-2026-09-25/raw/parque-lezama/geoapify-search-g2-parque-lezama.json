@@ -1,0 +1,71 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Parque Lezama",
+      "type": "amenity",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 656,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Parque Lezama",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "city_district": "Comuna 1",
+        "district": "Distrito de Las Artes",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3692791,
+        "lat": -34.6271211,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2837.905554273361,
+        "formatted": "Parque Lezama, San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "address_line1": "Parque Lezama",
+        "address_line2": "San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JFJ+57",
+        "plus_code_short": "FJ+57 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.36736730413826313,
+          "popularity": 7.443473634905091,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61",
+        "bbox": {
+          "lon1": -58.3710271,
+          "lat1": -34.6290124,
+          "lon2": -58.3681209,
+          "lat2": -34.6252477
+        }
+      }
+    ],
+    "query": {
+      "text": "Parque Lezama"
+    }
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-029",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Farmacia la Estrella",
+          "supportSpan": "inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-028"
+        }
+      ],
+      "reason": "Directs the traveller to look inside the pharmacy from stop 5."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "market",
+          "role": "ALTERNATIVE",
+          "mentionAtomId": "a-040"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers choices for lunch location."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes activities and views rather than directing a stop."
+    }
+  ]
+}

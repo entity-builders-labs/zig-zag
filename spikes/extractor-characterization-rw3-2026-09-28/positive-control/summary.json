@@ -1,0 +1,9 @@
+{
+  "caseName": "positive-control",
+  "model": "@cf/qwen/qwen3.8-27b",
+  "totalRuns": 5,
+  "outcomes": {
+    "CANDIDATE_ADMITTED (1/1)": 5
+  },
+  "avgLatencyMs": 16130
+}

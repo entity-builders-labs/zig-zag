@@ -1,0 +1,74 @@
+import { ApproximateTravelEstimateProvider } from './approximate-travel-estimate.provider';
+import { buildPointFootprint } from '../utils/spatial-footprint.util';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+
+describe('ApproximateTravelEstimateProvider', () => {
+  const policy: DailyPlanningPolicy = {
+    paceTargets: {
+      relaxed: { preferredExperiencesMin: 2, preferredExperiencesMax: 4 },
+      moderate: { preferredExperiencesMin: 3, preferredExperiencesMax: 5 },
+      fast: { preferredExperiencesMin: 4, preferredExperiencesMax: 7 },
+    },
+    travel: {
+      detourFactor: 1.3,
+      walkingSpeedKmh: 5,
+      bikeSpeedKmh: 15,
+      carUrbanSpeedKmh: 25,
+    },
+    internalWalking: { unknownFallbackMinutes: 20 },
+    compositeDefaultDurationMinutes: 90,
+    scoring: {
+      semanticWeight: 1,
+      qualityWeight: 0.5,
+      dayBalanceWeight: 0.25,
+    },
+    localImprovement: { maxIterations: 50 },
+    backfill: {
+      minimumUsefulResidualMinutes: 60,
+      maxReservoirPromotionAttempts: 50,
+      maxAcquisitionPasses: 1,
+    },
+    window: { startMinutesFromMidnight: 540, endMinutesFromMidnight: 1200 },
+  };
+  const provider = new ApproximateTravelEstimateProvider(policy);
+  const a = buildPointFootprint(-34.6037, -58.3816);
+  const b = buildPointFootprint(-34.6158, -58.3734);
+
+  it('always reports approximate: true', async () => {
+    const estimate = await provider.estimate(a, b, [
+      TransportationMode.WALKING,
+    ]);
+    expect(estimate.approximate).toBe(true);
+  });
+
+  it('prefers walking when allowed', async () => {
+    const estimate = await provider.estimate(a, b, [
+      TransportationMode.DRIVING,
+      TransportationMode.WALKING,
+    ]);
+    expect(estimate.mode).toBe(TransportationMode.WALKING);
+    expect(estimate.walkingMinutes).toBeGreaterThan(0);
+  });
+
+  it('uses the first allowed mode when walking is not allowed', async () => {
+    const estimate = await provider.estimate(a, b, [
+      TransportationMode.DRIVING,
+    ]);
+    expect(estimate.mode).toBe(TransportationMode.DRIVING);
+    expect(estimate.walkingMinutes).toBe(0);
+  });
+
+  it('applies the detour factor to straight-line distance', async () => {
+    const estimate = await provider.estimate(a, b, [
+      TransportationMode.WALKING,
+    ]);
+    expect(estimate.distanceMeters).toBeGreaterThan(
+      1000 * policy.travel.detourFactor,
+    );
+  });
+
+  it('throws when no allowed modes are given', async () => {
+    await expect(provider.estimate(a, b, [])).rejects.toThrow();
+  });
+});

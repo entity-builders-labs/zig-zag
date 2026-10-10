@@ -1,0 +1,77 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Defensa Street",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1398,
+  "response": {
+    "results": [
+      {
+        "country_code": "ar",
+        "name": "Buenos Aires",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "whosonfirst",
+          "attribution": "Who's On First",
+          "license": "CC0",
+          "url": "https://www.whosonfirst.org/docs/licenses/"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "iso3166_2": "AR-C",
+        "lon": -58.454595,
+        "lat": -34.607357,
+        "result_type": "city",
+        "suburb": "Buenos Aires",
+        "district": "Comuna 1",
+        "formatted": "Buenos Aires, Comuna 1, Argentina",
+        "address_line1": "Buenos Aires",
+        "address_line2": "Comuna 1, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39GVW+35",
+        "plus_code_short": "9GVW+35 Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.005405028407908,
+          "confidence": 0.25,
+          "confidence_city_level": 1,
+          "match_type": "match_by_city_or_disrict"
+        },
+        "place_id": "516af6402b303a4dc05993ffc9dfbd4d41c0c0020892030c4275656e6f73204169726573e2031e77686f736f6e66697273743a6c6f63616c6974793a343231313734323835",
+        "bbox": {
+          "lon1": -58.531519,
+          "lat1": -34.705293,
+          "lon2": -58.335143,
+          "lat2": -34.527541
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "city": "Buenos Aires",
+      "country": "Argentina",
+      "parsed": {
+        "house": "Defensa Street",
+        "city": "Buenos Aires",
+        "country": "Argentina",
+        "expected_type": "amenity"
+      }
+    }
+  }
+}

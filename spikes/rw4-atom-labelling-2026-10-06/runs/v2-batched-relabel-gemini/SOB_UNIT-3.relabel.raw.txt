@@ -1,0 +1,17 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-041",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-039"
+        }
+      ],
+      "reason": "Mentions San Telmo referring to earlier atom."
+    }
+  ]
+}

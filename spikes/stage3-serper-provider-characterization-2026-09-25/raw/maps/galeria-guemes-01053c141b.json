@@ -1,0 +1,54 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Galería Güemes"
+  },
+  "capturedAt": "2026-09-25T12:54:45.741Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 1228
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "ll": "@-34.6060778,-58.3750133,17z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Mirador Guemes Gallery",
+        "address": "Florida 165, San Martín 170, 1005 Buenos Aires, Argentina",
+        "latitude": -34.6060778,
+        "longitude": -58.3750133,
+        "rating": 4.5,
+        "ratingCount": 13319,
+        "type": "Shopping mall",
+        "types": [
+          "Shopping mall"
+        ],
+        "website": "http://www.galeriaguemes.com.ar/",
+        "phoneNumber": "+54 11 4331-5731",
+        "description": "Specialty shops & eateries featured on the ground floor of an elegant art nouveau building.",
+        "openingHours": {
+          "Friday": "8 AM–8 PM",
+          "Saturday": "9 AM–3 PM",
+          "Sunday": "Closed",
+          "Monday": "8 AM–8 PM",
+          "Tuesday": "8 AM–8 PM",
+          "Wednesday": "8 AM–8 PM",
+          "Thursday": "8 AM–8 PM"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNYojNkFHnuTVBkPjtrJ9CpcyG7PFWL9ZoFbSlnFVK4PvGvluVFqr1a479qHsr6upR3oLO5RmBfimBucR7n9m2cIrFnhURDWWK0VgKguqshcFcEvnXcrWy0k6UvSYOMZ8oznYtf9A",
+        "cid": "16796121189498305479",
+        "fid": "0x95bccad27ad63ce5:0xe917cf3b70753bc7",
+        "placeId": "ChIJ5TzWetLKvJURxzt1cDvPF-k"
+      }
+    ],
+    "credits": 3
+  }
+}

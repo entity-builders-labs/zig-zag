@@ -1,0 +1,37 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "San Martín"
+  },
+  "capturedAt": "2026-09-25T12:54:57.771Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 818
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Martín",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "San Martin Orthodontics",
+        "address": "1036 E Borgfeld Dr Suite 1, San Antonio, TX 78260",
+        "latitude": 29.712841,
+        "longitude": -98.477196,
+        "rating": 5,
+        "ratingCount": 149,
+        "category": "Orthodontist",
+        "phoneNumber": "(210) 404-9020",
+        "website": "http://www.sanmartinortho.com/",
+        "cid": "3787649842601079404"
+      }
+    ],
+    "credits": 1
+  }
+}

@@ -1,0 +1,367 @@
+[
+ {
+  "hint": "Bar Sur",
+  "entity": "Bar Sur",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:2722400019"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Caminito",
+  "entity": "Caminito",
+  "kind": "ROUTE",
+  "ids": [
+   "openstreetmap:osm:way:144844726"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Don Carlos",
+  "entity": "Carlos Pellegrini",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:5332434913"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Casa Mínima",
+  "entity": "Casa Mínima",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:4440588689"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Casa Rosada",
+  "entity": "Casa Rosada",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:185738988"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Catedral",
+  "entity": "Catedral Constructiva",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:6184996396"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Catedral Metropolitana",
+  "entity": "Catedral Metropolitana",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:265344159"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Club Atlético",
+  "entity": "Club Atlético Atlanta",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:4451139649"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Colón Fábrica",
+  "entity": "Colón Fábrica",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:404773620"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Defensa Street",
+  "entity": "Defensa",
+  "kind": "ROUTE",
+  "ids": [
+   "openstreetmap:osm:way:1435572237",
+   "openstreetmap:osm:way:1435572238",
+   "openstreetmap:osm:way:1459168009",
+   "openstreetmap:osm:way:147999135",
+   "openstreetmap:osm:way:150893241",
+   "openstreetmap:osm:way:158893264",
+   "openstreetmap:osm:way:18828962",
+   "openstreetmap:osm:way:38536550",
+   "openstreetmap:osm:way:452873573",
+   "openstreetmap:osm:way:452873574",
+   "openstreetmap:osm:way:473141731",
+   "openstreetmap:osm:way:473173836",
+   "openstreetmap:osm:way:47521381",
+   "openstreetmap:osm:way:48113515"
+  ],
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Estatua Hugo del Carril",
+  "entity": "Estatua Hugo del Carril",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:7085620356"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Guillermo Brown",
+  "entity": "Guillermo Brown",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:51cf23905c48324dc0590d141d6e2c4b41c0f00103f9011397e33d01000000c0020192030f4775696c6c65726d6f2042726f776e",
+   "openstreetmap:osm:node:5333292819",
+   "wikidata:Q966952"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Hidrovértigo",
+  "entity": "Hidrovértigo",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:11989195414"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Iglesia San Ignacio de Loyola",
+  "entity": "Iglesia",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:513bd972d30b374dc059f3ff4f6ad44f41c0f00103f901c25890a300000000c0020192030749676c65736961e203236f70656e7374726565746d61703a76656e75653a6e6f64652f32373434313436313134",
+   "openstreetmap:osm:node:2744146114"
+  ],
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Juventud",
+  "entity": "Juventud",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:516b381be1a32e4dc059dd2cb9e57e5241c0f00103f901ec1c540a010000009203084a7576656e747564",
+   "openstreetmap:osm:node:4468251884",
+   "wikidata:Q111708344"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "La Boca",
+  "entity": "La Boca",
+  "kind": "AREA",
+  "ids": [
+   "openstreetmap:osm:relation:2223879"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "La flor de la vida",
+  "entity": "La flor de la vida",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:1233587644"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "La Librería del Avila",
+  "entity": "La Librería de Avila",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:3348571875"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "La Madre",
+  "entity": "La Madre",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:5105a2ccabdf2f4dc059c1ecf9f59e5141c0f00103f901372a1306010000009203084c61204d61647265",
+   "openstreetmap:osm:node:4396886583",
+   "wikidata:Q111696148"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Mafalda sculpture",
+  "entity": "Mafalda, Susanita and Manolito",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f32343732393739363233",
+   "openstreetmap:osm:node:2472979623",
+   "wikidata:Q111038841"
+  ],
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Manzana de las Luces",
+  "entity": "Manzana de las Luces",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:relation:3228119"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "The San Telmo Market",
+  "entity": "Mercado de San Telmo",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:158893271"
+  ],
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Mercado San Telmo",
+  "entity": "Mercado de San Telmo",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:158893271"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "San Telmo Market",
+  "entity": "Mercado de San Telmo",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:158893271"
+  ],
+  "correspondence": "NONE"
+ },
+ {
+  "hint": "Museo Casa Taller 'Celia Chevalier'",
+  "entity": "Museo Casa Taller 'Celia Chevalier'",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:51d2a0b2abda2e4dc0590a421e66d45141c0f00103f9019943ad7f010000009203234d7573656f20436173612054616c6c6572202743656c69612043686576616c69657227",
+   "openstreetmap:osm:node:6437028761",
+   "wikidata:Q65391615"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Museo de Artistas Argentinos Benito Quinquela Martín",
+  "entity": "Museo de Artistas Argentinos Benito Quinquela Martín",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:513e682c50412e4dc0592d99be32ca5141c0f00103f9019aadff54010000009203354d7573656f20646520417274697374617320417267656e74696e6f732042656e69746f205175696e7175656c61204d617274c3ad6e",
+   "openstreetmap:osm:node:5721009562",
+   "wikidata:Q6033930"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Museo del Cine Pablo Ducrós Hicken",
+  "entity": "Museo del Cine Pablo Ducrós Hicken",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:51b4a61e0eb72d4dc05983d3cca4975041c0f00103f901444b70c9010000009203234d7573656f2064656c2043696e65205061626c6f2044756372c3b373204869636b656e",
+   "openstreetmap:osm:node:7674547012",
+   "wikidata:Q6034410"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Museo Histórico de Cera",
+  "entity": "Museo Histórico de Cera",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:5183458f29692e4dc059ccbadae5b65141c0f00103f901268eab7f010000009203184d7573656f2048697374c3b37269636f2064652043657261",
+   "openstreetmap:osm:node:6436916774",
+   "wikidata:Q65391609"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Museo Histórico Nacional",
+  "entity": "Museo Histórico Nacional",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:122969767"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Cabildo",
+  "entity": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:767690911"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Obelisco",
+  "entity": "Obelisco",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:1332861812"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Parque Lezama",
+  "entity": "Parque Lezama",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:17441757"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "PLAZA DE MAYO",
+  "entity": "Plaza de Mayo",
+  "kind": "PLACE",
+  "ids": [
+   "geoapify:geoapify:514762388da32f4dc059d4731c89e14d41c0f00101f901478f040100000000c0020192030d506c617a61206465204d61796f",
+   "openstreetmap:osm:relation:17076039",
+   "wikidata:Q1126357"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Plaza",
+  "entity": "Plaza Dorrego",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:31364659"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Bar El Federal",
+  "entity": "Plaza República Federal de Brasil",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:23727318"
+  ],
+  "correspondence": "OVERLAP"
+ },
+ {
+  "hint": "Roca granitica",
+  "entity": "Roca granitica",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:node:10746424460"
+  ],
+  "correspondence": "EQUIVALENT"
+ },
+ {
+  "hint": "Teatro Colón",
+  "entity": "Teatro Colón",
+  "kind": "PLACE",
+  "ids": [
+   "openstreetmap:osm:way:23633911"
+  ],
+  "correspondence": "EQUIVALENT"
+ }
+]

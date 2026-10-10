@@ -1,0 +1,272 @@
+[
+ {
+  "hint": "El Zanjón de Granados",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_CONVERGENCE",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:9953027884 El Zanjón de Granados (historic ruins)",
+  "attempts": "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE NOMINATIM:VERIFIED/GROUNDED_CONVERGENCE"
+ },
+ {
+  "hint": "Farmacia la Estrella",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_CONVERGENCE",
+  "strategy": "PLACES",
+  "candidate": "geoapify:rw1-fa Farmacia de la Estrella",
+  "attempts": "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE NOMINATIM:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE PLACES:VERIFIED/GROUNDED_CONVERGENCE"
+ },
+ {
+  "hint": "Cabildo",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_ALIAS",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:node:767690911 Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_ALIAS"
+ },
+ {
+  "hint": "Museo del Cabildo",
+  "finalStatus": "unresolved",
+  "decision": "INSUFFICIENT_EVIDENCE",
+  "rule": "NO_DECISIVE_EVIDENCE",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:node:767690911 Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "attempts": "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE"
+ },
+ {
+  "hint": "Club Atlético",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "PLACES",
+  "candidate": "geoapify:c3-ca Club Atlético San Lorenzo de Almagro - Sede Boedo",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN PLACES:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "National Bank",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_CONVERGENCE",
+  "strategy": "PLACES",
+  "candidate": "geoapify:c3-nb Edificio First National Bank of Boston",
+  "attempts": "NOMINATIM:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE PLACES:VERIFIED/GROUNDED_CONVERGENCE"
+ },
+ {
+  "hint": "Don Carlos",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:4575480167 Don Carlos",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Catedral",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:4867324671 Catedral",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Catedral Metropolitana",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:265344159 Catedral Metropolitana",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Bar El Federal",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:2722510492 El Federal",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Basílica del Pilar",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:way:176335924 Basílica de Nuestra Señora del Pilar",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Museo Benito Quinquela Martin",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_ALIAS",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:node:5721009562 Museo de Artistas Argentinos Benito Quinquela Martín",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_ALIAS"
+ },
+ {
+  "hint": "MALBA",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_ALIAS",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:23621021 Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_ALIAS"
+ },
+ {
+  "hint": "Mercado San Telmo",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_ALIAS",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:158893271 Mercado de San Telmo",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_ALIAS"
+ },
+ {
+  "hint": "San Telmo Market",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "QID_LINK",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:158893271 Mercado de San Telmo",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/QID_LINK"
+ },
+ {
+  "hint": "Museo Moderno",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "QID_LINK",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:239518532 Museo de Arte Moderno de Buenos Aires",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/QID_LINK"
+ },
+ {
+  "hint": "La Librería del Avila",
+  "finalStatus": "unresolved",
+  "decision": "INSUFFICIENT_EVIDENCE",
+  "rule": "NO_DECISIVE_EVIDENCE",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:node:3348571875 La Librería de Avila",
+  "attempts": "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE"
+ },
+ {
+  "hint": "Casa Rosada",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:way:185738988 Casa Rosada",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Plaza Dorrego",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:31364659 Plaza Dorrego",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Obelisco",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:1332861812 Obelisco",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Casa Mínima",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:node:4440588689 Casa Mínima",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Bar Sur",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:2722400019 Bar Sur",
+  "attempts": "NOMINATIM:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Parque Lezama",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:17441757 Parque Lezama",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ },
+ {
+  "hint": "Plaza de Mayo",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:11548018260 Plaza de Mayo",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Riachuelo",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "QID_LINK",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:335291903 Plaza Paseo del Riachuelo",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/QID_LINK"
+ },
+ {
+  "hint": "Congreso",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:4704755906 Congreso",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Museo Nacional del Cabildo",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_CONVERGENCE",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:767690911 Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+  "attempts": "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE/NO_DECISIVE_EVIDENCE NOMINATIM:VERIFIED/GROUNDED_CONVERGENCE"
+ },
+ {
+  "hint": "Basílica de San Francisco",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:relation:2354152 Basílica de San Francisco",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Plaza San Martín",
+  "finalStatus": "unresolved",
+  "decision": "AMBIGUOUS",
+  "rule": "MATERIAL_COMPETITOR_KNOWN",
+  "strategy": "NOMINATIM",
+  "candidate": "osm:node:11100250715 Plaza San Martin",
+  "attempts": "LOCAL_OSM_POOL:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN NOMINATIM:AMBIGUOUS/MATERIAL_COMPETITOR_KNOWN"
+ },
+ {
+  "hint": "Cementerio de la Recoleta",
+  "finalStatus": "resolved",
+  "decision": "VERIFIED",
+  "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+  "strategy": "LOCAL_OSM_POOL",
+  "candidate": "osm:way:183842128 Cementerio de la Recoleta",
+  "attempts": "LOCAL_OSM_POOL:VERIFIED/GROUNDED_UNIQUE_EXACT_NAME"
+ }
+]

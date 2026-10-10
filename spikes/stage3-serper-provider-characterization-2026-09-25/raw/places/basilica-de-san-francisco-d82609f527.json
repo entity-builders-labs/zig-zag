@@ -1,0 +1,39 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Basílica de San Francisco",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:40.917Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1233
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Basílica de San Francisco",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Iglesia y Convento de San Francisco - Capilla San Roque",
+        "address": "Basilica de San Francisco, Adolfo Alsina 380",
+        "latitude": -34.610355,
+        "longitude": -58.37192,
+        "rating": 4.6,
+        "ratingCount": 563,
+        "cid": "8314188183980868175"
+      }
+    ],
+    "credits": 1
+  }
+}

@@ -1,0 +1,1370 @@
+{
+  "label": "Adquisición multi-fuente (pase 1)",
+  "rules": [
+    {
+      "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+      "reason": "Fuentes enrutadas: wikivoyage, web.",
+      "result": "PASS",
+      "ruleId": "ACQ-ROUTING-001"
+    },
+    {
+      "rule": "Una fuente que falla no aborta la adquisición",
+      "reason": "Todas las fuentes atendidas respondieron.",
+      "result": "PASS",
+      "ruleId": "ACQ-ISOLATION-001"
+    },
+    {
+      "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+      "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+      "result": "PASS",
+      "ruleId": "ACQ-CANDIDATE-001"
+    }
+  ],
+  "stage": "discovery",
+  "inputs": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "passNumber": 1,
+    "routedProviders": [
+      "wikivoyage",
+      "web"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "webResults": [
+      {
+        "query": "San Telmo San Telmo walking tours walks histórica caminata San Telmo",
+        "status": "success",
+        "evidenceCount": 16,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 4,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [],
+        "extractorProvider": "groq"
+      }
+    ],
+    "candidateCount": 4,
+    "observationCount": 2,
+    "webCandidateCount": 4,
+    "structuredProviders": [
+      {
+        "status": "success",
+        "provider": "wikivoyage"
+      }
+    ],
+    "structuredCandidateCount": 0
+  },
+  "summary": "Pase 1: fuentes [wikivoyage, web] → 2 observación(es) estructurada(s) + 4 candidate(s) (web: 4).",
+  "component": "ExperienceAcquisitionService",
+  "acquisition": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "evidence": [
+      {
+        "title": "Aprende el arte de Fileteado",
+        "source": "wikivoyage",
+        "snippet": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+      },
+      {
+        "title": "Tomar clases de tango",
+        "source": "wikivoyage",
+        "snippet": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 1,
+        "source": "google_ai_mode",
+        "snippet": "San Telmo, the oldest neighborhood in Buenos Aires, is a living museum of cobblestone streets, 19th-century colonial architecture, tango roots, and vibrant local markets. Whether you are looking for a guided excursion, a free walking tour, or a self-guided route, here is a breakdown of the best ways to experience a historical walk through San Telmo.",
+        "evidenceKey": "ev-1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 2,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "DirectionsWebsiteThe pulsing heart of the neighborhood, famous for its Sunday antiques fair, outdoor tango dancers, and surrounding cafes.",
+        "evidenceKey": "ev-2",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 3,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "CallDirectionsWebsiteA bustling 19th-century market filled with produce, vintage oddities, and amazing food stalls (great for grabbing empanadas or coffee).",
+        "evidenceKey": "ev-3",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 4,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "DirectionsWebsiteOften cited in local lore as one of the potential founding sites of the city, featuring sweeping green spaces and monumental sculptures.",
+        "evidenceKey": "ev-4",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 5,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "DirectionsThe main artery lined with antique shops, colonial facades, and historical markers detailing the neighborhood's resilience during British invasions.",
+        "evidenceKey": "ev-5",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 6,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "CallDirectionsSnap a photo at the corner of Chile and Defensa with Buenos Aires' most beloved comic strip character.",
+        "evidenceKey": "ev-6",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 7,
+        "title": "Highlights of a San Telmo Historic Walk",
+        "source": "Highlights of a San Telmo Historic Walk",
+        "snippet": "DirectionsCheck out the narrowest house in the city (just 2.5 meters wide) and quaint historic alleys.",
+        "evidenceKey": "ev-7",
+        "contextHeading": "Highlights of a San Telmo Historic Walk"
+      },
+      {
+        "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+        "kind": "list_item",
+        "order": 8,
+        "title": "Types of Walking Tours Available",
+        "source": "Types of Walking Tours Available",
+        "snippet": "Free Walking Tours: Companies like Buenos Aires Free Walks offer tip-based historical walking tours covering colonial architecture, immigration waves, and the Sunday fair.",
+        "evidenceKey": "ev-8",
+        "contextHeading": "Types of Walking Tours Available"
+      },
+      {
+        "url": "https://www.expedia.com/lx/activity/53703223/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+        "kind": "list_item",
+        "order": 9,
+        "title": "Types of Walking Tours Available",
+        "source": "Types of Walking Tours Available",
+        "snippet": "Combined San Telmo & La Boca History Walks: Many operators offer 3-hour guided strolls that start in the colonial streets of San Telmo and transition toward the colorful port-side alleyways of Caminito. You can browse options via platforms like Expedia Activities or Tourscanner.",
+        "evidenceKey": "ev-9",
+        "contextHeading": "Types of Walking Tours Available"
+      },
+      {
+        "kind": "list_item",
+        "order": 10,
+        "title": "Types of Walking Tours Available",
+        "source": "Types of Walking Tours Available",
+        "snippet": "Self-Guided Exploration: Wander at your own pace starting from Plaza Dorrego down Defensa Street, keeping an eye out for hidden conventillos (historic communal tenements) and traditional cafes.",
+        "evidenceKey": "ev-10",
+        "contextHeading": "Types of Walking Tours Available"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 11,
+        "title": "Types of Walking Tours Available",
+        "source": "Types of Walking Tours Available",
+        "snippet": "Would you prefer recommendations for guided booking options, tips on the best day of the week to go (like the Sunday Feria), or a self-guided itinerary map?",
+        "evidenceKey": "ev-11",
+        "contextHeading": "Types of Walking Tours Available"
+      },
+      {
+        "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+        "kind": "reference",
+        "order": 12,
+        "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+        "source": "tourscanner.com",
+        "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+        "evidenceKey": "ev-12"
+      },
+      {
+        "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+        "kind": "reference",
+        "order": 13,
+        "title": "San Telmo \\u0026 Market Tour",
+        "source": "www.buenosairesfreewalks.com",
+        "snippet": "On the San Telmo tour we will walk the oldest streets of Buenos Aires, learning about colonial BA and the crucial moments of Argen...",
+        "evidenceKey": "ev-13"
+      },
+      {
+        "url": "https://www.expedia.com/lx/activity/53703223/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+        "kind": "reference",
+        "order": 14,
+        "title": "Beyond Caminito \\u0026 San Telmo: Hidden Stories of Buenos Aires",
+        "source": "www.expedia.com",
+        "snippet": "San Telmo is the oldest neigborhood in Buenos Aires, the place where it was foundated the city in 1536 and 1580. The architecture reminds the spanish colonial style (they're houses of 400 years!) and this makes a contrast with the ''Paris'' cultural imagination that we have of Buenos Aires. Tango, artisans and all the history in the colonial time is what San Telmo have, an unique place to enjoy the past and the beauty of their narrow streets. Caminito it's a zone in La Boca neighborhood. Some bl…",
+        "evidenceKey": "ev-14"
+      },
+      {
+        "url": "https://www.overtheplanet.com/{lang}/unique-experiences-with-private-la-boca-and-san-telmo-history-walk.a{product_id}?utm_source=gttd&utm_medium=organic&s={surface}&f={funnel}&option_id={option_id}&currency={currency}",
+        "kind": "reference",
+        "order": 15,
+        "title": "Private La Boca and San Telmo History Walk",
+        "source": "www.overtheplanet.com",
+        "snippet": "Join our La Boca + San Telmo History Walk to explore the heart of Buenos Aires' rich history and culture. Starting in San Telmo, known for cobbled streets, immigrant architecture, and a vibrant food scene, we begin with a mate-tasting experience in a centennial building. Then, visit the historic San Telmo Market, offering ethnic foods, fresh produce, and unique trinkets. Next, discover La Boca, the port where European immigrants arrived, shaping the city forever. Explore its vibrant Latin atmosp…",
+        "evidenceKey": "ev-15"
+      },
+      {
+        "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+        "kind": "reference",
+        "order": 16,
+        "title": "San Telmo Colonial Walking Tour – Buenos Aires History",
+        "source": "www.agoda.com",
+        "snippet": "Discover the colonial history of Buenos Aires and Argentina on a guided San Telmo walking tour. Explore the city's transformation from a small village to a cosmopolitan hub, with engaging stories about its foundation, native peoples, invasions, and independence. This experience is perfect for culture and history enthusiasts seeking a professional and modern approach. - Walk through San Telmo, the oldest neighborhood in Buenos Aires, and hear tales from the Colonial era. - Learn about local icons…",
+        "evidenceKey": "ev-16"
+      }
+    ],
+    "candidates": [
+      {
+        "name": "San Telmo Self-Guided Historical Walk",
+        "origin": "web",
+        "themes": [
+          "history",
+          "architecture",
+          "culture"
+        ],
+        "intents": [
+          "walk"
+        ],
+        "traceKey": "san telmo self-guided historical walk:ev-12:basilica:Basílica de San Francisco|defensa-street:Defensa Street",
+        "providers": [
+          "tourscanner.com"
+        ],
+        "evidenceKeys": [
+          "ev-12"
+        ],
+        "componentHints": [
+          {
+            "key": "basilica",
+            "name": "Basílica de San Francisco",
+            "role": "venue",
+            "order": 1,
+            "required": true,
+            "evidenceKeys": [
+              "ev-12"
+            ]
+          },
+          {
+            "key": "defensa-street",
+            "name": "Defensa Street",
+            "role": "route",
+            "order": 2,
+            "required": true,
+            "evidenceKeys": [
+              "ev-12"
+            ]
+          }
+        ],
+        "orderedByEvidence": true,
+        "suggestedDurationMinutes": 90
+      },
+      {
+        "name": "San Telmo & Caminito History Walk",
+        "origin": "web",
+        "themes": [
+          "history",
+          "tango",
+          "culture",
+          "architecture"
+        ],
+        "intents": [
+          "walk",
+          "route_like"
+        ],
+        "traceKey": "san telmo & caminito history walk:ev-14:mafalda:Mafalda Statue|san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|lezama-park:Lezama Park|caminito:Caminito",
+        "providers": [
+          "www.expedia.com"
+        ],
+        "evidenceKeys": [
+          "ev-14"
+        ],
+        "componentHints": [
+          {
+            "key": "mafalda",
+            "name": "Mafalda Statue",
+            "role": "venue",
+            "order": 1,
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "san-telmo-market",
+            "name": "San Telmo Market",
+            "role": "venue",
+            "order": 2,
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "dorrego-square",
+            "name": "Dorrego Square",
+            "role": "venue",
+            "order": 3,
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "lezama-park",
+            "name": "Lezama Park",
+            "role": "venue",
+            "order": 4,
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "caminito",
+            "name": "Caminito",
+            "role": "area",
+            "order": 5,
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          }
+        ],
+        "orderedByEvidence": true,
+        "suggestedDurationMinutes": 180
+      },
+      {
+        "name": "La Boca and San Telmo History Walk",
+        "origin": "web",
+        "themes": [
+          "history",
+          "architecture",
+          "gastronomy",
+          "sports"
+        ],
+        "intents": [
+          "walk",
+          "route_like",
+          "food"
+        ],
+        "traceKey": "la boca and san telmo history walk:ev-15:san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|defensa-street:Defensa Street|caminito-street:Caminito Street|boca-stadium:Boca Juniors Stadium",
+        "providers": [
+          "www.overtheplanet.com"
+        ],
+        "evidenceKeys": [
+          "ev-15"
+        ],
+        "componentHints": [
+          {
+            "key": "san-telmo-market",
+            "name": "San Telmo Market",
+            "role": "venue",
+            "order": 1,
+            "required": true,
+            "evidenceKeys": [
+              "ev-15"
+            ]
+          },
+          {
+            "key": "dorrego-square",
+            "name": "Dorrego Square",
+            "role": "venue",
+            "order": 2,
+            "required": true,
+            "evidenceKeys": [
+              "ev-15"
+            ]
+          },
+          {
+            "key": "defensa-street",
+            "name": "Defensa Street",
+            "role": "route",
+            "order": 3,
+            "required": true,
+            "evidenceKeys": [
+              "ev-15"
+            ]
+          },
+          {
+            "key": "caminito-street",
+            "name": "Caminito Street",
+            "role": "route",
+            "order": 4,
+            "required": true,
+            "evidenceKeys": [
+              "ev-15"
+            ]
+          },
+          {
+            "key": "boca-stadium",
+            "name": "Boca Juniors Stadium",
+            "role": "venue",
+            "order": 5,
+            "required": true,
+            "evidenceKeys": [
+              "ev-15"
+            ]
+          }
+        ],
+        "orderedByEvidence": true,
+        "suggestedDurationMinutes": 180
+      },
+      {
+        "name": "San Telmo Colonial Walking Tour",
+        "origin": "web",
+        "themes": [
+          "history",
+          "architecture",
+          "culture"
+        ],
+        "intents": [
+          "walk",
+          "route_like"
+        ],
+        "traceKey": "san telmo colonial walking tour:ev-16:ezeiza-mansion:Ezeiza Mansion|lezama-park:Lezama Park|san-lorenzo-passage:San Lorenzo Passage|san-telmo-market:San Telmo Market",
+        "providers": [
+          "www.agoda.com"
+        ],
+        "evidenceKeys": [
+          "ev-16"
+        ],
+        "componentHints": [
+          {
+            "key": "san-telmo-market",
+            "name": "San Telmo Market",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "ezeiza-mansion",
+            "name": "Ezeiza Mansion",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "lezama-park",
+            "name": "Lezama Park",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "san-lorenzo-passage",
+            "name": "San Lorenzo Passage",
+            "role": "route",
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          }
+        ],
+        "orderedByEvidence": false,
+        "suggestedDurationMinutes": 120
+      }
+    ],
+    "passNumber": 1,
+    "sourcePlans": [
+      {
+        "status": "success",
+        "provider": "wikivoyage",
+        "observations": [
+          {
+            "title": "Aprende el arte de Fileteado",
+            "provider": "wikivoyage",
+            "description": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          },
+          {
+            "title": "Tomar clases de tango",
+            "provider": "wikivoyage",
+            "description": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          }
+        ],
+        "configuration": {
+          "sections": [
+            "DO"
+          ]
+        },
+        "observationCount": 2,
+        "runtimeProviders": [
+          "wikivoyage"
+        ]
+      },
+      {
+        "web": {
+          "query": "San Telmo San Telmo walking tours walks histórica caminata San Telmo",
+          "evidence": [
+            {
+              "kind": "narrative_paragraph",
+              "order": 1,
+              "source": "google_ai_mode",
+              "snippet": "San Telmo, the oldest neighborhood in Buenos Aires, is a living museum of cobblestone streets, 19th-century colonial architecture, tango roots, and vibrant local markets. Whether you are looking for a guided excursion, a free walking tour, or a self-guided route, here is a breakdown of the best ways to experience a historical walk through San Telmo.",
+              "evidenceKey": "ev-1"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 2,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "DirectionsWebsiteThe pulsing heart of the neighborhood, famous for its Sunday antiques fair, outdoor tango dancers, and surrounding cafes.",
+              "evidenceKey": "ev-2",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 3,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "CallDirectionsWebsiteA bustling 19th-century market filled with produce, vintage oddities, and amazing food stalls (great for grabbing empanadas or coffee).",
+              "evidenceKey": "ev-3",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 4,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "DirectionsWebsiteOften cited in local lore as one of the potential founding sites of the city, featuring sweeping green spaces and monumental sculptures.",
+              "evidenceKey": "ev-4",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 5,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "DirectionsThe main artery lined with antique shops, colonial facades, and historical markers detailing the neighborhood's resilience during British invasions.",
+              "evidenceKey": "ev-5",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 6,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "CallDirectionsSnap a photo at the corner of Chile and Defensa with Buenos Aires' most beloved comic strip character.",
+              "evidenceKey": "ev-6",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 7,
+              "title": "Highlights of a San Telmo Historic Walk",
+              "source": "Highlights of a San Telmo Historic Walk",
+              "snippet": "DirectionsCheck out the narrowest house in the city (just 2.5 meters wide) and quaint historic alleys.",
+              "evidenceKey": "ev-7",
+              "contextHeading": "Highlights of a San Telmo Historic Walk"
+            },
+            {
+              "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+              "kind": "list_item",
+              "order": 8,
+              "title": "Types of Walking Tours Available",
+              "source": "Types of Walking Tours Available",
+              "snippet": "Free Walking Tours: Companies like Buenos Aires Free Walks offer tip-based historical walking tours covering colonial architecture, immigration waves, and the Sunday fair.",
+              "evidenceKey": "ev-8",
+              "contextHeading": "Types of Walking Tours Available"
+            },
+            {
+              "url": "https://www.expedia.com/lx/activity/53703223/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+              "kind": "list_item",
+              "order": 9,
+              "title": "Types of Walking Tours Available",
+              "source": "Types of Walking Tours Available",
+              "snippet": "Combined San Telmo & La Boca History Walks: Many operators offer 3-hour guided strolls that start in the colonial streets of San Telmo and transition toward the colorful port-side alleyways of Caminito. You can browse options via platforms like Expedia Activities or Tourscanner.",
+              "evidenceKey": "ev-9",
+              "contextHeading": "Types of Walking Tours Available"
+            },
+            {
+              "kind": "list_item",
+              "order": 10,
+              "title": "Types of Walking Tours Available",
+              "source": "Types of Walking Tours Available",
+              "snippet": "Self-Guided Exploration: Wander at your own pace starting from Plaza Dorrego down Defensa Street, keeping an eye out for hidden conventillos (historic communal tenements) and traditional cafes.",
+              "evidenceKey": "ev-10",
+              "contextHeading": "Types of Walking Tours Available"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 11,
+              "title": "Types of Walking Tours Available",
+              "source": "Types of Walking Tours Available",
+              "snippet": "Would you prefer recommendations for guided booking options, tips on the best day of the week to go (like the Sunday Feria), or a self-guided itinerary map?",
+              "evidenceKey": "ev-11",
+              "contextHeading": "Types of Walking Tours Available"
+            },
+            {
+              "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+              "kind": "reference",
+              "order": 12,
+              "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+              "source": "tourscanner.com",
+              "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+              "evidenceKey": "ev-12"
+            },
+            {
+              "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+              "kind": "reference",
+              "order": 13,
+              "title": "San Telmo \\u0026 Market Tour",
+              "source": "www.buenosairesfreewalks.com",
+              "snippet": "On the San Telmo tour we will walk the oldest streets of Buenos Aires, learning about colonial BA and the crucial moments of Argen...",
+              "evidenceKey": "ev-13"
+            },
+            {
+              "url": "https://www.expedia.com/lx/activity/53703223/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+              "kind": "reference",
+              "order": 14,
+              "title": "Beyond Caminito \\u0026 San Telmo: Hidden Stories of Buenos Aires",
+              "source": "www.expedia.com",
+              "snippet": "San Telmo is the oldest neigborhood in Buenos Aires, the place where it was foundated the city in 1536 and 1580. The architecture reminds the spanish colonial style (they're houses of 400 years!) and this makes a contrast with the ''Paris'' cultural imagination that we have of Buenos Aires. Tango, artisans and all the history in the colonial time is what San Telmo have, an unique place to enjoy the past and the beauty of their narrow streets. Caminito it's a zone in La Boca neighborhood. Some bl…",
+              "evidenceKey": "ev-14"
+            },
+            {
+              "url": "https://www.overtheplanet.com/{lang}/unique-experiences-with-private-la-boca-and-san-telmo-history-walk.a{product_id}?utm_source=gttd&utm_medium=organic&s={surface}&f={funnel}&option_id={option_id}&currency={currency}",
+              "kind": "reference",
+              "order": 15,
+              "title": "Private La Boca and San Telmo History Walk",
+              "source": "www.overtheplanet.com",
+              "snippet": "Join our La Boca + San Telmo History Walk to explore the heart of Buenos Aires' rich history and culture. Starting in San Telmo, known for cobbled streets, immigrant architecture, and a vibrant food scene, we begin with a mate-tasting experience in a centennial building. Then, visit the historic San Telmo Market, offering ethnic foods, fresh produce, and unique trinkets. Next, discover La Boca, the port where European immigrants arrived, shaping the city forever. Explore its vibrant Latin atmosp…",
+              "evidenceKey": "ev-15"
+            },
+            {
+              "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+              "kind": "reference",
+              "order": 16,
+              "title": "San Telmo Colonial Walking Tour – Buenos Aires History",
+              "source": "www.agoda.com",
+              "snippet": "Discover the colonial history of Buenos Aires and Argentina on a guided San Telmo walking tour. Explore the city's transformation from a small village to a cosmopolitan hub, with engaging stories about its foundation, native peoples, invasions, and independence. This experience is perfect for culture and history enthusiasts seeking a professional and modern approach. - Walk through San Telmo, the oldest neighborhood in Buenos Aires, and hear tales from the Colonial era. - Learn about local icons…",
+              "evidenceKey": "ev-16"
+            }
+          ],
+          "extractor": {
+            "model": "qwen/qwen3.8-27b",
+            "provider": "groq",
+            "validationErrors": [],
+            "inputEvidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-3",
+              "ev-4",
+              "ev-5",
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10",
+              "ev-11",
+              "ev-12",
+              "ev-13",
+              "ev-14",
+              "ev-15",
+              "ev-16"
+            ],
+            "candidateDecisions": [
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "San Telmo Self-Guided Historical Walk",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "architecture",
+                    "culture"
+                  ],
+                  "intents": [
+                    "walk"
+                  ],
+                  "traceKey": "san telmo self-guided historical walk:ev-12:basilica:Basílica de San Francisco|defensa-street:Defensa Street",
+                  "providers": [
+                    "tourscanner.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-12"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "basilica",
+                      "name": "Basílica de San Francisco",
+                      "role": "venue",
+                      "order": 1,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-12"
+                      ]
+                    },
+                    {
+                      "key": "defensa-street",
+                      "name": "Defensa Street",
+                      "role": "route",
+                      "order": 2,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-12"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": true,
+                  "suggestedDurationMinutes": 90
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              },
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "San Telmo & Caminito History Walk",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "tango",
+                    "culture",
+                    "architecture"
+                  ],
+                  "intents": [
+                    "walk",
+                    "route_like"
+                  ],
+                  "traceKey": "san telmo & caminito history walk:ev-14:mafalda:Mafalda Statue|san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|lezama-park:Lezama Park|caminito:Caminito",
+                  "providers": [
+                    "www.expedia.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-14"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "mafalda",
+                      "name": "Mafalda Statue",
+                      "role": "venue",
+                      "order": 1,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "san-telmo-market",
+                      "name": "San Telmo Market",
+                      "role": "venue",
+                      "order": 2,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "dorrego-square",
+                      "name": "Dorrego Square",
+                      "role": "venue",
+                      "order": 3,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "lezama-park",
+                      "name": "Lezama Park",
+                      "role": "venue",
+                      "order": 4,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "caminito",
+                      "name": "Caminito",
+                      "role": "area",
+                      "order": 5,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": true,
+                  "suggestedDurationMinutes": 180
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              },
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "La Boca and San Telmo History Walk",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "architecture",
+                    "gastronomy",
+                    "sports"
+                  ],
+                  "intents": [
+                    "walk",
+                    "route_like",
+                    "food"
+                  ],
+                  "traceKey": "la boca and san telmo history walk:ev-15:san-telmo-market:San Telmo Market|dorrego-square:Dorrego Square|defensa-street:Defensa Street|caminito-street:Caminito Street|boca-stadium:Boca Juniors Stadium",
+                  "providers": [
+                    "www.overtheplanet.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-15"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "san-telmo-market",
+                      "name": "San Telmo Market",
+                      "role": "venue",
+                      "order": 1,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-15"
+                      ]
+                    },
+                    {
+                      "key": "dorrego-square",
+                      "name": "Dorrego Square",
+                      "role": "venue",
+                      "order": 2,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-15"
+                      ]
+                    },
+                    {
+                      "key": "defensa-street",
+                      "name": "Defensa Street",
+                      "role": "route",
+                      "order": 3,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-15"
+                      ]
+                    },
+                    {
+                      "key": "caminito-street",
+                      "name": "Caminito Street",
+                      "role": "route",
+                      "order": 4,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-15"
+                      ]
+                    },
+                    {
+                      "key": "boca-stadium",
+                      "name": "Boca Juniors Stadium",
+                      "role": "venue",
+                      "order": 5,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-15"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": true,
+                  "suggestedDurationMinutes": 180
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              },
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "San Telmo Colonial Walking Tour",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "architecture",
+                    "culture"
+                  ],
+                  "intents": [
+                    "walk",
+                    "route_like"
+                  ],
+                  "traceKey": "san telmo colonial walking tour:ev-16:ezeiza-mansion:Ezeiza Mansion|lezama-park:Lezama Park|san-lorenzo-passage:San Lorenzo Passage|san-telmo-market:San Telmo Market",
+                  "providers": [
+                    "www.agoda.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-16"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "san-telmo-market",
+                      "name": "San Telmo Market",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "ezeiza-mansion",
+                      "name": "Ezeiza Mansion",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "lezama-park",
+                      "name": "Lezama Park",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "san-lorenzo-passage",
+                      "name": "San Lorenzo Passage",
+                      "role": "route",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": false,
+                  "suggestedDurationMinutes": 120
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              }
+            ],
+            "sourceSupportAudits": [
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "basilica",
+                    "name": "Basílica de San Francisco",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-12"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "defensa-street",
+                    "name": "Defensa Street",
+                    "role": "route",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-12"
+                    ],
+                    "expectedKind": "ROUTE"
+                  }
+                ],
+                "candidateName": "San Telmo Self-Guided Historical Walk",
+                "emittedComponentCount": 2,
+                "supportedComponentCount": 2,
+                "unsupportedComponentCount": 0
+              },
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "mafalda",
+                    "name": "Mafalda Statue",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "san-telmo-market",
+                    "name": "San Telmo Market",
+                    "role": "venue",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "dorrego-square",
+                    "name": "Dorrego Square",
+                    "role": "venue",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "lezama-park",
+                    "name": "Lezama Park",
+                    "role": "venue",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "caminito",
+                    "name": "Caminito",
+                    "role": "area",
+                    "index": 4,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "AREA"
+                  }
+                ],
+                "candidateName": "San Telmo & Caminito History Walk",
+                "emittedComponentCount": 5,
+                "supportedComponentCount": 5,
+                "unsupportedComponentCount": 0
+              },
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "san-telmo-market",
+                    "name": "San Telmo Market",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "dorrego-square",
+                    "name": "Dorrego Square",
+                    "role": "venue",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "defensa-street",
+                    "name": "Defensa Street",
+                    "role": "route",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15"
+                    ],
+                    "expectedKind": "ROUTE"
+                  },
+                  {
+                    "key": "caminito-street",
+                    "name": "Caminito Street",
+                    "role": "route",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15"
+                    ],
+                    "expectedKind": "ROUTE"
+                  },
+                  {
+                    "key": "boca-stadium",
+                    "name": "Boca Juniors Stadium",
+                    "role": "venue",
+                    "index": 4,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15"
+                    ],
+                    "expectedKind": "PLACE"
+                  }
+                ],
+                "candidateName": "La Boca and San Telmo History Walk",
+                "emittedComponentCount": 5,
+                "supportedComponentCount": 5,
+                "unsupportedComponentCount": 0
+              },
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "san-telmo-market",
+                    "name": "San Telmo Market",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "ezeiza-mansion",
+                    "name": "Ezeiza Mansion",
+                    "role": "venue",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "lezama-park",
+                    "name": "Lezama Park",
+                    "role": "venue",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "san-lorenzo-passage",
+                    "name": "San Lorenzo Passage",
+                    "role": "route",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "ROUTE"
+                  }
+                ],
+                "candidateName": "San Telmo Colonial Walking Tour",
+                "emittedComponentCount": 4,
+                "supportedComponentCount": 4,
+                "unsupportedComponentCount": 0
+              }
+            ],
+            "admittedCandidateCount": 4,
+            "rejectedCandidateCount": 0,
+            "extractedCandidateCount": 4
+          },
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "groundedModel": "google-ai-mode",
+          "semanticQuery": "histórica caminata San Telmo",
+          "groundingStatus": "applied",
+          "groundedProvider": "serpapi",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "status": "success",
+        "provider": "web",
+        "observations": [],
+        "configuration": {
+          "query": "San Telmo San Telmo walking tours walks histórica caminata San Telmo",
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "semanticQuery": "histórica caminata San Telmo",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "observationCount": 0,
+        "runtimeProviders": []
+      }
+    ],
+    "acquisitionContext": {
+      "anchor": {
+        "kind": "area",
+        "usage": "geographic_scope",
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "geometry": {
+          "type": "Polygon"
+        },
+        "priority": "soft",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "tags": {
+            "name": "San Telmo",
+            "type": "boundary",
+            "boundary": "administrative",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)",
+            "admin_level": "9"
+          },
+          "osmId": 2223069,
+          "osmType": "relation",
+          "geometry": {
+            "type": "Polygon"
+          }
+        },
+        "canonicalName": "San Telmo"
+      },
+      "strategy": "area_route_walk",
+      "passNumber": 1
+    },
+    "structuredCorroboration": {
+      "groups": [
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_1",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateName": "Aprende el arte de Fileteado",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        },
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_2",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateName": "Tomar clases de tango",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        }
+      ],
+      "groupCount": 2,
+      "proposalCount": 2,
+      "acceptedGroupCount": 0,
+      "rejectedGroupCount": 2,
+      "pairDecisionSummary": {
+        "total": 1,
+        "byReason": {
+          "incompatible_evidence_type": 1
+        },
+        "byDecision": {
+          "NEW": 1,
+          "SAME": 0,
+          "AMBIGUOUS": 0
+        }
+      }
+    }
+  },
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  }
+}

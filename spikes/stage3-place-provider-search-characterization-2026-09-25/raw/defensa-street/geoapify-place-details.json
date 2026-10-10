@@ -1,0 +1,56 @@
+{
+  "request": {
+    "id": "51ef8ff7aa952f4dc059fa97a432c54e41c0c00204920307446566656e7361e203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363030313838"
+  },
+  "status": 200,
+  "durationMs": 489,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "country_code": "ar",
+          "name": "Defensa",
+          "street": "Defensa",
+          "country": "Argentina",
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "pelias_gid": "openstreetmap:street:polyline:28600188",
+            "pelias_layer": "street",
+            "continent": "South America"
+          },
+          "rank": {
+            "pelias_accuracy": "centroid"
+          },
+          "state": "Autonomous City of Buenos Aires",
+          "state_code": "CF",
+          "city": "Buenos Aires",
+          "district": "Comuna 1",
+          "suburb": "Monserrat",
+          "iso3166_2": "AR-C",
+          "lon": -58.371755,
+          "lat": -34.615393,
+          "feature_type": "details",
+          "formatted": "Defensa, Monserrat, Buenos Aires, Argentina",
+          "address_line1": "Defensa",
+          "address_line2": "Monserrat, Buenos Aires, Argentina",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          }
+        },
+        "geometry": {
+          "type": "Point",
+          "coordinates": [
+            -58.371755,
+            -34.615393
+          ]
+        }
+      }
+    ]
+  }
+}

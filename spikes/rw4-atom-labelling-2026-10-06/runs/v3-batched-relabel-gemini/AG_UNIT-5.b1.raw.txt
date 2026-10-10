@@ -1,0 +1,393 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Title heading introducing the blog post."
+    },
+    {
+      "atomId": "a-002",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author background description."
+    },
+    {
+      "atomId": "a-003",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Personal anecdote."
+    },
+    {
+      "atomId": "a-004",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Personal background in San Telmo."
+    },
+    {
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Overview of the tour covering multiple areas."
+    },
+    {
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General tips about walking distance and food."
+    },
+    {
+      "atomId": "a-007",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Note about the tour day."
+    },
+    {
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Explanation about Sunday street fairs."
+    },
+    {
+      "atomId": "a-009",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Note about map at the end."
+    },
+    {
+      "atomId": "a-010",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Start point and stop at Teatro Colon."
+    },
+    {
+      "atomId": "a-011",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-010"
+        }
+      ],
+      "reason": "Directs traveler to see Teatro Colon from outside."
+    },
+    {
+      "atomId": "a-012",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Obelisco",
+          "supportSpan": "Obelisco",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Av. Roque Saenz Peña",
+          "supportSpan": "Av. Roque Saenz Peña",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Walking route through avenue to Plaza de Mayo."
+    },
+    {
+      "atomId": "a-013",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading for breakfast and visiting Plaza de Mayo."
+    },
+    {
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-015",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-013"
+        },
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Congress building",
+          "supportSpan": "Congress building",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walking through Av. de Mayo and seeing Congress."
+    },
+    {
+      "atomId": "a-016",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Café Tortoni",
+          "supportSpan": "Café Tortoni",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends Cafe Tortoni as one of two options."
+    },
+    {
+      "atomId": "a-017",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Tortoni",
+          "supportSpan": "Tortoni",
+          "role": "ALTERNATIVE",
+          "mentionAtomId": "a-016"
+        }
+      ],
+      "reason": "Provides details on Tortoni's food options."
+    },
+    {
+      "atomId": "a-018",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Tortoni",
+          "supportSpan": "Tortoni",
+          "role": "ALTERNATIVE",
+          "mentionAtomId": "a-016"
+        },
+        {
+          "sourceName": "London City Coffee",
+          "supportSpan": "London City Coffee",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers London City Coffee as alternative choice."
+    },
+    {
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-020",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG",
+          "mentionAtomId": "a-015"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-013"
+        }
+      ],
+      "reason": "Walking back via Av. de Mayo to Plaza de Mayo."
+    },
+    {
+      "atomId": "a-021",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza",
+          "supportSpan": "Plaza",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-020"
+        },
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Cathedral",
+          "supportSpan": "Cathedral",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Describes sights located in Plaza de Mayo."
+    },
+    {
+      "atomId": "a-022",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical and contextual description of the plaza."
+    },
+    {
+      "atomId": "a-023",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-020"
+        }
+      ],
+      "reason": "Mention of features seen on the floor of the plaza."
+    },
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Practical tips about visiting Casa Rosada."
+    },
+    {
+      "atomId": "a-025",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption."
+    },
+    {
+      "atomId": "a-026",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading and entry into San Telmo."
+    },
+    {
+      "atomId": "a-027",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa Street",
+          "supportSpan": "Defensa Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-020"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walking down Defensa Street."
+    },
+    {
+      "atomId": "a-028",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Farmacia la Estrella",
+          "supportSpan": "Farmacia la Estrella",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 5: Farmacia la Estrella."
+    },
+    {
+      "atomId": "a-029",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Farmacia la Estrella",
+          "supportSpan": "inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-028"
+        }
+      ],
+      "reason": "Directs traveler to look inside the pharmacy."
+    },
+    {
+      "atomId": "a-030",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of the city",
+          "supportSpan": "Museum of the city",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveler to the city museum."
+    },
+    {
+      "atomId": "a-031",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "La Librería del Avila",
+          "supportSpan": "La Librería del Avila",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 6: La Librería del Avila."
+    },
+    {
+      "atomId": "a-032",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "National School of Buenos Aires",
+          "supportSpan": "National School of Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mention of the school seen in front."
+    },
+    {
+      "atomId": "a-033",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Alfonso",
+          "supportSpan": "Alfonso",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommendation for lunch."
+    },
+    {
+      "atomId": "a-034",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Monumento de Mafalda",
+          "supportSpan": "Monumento de Mafalda",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 7: Monumento de Mafalda."
+    }
+  ]
+}

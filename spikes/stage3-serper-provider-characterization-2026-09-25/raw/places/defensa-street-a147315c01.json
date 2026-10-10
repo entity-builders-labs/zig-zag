@@ -1,0 +1,77 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Defensa Street",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:59.819Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1151
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Defensa Street",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "San Telmo Fair",
+        "address": "Defensa 320, C1065AAT C1065AAT, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.611446,
+        "longitude": -58.371906,
+        "rating": 4.5,
+        "ratingCount": 5400,
+        "category": "Market",
+        "phoneNumber": "011 15-6201-1871",
+        "website": "http://www.feriadesantelmo.com/",
+        "cid": "1965224047085179733"
+      },
+      {
+        "position": 2,
+        "title": "Feria San Telmo calle defensa y chile",
+        "address": "Chile 371, C1098AAH, C1098 C1098AAH, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.615845,
+        "longitude": -58.371452,
+        "rating": 4.7,
+        "ratingCount": 784,
+        "category": "Shopping mall",
+        "phoneNumber": "011 5942-6204",
+        "cid": "12290163641982845701"
+      },
+      {
+        "position": 3,
+        "title": "Feria Artesanos Calle defensa 150 San telmo",
+        "address": "defensa 150, Defensa 192, C1065 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.60973,
+        "longitude": -58.37202,
+        "rating": 4.7,
+        "ratingCount": 29,
+        "category": "Handicraft fair",
+        "phoneNumber": "011 7705-2910",
+        "cid": "17278234059327154572"
+      },
+      {
+        "position": 4,
+        "title": "Mercado San Telmo entrada por calle Defensa",
+        "address": "Defensa 961, C1065 AAQ, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.61912,
+        "longitude": -58.371613,
+        "rating": 4.1,
+        "ratingCount": 18,
+        "category": "Shopping mall",
+        "cid": "715794616937375860"
+      }
+    ],
+    "credits": 1
+  }
+}

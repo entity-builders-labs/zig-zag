@@ -1,0 +1,748 @@
+{
+  "label": "Adquisición multi-fuente (pase 1)",
+  "rules": [
+    {
+      "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+      "reason": "Fuentes enrutadas: wikivoyage, web.",
+      "result": "PASS",
+      "ruleId": "ACQ-ROUTING-001"
+    },
+    {
+      "rule": "Una fuente que falla no aborta la adquisición",
+      "reason": "Todas las fuentes atendidas respondieron.",
+      "result": "PASS",
+      "ruleId": "ACQ-ISOLATION-001"
+    },
+    {
+      "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+      "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+      "result": "PASS",
+      "ruleId": "ACQ-CANDIDATE-001"
+    }
+  ],
+  "stage": "discovery",
+  "inputs": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "passNumber": 1,
+    "routedProviders": [
+      "wikivoyage",
+      "web"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "webResults": [
+      {
+        "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+        "status": "success",
+        "evidenceCount": 18,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 0,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [
+          "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 7 (Casa Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+        ],
+        "extractorProvider": "groq"
+      }
+    ],
+    "candidateCount": 0,
+    "observationCount": 2,
+    "webCandidateCount": 0,
+    "structuredProviders": [
+      {
+        "status": "success",
+        "provider": "wikivoyage"
+      }
+    ],
+    "structuredCandidateCount": 0
+  },
+  "summary": "Pase 1: fuentes [wikivoyage, web] → 2 observación(es) estructurada(s) + 0 candidate(s) (web: 0).",
+  "component": "ExperienceAcquisitionService",
+  "acquisition": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "evidence": [
+      {
+        "title": "Aprende el arte de Fileteado",
+        "source": "wikivoyage",
+        "snippet": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+      },
+      {
+        "title": "Tomar clases de tango",
+        "source": "wikivoyage",
+        "snippet": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 1,
+        "source": "google_ai_mode",
+        "snippet": "San Telmo is the oldest neighborhood in Buenos Aires, Argentina, renowned for its 19th-century colonial architecture, cobblestone streets, antique markets, and deep roots in the history of tango.",
+        "evidenceKey": "ev-1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 2,
+        "source": "google_ai_mode",
+        "snippet": "Exploring this historic district on foot allows you to trace the evolution of the city from a muddy colonial port to the vibrant cultural heart it is today.",
+        "evidenceKey": "ev-2"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 3,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "DirectionsWebsiteThe beating heart of the neighborhood, famous for its Sunday antique fair, street tango dancers, and surrounding historic cafes.",
+        "evidenceKey": "ev-3",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 4,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "CallDirectionsWebsiteAn iconic 1897 indoor food market filled with local produce, vintage stalls, and traditional food vendors.",
+        "evidenceKey": "ev-4",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 5,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "CallDirectionsWebsiteLocated at San Lorenzo 380, this is known as the narrowest house in Buenos Aires with a facade only 2.3 meters wide.",
+        "evidenceKey": "ev-5",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 6,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "CallDirectionsWebsiteThe oldest pharmacy in the city, featuring remarkably preserved 19th-century wooden interior fittings and apothecary jars.",
+        "evidenceKey": "ev-6",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 7,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "DirectionsA comic strip walk featuring sculptures of beloved Argentine characters like Mafalda.",
+        "evidenceKey": "ev-7",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 8,
+        "title": "Key Historical Highlights on a San Telmo Walk",
+        "source": "Key Historical Highlights on a San Telmo Walk",
+        "snippet": "CallDirectionsWebsiteA historic corner venue that remains a legendary landmark for traditional tango shows.",
+        "evidenceKey": "ev-8",
+        "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+      },
+      {
+        "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+        "kind": "list_item",
+        "order": 9,
+        "title": "Popular Walking Tour Options",
+        "source": "Popular Walking Tour Options",
+        "snippet": "Free Walking Tours: Local operators like San Telmo Free Walk offer tip-based historical walking tours covering the colonial era, immigration waves, and architecture. Platforms like GuruWalk and Freetour.com also list specialized itineraries that explore Casa Mínima and the neighborhood's underground tunnels.",
+        "evidenceKey": "ev-9",
+        "contextHeading": "Popular Walking Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 10,
+        "title": "Popular Walking Tour Options",
+        "source": "Popular Walking Tour Options",
+        "snippet": "Self-Guided Walks: You can trace a path starting from the Basílica de San Francisco on Defensa Street, moving south toward Parque Lezama, taking in the historic casas chorizo (traditional tenement houses) and street art at your own pace.",
+        "evidenceKey": "ev-10",
+        "contextHeading": "Popular Walking Tour Options"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 11,
+        "title": "Popular Walking Tour Options",
+        "source": "Popular Walking Tour Options",
+        "snippet": "If you're planning a trip, let me know:",
+        "evidenceKey": "ev-11",
+        "contextHeading": "Popular Walking Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 12,
+        "title": "Popular Walking Tour Options",
+        "source": "Popular Walking Tour Options",
+        "snippet": "Are you looking for a guided tour recommendation or a self-guided route?",
+        "evidenceKey": "ev-12",
+        "contextHeading": "Popular Walking Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 13,
+        "title": "Popular Walking Tour Options",
+        "source": "Popular Walking Tour Options",
+        "snippet": "Do you plan to visit on a Sunday to see the street fair?",
+        "evidenceKey": "ev-13",
+        "contextHeading": "Popular Walking Tour Options"
+      },
+      {
+        "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+        "kind": "reference",
+        "order": 14,
+        "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+        "source": "tourscanner.com",
+        "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+        "evidenceKey": "ev-14"
+      },
+      {
+        "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+        "kind": "reference",
+        "order": 15,
+        "title": "San Telmo Walking Tour and Market Experience – Buenos Aires",
+        "source": "www.agoda.com",
+        "snippet": "Experience the heart of Buenos Aires with a walking tour through San Telmo, the city's oldest neighborhood. Explore cobblestone streets lined with 19th-century architecture and uncover stories of colonial history and Argentine heritage. Enjoy the vibrant atmosphere as you learn how immigration shaped local culture and see the neighborhood come alive with music and art during the famous Sunday street fair. - Visit the iconic San Telmo Food Market and discover its rich history and unique features.…",
+        "evidenceKey": "ev-15"
+      },
+      {
+        "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+        "kind": "reference",
+        "order": 16,
+        "title": "San Telmo Essential Tour: Tango, Market \\u0026 Museums",
+        "source": "www.freetour.com",
+        "snippet": "Walk San Telmo with an English teacher and know the oldest and most fantastic neighborhood in BA. We'll meet at Adolfo Alsina 400 (double-check apart from the app's map) at Basilica San Francisco de Asis, and we will also see the iconic Farmacia la Estrella, the oldest pharmacy in BA, then head to Convento Santo Domingo, where the English invasions occurred. We´ll see icons of Argentinean culture, such as “Mafalda” and the smallest house in Buenos Aires. The iconic tango bar \\\"El Viejo Almacen\\\"…",
+        "evidenceKey": "ev-16"
+      },
+      {
+        "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+        "kind": "reference",
+        "order": 17,
+        "title": "San Telmo \\u0026 Market Tour",
+        "source": "www.buenosairesfreewalks.com",
+        "snippet": "On the San Telmo tour we will walk the oldest streets of Buenos Aires, learning about colonial BA and the crucial moments of Argentine history. Cobblestone streets and beautiful XIXth century buildings will frame our tour talking about immigration into the city and the creation of the modern local culture, including Mafalda (the most famous little girl from Buenos Aires), the traditional San Telmo Food Market and the unique Sunday street Fair. We will see the market and the fair, explaining all …",
+        "evidenceKey": "ev-17"
+      },
+      {
+        "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+        "kind": "reference",
+        "order": 18,
+        "title": "Buenos Aires: Casa Mínima Guided Tour in San Telmo",
+        "source": "www.guruwalk.com",
+        "snippet": "Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behind a facade just 2.3 meters wide. This intimate space is a living relic of San Telmo, preserving the neighborhood’s oldest myths and traditions. As you step inside, you’ll discover how the house’s walls have witnessed the transformation from the era of slavery to the vibrant origins of tango, offering a rare glimpse into the lives that shaped this iconic district.Your …",
+        "evidenceKey": "ev-18"
+      }
+    ],
+    "candidates": [],
+    "passNumber": 1,
+    "sourcePlans": [
+      {
+        "status": "success",
+        "provider": "wikivoyage",
+        "observations": [
+          {
+            "title": "Aprende el arte de Fileteado",
+            "provider": "wikivoyage",
+            "description": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          },
+          {
+            "title": "Tomar clases de tango",
+            "provider": "wikivoyage",
+            "description": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          }
+        ],
+        "configuration": {
+          "sections": [
+            "DO"
+          ]
+        },
+        "observationCount": 2,
+        "runtimeProviders": [
+          "wikivoyage"
+        ]
+      },
+      {
+        "web": {
+          "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+          "evidence": [
+            {
+              "kind": "narrative_paragraph",
+              "order": 1,
+              "source": "google_ai_mode",
+              "snippet": "San Telmo is the oldest neighborhood in Buenos Aires, Argentina, renowned for its 19th-century colonial architecture, cobblestone streets, antique markets, and deep roots in the history of tango.",
+              "evidenceKey": "ev-1"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 2,
+              "source": "google_ai_mode",
+              "snippet": "Exploring this historic district on foot allows you to trace the evolution of the city from a muddy colonial port to the vibrant cultural heart it is today.",
+              "evidenceKey": "ev-2"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 3,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "DirectionsWebsiteThe beating heart of the neighborhood, famous for its Sunday antique fair, street tango dancers, and surrounding historic cafes.",
+              "evidenceKey": "ev-3",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 4,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "CallDirectionsWebsiteAn iconic 1897 indoor food market filled with local produce, vintage stalls, and traditional food vendors.",
+              "evidenceKey": "ev-4",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 5,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "CallDirectionsWebsiteLocated at San Lorenzo 380, this is known as the narrowest house in Buenos Aires with a facade only 2.3 meters wide.",
+              "evidenceKey": "ev-5",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 6,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "CallDirectionsWebsiteThe oldest pharmacy in the city, featuring remarkably preserved 19th-century wooden interior fittings and apothecary jars.",
+              "evidenceKey": "ev-6",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 7,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "DirectionsA comic strip walk featuring sculptures of beloved Argentine characters like Mafalda.",
+              "evidenceKey": "ev-7",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 8,
+              "title": "Key Historical Highlights on a San Telmo Walk",
+              "source": "Key Historical Highlights on a San Telmo Walk",
+              "snippet": "CallDirectionsWebsiteA historic corner venue that remains a legendary landmark for traditional tango shows.",
+              "evidenceKey": "ev-8",
+              "contextHeading": "Key Historical Highlights on a San Telmo Walk"
+            },
+            {
+              "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+              "kind": "list_item",
+              "order": 9,
+              "title": "Popular Walking Tour Options",
+              "source": "Popular Walking Tour Options",
+              "snippet": "Free Walking Tours: Local operators like San Telmo Free Walk offer tip-based historical walking tours covering the colonial era, immigration waves, and architecture. Platforms like GuruWalk and Freetour.com also list specialized itineraries that explore Casa Mínima and the neighborhood's underground tunnels.",
+              "evidenceKey": "ev-9",
+              "contextHeading": "Popular Walking Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 10,
+              "title": "Popular Walking Tour Options",
+              "source": "Popular Walking Tour Options",
+              "snippet": "Self-Guided Walks: You can trace a path starting from the Basílica de San Francisco on Defensa Street, moving south toward Parque Lezama, taking in the historic casas chorizo (traditional tenement houses) and street art at your own pace.",
+              "evidenceKey": "ev-10",
+              "contextHeading": "Popular Walking Tour Options"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 11,
+              "title": "Popular Walking Tour Options",
+              "source": "Popular Walking Tour Options",
+              "snippet": "If you're planning a trip, let me know:",
+              "evidenceKey": "ev-11",
+              "contextHeading": "Popular Walking Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 12,
+              "title": "Popular Walking Tour Options",
+              "source": "Popular Walking Tour Options",
+              "snippet": "Are you looking for a guided tour recommendation or a self-guided route?",
+              "evidenceKey": "ev-12",
+              "contextHeading": "Popular Walking Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 13,
+              "title": "Popular Walking Tour Options",
+              "source": "Popular Walking Tour Options",
+              "snippet": "Do you plan to visit on a Sunday to see the street fair?",
+              "evidenceKey": "ev-13",
+              "contextHeading": "Popular Walking Tour Options"
+            },
+            {
+              "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+              "kind": "reference",
+              "order": 14,
+              "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+              "source": "tourscanner.com",
+              "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a …",
+              "evidenceKey": "ev-14"
+            },
+            {
+              "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+              "kind": "reference",
+              "order": 15,
+              "title": "San Telmo Walking Tour and Market Experience – Buenos Aires",
+              "source": "www.agoda.com",
+              "snippet": "Experience the heart of Buenos Aires with a walking tour through San Telmo, the city's oldest neighborhood. Explore cobblestone streets lined with 19th-century architecture and uncover stories of colonial history and Argentine heritage. Enjoy the vibrant atmosphere as you learn how immigration shaped local culture and see the neighborhood come alive with music and art during the famous Sunday street fair. - Visit the iconic San Telmo Food Market and discover its rich history and unique features.…",
+              "evidenceKey": "ev-15"
+            },
+            {
+              "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+              "kind": "reference",
+              "order": 16,
+              "title": "San Telmo Essential Tour: Tango, Market \\u0026 Museums",
+              "source": "www.freetour.com",
+              "snippet": "Walk San Telmo with an English teacher and know the oldest and most fantastic neighborhood in BA. We'll meet at Adolfo Alsina 400 (double-check apart from the app's map) at Basilica San Francisco de Asis, and we will also see the iconic Farmacia la Estrella, the oldest pharmacy in BA, then head to Convento Santo Domingo, where the English invasions occurred. We´ll see icons of Argentinean culture, such as “Mafalda” and the smallest house in Buenos Aires. The iconic tango bar \\\"El Viejo Almacen\\\"…",
+              "evidenceKey": "ev-16"
+            },
+            {
+              "url": "https://www.buenosairesfreewalks.com/tour-san-telmo/",
+              "kind": "reference",
+              "order": 17,
+              "title": "San Telmo \\u0026 Market Tour",
+              "source": "www.buenosairesfreewalks.com",
+              "snippet": "On the San Telmo tour we will walk the oldest streets of Buenos Aires, learning about colonial BA and the crucial moments of Argentine history. Cobblestone streets and beautiful XIXth century buildings will frame our tour talking about immigration into the city and the creation of the modern local culture, including Mafalda (the most famous little girl from Buenos Aires), the traditional San Telmo Food Market and the unique Sunday street Fair. We will see the market and the fair, explaining all …",
+              "evidenceKey": "ev-17"
+            },
+            {
+              "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+              "kind": "reference",
+              "order": 18,
+              "title": "Buenos Aires: Casa Mínima Guided Tour in San Telmo",
+              "source": "www.guruwalk.com",
+              "snippet": "Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behind a facade just 2.3 meters wide. This intimate space is a living relic of San Telmo, preserving the neighborhood’s oldest myths and traditions. As you step inside, you’ll discover how the house’s walls have witnessed the transformation from the era of slavery to the vibrant origins of tango, offering a rare glimpse into the lives that shaped this iconic district.Your …",
+              "evidenceKey": "ev-18"
+            }
+          ],
+          "extractor": {
+            "model": "qwen/qwen3.8-27b",
+            "provider": "groq",
+            "validationErrors": [
+              "Candidate 1: SOURCE_CONTRACT_VIOLATION: component 7 (Casa Ezeiza) unsupported: SPAN_NOT_FOUND_IN_CITED_EVIDENCE"
+            ],
+            "inputEvidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-3",
+              "ev-4",
+              "ev-5",
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10",
+              "ev-11",
+              "ev-12",
+              "ev-13",
+              "ev-14",
+              "ev-15",
+              "ev-16",
+              "ev-17",
+              "ev-18"
+            ],
+            "candidateDecisions": [],
+            "sourceSupportAudits": [
+              {
+                "status": "SOURCE_CONTRACT_VIOLATION",
+                "components": [
+                  {
+                    "key": "basilica-san-francisco",
+                    "name": "Basílica de San Francisco",
+                    "role": "waypoint",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-10",
+                      "ev-14",
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "farmacia-la-estrella",
+                    "name": "Farmacia la Estrella",
+                    "role": "waypoint",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14",
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "convento-santo-domingo",
+                    "name": "Convento Santo Domingo",
+                    "role": "waypoint",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-15",
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "casa-minima",
+                    "name": "Casa Mínima",
+                    "role": "waypoint",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-5",
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "san-telmo-market",
+                    "name": "San Telmo Market",
+                    "role": "waypoint",
+                    "index": 4,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-4",
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "iglesia-san-pedro-telmo",
+                    "name": "San Pedro Telmo Church",
+                    "role": "waypoint",
+                    "index": 5,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "casa-ezeiza",
+                    "name": "Casa Ezeiza",
+                    "role": "waypoint",
+                    "index": 6,
+                    "reason": "SPAN_NOT_FOUND_IN_CITED_EVIDENCE",
+                    "status": "UNSUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "museo-nacional-de-historia",
+                    "name": "National Historical Museum",
+                    "role": "waypoint",
+                    "index": 7,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  }
+                ],
+                "candidateName": "San Telmo Historical & Cultural Walk",
+                "emittedComponentCount": 8,
+                "supportedComponentCount": 7,
+                "unsupportedComponentCount": 1
+              }
+            ],
+            "admittedCandidateCount": 0,
+            "rejectedCandidateCount": 0,
+            "extractedCandidateCount": 0
+          },
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "groundedModel": "google-ai-mode",
+          "semanticQuery": "historical walk in San Telmo",
+          "groundingStatus": "applied",
+          "groundedProvider": "serpapi",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "status": "success",
+        "provider": "web",
+        "observations": [],
+        "configuration": {
+          "query": "San Telmo San Telmo walking tours walks historical walk in San Telmo",
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "semanticQuery": "historical walk in San Telmo",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "observationCount": 0,
+        "runtimeProviders": []
+      }
+    ],
+    "acquisitionContext": {
+      "anchor": {
+        "kind": "area",
+        "usage": "named_path",
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "geometry": {
+          "type": "Polygon"
+        },
+        "priority": "soft",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "tags": {
+            "name": "San Telmo",
+            "type": "boundary",
+            "boundary": "administrative",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)",
+            "admin_level": "9"
+          },
+          "osmId": 2223069,
+          "osmType": "relation",
+          "geometry": {
+            "type": "Polygon"
+          }
+        },
+        "canonicalName": "San Telmo"
+      },
+      "strategy": "area_route_walk",
+      "passNumber": 1
+    },
+    "structuredCorroboration": {
+      "groups": [
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_1",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateName": "Aprende el arte de Fileteado",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        },
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_2",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateName": "Tomar clases de tango",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        }
+      ],
+      "groupCount": 2,
+      "proposalCount": 2,
+      "acceptedGroupCount": 0,
+      "rejectedGroupCount": 2,
+      "pairDecisionSummary": {
+        "total": 1,
+        "byReason": {
+          "incompatible_evidence_type": 1
+        },
+        "byDecision": {
+          "NEW": 1,
+          "SAME": 0,
+          "AMBIGUOUS": 0
+        }
+      }
+    }
+  },
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "named_path",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  }
+}

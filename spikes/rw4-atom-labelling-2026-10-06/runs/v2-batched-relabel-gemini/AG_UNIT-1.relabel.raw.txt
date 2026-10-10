@@ -1,0 +1,50 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-027",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Defensa Street",
+          "supportSpan": "Defensa Street",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentioning street and squares passed or part of the fair"
+    },
+    {
+      "atomId": "a-055",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical background about the Ezeiza family"
+    },
+    {
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety advice and tips regarding La Boca"
+    },
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of a small restaurant"
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the view from Trade Sky Bar"
+    }
+  ]
+}

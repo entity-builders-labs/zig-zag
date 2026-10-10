@@ -1,0 +1,283 @@
+/**
+ * Forensic instrumentation (not committed): replays the real C3 candidates
+ * that contain a hint through the real resolver (real local Overpass/OSM
+ * pools for whatever boundary the resolver asks, real local Nominatim, the
+ * production Wikidata adapter; Places/catalog empty) and records every
+ * competitor examination member-by-member, filter-by-filter.
+ */
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { OverpassApiService } from '@integrations/osm/services/overpass-api.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { NominatimApiService } from '@integrations/osm/services/nominatim-api.service';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { overpassElementToGeoJson } from '@integrations/osm/utils/osm-geometry.util';
+import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
+import { IdentityVerifier } from '../services/identity-verifier.service';
+import * as competitorPolicy from '../utils/competitor-examination.policy';
+import * as structural from '../utils/place-structural-compatibility.policy';
+import { localityRelation, kindCompatibility } from '../utils/contextual-identity.policy';
+import { normalizeGeoName } from '../utils/nominatim-match.util';
+import { strongIdentitiesOf, strongIdentityKey } from '../utils/strong-identity.util';
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
+import { projectComponentIdentityStepInputs } from '../utils/generation-trace/resolution-audit';
+
+jest.setTimeout(600000);
+const FOCUS = (process.env.FOCUS ?? 'Cabildo').split('|');
+
+it('replays candidates and records competitor examination', async () => {
+  const config = new ConfigService({
+    OVERPASS_API_URL: 'http://localhost:12345/api/interpreter',
+    NOMINATIM_API_URL: 'http://localhost:8088/search',
+  });
+  const overpass = new OverpassApiService(config);
+  const osm = new OsmPlacesService(overpass as any, config);
+  const nominatimReal = new NominatimApiService(config);
+  const wikidataReal = new WikidataApiService(config);
+  const rel = await (overpass as any).execute(
+    '[out:json][timeout:120];relation(1224652);out geom;',
+  );
+  const boundary = {
+    id: 'osm:relation:1224652',
+    name: 'Buenos Aires',
+    osmType: 'relation' as const,
+    osmId: 1224652,
+    tags: rel[0].tags,
+    geometry: overpassElementToGeoJson(rel[0]),
+  };
+
+  // Raw provider records, keyed by the strong identity key members carry.
+  const raw = new Map<string, any>();
+  const osmProxy: any = new Proxy(osm, {
+    get(target: any, prop: string) {
+      const value = target[prop];
+      if (typeof value !== 'function') return value;
+      return async (...args: any[]) => {
+        const result = await value.apply(target, args);
+        if (prop === 'lookupPoisWithin' || prop === 'lookupPoisNear') {
+          for (const c of result.value ?? [])
+            raw.set(`openstreetmap/${c.id}`, {
+              source: `OSM ${prop}`,
+              name: c.name,
+              tags: c.tags,
+              geometryType: c.geometry?.type,
+            });
+        }
+        return result;
+      };
+    },
+  });
+  const nominatim = {
+    search: async (...args: any[]) => {
+      const results = await (nominatimReal as any).search(...args);
+      for (const r of results ?? [])
+        raw.set(`openstreetmap/osm:${r.osmType}:${r.osmId}`, {
+          source: 'NOMINATIM',
+          name: r.displayName,
+          class: r.class,
+          type: r.type,
+          lat: r.latitude,
+          lon: r.longitude,
+        });
+      return results;
+    },
+  };
+  const qids = new Map<string, any>();
+  const wikidata = {
+    getEntitySummaries: async (q: string[]) => {
+      const m = await wikidataReal.getEntitySummaries(q);
+      for (const [k, v] of m) qids.set(k, v);
+      return m;
+    },
+    findNearbyPlaces: (a: number, b: number, c: number) =>
+      wikidataReal.findNearbyPlaces(a, b, c),
+  };
+
+  const examinations: any[] = [];
+  const original = competitorPolicy.examineCompetitors;
+  jest
+    .spyOn(competitorPolicy, 'examineCompetitors')
+    .mockImplementation((input: any) => {
+      const out = original(input);
+      if (!FOCUS.includes(input.hintName)) return out;
+      const candidateKeys = new Set(
+        strongIdentitiesOf(input.candidate).map(strongIdentityKey),
+      );
+      const names = new Set(
+        [input.hintName, input.candidate.canonicalName ?? '']
+          .map(normalizeGeoName)
+          .filter(Boolean),
+      );
+      examinations.push({
+        hint: input.hintName,
+        expectedKind: input.expectedKind,
+        candidate: {
+          name: input.candidate.canonicalName,
+          externalId: input.candidate.externalId,
+          strongIds: [...candidateKeys],
+          lat: input.candidate.latitude,
+          lon: input.candidate.longitude,
+        },
+        context: input.context,
+        output: out,
+        pools: input.pools.map((pool: any) => ({
+          strategy: pool.strategy,
+          coverage: pool.coverage,
+          size: pool.members.length,
+          stages: pool.members
+            .map((m: any) => {
+              const nameMatch =
+                names.has(normalizeGeoName(m.name)) ||
+                m.declaresHintAlias === true;
+              if (!nameMatch) return undefined;
+              const st = structural.evaluateStructuralCompatibility(
+                input.expectedKind,
+                m.structuralKind,
+              );
+              const loc = localityRelation(input.context, m);
+              const kind = kindCompatibility(
+                input.context.physicalKind?.kind,
+                m.structuralKind,
+              );
+              const admitted = input.admits(m);
+              const isCandidate = m.identityKeys.some((k: string) =>
+                candidateKeys.has(k),
+              );
+              return {
+                identityKeys: m.identityKeys,
+                name: m.name,
+                nameMatchedBy: names.has(normalizeGeoName(m.name))
+                  ? 'EXACT_NAME'
+                  : 'DECLARES_HINT_ALIAS',
+                structuralKind: m.structuralKind,
+                structural: st,
+                localityRelation: loc ?? 'NO_GROUNDED_LOCALITY',
+                statedKind: kind,
+                admitted,
+                isCandidate,
+                material:
+                  st === 'COMPATIBLE' &&
+                  loc !== 'OUTSIDE' &&
+                  kind !== 'INCOMPATIBLE' &&
+                  admitted &&
+                  !isCandidate,
+                lat: m.latitude,
+                lon: m.longitude,
+              };
+            })
+            .filter(Boolean),
+        })),
+      });
+      return out;
+    });
+
+  const verdicts: any[] = [];
+  const decideOriginal = IdentityVerifier.prototype.decide;
+  if (decideOriginal)
+    jest
+      .spyOn(IdentityVerifier.prototype, 'decide')
+      .mockImplementation(function (this: any, hint: any, attempt: any) {
+        const d = decideOriginal.call(this, hint, attempt);
+        if (FOCUS.includes(hint.name))
+          verdicts.push({
+            hint: hint.name,
+            strategy: attempt.strategy,
+            candidate: attempt.candidate.canonicalName,
+            externalId: attempt.candidate.externalId,
+            evidence: JSON.parse(JSON.stringify(attempt.evidence)),
+            decision: d,
+          });
+        return d;
+      });
+
+  const service = new ExperienceProposalResolverService(
+    osmProxy,
+    {
+      findGeoEntityCandidatesForHint: jest.fn().mockResolvedValue({ candidates: [] }),
+      rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
+      findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
+      upsertGeoEntityWithIdentities: jest.fn(async (e: any) => ({
+        status: 'CREATED',
+        geoEntity: { id: `geo-${e.externalId}` },
+        attachedExternalIds: [] as string[],
+      })),
+      upsertGeoEntity: jest.fn(async (e: any) => ({ id: `geo-${e.externalId}` })),
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      persistVerifiedExperience: jest
+        .fn()
+        .mockResolvedValue({ id: 'exp', dedupeDecision: 'NEW' }),
+    } as any,
+    { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
+    undefined,
+    nominatim as any,
+    {
+      provider: 'geoapify',
+      declaresSourceIdentitiesInDetails: true,
+      searchText: jest.fn().mockResolvedValue({ data: [], provenance: {} }),
+      getPlaceDetails: jest.fn(),
+    } as any,
+    wikidata as any,
+  );
+
+  const candidates = JSON.parse(fs.readFileSync(process.env.CANDIDATES!, 'utf8'));
+  const runs: any[] = [];
+  for (const [label, hints] of Object.entries<any[]>(candidates)) {
+    const name = label.split('|')[1];
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      destinationCountryCode: 'AR',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([
+        {
+          name,
+          themes: [],
+          traits: [],
+          intents: ['visit'],
+          componentHints: hints,
+          evidenceKeys: ['ev-1'],
+          shortReason: 'forensic',
+        },
+      ]),
+      evidence: [{ key: 'ev-1', source: 'web', title: name, snippet: name }],
+    } as any);
+    const steps = projectComponentIdentityStepInputs(result as any, {
+      strategy: 'forensic',
+      passNumber: 1,
+    } as any);
+    runs.push({
+      label,
+      componentSearchScope: (steps[0]?.facts as any)?.componentSearchScope,
+      focus: (steps[0]?.facts as any)?.components?.filter((c: any) =>
+        FOCUS.includes(c.name),
+      ),
+    });
+  }
+
+  // Admin units + Wikidata labels for every focused competitor member.
+  const enrich: Record<string, any> = {};
+  for (const ex of examinations)
+    for (const pool of ex.pools)
+      for (const m of pool.stages) {
+        const key = m.identityKeys[0];
+        if (enrich[key] || !Number.isFinite(m.lat)) continue;
+        const units = await osm.lookupContainingAdminUnits({
+          latitude: m.lat,
+          longitude: m.lon,
+        });
+        const r = raw.get(key);
+        const qid = r?.tags?.wikidata;
+        if (qid && !qids.has(qid)) await wikidata.getEntitySummaries([qid]);
+        enrich[key] = {
+          raw: r,
+          adminUnits: (units.value ?? []).map(
+            (u: any) => `${u.adminLevel}:${u.name}`,
+          ),
+          qid,
+          qidSummary: qid ? qids.get(qid) : undefined,
+        };
+      }
+  fs.writeFileSync(
+    process.env.OUT!,
+    JSON.stringify({ runs, examinations, verdicts, enrich }, null, 1),
+  );
+});

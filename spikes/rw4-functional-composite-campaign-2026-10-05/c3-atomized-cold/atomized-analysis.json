@@ -1,0 +1,897 @@
+{
+ "run": "c3-atomized-cold",
+ "buildCommit": "9a9eca4798755872f06173fd171d3e513d1ffa5f",
+ "windows": [
+  {
+   "pass": "acquisition-pass-1-area_route_walk-san-telmo",
+   "sourceUrl": "https://buenosairesfreewalks.com/tour-san-telmo/",
+   "inputKind": "deep_source_content",
+   "strategy": "WHOLE_DOCUMENT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 5269,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 1,
+   "admitted": 1,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUrl": "https://www.tangol.com/blog/en/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat/n-19453",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 4620,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 1,
+   "admitted": 1,
+   "failureReason": "undefined"
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUrl": "https://www.tangol.com/blog/en/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat/n-19453",
+   "inputKind": "atomized_source_unit",
+   "strategy": "SECTION_UNIT",
+   "sectionComplete": true,
+   "windowOrdinal": 1,
+   "chars": 1636,
+   "decision": "STOP_REQUIREMENT_SATISFIED",
+   "extracted": 1,
+   "admitted": 1,
+   "failureReason": "undefined"
+  }
+ ],
+ "units": [
+  {
+   "pass": "acquisition-pass-1-generic",
+   "sourceUnitId": "ev-2:w1:40edb9c6ebf2",
+   "sourceUrl": "https://www.tangol.com/blog/en/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat/n-19453",
+   "outcome": "ASSEMBLED",
+   "atoms": "25 (0 non-editorial)",
+   "nonEditorialBlocks": [],
+   "batches": 2,
+   "calls": [
+    "batch#1:14a/7049c/4322ms",
+    "batch#2:11a/7622c/3681ms",
+    "relabel#0:1a/5765c/1628ms",
+    "member_kind#1:8a/3831c/1992ms"
+   ],
+   "relabel": {
+    "scope": [
+     "a-009"
+    ],
+    "firstPassIssues": [
+     "SPAN_NOT_IN_ATOM:a-009"
+    ]
+   },
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-025",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "Manzana de las Luces Historical and Cultural Complex [PLACE] @a-007",
+      "San Telmo Square [PLACE] @a-012",
+      "Plaza Dorrego [PLACE] @a-012,a-015,a-018",
+      "El Balcón de la Plaza in San Telmo [PLACE] @a-013",
+      "San Telmo and Mataderos Market Tour [ROUTE] @a-016",
+      "Mataderos neighborhood [AREA] @a-016",
+      "San Telmo antique market [PLACE] @a-016",
+      "The San Telmo Market [PLACE] @a-018"
+     ],
+     "optional": [],
+     "alternativeGroups": [
+      [
+       "San Telmo Market",
+       "El Hornero"
+      ],
+      [
+       "Coffee Town",
+       "Punto Café in San Telmo"
+      ]
+     ],
+     "routeLegs": [
+      "Defensa Street",
+      "222 Perú Street",
+      "Humberto 1º Street"
+     ],
+     "passBy": [
+      "Casa Rosada",
+      "Cabildo",
+      "Metropolitan Cathedral",
+      "Plaza de Mayo",
+      "San Telmo"
+     ],
+     "conflicts": [],
+     "candidateName": "The best things to do in San Telmo"
+    }
+   ],
+   "candidateNames": [
+    "The best things to do in San Telmo"
+   ]
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "sourceUnitId": "ev-7:w1:b2364e8f79b8",
+   "sourceUrl": "https://www.tangol.com/blog/en/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat/n-19453",
+   "outcome": "ASSEMBLED",
+   "atoms": "9 (0 non-editorial)",
+   "nonEditorialBlocks": [],
+   "batches": 1,
+   "calls": [
+    "batch#1:9a/6133c/2917ms",
+    "member_kind#1:3a/1459c/1846ms"
+   ],
+   "relabel": null,
+   "issues": [],
+   "memberKindIssues": [],
+   "providerFailure": null,
+   "segments": [
+    {
+     "segmentIndex": 1,
+     "range": "a-001..a-009",
+     "openedBy": [],
+     "transferDestinations": [],
+     "mandatoryBeforeIdentity": [
+      "Bar El Federal [PLACE] @a-003",
+      "Bar La Poesía [PLACE] @a-004",
+      "Casa Mínima [PLACE] @a-006"
+     ],
+     "optional": [],
+     "alternativeGroups": [
+      [
+       "Pizzeria Mi Tío",
+       "Café de las Máscaras"
+      ]
+     ],
+     "routeLegs": [],
+     "passBy": [],
+     "conflicts": [],
+     "candidateName": "A stroll through historic San Telmo: notable bars and mysteries"
+    }
+   ],
+   "candidateNames": [
+    "A stroll through historic San Telmo: notable bars and mysteries"
+   ]
+  }
+ ],
+ "resolution": [
+  {
+   "pass": "acquisition-pass-1-generic",
+   "description": "Identidad por componente de \"The best things to do in San Telmo\": 2/8 resueltos (política geográfica DEFAULT)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "Manzana de las Luces Historical and Cultural Complex",
+      "role": "venue",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "San Telmo Square",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "REJECTED"
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 8,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 2
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "San Telmo",
+         "latitude": -34.6147709,
+         "longitude": -58.4374768
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "San Telmo",
+       "latitude": -34.6147709,
+       "provider": "geoapify",
+       "longitude": -58.4374768
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Plaza Dorrego",
+      "role": "venue",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza Dorrego",
+         "latitude": -34.6204739,
+         "longitude": -58.3717792
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "VERIFIED",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza Dorrego",
+       "latitude": -34.6204739,
+       "provider": "openstreetmap",
+       "longitude": -58.3717792
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     },
+     {
+      "name": "El Balcón de la Plaza in San Telmo",
+      "role": "venue",
+      "hintKey": "m-4",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 6,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 4
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "El Muro de la Memoria",
+         "latitude": -34.6018667,
+         "longitude": -58.3996283
+        },
+        "verificationDecision": "INSUFFICIENT_EVIDENCE"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "INSUFFICIENT_EVIDENCE",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "El Muro de la Memoria",
+       "latitude": -34.6018667,
+       "provider": "geoapify",
+       "longitude": -58.3996283
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "San Telmo and Mataderos Market Tour",
+      "role": "route",
+      "hintKey": "m-5",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "TARGETED_ROUTE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "ROUTE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TARGETED_ROUTE"
+      ]
+     },
+     {
+      "name": "Mataderos neighborhood",
+      "role": "area",
+      "hintKey": "m-6",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "AREA_TO_PLACE_CORRECTION",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza de los Mataderos",
+         "latitude": -34.6577344,
+         "longitude": -58.5067969
+        },
+        "verificationDecision": "REJECTED"
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "AREA",
+      "identityVerdict": "REJECTED",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza de los Mataderos",
+       "latitude": -34.6577344,
+       "provider": "openstreetmap",
+       "longitude": -58.5067969
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "AREA_TO_PLACE_CORRECTION"
+      ]
+     },
+     {
+      "name": "San Telmo antique market",
+      "role": "venue",
+      "hintKey": "m-7",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 0,
+         "viableCount": 0,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "NO_OSM_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "candidateAcquired": false,
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "The San Telmo Market",
+      "role": "venue",
+      "hintKey": "m-8",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Mercado de San Telmo",
+         "latitude": -34.6190607,
+         "longitude": -58.3722354
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "VERIFIED",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Mercado de San Telmo",
+       "latitude": -34.6190607,
+       "provider": "openstreetmap",
+       "longitude": -58.3722354
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     }
+    ],
+    "candidateName": "The best things to do in San Telmo",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "DEFAULT"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "the best things to do in san telmo:ev-2:m-1:Manzana de las Luces Historical and Cultural Complex|m-2:San Telmo Square|m-3:Plaza Dorrego|m-4:El Balcón de la Plaza in San Telmo|m-5:San Telmo and Mataderos Market Tour|m-6:Mataderos neighborhood|m-7:San Telmo antique market|m-8:The San Telmo Market",
+    "acquisitionContext": {
+     "strategy": "generic",
+     "passNumber": 1,
+     "workUnitKind": "GENERIC"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "description": "Identidad por componente de \"A stroll through historic San Telmo: notable bars and mysteries\": 2/3 resueltos (política geográfica DEFAULT)",
+   "decision": {
+    "status": "WARN",
+    "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+   },
+   "facts": {
+    "components": [
+     {
+      "name": "Bar El Federal",
+      "role": "venue",
+      "hintKey": "m-1",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Plaza República Federal de Brasil",
+         "latitude": -34.5832209,
+         "longitude": -58.390508
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "VERIFIED",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Plaza República Federal de Brasil",
+       "latitude": -34.5832209,
+       "provider": "openstreetmap",
+       "longitude": -58.390508
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     },
+     {
+      "name": "Bar La Poesía",
+      "role": "venue",
+      "hintKey": "m-2",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "nominatim",
+        "strategy": "NOMINATIM",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "geoapify",
+        "strategy": "PLACES",
+        "placeSearch": {
+         "resultCount": 10,
+         "viableCount": 10,
+         "searchWindow": {
+          "provenance": "DESTINATION_AREA",
+          "radiusMeters": 13421
+         },
+         "rejectedCount": 0
+        },
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "La Birra Bar",
+         "latitude": -34.6249273,
+         "longitude": -58.4262279
+        },
+        "verificationDecision": "AMBIGUOUS"
+       },
+       {
+        "provider": "overture",
+        "strategy": "OVERTURE_IDENTITY",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       }
+      ],
+      "finalReason": "UNCONFIRMED_MATCH",
+      "finalStatus": "unresolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "AMBIGUOUS",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "La Birra Bar",
+       "latitude": -34.6249273,
+       "provider": "geoapify",
+       "longitude": -58.4262279
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL",
+       "NOMINATIM",
+       "PLACES",
+       "OVERTURE_IDENTITY"
+      ]
+     },
+     {
+      "name": "Casa Mínima",
+      "role": "venue",
+      "hintKey": "m-3",
+      "attempts": [
+       {
+        "provider": "catalog",
+        "strategy": "CATALOG_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "trusted_observation",
+        "strategy": "TRUSTED_OBSERVATION_REUSE",
+        "executionStatus": "completed",
+        "candidateAcquired": false
+       },
+       {
+        "provider": "openstreetmap",
+        "strategy": "LOCAL_OSM_POOL",
+        "executionStatus": "completed",
+        "candidateAcquired": true,
+        "selectedCandidate": {
+         "kind": "PLACE",
+         "name": "Casa Mínima",
+         "latitude": -34.6167555,
+         "longitude": -58.3713487
+        },
+        "verificationDecision": "VERIFIED"
+       }
+      ],
+      "finalStatus": "resolved",
+      "expectedKind": "PLACE",
+      "identityVerdict": "VERIFIED",
+      "candidateAcquired": true,
+      "selectedCandidate": {
+       "name": "Casa Mínima",
+       "latitude": -34.6167555,
+       "provider": "openstreetmap",
+       "longitude": -58.3713487
+      },
+      "strategiesAttempted": [
+       "CATALOG_REUSE",
+       "TRUSTED_OBSERVATION_REUSE",
+       "LOCAL_OSM_POOL"
+      ]
+     }
+    ],
+    "candidateName": "A stroll through historic San Telmo: notable bars and mysteries",
+    "candidateStatus": "rejected",
+    "geographicPolicy": {
+     "kind": "DEFAULT"
+    },
+    "rejectionReasons": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ],
+    "candidateTraceKey": "a stroll through historic san telmo: notable bars and mysteries:ev-7:m-1:Bar El Federal|m-2:Bar La Poesía|m-3:Casa Mínima",
+    "acquisitionContext": {
+     "strategy": "planner_capacity",
+     "passNumber": 1,
+     "workUnitKind": "PLANNER_CAPACITY"
+    },
+    "componentSearchScope": {
+     "kind": "AREA",
+     "name": "Buenos Aires",
+     "provenance": "DESTINATION_AREA"
+    }
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-generic",
+   "step": "resolution.entity",
+   "candidate": "The best things to do in San Telmo",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 2/8: Manzana de las Luces Historical and Cultural Complex=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), San Telmo Square=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), Plaza Dorrego=RESOLVED/INSIDE, El Balcón de la Plaza in San Telmo=UNRESOLVED/CANDIDATE_UNCONFIRMED(PENDING_CLASSIFICATION), San Telmo and Mataderos Market Tour=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), Mataderos neighborhood=UNRESOLVED/CANDIDATE_REJECTED(PENDING_CLASSIFICATION), San Telmo antique market=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION), The San Telmo Market=RESOLVED/INSIDE]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   },
+   "facts": {
+    "reason": "MAX_STEP_PAYLOAD_CHARS",
+    "truncated": true,
+    "originalChars": 106445
+   }
+  },
+  {
+   "pass": "acquisition-pass-1-planner_capacity",
+   "step": "resolution.entity",
+   "candidate": "A stroll through historic San Telmo: notable bars and mysteries",
+   "decision": {
+    "reason": "INCOMPLETE_SOURCE_COMPOSITION [resueltos 2/3: Bar El Federal=RESOLVED/INSIDE, Bar La Poesía=AMBIGUOUS/AMBIGUOUS_CANDIDATES(KNOWLEDGE_DEFICIT), Casa Mínima=RESOLVED/INSIDE]",
+    "status": "FAIL",
+    "outcome": "REJECTED",
+    "reasonCodes": [
+     "INCOMPLETE_SOURCE_COMPOSITION"
+    ]
+   }
+  }
+ ]
+}

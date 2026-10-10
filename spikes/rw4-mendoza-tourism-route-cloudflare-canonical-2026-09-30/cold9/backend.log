@@ -1,0 +1,289 @@
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommandsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mScriptsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mQueueModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[LangChainService] [39m[32mAI provider: groq, chat model: qwen/qwen3.8-27b[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[LangChainService] [39m[32mAI models initialized successfully[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSerperModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOutboxModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAiModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[IntegrationsModule] [39m[32mPlaces provider: Geoapify; available=true; cache=disabled[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIntegrationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mWikidataModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMediaModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOsmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPhotosModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mToursModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSSEController {/notifications}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/tours/:tourId/stream, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/experiences/:experienceId/stream, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDevicesController {/notifications/devices}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/web, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/web, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/:token, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/google, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/apple, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/email/request-code, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/email/verify, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/refresh, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/logout, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/me, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mToursController {/tours}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/experiences/nearby, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/experiences/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/generate-tour, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/nearby, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, PATCH} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, DELETE} route[39m[38;5;3m +1ms[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32mInitializing embeddings with provider: ollama[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32mUsing Ollama at http://localhost:11434 for embeddings[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32m✓ Ollama embeddings initialized (model: nomic-embed-text)[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_9[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_9[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[OutboxPublisherService] [39m[32m[OutboxPublisher] Starting periodic poller (interval: 1500ms, batchSize: 50, leaseDuration: 30s).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[OutboxCleanerService] [39m[32m[OutboxCleaner] Starting periodic cleaner (interval: 1440min, publishedRetention: 7d, failedRetention: 30d, batchSize: 500).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_9[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "ExperienceMediaEnrichmentRequested".[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Subscribed to topic "ExperienceMediaEnrichmentRequested".[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourGenerationRequested".[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[TourGenerationProcessorService] [39m[32m[TourGenerationProcessor] Subscribed to topic "TourGenerationRequested".[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_9[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_9[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourCompleted".[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourFailed".[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourProgressUpdated".[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:16 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "ExperienceMediaUpdated".[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[NotificationDeliveryService] [39m[32m[NotificationDelivery] Subscribed to domain events (TourCompleted, TourFailed, TourProgressUpdated, ExperienceMediaUpdated).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:16 [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:18 [95m  DEBUG[39m [95mIncoming GET /[39m
+[0mGET / [33m404[0m 5.610 ms - 63[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:19 [95m  DEBUG[39m [95mIncoming POST /auth/email/request-code[39m
+[33m[Nest] 33006  - [39m01/10/2026, 04:21:19 [33m   WARN[39m [38;5;3m[MailerService] [39m[33mNODE_ENV is not 'production' — skipping the real login code email to rw3-spike-rw4-mendoza-cold9-1790882479750@example.com (devCode is returned in the API response instead).[39m
+[0mPOST /auth/email/request-code [32m201[0m 65.083 ms - 49[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:19 [95m  DEBUG[39m [95mIncoming POST /auth/email/verify[39m
+[0mPOST /auth/email/verify [32m201[0m 26.271 ms - 728[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:19 [95m  DEBUG[39m [95mIncoming POST /tours/generate-tour[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:19 [32m    LOG[39m [38;5;3m[TourGenerationService] [39m[32mCreating tour from wizard with canonical intent: Create a tour from this canonical wizard intent:
+Destination: Mendoza, Argentina
+Number of days: 1
+B...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:19 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourGenerationRequested" (id: 5931d7db-9d6f-4381-8041-b8b02da3a6cf) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:19 [32m    LOG[39m [38;5;3m[TourGenerationService] [39m[32mTour created with ID 3cc4329b-f87c-4023-a64e-cbec81cc9d4b and durable generation request (DB: 28ms, total: 28ms).[39m
+[0mPOST /tours/generate-tour [32m201[0m 33.069 ms - 1826[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:19 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 16.959 ms - 1826[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:20 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Successfully claimed 1 outbox event(s). Dispatching...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:20 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourGenerationRequested" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:20 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 240a826d-c160-44f0-b8cc-3b7cb753ccdd) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:21 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 18.339 ms - 1940[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:22 [95m  DEBUG[39m [38;5;3m[TourImageService] [39m[95m[TourImageService] Resolving authentic destination photo for tour "Mendoza, Argentina" (Mendoza, Argentina)...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:22 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: c51ad785-47e5-432c-b62b-719abef6742b) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:22 [32m    LOG[39m [38;5;3m[TourImageService] [39m[32m[TourImageService] Resolved and saved authentic destination photo for tour 3cc4329b-f87c-4023-a64e-cbec81cc9d4b: https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Siguiendo_al_Libertador.jpg/1280px-Siguiendo_al_Libertador.jpg?utm_source=es.wikipedia.org&utm_campaign=api&utm_content=thumbnail[39m
+[33m[Nest] 33006  - [39m01/10/2026, 04:21:23 [33m   WARN[39m [38;5;3m[GeoapifyPlacesApiService] [39m[33mGeoapify Places text search requires a locationBias to search safely; skipped query: "Ruta del Vino de Mendoza"[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:23 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: dda4cd8f-89a2-4763-b921-52f01ee5cdc6) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:23 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 2 deficits: [wikivoyage, google_places, web][39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:23 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 628431ba-4c75-46f1-9ae2-ec0e14213122) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:23 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, web][39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:23 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 20.063 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:25 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 24.091 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:28 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 19.453 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:30 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 32.210 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:32 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 16.758 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:34 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 19.914 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:36 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 24.155 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:38 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 22.281 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:40 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 14.422 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:42 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 32.536 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:44 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 23.722 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:46 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 25.955 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:48 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 21.400 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:50 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 13.653 ms - 2478[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:52 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 21.463 ms - 2478[0m
+[32m[Nest] 33006  - [39m01/10/2026, 04:21:53 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 0/0 Experience candidate(s) against trusted geography[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:53 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 6ff519fd-79b3-496d-8660-ad9d3efd1ebc) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:54 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 13.492 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:56 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 13.576 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:21:58 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 24.879 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:00 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 30.954 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:02 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 28.031 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:04 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 21.974 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:06 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 28.587 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:08 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 34.078 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:10 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.514 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:12 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 30.319 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:14 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 26.571 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:16 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 48.876 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:18 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.454 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:19 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate outside destination scope for hint "Mural"[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:20 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate outside destination scope for hint "Tumba Doctor Godoy Cruz"[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:20 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 10.458 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:20 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Museo Mineralógico "Prof. Manuel Tellechea"" via geoapify:513b48991ede3851c059f69507e9297140c0f00103f901b1312c710000000092032c4d7573656f204d696e6572616cc3b36769636f202250726f662e204d616e75656c2054656c6c656368656122[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:20 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Museo Argentino de Motos Antiguas "Luis Paludet"" via geoapify:51491520659f3551c05962c8a0c9b47240c0f00103f9014f63bb73000000009203304d7573656f20417267656e74696e6f206465204d6f746f7320416e74696775617320224c7569732050616c7564657422[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:21 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Arquitectura colonial" via geoapify:51246827dedc3551c0594c22b193b07140c0f00103f901678511710000000092031541727175697465637475726120636f6c6f6e69616c[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:21 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Bus de compras (gratuito)" via geoapify:519169c8d34d3651c059edd79dee3c7140c0f00103f901bbc1b8730000000092031942757320646520636f6d707261732028677261747569746f29[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Estatua equestre General San Martín" via geoapify:5185628621cd3551c059386b4b789d7140c0f00103f901b485117100000000920324457374617475612065717565737472652047656e6572616c2053616e204d617274c3ad6e[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Murales" via geoapify:51b5262724633551c059bcdb06ff6c7140c0f00103f9018fa4af8e000000009203074d7572616c6573[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "El jardinero" via geoapify:51ac0d04b7243651c059ddd330d7fd7140c0f00103f901782a871f0100000092030c456c206a617264696e65726f[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate outside destination scope for hint "Cerro Santo Tomás de Aquino"[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate outside destination scope for hint "Arquitecturas"[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:22 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 15.309 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:23 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Espacio Contemporaneo de Arte" via geoapify:51bb76535cbd3551c059aa5c1cd0aa7140c0f00102f901a2cda4070000000092031d4573706163696f20436f6e74656d706f72616e656f2064652041727465[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:23 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Memorial de la Bandera de Los Andes" via geoapify:51b575cb692a3651c0591594fd4eee7240c0f00103f90122017873000000009203234d656d6f7269616c206465206c612042616e64657261206465204c6f7320416e646573[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:23 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse candidate acquired for hint "Caballitos de Marly" via geoapify:51cfefa07e3c3751c059a005572f757140c0f00103f9019d2c1eb702000000920313436162616c6c69746f73206465204d61726c79[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Arquitectura colonial","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Museo Mineralógico \"Prof. Manuel Tellechea\"","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Museo Argentino de Motos Antiguas \"Luis Paludet\"","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Tumba Doctor Godoy Cruz","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"REJECTED","rejectionReasons":["destination_mismatch"]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Estatua equestre General San Martín","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Bus de compras (gratuito)","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"El jardinero","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Murales","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Memorial de la Bandera de Los Andes","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Cerro Santo Tomás de Aquino","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"REJECTED","rejectionReasons":["destination_mismatch"]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Espacio Contemporaneo de Arte","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Caballitos de Marly","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"GEO_VERIFIED","strategy":"venue_centric","rejectionReasons":[]}[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[CompositeGeographicValidationService] [39m[32m{"event":"geographic_validation","proposalName":"Arquitecturas","experienceKind":"EXPERIENCE","proposedHintCount":1,"resolvedEntityCount":1,"entitiesWithCoordinates":1,"validationStatus":"REJECTED","rejectionReasons":["destination_mismatch"]}[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:24 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 19.356 ms - 2466[0m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:24 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 10/14 Experience candidate(s) against trusted geography[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:26 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 13.836 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:28 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 16.478 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:30 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 10.501 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:32 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.188 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:34 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 23.298 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:36 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.203 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:38 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 26.754 ms - 2466[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:40 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.594 ms - 2466[0m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:41 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 2 deficits: [wikivoyage, google_places, web][39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:41 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 6b309b37-fe37-4aeb-8714-c8ab9fa8f82c) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:41 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, web][39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:41 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 0/0 Experience candidate(s) against trusted geography[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:41 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 9bb6e325-0a31-479d-ac67-84f81b29d9ac) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:41 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: bb8c56d0-a9ae-4aaf-9dc2-c16af724c39a) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:42 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.599 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:44 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 12.883 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:47 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 9.508 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:49 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 14.391 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:51 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 8.185 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:53 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 14.696 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:55 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 13.058 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:57 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 129.812 ms - 2437[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 424da4b6-c46d-4c56-adfe-6564f1cc38de) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaEnrichmentRequested" (id: a3336c8e-bdef-4318-a4c6-0b688ef8bf12) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaEnrichmentRequested" (id: e0013e69-d6d2-4c7c-86f0-b58a3c071e78) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaEnrichmentRequested" (id: 01601f20-583d-4501-8365-ec5f6aa1f957) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaEnrichmentRequested" (id: 99c704f3-bf71-49ea-a97b-7c1b9156b59b) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:58 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaEnrichmentRequested" (id: 460757a6-ab1a-42ef-985c-ea5bc67ee2fe) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourCompleted" (id: d0dbe25d-3dff-488c-a91f-a4704c238d49) in transaction.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourGenerationRequested" (id: 5931d7db-9d6f-4381-8041-b8b02da3a6cf).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [95mIncoming GET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b[39m
+[0mGET /tours/3cc4329b-f87c-4023-a64e-cbec81cc9d4b [32m200[0m 21.065 ms - 211208[0m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Successfully claimed 15 outbox event(s). Dispatching...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 240a826d-c160-44f0-b8cc-3b7cb753ccdd).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: c51ad785-47e5-432c-b62b-719abef6742b).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: dda4cd8f-89a2-4763-b921-52f01ee5cdc6).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 628431ba-4c75-46f1-9ae2-ec0e14213122).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 6ff519fd-79b3-496d-8660-ad9d3efd1ebc).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 6b309b37-fe37-4aeb-8714-c8ab9fa8f82c).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 9bb6e325-0a31-479d-ac67-84f81b29d9ac).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: bb8c56d0-a9ae-4aaf-9dc2-c16af724c39a).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 424da4b6-c46d-4c56-adfe-6564f1cc38de).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:22:59 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "ExperienceMediaEnrichmentRequested" to 1 subscriber(s).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:22:59 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Processing media enrichment for experience "Estatua equestre General San Martín" (id: 89929399-8fad-4624-b51d-af557dc89a8b)...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:00 [95m  DEBUG[39m [38;5;3m[NegativeCacheService] [39m[95m[NegativeCache] Recorded negative lookup for [wikimedia_commons:title_search:estatua equestre general san martín mendoza, argentina] until 2026-10-31T19:23:00.247Z.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:01 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaUpdated" (id: 0357abaa-fa87-4ccf-8c98-b01b638f0261) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:01 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Enriched experience "Estatua equestre General San Martín" with 5 persisted documentary photo URL(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:01 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "ExperienceMediaEnrichmentRequested" (id: a3336c8e-bdef-4318-a4c6-0b688ef8bf12).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:01 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "ExperienceMediaEnrichmentRequested" to 1 subscriber(s).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:01 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Processing media enrichment for experience "Arquitectura colonial" (id: 40fe3647-d41c-49ae-a0ff-6368a0e7ce67)...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:02 [95m  DEBUG[39m [38;5;3m[NegativeCacheService] [39m[95m[NegativeCache] Recorded negative lookup for [wikimedia_commons:title_search:arquitectura colonial mendoza, argentina] until 2026-10-31T19:23:02.711Z.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:03 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaUpdated" (id: 73a3f070-59d8-4b95-910e-522904ed927a) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:03 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Enriched experience "Arquitectura colonial" with 5 persisted documentary photo URL(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:03 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "ExperienceMediaEnrichmentRequested" (id: e0013e69-d6d2-4c7c-86f0-b58a3c071e78).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:03 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "ExperienceMediaEnrichmentRequested" to 1 subscriber(s).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:03 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Processing media enrichment for experience "El jardinero" (id: a35a9df2-de54-402c-ab58-5f3bfa1038c5)...[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:04 [95m  DEBUG[39m [38;5;3m[NegativeCacheService] [39m[95m[NegativeCache] Recorded negative lookup for [wikimedia_commons:title_search:el jardinero mendoza, argentina] until 2026-10-31T19:23:04.409Z.[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:05 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "ExperienceMediaUpdated" (id: e6d409d9-e83d-4e09-971a-b329ecd4d252) in transaction.[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:05 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Enriched experience "El jardinero" with 5 persisted documentary photo URL(s).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:05 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "ExperienceMediaEnrichmentRequested" (id: 01601f20-583d-4501-8365-ec5f6aa1f957).[39m
+[95m[Nest] 33006  - [39m01/10/2026, 04:23:05 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "ExperienceMediaEnrichmentRequested" to 1 subscriber(s).[39m
+[32m[Nest] 33006  - [39m01/10/2026, 04:23:05 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Processing media enrichment for experience "Bus de compras (gratuito)" (id: a8ad174e-666e-4a6c-8ab5-43c278c02862)...[39m

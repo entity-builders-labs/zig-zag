@@ -1,0 +1,1012 @@
+{
+  "label": "Adquisición multi-fuente (pase 1)",
+  "rules": [
+    {
+      "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+      "reason": "Fuentes enrutadas: wikivoyage, web.",
+      "result": "PASS",
+      "ruleId": "ACQ-ROUTING-001"
+    },
+    {
+      "rule": "Una fuente que falla no aborta la adquisición",
+      "reason": "Todas las fuentes atendidas respondieron.",
+      "result": "PASS",
+      "ruleId": "ACQ-ISOLATION-001"
+    },
+    {
+      "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+      "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+      "result": "PASS",
+      "ruleId": "ACQ-CANDIDATE-001"
+    }
+  ],
+  "stage": "discovery",
+  "inputs": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "passNumber": 1,
+    "routedProviders": [
+      "wikivoyage",
+      "web"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "webResults": [
+      {
+        "query": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+        "status": "success",
+        "evidenceCount": 18,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 2,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [],
+        "extractorProvider": "groq"
+      }
+    ],
+    "candidateCount": 2,
+    "observationCount": 2,
+    "webCandidateCount": 2,
+    "structuredProviders": [
+      {
+        "status": "success",
+        "provider": "wikivoyage"
+      }
+    ],
+    "structuredCandidateCount": 0
+  },
+  "summary": "Pase 1: fuentes [wikivoyage, web] → 2 observación(es) estructurada(s) + 2 candidate(s) (web: 2).",
+  "component": "ExperienceAcquisitionService",
+  "acquisition": {
+    "deficits": [
+      {
+        "key": "walk",
+        "origin": "preference_facet",
+        "reason": "Preference facet [intent:walk] has no strong catalog match yet.",
+        "dimension": "intent"
+      }
+    ],
+    "evidence": [
+      {
+        "title": "Aprende el arte de Fileteado",
+        "source": "wikivoyage",
+        "snippet": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+      },
+      {
+        "title": "Tomar clases de tango",
+        "source": "wikivoyage",
+        "snippet": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+        "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 1,
+        "source": "google_ai_mode",
+        "snippet": "San Telmo walking tours offer a journey through Buenos Aires' oldest and most atmospheric neighborhood, featuring 19th-century colonial architecture, cobblestone streets, and rich tango heritage.",
+        "evidenceKey": "ev-1"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 2,
+        "title": "Key Highlights of San Telmo Walking Tours",
+        "source": "Key Highlights of San Telmo Walking Tours",
+        "snippet": "DirectionsWebsiteThe beating heart of the neighborhood, famous for its Sunday antique market, street tango dancers, and surrounding historic cafés.",
+        "evidenceKey": "ev-2",
+        "contextHeading": "Key Highlights of San Telmo Walking Tours"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 3,
+        "title": "Key Highlights of San Telmo Walking Tours",
+        "source": "Key Highlights of San Telmo Walking Tours",
+        "snippet": "CallDirectionsWebsiteA vibrant 19th-century indoor market filled with butcher stalls, antiques, local street food, and traditional delicacies like dulce de leche.",
+        "evidenceKey": "ev-3",
+        "contextHeading": "Key Highlights of San Telmo Walking Tours"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 4,
+        "title": "Key Highlights of San Telmo Walking Tours",
+        "source": "Key Highlights of San Telmo Walking Tours",
+        "snippet": "CallDirectionsWebsiteKnown as the narrowest house in Buenos Aires (measuring just over 2 meters wide), steeped in local urban folklore.",
+        "evidenceKey": "ev-4",
+        "contextHeading": "Key Highlights of San Telmo Walking Tours"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 5,
+        "title": "Key Highlights of San Telmo Walking Tours",
+        "source": "Key Highlights of San Telmo Walking Tours",
+        "snippet": "DirectionsA comic-themed walkway featuring beloved Argentine characters, including the famous Mafalda statue at Defensa and Chile.",
+        "evidenceKey": "ev-5",
+        "contextHeading": "Key Highlights of San Telmo Walking Tours"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 6,
+        "title": "Key Highlights of San Telmo Walking Tours",
+        "source": "Key Highlights of San Telmo Walking Tours",
+        "snippet": "CallDirectionsWebsiteAn optional subterranean network of historical tunnels and brick arches revealing the colonial history hidden beneath the neighborhood.",
+        "evidenceKey": "ev-6",
+        "contextHeading": "Key Highlights of San Telmo Walking Tours"
+      },
+      {
+        "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+        "kind": "list_item",
+        "order": 7,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "Free Walking Tours: Tip-based historical walks covering the essential sights like the San Pedro Telmo Church, Convento Santo Domingo, and Defensa Street (offered by platforms like Freetour.com).",
+        "evidenceKey": "ev-7",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 8,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "Food & Culture Tours: Immersive small-group walks combining neighborhood history with tastings of local specialties like empanadas, choripán, and regional wines.",
+        "evidenceKey": "ev-8",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 9,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "Private Underground & Historical Tours: Premium experiences that bundle standard neighborhood strolls with exclusive access to restored 18th-century subterranean brick tunnels.",
+        "evidenceKey": "ev-9",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 10,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "If you are planning a trip or looking for specific recommendations, let me know:",
+        "evidenceKey": "ev-10",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 11,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "Are you looking for a free walking tour or a private/paid guided experience?",
+        "evidenceKey": "ev-11",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "list_item",
+        "order": 12,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "Would you prefer a focus on food and wine, tango history, or architecture?",
+        "evidenceKey": "ev-12",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 13,
+        "title": "Popular Tour Options",
+        "source": "Popular Tour Options",
+        "snippet": "I can help you find the best provider or itinerary.",
+        "evidenceKey": "ev-13",
+        "contextHeading": "Popular Tour Options"
+      },
+      {
+        "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+        "kind": "reference",
+        "order": 14,
+        "title": "San Telmo Walking Tour and Market Experience – Buenos Aires",
+        "source": "www.agoda.com",
+        "snippet": "Experience the heart of Buenos Aires with a walking tour through San Telmo, the city's oldest neighborhood. Explore cobblestone streets lined with 19th-century architecture and uncover stories of colonial history and Argentine heritage. Enjoy the vibrant atmosphere as you learn how immigration shaped local culture and see the neighborhood come alive with music and art during the famous Sunday street fair. - Visit the iconic San Telmo Food Market and discover its rich history and unique features.…",
+        "evidenceKey": "ev-14"
+      },
+      {
+        "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+        "kind": "reference",
+        "order": 15,
+        "title": "San Telmo Essential Tour: Tango, Market \\u0026 Museums",
+        "source": "www.freetour.com",
+        "snippet": "Walk San Telmo with an English teacher and know the oldest and most fantastic neighborhood in BA. We'll meet at Adolfo Alsina 400 ...",
+        "evidenceKey": "ev-15"
+      },
+      {
+        "url": "https://tourscanner.com/p/slug-a8k4mxeu?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+        "kind": "reference",
+        "order": 16,
+        "title": "Premium Walking Tour San Telmo Neighborhood",
+        "source": "tourscanner.com",
+        "snippet": "Walk around the oldest and smallest neighborhood in town! Join a small-group tour, beginning at the iconic Mafalda Statue. Meander through San Telmo's cobblestone streets, delving into its rich history, and explore the vibrant murals and the quaint Casa Mínima. Immerse yourself in the vibrant atmosphere of San Telmo Market, offering a maze of stalls selling antiques, crafts, and local delicacies. Stroll through the green oasis of Lezama Park, uncovering hidden gems along the way. This immersive …",
+        "evidenceKey": "ev-16"
+      },
+      {
+        "url": "https://tourscanner.com/p/slug-a8k4nuhw?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+        "kind": "reference",
+        "order": 17,
+        "title": "Walking Tour San Telmo Neighborhood Small Group",
+        "source": "tourscanner.com",
+        "snippet": "Experience this walking tour of San Telmo, the oldest and smallest neighborhood in town. Get to know the most important sights of ...",
+        "evidenceKey": "ev-17"
+      },
+      {
+        "url": "https://www.expedia.com/lx/activity/44961270/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+        "kind": "reference",
+        "order": 18,
+        "title": "Visite historique de San Telmo avec cuisine de rue, boissons",
+        "source": "www.expedia.com",
+        "snippet": "Nehmen Sie an unserem San Telmo History and Culture Walking Tour teil, um Buenos Aires ältestes Viertel zu erkunden. Während Sie durch die historischen Straßen schlendern, entdecken Sie Geschichten und Wahrzeichen, die die Stadt prägten, während Sie ein paar ausgewählte Happen traditioneller argentinischer Aromen wie Empanadas, Choripán und Alfajores genießen. Beginnend in einer der ältesten Bars San Telmos aus den 1860er Jahren, trinken wir einen lokalen Aperitif, bevor wir zum legendären San T…",
+        "evidenceKey": "ev-18"
+      }
+    ],
+    "candidates": [
+      {
+        "name": "San Telmo Walking Tour and Market Experience",
+        "origin": "web",
+        "themes": [
+          "history",
+          "culture",
+          "architecture"
+        ],
+        "intents": [
+          "walk"
+        ],
+        "traceKey": "san telmo walking tour and market experience:ev-14:convento-santo-domingo:Convento Santo Domingo|iglesia-de-san-ignacio-de-loyola:Iglesia de San Ignacio de Loyola|paseo-de-la-historieta:Paseo de la Historieta|san-telmo-food-market:San Telmo Food Market",
+        "providers": [
+          "www.agoda.com"
+        ],
+        "evidenceKeys": [
+          "ev-14"
+        ],
+        "componentHints": [
+          {
+            "key": "san-telmo-food-market",
+            "name": "San Telmo Food Market",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "paseo-de-la-historieta",
+            "name": "Paseo de la Historieta",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "iglesia-de-san-ignacio-de-loyola",
+            "name": "Iglesia de San Ignacio de Loyola",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          },
+          {
+            "key": "convento-santo-domingo",
+            "name": "Convento Santo Domingo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "ev-14"
+            ]
+          }
+        ],
+        "orderedByEvidence": false,
+        "suggestedDurationMinutes": 120
+      },
+      {
+        "name": "Premium Walking Tour San Telmo Neighborhood",
+        "origin": "web",
+        "themes": [
+          "history",
+          "architecture",
+          "art"
+        ],
+        "intents": [
+          "walk"
+        ],
+        "traceKey": "premium walking tour san telmo neighborhood:ev-16:mafalda-statue:Mafalda Statue|casa-minima:Casa Mínima|san-telmo-market:San Telmo Market|lezama-park:Lezama Park",
+        "providers": [
+          "tourscanner.com"
+        ],
+        "evidenceKeys": [
+          "ev-16"
+        ],
+        "componentHints": [
+          {
+            "key": "mafalda-statue",
+            "name": "Mafalda Statue",
+            "role": "venue",
+            "order": 1,
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "casa-minima",
+            "name": "Casa Mínima",
+            "role": "venue",
+            "order": 2,
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "san-telmo-market",
+            "name": "San Telmo Market",
+            "role": "venue",
+            "order": 3,
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          },
+          {
+            "key": "lezama-park",
+            "name": "Lezama Park",
+            "role": "venue",
+            "order": 4,
+            "required": true,
+            "evidenceKeys": [
+              "ev-16"
+            ]
+          }
+        ],
+        "orderedByEvidence": true,
+        "suggestedDurationMinutes": 150
+      }
+    ],
+    "passNumber": 1,
+    "sourcePlans": [
+      {
+        "status": "success",
+        "provider": "wikivoyage",
+        "observations": [
+          {
+            "title": "Aprende el arte de Fileteado",
+            "provider": "wikivoyage",
+            "description": ". O '''bailar Tango''' en La Independencia, Avenida Independencia Nº 572, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          },
+          {
+            "title": "Tomar clases de tango",
+            "provider": "wikivoyage",
+            "description": ". Cada día en el Centro Cultural Torquato Tasso - Defensa 1575, San Telmo",
+            "evidenceKey": "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1",
+            "evidenceType": "tourism_activity",
+            "originationCapabilities": []
+          }
+        ],
+        "configuration": {
+          "sections": [
+            "DO"
+          ]
+        },
+        "observationCount": 2
+      },
+      {
+        "web": {
+          "query": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+          "evidence": [
+            {
+              "kind": "narrative_paragraph",
+              "order": 1,
+              "source": "google_ai_mode",
+              "snippet": "San Telmo walking tours offer a journey through Buenos Aires' oldest and most atmospheric neighborhood, featuring 19th-century colonial architecture, cobblestone streets, and rich tango heritage.",
+              "evidenceKey": "ev-1"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 2,
+              "title": "Key Highlights of San Telmo Walking Tours",
+              "source": "Key Highlights of San Telmo Walking Tours",
+              "snippet": "DirectionsWebsiteThe beating heart of the neighborhood, famous for its Sunday antique market, street tango dancers, and surrounding historic cafés.",
+              "evidenceKey": "ev-2",
+              "contextHeading": "Key Highlights of San Telmo Walking Tours"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 3,
+              "title": "Key Highlights of San Telmo Walking Tours",
+              "source": "Key Highlights of San Telmo Walking Tours",
+              "snippet": "CallDirectionsWebsiteA vibrant 19th-century indoor market filled with butcher stalls, antiques, local street food, and traditional delicacies like dulce de leche.",
+              "evidenceKey": "ev-3",
+              "contextHeading": "Key Highlights of San Telmo Walking Tours"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 4,
+              "title": "Key Highlights of San Telmo Walking Tours",
+              "source": "Key Highlights of San Telmo Walking Tours",
+              "snippet": "CallDirectionsWebsiteKnown as the narrowest house in Buenos Aires (measuring just over 2 meters wide), steeped in local urban folklore.",
+              "evidenceKey": "ev-4",
+              "contextHeading": "Key Highlights of San Telmo Walking Tours"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 5,
+              "title": "Key Highlights of San Telmo Walking Tours",
+              "source": "Key Highlights of San Telmo Walking Tours",
+              "snippet": "DirectionsA comic-themed walkway featuring beloved Argentine characters, including the famous Mafalda statue at Defensa and Chile.",
+              "evidenceKey": "ev-5",
+              "contextHeading": "Key Highlights of San Telmo Walking Tours"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 6,
+              "title": "Key Highlights of San Telmo Walking Tours",
+              "source": "Key Highlights of San Telmo Walking Tours",
+              "snippet": "CallDirectionsWebsiteAn optional subterranean network of historical tunnels and brick arches revealing the colonial history hidden beneath the neighborhood.",
+              "evidenceKey": "ev-6",
+              "contextHeading": "Key Highlights of San Telmo Walking Tours"
+            },
+            {
+              "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+              "kind": "list_item",
+              "order": 7,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "Free Walking Tours: Tip-based historical walks covering the essential sights like the San Pedro Telmo Church, Convento Santo Domingo, and Defensa Street (offered by platforms like Freetour.com).",
+              "evidenceKey": "ev-7",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 8,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "Food & Culture Tours: Immersive small-group walks combining neighborhood history with tastings of local specialties like empanadas, choripán, and regional wines.",
+              "evidenceKey": "ev-8",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 9,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "Private Underground & Historical Tours: Premium experiences that bundle standard neighborhood strolls with exclusive access to restored 18th-century subterranean brick tunnels.",
+              "evidenceKey": "ev-9",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 10,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "If you are planning a trip or looking for specific recommendations, let me know:",
+              "evidenceKey": "ev-10",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 11,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "Are you looking for a free walking tour or a private/paid guided experience?",
+              "evidenceKey": "ev-11",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "list_item",
+              "order": 12,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "Would you prefer a focus on food and wine, tango history, or architecture?",
+              "evidenceKey": "ev-12",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 13,
+              "title": "Popular Tour Options",
+              "source": "Popular Tour Options",
+              "snippet": "I can help you find the best provider or itinerary.",
+              "evidenceKey": "ev-13",
+              "contextHeading": "Popular Tour Options"
+            },
+            {
+              "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+              "kind": "reference",
+              "order": 14,
+              "title": "San Telmo Walking Tour and Market Experience – Buenos Aires",
+              "source": "www.agoda.com",
+              "snippet": "Experience the heart of Buenos Aires with a walking tour through San Telmo, the city's oldest neighborhood. Explore cobblestone streets lined with 19th-century architecture and uncover stories of colonial history and Argentine heritage. Enjoy the vibrant atmosphere as you learn how immigration shaped local culture and see the neighborhood come alive with music and art during the famous Sunday street fair. - Visit the iconic San Telmo Food Market and discover its rich history and unique features.…",
+              "evidenceKey": "ev-14"
+            },
+            {
+              "url": "https://www.freetour.com/buenos-aires/san-telmo-free-tour-discover-tango-markets-culture?source={src}",
+              "kind": "reference",
+              "order": 15,
+              "title": "San Telmo Essential Tour: Tango, Market \\u0026 Museums",
+              "source": "www.freetour.com",
+              "snippet": "Walk San Telmo with an English teacher and know the oldest and most fantastic neighborhood in BA. We'll meet at Adolfo Alsina 400 ...",
+              "evidenceKey": "ev-15"
+            },
+            {
+              "url": "https://tourscanner.com/p/slug-a8k4mxeu?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+              "kind": "reference",
+              "order": 16,
+              "title": "Premium Walking Tour San Telmo Neighborhood",
+              "source": "tourscanner.com",
+              "snippet": "Walk around the oldest and smallest neighborhood in town! Join a small-group tour, beginning at the iconic Mafalda Statue. Meander through San Telmo's cobblestone streets, delving into its rich history, and explore the vibrant murals and the quaint Casa Mínima. Immerse yourself in the vibrant atmosphere of San Telmo Market, offering a maze of stalls selling antiques, crafts, and local delicacies. Stroll through the green oasis of Lezama Park, uncovering hidden gems along the way. This immersive …",
+              "evidenceKey": "ev-16"
+            },
+            {
+              "url": "https://tourscanner.com/p/slug-a8k4nuhw?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+              "kind": "reference",
+              "order": 17,
+              "title": "Walking Tour San Telmo Neighborhood Small Group",
+              "source": "tourscanner.com",
+              "snippet": "Experience this walking tour of San Telmo, the oldest and smallest neighborhood in town. Get to know the most important sights of ...",
+              "evidenceKey": "ev-17"
+            },
+            {
+              "url": "https://www.expedia.com/lx/activity/44961270/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+              "kind": "reference",
+              "order": 18,
+              "title": "Visite historique de San Telmo avec cuisine de rue, boissons",
+              "source": "www.expedia.com",
+              "snippet": "Nehmen Sie an unserem San Telmo History and Culture Walking Tour teil, um Buenos Aires ältestes Viertel zu erkunden. Während Sie durch die historischen Straßen schlendern, entdecken Sie Geschichten und Wahrzeichen, die die Stadt prägten, während Sie ein paar ausgewählte Happen traditioneller argentinischer Aromen wie Empanadas, Choripán und Alfajores genießen. Beginnend in einer der ältesten Bars San Telmos aus den 1860er Jahren, trinken wir einen lokalen Aperitif, bevor wir zum legendären San T…",
+              "evidenceKey": "ev-18"
+            }
+          ],
+          "extractor": {
+            "model": "qwen/qwen3.8-27b",
+            "provider": "groq",
+            "validationErrors": [],
+            "inputEvidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-3",
+              "ev-4",
+              "ev-5",
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10",
+              "ev-11",
+              "ev-12",
+              "ev-13",
+              "ev-14",
+              "ev-15",
+              "ev-16",
+              "ev-17",
+              "ev-18"
+            ],
+            "candidateDecisions": [
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "San Telmo Walking Tour and Market Experience",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "culture",
+                    "architecture"
+                  ],
+                  "intents": [
+                    "walk"
+                  ],
+                  "traceKey": "san telmo walking tour and market experience:ev-14:convento-santo-domingo:Convento Santo Domingo|iglesia-de-san-ignacio-de-loyola:Iglesia de San Ignacio de Loyola|paseo-de-la-historieta:Paseo de la Historieta|san-telmo-food-market:San Telmo Food Market",
+                  "providers": [
+                    "www.agoda.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-14"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "san-telmo-food-market",
+                      "name": "San Telmo Food Market",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "paseo-de-la-historieta",
+                      "name": "Paseo de la Historieta",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "iglesia-de-san-ignacio-de-loyola",
+                      "name": "Iglesia de San Ignacio de Loyola",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    },
+                    {
+                      "key": "convento-santo-domingo",
+                      "name": "Convento Santo Domingo",
+                      "role": "venue",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-14"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": false,
+                  "suggestedDurationMinutes": 120
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              },
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "Premium Walking Tour San Telmo Neighborhood",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "architecture",
+                    "art"
+                  ],
+                  "intents": [
+                    "walk"
+                  ],
+                  "traceKey": "premium walking tour san telmo neighborhood:ev-16:mafalda-statue:Mafalda Statue|casa-minima:Casa Mínima|san-telmo-market:San Telmo Market|lezama-park:Lezama Park",
+                  "providers": [
+                    "tourscanner.com"
+                  ],
+                  "evidenceKeys": [
+                    "ev-16"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "mafalda-statue",
+                      "name": "Mafalda Statue",
+                      "role": "venue",
+                      "order": 1,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "casa-minima",
+                      "name": "Casa Mínima",
+                      "role": "venue",
+                      "order": 2,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "san-telmo-market",
+                      "name": "San Telmo Market",
+                      "role": "venue",
+                      "order": 3,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    },
+                    {
+                      "key": "lezama-park",
+                      "name": "Lezama Park",
+                      "role": "venue",
+                      "order": 4,
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-16"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": true,
+                  "suggestedDurationMinutes": 150
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              }
+            ],
+            "sourceSupportAudits": [
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "san-telmo-food-market",
+                    "name": "San Telmo Food Market",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "paseo-de-la-historieta",
+                    "name": "Paseo de la Historieta",
+                    "role": "venue",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "iglesia-de-san-ignacio-de-loyola",
+                    "name": "Iglesia de San Ignacio de Loyola",
+                    "role": "venue",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "convento-santo-domingo",
+                    "name": "Convento Santo Domingo",
+                    "role": "venue",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-14"
+                    ],
+                    "expectedKind": "PLACE"
+                  }
+                ],
+                "candidateName": "San Telmo Walking Tour and Market Experience",
+                "emittedComponentCount": 4,
+                "supportedComponentCount": 4,
+                "unsupportedComponentCount": 0
+              },
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "mafalda-statue",
+                    "name": "Mafalda Statue",
+                    "role": "venue",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "casa-minima",
+                    "name": "Casa Mínima",
+                    "role": "venue",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "san-telmo-market",
+                    "name": "San Telmo Market",
+                    "role": "venue",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "lezama-park",
+                    "name": "Lezama Park",
+                    "role": "venue",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-16"
+                    ],
+                    "expectedKind": "PLACE"
+                  }
+                ],
+                "candidateName": "Premium Walking Tour San Telmo Neighborhood",
+                "emittedComponentCount": 4,
+                "supportedComponentCount": 4,
+                "unsupportedComponentCount": 0
+              }
+            ],
+            "admittedCandidateCount": 2,
+            "rejectedCandidateCount": 0,
+            "extractedCandidateCount": 2
+          },
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "groundedModel": "google-ai-mode",
+          "semanticQuery": "caminata histórica por San Telmo",
+          "groundingStatus": "applied",
+          "groundedProvider": "serpapi",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "status": "success",
+        "provider": "web",
+        "observations": [],
+        "configuration": {
+          "query": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+          "anchorNames": [
+            "San Telmo"
+          ],
+          "semanticQuery": "caminata histórica por San Telmo",
+          "requestedIntents": [
+            "walk"
+          ]
+        },
+        "observationCount": 0
+      }
+    ],
+    "acquisitionContext": {
+      "anchor": {
+        "kind": "area",
+        "usage": "geographic_scope",
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "geometry": {
+          "type": "Polygon"
+        },
+        "priority": "soft",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "tags": {
+            "name": "San Telmo",
+            "type": "boundary",
+            "boundary": "administrative",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)",
+            "admin_level": "9"
+          },
+          "osmId": 2223069,
+          "osmType": "relation",
+          "geometry": {
+            "type": "Polygon"
+          }
+        },
+        "canonicalName": "San Telmo"
+      },
+      "strategy": "area_route_walk",
+      "passNumber": 1
+    },
+    "structuredCorroboration": {
+      "groups": [
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_1",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateName": "Aprende el arte de Fileteado",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Aprende_el_arte_de_Fileteado:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        },
+        {
+          "reason": "NO_MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_2",
+          "accepted": false,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateName": "Tomar clases de tango",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:do:hacer:Tomar_clases_de_tango:1"
+          ],
+          "candidateShapeMatches": [],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [],
+          "matchedOriginationRequirements": []
+        }
+      ],
+      "groupCount": 2,
+      "proposalCount": 2,
+      "acceptedGroupCount": 0,
+      "rejectedGroupCount": 2,
+      "pairDecisionSummary": {
+        "total": 1,
+        "byReason": {
+          "incompatible_evidence_type": 1
+        },
+        "byDecision": {
+          "NEW": 1,
+          "SAME": 0,
+          "AMBIGUOUS": 0
+        }
+      }
+    }
+  },
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 1
+  }
+}

@@ -1,0 +1,3035 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "visit"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "PASS",
+      "timing": {
+        "durationMs": 2510
+      },
+      "outputs": {
+        "intent": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "Buenos Aires",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "art",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "lugares de arte",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "museos y galerías",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "art museums galleries Buenos Aires",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "art",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "visit",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "Buenos Aires",
+              "priority": "soft"
+            }
+          ],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "art museums galleries Buenos Aires",
+          "resolvedAnchors": [
+            {
+              "usage": "geographic_scope",
+              "status": "unresolved",
+              "rawName": "Buenos Aires",
+              "priority": "soft",
+              "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+            }
+          ],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "applied",
+        "provider": "groq",
+        "durationMs": 2510,
+        "userPrompt": "quiero visitar lugares de arte, museos y galerías en Buenos Aires",
+        "rawResponse": "{\n  \"preferredFacets\": [\n    {\n      \"dimension\": \"theme\",\n      \"key\": \"art\",\n      \"confidence\": 0.95,\n      \"strength\": \"strong\",\n      \"evidence\": [\n        \"lugares de arte\",\n        \"museos y galerías\"\n      ]\n    }\n  ],\n  \"anchoredPlaces\": [\n    {\n      \"rawName\": \"Buenos Aires\",\n      \"usage\": \"geographic_scope\",\n      \"priority\": \"soft\"\n    }\n  ],\n  \"excludedThemes\": [],\n  \"excludedTraits\": [],\n  \"hardExclusions\": [],\n  \"softConstraints\": [],\n  \"ambiguities\": [],\n  \"dietaryPreferences\": [],\n  \"accessibilityPreferences\": [],\n  \"budgetPreferences\": [],\n  \"groupPreferences\": [],\n  \"positiveSemanticQuery\": \"art museums galleries Buenos Aires\",\n  \"notes\": []\n}",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [],
+          "ambiguities": [],
+          "anchoredPlaces": [
+            {
+              "usage": "geographic_scope",
+              "rawName": "Buenos Aires",
+              "priority": "soft"
+            }
+          ],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "art",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "lugares de arte",
+                  "source": "user_free_text"
+                },
+                {
+                  "text": "museos y galerías",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "theme",
+              "confidence": 0.95,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "positiveSemanticQuery": "art museums galleries Buenos Aires",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [],
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "art",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "theme",
+            "normalizedKey": "art",
+            "normalizedDimension": "theme"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "quiero visitar lugares de arte, museos y galerías en Buenos Aires",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "art"
+        ],
+        "travelPace": "moderate",
+        "destination": "Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "quiero visitar lugares de arte, museos y galerías en Buenos Aires",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 6000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "art"
+        ]
+      },
+      "summary": "Temas: art. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"quiero visitar lugares de arte, museos y galerías en Buenos Aires\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:Buenos Aires, Argentina"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "Buenos Aires"
+      },
+      "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": [
+          {
+            "usage": "geographic_scope",
+            "rawName": "Buenos Aires",
+            "priority": "soft"
+          }
+        ]
+      },
+      "status": "WARN",
+      "outputs": {
+        "anchors": [
+          {
+            "usage": "geographic_scope",
+            "status": "unresolved",
+            "rawName": "Buenos Aires",
+            "priority": "soft",
+            "unresolvedReason": "NO_CONFIDENT_GEO_ENTITY_MATCH"
+          }
+        ]
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 18,
+          "reason": "18 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:art",
+          "actual": 4,
+          "reason": "4 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-ART",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:visit",
+          "actual": 11,
+          "reason": "11 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-INTENT-VISIT",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "PASS",
+      "outputs": {
+        "sufficient": true,
+        "facetResults": [
+          {
+            "key": "art",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 4
+          },
+          {
+            "key": "visit",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 11
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": true,
+        "acquisitionDeficits": [],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 18
+      },
+      "summary": "Portafolio suficiente: 18 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+      "decision": {
+        "reason": "Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.",
+        "status": "PASS",
+        "outcome": "none",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "BUILD_CANDIDATE_POOL"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 18,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 18
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 4,
+          "reason": "El catálogo aportó 4 candidato(s).",
+          "result": "PASS",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 13.42013407658705
+      },
+      "status": "PASS",
+      "outputs": {
+        "candidateCount": 4
+      },
+      "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [
+        {
+          "id": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "name": "Museo de Arte Latinoamericano de Buenos Aires",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "name": "Museo Moderno",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "name": "Museo Nacional de Arte Decorativo",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "name": "National Museum of Fine Arts",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "id": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "name": "Museo de Arte Latinoamericano de Buenos Aires",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "name": "Museo Moderno",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "name": "Museo Nacional de Arte Decorativo",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "name": "National Museum of Fine Arts",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Ranking de Experiences",
+      "rules": [
+        {
+          "rule": "Ordenar Experiences por relevancia semántica y calidad",
+          "actual": 18,
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "result": "PASS",
+          "ruleId": "EXPERIENCE-RANK-001"
+        }
+      ],
+      "stage": "candidate_pool",
+      "inputs": {
+        "eligibleCount": 18,
+        "requestedThemes": [
+          "art"
+        ],
+        "initialCatalogCount": 18,
+        "postAcquisitionCatalogCount": 18
+      },
+      "status": "PASS",
+      "outputs": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 18,
+          "discovery": 0
+        },
+        "offeredCandidateCount": 18
+      },
+      "summary": "Se evaluaron 18 experiencias elegibles y se ofrecieron 18 candidatas (18 catálogo, 0 adquisición, 0 discovery).",
+      "decision": {
+        "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "RUN_DAILY_PLANNING"
+        ]
+      },
+      "component": "ExperienceRankingEngine",
+      "candidates": [
+        {
+          "id": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "name": "Museo de Arte Latinoamericano de Buenos Aires",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6985017477573019
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "name": "Museo Moderno",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6932858045867577
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "name": "Museo Nacional de Arte Decorativo",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6928867721158364
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "name": "National Museum of Fine Arts",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.8,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6765299842673542
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "bde6bcce-22a3-40e2-87ee-467b0bad9c81",
+          "name": "Bernardino Rivadavia Museum of Natural Science",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6879951953887988
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "d5bd351a-90f4-45bb-81d9-08c9f54b239c",
+          "name": "Museo Evita",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6763998874783418
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "1a2f2eac-4467-4db0-8d8b-3cee5abe16f7",
+          "name": "Museo Nacional del Cabildo",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6717429561461792
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "4b3fa8e1-1e1f-41d6-8fe6-ad1198ebe2d8",
+          "name": "National Historic Museum",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6571888719313677
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "35fff6ed-2bf6-4302-9b3a-c4b7ecd0c495",
+          "name": "Espacio Memoria y Derechos Humanos ex ESMA (consultar aparte por Museo Sitio de Memoria ESMA)",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6349054574966476
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "b82db3d3-d9ac-4853-9680-c269f9050c11",
+          "name": "Rosedal de Parque Chacabuco",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6117656595567272
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "ce9a75f6-888e-4fd3-9e2a-4b85787b8116",
+          "name": "Obelisk",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5992167949209698
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "f2dee154-2739-4e4f-8b2a-7ae420b30703",
+          "name": "River Plate Museum",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6614273786544846
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "1871705f-4943-454a-92a1-4b2f62d1f159",
+          "name": "Buenos Aires Bus Turístico",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.993617017293159,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6425665190895222
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "cea1c623-b695-41d8-93ae-538990ac22be",
+          "name": "Feria de Mataderos",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6211055887404446
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "24718237-950a-46ee-85aa-7b8d43e6536f",
+          "name": "Floralis Generica",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6111862609851
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "fee95f90-b5d7-4bfd-b393-b22c72c4d19d",
+          "name": "Buenos Aires Bus",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.1,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6037199857068064
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "668f8e81-4bcf-4299-9a3a-0e9acb7acb91",
+          "name": "Caminito",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5972670912742657
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "8c268f0c-786f-422c-88d4-25883f091bdf",
+          "name": "Ecoparque",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.2,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5953906533354921
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        }
+      ],
+      "candidatePool": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 18,
+          "discovery": 0
+        },
+        "eligibleCount": 18,
+        "llmWindowCount": 18,
+        "initialCatalogCount": 18,
+        "postAcquisitionCatalogCount": 18
+      },
+      "candidateDecisions": [
+        {
+          "id": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "name": "Museo de Arte Latinoamericano de Buenos Aires",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6985017477573019
+          }
+        },
+        {
+          "id": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "name": "Museo Moderno",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6932858045867577
+          }
+        },
+        {
+          "id": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "name": "Museo Nacional de Arte Decorativo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6928867721158364
+          }
+        },
+        {
+          "id": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "name": "National Museum of Fine Arts",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 4.8,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6765299842673542
+          }
+        },
+        {
+          "id": "bde6bcce-22a3-40e2-87ee-467b0bad9c81",
+          "name": "Bernardino Rivadavia Museum of Natural Science",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6879951953887988
+          }
+        },
+        {
+          "id": "d5bd351a-90f4-45bb-81d9-08c9f54b239c",
+          "name": "Museo Evita",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6763998874783418
+          }
+        },
+        {
+          "id": "1a2f2eac-4467-4db0-8d8b-3cee5abe16f7",
+          "name": "Museo Nacional del Cabildo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6717429561461792
+          }
+        },
+        {
+          "id": "4b3fa8e1-1e1f-41d6-8fe6-ad1198ebe2d8",
+          "name": "National Historic Museum",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6571888719313677
+          }
+        },
+        {
+          "id": "35fff6ed-2bf6-4302-9b3a-c4b7ecd0c495",
+          "name": "Espacio Memoria y Derechos Humanos ex ESMA (consultar aparte por Museo Sitio de Memoria ESMA)",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6349054574966476
+          }
+        },
+        {
+          "id": "b82db3d3-d9ac-4853-9680-c269f9050c11",
+          "name": "Rosedal de Parque Chacabuco",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6117656595567272
+          }
+        },
+        {
+          "id": "ce9a75f6-888e-4fd3-9e2a-4b85787b8116",
+          "name": "Obelisk",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5992167949209698
+          }
+        },
+        {
+          "id": "f2dee154-2739-4e4f-8b2a-7ae420b30703",
+          "name": "River Plate Museum",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6614273786544846
+          }
+        },
+        {
+          "id": "1871705f-4943-454a-92a1-4b2f62d1f159",
+          "name": "Buenos Aires Bus Turístico",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.993617017293159,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6425665190895222
+          }
+        },
+        {
+          "id": "cea1c623-b695-41d8-93ae-538990ac22be",
+          "name": "Feria de Mataderos",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6211055887404446
+          }
+        },
+        {
+          "id": "24718237-950a-46ee-85aa-7b8d43e6536f",
+          "name": "Floralis Generica",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.7,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6111862609851
+          }
+        },
+        {
+          "id": "fee95f90-b5d7-4bfd-b393-b22c72c4d19d",
+          "name": "Buenos Aires Bus",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.1,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6037199857068064
+          }
+        },
+        {
+          "id": "668f8e81-4bcf-4299-9a3a-0e9acb7acb91",
+          "name": "Caminito",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.6,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5972670912742657
+          }
+        },
+        {
+          "id": "8c268f0c-786f-422c-88d4-25883f091bdf",
+          "name": "Ecoparque",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 4.2,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5953906533354921
+          }
+        }
+      ]
+    },
+    {
+      "label": "Ranking semántico",
+      "rules": [
+        {
+          "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "actual": "applied",
+          "reason": "La similitud se incorporó al ranking.",
+          "result": "PASS",
+          "ruleId": "RANK-SEMANTIC-001"
+        },
+        {
+          "rule": "Un candidato sin embedding no equivale a score semántico cero",
+          "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+          "result": "PASS",
+          "ruleId": "RANK-UNKNOWN-001"
+        }
+      ],
+      "stage": "embeddings",
+      "inputs": {
+        "model": "nomic-embed-text",
+        "provider": "ollama",
+        "eligibleCandidateCount": 18
+      },
+      "status": "PASS",
+      "outputs": {
+        "measuredRatio": 1,
+        "indexedCandidateCount": 18,
+        "offeredCandidateCount": 18
+      },
+      "summary": "Ranking semántico solicitado y aplicado sobre 18 candidato(s) elegible(s) del destino: 18 tenían un vector compatible con el índice activo y se ofrecieron 18 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+      "decision": {
+        "reason": "Índice semántico compatible disponible.",
+        "status": "PASS",
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "reasonCodes": [
+          "APPLIED"
+        ],
+        "triggeredActions": [
+          "BUILD_RANKED_WINDOW"
+        ]
+      },
+      "component": "VectorStoreService + pgvector",
+      "semanticRanking": {
+        "model": "nomic-embed-text",
+        "status": "applied",
+        "provider": "ollama",
+        "dimensions": 256,
+        "documentVersion": 3,
+        "indexedCandidateCount": 18,
+        "offeredCandidateCount": 18,
+        "eligibleCandidateCount": 18
+      }
+    },
+    {
+      "label": "Adquisición multi-fuente (pase 1)",
+      "rules": [
+        {
+          "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+          "reason": "Fuentes enrutadas: wikivoyage, web.",
+          "result": "PASS",
+          "ruleId": "ACQ-ROUTING-001"
+        },
+        {
+          "rule": "Una fuente que falla no aborta la adquisición",
+          "reason": "Todas las fuentes atendidas respondieron.",
+          "result": "PASS",
+          "ruleId": "ACQ-ISOLATION-001"
+        },
+        {
+          "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+          "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+          "result": "PASS",
+          "ruleId": "ACQ-CANDIDATE-001"
+        }
+      ],
+      "stage": "discovery",
+      "inputs": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 101.58669999999984 minutes of residual capacity on day 1"
+          }
+        ],
+        "passNumber": 1,
+        "routedProviders": [
+          "wikivoyage",
+          "web"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "webResults": [
+          {
+            "query": "Buenos Aires things to do top attractions art museums galleries Buenos Aires",
+            "status": "success",
+            "evidenceCount": 14,
+            "groundedModel": "google-ai-mode",
+            "candidateCount": 0,
+            "extractorModel": "qwen/qwen3.8-27b",
+            "groundingStatus": "applied",
+            "groundedProvider": "serpapi",
+            "validationErrors": [],
+            "extractorProvider": "groq"
+          }
+        ],
+        "candidateCount": 3,
+        "observationCount": 3,
+        "webCandidateCount": 0,
+        "structuredProviders": [
+          {
+            "status": "success",
+            "provider": "wikivoyage"
+          }
+        ],
+        "structuredCandidateCount": 3
+      },
+      "summary": "Pase 1: fuentes [wikivoyage, web] → 3 observación(es) estructurada(s) + 3 candidate(s) (web: 0).",
+      "component": "ExperienceAcquisitionService",
+      "acquisition": {
+        "deficits": [
+          {
+            "origin": "global_capacity",
+            "reason": "Planner has 101.58669999999984 minutes of residual capacity on day 1"
+          }
+        ],
+        "evidence": [
+          {
+            "title": "Centro Científico Tecnológicos.",
+            "source": "wikivoyage",
+            "snippet": "Lugar ideal para niños y curiosos, con muchas actividades para interactuar. Se suelen abrir salas de exposición sobre temas científicos.",
+            "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+          },
+          {
+            "title": "Iglesia San Ignacio de Loyola",
+            "source": "wikivoyage",
+            "snippet": "Tendrás la oportunidad de conocer un poco sobre la historia del centro de la ciudad de Buenos Aires, además de realizar un recorrido por las instalaciones, podras acceder a parte de un tunel subterraneo que pasa por debajo de la cuadra donde se localiza la iglesia.",
+            "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+          },
+          {
+            "title": "Galería Güemes",
+            "source": "wikivoyage",
+            "snippet": "Además de ser un lugar para realizar algunas compras. Desde la Galería se puede acceder a un mirador en el piso 14. Donde podrás ver la ciudad en 360 desde la cúpula de la Galería.",
+            "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 1,
+            "source": "google_ai_mode",
+            "snippet": "Buenos Aires boasts one of the most vibrant art and museum scenes in South America, blending a deep European heritage with distinct Latin American and porteño flair.",
+            "evidenceKey": "ev-1"
+          },
+          {
+            "url": "https://www.bellasartes.gob.ar/",
+            "kind": "narrative_paragraph",
+            "order": 2,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "CallDirectionsWebsiteLocated in Recoleta, this is the granddaddy of Argentine museums. It houses Latin America’s largest public art collection, including works by European masters (Renoir, Van Gogh, Rodin, Goya) alongside a definitive, world-class vault of 19th- and 20th-century Argentine art.",
+            "evidenceKey": "ev-2",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 3,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "CallDirectionsWebsiteA sleek, modern icon in Palermo/Recoleta showcasing 20th-century and contemporary Latin American art. It features famous permanent pieces like Frida Kahlo's Self-Portrait with Monkey and Parrot and Tarsila do Amaral's Abaporu, alongside stellar rotating international exhibitions.",
+            "evidenceKey": "ev-3",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 4,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "DirectionsWebsiteTucked into a former tobacco warehouse in San Telmo, this dynamic space focuses on mid-20th-century to cutting-edge contemporary Argentine visual arts, graphic design, and experimental installations.",
+            "evidenceKey": "ev-4",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 5,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "CallDirectionsWebsiteSituated right on the riverbank in Puerto Madero, this striking building holds an incredible private collection of national and international gems, featuring heavy-hitters like Antonio Berni, Xul Solar, and international pieces by Warhol and Dalí.",
+            "evidenceKey": "ev-5",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 6,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "CallDirectionsWebsiteDedicated to the eccentric, visionary Argentine artist, mystic, and inventor Alejandro Xul Solar. Housed in the very building where he once lived, it’s a whimsical, surreal dive into alternative universes, imaginary languages, and esoteric symbolism.",
+            "evidenceKey": "ev-6",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 7,
+            "title": "Top Art Museums & Galleries",
+            "source": "Top Art Museums & Galleries",
+            "snippet": "DirectionsKnown as the world's first open-air street museum, this iconic pedestrian alleyway in La Boca was transformed from an abandoned rail line by local master Benito Quinquela Martín. It serves up a living canvas of brightly painted tenement buildings, tangos, reliefs, and local artists selling paintings.",
+            "evidenceKey": "ev-7",
+            "contextHeading": "Top Art Museums & Galleries"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 8,
+            "title": "Visitor Experiences",
+            "source": "Visitor Experiences",
+            "snippet": "MALBA had two artist collections on the third and basement floors... The Tercer Ojo on the second floor was a collection of many different Latin American artists explored via 240 pieces. The museum did a wonderful curating job as I was quite fascinated with many of the works especially from artists that I've not been exposed to in the past.",
+            "evidenceKey": "ev-8",
+            "contextHeading": "Visitor Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 9,
+            "title": "Visitor Experiences",
+            "source": "Visitor Experiences",
+            "snippet": "Walking along the 24 exhibition halls of the ground floor, visitors will encounter sculptures by Curatella Manes and Rodin, paintings by El Greco and Rembrandt, the magnificent Goya´s room, and the most important Latin American collection of impressionists and post-impressionism....",
+            "evidenceKey": "ev-9",
+            "contextHeading": "Visitor Experiences"
+          },
+          {
+            "kind": "narrative_paragraph",
+            "order": 10,
+            "title": "Visitor Experiences",
+            "source": "Visitor Experiences",
+            "snippet": "If you'd like to narrow down your itinerary, let me know:",
+            "evidenceKey": "ev-10",
+            "contextHeading": "Visitor Experiences"
+          },
+          {
+            "kind": "list_item",
+            "order": 11,
+            "title": "Visitor Experiences",
+            "source": "Visitor Experiences",
+            "snippet": "Are you looking for neighborhood-specific guides (e.g., Palermo vs. San Telmo)?",
+            "evidenceKey": "ev-11",
+            "contextHeading": "Visitor Experiences"
+          },
+          {
+            "kind": "list_item",
+            "order": 12,
+            "title": "Visitor Experiences",
+            "source": "Visitor Experiences",
+            "snippet": "Do you want recommendations for independent commercial art galleries or current temporary exhibits happening this week?",
+            "evidenceKey": "ev-12",
+            "contextHeading": "Visitor Experiences"
+          },
+          {
+            "url": "https://www.cntraveler.com/activities/buenos-aires/museo-de-arte-latinoamericano-de-buenos-aires-malba",
+            "kind": "reference",
+            "order": 13,
+            "title": "Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+            "source": "Condé Nast Traveler",
+            "snippet": "The MALBA now features pieces by Frida, Diego Rivera, Antonio Berni, Wilfredo Lam, among others.",
+            "evidenceKey": "ev-13"
+          },
+          {
+            "url": "https://www.google.com/searchviewer/10?svid=CAwSGRIXCgNwdnESEENnb3ZiUzh3TW5FME5EVTQYCg",
+            "kind": "reference",
+            "order": 14,
+            "title": "National Museum of Fine Arts",
+            "source": "Google",
+            "snippet": "One of Latin America's largest public art collections, set in a converted drainage pumping station.",
+            "evidenceKey": "ev-14"
+          }
+        ],
+        "candidates": [
+          {
+            "name": "Centro Científico Tecnológicos.",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos.",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component",
+                "name": "Centro Científico Tecnológicos.",
+                "role": "venue",
+                "required": true,
+                "evidenceKeys": [
+                  "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Galería Güemes",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component",
+                "name": "Galería Güemes",
+                "role": "venue",
+                "required": true,
+                "evidenceKeys": [
+                  "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          },
+          {
+            "name": "Iglesia San Ignacio de Loyola",
+            "origin": "structured",
+            "themes": [],
+            "intents": [],
+            "traceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola",
+            "providers": [
+              "wikivoyage"
+            ],
+            "evidenceKeys": [
+              "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+            ],
+            "componentHints": [
+              {
+                "key": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component",
+                "name": "Iglesia San Ignacio de Loyola",
+                "role": "venue",
+                "required": true,
+                "evidenceKeys": [
+                  "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+                ]
+              }
+            ],
+            "orderedByEvidence": false
+          }
+        ],
+        "passNumber": 1,
+        "sourcePlans": [
+          {
+            "status": "success",
+            "provider": "wikivoyage",
+            "observations": [
+              {
+                "title": "Centro Científico Tecnológicos.",
+                "provider": "wikivoyage",
+                "description": "Lugar ideal para niños y curiosos, con muchas actividades para interactuar. Se suelen abrir salas de exposición sobre temas científicos.",
+                "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "title": "Iglesia San Ignacio de Loyola",
+                "provider": "wikivoyage",
+                "externalId": "Q10927950",
+                "description": "Tendrás la oportunidad de conocer un poco sobre la historia del centro de la ciudad de Buenos Aires, además de realizar un recorrido por las instalaciones, podras acceder a parte de un tunel subterraneo que pasa por debajo de la cuadra donde se localiza la iglesia.",
+                "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              },
+              {
+                "title": "Galería Güemes",
+                "provider": "wikivoyage",
+                "description": "Además de ser un lugar para realizar algunas compras. Desde la Galería se puede acceder a un mirador en el piso 14. Donde podrás ver la ciudad en 360 desde la cúpula de la Galería.",
+                "evidenceKey": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1",
+                "evidenceType": "place",
+                "originationCapabilities": [
+                  "SINGLE_PLACE"
+                ]
+              }
+            ],
+            "configuration": {
+              "sections": [
+                "SEE",
+                "DO",
+                "EAT"
+              ]
+            },
+            "observationCount": 3
+          },
+          {
+            "web": {
+              "query": "Buenos Aires things to do top attractions art museums galleries Buenos Aires",
+              "evidence": [
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 1,
+                  "source": "google_ai_mode",
+                  "snippet": "Buenos Aires boasts one of the most vibrant art and museum scenes in South America, blending a deep European heritage with distinct Latin American and porteño flair.",
+                  "evidenceKey": "ev-1"
+                },
+                {
+                  "url": "https://www.bellasartes.gob.ar/",
+                  "kind": "narrative_paragraph",
+                  "order": 2,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "CallDirectionsWebsiteLocated in Recoleta, this is the granddaddy of Argentine museums. It houses Latin America’s largest public art collection, including works by European masters (Renoir, Van Gogh, Rodin, Goya) alongside a definitive, world-class vault of 19th- and 20th-century Argentine art.",
+                  "evidenceKey": "ev-2",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 3,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "CallDirectionsWebsiteA sleek, modern icon in Palermo/Recoleta showcasing 20th-century and contemporary Latin American art. It features famous permanent pieces like Frida Kahlo's Self-Portrait with Monkey and Parrot and Tarsila do Amaral's Abaporu, alongside stellar rotating international exhibitions.",
+                  "evidenceKey": "ev-3",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 4,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "DirectionsWebsiteTucked into a former tobacco warehouse in San Telmo, this dynamic space focuses on mid-20th-century to cutting-edge contemporary Argentine visual arts, graphic design, and experimental installations.",
+                  "evidenceKey": "ev-4",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 5,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "CallDirectionsWebsiteSituated right on the riverbank in Puerto Madero, this striking building holds an incredible private collection of national and international gems, featuring heavy-hitters like Antonio Berni, Xul Solar, and international pieces by Warhol and Dalí.",
+                  "evidenceKey": "ev-5",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 6,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "CallDirectionsWebsiteDedicated to the eccentric, visionary Argentine artist, mystic, and inventor Alejandro Xul Solar. Housed in the very building where he once lived, it’s a whimsical, surreal dive into alternative universes, imaginary languages, and esoteric symbolism.",
+                  "evidenceKey": "ev-6",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 7,
+                  "title": "Top Art Museums & Galleries",
+                  "source": "Top Art Museums & Galleries",
+                  "snippet": "DirectionsKnown as the world's first open-air street museum, this iconic pedestrian alleyway in La Boca was transformed from an abandoned rail line by local master Benito Quinquela Martín. It serves up a living canvas of brightly painted tenement buildings, tangos, reliefs, and local artists selling paintings.",
+                  "evidenceKey": "ev-7",
+                  "contextHeading": "Top Art Museums & Galleries"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 8,
+                  "title": "Visitor Experiences",
+                  "source": "Visitor Experiences",
+                  "snippet": "MALBA had two artist collections on the third and basement floors... The Tercer Ojo on the second floor was a collection of many different Latin American artists explored via 240 pieces. The museum did a wonderful curating job as I was quite fascinated with many of the works especially from artists that I've not been exposed to in the past.",
+                  "evidenceKey": "ev-8",
+                  "contextHeading": "Visitor Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 9,
+                  "title": "Visitor Experiences",
+                  "source": "Visitor Experiences",
+                  "snippet": "Walking along the 24 exhibition halls of the ground floor, visitors will encounter sculptures by Curatella Manes and Rodin, paintings by El Greco and Rembrandt, the magnificent Goya´s room, and the most important Latin American collection of impressionists and post-impressionism....",
+                  "evidenceKey": "ev-9",
+                  "contextHeading": "Visitor Experiences"
+                },
+                {
+                  "kind": "narrative_paragraph",
+                  "order": 10,
+                  "title": "Visitor Experiences",
+                  "source": "Visitor Experiences",
+                  "snippet": "If you'd like to narrow down your itinerary, let me know:",
+                  "evidenceKey": "ev-10",
+                  "contextHeading": "Visitor Experiences"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 11,
+                  "title": "Visitor Experiences",
+                  "source": "Visitor Experiences",
+                  "snippet": "Are you looking for neighborhood-specific guides (e.g., Palermo vs. San Telmo)?",
+                  "evidenceKey": "ev-11",
+                  "contextHeading": "Visitor Experiences"
+                },
+                {
+                  "kind": "list_item",
+                  "order": 12,
+                  "title": "Visitor Experiences",
+                  "source": "Visitor Experiences",
+                  "snippet": "Do you want recommendations for independent commercial art galleries or current temporary exhibits happening this week?",
+                  "evidenceKey": "ev-12",
+                  "contextHeading": "Visitor Experiences"
+                },
+                {
+                  "url": "https://www.cntraveler.com/activities/buenos-aires/museo-de-arte-latinoamericano-de-buenos-aires-malba",
+                  "kind": "reference",
+                  "order": 13,
+                  "title": "Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+                  "source": "Condé Nast Traveler",
+                  "snippet": "The MALBA now features pieces by Frida, Diego Rivera, Antonio Berni, Wilfredo Lam, among others.",
+                  "evidenceKey": "ev-13"
+                },
+                {
+                  "url": "https://www.google.com/searchviewer/10?svid=CAwSGRIXCgNwdnESEENnb3ZiUzh3TW5FME5EVTQYCg",
+                  "kind": "reference",
+                  "order": 14,
+                  "title": "National Museum of Fine Arts",
+                  "source": "Google",
+                  "snippet": "One of Latin America's largest public art collections, set in a converted drainage pumping station.",
+                  "evidenceKey": "ev-14"
+                }
+              ],
+              "extractor": {
+                "model": "qwen/qwen3.8-27b",
+                "provider": "groq",
+                "validationErrors": [],
+                "inputEvidenceKeys": [
+                  "ev-1",
+                  "ev-2",
+                  "ev-3",
+                  "ev-4",
+                  "ev-5",
+                  "ev-6",
+                  "ev-7",
+                  "ev-8",
+                  "ev-9",
+                  "ev-10",
+                  "ev-11",
+                  "ev-12",
+                  "ev-13",
+                  "ev-14"
+                ],
+                "candidateDecisions": [],
+                "sourceSupportAudits": [],
+                "admittedCandidateCount": 0,
+                "rejectedCandidateCount": 0,
+                "extractedCandidateCount": 0
+              },
+              "groundedModel": "google-ai-mode",
+              "semanticQuery": "art museums galleries Buenos Aires",
+              "groundingStatus": "applied",
+              "groundedProvider": "serpapi"
+            },
+            "status": "success",
+            "provider": "web",
+            "observations": [],
+            "configuration": {
+              "query": "Buenos Aires things to do top attractions art museums galleries Buenos Aires",
+              "semanticQuery": "art museums galleries Buenos Aires"
+            },
+            "observationCount": 0
+          }
+        ],
+        "acquisitionContext": {
+          "strategy": "generic",
+          "passNumber": 1
+        },
+        "structuredCorroboration": {
+          "groups": [
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_1",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+              ],
+              "candidateName": "Centro Científico Tecnológicos.",
+              "mergedEvidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_2",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+              ],
+              "candidateName": "Galería Güemes",
+              "mergedEvidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            },
+            {
+              "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+              "groupId": "group_3",
+              "accepted": true,
+              "proposalIds": [
+                "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+              ],
+              "candidateName": "Iglesia San Ignacio de Loyola",
+              "mergedEvidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+              ],
+              "candidateShapeMatches": [
+                "SINGLE_PLACE"
+              ],
+              "contributingProviders": [
+                "wikivoyage"
+              ],
+              "requestedRequirements": [
+                "SINGLE_PLACE",
+                "MULTI_COMPONENT_EXPERIENCE"
+              ],
+              "observationCapabilities": [
+                "SINGLE_PLACE"
+              ],
+              "matchedOriginationRequirements": [
+                "SINGLE_PLACE"
+              ]
+            }
+          ],
+          "groupCount": 3,
+          "proposalCount": 3,
+          "acceptedGroupCount": 3,
+          "rejectedGroupCount": 0,
+          "pairDecisionSummary": {
+            "total": 3,
+            "byReason": {
+              "no_shared_identity_signal": 3
+            },
+            "byDecision": {
+              "NEW": 3,
+              "SAME": 0,
+              "AMBIGUOUS": 0
+            }
+          }
+        }
+      },
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      }
+    },
+    {
+      "label": "Resolución de entidades reales",
+      "rules": [
+        {
+          "rule": "Resolver hints contra identidades geográficas independientes del LLM",
+          "actual": 1,
+          "reason": "1 entidad(es) reales resueltas; 1 con coordenadas.",
+          "result": "PASS",
+          "ruleId": "RES-IDENTITY-001"
+        },
+        {
+          "rule": "No decidir coherencia geográfica ni persistencia durante entity resolution",
+          "reason": "La salida queda pendiente del GeographicValidationService.",
+          "result": "PASS",
+          "ruleId": "RES-SEPARATION-001"
+        },
+        {
+          "rule": "Toda propuesta no resoluble debe conservar razones explícitas",
+          "reason": "Centro Científico Tecnológicos.: NO_OSM_MATCH; Galería Güemes: NO_OSM_MATCH",
+          "result": "PASS",
+          "ruleId": "RES-REJECTION-001"
+        }
+      ],
+      "stage": "entity_resolution",
+      "inputs": {
+        "totalCandidates": 3
+      },
+      "status": "PASS",
+      "outputs": {
+        "rejectedCount": 2,
+        "candidateCount": 3,
+        "resolvedEntityCount": 1,
+        "resolutionReadyCount": 1,
+        "entitiesWithCoordinates": 1
+      },
+      "summary": "Entity resolution procesó 3 candidato(s): 1 quedaron con entidades concretas suficientes para continuar y 2 no pudieron resolverse. Se obtuvieron 1 entidad(es) provider-backed, 1 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Centro Científico Tecnológicos.: NO_OSM_MATCH; Galería Güemes: NO_OSM_MATCH.",
+      "decision": {
+        "reason": "Hay entidades reales resueltas; todavía falta validar existencia/coherencia de la actividad compuesta.",
+        "status": "PASS",
+        "outcome": "ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION",
+        "reasonCodes": [
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH"
+        ],
+        "triggeredActions": [
+          "VALIDATE_GEOGRAPHIC_COHERENCE"
+        ]
+      },
+      "component": "ExperienceProposalResolverService",
+      "providerStatus": "success",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Centro Científico Tecnológicos.",
+          "name": "Centro Científico Tecnológicos.",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Galería Güemes",
+          "name": "Galería Güemes",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Iglesia San Ignacio de Loyola",
+          "name": "Iglesia San Ignacio de Loyola",
+          "reason": "1 entidad(es) provider-backed resueltas; pendiente validación geográfica.",
+          "source": "discovery",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "ENTITY_RESOLUTION_READY"
+          ]
+        }
+      ],
+      "entityResolutionAudit": [
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component",
+              "name": "Centro Científico Tecnológicos.",
+              "role": "venue",
+              "reason": "NO_OSM_MATCH",
+              "status": "unresolved",
+              "attempts": [
+                {
+                  "query": "Centro Científico Tecnológicos.",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Centro Científico Tecnológicos.",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Centro Científico Tecnológicos.",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false,
+                  "poolCandidateCount": 2706
+                }
+              ],
+              "required": true,
+              "evidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1"
+              ],
+              "expectedKind": "PLACE"
+            }
+          ],
+          "accepted": false,
+          "candidateName": "Centro Científico Tecnológicos.",
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos."
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component",
+              "name": "Galería Güemes",
+              "role": "venue",
+              "reason": "UNCONFIRMED_MATCH",
+              "status": "unresolved",
+              "attempts": [
+                {
+                  "query": "Galería Güemes",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Galería Güemes",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Galería Güemes",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "WIKIDATA_IDENTITY_MATCH",
+                      "source": "NEARBY",
+                      "hintMatched": true,
+                      "candidateMatched": false
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:node:2481986716",
+                    "canonicalName": "Mirador Galería Güemes"
+                  },
+                  "poolCandidateCount": 2706,
+                  "verificationDecision": "REJECTED"
+                }
+              ],
+              "required": true,
+              "evidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1"
+              ],
+              "expectedKind": "PLACE"
+            }
+          ],
+          "accepted": false,
+          "candidateName": "Galería Güemes",
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes"
+        },
+        {
+          "hints": [
+            {
+              "key": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component",
+              "name": "Iglesia San Ignacio de Loyola",
+              "role": "venue",
+              "status": "resolved",
+              "attempts": [
+                {
+                  "query": "Iglesia San Ignacio de Loyola",
+                  "provider": "catalog",
+                  "strategy": "CATALOG_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Iglesia San Ignacio de Loyola",
+                  "provider": "trusted_observation",
+                  "strategy": "TRUSTED_OBSERVATION_REUSE",
+                  "executionStatus": "completed",
+                  "identityEvidence": [],
+                  "candidateAcquired": false
+                },
+                {
+                  "query": "Iglesia San Ignacio de Loyola",
+                  "provider": "openstreetmap",
+                  "strategy": "LOCAL_OSM_POOL",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "WIKIDATA_IDENTITY_MATCH",
+                      "source": "OBSERVATION_QID",
+                      "hintMatched": true,
+                      "candidateMatched": false
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:way:239347480",
+                    "canonicalName": "Parroquia San Ignacio de Loyola"
+                  },
+                  "poolCandidateCount": 2706,
+                  "verificationDecision": "REJECTED"
+                },
+                {
+                  "query": "Iglesia San Ignacio de Loyola",
+                  "provider": "nominatim",
+                  "strategy": "NOMINATIM",
+                  "executionStatus": "completed",
+                  "identityEvidence": [
+                    {
+                      "type": "EXACT_NAME",
+                      "identityMultiplicity": "SINGLE"
+                    }
+                  ],
+                  "candidateAcquired": true,
+                  "selectedCandidate": {
+                    "kind": "PLACE",
+                    "externalId": "osm:way:612027725",
+                    "canonicalName": "Iglesia San Ignacio de Loyola"
+                  },
+                  "providerResultCount": 1,
+                  "verificationDecision": "VERIFIED"
+                }
+              ],
+              "required": true,
+              "evidenceKeys": [
+                "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+              ],
+              "expectedKind": "PLACE",
+              "resolvedGeoEntity": {
+                "provider": "nominatim",
+                "externalId": "osm:way:612027725",
+                "geoEntityId": "3a914adf-a6bc-453f-8ffa-e5d84ba06fb5",
+                "canonicalName": "Iglesia San Ignacio de Loyola"
+              }
+            }
+          ],
+          "accepted": true,
+          "candidateName": "Iglesia San Ignacio de Loyola",
+          "rejectionReasons": [],
+          "candidateTraceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola"
+        }
+      ]
+    },
+    {
+      "label": "Validación geográfica independiente",
+      "rules": [
+        {
+          "rule": "Grounded text por sí solo no prueba existencia geográfica",
+          "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+          "result": "PASS",
+          "ruleId": "GEO-INDEPENDENT-001"
+        },
+        {
+          "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+          "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+          "result": "PASS",
+          "ruleId": "GEO-COMPONENTS-001"
+        },
+        {
+          "rule": "Conservar razones machine-readable para cada rechazo",
+          "reason": "Iglesia San Ignacio de Loyola: destination_mismatch",
+          "result": "PASS",
+          "ruleId": "GEO-RESULT-001"
+        }
+      ],
+      "stage": "geographic_validation",
+      "inputs": {
+        "proposalCount": 1,
+        "validatorVersions": [
+          1
+        ]
+      },
+      "status": "WARN",
+      "outputs": {
+        "results": [
+          {
+            "kind": "EXPERIENCE",
+            "status": "REJECTED",
+            "strategy": null,
+            "coherence": null,
+            "anchorCount": 1,
+            "proposalName": "Iglesia San Ignacio de Loyola",
+            "canonicalEntity": null,
+            "rejectionReasons": [
+              "destination_mismatch"
+            ],
+            "areaScopeMembership": null
+          }
+        ],
+        "rejectedCount": 1,
+        "geoVerifiedCount": 0,
+        "maxComputedRadiusMeters": null
+      },
+      "summary": "Validación geográfica: 0 propuesta(s) verificadas y 1 descartadas por coherencia espacial o falta de entidad real.",
+      "decision": {
+        "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+        "status": "WARN",
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "reasonCodes": [
+          "destination_mismatch"
+        ],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "CompositeGeographicValidationService",
+      "degradedReason": "no_geo_verified_proposals",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Iglesia San Ignacio de Loyola",
+          "name": "Iglesia San Ignacio de Loyola",
+          "reason": "destination_mismatch",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "destination_mismatch"
+          ]
+        }
+      ],
+      "geographicValidationAudit": [
+        {
+          "status": "REJECTED",
+          "accepted": false,
+          "components": [
+            {
+              "role": "venue",
+              "hintKey": "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component",
+              "hintName": "Iglesia San Ignacio de Loyola",
+              "relation": "offending",
+              "decisionReason": "OUTSIDE_DESTINATION_BOUNDARY",
+              "resolvedGeoEntityId": "3a914adf-a6bc-453f-8ffa-e5d84ba06fb5",
+              "distanceToBoundaryMeters": 500117.4428718478
+            }
+          ],
+          "candidateName": "Iglesia San Ignacio de Loyola",
+          "rejectionReasons": [
+            "destination_mismatch"
+          ],
+          "candidateTraceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola",
+          "destinationBoundary": {
+            "name": "Buenos Aires",
+            "externalId": "osm:relation:1224652"
+          },
+          "groundedEvidenceKeys": [
+            "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Materialización en catálogo",
+      "rules": [
+        {
+          "rule": "Persistir composites solo después de GEO_VERIFIED",
+          "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+          "result": "PASS",
+          "ruleId": "MAT-GEO-GATE-001"
+        },
+        {
+          "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+          "actual": 0,
+          "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+          "result": "WARN",
+          "ruleId": "MAT-CANONICAL-001"
+        }
+      ],
+      "stage": "catalog_materialization",
+      "inputs": {
+        "geoVerifiedCount": 0
+      },
+      "status": "WARN",
+      "outputs": {
+        "rejectedCount": 3,
+        "materializedCount": 0,
+        "persistedExperienceIds": []
+      },
+      "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 3 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+      "decision": {
+        "reason": "No hubo propuesta verificada que pudiera materializarse.",
+        "status": "WARN",
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "reasonCodes": [
+          "NO_OSM_MATCH",
+          "NO_OSM_MATCH",
+          "destination_mismatch"
+        ],
+        "triggeredActions": [
+          "CONTINUE_WITH_EXISTING_POOL"
+        ]
+      },
+      "component": "ExperienceCatalogService",
+      "degradedReason": "no_experiences_materialized",
+      "providerStatus": "failed",
+      "acquisitionContext": {
+        "strategy": "generic",
+        "passNumber": 1
+      },
+      "candidateDecisions": [
+        {
+          "id": "Centro Científico Tecnológicos.",
+          "name": "Centro Científico Tecnológicos.",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Galería Güemes",
+          "name": "Galería Güemes",
+          "reason": "NO_OSM_MATCH",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "NO_OSM_MATCH"
+          ]
+        },
+        {
+          "id": "Iglesia San Ignacio de Loyola",
+          "name": "Iglesia San Ignacio de Loyola",
+          "reason": "destination_mismatch",
+          "source": "discovery",
+          "status": "REJECTED",
+          "reasonCodes": [
+            "destination_mismatch"
+          ]
+        }
+      ],
+      "classificationAudit": [],
+      "materializationAudit": [
+        {
+          "accepted": false,
+          "candidateName": "Centro Científico Tecnológicos.",
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "centro científico tecnológicos.:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:wikivoyage:Buenos_Aires:see:ver:Centro_Cientifico_Tecnologicos:1:component:Centro Científico Tecnológicos."
+        },
+        {
+          "accepted": false,
+          "candidateName": "Galería Güemes",
+          "rejectionReasons": [
+            "NO_OSM_MATCH"
+          ],
+          "candidateTraceKey": "galería güemes:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:wikivoyage:Buenos_Aires:see:ver:Galeria_Guemes:1:component:Galería Güemes"
+        },
+        {
+          "accepted": false,
+          "candidateName": "Iglesia San Ignacio de Loyola",
+          "rejectionReasons": [
+            "destination_mismatch"
+          ],
+          "candidateTraceKey": "iglesia san ignacio de loyola:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component:Iglesia San Ignacio de Loyola"
+        }
+      ]
+    },
+    {
+      "label": "Planificación diaria determinística",
+      "rules": [
+        {
+          "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+          "actual": 1,
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "result": "PASS",
+          "ruleId": "PLAN-DAYS-001"
+        },
+        {
+          "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "reason": "1 candidato(s) quedaron fuera con reason codes explícitos.",
+          "result": "PASS",
+          "ruleId": "PLAN-FEASIBILITY-001"
+        },
+        {
+          "rule": "Declarar si las estimaciones de traslado son aproximadas",
+          "actual": false,
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "result": "PASS",
+          "ruleId": "PLAN-TRAVEL-001"
+        }
+      ],
+      "stage": "daily_planning",
+      "inputs": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 78.41329999999999,
+            "utilizationMinutes": 558.4133000000002,
+            "totalWalkingMinutes": 78.41329999999999,
+            "totalExperienceMinutes": 480
+          }
+        ],
+        "score": 4,
+        "selectedCount": 4,
+        "unselectedCount": 1,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": true,
+            "availableMinutes": 101.5866999999998
+          }
+        ]
+      },
+      "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 4 Experience(s) seleccionada(s), 1 sin seleccionar (score total 4). Las estimaciones de traslado usadas son reales.",
+      "decision": {
+        "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT",
+        "reasonCodes": [
+          "PLANNING_COMPLETED"
+        ],
+        "triggeredActions": [
+          "VALIDATE_COMPLETENESS",
+          "VALIDATE_FORMAT_COVERAGE"
+        ]
+      },
+      "component": "GreedyDailyPlanningSolver",
+      "dailyPlanning": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 4,
+            "totalTravelMinutes": 78.41329999999999,
+            "utilizationMinutes": 558.4133000000002,
+            "totalWalkingMinutes": 78.41329999999999,
+            "totalExperienceMinutes": 480
+          }
+        ],
+        "score": 4,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 3
+          },
+          "externalEstimateCount": 3,
+          "internalEstimateCount": 0,
+          "approximateEstimateCount": 0
+        },
+        "dayCount": 1,
+        "iterations": 1,
+        "selectedCount": 4,
+        "unselectedCount": 1,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": true,
+            "availableMinutes": 101.5866999999998
+          }
+        ],
+        "approximateTravel": false
+      },
+      "candidateDecisions": [
+        {
+          "id": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "name": "7e27f008-cfef-459e-8679-604cf14e34c4",
+          "order": 1,
+          "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "name": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+          "order": 2,
+          "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "d5bd351a-90f4-45bb-81d9-08c9f54b239c",
+          "name": "d5bd351a-90f4-45bb-81d9-08c9f54b239c",
+          "order": 3,
+          "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "name": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+          "order": 4,
+          "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "name": "5605206c-b5c6-451b-b896-c1c5c761a0c8",
+          "reason": "MAX_WALKING_PER_DAY_EXCEEDED, MAX_CONTINUOUS_WALKING_EXCEEDED",
+          "status": "UNSELECTED",
+          "reasonCodes": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Completitud del itinerario",
+      "rules": [
+        {
+          "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "No se detectaron días subutilizados con alternativas viables.",
+          "result": "PASS",
+          "ruleId": "COMP-DAY-USAGE-001"
+        }
+      ],
+      "stage": "tour_completeness",
+      "inputs": {
+        "retryAttempted": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "issues": [],
+        "complete": true
+      },
+      "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+      "decision": {
+        "reason": "La política de completitud no detectó déficit accionable.",
+        "status": "PASS",
+        "outcome": "TOUR_COMPLETE",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE"
+        ]
+      },
+      "component": "TourCompletenessValidator",
+      "providerStatus": "success",
+      "tourCompleteness": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      }
+    }
+  ],
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "visit"
+      ],
+      "interests": [
+        "art"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "quiero visitar lugares de arte, museos y galerías en Buenos Aires"
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 6000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "Buenos Aires, Argentina",
+      "latitude": -34.6037,
+      "longitude": -58.3816,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "completed",
+    "acquisition": {
+      "passes": 1,
+      "providersFailed": [],
+      "observationCount": 3,
+      "webCandidateCount": 0,
+      "approximateRouting": false,
+      "providersAttempted": [
+        "web",
+        "wikivoyage"
+      ],
+      "structuredCandidateCount": 3
+    },
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "PASS",
+        "ordinal": 1,
+        "summary": "Preferencias libres normalizadas y combinadas con filtros.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: art. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"quiero visitar lugares de arte, museos y galerías en Buenos Aires\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:Buenos Aires, Argentina.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "WARN",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 18
+        },
+        "status": "PASS",
+        "ordinal": 5,
+        "outcome": "none",
+        "summary": "Portafolio suficiente: 18 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 4
+        },
+        "status": "PASS",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "candidate_pool",
+        "counts": {
+          "offeredCandidateCount": 18
+        },
+        "status": "PASS",
+        "ordinal": 7,
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "summary": "Se evaluaron 18 experiencias elegibles y se ofrecieron 18 candidatas (18 catálogo, 0 adquisición, 0 discovery).",
+        "component": "ExperienceRankingEngine"
+      },
+      {
+        "stage": "embeddings",
+        "counts": {
+          "measuredRatio": 1,
+          "indexedCandidateCount": 18,
+          "offeredCandidateCount": 18
+        },
+        "status": "PASS",
+        "ordinal": 8,
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "summary": "Ranking semántico solicitado y aplicado sobre 18 candidato(s) elegible(s) del destino: 18 tenían un vector compatible con el índice activo y se ofrecieron 18 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+        "component": "VectorStoreService + pgvector"
+      },
+      {
+        "stage": "discovery",
+        "counts": {
+          "candidateCount": 3,
+          "observationCount": 3,
+          "webCandidateCount": 0,
+          "structuredCandidateCount": 3
+        },
+        "status": "PASS",
+        "ordinal": 9,
+        "summary": "Pase 1: fuentes [wikivoyage, web] → 3 observación(es) estructurada(s) + 3 candidate(s) (web: 0).",
+        "component": "ExperienceAcquisitionService"
+      },
+      {
+        "stage": "entity_resolution",
+        "counts": {
+          "rejectedCount": 2,
+          "candidateCount": 3,
+          "resolvedEntityCount": 1,
+          "resolutionReadyCount": 1,
+          "entitiesWithCoordinates": 1
+        },
+        "status": "PASS",
+        "ordinal": 10,
+        "outcome": "ENTITIES_READY_FOR_GEOGRAPHIC_VALIDATION",
+        "summary": "Entity resolution procesó 3 candidato(s): 1 quedaron con entidades concretas suficientes para continuar y 2 no pudieron resolverse. Se obtuvieron 1 entidad(es) provider-backed, 1 con coordenadas. Esta etapa no decide coherencia geográfica ni persiste la composite. Rechazadas: Centro Científico Tecnológicos.: NO_OSM_MATCH; Galería Güemes: NO_OSM_MATCH.",
+        "component": "ExperienceProposalResolverService"
+      },
+      {
+        "stage": "geographic_validation",
+        "counts": {
+          "rejectedCount": 1,
+          "geoVerifiedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 11,
+        "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+        "summary": "Validación geográfica: 0 propuesta(s) verificadas y 1 descartadas por coherencia espacial o falta de entidad real.",
+        "component": "CompositeGeographicValidationService"
+      },
+      {
+        "stage": "catalog_materialization",
+        "counts": {
+          "rejectedCount": 3,
+          "materializedCount": 0
+        },
+        "status": "WARN",
+        "ordinal": 12,
+        "outcome": "NO_EXPERIENCES_MATERIALIZED",
+        "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 3 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+        "component": "ExperienceCatalogService"
+      },
+      {
+        "stage": "daily_planning",
+        "counts": {
+          "score": 4,
+          "selectedCount": 4,
+          "unselectedCount": 1
+        },
+        "status": "PASS",
+        "ordinal": 13,
+        "outcome": "DAILY_PLAN_BUILT",
+        "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 4 Experience(s) seleccionada(s), 1 sin seleccionar (score total 4). Las estimaciones de traslado usadas son reales.",
+        "component": "GreedyDailyPlanningSolver"
+      },
+      {
+        "stage": "tour_completeness",
+        "status": "PASS",
+        "ordinal": 14,
+        "outcome": "TOUR_COMPLETE",
+        "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+        "component": "TourCompletenessValidator"
+      },
+      {
+        "stage": "tour_experience_materialization",
+        "counts": {
+          "componentSnapshots": 4,
+          "selectedExperiences": 4
+        },
+        "status": "PASS",
+        "ordinal": 15,
+        "outcome": "TOUR_EXPERIENCES_PERSISTED",
+        "summary": "4 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+        "component": "Prisma.TourExperience"
+      }
+    ],
+    "rejectedProposals": 2,
+    "acceptedExperiences": 4,
+    "selectedExperiences": 4
+  },
+  "tourCompleteness": {
+    "issues": [],
+    "complete": true,
+    "retryAttempted": false
+  },
+  "materializedTourExperiences": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "7e27f008-cfef-459e-8679-604cf14e34c4",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "ccf2ef9f-2443-4940-aa5f-be7d1e549f3f",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "d5bd351a-90f4-45bb-81d9-08c9f54b239c",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "17eb43e5-97be-4e8b-8b56-410ad7175e2d",
+      "durationHours": 2.000000000000002,
+      "componentCount": 1
+    }
+  ]
+}

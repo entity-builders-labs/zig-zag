@@ -1,0 +1,509 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Mafalda Statue",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1664,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Venezuela",
+        "country_code": "ve",
+        "state": "Miranda State",
+        "county": "Municipio Baruta",
+        "state_district": "Caracas Metropolitan District",
+        "city": "Caracas",
+        "municipality": "Parroquia Nuestra Señora del Rosario",
+        "postcode": "1080",
+        "district": "Colinas de Bello Monte",
+        "suburb": "Bello Monte",
+        "street": "Avenida Miguelangel",
+        "iso3166_2": "VE-M",
+        "lon": -66.8729336,
+        "lat": 10.4862107,
+        "state_code": "M",
+        "result_type": "amenity",
+        "distance": 5093096.95561286,
+        "formatted": "Mafalda, Avenida Miguelangel, Caracas 1080, L, Venezuela",
+        "address_line1": "Mafalda",
+        "address_line2": "Avenida Miguelangel, Caracas 1080, L, Venezuela",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Caracas",
+          "offset_STD": "-04:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -14400,
+          "offset_DST_seconds": -14400
+        },
+        "plus_code": "772MF4PG+FR",
+        "plus_code_short": "PG+FR Caracas, Municipio Baruta, Venezuela",
+        "rank": {
+          "importance": 0.00007397192339966457,
+          "confidence": 0.5,
+          "match_type": "full_match"
+        },
+        "place_id": "5117e5e324deb750c05938eede9bf0f82440f00103f901198cc39002000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -66.8729836,
+          "lat1": 10.4861607,
+          "lon2": -66.8728836,
+          "lat2": 10.4862607
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Italy",
+        "country_code": "it",
+        "state": "Abruzzo",
+        "county": "Chieti",
+        "city": "Tufillo",
+        "street": "Strada Statale 650 di Fondo Valle Trigno",
+        "iso3166_2": "IT-65",
+        "iso3166_2_sublevel": "IT-CH",
+        "lon": 14.6644781,
+        "lat": 41.9286277,
+        "state_code": "ABR",
+        "result_type": "amenity",
+        "distance": 11296283.559351616,
+        "postcode": "66050",
+        "county_code": "CH",
+        "NUTS_3": "ITF14",
+        "formatted": "Mafalda, Strada Statale 650 di Fondo Valle Trigno, 66050 Tufillo CH, Italy",
+        "address_line1": "Mafalda",
+        "address_line2": "Strada Statale 650 di Fondo Valle Trigno, 66050 Tufillo CH, Italy",
+        "timezone": {
+          "name": "Europe/Rome",
+          "offset_STD": "+01:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 3600,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "CET",
+          "abbreviation_DST": "CEST"
+        },
+        "plus_code": "8FHPWMH7+FQ",
+        "plus_code_short": "WMH7+FQ Tufillo, Chieti, Italy",
+        "rank": {
+          "importance": 0.00005921034561680045,
+          "confidence": 0.5,
+          "match_type": "full_match"
+        },
+        "place_id": "5102d1387936542d405971d4c045ddf64440f00103f90179a2df2d00000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": 14.6644281,
+          "lat1": 41.9285777,
+          "lon2": 14.6645281,
+          "lat2": 41.9286777
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Macallan Drive",
+        "country": "United States",
+        "country_code": "us",
+        "state": "Florida",
+        "county": "Hillsborough County",
+        "city": "Citrus Park",
+        "postcode": "33624",
+        "street": "Macallan Drive",
+        "iso3166_2": "US-FL",
+        "lon": -82.5462864,
+        "lat": 28.1022226,
+        "state_code": "FL",
+        "result_type": "street",
+        "distance": 7420948.547686248,
+        "formatted": "Macallan Drive, Citrus Park, FL 33624, United States of America",
+        "address_line1": "Macallan Drive",
+        "address_line2": "Citrus Park, FL 33624, United States of America",
+        "timezone": {
+          "name": "America/New_York",
+          "offset_STD": "-05:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "EST",
+          "abbreviation_DST": "EDT"
+        },
+        "plus_code": "76WV4F23+VF",
+        "plus_code_short": "4F23+VF, 33624 Citrus Park, United States",
+        "rank": {
+          "importance": 0.05337333409628439,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51f98f3b5bf6a254c0597fe9a3422b1a3c40f00102f90127c7a70000000000c0020492030e4d6163616c6c616e204472697665",
+        "bbox": {
+          "lon1": -82.547467,
+          "lat1": 28.101883,
+          "lon2": -82.5448662,
+          "lat2": 28.102472
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda Street",
+        "country": "United States",
+        "country_code": "us",
+        "state": "Rhode Island",
+        "county": "Providence County",
+        "city": "North Providence",
+        "postcode": "02904",
+        "district": "Geneva",
+        "street": "Mafalda Street",
+        "iso3166_2": "US-RI",
+        "lon": -71.4393621,
+        "lat": 41.8606741,
+        "state_code": "RI",
+        "result_type": "street",
+        "distance": 8606135.555500882,
+        "formatted": "Mafalda Street, North Providence, RI 02904, United States of America",
+        "address_line1": "Mafalda Street",
+        "address_line2": "North Providence, RI 02904, United States of America",
+        "timezone": {
+          "name": "America/New_York",
+          "offset_STD": "-05:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "EST",
+          "abbreviation_DST": "EDT"
+        },
+        "plus_code": "87HCVH66+77",
+        "plus_code_short": "VH66+77 North Providence, Providence County, United States",
+        "rank": {
+          "importance": 0.053385162890058714,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5185a636821edc51c059d201a4912aee4440f00102f901c13f0e5400000000c0020492030e4d6166616c646120537472656574",
+        "bbox": {
+          "lon1": -71.4396267,
+          "lat1": 41.8605583,
+          "lon2": -71.439332,
+          "lat2": 41.8609527
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Macallan Drive",
+        "country": "United States",
+        "country_code": "us",
+        "state": "South Carolina",
+        "county": "Sumter County",
+        "city": "Pocalla Springs",
+        "postcode": "29150",
+        "street": "Macallan Drive",
+        "iso3166_2": "US-SC",
+        "lon": -80.3588208,
+        "lat": 33.8727167,
+        "state_code": "SC",
+        "district": "Pocalla Springs",
+        "result_type": "street",
+        "distance": 7950995.216301626,
+        "formatted": "Macallan Drive, Pocalla Springs, SC 29150, United States of America",
+        "address_line1": "Macallan Drive",
+        "address_line2": "Pocalla Springs, SC 29150, United States of America",
+        "timezone": {
+          "name": "America/New_York",
+          "offset_STD": "-05:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "EST",
+          "abbreviation_DST": "EDT"
+        },
+        "plus_code": "865XVJFR+3F",
+        "rank": {
+          "importance": 0.05338981231403064,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51f94784ebf61654c05926964a2eb5ef4040f00102f901ec458d1600000000c0020492030e4d6163616c6c616e204472697665",
+        "bbox": {
+          "lon1": -80.3589287,
+          "lat1": 33.8719416,
+          "lon2": -80.3587158,
+          "lat2": 33.8734922
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafahlaneng Memorial Park",
+        "country": "South Africa",
+        "country_code": "za",
+        "state": "Free State",
+        "county": "Fezile Dabi District Municipality",
+        "city": "Mafube Local Municipality",
+        "town": "Tweeling",
+        "suburb": "Mafube Ward 8",
+        "iso3166_2": "ZA-FS",
+        "lon": 28.5204625,
+        "lat": -27.5603516,
+        "state_code": "FS",
+        "district": "Mafube Ward 8",
+        "result_type": "amenity",
+        "distance": 8051719.398852959,
+        "formatted": "Mafahlaneng Memorial Park, Mafube Ward 8, Mafube Local Municipality, Fezile Dabi District Municipality, South Africa",
+        "address_line1": "Mafahlaneng Memorial Park",
+        "address_line2": "Mafube Ward 8, Mafube Local Municipality, Fezile Dabi District Municipality, South Africa",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "Africa/Johannesburg",
+          "offset_STD": "+02:00",
+          "offset_DST": "+02:00",
+          "offset_STD_seconds": 7200,
+          "offset_DST_seconds": 7200,
+          "abbreviation_STD": "SAST",
+          "abbreviation_DST": "SAST"
+        },
+        "plus_code": "5G4CCGQC+V5",
+        "rank": {
+          "importance": 0.08003868390936138,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515e4bc8073d853c4059e342d433738f3bc0f00102f9017a7afe5300000000c002019203194d616661686c616e656e67204d656d6f7269616c205061726b",
+        "bbox": {
+          "lon1": 28.5182075,
+          "lat1": -27.561192,
+          "lon2": 28.5216702,
+          "lat2": -27.5585217
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Macallan Park",
+        "country": "United States",
+        "country_code": "us",
+        "state": "Alabama",
+        "county": "Shelby County",
+        "city": "Pelham",
+        "iso3166_2": "US-AL",
+        "lon": -86.7388638,
+        "lat": 33.2600795,
+        "state_code": "AL",
+        "result_type": "amenity",
+        "distance": 8104924.071556201,
+        "county_code": "SHE",
+        "formatted": "Macallan Park, Pelham, AL, United States of America",
+        "address_line1": "Macallan Park",
+        "address_line2": "Pelham, AL, United States of America",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Chicago",
+          "offset_STD": "-06:00",
+          "offset_DST": "-05:00",
+          "offset_STD_seconds": -21600,
+          "offset_DST_seconds": -18000,
+          "abbreviation_STD": "CST",
+          "abbreviation_DST": "CDT"
+        },
+        "plus_code": "865M7766+2F",
+        "plus_code_short": "7766+2F Pelham, Shelby County, United States",
+        "rank": {
+          "importance": 0.08005401922636755,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51b14c648b49af55c059166ef9484aa14040f00102f901f0bf241c00000000c0020192030d4d6163616c6c616e205061726b",
+        "bbox": {
+          "lon1": -86.7393717,
+          "lat1": 33.2594649,
+          "lon2": -86.7382729,
+          "lat2": 33.2604838
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Macallan Lane",
+        "country": "United States",
+        "country_code": "us",
+        "state": "Alabama",
+        "county": "Shelby County",
+        "city": "Pelham",
+        "postcode": "35050",
+        "street": "Macallan Lane",
+        "iso3166_2": "US-AL",
+        "lon": -86.7320745,
+        "lat": 33.2598846,
+        "state_code": "AL",
+        "result_type": "street",
+        "distance": 8104646.099504887,
+        "county_code": "SHE",
+        "formatted": "Macallan Lane, Pelham, AL 35050, United States of America",
+        "address_line1": "Macallan Lane",
+        "address_line2": "Pelham, AL 35050, United States of America",
+        "timezone": {
+          "name": "America/Chicago",
+          "offset_STD": "-06:00",
+          "offset_DST": "-05:00",
+          "offset_STD_seconds": -21600,
+          "offset_DST_seconds": -18000,
+          "abbreviation_STD": "CST",
+          "abbreviation_DST": "CDT"
+        },
+        "plus_code": "865M7759+X5",
+        "plus_code_short": "7759+X5, 35050 Pelham, United States",
+        "rank": {
+          "importance": 0.05338735255970089,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5113ef004fdaae55c059f5dd08e643a14040f00102f901f6f77a1600000000c0020492030d4d6163616c6c616e204c616e65",
+        "bbox": {
+          "lon1": -86.7320756,
+          "lat1": 33.2595744,
+          "lon2": -86.7320352,
+          "lat2": 33.2601927
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Macallan Parkway",
+        "country": "United States",
+        "country_code": "us",
+        "state": "Virginia",
+        "county": "Henrico County",
+        "postcode": "23231",
+        "street": "Macallan Parkway",
+        "iso3166_2": "US-VA",
+        "lon": -77.3209875,
+        "lat": 37.4540221,
+        "state_code": "VA",
+        "result_type": "street",
+        "distance": 8247997.151494459,
+        "formatted": "Macallan Parkway, Henrico County, VA 23231, United States of America",
+        "address_line1": "Macallan Parkway",
+        "address_line2": "Henrico County, VA 23231, United States of America",
+        "timezone": {
+          "name": "America/New_York",
+          "offset_STD": "-05:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "EST",
+          "abbreviation_DST": "EDT"
+        },
+        "plus_code": "8794FM3H+JJ",
+        "rank": {
+          "importance": 0.05337085755703056,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5130bb270f8b5453c059a4946b651dba4240f00102f9011ebb310c00000000c002049203104d6163616c6c616e205061726b776179",
+        "bbox": {
+          "lon1": -77.3287955,
+          "lat1": 37.4520096,
+          "lon2": -77.3206786,
+          "lat2": 37.4641031
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda Drive",
+        "country": "United States",
+        "country_code": "us",
+        "state": "New York",
+        "county": "Erie County",
+        "city": "Town of Cheektowaga",
+        "postcode": "14215",
+        "street": "Mafalda Drive",
+        "iso3166_2": "US-NY",
+        "lon": -78.786915,
+        "lat": 42.9414821,
+        "state_code": "NY",
+        "result_type": "street",
+        "distance": 8868352.18318234,
+        "county_code": "ERI",
+        "formatted": "Mafalda Drive, Cheektowaga, NY 14215, United States of America",
+        "address_line1": "Mafalda Drive",
+        "address_line2": "Cheektowaga, NY 14215, United States of America",
+        "timezone": {
+          "name": "America/New_York",
+          "offset_STD": "-05:00",
+          "offset_DST": "-04:00",
+          "offset_STD_seconds": -18000,
+          "offset_DST_seconds": -14400,
+          "abbreviation_STD": "EST",
+          "abbreviation_DST": "EDT"
+        },
+        "plus_code": "87J3W6R7+H6",
+        "rank": {
+          "importance": 0.053381448844129056,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51d66ebbd05cb253c0597ca2467c82784540f00102f9010283bb0000000000c0020492030d4d6166616c6461204472697665",
+        "bbox": {
+          "lon1": -78.789742,
+          "lat1": 42.941468,
+          "lon2": -78.784088,
+          "lat2": 42.941494
+        }
+      }
+    ],
+    "query": {
+      "text": "Mafalda Statue",
+      "categories": []
+    }
+  }
+}

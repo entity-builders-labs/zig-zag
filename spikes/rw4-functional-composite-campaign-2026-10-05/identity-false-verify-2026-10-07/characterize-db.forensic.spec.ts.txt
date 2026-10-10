@@ -1,0 +1,15 @@
+import * as fs from 'fs';
+import { nameCorrespondence } from '../utils/identity-name-correspondence.util';
+it('characterizes persisted hint memory', () => {
+  const db = JSON.parse(fs.readFileSync(process.env.DB!, 'utf8'));
+  const rows = db.geoEntities.flatMap((e: any) =>
+    e.hints.map((hint: string) => ({
+      hint,
+      entity: e.name,
+      kind: e.kind,
+      ids: e.identities,
+      correspondence: nameCorrespondence(hint, e.name),
+    })),
+  );
+  fs.writeFileSync(process.env.OUT!, JSON.stringify(rows, null, 1));
+});

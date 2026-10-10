@@ -1,0 +1,191 @@
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[NestFactory] [39m[32mStarting Nest application...[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPassportModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mCommandsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mScriptsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigHostModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mQueueModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +1ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mConfigModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[LangChainService] [39m[32mAI provider: groq, chat model: qwen/qwen3.8-27b[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[LangChainService] [39m[32mAI models initialized successfully[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mSerperModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPrismaModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mJwtModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOutboxModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAiModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[IntegrationsModule] [39m[32mPlaces provider: Geoapify; available=true; cache=disabled[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mIntegrationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mWikidataModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mMediaModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAppModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mOsmModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mNotificationsModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mPhotosModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mAuthModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[InstanceLoader] [39m[32mToursModule dependencies initialized[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAppController {/}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/health, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mSSEController {/notifications}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/tours/:tourId/stream, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/experiences/:experienceId/stream, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mDevicesController {/notifications/devices}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/web, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/web, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/notifications/devices/:token, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mAuthController {/auth}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/google, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/apple, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/email/request-code, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/email/verify, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/refresh, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/logout, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/auth/me, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RoutesResolver] [39m[32mToursController {/tours}:[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/experiences/nearby, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/experiences/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/generate-tour, POST} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/nearby, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, GET} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, PATCH} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[RouterExplorer] [39m[32mMapped {/tours/:id, DELETE} route[39m[38;5;3m +0ms[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32mInitializing embeddings with provider: ollama[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32mUsing Ollama at http://localhost:11434 for embeddings[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[AiEmbeddingService] [39m[32m✓ Ollama embeddings initialized (model: nomic-embed-text)[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_8[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_8[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[OutboxPublisherService] [39m[32m[OutboxPublisher] Starting periodic poller (interval: 1500ms, batchSize: 50, leaseDuration: 30s).[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[OutboxCleanerService] [39m[32m[OutboxCleaner] Starting periodic cleaner (interval: 1440min, publishedRetention: 7d, failedRetention: 30d, batchSize: 500).[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_8[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "ExperienceMediaEnrichmentRequested".[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[MediaEnrichmentProcessorService] [39m[32m[MediaEnrichmentProcessor] Subscribed to topic "ExperienceMediaEnrichmentRequested".[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourGenerationRequested".[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[TourGenerationProcessorService] [39m[32m[TourGenerationProcessor] Subscribed to topic "TourGenerationRequested".[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_8[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mConnecting to database: postgresql://postgres:***@localhost:5432/zigzag_spike_rw4_canonical_cold_8[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourCompleted".[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourFailed".[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "TourProgressUpdated".[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Registered subscriber for topic "ExperienceMediaUpdated".[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[NotificationDeliveryService] [39m[32m[NotificationDelivery] Subscribed to domain events (TourCompleted, TourFailed, TourProgressUpdated, ExperienceMediaUpdated).[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[PrismaService] [39m[32mSuccessfully connected to database[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:43 [32m    LOG[39m [38;5;3m[NestApplication] [39m[32mNest application successfully started[39m[38;5;3m +0ms[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:43 [95m  DEBUG[39m [95mIncoming GET /[39m
+[0mGET / [33m404[0m 1.714 ms - 63[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:45 [95m  DEBUG[39m [95mIncoming POST /auth/email/request-code[39m
+[33m[Nest] 7406  - [39m01/10/2026, 03:53:45 [33m   WARN[39m [38;5;3m[MailerService] [39m[33mNODE_ENV is not 'production' — skipping the real login code email to rw3-spike-rw4-mendoza-cold-1790880825236@example.com (devCode is returned in the API response instead).[39m
+[0mPOST /auth/email/request-code [32m201[0m 57.967 ms - 49[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:45 [95m  DEBUG[39m [95mIncoming POST /auth/email/verify[39m
+[0mPOST /auth/email/verify [32m201[0m 21.028 ms - 725[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:45 [95m  DEBUG[39m [95mIncoming POST /tours/generate-tour[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:45 [32m    LOG[39m [38;5;3m[TourGenerationService] [39m[32mCreating tour from wizard with canonical intent: Create a tour from this canonical wizard intent:
+Destination: Mendoza, Argentina
+Number of days: 1
+B...[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:45 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourGenerationRequested" (id: 907a03ee-5e7f-4a60-b04a-4cc370d0f603) in transaction.[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:45 [32m    LOG[39m [38;5;3m[TourGenerationService] [39m[32mTour created with ID 57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 and durable generation request (DB: 39ms, total: 39ms).[39m
+[0mPOST /tours/generate-tour [32m201[0m 48.410 ms - 1818[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:45 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 20.919 ms - 1818[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:46 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Successfully claimed 1 outbox event(s). Dispatching...[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:46 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourGenerationRequested" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:46 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 06e15cb8-e4a3-4cd3-908a-6135da45ea6e) in transaction.[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:47 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 30.023 ms - 1932[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:49 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 559.659 ms - 1932[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:50 [95m  DEBUG[39m [38;5;3m[TourImageService] [39m[95m[TourImageService] Resolving authentic destination photo for tour "Mendoza, Argentina" (Mendoza, Argentina)...[39m
+[33m[Nest] 7406  - [39m01/10/2026, 03:53:51 [33m   WARN[39m [38;5;3m[GeoapifyPlacesApiService] [39m[33mGeoapify Places text search requires a locationBias to search safely; skipped query: "Ruta del Vino de Mendoza"[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:52 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:52 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 0fb71242-5023-4be3-ad48-186590a42637) in transaction.[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:52 [32m    LOG[39m [38;5;3m[TourImageService] [39m[32m[TourImageService] Resolved and saved authentic destination photo for tour 57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23: https://thumb.wikimedia.org/wikipedia/commons/thumb/8/87/Siguiendo_al_Libertador.jpg/1280px-Siguiendo_al_Libertador.jpg?utm_source=es.wikipedia.org&utm_campaign=api&utm_content=thumbnail[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 493.310 ms - 1932[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:52 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 0fbb8f86-4919-4b68-9253-a8ad998a5077) in transaction.[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:52 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, google_places, web][39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:52 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 657a370a-198e-40b5-9cbb-8d4145b4e0f5) in transaction.[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:53:52 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, web][39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:54 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 9.003 ms - 2159[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:56 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 23.387 ms - 2159[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:53:58 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 47.674 ms - 2159[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:00 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 33.282 ms - 2159[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:02 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 43.054 ms - 2159[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:04 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 27.843 ms - 2159[0m
+[33m[Nest] 7406  - [39m01/10/2026, 03:54:06 [33m   WARN[39m [38;5;3m[CloudflareWebSourceContentProvider] [39m[33mCloudflare Browser Run error 429 for https://www.discoverywinemendoza.com/en/blog-ruta-del-vino.html: {"success":false,"errors":[{"code":2001,"message":"Rate limit exceeded"}]}[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:06 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 41.686 ms - 2159[0m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:08 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 0/0 Experience candidate(s) against trusted geography[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:08 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 827ab38f-1bd1-4338-822b-1a0e41361b52) in transaction.[39m
+[33m[Nest] 7406  - [39m01/10/2026, 03:54:08 [33m   WARN[39m [38;5;3m[GeoapifyPlacesApiService] [39m[33mNo Geoapify category mapping found for types: winery[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:08 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 22.152 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:10 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 12.732 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:13 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 35.472 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:15 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 30.737 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:17 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 57.878 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:18 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse none for hint "Bodega Don Manuel Villafañe"[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:19 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 16.073 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:21 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 17.203 ms - 2147[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:21 [95m  DEBUG[39m [38;5;3m[ExperienceProposalResolverService] [39m[95m[P2-B] reuse none for hint "Bodega El Enemigo de Alejandro Vigil"[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:23 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 37.852 ms - 2147[0m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:25 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 0/1 Experience candidate(s) against trusted geography[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:25 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, google_places, web][39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:25 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: 7d0a5f40-a26a-47e9-b58d-4e1e3d764129) in transaction.[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:25 [32m    LOG[39m [38;5;3m[ExperienceAcquisitionPlannerService] [39m[32mBuilt acquisition plan for "Ciudad de Mendoza" with 1 deficits: [wikivoyage, web][39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:25 [32m    LOG[39m [38;5;3m[ExperienceProposalResolverService] [39m[32mResolved 0/0 Experience candidate(s) against trusted geography[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:25 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourProgressUpdated" (id: b2d83dd2-572e-4609-9b9a-69f79078a12c) in transaction.[39m
+[33m[Nest] 7406  - [39m01/10/2026, 03:54:25 [33m   WARN[39m [38;5;3m[ExperienceGenerationService] [39m[33mExperience catalog/acquisition pipeline failed: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:25 [95m  DEBUG[39m [38;5;3m[OutboxService] [39m[95m[OutboxService] Enqueued event "TourFailed" (id: 5edc9d28-c4a1-46d5-b1aa-7d4417b6bfe6) in transaction.[39m
+[31m[Nest] 7406  - [39m01/10/2026, 03:54:25 [31m  ERROR[39m [38;5;3m[ExperienceGenerationService] [39m[31mFailed to generate experiences for tour 57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.[39m
+Error: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.
+    at ExperienceGenerationService.<anonymous> (/Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/be/dist/src/modules/tours/services/experience-generation.service.js:753:55)
+    at Generator.next (<anonymous>)
+    at fulfilled (/Users/jiseruk/projects/zig-zag/.worktrees/ui-redesign/be/dist/src/modules/tours/services/experience-generation.service.js:17:58)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[31m[Nest] 7406  - [39m01/10/2026, 03:54:25 [31m  ERROR[39m [38;5;3m[InMemoryQueueService] [39m[31m[InMemoryQueue] 1/1 handler(s) failed for topic "TourGenerationRequested": BadRequestException: Failed to generate experiences: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.[39m
+[33m[Nest] 7406  - [39m01/10/2026, 03:54:25 [33m   WARN[39m [38;5;3m[OutboxPublisherService] [39m[33m[OutboxPublisher] Transient error publishing "TourGenerationRequested" (id: 907a03ee-5e7f-4a60-b04a-4cc370d0f603, attempt: 1/5). Retrying in 2s at 2026-10-01T18:54:27.170Z. Error: Consumer failure for topic "TourGenerationRequested": BadRequestException: Failed to generate experiences: Coverage insuficiente después de catálogo y adquisición multi-fuente acotada: Preference facet [theme:wine] has no strong catalog match yet., Preference facet [intent:route_like] has no strong catalog match yet.[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:25 [95m  DEBUG[39m [95mIncoming GET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23[39m
+[0mGET /tours/57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 [32m200[0m 13.523 ms - 92728[0m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Successfully claimed 8 outbox event(s). Dispatching...[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 06e15cb8-e4a3-4cd3-908a-6135da45ea6e).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 0fb71242-5023-4be3-ad48-186590a42637).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 0fbb8f86-4919-4b68-9253-a8ad998a5077).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 657a370a-198e-40b5-9cbb-8d4145b4e0f5).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 827ab38f-1bd1-4338-822b-1a0e41361b52).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: 7d0a5f40-a26a-47e9-b58d-4e1e3d764129).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourProgressUpdated" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourProgressUpdated" (id: b2d83dd2-572e-4609-9b9a-69f79078a12c).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourFailed" to 1 subscriber(s).[39m
+[32m[Nest] 7406  - [39m01/10/2026, 03:54:26 [32m    LOG[39m [38;5;3m[NotificationDeliveryService] [39m[32m[NotificationDelivery] SSE stream inactive for tour "57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23". Routing to Push Notification fallback...[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[PushNotificationService] [39m[95m[PushNotification] No active devices found for user "e921d40e-ca31-47fe-adc1-b4999d9e5da3".[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:26 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourFailed" (id: 5edc9d28-c4a1-46d5-b1aa-7d4417b6bfe6).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:28 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Successfully claimed 1 outbox event(s). Dispatching...[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:28 [95m  DEBUG[39m [38;5;3m[InMemoryQueueService] [39m[95m[InMemoryQueue] Dispatching topic "TourGenerationRequested" to 1 subscriber(s).[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:28 [95m  DEBUG[39m [38;5;3m[TourGenerationProcessorService] [39m[95m[TourGenerationProcessor] tour-generation:57bdebd5-ea14-4a7f-b3d3-1f21c39e3c23 already failed terminally; duplicate delivery is a no-op.[39m
+[95m[Nest] 7406  - [39m01/10/2026, 03:54:28 [95m  DEBUG[39m [38;5;3m[OutboxPublisherService] [39m[95m[OutboxPublisher] Published event "TourGenerationRequested" (id: 907a03ee-5e7f-4a60-b04a-4cc370d0f603).[39m

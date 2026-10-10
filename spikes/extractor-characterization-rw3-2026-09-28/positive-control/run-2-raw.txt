@@ -1,0 +1,59 @@
+[
+  {
+    "name": "Private Caminito & La Boca Walking Tour",
+    "description": "A private walking tour of the La Boca neighborhood that visits Caminito, the Benito Quinquela Martin Museum, and the La Bombonera stadium.",
+    "themes": [
+      "culture",
+      "architecture",
+      "art"
+    ],
+    "traits": [
+      "private tour",
+      "neighborhood exploration"
+    ],
+    "intents": [
+      "walk",
+      "visit"
+    ],
+    "suggestedDurationMinutes": 120,
+    "componentHints": [
+      {
+        "key": "caminito",
+        "name": "Caminito",
+        "role": "waypoint",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "supportSpan": "Visit Caminito"
+      },
+      {
+        "key": "benito-quinquela-martin-museum",
+        "name": "Benito Quinquela Martin Museum",
+        "role": "waypoint",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "supportSpan": "Benito Quinquela Martin Museum"
+      },
+      {
+        "key": "la-bambonera-stadium",
+        "name": "La Bombonera",
+        "role": "waypoint",
+        "expectedKind": "PLACE",
+        "evidenceKeys": [
+          "ev-5"
+        ],
+        "sourceName": "La Bambonera stadium",
+        "normalizationKind": "TYPO_CORRECTION",
+        "supportSpan": "La Bambonera stadium"
+      }
+    ],
+    "evidenceKeys": [
+      "ev-5"
+    ],
+    "shortReason": "Evidence explicitly describes a private walking tour containing these three specific geographic components.",
+    "orderedByEvidence": false
+  }
+]

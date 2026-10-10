@@ -1,0 +1,10 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the restaurant without directing a visit."
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+ "experienceId": "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+ "canonicalName": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+ "durationMinutes": null,
+ "plannerDurationMinutes": 90,
+ "componentFootprintCount": 8,
+ "legs": [
+  {
+   "from": {
+    "lat": -34.6080692,
+    "lng": -58.3702762
+   },
+   "to": {
+    "lat": -34.607476,
+    "lng": -58.3732471
+   },
+   "walkingDistanceMeters": 466,
+   "walkingMinutes": 8.521683333333334,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.607476,
+    "lng": -58.3732471
+   },
+   "to": {
+    "lat": -34.6087695,
+    "lng": -58.3738806
+   },
+   "walkingDistanceMeters": 197,
+   "walkingMinutes": 3.1119,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6087695,
+    "lng": -58.3738806
+   },
+   "to": {
+    "lat": -34.62262612999997,
+    "lng": -58.370169098823496
+   },
+   "walkingDistanceMeters": 1855,
+   "walkingMinutes": 27.833033333333333,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.62262612999997,
+    "lng": -58.370169098823496
+   },
+   "to": {
+    "lat": -34.6183462,
+    "lng": -58.3700905
+   },
+   "walkingDistanceMeters": 547,
+   "walkingMinutes": 7.979866666666666,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6183462,
+    "lng": -58.3700905
+   },
+   "to": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "walkingDistanceMeters": 317,
+   "walkingMinutes": 4.856583333333333,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6190607,
+    "lng": -58.3722354
+   },
+   "to": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "walkingDistanceMeters": 176,
+   "walkingMinutes": 2.7637833333333335,
+   "provider": "geoapify",
+   "approximate": false
+  },
+  {
+   "from": {
+    "lat": -34.6204739,
+    "lng": -58.3717792
+   },
+   "to": {
+    "lat": -34.6271301,
+    "lng": -58.369574
+   },
+   "walkingDistanceMeters": 873,
+   "walkingMinutes": 13.815716666666667,
+   "provider": "geoapify",
+   "approximate": false
+  }
+ ],
+ "internalWalkingDistanceMeters": 4431,
+ "maxInternalContinuousWalkingDistanceMeters": 1855,
+ "internalWalkingMinutes": 68.88256666666666
+}

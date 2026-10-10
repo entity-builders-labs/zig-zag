@@ -1,0 +1,1171 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "PLAZA DE MAYO",
+          "supportSpan": "PLAZA DE MAYO",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading starting tour at Plaza de Mayo"
+    },
+    {
+      "atomId": "a-003",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs visit to Plaza de Mayo"
+    },
+    {
+      "atomId": "a-004",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Museo del Cabildo",
+          "supportSpan": "Museo del Cabildo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "National Bank",
+          "supportSpan": "National Bank",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Surrounding landmarks mentioned"
+    },
+    {
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-007",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions feature inside Plaza de Mayo"
+    },
+    {
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-009",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions seeing Casa Rosada"
+    },
+    {
+      "atomId": "a-010",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-011",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-012",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-013",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-015",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-016",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-017",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-018",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-020",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions seeing Cabildo"
+    },
+    {
+      "atomId": "a-021",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-022",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions location near Cabildo"
+    },
+    {
+      "atomId": "a-023",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-025",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Catedral",
+          "supportSpan": "Catedral",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Inside the cathedral visit"
+    },
+    {
+      "atomId": "a-026",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-027",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-028",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-029",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-030",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-031",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-032",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-033",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Go to street Defensa"
+    },
+    {
+      "atomId": "a-034",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-035",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Feria San Telmo",
+          "supportSpan": "Feria San Telmo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mention of street fair event"
+    },
+    {
+      "atomId": "a-036",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-037",
+      "classification": "PASS_BY",
+      "entities": [],
+      "reason": "Description of walking"
+    },
+    {
+      "atomId": "a-038",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-039",
+      "classification": "PASS_BY",
+      "entities": [],
+      "reason": "Wander around neighborhood"
+    },
+    {
+      "atomId": "a-040",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-041",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Character of San Telmo"
+    },
+    {
+      "atomId": "a-042",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Estados Unidos",
+          "supportSpan": "Estados Unidos",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Go to street Estados Unidos"
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-044",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-045",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Bar Sur",
+          "supportSpan": "Bar Sur",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See Bar Sur on corner"
+    },
+    {
+      "atomId": "a-046",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Paseo de Colon",
+          "supportSpan": "Paseo de Colon",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Cross street Paseo de Colon"
+    },
+    {
+      "atomId": "a-047",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "MetroBus",
+          "supportSpan": "MetroBus",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See infrastructure"
+    },
+    {
+      "atomId": "a-048",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-049",
+      "classification": "PASS_BY",
+      "entities": [],
+      "reason": "See big building"
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-052",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-053",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-054",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Go back to street Defensa"
+    },
+    {
+      "atomId": "a-055",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Pass entrance of market"
+    },
+    {
+      "atomId": "a-056",
+      "classification": "ITINERARY_STOP",
+      "entities": [],
+      "reason": "Jump inside market"
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-058",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-059",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-061",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Not far from mercado is Plaza Dorrego"
+    },
+    {
+      "atomId": "a-062",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-063",
+      "classification": "PASS_BY",
+      "entities": [],
+      "reason": "Description of square"
+    },
+    {
+      "atomId": "a-064",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Avenida San Juan",
+          "supportSpan": "Avenida San Juan",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Walk on street"
+    },
+    {
+      "atomId": "a-065",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Museum of Modern Arts",
+          "supportSpan": "Museum of Modern Arts",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Museum is nearby"
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Avenida Paseo Colon",
+          "supportSpan": "Avenida Paseo Colon",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Walk up to avenue"
+    },
+    {
+      "atomId": "a-067",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Club Atlético",
+          "supportSpan": "Club Atlético",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See memory under bridge"
+    },
+    {
+      "atomId": "a-068",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-069",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-070",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-071",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Head back to street"
+    },
+    {
+      "atomId": "a-073",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "See park on left side"
+    },
+    {
+      "atomId": "a-074",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-075",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-077",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [],
+      "reason": "Enjoy the park"
+    },
+    {
+      "atomId": "a-079",
+      "classification": "ITINERARY_STOP",
+      "entities": [],
+      "reason": "Make a stop at national history museum"
+    },
+    {
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Located at street side of park"
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-082",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Avenida Caseros",
+          "supportSpan": "Avenida Caseros",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Across museum see avenue"
+    },
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-084",
+      "classification": "PASS_BY",
+      "entities": [],
+      "reason": "Walk on walkway"
+    },
+    {
+      "atomId": "a-085",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Boca",
+          "supportSpan": "Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Get on public bus to Boca",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-086",
+      "classification": "TRANSFER",
+      "entities": [],
+      "reason": "Or take a taxi",
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-090",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "El Caminito",
+          "supportSpan": "El Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Arrive at El Caminito"
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-096",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-097",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-098",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "La Bombonera",
+          "supportSpan": "La Bombonera",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Visit La Bombonera"
+    },
+    {
+      "atomId": "a-099",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-100",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-101",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-102",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-103",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-104",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-105",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Take bus or taxi back to San Telmo",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-106",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-107",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-108",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-109",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-110",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-111",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-112",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-113",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-114",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-115",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-116",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-117",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-118",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-119",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-120",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-121",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-122",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-123",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-124",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-125",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-126",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-127",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-128",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-129",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-130",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-131",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-132",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-133",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-134",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-135",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-136",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-137",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-138",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-139",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-140",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-141",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-142",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-143",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-144",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-145",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-146",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-147",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-148",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-149",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-150",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-151",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-152",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-153",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-154",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-155",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-156",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-157",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-158",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-159",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-160",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-161",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-162",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-163",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-164",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-165",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-166",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-167",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-168",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-169",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-170",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-174",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-175",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-176",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-178",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-180",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-181",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-182",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    }
+  ]
+}

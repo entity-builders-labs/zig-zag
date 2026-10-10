@@ -1,0 +1,80 @@
+// @ts-nocheck
+/**
+ * Impact-matrix replay: the real ExperienceProposalResolverService over the
+ * real local Overpass pool (Buenos Aires, osm:relation:1224652), the real
+ * local Nominatim and live read-only Wikidata. Places is a recorded stub:
+ * the exact records C3/RW1 Geoapify returned, with their declared OSM ids.
+ */
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { OverpassApiService } from '@integrations/osm/services/overpass-api.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { NominatimApiService } from '@integrations/osm/services/nominatim-api.service';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { overpassElementToGeoJson } from '@integrations/osm/utils/osm-geometry.util';
+import { ExperienceProposalResolverService } from './modules/tours/services/experience-proposal-resolver.service';
+import { withDefaultGeographicAuthorization } from './modules/tours/utils/geographic-validation-authorization.util';
+jest.setTimeout(1800000);
+
+const PLACES: Record<string, { id: string; name: string; lat: number; lon: number; osm: string; qid?: string }> = {
+  'Club Atlético': { id: 'c3-ca', name: 'Club Atlético San Lorenzo de Almagro - Sede Boedo', lat: -34.6349503, lon: -58.4238986, osm: 'osm:way:23634484' },
+  'National Bank': { id: 'c3-nb', name: 'Edificio First National Bank of Boston', lat: -34.6070608, lon: -58.3748214, osm: 'osm:relation:9254658', qid: 'Q5818109' },
+  'Farmacia la Estrella': { id: 'rw1-fa', name: 'Farmacia de la Estrella', lat: -34.6102605, lon: -58.3721513, osm: 'osm:node:3348573778' },
+};
+
+it('replays the impact matrix', async () => {
+  const config = new ConfigService({ OVERPASS_API_URL: 'http://localhost:12345/api/interpreter', NOMINATIM_API_URL: 'http://localhost:8088/search' });
+  const overpass = new OverpassApiService(config);
+  const osm = new OsmPlacesService(overpass as any, config);
+  const rel = await (overpass as any).execute('[out:json][timeout:120];relation(1224652);out geom;');
+  const boundary = { id: 'osm:relation:1224652', name: 'Buenos Aires', osmType: 'relation' as const, osmId: 1224652, tags: rel[0].tags, geometry: overpassElementToGeoJson(rel[0]) };
+  const pool = await osm.lookupPoisWithin(boundary as any);
+  const realWikidata = new WikidataApiService(config);
+  const placesApi = {
+    provider: 'geoapify' as const,
+    declaresSourceIdentitiesInDetails: true,
+    getStatus: jest.fn(),
+    searchNearby: jest.fn().mockResolvedValue({ data: [], provenance: { provider: 'geoapify', cacheStatus: 'miss-live', requestedCount: 0, receivedCount: 0 } }),
+    searchText: jest.fn(async ({ textQuery }: any) => {
+      const p = PLACES[textQuery];
+      const data = p ? [{ id: p.id, name: p.name, displayName: { text: p.name }, location: { latitude: p.lat, longitude: p.lon }, types: [] as string[], featureClass: 'point_of_interest' }] : [] as any[];
+      return { data, provenance: { provider: 'geoapify', cacheStatus: 'miss-live', requestedCount: 10, receivedCount: data.length } };
+    }),
+    getPlaceDetails: jest.fn(async (id: string) => {
+      const p = Object.values(PLACES).find((x) => x.id === id)!;
+      return { data: { id, sourceIdentities: [{ provider: 'openstreetmap', externalId: p.osm }, ...(p.qid ? [{ provider: 'wikidata', externalId: p.qid }] : [])] }, provenance: { provider: 'geoapify', cacheStatus: 'miss-live', requestedCount: 1, receivedCount: 1 } };
+    }),
+  };
+  const catalog = {
+    findGeoEntityCandidatesForHint: jest.fn().mockResolvedValue({ candidates: [] }),
+    rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
+    findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
+    upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue({ status: 'CREATED', geoEntity: { id: 'geo' }, attachedExternalIds: [] }),
+    upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo' }),
+    resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+    persistVerifiedExperience: jest.fn().mockResolvedValue({ id: 'exp', dedupeDecision: 'NEW' }),
+  };
+  const service = new ExperienceProposalResolverService(
+    { lookupPoisWithin: jest.fn().mockResolvedValue(pool), lookupPoisNear: jest.fn().mockResolvedValue(pool), lookupBoundaryById: jest.fn(), lookupHighwaysByName: jest.fn(), lookupContainingAdminUnits: jest.fn().mockResolvedValue({ status: 'success', value: [] }) } as any,
+    catalog as any,
+    { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
+    undefined,
+    new NominatimApiService(config) as any,
+    placesApi as any,
+    realWikidata as any,
+  );
+  const rows: any[] = [];
+  for (const hint of process.env.HINTS!.split('|')) {
+    const result: any = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina', destinationCountryCode: 'AR',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([{ name: `${hint} visit`, themes: [], traits: [], intents: ['visit'], componentHints: [{ key: 'm-1', name: hint, role: 'venue', expectedKind: 'PLACE', evidenceKeys: ['ev-1'] }], evidenceKeys: ['ev-1'], shortReason: 'matrix' }]),
+      evidence: [{ key: 'ev-1', source: 'web', title: 'Buenos Aires walk', snippet: hint }],
+    } as any);
+    const c = result.entityResolution.forensicAudit[0].componentAudits[0];
+    const final = [...c.attempts].reverse().find((a: any) => a.verificationDecision) ?? {};
+    rows.push({ hint, finalStatus: c.finalStatus, decision: final.verificationDecision ?? '-', rule: final.verificationRule ?? '-', strategy: final.strategy ?? '-', candidate: final.selectedCandidate ? `${final.selectedCandidate.externalId} ${final.selectedCandidate.canonicalName}` : '-',
+      attempts: c.attempts.filter((a: any) => a.verificationDecision).map((a: any) => `${a.strategy}:${a.verificationDecision}/${a.verificationRule}`).join(' ') });
+  }
+  fs.writeFileSync(process.env.OUT!, JSON.stringify(rows, null, 1));
+});

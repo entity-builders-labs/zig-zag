@@ -1,0 +1,691 @@
+{
+  "generatedAt": "2026-10-02T18:30:14.155Z",
+  "overpass": {
+    "query": "[out:json][timeout:60];(nwr[\"name\"~\"Alfa Crux|SuperUco|Super Uco|Azul|A16|Agostino|The Vines|Solo Contigo|Coraz\",i](-37.6,-70.6,-32.0,-66.5););out tags center;",
+    "status": 200,
+    "elements": [
+      {
+        "osm": "node/1323898762",
+        "lat": -34.9778297,
+        "lon": -67.6972761,
+        "tags": {
+          "addr:city": "General Alvear",
+          "addr:housenumber": "16",
+          "addr:postcode": "5620",
+          "addr:street": "Olascoaga",
+          "amenity": "place_of_worship",
+          "denomination": "catholic",
+          "name": "Parroquia Sagrado Corazón de Jesús",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/1968554954",
+        "lat": -33.6242575,
+        "lon": -69.137616,
+        "tags": {
+          "amenity": "place_of_worship",
+          "denomination": "catholic",
+          "name": "Oratorio Sagrado Corazón de Jesús",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/2713442031",
+        "lat": -33.0316527,
+        "lon": -68.869911,
+        "tags": {
+          "access": "yes",
+          "addr:city": "Luján de Cuyo",
+          "addr:postcode": "5507",
+          "addr:street": "Juan XXIII",
+          "amenity": "parking",
+          "capacity": "20",
+          "name": "Playón Azules",
+          "park_ride": "no",
+          "parking": "surface",
+          "supervised": "yes"
+        }
+      },
+      {
+        "osm": "node/3154322544",
+        "lat": -32.883706,
+        "lon": -68.8538788,
+        "tags": {
+          "addr:housenumber": "365",
+          "addr:street": "Avenida Juan Bautista Justo",
+          "name": "Hotel Valle Azul",
+          "old_name": "Hotel Embajador",
+          "tourism": "hotel"
+        }
+      },
+      {
+        "osm": "node/3360538715",
+        "lat": -33.3019685,
+        "lon": -69.1529223,
+        "tags": {
+          "addr:city": "San José. Tupungato",
+          "addr:postcode": "5561",
+          "addr:street": "Calle La Gloria. Ruta Provincial Nº 86. Los Cerrillos",
+          "amenity": "place_of_worship",
+          "denomination": "catholic",
+          "name": "Capilla Sagrado Corazón de Jesús",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/3586945370",
+        "lat": -34.5879661,
+        "lon": -68.3411067,
+        "tags": {
+          "name": "Obra Corazón y Voluntad"
+        }
+      },
+      {
+        "osm": "node/4053038660",
+        "lat": -32.880909,
+        "lon": -68.8557587,
+        "tags": {
+          "addr:housenumber": "508",
+          "addr:street": "Avenida Roque Sáenz Peña",
+          "name": "Azul Apart hotel",
+          "tourism": "hotel"
+        }
+      },
+      {
+        "osm": "node/4199776130",
+        "lat": -32.8909276,
+        "lon": -68.8623176,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "Parrilla Patio Azul"
+        }
+      },
+      {
+        "osm": "node/4232928069",
+        "lat": -33.0982173,
+        "lon": -68.4813302,
+        "tags": {
+          "addr:city": "La Colonia",
+          "addr:housenumber": "Necochea",
+          "addr:postcode": "5572",
+          "amenity": "place_of_worship",
+          "denomination": "roman_catholic",
+          "name": "Capilla Inmaculado Corazón de María",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/4464785989",
+        "lat": -34.6109733,
+        "lon": -68.3572898,
+        "tags": {
+          "addr:housenumber": "435",
+          "addr:postcode": "5600",
+          "addr:street": "Marcelino Champagnat",
+          "name": "Vivero Cedro Azul",
+          "name:es": "Vivero Cedro Azul",
+          "shop": "garden_centre"
+        }
+      },
+      {
+        "osm": "node/4532259034",
+        "lat": -32.1940679,
+        "lon": -69.8440637,
+        "tags": {
+          "name": "Abra de Los Azules",
+          "natural": "saddle"
+        }
+      },
+      {
+        "osm": "node/4691616851",
+        "lat": -33.0308107,
+        "lon": -68.7774945,
+        "tags": {
+          "addr:city": "Cruz de Piedra",
+          "addr:housenumber": "2310",
+          "addr:street": "Videla Aranda",
+          "amenity": "place_of_worship",
+          "denomination": "catholic",
+          "name": "Parroquia del Sagrado Corazón",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/4724422089",
+        "lat": -34.8347782,
+        "lon": -68.4702475,
+        "tags": {
+          "name": "Cabañas Río Azul",
+          "name:es": "Camping Rio azul",
+          "tourism": "chalet"
+        }
+      },
+      {
+        "osm": "node/4735203743",
+        "lat": -32.8870229,
+        "lon": -68.847911,
+        "tags": {
+          "addr:city": "Mendoza",
+          "addr:housenumber": "1290",
+          "addr:street": "Perú",
+          "name": "Montañas Azules Apart Hotel",
+          "phone": "+54 261 405 4200",
+          "tourism": "hotel",
+          "website": "https://www.mazules.com.ar/"
+        }
+      },
+      {
+        "osm": "node/4851595199",
+        "lat": -33.4692562,
+        "lon": -69.2207912,
+        "tags": {
+          "craft": "winery",
+          "name": "Bodega La Azul",
+          "shop": "winery",
+          "tourism": "attraction"
+        }
+      },
+      {
+        "osm": "node/4852647299",
+        "lat": -34.9734195,
+        "lon": -67.7039576,
+        "tags": {
+          "amenity": "pharmacy",
+          "healthcare": "pharmacy",
+          "name": "Sagrado Corazón"
+        }
+      },
+      {
+        "osm": "node/5217028938",
+        "lat": -37.3786939,
+        "lon": -70.2706318,
+        "tags": {
+          "name": "Sol Azul",
+          "shop": "mall"
+        }
+      },
+      {
+        "osm": "node/5768942297",
+        "lat": -33.0473061,
+        "lon": -69.0634992,
+        "tags": {
+          "name": "Aldea azul, cabaañas",
+          "tourism": "chalet"
+        }
+      },
+      {
+        "osm": "node/5792963498",
+        "lat": -33.4694504,
+        "lon": -69.2206532,
+        "tags": {
+          "amenity": "restaurant",
+          "name": "La Azul"
+        }
+      },
+      {
+        "osm": "node/5866226746",
+        "lat": -32.8942134,
+        "lon": -68.8454799,
+        "tags": {
+          "addr:housenumber": "390",
+          "addr:street": "Avenida Colón",
+          "amenity": "hospital",
+          "building": "yes",
+          "healthcare": "hospital",
+          "name": "Instituto del Corazón",
+          "phone": "+54 261 423 6656"
+        }
+      },
+      {
+        "osm": "node/5936004806",
+        "lat": -32.8909046,
+        "lon": -68.8524945,
+        "tags": {
+          "addr:housenumber": "853",
+          "addr:street": "Coronel J. Rodríguez",
+          "amenity": "school",
+          "name": "Colegio Corazón de María",
+          "phone": "+54 261 425 1388"
+        }
+      },
+      {
+        "osm": "node/6362695234",
+        "lat": -34.999898,
+        "lon": -69.335611,
+        "tags": {
+          "man_made": "monitoring_station",
+          "monitoring:cosmic_ray": "yes",
+          "name": "Corazon de Arroz",
+          "operator": "Observatorio Pierre Auger"
+        }
+      },
+      {
+        "osm": "node/6362695687",
+        "lat": -35.012062,
+        "lon": -69.047957,
+        "tags": {
+          "man_made": "monitoring_station",
+          "monitoring:cosmic_ray": "yes",
+          "name": "Azul",
+          "operator": "Observatorio Pierre Auger"
+        }
+      },
+      {
+        "osm": "node/6362733515",
+        "lat": -34.953575,
+        "lon": -69.220437,
+        "tags": {
+          "man_made": "monitoring_station",
+          "monitoring:cosmic_ray": "yes",
+          "name": "Azul Valentina",
+          "operator": "Observatorio Pierre Auger"
+        }
+      },
+      {
+        "osm": "node/7370413786",
+        "lat": -33.6033793,
+        "lon": -69.2213834,
+        "tags": {
+          "name": "bodega Corazón del Sol",
+          "shop": "wine"
+        }
+      },
+      {
+        "osm": "node/10742603842",
+        "lat": -32.9670915,
+        "lon": -68.774714,
+        "tags": {
+          "name": "Corazón de Jesus",
+          "place": "neighbourhood"
+        }
+      },
+      {
+        "osm": "node/11278555205",
+        "lat": -32.8358374,
+        "lon": -68.8336882,
+        "tags": {
+          "addr:housenumber": "2954",
+          "addr:street": "Avenida General San Martín",
+          "amenity": "place_of_worship",
+          "denomination": "catholic",
+          "name": "Capilla Sagrado Corazón de Jesús (Parroquia San Miguel Arcangel)",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/11407427817",
+        "lat": -33.103892,
+        "lon": -68.6709405,
+        "tags": {
+          "craft": "winery",
+          "name": "Bodega Finca Agostino - Winery",
+          "phone": "+542614614703",
+          "website": "https://www.agostinowinegroup.com/"
+        }
+      },
+      {
+        "osm": "node/11812894768",
+        "lat": -32.8989673,
+        "lon": -68.3871059,
+        "tags": {
+          "addr:city": "Tres Porteñas",
+          "addr:postcode": "5637",
+          "addr:street": "Molina",
+          "amenity": "place_of_worship",
+          "name": "Capilla Sagrado Corazón de Jesús",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "node/12539173815",
+        "lat": -34.8344677,
+        "lon": -68.4699002,
+        "tags": {
+          "name": "Camping Río Azul",
+          "tourism": "camp_site"
+        }
+      },
+      {
+        "osm": "way/91950900",
+        "lat": -36.8953894,
+        "lon": -70.2169557,
+        "tags": {
+          "intermittent": "yes",
+          "name": "Laguna El Corazón",
+          "natural": "water",
+          "salt": "no",
+          "water": "pond"
+        }
+      },
+      {
+        "osm": "way/113528383",
+        "lat": -32.953315,
+        "lon": -68.8242403,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/113582190",
+        "lat": -32.9406166,
+        "lon": -68.8177547,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "unpaved"
+        }
+      },
+      {
+        "osm": "way/155510102",
+        "lat": -33.0652184,
+        "lon": -68.8764929,
+        "tags": {
+          "access": "private",
+          "highway": "residential",
+          "name": "Zamba Azul (3)",
+          "surface": "fine_gravel"
+        }
+      },
+      {
+        "osm": "way/160945401",
+        "lat": -32.8946244,
+        "lon": -68.8409903,
+        "tags": {
+          "addr:housenumber": "746",
+          "addr:street": "Avenida General San Martín",
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "contact:phone": "+54 261 524 6713",
+          "denomination": "catholic",
+          "layer": "1",
+          "name": "Sagrado Corazón (Jesuitas)",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "way/163966186",
+        "lat": -32.9195272,
+        "lon": -68.7422754,
+        "tags": {
+          "highway": "residential",
+          "name": "Ciudad de Azul",
+          "surface": "paved"
+        }
+      },
+      {
+        "osm": "way/164050670",
+        "lat": -32.9208442,
+        "lon": -68.7429844,
+        "tags": {
+          "highway": "residential",
+          "name": "Ciudad de Azul",
+          "surface": "unpaved"
+        }
+      },
+      {
+        "osm": "way/172162428",
+        "lat": -32.8908858,
+        "lon": -68.8520616,
+        "tags": {
+          "addr:housenumber": "138",
+          "addr:street": "Martín Zapata",
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "contact:phone": "+54 261 425 5460",
+          "denomination": "catholic",
+          "is_in:city": "Mendoza",
+          "name": "Parroquia Inmaculado Corazón de María",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "way/222644522",
+        "lat": -32.889337,
+        "lon": -68.8339376,
+        "tags": {
+          "addr:housenumber": "1239",
+          "addr:street": "Salta",
+          "amenity": "school",
+          "contact:phone": "54 0261 4238188; 4230375",
+          "denomination": "catholic",
+          "education": "school",
+          "name": "Colegio Sagrado Corazón de Jesús",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "way/260957594",
+        "lat": -32.9461477,
+        "lon": -68.820687,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/260957595",
+        "lat": -32.9504358,
+        "lon": -68.8228032,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/265728354",
+        "lat": -33.0317129,
+        "lon": -68.8692085,
+        "tags": {
+          "leisure": "playground",
+          "name": "Plazoleta de los azules"
+        }
+      },
+      {
+        "osm": "way/274349664",
+        "lat": -33.6039839,
+        "lon": -69.2207939,
+        "tags": {
+          "crop": "grape",
+          "landuse": "vineyard",
+          "name": "The Vines"
+        }
+      },
+      {
+        "osm": "way/327349640",
+        "lat": -33.1027118,
+        "lon": -68.6715303,
+        "tags": {
+          "addr:city": "Barrancas, Maipu",
+          "addr:housenumber": "10590",
+          "addr:postcode": "5517",
+          "addr:street": "Carril Barrancas",
+          "building": "yes",
+          "craft": "winery",
+          "name": "Finca Agostino",
+          "website": "https://www.agostinowinegroup.com/home-espanol"
+        }
+      },
+      {
+        "osm": "way/334871716",
+        "lat": -32.9594977,
+        "lon": -68.7963724,
+        "tags": {
+          "name": "Barrio Valle Azul",
+          "place": "neighbourhood"
+        }
+      },
+      {
+        "osm": "way/376076332",
+        "lat": -33.6182539,
+        "lon": -69.1068216,
+        "tags": {
+          "leisure": "park",
+          "name": "Plaza Bº COSTA AZUL"
+        }
+      },
+      {
+        "osm": "way/574028673",
+        "lat": -33.6185518,
+        "lon": -69.1074096,
+        "tags": {
+          "landuse": "residential",
+          "name": "Costa Azul",
+          "place": "neighbourhood"
+        }
+      },
+      {
+        "osm": "way/913655118",
+        "lat": -33.030676,
+        "lon": -68.7774619,
+        "tags": {
+          "amenity": "place_of_worship",
+          "building": "yes",
+          "name": "Parroquia del Sagrado Corazón",
+          "religion": "christian"
+        }
+      },
+      {
+        "osm": "way/1346803608",
+        "lat": -32.9431901,
+        "lon": -68.8192332,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/1346803615",
+        "lat": -32.952303,
+        "lon": -68.8237308,
+        "tags": {
+          "highway": "residential",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/1353112467",
+        "lat": -32.94212,
+        "lon": -68.8186271,
+        "tags": {
+          "construction": "residential",
+          "highway": "construction",
+          "name": "Azul",
+          "surface": "asphalt"
+        }
+      },
+      {
+        "osm": "way/1426394825",
+        "lat": -32.497168,
+        "lon": -70.1633896,
+        "tags": {
+          "name": "Estero de Los Azules",
+          "waterway": "stream"
+        }
+      },
+      {
+        "osm": "relation/3081269",
+        "lat": -32.8466909,
+        "lon": -69.4537443,
+        "tags": {
+          "name": "Ramal Ferroviario A16 - Mendoza - Las Cuevas",
+          "network": "Belgrano",
+          "ref": "A16",
+          "route": "tracks",
+          "type": "route",
+          "wikipedia": "es:Ferrocarril Trasandino Los Andes-Mendoza"
+        }
+      }
+    ]
+  },
+  "wikidata": {
+    "Alfa Crux": [],
+    "SuperUco": [],
+    "Bodega Azul": [],
+    "Bodega La Azul": [],
+    "A16 winery": []
+  },
+  "officialSites": {
+    "Alfa Crux": {
+      "sourceLink": "https://www.agostinowinegroup.com/alfa-crux-wines",
+      "error": "The operation was aborted due to timeout"
+    },
+    "SuperUco": {
+      "sourceLink": "https://superuco.com/",
+      "error": "fetch failed"
+    },
+    "Bodega Azul": {
+      "sourceLink": "https://bodegalaazul.com/",
+      "status": 200,
+      "finalUrl": "https://bodegalaazul.com/",
+      "finalHost": "bodegalaazul.com",
+      "title": "Bodega La azul",
+      "canonical": "https://bodegalaazul.com/",
+      "jsonLd": [],
+      "addressLikeText": [
+        "todos 1998/1991 Malbec Azul Malbec Color rojo violáceo, sus aromas recuerdan a frutas rojas maduras como ciruelas, guindas y moras",
+        "Varietal: Malbec Ubicación: Vista Flores-Tunuyán / Agua Amarga- Tupungato Altura: 1100 / 1200 msnm Sistema de Riego: Surco y goteo Rinde x Ha",
+        "Varietal: 60% Malbec – 40% Cabernet Sauvignon Ubicación: Agua Amarga Tupungato Altura: 1200 msnm Sistema de Riego: Goteo Rinde x Ha",
+        "Nuestra pasión es hacer uvas, hacer vino, y también, por supuesto, tomarlo, disfrutarlo y darle el lugar que se merece: la fiesta",
+        "estamos más cerca Ubicación Nos encontramos en Tupungato, Mendoza, República Argentina"
+      ],
+      "phoneLikeText": []
+    },
+    "A16": {
+      "sourceLink": "http://a16sa.com/en/",
+      "status": 200,
+      "finalUrl": "https://a16sa.com/en/",
+      "finalHost": "a16sa.com",
+      "title": "Bodega A16 Mendoza &#8211; Amor por el vino",
+      "canonical": "https://a16sa.com/en/",
+      "jsonLd": [],
+      "addressLikeText": [
+        "l vino About Wines Winery An invitation to enjoy a unique sensory experience in Luján de Cuyo",
+        "d passion in the production of boutique wines in the prestigious wine region of Luján de Cuyo",
+        "Strategically located between Perdriel and Agrelo—two areas renowned worldwide for the quality of their wines—the winery stands o",
+        "the southern boundary of the property, offering a unique landscape visible from Route 7 that enhances the beauty of the surroundings",
+        "ar Office hours:&nbsp; Monday to Friday from 8am to 5pm Winery Ruta 7 y Calle Cobos 5890, Perdriel, Luján de Cuyo, Mendoza, Argentina https://maps"
+      ],
+      "phoneLikeText": [
+        "+54) 9 261 653 8963 ",
+        "+54) 9 261 205 4390 ",
+        "+54) 9 261 373 7957 "
+      ]
+    },
+    "Ojo de Agua": {
+      "sourceLink": "https://ojodeagua.ch/",
+      "error": "The operation was aborted due to timeout"
+    }
+  },
+  "officialSitesRetry": {
+    "method": "curl -sSL -m 45 (one retry for fetches that failed in the node probe)",
+    "retriedAt": "2026-10-02T18:32:32.202585Z",
+    "Alfa Crux": {
+      "sourceLink": "https://www.agostinowinegroup.com/alfa-crux-wines",
+      "status": 200,
+      "finalUrl": "https://www.agostinowinegroup.com/alfa-crux-wines",
+      "title": "Alfa Crux Wines — AGOSTINO WINE GROUP",
+      "declaredFacts": [
+        "vineyards in El Cepillo, the heart of the Uco Valley (~1,200 m)",
+        "Alfa Crux Calle Los Indios s/n, M5567 Valle de Uco, Mendoza, Argentina",
+        "group site also lists Carril Barrancas 10590, M5517 Maipú (Finca Agostino)"
+      ]
+    },
+    "SuperUco": {
+      "sourceLink": "https://superuco.com/",
+      "status": 403,
+      "finalUrl": "https://superuco.com/",
+      "title": "Checking your browser before accessing. Just a moment...",
+      "note": "bot-protection challenge; also www.superuco.com 403; content not readable with read-only fetch"
+    },
+    "Ojo de Agua": {
+      "note": "not retried: component already VERIFIED (EXACT_NAME SINGLE, osm:node:4797394430)"
+    }
+  }
+}

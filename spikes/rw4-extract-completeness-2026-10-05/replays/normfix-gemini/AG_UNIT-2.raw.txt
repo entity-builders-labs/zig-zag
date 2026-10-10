@@ -1,0 +1,88 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour San Telmo",
+      "description": "A self-guided walking tour through San Telmo and Defensa Street exploring historical pharmacies, old libraries, landmarks, markets, and aristocratic houses.",
+      "themes": [
+        "history",
+        "culture"
+      ],
+      "traits": [
+        "self-guided",
+        "historic charm"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "La Librería del Ávila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 6: Oldest library in town, \"La Librería del Avila\"!"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Casa Mínima, San Telmo, Buenos Aires"
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "The San Telmo Market",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!!"
+        },
+        {
+          "key": "patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "An engaging self-guided walking itinerary covering key historic stops and landmarks in San Telmo.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+{
+  "scope": { "destinationName": "San Telmo" },
+  "requestedThemes": [],
+  "requestedIntents": ["walk"],
+  "semanticQuery": "historical walk in San Telmo",
+  "coverageGaps": ["walk"],
+  "breadth": "focused",
+  "maxCandidates": 8,
+  "evidenceRequirements": ["MULTI_COMPONENT_EXPERIENCE"]
+}

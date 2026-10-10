@@ -1,0 +1,95 @@
+{
+  "query": "Buenos Aires Caminito walking tours walks walking Caminito to see representative places",
+  "evidence": [
+    {
+      "key": "ev-1",
+      "source": "La Boca Tour",
+      "title": "La Boca Tour",
+      "snippet": "We will walk the famous little street Caminito, full of the colorful collective houses of the working class immigrants in the Buenos Aires of the 1900s, who ...",
+      "url": "https://buenosairesfreewalks.com/la-boca-tour/",
+      "kind": "organic_result",
+      "order": 1
+    },
+    {
+      "key": "ev-2",
+      "source": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+      "title": "One Day in Buenos Aires: A Self-Guided Walking Tour",
+      "snippet": "See all the major sights in just one day in Buenos Aires with this self-guided walking tour, created by a local.",
+      "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/",
+      "kind": "organic_result",
+      "order": 2
+    },
+    {
+      "key": "ev-3",
+      "source": "What to do in Caminito - Free Walking Tours Buenos Aires",
+      "title": "What to do in Caminito - Free Walking Tours Buenos Aires",
+      "snippet": "1.1 Walk Through the Colorful Streets ; 1.2 Enjoy Live Tango Performances ; 1.3 Explore Street Art and Galleries ; 1.4 Visit the La Boca Fine Arts ...",
+      "url": "https://bafreetour.com/what-to-do-in-caminito/",
+      "kind": "organic_result",
+      "order": 3
+    },
+    {
+      "key": "ev-4",
+      "source": "Caminito Tourist Assistance Center",
+      "title": "Caminito Tourist Assistance Center",
+      "snippet": "Caminito Tourist Assistance Center. Open every day, 9am - 6pm. Located opposite the Plazoleta de los Suspiros in La Boca neighbourhood.",
+      "url": "https://turismo.buenosaires.gob.ar/en/atractivo/caminito-tourist-assistance-center",
+      "kind": "organic_result",
+      "order": 4
+    },
+    {
+      "key": "ev-5",
+      "source": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+      "title": "BUENOS AIRES Walking Tour | Caminito, La Boca, Argentina ...",
+      "snippet": "Immerse yourself in this stunning 4K, 60fps Buenos Aires walking tour, featuring the colorful streets of Caminito and the vibrant neighborhood ...",
+      "url": "https://www.youtube.com/watch?v=HBuv95C64z8",
+      "kind": "organic_result",
+      "order": 5
+    },
+    {
+      "key": "ev-6",
+      "source": "Visit Argentina - What to Do in Caminito in La Boca",
+      "title": "Visit Argentina - What to Do in Caminito in La Boca",
+      "snippet": "Once there, you can walk the 150 meters of the passage to see an authentic open-air museum with the colorful tenement buildings that defined an ...",
+      "url": "https://www.argentina.travel/en/news/what-to-do-in-caminito-in-la-boca",
+      "kind": "organic_result",
+      "order": 6
+    },
+    {
+      "key": "ev-7",
+      "source": "Beyond Caminito & San Telmo - Buenos Aires",
+      "title": "Beyond Caminito & San Telmo - Buenos Aires",
+      "snippet": "In this tour you'll walk throught San Telmo and Caminito in 3 hours. We'll walk inside the narrow streets and discover the historic houses and palaces. Dorrego ...",
+      "url": "https://www.getyourguide.com/buenos-aires-l1/san-telmo-caminito-the-local-walking-tour-t747764/",
+      "kind": "organic_result",
+      "order": 7
+    },
+    {
+      "key": "ev-8",
+      "source": "What are recommended walking tours in Buenos Aires?",
+      "title": "What are recommended walking tours in Buenos Aires?",
+      "snippet": "You'll visit major areas including Plaza de Mayo, San Telmo, La Boca, Caminito, Recoleta, El Ateneo Grand Splendid, and Floralis Gen\u00e9rica. \u2022 A ...",
+      "url": "https://www.facebook.com/groups/759447375483950/posts/1247443426684340/",
+      "kind": "organic_result",
+      "order": 8
+    },
+    {
+      "key": "ev-9",
+      "source": "Private Caminito & La Boca Walking Tour (with Reviews)",
+      "title": "Private Caminito & La Boca Walking Tour (with Reviews)",
+      "snippet": "Very picturesque neighborhood, full of beautiful places and walks to tour with very good places to eat typical Argentine foods and lots and lots of tango!",
+      "url": "https://www.tripadvisor.com/AttractionProductReview-g312741-d15305345-Private_Caminito_La_Boca_Walking_Tour-Buenos_Aires_Capital_Federal_District.html",
+      "kind": "organic_result",
+      "order": 9
+    },
+    {
+      "key": "ev-10",
+      "source": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+      "title": "Your audio guide of Buenos Aires: From La Boca to Barrio ...",
+      "snippet": "Discover the beauty of Buenos-Aires. Turn your phone into a personal audio guide and embark on a self-guided tour. From tourist to explorer in just one ...",
+      "url": "https://www.smart-guide.org/destinations/en/buenos-aires/?tour=From+La+Boca+to+Barrio+Norte+District&place=Caminito",
+      "kind": "organic_result",
+      "order": 10
+    }
+  ]
+}

@@ -1,0 +1,349 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 7395,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Buenos Aires Day 1 Self-Guided Walking Tour",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colón[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]",
+          "Avenida Caseros[ACCEPTABLE]",
+          "El Caminito=Caminito[MANDATORY]",
+          "La Bombonera[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "2/2",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colón"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 41786,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour in Buenos Aires: Day 1",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Cabildo[MANDATORY]",
+          "Banco de la Nación Argentina[ACCEPTABLE]",
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Avenida Paseo Colón=Paseo Colón[ACCEPTABLE]",
+          "Facultad de Ingeniería de la Universidad de Buenos Aires[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Museo de Arte Moderno de Buenos Aires[ACCEPTABLE]",
+          "Club Atlético=Ex Centro Clandestino Club Atlético[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "Museo Histórico Nacional[MANDATORY]",
+          "Avenida Caseros[ACCEPTABLE]",
+          "Caminito[MANDATORY]",
+          "La Bombonera[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/8",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "2/2",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Facultad de Ingeniería de la Universidad de Buenos Aires"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 6445,
+    "inputChars": 14926,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour in Buenos Aires: Day 1",
+        "orderedByEvidence": true,
+        "hints": [
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[MANDATORY]",
+          "Catedral Metropolitana[MANDATORY]",
+          "Museo del Cabildo=Cabildo[MANDATORY]",
+          "Defensa[ACCEPTABLE]",
+          "Estados Unidos[ACCEPTABLE]",
+          "Bar Sur[ACCEPTABLE]",
+          "Paseo de Colon[NOT_IN_ORACLE]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Plaza Dorrego[MANDATORY]",
+          "Avenida San Juan[ACCEPTABLE]",
+          "Parque Lezama[MANDATORY]",
+          "El Caminito=Caminito[MANDATORY]",
+          "La Bombonera[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "7/8",
+            "missingMandatory": [
+              "Museo Histórico Nacional"
+            ],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "2/2",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Paseo de Colon"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 14317,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour San Telmo and Historic Center",
+        "orderedByEvidence": true,
+        "hints": [
+          "Teatro Colón[MANDATORY]",
+          "Obelisco de Buenos Aires[NOT_IN_ORACLE]",
+          "Plaza de Mayo[MANDATORY]",
+          "Casa Rosada[ACCEPTABLE]",
+          "Catedral Metropolitana de Buenos Aires[NOT_IN_ORACLE]",
+          "Cabildo de Buenos Aires[NOT_IN_ORACLE]",
+          "Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]",
+          "Caminito[MANDATORY]",
+          "Fundación Proa[ACCEPTABLE]",
+          "Puente de la Mujer[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/9",
+            "missingMandatory": [
+              "Obelisco"
+            ],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S3-puerto-madero",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "Obelisco de Buenos Aires(INVENTED?)",
+          "Catedral Metropolitana de Buenos Aires(INVENTED?)",
+          "Cabildo de Buenos Aires(INVENTED?)"
+        ],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 21384,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self-Guided Walking Tour of San Telmo and Historic Buenos Aires",
+        "orderedByEvidence": true,
+        "hints": [
+          "Teatro Colón[MANDATORY]",
+          "Plaza de Mayo[MANDATORY]",
+          "Defensa Street=Defensa[ACCEPTABLE]",
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Avila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "El Patio de los Ezeiza[MANDATORY]",
+          "Caminito[MANDATORY]",
+          "Puente de la Mujer[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "8/9",
+            "missingMandatory": [
+              "Obelisco"
+            ],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S3-puerto-madero",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [],
+        "alternatives": []
+      }
+    ]
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "provider": "gemini",
+    "model": "gemini-3.5-flash-lite",
+    "ms": 9225,
+    "inputChars": 13309,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 1,
+    "scored": [
+      {
+        "candidate": "Self Guided Walking Tour San Telmo to La Boca",
+        "orderedByEvidence": true,
+        "hints": [
+          "Teatro Colón[MANDATORY]",
+          "Obelisco[MANDATORY]",
+          "Plaza de Mayo[MANDATORY]",
+          "Café Tortoni[ALTERNATIVE]",
+          "London City Coffee[NOT_IN_ORACLE]",
+          "Casa Rosada[ACCEPTABLE]",
+          "Farmacia la Estrella=Farmacia La Estrella[MANDATORY]",
+          "La Librería del Ávila=Librería de Ávila[MANDATORY]",
+          "Monumento de Mafalda[MANDATORY]",
+          "Casa Mínima[MANDATORY]",
+          "Mercado de San Telmo[MANDATORY]",
+          "Nuestra Parrilla[ALTERNATIVE]",
+          "El Patio de los Ezeiza[MANDATORY]",
+          "Caminito[MANDATORY]",
+          "Fundación Proa[ACCEPTABLE]",
+          "Puente de la Mujer[MANDATORY]"
+        ],
+        "segmentsMixed": true,
+        "perSegment": [
+          {
+            "segment": "S1-walk",
+            "mandatoryRecall": "9/9",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S2-la-boca",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          },
+          {
+            "segment": "S3-puerto-madero",
+            "mandatoryRecall": "1/1",
+            "missingMandatory": [],
+            "ordered": true
+          }
+        ],
+        "notInOracle": [
+          "London City Coffee"
+        ],
+        "alternatives": [
+          "Café Tortoni",
+          "Nuestra Parrilla"
+        ]
+      }
+    ]
+  }
+]

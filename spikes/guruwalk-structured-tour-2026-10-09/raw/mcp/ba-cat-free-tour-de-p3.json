@@ -1,0 +1,218 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":49609,\"name\":\"Free walking tour Av. Alvear im Viertel Recoleta\",\"slug\":\"49609-free-walking-tour-av-alvear-im-viertel-recoleta\",\"rating\":4.97,\"reviews_count\":178,\"duration\":180,\"languages\":[\"it\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49609-free-walking-tour-av-alvear-im-viertel-recoleta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":43240,\"name\":\"AVENIDA DE MAYO: Vom Cabildo zum Kongress, die Allee, die Geschichte schrieb\",\"slug\":\"43240-avenida-de-mayo-die-allee-der-traume\",\"rating\":4.93,\"reviews_count\":409,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43240-avenida-de-mayo-die-allee-der-traume?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49154,\"name\":\"SAN TELMO: Von der Wiege von Buenos Aires zu den Höfen des Tangos\",\"slug\":\"49154-san-telmo-die-geschichten-unter-dem-kopfsteinpflaster\",\"rating\":4.92,\"reviews_count\":65,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49154-san-telmo-die-geschichten-unter-dem-kopfsteinpflaster?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":52012,\"name\":\"Historisches Zentrum. Wo unsere Identität geboren wurde.\",\"slug\":\"52012-historisches-zentrum-wo-unsere-identitat-geboren-wurde\",\"rating\":4.92,\"reviews_count\":36,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/52012-historisches-zentrum-wo-unsere-identitat-geboren-wurde?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55178,\"name\":\"Kostenlose Nachttour: Buenos Aires erleuchtet – Eine Reise durch seine Geschichte\",\"slug\":\"55178-kostenlose-nachttour-buenos-aires-erleuchtet-eine-reise-durch-seine-geschichte\",\"rating\":4.9,\"reviews_count\":39,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55178-kostenlose-nachttour-buenos-aires-erleuchtet-eine-reise-durch-seine-geschichte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":58175,\"name\":\"Recoleta: Geschichte, Architektur und Aristokratie im elegantesten Viertel von Buenos Aires\",\"slug\":\"58175-recoleta-geschichte-architektur-und-aristokratie-im-elegantesten-viertel-von-buenos-aires\",\"rating\":4.84,\"reviews_count\":267,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/58175-recoleta-geschichte-architektur-und-aristokratie-im-elegantesten-viertel-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45349,\"name\":\"Kostenlose Tour Retiro und Recoleta: Aristokratisches Buenos Aires\",\"slug\":\"45349-kostenlose-tour-retiro-und-recoleta-aristokratisches-buenos-aires\",\"rating\":4.84,\"reviews_count\":211,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45349-kostenlose-tour-retiro-und-recoleta-aristokratisches-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55258,\"name\":\"Eine natürliche Oase in Buenos Aires: Entdecke Costanera Sur!\",\"slug\":\"55258-eine-naturliche-oase-in-buenos-aires-entdecke-costanera-sur\",\"rating\":4.82,\"reviews_count\":44,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55258-eine-naturliche-oase-in-buenos-aires-entdecke-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69004,\"name\":\"Abasto, Wiege des Tangos und der Porteño-Kultur Buenos Aires Free Tour\",\"slug\":\"69004-abasto-wiege-des-tangos-und-der-porteno-kultur-buenos-aires-free-tour\",\"rating\":4.81,\"reviews_count\":16,\"duration\":120,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69004-abasto-wiege-des-tangos-und-der-porteno-kultur-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":66170,\"name\":\"Eine Ecke von Recoleta und Palermo Chico \",\"slug\":\"66170-eine-ecke-von-recoleta-und-palermo-chico\",\"rating\":4.78,\"reviews_count\":9,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/66170-eine-ecke-von-recoleta-und-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69009,\"name\":\"Die ikonischen Wahrzeichen der Innenstadt von Buenos Aires. \",\"slug\":\"69009-die-ikonischen-wahrzeichen-der-innenstadt-von-buenos-aires\",\"rating\":0.0,\"reviews_count\":0,\"duration\":120,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69009-die-ikonischen-wahrzeichen-der-innenstadt-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":65736,\"name\":\" Montserrat, Wiege des Vizekönigreichs.\",\"slug\":\"65736-montserrat-wiege-des-vizekonigreichs\",\"rating\":0.0,\"reviews_count\":0,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/65736-montserrat-wiege-des-vizekonigreichs?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":3,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 49609,
+     "name": "Free walking tour Av. Alvear im Viertel Recoleta",
+     "slug": "49609-free-walking-tour-av-alvear-im-viertel-recoleta",
+     "rating": 4.97,
+     "reviews_count": 178,
+     "duration": 180,
+     "languages": [
+      "it",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49609-free-walking-tour-av-alvear-im-viertel-recoleta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 43240,
+     "name": "AVENIDA DE MAYO: Vom Cabildo zum Kongress, die Allee, die Geschichte schrieb",
+     "slug": "43240-avenida-de-mayo-die-allee-der-traume",
+     "rating": 4.93,
+     "reviews_count": 409,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43240-avenida-de-mayo-die-allee-der-traume?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49154,
+     "name": "SAN TELMO: Von der Wiege von Buenos Aires zu den Höfen des Tangos",
+     "slug": "49154-san-telmo-die-geschichten-unter-dem-kopfsteinpflaster",
+     "rating": 4.92,
+     "reviews_count": 65,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49154-san-telmo-die-geschichten-unter-dem-kopfsteinpflaster?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 52012,
+     "name": "Historisches Zentrum. Wo unsere Identität geboren wurde.",
+     "slug": "52012-historisches-zentrum-wo-unsere-identitat-geboren-wurde",
+     "rating": 4.92,
+     "reviews_count": 36,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/52012-historisches-zentrum-wo-unsere-identitat-geboren-wurde?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55178,
+     "name": "Kostenlose Nachttour: Buenos Aires erleuchtet – Eine Reise durch seine Geschichte",
+     "slug": "55178-kostenlose-nachttour-buenos-aires-erleuchtet-eine-reise-durch-seine-geschichte",
+     "rating": 4.9,
+     "reviews_count": 39,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55178-kostenlose-nachttour-buenos-aires-erleuchtet-eine-reise-durch-seine-geschichte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 58175,
+     "name": "Recoleta: Geschichte, Architektur und Aristokratie im elegantesten Viertel von Buenos Aires",
+     "slug": "58175-recoleta-geschichte-architektur-und-aristokratie-im-elegantesten-viertel-von-buenos-aires",
+     "rating": 4.84,
+     "reviews_count": 267,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/58175-recoleta-geschichte-architektur-und-aristokratie-im-elegantesten-viertel-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45349,
+     "name": "Kostenlose Tour Retiro und Recoleta: Aristokratisches Buenos Aires",
+     "slug": "45349-kostenlose-tour-retiro-und-recoleta-aristokratisches-buenos-aires",
+     "rating": 4.84,
+     "reviews_count": 211,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45349-kostenlose-tour-retiro-und-recoleta-aristokratisches-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55258,
+     "name": "Eine natürliche Oase in Buenos Aires: Entdecke Costanera Sur!",
+     "slug": "55258-eine-naturliche-oase-in-buenos-aires-entdecke-costanera-sur",
+     "rating": 4.82,
+     "reviews_count": 44,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55258-eine-naturliche-oase-in-buenos-aires-entdecke-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69004,
+     "name": "Abasto, Wiege des Tangos und der Porteño-Kultur Buenos Aires Free Tour",
+     "slug": "69004-abasto-wiege-des-tangos-und-der-porteno-kultur-buenos-aires-free-tour",
+     "rating": 4.81,
+     "reviews_count": 16,
+     "duration": 120,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69004-abasto-wiege-des-tangos-und-der-porteno-kultur-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 66170,
+     "name": "Eine Ecke von Recoleta und Palermo Chico ",
+     "slug": "66170-eine-ecke-von-recoleta-und-palermo-chico",
+     "rating": 4.78,
+     "reviews_count": 9,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/66170-eine-ecke-von-recoleta-und-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69009,
+     "name": "Die ikonischen Wahrzeichen der Innenstadt von Buenos Aires. ",
+     "slug": "69009-die-ikonischen-wahrzeichen-der-innenstadt-von-buenos-aires",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 120,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69009-die-ikonischen-wahrzeichen-der-innenstadt-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 65736,
+     "name": " Montserrat, Wiege des Vizekönigreichs.",
+     "slug": "65736-montserrat-wiege-des-vizekonigreichs",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/65736-montserrat-wiege-des-vizekonigreichs?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 3,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

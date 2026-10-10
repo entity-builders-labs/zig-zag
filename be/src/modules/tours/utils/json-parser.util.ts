@@ -9,6 +9,9 @@
 export function extractAndCleanJson(text: string): string {
   let cleaned = text.trim();
 
+  // Remove <think> reasoning blocks if present
+  cleaned = cleaned.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+
   // Remove markdown code blocks
   cleaned = cleaned.replace(/^```json\s*/i, '');
   cleaned = cleaned.replace(/^```\s*/, '');

@@ -1,0 +1,120 @@
+{
+  "request": {
+    "id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f"
+  },
+  "status": 200,
+  "durationMs": 627,
+  "response": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "properties": {
+          "feature_type": "details",
+          "name": "Plaza Dorrego",
+          "wiki_and_media": {
+            "wikidata": "Q3392154",
+            "wikipedia": "es:Plaza Dorrego",
+            "wikimedia_commons": "Category:Plaza Dorrego, Buenos Aires"
+          },
+          "categories": [
+            "leisure",
+            "leisure.park",
+            "tourism",
+            "tourism.attraction"
+          ],
+          "datasource": {
+            "sourcename": "openstreetmap",
+            "attribution": "© OpenStreetMap contributors",
+            "license": "Open Database License",
+            "url": "https://www.openstreetmap.org/copyright",
+            "raw": {
+              "name": "Plaza Dorrego",
+              "osm_id": 31364659,
+              "leisure": "park",
+              "tourism": "attraction",
+              "osm_type": "w",
+              "wikidata": "Q3392154",
+              "wikipedia": "es:Plaza Dorrego",
+              "wikimedia_commons": "Category:Plaza Dorrego, Buenos Aires"
+            }
+          },
+          "city": "Buenos Aires",
+          "state": "Buenos Aires",
+          "state_code": "B",
+          "country": "Argentina",
+          "country_code": "ar",
+          "district": "Comuna 1",
+          "suburb": "San Telmo",
+          "formatted": "Plaza Dorrego, San Telmo, Buenos Aires, Comuna 1, Argentina",
+          "address_line1": "Plaza Dorrego",
+          "address_line2": "San Telmo, Buenos Aires, Comuna 1, Argentina",
+          "lat": -34.6204917,
+          "lon": -58.3717807,
+          "iso3166_2": "AR-C",
+          "timezone": {
+            "name": "America/Argentina/Buenos_Aires",
+            "offset_STD": "-03:00",
+            "offset_DST": "-03:00",
+            "offset_STD_seconds": -10800,
+            "offset_DST_seconds": -10800
+          },
+          "place_id": "51565d6f82962f4dc059c20fa3456c4f41c0f00102f9013396de010000000092030d506c617a6120446f727265676f"
+        },
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -58.3720765,
+                -34.620327
+              ],
+              [
+                -58.3720761,
+                -34.6203515
+              ],
+              [
+                -58.3720641,
+                -34.6206579
+              ],
+              [
+                -58.3714819,
+                -34.6206319
+              ],
+              [
+                -58.3715013,
+                -34.620325
+              ],
+              [
+                -58.3715396,
+                -34.620295
+              ],
+              [
+                -58.3720319,
+                -34.6202899
+              ],
+              [
+                -58.3720557,
+                -34.620297
+              ],
+              [
+                -58.3720705,
+                -34.6203095
+              ],
+              [
+                -58.3720765,
+                -34.620327
+              ]
+            ]
+          ]
+        },
+        "bbox": [
+          -58.3720765,
+          -34.6206579,
+          -58.3714819,
+          -34.6202899
+        ]
+      }
+    ]
+  }
+}

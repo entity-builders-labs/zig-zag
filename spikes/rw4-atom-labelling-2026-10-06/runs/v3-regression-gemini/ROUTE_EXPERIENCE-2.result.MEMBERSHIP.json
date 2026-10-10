@@ -1,0 +1,183 @@
+{
+  "input": "ROUTE_EXPERIENCE",
+  "run": 2,
+  "validity": "VALID",
+  "promptVersion": "labelling-prompt-v3",
+  "consistency": "MEMBERSHIP",
+  "batches": 1,
+  "atoms": 6,
+  "classified": 6,
+  "firstPassValid": false,
+  "firstPassIssueCount": 1,
+  "relabel": {
+    "scope": [
+      "a-003"
+    ],
+    "firstPassIssues": [
+      "ROLE_INCONSISTENT:a-003"
+    ]
+  },
+  "missingAtomIds": [],
+  "duplicateAtomIds": [],
+  "unknownAtomIds": [],
+  "malformed": [
+    {
+      "relabel": true,
+      "code": "ROLE_INCONSISTENT",
+      "atomId": "a-003",
+      "detail": "entity role ITINERARY_STOP exceeds classification ROUTE_LEG"
+    }
+  ],
+  "spanIssues": [],
+  "notes": [],
+  "labellingValid": false,
+  "outcome": "CONTRACT_FAIL_CLOSED",
+  "histogram": {
+    "NON_ITINERARY": 1,
+    "ITINERARY_STOP": 3,
+    "PASS_BY": 1,
+    "ROUTE_LEG": 1
+  },
+  "segments": [
+    {
+      "segmentIndex": 1,
+      "openedBy": [],
+      "mandatory": [
+        "Harbour Square",
+        "The Painted Lane",
+        "Riverside Art Museum"
+      ],
+      "optional": [],
+      "alternativeGroups": [],
+      "routeLegs": [],
+      "passBy": [
+        "old fire station",
+        "Sailors' Church"
+      ]
+    }
+  ],
+  "segmentsAreDiagnosticShadow": true,
+  "verdicts": [
+    {
+      "segment": "ALL",
+      "success": true,
+      "mandatoryRecall": "3/3",
+      "reasons": [],
+      "acceptablePromoted": [],
+      "notInOracleMandatory": [],
+      "missingAtomDecisions": {}
+    }
+  ],
+  "alternatives": [],
+  "mandatoryDecisions": {},
+  "routeAreaPromoted": [],
+  "routeLegMissing": [
+    "Mill Street"
+  ],
+  "labels": [
+    {
+      "text": "## The Painted Lane walk",
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Title of the walk."
+    },
+    {
+      "text": "Start at Harbour Square, next to the old fire station.",
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "supportSpan": "Start at Harbour Square",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 26,
+          "sourceEnd": 49
+        },
+        {
+          "sourceName": "old fire station",
+          "supportSpan": "next to the old fire station",
+          "role": "PASS_BY",
+          "sourceStart": 51,
+          "sourceEnd": 79
+        }
+      ],
+      "reason": "Start point of the itinerary."
+    },
+    {
+      "text": "Walk down Mill Street to reach the Painted Lane.",
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Walk down Mill Street",
+          "role": "ROUTE_LEG",
+          "sourceStart": 81,
+          "sourceEnd": 102
+        },
+        {
+          "sourceName": "Painted Lane",
+          "supportSpan": "reach the Painted Lane",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 106,
+          "sourceEnd": 128
+        }
+      ],
+      "reason": "Walks along Mill Street to reach Painted Lane."
+    },
+    {
+      "text": "The Painted Lane is the reason to come: stroll its whole 150-metre curve slowly, looking at every painted tin house and the murals along it.",
+      "atomId": "a-004",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The Painted Lane",
+          "supportSpan": "The Painted Lane",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 130,
+          "sourceEnd": 146
+        }
+      ],
+      "reason": "Main attraction to stroll and visit."
+    },
+    {
+      "text": "Halfway along, you will pass the Sailors' Church on your right.",
+      "atomId": "a-005",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Sailors' Church",
+          "supportSpan": "Sailors' Church",
+          "role": "PASS_BY",
+          "sourceStart": 304,
+          "sourceEnd": 319
+        }
+      ],
+      "reason": "Passed along the way."
+    },
+    {
+      "text": "At the end of the lane, visit the Riverside Art Museum.",
+      "atomId": "a-006",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Riverside Art Museum",
+          "supportSpan": "Riverside Art Museum",
+          "role": "ITINERARY_STOP",
+          "sourceStart": 369,
+          "sourceEnd": 389
+        }
+      ],
+      "reason": "Museum to visit at the end of the lane."
+    }
+  ],
+  "issues": [
+    {
+      "relabel": true,
+      "code": "ROLE_INCONSISTENT",
+      "atomId": "a-003",
+      "detail": "entity role ITINERARY_STOP exceeds classification ROUTE_LEG"
+    }
+  ]
+}

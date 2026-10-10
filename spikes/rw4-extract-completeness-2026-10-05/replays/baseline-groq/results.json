@@ -1,0 +1,146 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 5215,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 33566,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 47317,
+    "inputChars": 8453,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "ms": 54909,
+    "inputChars": 11005,
+    "failures": [
+      "THROWN: AiProviderError: Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1429. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 943,
+    "inputChars": 11005,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "ms": 53997,
+    "inputChars": 11005,
+    "failures": [
+      "THROWN: AiProviderError: Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1429. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 776,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 2,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 24454,
+    "inputChars": 5493,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 3,
+    "ms": 40853,
+    "inputChars": 5493,
+    "failures": [
+      "THROWN: AiProviderError: Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1429. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 1,
+    "ms": 5156,
+    "inputChars": 5873,
+    "failures": [
+      "THROWN: AiProviderError: Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1429. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 2,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 1568,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 3,
+    "provider": "groq",
+    "model": "qwen/qwen3.8-27b",
+    "ms": 40999,
+    "inputChars": 5873,
+    "failures": [],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

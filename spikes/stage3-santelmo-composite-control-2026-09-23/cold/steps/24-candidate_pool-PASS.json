@@ -1,0 +1,290 @@
+{
+  "label": "Ranking de Experiences",
+  "rules": [
+    {
+      "rule": "Ordenar Experiences por relevancia semántica y calidad",
+      "actual": 6,
+      "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+      "result": "PASS",
+      "ruleId": "EXPERIENCE-RANK-001"
+    }
+  ],
+  "stage": "candidate_pool",
+  "inputs": {
+    "eligibleCount": 6,
+    "requestedThemes": [
+      "history"
+    ],
+    "initialCatalogCount": 0,
+    "postAcquisitionCatalogCount": 6
+  },
+  "status": "PASS",
+  "outputs": {
+    "bySource": {
+      "refill": 0,
+      "catalog": 6,
+      "discovery": 0
+    },
+    "offeredCandidateCount": 6
+  },
+  "summary": "Se evaluaron 6 experiencias elegibles y se ofrecieron 6 candidatas (6 catálogo, 0 adquisición, 0 discovery).",
+  "decision": {
+    "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+    "status": "PASS",
+    "outcome": "EXPERIENCE_POOL_RANKED",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "RUN_DAILY_PLANNING"
+    ]
+  },
+  "component": "ExperienceRankingEngine",
+  "candidates": [
+    {
+      "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "name": "Museo Histórico Nacional",
+      "chosen": false,
+      "detail": "score total 1.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.6530068516731262
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "name": "Plaza Dorrego",
+      "chosen": false,
+      "detail": "score total 1.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.5103856477256314
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "a539265a-936a-49e0-850f-9be3d3429738",
+      "name": "Feria De las Artes San Telmo",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.781819083538972,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6950216111553688
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "name": "Mercado San Telmo",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6490916013717651
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "name": "Museo Moderno",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 4.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5592120885848999
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "name": "Galeria Del Asombro",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 4.7,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5548604130744934
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    }
+  ],
+  "candidatePool": {
+    "bySource": {
+      "refill": 0,
+      "catalog": 6,
+      "discovery": 0
+    },
+    "eligibleCount": 6,
+    "llmWindowCount": 6,
+    "initialCatalogCount": 0,
+    "postAcquisitionCatalogCount": 6
+  },
+  "candidateDecisions": [
+    {
+      "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "name": "Museo Histórico Nacional",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.6530068516731262
+      }
+    },
+    {
+      "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "name": "Plaza Dorrego",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.5103856477256314
+      }
+    },
+    {
+      "id": "a539265a-936a-49e0-850f-9be3d3429738",
+      "name": "Feria De las Artes San Telmo",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.781819083538972,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6950216111553688
+      }
+    },
+    {
+      "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "name": "Mercado San Telmo",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6490916013717651
+      }
+    },
+    {
+      "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "name": "Museo Moderno",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 4.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5592120885848999
+      }
+    },
+    {
+      "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "name": "Galeria Del Asombro",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 4.7,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5548604130744934
+      }
+    }
+  ]
+}

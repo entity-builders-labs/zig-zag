@@ -1,0 +1,59 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Defensa Street",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:58.667Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 894
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Defensa Street",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.6114448,-58.3744799,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "San Telmo Fair",
+        "address": "Defensa 320, C1065AAT C1065AAT, Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.6114448,
+        "longitude": -58.371905,
+        "rating": 4.5,
+        "ratingCount": 5448,
+        "type": "Market",
+        "types": [
+          "Market",
+          "Fairground"
+        ],
+        "website": "http://www.feriadesantelmo.com/",
+        "phoneNumber": "+54 9 11 6201-1871",
+        "description": "Handicrafts, vintage finds, clothing & knick-knacks pack outdoor stalls at a lively Sunday market.",
+        "openingHours": {
+          "Friday": "Closed",
+          "Saturday": "Closed",
+          "Sunday": "9 AM–6:30 PM",
+          "Monday": "Closed",
+          "Tuesday": "Closed",
+          "Wednesday": "Closed",
+          "Thursday": "Closed"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/grass-cs/ACvplmNOYCEsmkjfAItls9xaRTf4pjUaM_LSDO9MmKsEoPGxXxM9pkuAYuuOCEWMoGYcmcg9o3jTgi_mMMl6p0Rw-MM0ULc7uAytQgKFL4ZkL5Hyc9FejhYYtsbnfryjQWUAxhTee4DfiUjjpxRb",
+        "cid": "1965224047085179733",
+        "fid": "0x95bccad4a9945bcd:0x1b45e0dbce915355",
+        "placeId": "ChIJzVuUqdTKvJURVVORztvgRRs"
+      }
+    ],
+    "credits": 3
+  }
+}

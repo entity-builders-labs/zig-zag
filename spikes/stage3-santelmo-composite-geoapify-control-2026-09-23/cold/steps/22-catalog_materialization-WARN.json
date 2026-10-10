@@ -1,0 +1,79 @@
+{
+  "label": "Materialización en catálogo",
+  "rules": [
+    {
+      "rule": "Persistir composites solo después de GEO_VERIFIED",
+      "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+      "result": "PASS",
+      "ruleId": "MAT-GEO-GATE-001"
+    },
+    {
+      "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+      "actual": 0,
+      "reason": "0 Experience id(s) quedaron disponibles para re-query.",
+      "result": "WARN",
+      "ruleId": "MAT-CANONICAL-001"
+    }
+  ],
+  "stage": "catalog_materialization",
+  "inputs": {
+    "geoVerifiedCount": 0
+  },
+  "status": "WARN",
+  "outputs": {
+    "rejectedCount": 0,
+    "materializedCount": 0,
+    "persistedExperienceIds": []
+  },
+  "summary": "0 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 0 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+  "decision": {
+    "reason": "No hubo propuesta verificada que pudiera materializarse.",
+    "status": "WARN",
+    "outcome": "NO_EXPERIENCES_MATERIALIZED",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "ExperienceCatalogService",
+  "degradedReason": "no_experiences_materialized",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "6d3c9fce-3a6f-4ff6-bca7-d5d29233612b",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 2
+  },
+  "candidateDecisions": [],
+  "classificationAudit": [],
+  "materializationAudit": []
+}

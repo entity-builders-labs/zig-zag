@@ -1,0 +1,1927 @@
+[
+  {
+    "acquisitionContext": {
+      "strategy": "area_route_walk",
+      "passNumber": 1,
+      "anchor": {
+        "status": "resolved",
+        "rawName": "San Telmo",
+        "usage": "geographic_scope",
+        "priority": "must",
+        "canonicalName": "San Telmo",
+        "kind": "area",
+        "geoEntityId": "76563302-6bc7-4f53-9fd4-3ad846ca3d15",
+        "provider": "openstreetmap",
+        "externalId": "osm:relation:2223069",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                -58.370707,
+                -34.6288327
+              ],
+              [
+                -58.3707486,
+                -34.6284699
+              ],
+              [
+                -58.3707885,
+                -34.6281218
+              ],
+              [
+                -58.3708568,
+                -34.6275262
+              ],
+              [
+                -58.3709597,
+                -34.6266288
+              ],
+              [
+                -58.3710905,
+                -34.626596
+              ],
+              [
+                -58.3723633,
+                -34.6266731
+              ],
+              [
+                -58.3724413,
+                -34.6266778
+              ],
+              [
+                -58.3725549,
+                -34.6266861
+              ],
+              [
+                -58.3737178,
+                -34.6267307
+              ],
+              [
+                -58.3738806,
+                -34.6267378
+              ],
+              [
+                -58.3744902,
+                -34.6267694
+              ],
+              [
+                -58.3745854,
+                -34.6267763
+              ],
+              [
+                -58.3746446,
+                -34.6267844
+              ],
+              [
+                -58.3747056,
+                -34.6268039
+              ],
+              [
+                -58.3749748,
+                -34.6269394
+              ],
+              [
+                -58.375385,
+                -34.6271458
+              ],
+              [
+                -58.3754696,
+                -34.6271861
+              ],
+              [
+                -58.3756217,
+                -34.6272649
+              ],
+              [
+                -58.3762387,
+                -34.6262681
+              ],
+              [
+                -58.3767266,
+                -34.6252276
+              ],
+              [
+                -58.3767568,
+                -34.6251044
+              ],
+              [
+                -58.3767882,
+                -34.6249759
+              ],
+              [
+                -58.3770952,
+                -34.6234817
+              ],
+              [
+                -58.3771441,
+                -34.6230464
+              ],
+              [
+                -58.3771701,
+                -34.6227132
+              ],
+              [
+                -58.3771727,
+                -34.6226908
+              ],
+              [
+                -58.3771933,
+                -34.6221809
+              ],
+              [
+                -58.3772005,
+                -34.6220596
+              ],
+              [
+                -58.3772375,
+                -34.6208824
+              ],
+              [
+                -58.3772729,
+                -34.6198396
+              ],
+              [
+                -58.3772768,
+                -34.619717
+              ],
+              [
+                -58.3773066,
+                -34.618546
+              ],
+              [
+                -58.3773666,
+                -34.6174446
+              ],
+              [
+                -58.3774266,
+                -34.6164006
+              ],
+              [
+                -58.3774335,
+                -34.6162888
+              ],
+              [
+                -58.3759823,
+                -34.6162156
+              ],
+              [
+                -58.3759098,
+                -34.6162127
+              ],
+              [
+                -58.3753315,
+                -34.6161333
+              ],
+              [
+                -58.3750064,
+                -34.616111
+              ],
+              [
+                -58.3745367,
+                -34.6160814
+              ],
+              [
+                -58.3740885,
+                -34.6160878
+              ],
+              [
+                -58.3731377,
+                -34.6160311
+              ],
+              [
+                -58.3717268,
+                -34.6160069
+              ],
+              [
+                -58.3705677,
+                -34.6158885
+              ],
+              [
+                -58.3702474,
+                -34.6158634
+              ],
+              [
+                -58.3694603,
+                -34.6158184
+              ],
+              [
+                -58.3691935,
+                -34.6158062
+              ],
+              [
+                -58.3691164,
+                -34.6158027
+              ],
+              [
+                -58.3690485,
+                -34.6157995
+              ],
+              [
+                -58.3688548,
+                -34.6157785
+              ],
+              [
+                -58.3675674,
+                -34.6156888
+              ],
+              [
+                -58.3667938,
+                -34.6156225
+              ],
+              [
+                -58.3667851,
+                -34.6157048
+              ],
+              [
+                -58.366749,
+                -34.6160478
+              ],
+              [
+                -58.3667195,
+                -34.6162987
+              ],
+              [
+                -58.3667057,
+                -34.6164246
+              ],
+              [
+                -58.3666711,
+                -34.6167442
+              ],
+              [
+                -58.3666583,
+                -34.6168739
+              ],
+              [
+                -58.3665118,
+                -34.6181268
+              ],
+              [
+                -58.3663886,
+                -34.6191365
+              ],
+              [
+                -58.366373,
+                -34.6192488
+              ],
+              [
+                -58.36638,
+                -34.6193177
+              ],
+              [
+                -58.3663514,
+                -34.6195409
+              ],
+              [
+                -58.3663228,
+                -34.6197886
+              ],
+              [
+                -58.3662843,
+                -34.6201077
+              ],
+              [
+                -58.3662577,
+                -34.620301
+              ],
+              [
+                -58.3662382,
+                -34.6204429
+              ],
+              [
+                -58.3662255,
+                -34.6204998
+              ],
+              [
+                -58.3661651,
+                -34.6207707
+              ],
+              [
+                -58.366089,
+                -34.6214019
+              ],
+              [
+                -58.3660799,
+                -34.6215021
+              ],
+              [
+                -58.3660331,
+                -34.6219084
+              ],
+              [
+                -58.3659755,
+                -34.6224005
+              ],
+              [
+                -58.3659636,
+                -34.6225022
+              ],
+              [
+                -58.3659517,
+                -34.6225865
+              ],
+              [
+                -58.3659425,
+                -34.6226661
+              ],
+              [
+                -58.365877,
+                -34.6232299
+              ],
+              [
+                -58.3658646,
+                -34.6233366
+              ],
+              [
+                -58.3658794,
+                -34.623467
+              ],
+              [
+                -58.3658706,
+                -34.6238273
+              ],
+              [
+                -58.3658771,
+                -34.6238768
+              ],
+              [
+                -58.3658961,
+                -34.62392
+              ],
+              [
+                -58.3659283,
+                -34.6239587
+              ],
+              [
+                -58.3659761,
+                -34.6239964
+              ],
+              [
+                -58.3654409,
+                -34.6239585
+              ],
+              [
+                -58.3649986,
+                -34.6242217
+              ],
+              [
+                -58.3638891,
+                -34.6248534
+              ],
+              [
+                -58.3638107,
+                -34.6248894
+              ],
+              [
+                -58.3637351,
+                -34.6249241
+              ],
+              [
+                -58.3636554,
+                -34.6249524
+              ],
+              [
+                -58.3635847,
+                -34.6249791
+              ],
+              [
+                -58.3634281,
+                -34.6250198
+              ],
+              [
+                -58.3632681,
+                -34.6250573
+              ],
+              [
+                -58.3630029,
+                -34.6250994
+              ],
+              [
+                -58.3631097,
+                -34.6251021
+              ],
+              [
+                -58.3635197,
+                -34.625112
+              ],
+              [
+                -58.3635706,
+                -34.6251135
+              ],
+              [
+                -58.3636558,
+                -34.6251159
+              ],
+              [
+                -58.3638436,
+                -34.6251211
+              ],
+              [
+                -58.3638848,
+                -34.6251223
+              ],
+              [
+                -58.3646377,
+                -34.6251389
+              ],
+              [
+                -58.3655159,
+                -34.6251618
+              ],
+              [
+                -58.365658,
+                -34.6251655
+              ],
+              [
+                -58.3658115,
+                -34.6251695
+              ],
+              [
+                -58.3659101,
+                -34.6251721
+              ],
+              [
+                -58.3661862,
+                -34.6251793
+              ],
+              [
+                -58.3664974,
+                -34.6251874
+              ],
+              [
+                -58.3676114,
+                -34.6252139
+              ],
+              [
+                -58.3677232,
+                -34.6252119
+              ],
+              [
+                -58.3678562,
+                -34.6252099
+              ],
+              [
+                -58.36788,
+                -34.6252108
+              ],
+              [
+                -58.3678881,
+                -34.6270379
+              ],
+              [
+                -58.3678948,
+                -34.6270415
+              ],
+              [
+                -58.3680514,
+                -34.6271086
+              ],
+              [
+                -58.3685189,
+                -34.6274158
+              ],
+              [
+                -58.3685771,
+                -34.6274659
+              ],
+              [
+                -58.3686753,
+                -34.6275484
+              ],
+              [
+                -58.3693762,
+                -34.628189
+              ],
+              [
+                -58.3694064,
+                -34.6282165
+              ],
+              [
+                -58.3694924,
+                -34.6282973
+              ],
+              [
+                -58.3695759,
+                -34.6283777
+              ],
+              [
+                -58.3697892,
+                -34.6285768
+              ],
+              [
+                -58.3699411,
+                -34.6287186
+              ],
+              [
+                -58.3701257,
+                -34.6288985
+              ],
+              [
+                -58.3702272,
+                -34.6289948
+              ],
+              [
+                -58.3702541,
+                -34.629015
+              ],
+              [
+                -58.3705669,
+                -34.6293171
+              ],
+              [
+                -58.3706686,
+                -34.6294214
+              ],
+              [
+                -58.3706828,
+                -34.6292123
+              ],
+              [
+                -58.3706876,
+                -34.6291523
+              ],
+              [
+                -58.3706927,
+                -34.6290726
+              ],
+              [
+                -58.370707,
+                -34.6288327
+              ]
+            ]
+          ]
+        },
+        "osmBoundary": {
+          "id": "osm:relation:2223069",
+          "name": "San Telmo",
+          "osmType": "relation",
+          "osmId": 2223069,
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -58.370707,
+                  -34.6288327
+                ],
+                [
+                  -58.3707486,
+                  -34.6284699
+                ],
+                [
+                  -58.3707885,
+                  -34.6281218
+                ],
+                [
+                  -58.3708568,
+                  -34.6275262
+                ],
+                [
+                  -58.3709597,
+                  -34.6266288
+                ],
+                [
+                  -58.3710905,
+                  -34.626596
+                ],
+                [
+                  -58.3723633,
+                  -34.6266731
+                ],
+                [
+                  -58.3724413,
+                  -34.6266778
+                ],
+                [
+                  -58.3725549,
+                  -34.6266861
+                ],
+                [
+                  -58.3737178,
+                  -34.6267307
+                ],
+                [
+                  -58.3738806,
+                  -34.6267378
+                ],
+                [
+                  -58.3744902,
+                  -34.6267694
+                ],
+                [
+                  -58.3745854,
+                  -34.6267763
+                ],
+                [
+                  -58.3746446,
+                  -34.6267844
+                ],
+                [
+                  -58.3747056,
+                  -34.6268039
+                ],
+                [
+                  -58.3749748,
+                  -34.6269394
+                ],
+                [
+                  -58.375385,
+                  -34.6271458
+                ],
+                [
+                  -58.3754696,
+                  -34.6271861
+                ],
+                [
+                  -58.3756217,
+                  -34.6272649
+                ],
+                [
+                  -58.3762387,
+                  -34.6262681
+                ],
+                [
+                  -58.3767266,
+                  -34.6252276
+                ],
+                [
+                  -58.3767568,
+                  -34.6251044
+                ],
+                [
+                  -58.3767882,
+                  -34.6249759
+                ],
+                [
+                  -58.3770952,
+                  -34.6234817
+                ],
+                [
+                  -58.3771441,
+                  -34.6230464
+                ],
+                [
+                  -58.3771701,
+                  -34.6227132
+                ],
+                [
+                  -58.3771727,
+                  -34.6226908
+                ],
+                [
+                  -58.3771933,
+                  -34.6221809
+                ],
+                [
+                  -58.3772005,
+                  -34.6220596
+                ],
+                [
+                  -58.3772375,
+                  -34.6208824
+                ],
+                [
+                  -58.3772729,
+                  -34.6198396
+                ],
+                [
+                  -58.3772768,
+                  -34.619717
+                ],
+                [
+                  -58.3773066,
+                  -34.618546
+                ],
+                [
+                  -58.3773666,
+                  -34.6174446
+                ],
+                [
+                  -58.3774266,
+                  -34.6164006
+                ],
+                [
+                  -58.3774335,
+                  -34.6162888
+                ],
+                [
+                  -58.3759823,
+                  -34.6162156
+                ],
+                [
+                  -58.3759098,
+                  -34.6162127
+                ],
+                [
+                  -58.3753315,
+                  -34.6161333
+                ],
+                [
+                  -58.3750064,
+                  -34.616111
+                ],
+                [
+                  -58.3745367,
+                  -34.6160814
+                ],
+                [
+                  -58.3740885,
+                  -34.6160878
+                ],
+                [
+                  -58.3731377,
+                  -34.6160311
+                ],
+                [
+                  -58.3717268,
+                  -34.6160069
+                ],
+                [
+                  -58.3705677,
+                  -34.6158885
+                ],
+                [
+                  -58.3702474,
+                  -34.6158634
+                ],
+                [
+                  -58.3694603,
+                  -34.6158184
+                ],
+                [
+                  -58.3691935,
+                  -34.6158062
+                ],
+                [
+                  -58.3691164,
+                  -34.6158027
+                ],
+                [
+                  -58.3690485,
+                  -34.6157995
+                ],
+                [
+                  -58.3688548,
+                  -34.6157785
+                ],
+                [
+                  -58.3675674,
+                  -34.6156888
+                ],
+                [
+                  -58.3667938,
+                  -34.6156225
+                ],
+                [
+                  -58.3667851,
+                  -34.6157048
+                ],
+                [
+                  -58.366749,
+                  -34.6160478
+                ],
+                [
+                  -58.3667195,
+                  -34.6162987
+                ],
+                [
+                  -58.3667057,
+                  -34.6164246
+                ],
+                [
+                  -58.3666711,
+                  -34.6167442
+                ],
+                [
+                  -58.3666583,
+                  -34.6168739
+                ],
+                [
+                  -58.3665118,
+                  -34.6181268
+                ],
+                [
+                  -58.3663886,
+                  -34.6191365
+                ],
+                [
+                  -58.366373,
+                  -34.6192488
+                ],
+                [
+                  -58.36638,
+                  -34.6193177
+                ],
+                [
+                  -58.3663514,
+                  -34.6195409
+                ],
+                [
+                  -58.3663228,
+                  -34.6197886
+                ],
+                [
+                  -58.3662843,
+                  -34.6201077
+                ],
+                [
+                  -58.3662577,
+                  -34.620301
+                ],
+                [
+                  -58.3662382,
+                  -34.6204429
+                ],
+                [
+                  -58.3662255,
+                  -34.6204998
+                ],
+                [
+                  -58.3661651,
+                  -34.6207707
+                ],
+                [
+                  -58.366089,
+                  -34.6214019
+                ],
+                [
+                  -58.3660799,
+                  -34.6215021
+                ],
+                [
+                  -58.3660331,
+                  -34.6219084
+                ],
+                [
+                  -58.3659755,
+                  -34.6224005
+                ],
+                [
+                  -58.3659636,
+                  -34.6225022
+                ],
+                [
+                  -58.3659517,
+                  -34.6225865
+                ],
+                [
+                  -58.3659425,
+                  -34.6226661
+                ],
+                [
+                  -58.365877,
+                  -34.6232299
+                ],
+                [
+                  -58.3658646,
+                  -34.6233366
+                ],
+                [
+                  -58.3658794,
+                  -34.623467
+                ],
+                [
+                  -58.3658706,
+                  -34.6238273
+                ],
+                [
+                  -58.3658771,
+                  -34.6238768
+                ],
+                [
+                  -58.3658961,
+                  -34.62392
+                ],
+                [
+                  -58.3659283,
+                  -34.6239587
+                ],
+                [
+                  -58.3659761,
+                  -34.6239964
+                ],
+                [
+                  -58.3654409,
+                  -34.6239585
+                ],
+                [
+                  -58.3649986,
+                  -34.6242217
+                ],
+                [
+                  -58.3638891,
+                  -34.6248534
+                ],
+                [
+                  -58.3638107,
+                  -34.6248894
+                ],
+                [
+                  -58.3637351,
+                  -34.6249241
+                ],
+                [
+                  -58.3636554,
+                  -34.6249524
+                ],
+                [
+                  -58.3635847,
+                  -34.6249791
+                ],
+                [
+                  -58.3634281,
+                  -34.6250198
+                ],
+                [
+                  -58.3632681,
+                  -34.6250573
+                ],
+                [
+                  -58.3630029,
+                  -34.6250994
+                ],
+                [
+                  -58.3631097,
+                  -34.6251021
+                ],
+                [
+                  -58.3635197,
+                  -34.625112
+                ],
+                [
+                  -58.3635706,
+                  -34.6251135
+                ],
+                [
+                  -58.3636558,
+                  -34.6251159
+                ],
+                [
+                  -58.3638436,
+                  -34.6251211
+                ],
+                [
+                  -58.3638848,
+                  -34.6251223
+                ],
+                [
+                  -58.3646377,
+                  -34.6251389
+                ],
+                [
+                  -58.3655159,
+                  -34.6251618
+                ],
+                [
+                  -58.365658,
+                  -34.6251655
+                ],
+                [
+                  -58.3658115,
+                  -34.6251695
+                ],
+                [
+                  -58.3659101,
+                  -34.6251721
+                ],
+                [
+                  -58.3661862,
+                  -34.6251793
+                ],
+                [
+                  -58.3664974,
+                  -34.6251874
+                ],
+                [
+                  -58.3676114,
+                  -34.6252139
+                ],
+                [
+                  -58.3677232,
+                  -34.6252119
+                ],
+                [
+                  -58.3678562,
+                  -34.6252099
+                ],
+                [
+                  -58.36788,
+                  -34.6252108
+                ],
+                [
+                  -58.3678881,
+                  -34.6270379
+                ],
+                [
+                  -58.3678948,
+                  -34.6270415
+                ],
+                [
+                  -58.3680514,
+                  -34.6271086
+                ],
+                [
+                  -58.3685189,
+                  -34.6274158
+                ],
+                [
+                  -58.3685771,
+                  -34.6274659
+                ],
+                [
+                  -58.3686753,
+                  -34.6275484
+                ],
+                [
+                  -58.3693762,
+                  -34.628189
+                ],
+                [
+                  -58.3694064,
+                  -34.6282165
+                ],
+                [
+                  -58.3694924,
+                  -34.6282973
+                ],
+                [
+                  -58.3695759,
+                  -34.6283777
+                ],
+                [
+                  -58.3697892,
+                  -34.6285768
+                ],
+                [
+                  -58.3699411,
+                  -34.6287186
+                ],
+                [
+                  -58.3701257,
+                  -34.6288985
+                ],
+                [
+                  -58.3702272,
+                  -34.6289948
+                ],
+                [
+                  -58.3702541,
+                  -34.629015
+                ],
+                [
+                  -58.3705669,
+                  -34.6293171
+                ],
+                [
+                  -58.3706686,
+                  -34.6294214
+                ],
+                [
+                  -58.3706828,
+                  -34.6292123
+                ],
+                [
+                  -58.3706876,
+                  -34.6291523
+                ],
+                [
+                  -58.3706927,
+                  -34.6290726
+                ],
+                [
+                  -58.370707,
+                  -34.6288327
+                ]
+              ]
+            ]
+          },
+          "tags": {
+            "admin_level": "9",
+            "boundary": "administrative",
+            "name": "San Telmo",
+            "type": "boundary",
+            "wikidata": "Q1026688",
+            "wikipedia": "es:San Telmo (Buenos Aires)"
+          }
+        }
+      }
+    },
+    "passNumber": 1,
+    "query": "San Telmo San Telmo walking tours walks historic walk in San Telmo",
+    "evidenceRequirements": [
+      "MULTI_COMPONENT_EXPERIENCE"
+    ],
+    "grounded": {
+      "provider": "serpapi",
+      "model": "google-ai-mode",
+      "groundingStatus": "applied",
+      "evidence": [
+        {
+          "key": "ev-1",
+          "source": "google_ai_mode",
+          "snippet": "San Telmo is the oldest and most atmospheric neighborhood in Buenos Aires, famous for its cobblestone streets, colonial architecture, antique markets, and tango roots. Whether you prefer a guided excursion or a self-paced walk, here are the top highlights, recommended walking routes, and ways to experience the historic heart of the city.",
+          "kind": "narrative_paragraph",
+          "order": 1
+        },
+        {
+          "key": "ev-2",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "DirectionsWebsiteWidely regarded by historians as the traditional site of Buenos Aires' first (failed) foundation by Pedro de Mendoza in 1536. It’s a lush, sloping park home to the National Historical Museum.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 2,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-3",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "The main artery of the neighborhood, bustling with colonial facades, street performers, and antique shops, especially lively on Sundays during the famous Feria de San Telmo.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 3,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-4",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "DirectionsWebsiteThe beating heart of San Telmo, surrounded by outdoor cafes and historic bars. On Sundays, it transforms into a vibrant antique market and open-air tango floor.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 4,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-5",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "CallDirectionsWebsiteLocated at 505 San Lorenzo Pass, this is famously Buenos Aires' narrowest house—measuring just 2.3 meters wide—with fascinating legends attached to its origins.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 5,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-6",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "CallDirectionsWebsiteA classic 1897 indoor market where you can transition from historical wrought-iron architecture to modern-day food stalls selling local specialties, empanadas, and coffee.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 6,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-7",
+          "source": "Key Historic Highlights on a San Telmo Walk",
+          "snippet": "CallDirectionsWebsiteHistoric religious and cultural landmarks that tie the neighborhood to the maritime history and early days of tango.",
+          "title": "Key Historic Highlights on a San Telmo Walk",
+          "kind": "narrative_paragraph",
+          "order": 7,
+          "contextHeading": "Key Historic Highlights on a San Telmo Walk"
+        },
+        {
+          "key": "ev-8",
+          "source": "Booking & Exploration Options",
+          "snippet": "Guided Walking Tours: Booking a professional or free walking tour (such as those found on platforms like FreeTour.com or GuruWalk) offers deep context into the 19th-century yellow fever epidemic, immigrant tenements (conventillos), and architecture.",
+          "title": "Booking & Exploration Options",
+          "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+          "kind": "list_item",
+          "order": 8,
+          "contextHeading": "Booking & Exploration Options"
+        },
+        {
+          "key": "ev-9",
+          "source": "Booking & Exploration Options",
+          "snippet": "Food & History Combos: Many operators bundle historical commentary with culinary stops, tasting local street food like choripán, empanadas, and dulce de leche ice cream (explore options via Expedia Activities).",
+          "title": "Booking & Exploration Options",
+          "url": "https://www.expedia.com/lx/activity/44961270/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+          "kind": "list_item",
+          "order": 9,
+          "contextHeading": "Booking & Exploration Options"
+        },
+        {
+          "key": "ev-10",
+          "source": "Booking & Exploration Options",
+          "snippet": "Self-Guided Route: Start near Plaza de Mayo / Basílica de San Francisco, head south down Calle Defensa toward Plaza Dorrego, detour into Pasaje San Lorenzo to see Casa Mínima, and finish at Parque Lezama.",
+          "title": "Booking & Exploration Options",
+          "kind": "list_item",
+          "order": 10,
+          "contextHeading": "Booking & Exploration Options"
+        },
+        {
+          "key": "ev-11",
+          "source": "Booking & Exploration Options",
+          "snippet": "Are you planning to visit on a Sunday (when the big street market is active), and would you prefer a self-guided itinerary or recommendations for a paid/free guided walking tour?",
+          "title": "Booking & Exploration Options",
+          "kind": "narrative_paragraph",
+          "order": 11,
+          "contextHeading": "Booking & Exploration Options"
+        },
+        {
+          "key": "ev-12",
+          "source": "www.freetour.com",
+          "snippet": "City tour through San Telmo (in German) Discover with me San Telmo, the historic heart of Buenos Aires. We will visit the Parque Lezama, talk about the former Palacio Lezama, and the Museo Histórico Nacional. We also see the monument to Argentine-Uruguayan friendship and the monument to Pedro de Mendoza, the founder of the city. We then walk along Calle Defensa to Plaza Dorrego, known for its antiques and tango. We visit the colonial house \\\"Solar de French\\\" and the church Nuestra Señora de Belén, where I tell you about Pedro González Telmo - the patron saint of sailors and the namesake of the district. Finally, we will explore the Mercado de San Telmo with its special flair. The tour is in German - ideal for anyone who wants to experience history in a lively way!",
+          "title": "City Tour Through San Telmo",
+          "url": "https://www.freetour.com/buenos-aires/city-tour-through-san-telmo?source={src}",
+          "kind": "reference",
+          "order": 12
+        },
+        {
+          "key": "ev-13",
+          "source": "tourscanner.com",
+          "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. ...",
+          "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+          "url": "https://tourscanner.com/p/slug-a7mxfq7k?&lang={lang}&utm_source=GTTD&curr={currency}&GTTD_source={src}&GTTD_product_id={product_id}",
+          "kind": "reference",
+          "order": 13
+        },
+        {
+          "key": "ev-14",
+          "source": "www.agoda.com",
+          "snippet": "Discover the colonial history of Buenos Aires and Argentina on a guided San Telmo walking tour. Explore the city's transformation from a small village to a cosmopolitan hub, with engaging stories about its foundation, native peoples, invasions, and independence. This experience is perfect for culture and history enthusiasts seeking a professional and modern approach. - Walk through San Telmo, the oldest neighborhood in Buenos Aires, and hear tales from the Colonial era. - Learn about local icons like Mafalda, the minimal house, and the Aborigines of Argentina. - Visit landmarks such as the San Telmo Market, the Ezeiza Mansion, and Lezama Park, which marks the foundation of the city. - Discover unique spots like San Lorenzo Passage, the apple of lights, and the Ex Eva Peron Foundation.",
+          "title": "San Telmo Colonial Walking Tour – Buenos Aires History",
+          "url": "https://www.agoda.com/activities/search?cid=1909882&cityId=9294&selectedActivity={product_id}&mseOfferId={option_id}&currency={currency}&gl={lang}&gs={surface}&gf={funnel}&gacs={GOOGLE-ADS-CLICK-SOURCE}",
+          "kind": "reference",
+          "order": 14
+        },
+        {
+          "key": "ev-15",
+          "source": "www.guruwalk.com",
+          "snippet": "Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behind a facade just 2.3 meters wide. This intimate space is a living relic of San Telmo, preserving the neighborhood’s oldest myths and traditions. As you step inside, you’ll discover how the house’s walls have witnessed the transformation from the era of slavery to the vibrant origins of tango, offering a rare glimpse into the lives that shaped this iconic district.Your guide will lead you through Casa Mínima and the adjacent corner space, revealing stories of freedom, resilience, and daily life in 19th-century Buenos Aires. Learn how a grand mansion was divided into a tenement, reflecting the changing fortunes and diverse communities of San Telmo. Marvel at the preserved original materials and archaeological finds that bring the neighborhood’s past to life, from hidden courtyards to artifacts unearthed during careful restoration.The tour concludes at the heart of San Telmo, leaving you perfectly placed to continue exploring the area’s lively streets, historic cafes, and vibrant markets at your own pace.",
+          "title": "Buenos Aires: Casa Mínima Guided Tour in San Telmo",
+          "url": "https://www.guruwalk.com/pois/18650?product_id=89134&hub_id=76&s={surface}&f={funnel}&language={lang}&currency={currency}&ttd=true&vertical=activities&captacion__product_type=pp",
+          "kind": "reference",
+          "order": 15
+        },
+        {
+          "key": "ev-16",
+          "source": "www.expedia.com",
+          "snippet": "Nehmen Sie an unserem San Telmo History and Culture Walking Tour teil, um Buenos Aires ältestes Viertel zu erkunden. Während Sie d...",
+          "title": "Visite historique de San Telmo avec cuisine de rue, boissons",
+          "url": "https://www.expedia.com/lx/activity/44961270/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+          "kind": "reference",
+          "order": 16
+        }
+      ]
+    },
+    "extractor": {
+      "provider": "groq",
+      "model": "qwen/qwen3.8-27b",
+      "systemPrompt": "You are an ExperienceCandidate extractor.\n\nYour task is to convert grounded tourism research into structured ExperienceCandidate\ncandidates for a destination based on:\n- the user's requested themes and soft Experience intents;\n- exploration style;\n- additional preferences;\n- explicit coverage gaps;\n- grounded search evidence supplied to you.\n\nIf day_trip is requested, only extract experiences supported by evidence as suitable\nfrom the selected base destination and returning the same day. Do not return overnight\nor weekend-only trips.\n\nYou are NOT responsible for trusted geographic identity.\n\nThe backend independently resolves all proposed entities through trusted geographic\nproviders before anything may be persisted.\n\nNever provide or invent:\n- coordinates;\n- Google Place IDs;\n- OpenStreetMap IDs;\n- Wikidata IDs;\n- provider-specific geographic identifiers;\n- URLs or citations that were not supplied in the grounded evidence.",
+      "userPrompt": "Destination: San Telmo\nThemes: none\nRequested intents: walk\nPreferences: historic walk in San Telmo\nRequired evidence shape: MULTI_COMPONENT_EXPERIENCE\nWhen MULTI_COMPONENT_EXPERIENCE is requested, only emit a multi-component candidate when grounded evidence explicitly supports at least two required non-area real geographic components as belonging to that same real Experience.\nNever combine independent POIs merely because they appear in adjacent paragraphs, under the same neighborhood heading, or in the same search answer.\nA multi-component candidate is allowed only when the evidence itself describes one real walk, tour, itinerary, route or visiting sequence containing those components.\nGeneric labels such as \"Official City Tour\", \"Private Tour\", \"Small Group Tour\" and \"Walking Tour\" are not geographic ROUTE entities. Do not emit them as componentHints unless grounded evidence names a real geographic route by that name.\nIf evidence proves that a walk/tour exists but does not name at least two real geographic components, emit no candidate for MULTI_COMPONENT_EXPERIENCE. Never invent stops to satisfy the requested shape.\ncomponentHints[].name must be the identity of an entity the grounded evidence explicitly supports. When the evidence clearly refers to one specific real named place, you MAY normalize or translate that SAME entity to the official local-language name used by that country's mapping data (for Argentina and most of Latin America this is Spanish — e.g. evidence \"El Leoncito National Park\" becomes \"Parque Nacional El Leoncito\"), but ONLY when you are confident it is the same entity, so the backend can match it against a local-language map database. Never use this to introduce a different place, add an entity absent from the evidence, turn a place or business category into a concrete venue, add coordinates or provider IDs, or invent an official name you are unsure of. If you are uncertain, keep the exact name the evidence uses and let the backend geographic resolver decide the canonical identity.\nReturn JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence. Each componentHints entry must contain key (a short slug), name, role (one of area, waypoint, route, venue), expectedKind (one of PLACE, AREA, ROUTE), required (boolean), evidenceKeys (a non-empty array of the exact evidence keys that name it), and optionally addressHint (a street address, ONLY when the same cited evidence explicitly states one for this exact entity — e.g. \"Junín 1760\" or \"on Armenia street, number 1366\"; omit entirely when evidence gives no address, never invent or guess one from the venue name or general area). Never invent other role or expectedKind values.\nSome evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role \"venue\" for a point, \"route\" for a named street/path, \"area\" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.\nA componentHints[].name for role \"venue\" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like \"Armenia 1366\" or says a venue is \"on Armenia street\", the venue name is whatever business/place it names (e.g. \"La Viruta\"), never \"Armenia\" itself — instead, put that same address string in addressHint for that componentHint, so the backend can use it as an independent, non-name-based confirmation signal. Only use role \"route\" naming a street when the street itself, not a venue located on it, is what the candidate describes.\nEvery componentHint must be a specific, real, resolvable geographic entity. Never invent a generic pseudo-entity from a category the evidence only mentions in general — e.g. do NOT emit a role \"venue\" expectedKind \"PLACE\" hint named \"Specialty Coffee Shop\", \"Coffee Shop\", \"Local Brewery\", \"Craft Beer Bar\", \"Wine Store\" or \"Historic Restaurant\" just because the evidence says a place \"has many specialty coffee shops\" or \"small local breweries\". If the evidence names no concrete business, either omit that componentHint, cite a real named area (role \"area\", expectedKind \"AREA\") the evidence does name, or keep the concept only in the candidate description/traits. Do not resolve geography yourself.\norderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components (e.g. \"start at X, then walk to Y\"); otherwise false. Never infer an order from componentHints array order.\nthemes must be drawn ONLY from this controlled vocabulary: history, culture, art, architecture, nature, outdoor, beach, hiking, food, gastronomy, nightlife, music, entertainment, family, tango, wine, photography, shopping, sports. intents must be drawn ONLY from this controlled vocabulary: walk, route_like, day_trip, visit, performance, shopping, food, nightlife. Use the exact canonical key, never a localized or synonym form. traits is the open-ended dimension: put descriptive properties that are NOT one of those canonical themes/intents here (e.g. \"craft beer\", \"rooftop\", \"family friendly\", \"specialty coffee\"). Never put a canonical theme or canonical intent inside traits. themes and intents are separate, independent controlled dimensions: the same canonical key MAY appear in both themes and intents when it legitimately represents both roles and the request or evidence supports both — do not deduplicate across themes and intents.\nintents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.\nFor day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.\nDo not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.\nGrounded evidence:\n[ev-1] google_ai_mode: San Telmo is the oldest and most atmospheric neighborhood in Buenos Aires, famous for its cobblestone streets, colonial architecture, antique markets, and tango roots. Whether you prefer a guided excursion or a self-paced walk, here are the top highlights, recommended walking routes, and ways to experience the historic heart of the city.\n[ev-2] Key Historic Highlights on a San Telmo Walk: DirectionsWebsiteWidely regarded by historians as the traditional site of Buenos Aires' first (failed) foundation by Pedro de Mendoza in 1536. It’s a lush, sloping park home to the National Historical Museum.\n[ev-3] Key Historic Highlights on a San Telmo Walk: The main artery of the neighborhood, bustling with colonial facades, street performers, and antique shops, especially lively on Sundays during the famous Feria de San Telmo.\n[ev-4] Key Historic Highlights on a San Telmo Walk: DirectionsWebsiteThe beating heart of San Telmo, surrounded by outdoor cafes and historic bars. On Sundays, it transforms into a vibrant antique market and open-air tango floor.\n[ev-5] Key Historic Highlights on a San Telmo Walk: CallDirectionsWebsiteLocated at 505 San Lorenzo Pass, this is famously Buenos Aires' narrowest house—measuring just 2.3 meters wide—with fascinating legends attached to its origins.\n[ev-6] Key Historic Highlights on a San Telmo Walk: CallDirectionsWebsiteA classic 1897 indoor market where you can transition from historical wrought-iron architecture to modern-day food stalls selling local specialties, empanadas, and coffee.\n[ev-7] Key Historic Highlights on a San Telmo Walk: CallDirectionsWebsiteHistoric religious and cultural landmarks that tie the neighborhood to the maritime history and early days of tango.\n[ev-8] Booking & Exploration Options: Guided Walking Tours: Booking a professional or free walking tour (such as those found on platforms like FreeTour.com or GuruWalk) offers deep context into the 19th-century yellow fever epidemic, immigrant tenements (conventillos), and architecture.\n[ev-9] Booking & Exploration Options: Food & History Combos: Many operators bundle historical commentary with culinary stops, tasting local street food like choripán, empanadas, and dulce de leche ice cream (explore options via Expedia Activities).\n[ev-10] Booking & Exploration Options: Self-Guided Route: Start near Plaza de Mayo / Basílica de San Francisco, head south down Calle Defensa toward Plaza Dorrego, detour into Pasaje San Lorenzo to see Casa Mínima, and finish at Parque Lezama.\n[ev-11] Booking & Exploration Options: Are you planning to visit on a Sunday (when the big street market is active), and would you prefer a self-guided itinerary or recommendations for a paid/free guided walking tour?\n[ev-12] City Tour Through San Telmo: City tour through San Telmo (in German) Discover with me San Telmo, the historic heart of Buenos Aires. We will visit the Parque Lezama, talk about the former Palacio Lezama, and the Museo Histórico Nacional. We also see the monument to Argentine-Uruguayan friendship and the monument to Pedro de Mendoza, the founder of the city. We then walk along Calle Defensa to Plaza Dorrego, known for its antiques and tango. We visit the colonial house \\\"Solar de French\\\" and the church Nuestra Señora de Belén, where I tell you about Pedro González Telmo - the patron saint of sailors and the namesake of the district. Finally, we will explore the Mercado de San Telmo with its special flair. The tour is in German - ideal for anyone who wants to experience history in a lively way!\n[ev-13] Two to Tango: A San Telmo Self Guided Walking Tour: San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. ...\n[ev-14] San Telmo Colonial Walking Tour – Buenos Aires History: Discover the colonial history of Buenos Aires and Argentina on a guided San Telmo walking tour. Explore the city's transformation from a small village to a cosmopolitan hub, with engaging stories about its foundation, native peoples, invasions, and independence. This experience is perfect for culture and history enthusiasts seeking a professional and modern approach. - Walk through San Telmo, the oldest neighborhood in Buenos Aires, and hear tales from the Colonial era. - Learn about local icons like Mafalda, the minimal house, and the Aborigines of Argentina. - Visit landmarks such as the San Telmo Market, the Ezeiza Mansion, and Lezama Park, which marks the foundation of the city. - Discover unique spots like San Lorenzo Passage, the apple of lights, and the Ex Eva Peron Foundation.\n[ev-15] Buenos Aires: Casa Mínima Guided Tour in San Telmo: Begin your journey through Buenos Aires’ history with a guided visit to Casa Mínima, the city’s narrowest house, tucked away behind a facade just 2.3 meters wide. This intimate space is a living relic of San Telmo, preserving the neighborhood’s oldest myths and traditions. As you step inside, you’ll discover how the house’s walls have witnessed the transformation from the era of slavery to the vibrant origins of tango, offering a rare glimpse into the lives that shaped this iconic district.Your guide will lead you through Casa Mínima and the adjacent corner space, revealing stories of freedom, resilience, and daily life in 19th-century Buenos Aires. Learn how a grand mansion was divided into a tenement, reflecting the changing fortunes and diverse communities of San Telmo. Marvel at the preserved original materials and archaeological finds that bring the neighborhood’s past to life, from hidden courtyards to artifacts unearthed during careful restoration.The tour concludes at the heart of San Telmo, leaving you perfectly placed to continue exploring the area’s lively streets, historic cafes, and vibrant markets at your own pace.\n[ev-16] Visite historique de San Telmo avec cuisine de rue, boissons: Nehmen Sie an unserem San Telmo History and Culture Walking Tour teil, um Buenos Aires ältestes Viertel zu erkunden. Während Sie d...",
+      "rawOutput": "{\n  \"candidates\": [\n    {\n      \"name\": \"San Telmo Historic Self-Guided Route\",\n      \"description\": \"A self-guided walking route through the historic heart of San Telmo, starting near Plaza de Mayo and Basílica de San Francisco. The walk heads south down Calle Defensa toward Plaza Dorrego, includes a detour to Pasaje San Lorenzo to see the Casa Mínima, and concludes at Parque Lezama.\",\n      \"themes\": [\n        \"history\",\n        \"architecture\",\n        \"culture\"\n      ],\n      \"traits\": [\n        \"self-guided\",\n        \"cobblestone streets\",\n        \"colonial architecture\"\n      ],\n      \"intents\": [\n        \"walk\",\n        \"route_like\"\n      ],\n      \"suggestedDurationMinutes\": 120,\n      \"componentHints\": [\n        {\n          \"key\": \"plaza-de-mayo\",\n          \"name\": \"Plaza de Mayo\",\n          \"role\": \"waypoint\",\n          \"expectedKind\": \"PLACE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        },\n        {\n          \"key\": \"basilica-de-san-francisco\",\n          \"name\": \"Basílica de San Francisco\",\n          \"role\": \"waypoint\",\n          \"expectedKind\": \"PLACE\",\n          \"required\": false,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        },\n        {\n          \"key\": \"calle-defensa\",\n          \"name\": \"Calle Defensa\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        },\n        {\n          \"key\": \"plaza-dorrego\",\n          \"name\": \"Plaza Dorrego\",\n          \"role\": \"waypoint\",\n          \"expectedKind\": \"PLACE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        },\n        {\n          \"key\": \"pasaje-san-lorenzo\",\n          \"name\": \"Pasaje San Lorenzo\",\n          \"role\": \"route\",\n          \"expectedKind\": \"ROUTE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        },\n        {\n          \"key\": \"casa-minima\",\n          \"name\": \"Casa Mínima\",\n          \"role\": \"venue\",\n          \"expectedKind\": \"PLACE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\",\n            \"ev-5\"\n          ],\n          \"addressHint\": \"505 San Lorenzo Pass\"\n        },\n        {\n          \"key\": \"parque-lezama\",\n          \"name\": \"Parque Lezama\",\n          \"role\": \"waypoint\",\n          \"expectedKind\": \"PLACE\",\n          \"required\": true,\n          \"evidenceKeys\": [\n            \"ev-10\"\n          ]\n        }\n      ],\n      \"evidenceKeys\": [\n        \"ev-10\"\n      ],\n      \"shortReason\": \"Evidence explicitly describes a self-guided route with a specific visiting sequence: start near Plaza de Mayo, head south down Calle Defensa to Plaza Dorrego, detour to Pasaje San Lorenzo for Casa Mínima, and finish at Parque Lezama.\",\n      \"orderedByEvidence\": true\n    }\n  ]\n}",
+      "validationErrors": [],
+      "normalizedCandidates": [
+        {
+          "name": "San Telmo Historic Self-Guided Route",
+          "description": "A self-guided walking route through the historic heart of San Telmo, starting near Plaza de Mayo and Basílica de San Francisco. The walk heads south down Calle Defensa toward Plaza Dorrego, includes a detour to Pasaje San Lorenzo to see the Casa Mínima, and concludes at Parque Lezama.",
+          "themes": [
+            "history",
+            "architecture",
+            "culture"
+          ],
+          "traits": [
+            "self-guided",
+            "cobblestone streets",
+            "colonial architecture"
+          ],
+          "intents": [
+            "walk",
+            "route_like"
+          ],
+          "suggestedDurationMinutes": 120,
+          "componentHints": [
+            {
+              "key": "plaza-de-mayo",
+              "name": "Plaza de Mayo",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            },
+            {
+              "key": "basilica-de-san-francisco",
+              "name": "Basílica de San Francisco",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": false,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            },
+            {
+              "key": "calle-defensa",
+              "name": "Calle Defensa",
+              "role": "route",
+              "expectedKind": "ROUTE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            },
+            {
+              "key": "plaza-dorrego",
+              "name": "Plaza Dorrego",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            },
+            {
+              "key": "pasaje-san-lorenzo",
+              "name": "Pasaje San Lorenzo",
+              "role": "route",
+              "expectedKind": "ROUTE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            },
+            {
+              "key": "casa-minima",
+              "name": "Casa Mínima",
+              "role": "venue",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10",
+                "ev-5"
+              ],
+              "addressHint": "505 San Lorenzo Pass"
+            },
+            {
+              "key": "parque-lezama",
+              "name": "Parque Lezama",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10"
+              ]
+            }
+          ],
+          "evidenceKeys": [
+            "ev-10"
+          ],
+          "shortReason": "Evidence explicitly describes a self-guided route with a specific visiting sequence: start near Plaza de Mayo, head south down Calle Defensa to Plaza Dorrego, detour to Pasaje San Lorenzo for Casa Mínima, and finish at Parque Lezama.",
+          "orderedByEvidence": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "candidate": {
+            "name": "San Telmo Historic Self-Guided Route",
+            "description": "A self-guided walking route through the historic heart of San Telmo, starting near Plaza de Mayo and Basílica de San Francisco. The walk heads south down Calle Defensa toward Plaza Dorrego, includes a detour to Pasaje San Lorenzo to see the Casa Mínima, and concludes at Parque Lezama.",
+            "themes": [
+              "history",
+              "architecture",
+              "culture"
+            ],
+            "traits": [
+              "self-guided",
+              "cobblestone streets",
+              "colonial architecture"
+            ],
+            "intents": [
+              "walk",
+              "route_like"
+            ],
+            "suggestedDurationMinutes": 120,
+            "componentHints": [
+              {
+                "key": "plaza-de-mayo",
+                "name": "Plaza de Mayo",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              },
+              {
+                "key": "basilica-de-san-francisco",
+                "name": "Basílica de San Francisco",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": false,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              },
+              {
+                "key": "calle-defensa",
+                "name": "Calle Defensa",
+                "role": "route",
+                "expectedKind": "ROUTE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              },
+              {
+                "key": "plaza-dorrego",
+                "name": "Plaza Dorrego",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              },
+              {
+                "key": "pasaje-san-lorenzo",
+                "name": "Pasaje San Lorenzo",
+                "role": "route",
+                "expectedKind": "ROUTE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              },
+              {
+                "key": "casa-minima",
+                "name": "Casa Mínima",
+                "role": "venue",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10",
+                  "ev-5"
+                ],
+                "addressHint": "505 San Lorenzo Pass"
+              },
+              {
+                "key": "parque-lezama",
+                "name": "Parque Lezama",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10"
+                ]
+              }
+            ],
+            "evidenceKeys": [
+              "ev-10"
+            ],
+            "shortReason": "Evidence explicitly describes a self-guided route with a specific visiting sequence: start near Plaza de Mayo, head south down Calle Defensa to Plaza Dorrego, detour to Pasaje San Lorenzo for Casa Mínima, and finish at Parque Lezama.",
+            "orderedByEvidence": true
+          },
+          "requestedRequirements": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "candidateShapeMatches": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "accepted": true,
+          "reason": "MATCHING_EVIDENCE_REQUIREMENT"
+        }
+      ]
+    }
+  },
+  {
+    "acquisitionContext": {
+      "strategy": "generic",
+      "passNumber": 1
+    },
+    "passNumber": 1,
+    "query": "San Telmo historic sites history historic walk in San Telmo",
+    "evidenceRequirements": [
+      "SINGLE_PLACE",
+      "MULTI_COMPONENT_EXPERIENCE"
+    ],
+    "grounded": {
+      "provider": "serpapi",
+      "model": "google-ai-mode",
+      "groundingStatus": "applied",
+      "evidence": [
+        {
+          "key": "ev-1",
+          "source": "google_ai_mode",
+          "snippet": "San Telmo is the oldest surviving neighborhood in Buenos Aires, Argentina. With its atmospheric cobblestone streets, gas lamps, and crumbling colonial mansions, it serves as the heartbeat of the city's early history.",
+          "kind": "narrative_paragraph",
+          "order": 1
+        },
+        {
+          "key": "ev-2",
+          "source": "A Brief History of San Telmo",
+          "snippet": "The Early Days: Originally named Alto de San Pedro, the area began as a high ground where Spanish settlers and indigenous people interacted. Some historians believe Pedro de Mendoza may have made his first, short-lived founding attempt of Buenos Aires nearby around 1536.",
+          "title": "A Brief History of San Telmo",
+          "kind": "list_item",
+          "order": 2,
+          "contextHeading": "A Brief History of San Telmo"
+        },
+        {
+          "key": "ev-3",
+          "source": "A Brief History of San Telmo",
+          "snippet": "Colonial Era & Saladero: During the 17th and 18th centuries, it became an outlying district inhabited by salted-meat producers (saladeros), tanners, and brickmakers, alongside African slaves who lived along the southern fringes.",
+          "title": "A Brief History of San Telmo",
+          "kind": "list_item",
+          "order": 3,
+          "contextHeading": "A Brief History of San Telmo"
+        },
+        {
+          "key": "ev-4",
+          "source": "A Brief History of San Telmo",
+          "snippet": "The 1871 Yellow Fever Epidemic: San Telmo was once an upscale residential address for wealthy aristocratic families who built grand Italianate mansions. However, the catastrophic yellow fever outbreak of 1871 forced wealthy residents to flee north to neighborhoods like Recoleta and Palermo. They left behind their grand homes, which were subsequently subdivided into conventillos (tenement housing) for incoming European immigrants, or left abandoned.",
+          "title": "A Brief History of San Telmo",
+          "kind": "list_item",
+          "order": 4,
+          "contextHeading": "A Brief History of San Telmo"
+        },
+        {
+          "key": "ev-5",
+          "source": "A Brief History of San Telmo",
+          "snippet": "Cultural Rebirth: The influx of immigrants, combined with working-class roots, helped foster early tango culture, local bohemian artistry, and community life that defines the neighborhood today.",
+          "title": "A Brief History of San Telmo",
+          "kind": "list_item",
+          "order": 5,
+          "contextHeading": "A Brief History of San Telmo"
+        },
+        {
+          "key": "ev-6",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "A self-guided or guided historic walk through San Telmo should cover these essential landmarks:",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 6,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-7",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "DirectionsWebsiteThe historic heart of San Telmo. On Sundays, it hosts the famous Feria de San Telmo (antique market). Historically a resting point for carts coming into the city from the south, it is surrounded by colonial-era cafés and bars.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 7,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-8",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "A classic 19th-century conventillo (tenement) turned into a commercial arcade, showcasing the grand interior courtyard architecture typical of wealthy colonial families before the 1871 epidemic.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 8,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-9",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "CallDirectionsWebsiteBuilt in 1897, this sprawling iron-and-timber indoor market still preserves its original industrial architecture and operates as a vibrant hub for butchers, produce vendors, and modern food stalls.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 9,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-10",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "CallDirectionsWebsiteFamous for having a facade just 2.30 meters (7.5 feet) wide, this is legendary as the narrowest house in Buenos Aires. Local lore often tied it to freed slaves, though modern historians debate its precise origins.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 10,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-11",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "CallDirectionsWebsiteCommissioned by the Jesuits in the mid-18th century and completed in 1876, this church gave the neighborhood its modern name (named after Saint Peter Gonzalez Telmo, patron saint of sailors).",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 11,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-12",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "DirectionsWebsiteLocated at the eastern edge of San Telmo, this sloped, leafy park features winding paths, monuments, and a museum (Museo Histórico Nacional). It is traditionally celebrated in local lore as the site where Buenos Aires was initially founded.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 12,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-13",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "DirectionsA whimsical cultural stop at the corner of Defensa and Chile streets, where a sculpture of Mafalda—Argentina’s beloved comic strip character created by Quino—sits on a bench.",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 13,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-14",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "If you're planning a trip or want to dive deeper, let me know:",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "narrative_paragraph",
+          "order": 14,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-15",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "Are you looking for a recommended walking route map or details on the Sunday Antiques Fair?",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "list_item",
+          "order": 15,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-16",
+          "source": "Key Historic Sites on a Walking Tour",
+          "snippet": "Would you like recommendations for historic cafés or local milongas (tango dance halls) in the area?",
+          "title": "Key Historic Sites on a Walking Tour",
+          "kind": "list_item",
+          "order": 16,
+          "contextHeading": "Key Historic Sites on a Walking Tour"
+        },
+        {
+          "key": "ev-17",
+          "source": "stayviax.com",
+          "snippet": "San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a time capsule is hidden inside a stone statue on the facade. From there, you'll walk south along Defensa Street, passing the oldest pharmacy in Buenos Aires and the spot where residents repelled two British invasions from rooftops using stones and boiling water. You'll also hear how that resistance helped spark Argentina's independence movement, and why the street you're walking is named after those events.",
+          "title": "Two to Tango: A San Telmo Self Guided Walking Tour",
+          "url": "https://stayviax.com/activity/77297fd2-e6a9-46a5-8896-43953d2f164e?lang={lang}&currency={currency}",
+          "kind": "reference",
+          "order": 17
+        },
+        {
+          "key": "ev-18",
+          "source": "www.guruwalk.com",
+          "snippet": "San Telmo is one of the most historic neighborhoods in Buenos Aires: its cobblestones have witnessed much of the city, and its old mansions — abandoned after the yellow fever of 1871 — have become patios for tango and art. I invite you to explore it with me, from the possible founding site to the corner where Mafalda was born. What we will discover:Parque Lezama: the green lung of the neighborhood and possible cradle of the first Buenos Aires (1536)Russian Orthodox Church: its blue domes, a piece of St. Petersburg in the heart of San TelmoSan Telmo Market and Pasaje Defensa: iron and glass from 1880, artists and traditional eateriesPlaza Dorrego and Defensa Street: where tango was born in the patiosPaseo de la Historieta: a stop to meet Mafalda And as always, we share some mate along the way to chat about our identity (remember to request it free of charge 2 hours in advance, so I arrive fully prepared).Why this tour?I am Gabriel, a history teacher and journalist. I have been teaching this for over 30 years, and my idea is simple: to move away from the generic tour and propose a real conversation, entering the patios where this culture was forged. Small groups, no rush.Important info: Meeting point: Monument to Don Pedro de Mendoza (Av. Brasil and Defensa) We start on time Bring cash: many artisans at the fair do not accept cards Upon booking, you receive my real-time location via WhatsApp and a complimentary PDF guide\\\"San Telmo is not visited, it is felt.\\\"",
+          "title": "SAN TELMO: The stories beneath the cobblestones.",
+          "url": "https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones?source={src}&s={surface}&f={funnel}&language={lang}&ttd=true&captacion__product_type=ft",
+          "kind": "reference",
+          "order": 18
+        },
+        {
+          "key": "ev-19",
+          "source": "www.expedia.com",
+          "snippet": "Discover Buenos Aires' passionate soul and faded grandeur with your self-guided audio tour, allowing you to explore Argentina's intoxicating capital at your own pace. Begin in the elegant Plaza de Mayo where the Casa Rosada's pink facade has witnessed Eva Perón's speeches, military coups, and the Mothers who still march for their disappeared children. Wander through the boulevards of Recoleta where mansions and the famous cemetery housing Evita's tomb. Cross into the colorful streets of La Boca where tango was born in the conventillos of Italian immigrants and the painted zinc houses of Caminito create Buenos Aires' most photographed scene. Explore the cobblestoned streets of San Telmo where Sunday antiques markets, crumbling colonial architecture, and intimate milongas preserve the Buenos Aires of memory and imagination. Discover the transformed Puerto Madero waterfront, then lose yourself in the bookshops of Corrientes Avenue that stay open until midnight.",
+          "title": "Découvrir Buenos Aires : Une visite autonome",
+          "url": "https://www.expedia.com/lx/activity/51608300/?langid=1033&mdpcid=US.META.GOOGLE.ACTIVITIES.CORESEARCH.MVP",
+          "kind": "reference",
+          "order": 19
+        },
+        {
+          "key": "ev-20",
+          "source": "www.tripshock.com",
+          "snippet": "Behind just 2.30 meters of facade, Casa Mínima is the narrowest house in Buenos Aires, preserving the oldest myths and traditions of San Telmo. From the times of slavery to the origins of tango, this visit to the narrowest house in Buenos Aires reveals the stories that shaped the neighborhood's identity. The visit takes in Casa Mínima and the adjacent space on the corner of the block.",
+          "title": "Casa Minima Tour, the narrowest house in Buenos Aires",
+          "url": "https://www.tripshock.com/tours/buenos-aires/casa-minima-tour-the-narrowest-house-in-buenos-aires-5239p243/",
+          "kind": "reference",
+          "order": 20
+        }
+      ]
+    },
+    "extractor": {
+      "provider": "groq",
+      "model": "qwen/qwen3.8-27b",
+      "systemPrompt": "You are an ExperienceCandidate extractor.\n\nYour task is to convert grounded tourism research into structured ExperienceCandidate\ncandidates for a destination based on:\n- the user's requested themes and soft Experience intents;\n- exploration style;\n- additional preferences;\n- explicit coverage gaps;\n- grounded search evidence supplied to you.\n\nIf day_trip is requested, only extract experiences supported by evidence as suitable\nfrom the selected base destination and returning the same day. Do not return overnight\nor weekend-only trips.\n\nYou are NOT responsible for trusted geographic identity.\n\nThe backend independently resolves all proposed entities through trusted geographic\nproviders before anything may be persisted.\n\nNever provide or invent:\n- coordinates;\n- Google Place IDs;\n- OpenStreetMap IDs;\n- Wikidata IDs;\n- provider-specific geographic identifiers;\n- URLs or citations that were not supplied in the grounded evidence.",
+      "userPrompt": "Destination: San Telmo\nThemes: history\nRequested intents: none\nPreferences: historic walk in San Telmo\nRequired evidence shape: MULTI_COMPONENT_EXPERIENCE\nWhen MULTI_COMPONENT_EXPERIENCE is requested, only emit a multi-component candidate when grounded evidence explicitly supports at least two required non-area real geographic components as belonging to that same real Experience.\nNever combine independent POIs merely because they appear in adjacent paragraphs, under the same neighborhood heading, or in the same search answer.\nA multi-component candidate is allowed only when the evidence itself describes one real walk, tour, itinerary, route or visiting sequence containing those components.\nGeneric labels such as \"Official City Tour\", \"Private Tour\", \"Small Group Tour\" and \"Walking Tour\" are not geographic ROUTE entities. Do not emit them as componentHints unless grounded evidence names a real geographic route by that name.\nIf evidence proves that a walk/tour exists but does not name at least two real geographic components, emit no candidate for MULTI_COMPONENT_EXPERIENCE. Never invent stops to satisfy the requested shape.\ncomponentHints[].name must be the identity of an entity the grounded evidence explicitly supports. When the evidence clearly refers to one specific real named place, you MAY normalize or translate that SAME entity to the official local-language name used by that country's mapping data (for Argentina and most of Latin America this is Spanish — e.g. evidence \"El Leoncito National Park\" becomes \"Parque Nacional El Leoncito\"), but ONLY when you are confident it is the same entity, so the backend can match it against a local-language map database. Never use this to introduce a different place, add an entity absent from the evidence, turn a place or business category into a concrete venue, add coordinates or provider IDs, or invent an official name you are unsure of. If you are uncertain, keep the exact name the evidence uses and let the backend geographic resolver decide the canonical identity.\nReturn JSON with a candidates array. Each candidate must contain name, description, themes, traits, intents, suggestedDurationMinutes, componentHints, evidenceKeys, shortReason and orderedByEvidence. Each componentHints entry must contain key (a short slug), name, role (one of area, waypoint, route, venue), expectedKind (one of PLACE, AREA, ROUTE), required (boolean), evidenceKeys (a non-empty array of the exact evidence keys that name it), and optionally addressHint (a street address, ONLY when the same cited evidence explicitly states one for this exact entity — e.g. \"Junín 1760\" or \"on Armenia street, number 1366\"; omit entirely when evidence gives no address, never invent or guess one from the venue name or general area). Never invent other role or expectedKind values.\nSome evidence entries are the full text of a source article, not just a short snippet — when one describes a walk/route with multiple named stops (specific streets, plazas, landmarks, markets), enumerate EACH real stop it names as its own componentHint (role \"venue\" for a point, \"route\" for a named street/path, \"area\" for a district), citing the exact evidence key(s) that name it. Do not collapse a multi-stop route into a single componentHint just because it shares one candidate name.\nA componentHints[].name for role \"venue\" must be the actual named place or business (e.g. a milonga, café, museum, restaurant) — never a street name, cross-street, or address fragment mentioned only to locate it. If evidence gives an address like \"Armenia 1366\" or says a venue is \"on Armenia street\", the venue name is whatever business/place it names (e.g. \"La Viruta\"), never \"Armenia\" itself — instead, put that same address string in addressHint for that componentHint, so the backend can use it as an independent, non-name-based confirmation signal. Only use role \"route\" naming a street when the street itself, not a venue located on it, is what the candidate describes.\nEvery componentHint must be a specific, real, resolvable geographic entity. Never invent a generic pseudo-entity from a category the evidence only mentions in general — e.g. do NOT emit a role \"venue\" expectedKind \"PLACE\" hint named \"Specialty Coffee Shop\", \"Coffee Shop\", \"Local Brewery\", \"Craft Beer Bar\", \"Wine Store\" or \"Historic Restaurant\" just because the evidence says a place \"has many specialty coffee shops\" or \"small local breweries\". If the evidence names no concrete business, either omit that componentHint, cite a real named area (role \"area\", expectedKind \"AREA\") the evidence does name, or keep the concept only in the candidate description/traits. Do not resolve geography yourself.\norderedByEvidence must be true only when the cited evidence explicitly describes a visiting sequence for this candidate's components (e.g. \"start at X, then walk to Y\"); otherwise false. Never infer an order from componentHints array order.\nthemes must be drawn ONLY from this controlled vocabulary: history, culture, art, architecture, nature, outdoor, beach, hiking, food, gastronomy, nightlife, music, entertainment, family, tango, wine, photography, shopping, sports. intents must be drawn ONLY from this controlled vocabulary: walk, route_like, day_trip, visit, performance, shopping, food, nightlife. Use the exact canonical key, never a localized or synonym form. traits is the open-ended dimension: put descriptive properties that are NOT one of those canonical themes/intents here (e.g. \"craft beer\", \"rooftop\", \"family friendly\", \"specialty coffee\"). Never put a canonical theme or canonical intent inside traits. themes and intents are separate, independent controlled dimensions: the same canonical key MAY appear in both themes and intents when it legitimately represents both roles and the request or evidence supports both — do not deduplicate across themes and intents.\nintents are soft Experience facets such as visit, walk, food, route_like or day_trip; never structural proposal kinds.\nFor day_trip, only return evidence-backed same-day experiences from the selected base; exclude overnight or weekend-only trips.\nDo not output coordinates, provider IDs, URLs, or entities not directly supported by evidence.\nGrounded evidence:\n[ev-1] google_ai_mode: San Telmo is the oldest surviving neighborhood in Buenos Aires, Argentina. With its atmospheric cobblestone streets, gas lamps, and crumbling colonial mansions, it serves as the heartbeat of the city's early history.\n[ev-2] A Brief History of San Telmo: The Early Days: Originally named Alto de San Pedro, the area began as a high ground where Spanish settlers and indigenous people interacted. Some historians believe Pedro de Mendoza may have made his first, short-lived founding attempt of Buenos Aires nearby around 1536.\n[ev-3] A Brief History of San Telmo: Colonial Era & Saladero: During the 17th and 18th centuries, it became an outlying district inhabited by salted-meat producers (saladeros), tanners, and brickmakers, alongside African slaves who lived along the southern fringes.\n[ev-4] A Brief History of San Telmo: The 1871 Yellow Fever Epidemic: San Telmo was once an upscale residential address for wealthy aristocratic families who built grand Italianate mansions. However, the catastrophic yellow fever outbreak of 1871 forced wealthy residents to flee north to neighborhoods like Recoleta and Palermo. They left behind their grand homes, which were subsequently subdivided into conventillos (tenement housing) for incoming European immigrants, or left abandoned.\n[ev-5] A Brief History of San Telmo: Cultural Rebirth: The influx of immigrants, combined with working-class roots, helped foster early tango culture, local bohemian artistry, and community life that defines the neighborhood today.\n[ev-6] Key Historic Sites on a Walking Tour: A self-guided or guided historic walk through San Telmo should cover these essential landmarks:\n[ev-7] Key Historic Sites on a Walking Tour: DirectionsWebsiteThe historic heart of San Telmo. On Sundays, it hosts the famous Feria de San Telmo (antique market). Historically a resting point for carts coming into the city from the south, it is surrounded by colonial-era cafés and bars.\n[ev-8] Key Historic Sites on a Walking Tour: A classic 19th-century conventillo (tenement) turned into a commercial arcade, showcasing the grand interior courtyard architecture typical of wealthy colonial families before the 1871 epidemic.\n[ev-9] Key Historic Sites on a Walking Tour: CallDirectionsWebsiteBuilt in 1897, this sprawling iron-and-timber indoor market still preserves its original industrial architecture and operates as a vibrant hub for butchers, produce vendors, and modern food stalls.\n[ev-10] Key Historic Sites on a Walking Tour: CallDirectionsWebsiteFamous for having a facade just 2.30 meters (7.5 feet) wide, this is legendary as the narrowest house in Buenos Aires. Local lore often tied it to freed slaves, though modern historians debate its precise origins.\n[ev-11] Key Historic Sites on a Walking Tour: CallDirectionsWebsiteCommissioned by the Jesuits in the mid-18th century and completed in 1876, this church gave the neighborhood its modern name (named after Saint Peter Gonzalez Telmo, patron saint of sailors).\n[ev-12] Key Historic Sites on a Walking Tour: DirectionsWebsiteLocated at the eastern edge of San Telmo, this sloped, leafy park features winding paths, monuments, and a museum (Museo Histórico Nacional). It is traditionally celebrated in local lore as the site where Buenos Aires was initially founded.\n[ev-13] Key Historic Sites on a Walking Tour: DirectionsA whimsical cultural stop at the corner of Defensa and Chile streets, where a sculpture of Mafalda—Argentina’s beloved comic strip character created by Quino—sits on a bench.\n[ev-14] Key Historic Sites on a Walking Tour: If you're planning a trip or want to dive deeper, let me know:\n[ev-15] Key Historic Sites on a Walking Tour: Are you looking for a recommended walking route map or details on the Sunday Antiques Fair?\n[ev-16] Key Historic Sites on a Walking Tour: Would you like recommendations for historic cafés or local milongas (tango dance halls) in the area?\n[ev-17] Two to Tango: A San Telmo Self Guided Walking Tour: San Telmo is the oldest neighbourhood in Buenos Aires, and its cobblestone streets hold enough history to fill several lifetimes. On this self-guided walking tour, you'll trace how sailors, slaves, immigrants, and tango singers turned a muddy colonial outpost into the soul of the city. You'll also discover how a yellow fever epidemic, two British invasions, and millions of Italian immigrants each left their mark on this single neighbourhood. The tour starts at Basílica de San Francisco, where a time capsule is hidden inside a stone statue on the facade. From there, you'll walk south along Defensa Street, passing the oldest pharmacy in Buenos Aires and the spot where residents repelled two British invasions from rooftops using stones and boiling water. You'll also hear how that resistance helped spark Argentina's independence movement, and why the street you're walking is named after those events.\n[ev-18] SAN TELMO: The stories beneath the cobblestones.: San Telmo is one of the most historic neighborhoods in Buenos Aires: its cobblestones have witnessed much of the city, and its old mansions — abandoned after the yellow fever of 1871 — have become patios for tango and art. I invite you to explore it with me, from the possible founding site to the corner where Mafalda was born. What we will discover:Parque Lezama: the green lung of the neighborhood and possible cradle of the first Buenos Aires (1536)Russian Orthodox Church: its blue domes, a piece of St. Petersburg in the heart of San TelmoSan Telmo Market and Pasaje Defensa: iron and glass from 1880, artists and traditional eateriesPlaza Dorrego and Defensa Street: where tango was born in the patiosPaseo de la Historieta: a stop to meet Mafalda And as always, we share some mate along the way to chat about our identity (remember to request it free of charge 2 hours in advance, so I arrive fully prepared).Why this tour?I am Gabriel, a history teacher and journalist. I have been teaching this for over 30 years, and my idea is simple: to move away from the generic tour and propose a real conversation, entering the patios where this culture was forged. Small groups, no rush.Important info: Meeting point: Monument to Don Pedro de Mendoza (Av. Brasil and Defensa) We start on time Bring cash: many artisans at the fair do not accept cards Upon booking, you receive my real-time location via WhatsApp and a complimentary PDF guide\\\"San Telmo is not visited, it is felt.\\\"\n[ev-19] Découvrir Buenos Aires : Une visite autonome: Discover Buenos Aires' passionate soul and faded grandeur with your self-guided audio tour, allowing you to explore Argentina's intoxicating capital at your own pace. Begin in the elegant Plaza de Mayo where the Casa Rosada's pink facade has witnessed Eva Perón's speeches, military coups, and the Mothers who still march for their disappeared children. Wander through the boulevards of Recoleta where mansions and the famous cemetery housing Evita's tomb. Cross into the colorful streets of La Boca where tango was born in the conventillos of Italian immigrants and the painted zinc houses of Caminito create Buenos Aires' most photographed scene. Explore the cobblestoned streets of San Telmo where Sunday antiques markets, crumbling colonial architecture, and intimate milongas preserve the Buenos Aires of memory and imagination. Discover the transformed Puerto Madero waterfront, then lose yourself in the bookshops of Corrientes Avenue that stay open until midnight.\n[ev-20] Casa Minima Tour, the narrowest house in Buenos Aires: Behind just 2.30 meters of facade, Casa Mínima is the narrowest house in Buenos Aires, preserving the oldest myths and traditions of San Telmo. From the times of slavery to the origins of tango, this visit to the narrowest house in Buenos Aires reveals the stories that shaped the neighborhood's identity. The visit takes in Casa Mínima and the adjacent space on the corner of the block.",
+      "rawOutput": "{\n    \"name\": \"San Telmo Historic Walk\",\n    \"description\": \"A walking tour through the oldest neighborhood in Buenos Aires, tracing the area's colonial roots, the impact of the 1871 yellow fever epidemic, and the subsequent influx of immigrants. The route connects key landmarks including the founding site, historic markets, the narrowest house in the city, and the baselica that names the district.\",\n    \"themes\": [\n      \"history\"\n    ],\n    \"traits\": [\n      \"self-guided\",\n      \"guided\",\n      \"cobblestone streets\",\n      \"colonial architecture\",\n      \"small group\"\n    ],\n    \"intents\": [\n      \"walk\"\n    ],\n    \"suggestedDurationMinutes\": 120,\n    \"componentHints\": [\n      {\n        \"key\": \"plaza-dorrego\",\n        \"name\": \"Plaza Dorrego\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-7\",\n          \"ev-18\"\n        ]\n      },\n      {\n        \"key\": \"san-telmo-market\",\n        \"name\": \"Mercado de San Telmo\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-9\",\n          \"ev-18\"\n        ]\n      },\n      {\n        \"key\": \"casa-minima\",\n        \"name\": \"Casa Mínima\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-10\",\n          \"ev-20\"\n        ]\n      },\n      {\n        \"key\": \"basilica-santa-monica\",\n        \"name\": \"Basílica de Santa Mónica\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-11\"\n        ]\n      },\n      {\n        \"key\": \"parque-lezama\",\n        \"name\": \"Parque Lezama\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-12\",\n          \"ev-18\"\n        ]\n      },\n      {\n        \"key\": \"paseo-de-la-historieta\",\n        \"name\": \"Paseo de la Historieta\",\n        \"role\": \"waypoint\",\n        \"expectedKind\": \"PLACE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-13\",\n          \"ev-18\"\n        ]\n      },\n      {\n        \"key\": \"defensa-street\",\n        \"name\": \"Defensa Street\",\n        \"role\": \"route\",\n        \"expectedKind\": \"ROUTE\",\n        \"required\": true,\n        \"evidenceKeys\": [\n          \"ev-17\",\n          \"ev-18\"\n        ]\n      }\n    ],\n    \"evidenceKeys\": [\n      \"ev-6\",\n      \"ev-7\",\n      \"ev-8\",\n      \"ev-9\",\n      \"ev-10\",\n      \"ev-11\",\n      \"ev-12\",\n      \"ev-13\",\n      \"ev-17\",\n      \"ev-18\"\n    ],\n    \"shortReason\": \"Evidence explicitly describes a multi-component historic walk and tour routes in San Telmo that connect specific named landmarks such as Plaza Dorrego, the Market, and Casa Mínima.\",\n    \"orderedByEvidence\": false\n  }",
+      "validationErrors": [
+        "extractor_envelope_repaired: response was a single bare candidate object instead of {\"candidates\":[...]}; wrapped automatically"
+      ],
+      "normalizedCandidates": [
+        {
+          "name": "San Telmo Historic Walk",
+          "description": "A walking tour through the oldest neighborhood in Buenos Aires, tracing the area's colonial roots, the impact of the 1871 yellow fever epidemic, and the subsequent influx of immigrants. The route connects key landmarks including the founding site, historic markets, the narrowest house in the city, and the baselica that names the district.",
+          "themes": [
+            "history"
+          ],
+          "traits": [
+            "self-guided",
+            "guided",
+            "cobblestone streets",
+            "colonial architecture",
+            "small group"
+          ],
+          "intents": [
+            "walk"
+          ],
+          "suggestedDurationMinutes": 120,
+          "componentHints": [
+            {
+              "key": "plaza-dorrego",
+              "name": "Plaza Dorrego",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-7",
+                "ev-18"
+              ]
+            },
+            {
+              "key": "san-telmo-market",
+              "name": "Mercado de San Telmo",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-9",
+                "ev-18"
+              ]
+            },
+            {
+              "key": "casa-minima",
+              "name": "Casa Mínima",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-10",
+                "ev-20"
+              ]
+            },
+            {
+              "key": "basilica-santa-monica",
+              "name": "Basílica de Santa Mónica",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-11"
+              ]
+            },
+            {
+              "key": "parque-lezama",
+              "name": "Parque Lezama",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-12",
+                "ev-18"
+              ]
+            },
+            {
+              "key": "paseo-de-la-historieta",
+              "name": "Paseo de la Historieta",
+              "role": "waypoint",
+              "expectedKind": "PLACE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-13",
+                "ev-18"
+              ]
+            },
+            {
+              "key": "defensa-street",
+              "name": "Defensa Street",
+              "role": "route",
+              "expectedKind": "ROUTE",
+              "required": true,
+              "evidenceKeys": [
+                "ev-17",
+                "ev-18"
+              ]
+            }
+          ],
+          "evidenceKeys": [
+            "ev-6",
+            "ev-7",
+            "ev-8",
+            "ev-9",
+            "ev-10",
+            "ev-11",
+            "ev-12",
+            "ev-13",
+            "ev-17",
+            "ev-18"
+          ],
+          "shortReason": "Evidence explicitly describes a multi-component historic walk and tour routes in San Telmo that connect specific named landmarks such as Plaza Dorrego, the Market, and Casa Mínima.",
+          "orderedByEvidence": false
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "candidate": {
+            "name": "San Telmo Historic Walk",
+            "description": "A walking tour through the oldest neighborhood in Buenos Aires, tracing the area's colonial roots, the impact of the 1871 yellow fever epidemic, and the subsequent influx of immigrants. The route connects key landmarks including the founding site, historic markets, the narrowest house in the city, and the baselica that names the district.",
+            "themes": [
+              "history"
+            ],
+            "traits": [
+              "self-guided",
+              "guided",
+              "cobblestone streets",
+              "colonial architecture",
+              "small group"
+            ],
+            "intents": [
+              "walk"
+            ],
+            "suggestedDurationMinutes": 120,
+            "componentHints": [
+              {
+                "key": "plaza-dorrego",
+                "name": "Plaza Dorrego",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-7",
+                  "ev-18"
+                ]
+              },
+              {
+                "key": "san-telmo-market",
+                "name": "Mercado de San Telmo",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-9",
+                  "ev-18"
+                ]
+              },
+              {
+                "key": "casa-minima",
+                "name": "Casa Mínima",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-10",
+                  "ev-20"
+                ]
+              },
+              {
+                "key": "basilica-santa-monica",
+                "name": "Basílica de Santa Mónica",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-11"
+                ]
+              },
+              {
+                "key": "parque-lezama",
+                "name": "Parque Lezama",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-12",
+                  "ev-18"
+                ]
+              },
+              {
+                "key": "paseo-de-la-historieta",
+                "name": "Paseo de la Historieta",
+                "role": "waypoint",
+                "expectedKind": "PLACE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-13",
+                  "ev-18"
+                ]
+              },
+              {
+                "key": "defensa-street",
+                "name": "Defensa Street",
+                "role": "route",
+                "expectedKind": "ROUTE",
+                "required": true,
+                "evidenceKeys": [
+                  "ev-17",
+                  "ev-18"
+                ]
+              }
+            ],
+            "evidenceKeys": [
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10",
+              "ev-11",
+              "ev-12",
+              "ev-13",
+              "ev-17",
+              "ev-18"
+            ],
+            "shortReason": "Evidence explicitly describes a multi-component historic walk and tour routes in San Telmo that connect specific named landmarks such as Plaza Dorrego, the Market, and Casa Mínima.",
+            "orderedByEvidence": false
+          },
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "candidateShapeMatches": [
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "accepted": true,
+          "reason": "MATCHING_EVIDENCE_REQUIREMENT"
+        }
+      ]
+    }
+  }
+]

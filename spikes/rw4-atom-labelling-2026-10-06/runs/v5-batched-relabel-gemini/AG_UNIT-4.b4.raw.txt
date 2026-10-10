@@ -1,0 +1,215 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-064",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the tourist part."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a restaurant."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the restaurant and Estadio La Boca."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes eating experience."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs to Caminito Street and optional Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Transfers to Puerto Madero.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Starting point visit."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Mentions entering Puerto Madero by crossing the bridge."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walking and seeing architecture."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Walking paths."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Food recommendation."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "Centro Cultural Kirchner",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Return transfer home/hotel.",
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "building",
+          "role": "OPTIONAL_STOP",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Optional entry to building."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [],
+      "reason": "Mentions taking a taxi or metrobus.",
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends sky bar."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Booking tip."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes view."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Closing remarks."
+    }
+  ]
+}

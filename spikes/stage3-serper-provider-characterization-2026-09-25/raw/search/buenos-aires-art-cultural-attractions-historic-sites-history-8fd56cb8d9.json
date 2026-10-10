@@ -1,0 +1,105 @@
+{
+  "endpoint": "search",
+  "request": {
+    "q": "Buenos Aires art cultural attractions historic sites history walking tours walks historical and cultural walking tours in Buenos Aires",
+    "num": 10
+  },
+  "capturedAt": "2026-09-25T12:53:33.690Z",
+  "meta": {
+    "endpoint": "search",
+    "httpStatus": 200,
+    "durationMs": 5180
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Buenos Aires art cultural attractions historic sites history walking tours walks historical and cultural walking tours in Buenos Aires",
+      "type": "search",
+      "num": 10,
+      "engine": "google"
+    },
+    "organic": [
+      {
+        "title": "Buenos Aires Art Tours - All You SHOULD Know Before ...",
+        "link": "https://www.tripadvisor.com/Attraction_Review-g312741-d8725040-Reviews-Buenos_Aires_Art_Tours-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "1,250 Tours & Activities in Buenos AiresLiterary, Art & Music. Learn about the area's history from a middle class residential barrio to Buenos Aires' trendiest ...",
+        "rating": 5,
+        "ratingCount": 4,
+        "position": 1
+      },
+      {
+        "title": "Historical free walking tours in Buenos Aires, Argentina",
+        "link": "https://www.freetour.com/buenos-aires/tag/historical",
+        "snippet": "Historical free walking tours in Buenos Aires, Argentina. discover its history, tango, street art and ancient architecture! A place full of culture, bars, ...",
+        "rating": 4.9,
+        "ratingCount": 78291,
+        "position": 2
+      },
+      {
+        "title": "20 Best Buenos Aires Excursions - A Tour Guide's Top Picks",
+        "link": "https://gowithguide.com/blog/20-best-buenos-aires-excursions-a-tour-guides-top-picks-5984?srsltid=AU7gw4Wys-2x-N25p7yoak4rpSi7lWbw777PXZfUmjNeudf0M17pQe1U",
+        "snippet": "A guided walking tour brings its rich history to life, covering everything from the origins of tango and immigration stories to hidden alleyways ...",
+        "date": "Jun 21, 2026",
+        "position": 3
+      },
+      {
+        "title": "Buenos Aires Private Historical Downtown, San Telmo and ...",
+        "link": "https://www.viator.com/en-IE/tours/Buenos-Aires/Buenos-Aires-Historical-Walking-Tour/d901-5030HIST",
+        "snippet": "Journey from colonial times to present-day on this half-day walking tour of historic Buenos Aires—an ideal introduction to the capital for first-time visitors.",
+        "rating": 4.5,
+        "ratingCount": 13,
+        "position": 4
+      },
+      {
+        "title": "Private Guided Tours of Buenos Aires with Richard",
+        "link": "https://goaskalocal.com/buenos-aires-tour-guide-richard",
+        "snippet": "Historic BA Walking Tour Explore the city's most historic neighborhoods of Microcentro, San Telmo, and La Boca. Duration: 3.5 hours Cost: $250 USD Max ...",
+        "rating": 5,
+        "ratingCount": 1198,
+        "position": 5
+      },
+      {
+        "title": "Buenos Aires Historic Sites & Districts to Visit (2026)",
+        "link": "https://www.tripadvisor.co.uk/Attractions-g312741-Activities-c47-t17-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "Among the main attractions of this neighborhood are the Recoleta Cemetery, the Flore Generica, the Museum of Fine Arts and the beautiful ...",
+        "position": 6
+      },
+      {
+        "title": "Jewish Sites Buenos Aires Private Walking and Car Tour",
+        "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-private-jewish-sites-walking-tour-t898295/",
+        "snippet": "Trace the powerful legacy of Buenos Aires' Jewish community through moving stories, landmarks, and memorials—with options to visit the Salvador Kibrick Museum ...",
+        "rating": 4.8,
+        "ratingCount": 9,
+        "position": 7
+      },
+      {
+        "title": "What's the 'must see' thing in Buenos Aires?",
+        "link": "https://www.quora.com/Whats-the-must-see-thing-in-Buenos-Aires",
+        "snippet": "What's the 'must see' thing in Buenos Aires?",
+        "date": "7 years ago",
+        "position": 8
+      },
+      {
+        "title": "FREE Suscritour: The Best Tour of Buenos Aires",
+        "link": "https://www.youtube.com/watch?v=PJPGG8sekuQ",
+        "snippet": "Today we delve into one of the most emblematic and historic neighborhoods of Buenos Aires: Monserrat. This tour will take us through key ...",
+        "date": "1 year ago",
+        "position": 9
+      }
+    ],
+    "peopleAlsoAsk": [
+      {
+        "question": "What are the top 3 tourist attractions in Argentina?"
+      },
+      {
+        "question": "What are the main attractions in Buenos Aires?"
+      },
+      {
+        "question": "Is it safe to walk around Buenos Aires, Argentina?"
+      },
+      {
+        "question": "What are some good tours I can take from Buenos Aires?"
+      }
+    ],
+    "credits": 1
+  }
+}

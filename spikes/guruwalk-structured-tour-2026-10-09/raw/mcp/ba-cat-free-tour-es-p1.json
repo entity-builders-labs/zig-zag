@@ -1,0 +1,221 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":44811,\"name\":\"¡Free tour Che! La Buenos Aires esencial, Plata y miedo nunca tuvimos...\",\"slug\":\"44811-free-tour-che-la-buenos-aires-esencial-plata-y-miedo-nunca-tuvimos\",\"rating\":4.91,\"reviews_count\":1047,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/44811-free-tour-che-la-buenos-aires-esencial-plata-y-miedo-nunca-tuvimos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":56186,\"name\":\"Descubre San Telmo: ¡un viaje en el tiempo! ⌛\",\"slug\":\"56186-descubre-san-telmo-un-viaje-en-el-tiempo\",\"rating\":4.82,\"reviews_count\":676,\"duration\":165,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/56186-descubre-san-telmo-un-viaje-en-el-tiempo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54972,\"name\":\"Tour caminando por el barrio de La Boca: Tango, Arte y Fútbol, pasiones argentinas\",\"slug\":\"54972-tour-caminando-por-el-barrio-de-la-boca-tango-arte-y-futbol-pasiones-argentinas\",\"rating\":4.86,\"reviews_count\":625,\"duration\":150,\"languages\":[\"en\",\"es\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54972-tour-caminando-por-el-barrio-de-la-boca-tango-arte-y-futbol-pasiones-argentinas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55455,\"name\":\"Recoleta - Historia, arte y arquitectura de un barrio emblemático\",\"slug\":\"55455-recoleta-historia-arte-y-arquitectura-de-un-barrio-emblematico\",\"rating\":5.0,\"reviews_count\":210,\"duration\":150,\"languages\":[\"es\",\"en\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55455-recoleta-historia-arte-y-arquitectura-de-un-barrio-emblematico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":53227,\"name\":\"Tour La Boca: Memorias de un Barrio Obrero y Tanguero\",\"slug\":\"53227-tour-la-boca-memorias-de-un-barrio-obrero-y-tanguero\",\"rating\":4.53,\"reviews_count\":531,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/53227-tour-la-boca-memorias-de-un-barrio-obrero-y-tanguero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45347,\"name\":\"Free tour: Corazón de la ciudad de Buenos Aires\",\"slug\":\"45347-free-tour-corazon-de-la-ciudad-de-buenos-aires\",\"rating\":4.68,\"reviews_count\":471,\"duration\":180,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45347-free-tour-corazon-de-la-ciudad-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":38312,\"name\":\"¡La París de Sudamérica! Iconos, historia y mitos de Buenos Aires. Free Tour. (max 6 personas)\",\"slug\":\"38312-la-paris-de-sudamerica-iconos-historia-y-mitos-de-buenos-aires-free-tour-max-6-personas\",\"rating\":4.95,\"reviews_count\":223,\"duration\":210,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/38312-la-paris-de-sudamerica-iconos-historia-y-mitos-de-buenos-aires-free-tour-max-6-personas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":68379,\"name\":\"Tour Esencial Por Buenos Aires\",\"slug\":\"68379-tour-esencial-por-buenos-aires\",\"rating\":4.6,\"reviews_count\":40,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/68379-tour-esencial-por-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":62076,\"name\":\"Palermo Soho: Tour de graffiti\",\"slug\":\"62076-palermo-soho-tour-de-graffiti\",\"rating\":4.73,\"reviews_count\":41,\"duration\":150,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/62076-palermo-soho-tour-de-graffiti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69794,\"name\":\"Barrio Parque: Historias de liberación, arte y diplomacia\",\"slug\":\"69794-barrio-parque-historias-de-liberacion-arte-y-diplomacia\",\"rating\":5.0,\"reviews_count\":4,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69794-barrio-parque-historias-de-liberacion-arte-y-diplomacia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":30657,\"name\":\"Buenos Aires \\\"Nunca Duerme\\\"\",\"slug\":\"30657-buenos-aires-nunca-duerme\",\"rating\":4.75,\"reviews_count\":149,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/30657-buenos-aires-nunca-duerme?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49609,\"name\":\"Recoleta: Arte, elegancia y poder \",\"slug\":\"49609-recoleta-arte-elegancia-y-poder\",\"rating\":4.96,\"reviews_count\":175,\"duration\":180,\"languages\":[\"it\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 44811,
+     "name": "¡Free tour Che! La Buenos Aires esencial, Plata y miedo nunca tuvimos...",
+     "slug": "44811-free-tour-che-la-buenos-aires-esencial-plata-y-miedo-nunca-tuvimos",
+     "rating": 4.91,
+     "reviews_count": 1047,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/44811-free-tour-che-la-buenos-aires-esencial-plata-y-miedo-nunca-tuvimos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 56186,
+     "name": "Descubre San Telmo: ¡un viaje en el tiempo! ⌛",
+     "slug": "56186-descubre-san-telmo-un-viaje-en-el-tiempo",
+     "rating": 4.82,
+     "reviews_count": 676,
+     "duration": 165,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/56186-descubre-san-telmo-un-viaje-en-el-tiempo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Tour caminando por el barrio de La Boca: Tango, Arte y Fútbol, pasiones argentinas",
+     "slug": "54972-tour-caminando-por-el-barrio-de-la-boca-tango-arte-y-futbol-pasiones-argentinas",
+     "rating": 4.86,
+     "reviews_count": 625,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54972-tour-caminando-por-el-barrio-de-la-boca-tango-arte-y-futbol-pasiones-argentinas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55455,
+     "name": "Recoleta - Historia, arte y arquitectura de un barrio emblemático",
+     "slug": "55455-recoleta-historia-arte-y-arquitectura-de-un-barrio-emblematico",
+     "rating": 5.0,
+     "reviews_count": 210,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55455-recoleta-historia-arte-y-arquitectura-de-un-barrio-emblematico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 53227,
+     "name": "Tour La Boca: Memorias de un Barrio Obrero y Tanguero",
+     "slug": "53227-tour-la-boca-memorias-de-un-barrio-obrero-y-tanguero",
+     "rating": 4.53,
+     "reviews_count": 531,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/53227-tour-la-boca-memorias-de-un-barrio-obrero-y-tanguero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Free tour: Corazón de la ciudad de Buenos Aires",
+     "slug": "45347-free-tour-corazon-de-la-ciudad-de-buenos-aires",
+     "rating": 4.68,
+     "reviews_count": 471,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45347-free-tour-corazon-de-la-ciudad-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 38312,
+     "name": "¡La París de Sudamérica! Iconos, historia y mitos de Buenos Aires. Free Tour. (max 6 personas)",
+     "slug": "38312-la-paris-de-sudamerica-iconos-historia-y-mitos-de-buenos-aires-free-tour-max-6-personas",
+     "rating": 4.95,
+     "reviews_count": 223,
+     "duration": 210,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/38312-la-paris-de-sudamerica-iconos-historia-y-mitos-de-buenos-aires-free-tour-max-6-personas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 68379,
+     "name": "Tour Esencial Por Buenos Aires",
+     "slug": "68379-tour-esencial-por-buenos-aires",
+     "rating": 4.6,
+     "reviews_count": 40,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/68379-tour-esencial-por-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 62076,
+     "name": "Palermo Soho: Tour de graffiti",
+     "slug": "62076-palermo-soho-tour-de-graffiti",
+     "rating": 4.73,
+     "reviews_count": 41,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/62076-palermo-soho-tour-de-graffiti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69794,
+     "name": "Barrio Parque: Historias de liberación, arte y diplomacia",
+     "slug": "69794-barrio-parque-historias-de-liberacion-arte-y-diplomacia",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69794-barrio-parque-historias-de-liberacion-arte-y-diplomacia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 30657,
+     "name": "Buenos Aires \"Nunca Duerme\"",
+     "slug": "30657-buenos-aires-nunca-duerme",
+     "rating": 4.75,
+     "reviews_count": 149,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/30657-buenos-aires-nunca-duerme?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49609,
+     "name": "Recoleta: Arte, elegancia y poder ",
+     "slug": "49609-recoleta-arte-elegancia-y-poder",
+     "rating": 4.96,
+     "reviews_count": 175,
+     "duration": 180,
+     "languages": [
+      "it",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

@@ -1,0 +1,185 @@
+{
+  "candidates": [
+    {
+      "name": "Itinerario Autoguiado de San Telmo y Plaza de Mayo",
+      "description": "Un recorrido a pie autoguiado que comienza en Plaza de Mayo, avanza por la calle Defensa pasando por San Telmo, el Mercado de San Telmo, Plaza Dorrego y Parque Lezama.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "food"
+      ],
+      "traits": [
+        "autoguiado",
+        "a pie",
+        "histórico"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "START AT PLAZA DE MAYO:"
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Casa Rosada"
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Catedral Metropolitana",
+          "sourceName": "Catedral Metropolitana"
+        },
+        {
+          "key": "cabildo",
+          "name": "Cabildo de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Museo del Cabildo",
+          "sourceName": "Museo del Cabildo"
+        },
+        {
+          "key": "defensa",
+          "name": "Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "estados-unidos",
+          "name": "Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Bar Sur."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Plaza Dorrego."
+        },
+        {
+          "key": "avenida-san-juan",
+          "name": "Avenida San Juan",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Avenida San Juan"
+        },
+        {
+          "key": "museo-de-arte-moderno",
+          "name": "Museo de Arte Moderno de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Museum of Modern Arts",
+          "sourceName": "Museum of Modern Arts"
+        },
+        {
+          "key": "club-atlético",
+          "name": "Club Atlético",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Club Atlético."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Parque Lezama."
+        },
+        {
+          "key": "museo-historico-nacional",
+          "name": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "national history museum",
+          "sourceName": "national history museum"
+        },
+        {
+          "key": "avenida-caseros",
+          "name": "Avenida Caseros",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Avenida Caseros."
+        }
+      ],
+      "suggestedDurationMinutes": 240,
+      "shortReason": "El texto detalla paso a paso una caminata autoguiada por el centro histórico y San Telmo visitando puntos icónicos.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

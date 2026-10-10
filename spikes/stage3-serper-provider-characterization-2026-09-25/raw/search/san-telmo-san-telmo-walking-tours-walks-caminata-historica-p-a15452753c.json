@@ -1,0 +1,133 @@
+{
+  "endpoint": "search",
+  "request": {
+    "q": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+    "num": 10
+  },
+  "capturedAt": "2026-09-25T12:54:18.485Z",
+  "meta": {
+    "endpoint": "search",
+    "httpStatus": 200,
+    "durationMs": 2646
+  },
+  "data": {
+    "searchParameters": {
+      "q": "San Telmo San Telmo walking tours walks caminata histórica por San Telmo",
+      "type": "search",
+      "num": 10,
+      "engine": "google"
+    },
+    "organic": [
+      {
+        "title": "2 hrs. Walking Tour in San Telmo & Market (with Reviews)",
+        "link": "https://www.tripadvisor.com/AttractionProductReview-g312741-d26105176-2_hrs_Walking_Tour_in_San_Telmo_Market-Buenos_Aires_Capital_Federal_District.html",
+        "snippet": "Excellent free tours of San Telmo!! Sherpa Food Tour of San Telmo with. Private and Luxury from $69.00 per adult There excellent Free Walks tours in a week! It ...",
+        "rating": 5,
+        "ratingCount": 287,
+        "position": 1
+      },
+      {
+        "title": "Discover San Telmo: A Journey Through Time!",
+        "link": "https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time",
+        "snippet": "Book authentic experiences and tours. We will move through the 17th and 18th centuries, See 16 stops of the itinerary. Choose and book Select a tour, date and ...",
+        "rating": 4.9,
+        "ratingCount": 9,
+        "position": 2
+      },
+      {
+        "title": "Self Guided Walking Tour San Telmo - Buenos Aires",
+        "link": "http://www.agusyornet.com/2020/03/self-guided-walking-tour-san-telmo.html",
+        "snippet": "is a 24hs tour to the Center, San Telmo, La Boca and Defensa. Be ready to walk around 15km and eat delicious food in the way :)",
+        "date": "Aug 5, 2018",
+        "position": 3
+      },
+      {
+        "title": "Buenos Aires: 5 Great San Telmo Walking Tours",
+        "link": "https://routinelynomadic.com/san-telmo-walking-tours/",
+        "snippet": "Buenos Aires: 5 Great San Telmo Walking Tours · 1. Old San Telmo · 2. Big Plazas · 3. Gritty Street Scenes · 4. Puerto Madero · 5. Classic Buildings.",
+        "date": "Nov 27, 2024",
+        "position": 4
+      },
+      {
+        "title": "The best San Telmo Walking tours 2026 - Free cancellation",
+        "link": "https://www.getyourguide.com/san-telmo-l147236/walking-tours-tc3/",
+        "snippet": "Join us on a fascinating journey through the historic streets of San Telmo, Buenos Aires' oldest neighborhood. Led by an expert local guide, you'll explore ...",
+        "rating": 4.7,
+        "ratingCount": 3443,
+        "position": 5
+      },
+      {
+        "title": "San Telmo Guide: A Walk Through the Old Buenos Aires",
+        "link": "https://traveler.marriott.com/buenos-aires/san-telmo-guide-buenos-aires/",
+        "snippet": "walking through San Telmo is like walking through the streets of old Buenos Aires. good starting point for a tour of the neighborhood, the National Historical ...",
+        "position": 6
+      },
+      {
+        "title": "6.00pm | An evening in San Telmo",
+        "link": "https://turismo.buenosaires.gob.ar/en/atractivo/600pm-evening-san-telmo",
+        "snippet": "There are free guided walking tours of San Telmo organised by the city tourist board every Tuesday morning. Moving on: Walk to Av. Paseo Colón and take bus ...",
+        "position": 7
+      },
+      {
+        "title": "La Boca & San Telmo Walking Tour 4K 🇦🇷",
+        "link": "https://www.youtube.com/watch?v=F3J93uKKBxc",
+        "snippet": "Discover two of the most iconic and cultural neighborhoods in Buenos Aires on this immersive 4K walking tour through La Boca and San Telmo.",
+        "date": "3 months ago",
+        "position": 8
+      },
+      {
+        "title": "Walking Tour: San Telmo",
+        "link": "https://www.nytimes.com/fodors/top/features/travel/destinations/centralandsouthamerica/argentina/buenosaires/fdrs_feat_38_6.html?n=Top/Features/Travel/Destinations/Central+and+South+America/Argentina/Buenos+Aires&eafs_enabled=false",
+        "snippet": "To reach San Telmo by subway, take Line E to the Independencia station, and be prepared to walk nine blocks east along Avenida Independencia to Calle Defensa, ...",
+        "position": 9
+      },
+      {
+        "title": "2-Hour San Telmo Walking Tour with Markets and Historic ...",
+        "link": "https://www.tourhq.com/tours/43883/2-hour-san-telmo-walking-tour",
+        "snippet": "01 See the monument to the comic character Mafalda; 02 Look at Casa Mínima, the narrowest house in the city; 03 Visit the famous San Telmo food market and ...",
+        "position": 10
+      }
+    ],
+    "peopleAlsoAsk": [
+      {
+        "question": "Is it safe to walk around Buenos Aires, Argentina?"
+      },
+      {
+        "question": "How many days is enough to see Buenos Aires?"
+      },
+      {
+        "question": "What is the oldest neighborhood in Buenos Aires?"
+      },
+      {
+        "question": "What is the easiest way to get around Buenos Aires?"
+      }
+    ],
+    "relatedSearches": [
+      {
+        "query": "San telmo self guided walking tour"
+      },
+      {
+        "query": "San Telmo Buenos Aires map"
+      },
+      {
+        "query": "San Telmo wine"
+      },
+      {
+        "query": "San Telmo Market Buenos Aires"
+      },
+      {
+        "query": "San Telmo shipwreck"
+      },
+      {
+        "query": "San Telmo Museum"
+      },
+      {
+        "query": "San Telmo San Sebastián"
+      },
+      {
+        "query": "Tango show San Telmo Buenos Aires"
+      }
+    ],
+    "credits": 1
+  }
+}

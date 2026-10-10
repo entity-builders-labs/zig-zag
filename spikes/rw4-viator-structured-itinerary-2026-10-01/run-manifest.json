@@ -1,0 +1,158 @@
+{
+  "spike": "rw4-viator-structured-itinerary-2026-10-01",
+  "baseUrl": "https://api.sandbox.viator.com/partner",
+  "environment": "SANDBOX Partner API (sandbox affiliate key)",
+  "credentialSource": "process.env.VIATOR_API_KEY (value never persisted)",
+  "acceptHeader": "application/json;version=2.0",
+  "accessCheck": {
+    "endpoint": "GET /destinations",
+    "status": 200,
+    "destinationCount": 3394
+  },
+  "queries": [
+    "Mendoza wine tour",
+    "Maipu wine tour",
+    "Lujan de Cuyo winery tour",
+    "Uco Valley wine tour",
+    "Mendoza wine bus",
+    "Mendoza full day wine excursion"
+  ],
+  "perQueryResults": 20,
+  "samplingRule": "round-robin by rank over queries (depth 5), dedupe by productCode, cap 10; content-blind",
+  "sampledProductCodes": [
+    "5573772P5",
+    "5530264P4",
+    "70442P6",
+    "40520P12",
+    "199477P2",
+    "5674P681",
+    "475969P2",
+    "199477P3",
+    "5668946P2",
+    "44877P6"
+  ],
+  "supplementProductCodes": [
+    {
+      "productCode": "5674P1222",
+      "reason": "HOP_ON_HOP_OFF form observation (wine bus); out of sample"
+    }
+  ],
+  "locationRefsRequested": 291,
+  "locationsResolved": 291,
+  "callLog": [
+    {
+      "method": "GET",
+      "endpoint": "/destinations",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "POST",
+      "endpoint": "/search/freetext",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/5573772P5",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/5530264P4",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/70442P6",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/40520P12",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/199477P2",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/5674P681",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/475969P2",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/199477P3",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/5668946P2",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/44877P6",
+      "status": 200,
+      "cached": true
+    },
+    {
+      "method": "GET",
+      "endpoint": "/products/5674P1222",
+      "status": 200,
+      "cached": false
+    },
+    {
+      "method": "POST",
+      "endpoint": "/locations/bulk",
+      "status": 200,
+      "cached": false
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["history", "architecture"],
+    "intents": ["walk"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "Me interesan San Telmo y La Boca, especialmente su historia, arquitectura y lugares emblemáticos."
+  },
+  "mobility": {
+    "allowedTransportationModes": ["walking"],
+    "maxWalkingDistancePerDayMeters": 5000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

@@ -1,0 +1,213 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides tips and booking information for Casa Rosada."
+    },
+    {
+      "atomId": "a-025",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Instagram picture credit caption."
+    },
+    {
+      "atomId": "a-026",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa Street",
+          "supportSpan": "Defensa Street",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to walk through Defensa Street."
+    },
+    {
+      "atomId": "a-027",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza Dorrego",
+          "supportSpan": "Plaza Dorrego",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions street fair route passing places."
+    },
+    {
+      "atomId": "a-028",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Farmacia la Estrella\"",
+          "supportSpan": "\"Farmacia la Estrella\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Explicit itinerary stop at Farmacia la Estrella."
+    },
+    {
+      "atomId": "a-029",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Farmacia la Estrella\"",
+          "supportSpan": "inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-028"
+        }
+      ],
+      "reason": "Tells traveller to look inside the pharmacy."
+    },
+    {
+      "atomId": "a-030",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Museum of the city",
+          "supportSpan": "Museum of the city",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Presents the museum as a place to visit."
+    },
+    {
+      "atomId": "a-031",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"La Librería del Avila\"",
+          "supportSpan": "\"La Librería del Avila\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Numbered itinerary stop at La Libreria del Avila."
+    },
+    {
+      "atomId": "a-032",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "National School of Buenos Aires",
+          "supportSpan": "National School of Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions school visible in front for orientation."
+    },
+    {
+      "atomId": "a-033",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Alfonso",
+          "supportSpan": "Alfonso",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a specific place for lunch."
+    },
+    {
+      "atomId": "a-034",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Monumento de Mafalda",
+          "supportSpan": "Monumento de Mafalda",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Numbered stop at Monumento de Mafalda."
+    },
+    {
+      "atomId": "a-035",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Background information about the character Mafalda."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Chile 371",
+          "supportSpan": "Chile 371",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Suggests checking out Mafalda's house optionally."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption / fragment."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Mínima",
+          "supportSpan": "Casa Mínima",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Numbered stop at Casa Minima."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Advertisement or unrelated Mendoza itinerary title."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "The San Telmo Market",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Numbered stop at The San Telmo Market."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description and history of the market."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tourist warning tip."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "market",
+          "supportSpan": "market",
+          "role": "ALTERNATIVE"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers choices for lunch locations."
+    }
+  ]
+}

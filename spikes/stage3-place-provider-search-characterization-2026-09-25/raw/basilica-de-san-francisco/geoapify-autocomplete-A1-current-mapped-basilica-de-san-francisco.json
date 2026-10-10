@@ -1,0 +1,19 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "51e8e0f489972f4dc05992bc299b284e41c0f00101f901e8eb230000000000c0020192031a426173c3ad6c6963612064652053616e204672616e636973636f",
+      "name": "Basílica de San Francisco",
+      "displayName": {
+        "text": "Basílica de San Francisco"
+      },
+      "formattedAddress": "Basílica de San Francisco, Moreno, Monserrat, C1091 AAH Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6106142,
+        "longitude": -58.3718121
+      },
+      "types": []
+    }
+  ],
+  "failure": null
+}

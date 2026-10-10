@@ -1,0 +1,273 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-067",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the restaurant experience."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Fundación Proa",
+          "supportSpan": "Fundación Proa",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs traveler to Caminito Street and optionally Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Starting point visit."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Entering Puerto Madero."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walking and seeing contrasting neighborhoods."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Walking along specific streets."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Food recommendation kiosk option."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "Centro Cultural Kirchner",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "the building",
+          "role": "OPTIONAL_STOP",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Optional entry to the building."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transportation details and tips."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Alternative stop for celebration drink."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Booking tip."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "View description."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Guide recommendation."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Closing remarks and tour feedback."
+    },
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social media links."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comments link."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Sharing buttons."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Sharing banner."
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Banner image."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "buenos aires",
+          "supportSpan": "buenos aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Tag link."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment response."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contact email."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation links."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author bio."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Author location."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Welcome message."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Social image."
+    }
+  ]
+}

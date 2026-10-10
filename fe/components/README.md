@@ -46,7 +46,7 @@ Components composing the main Home tab screen:
 Components for the `tours/[id]` screen — a full itinerary view:
 
 - **`TourHeader`** — Cover image with gradient overlay, tour name, description
-- **`TourStopCard`** — Activity card with photos, time, notes
+- **`TourStopCard`** — Experience snapshot card with media, time, and notes
 - **`SmartConnector`** — Visual line/arrow connecting tour stops with travel time
 - **`DayHeader`** — Day number separator for multi-day tours
 

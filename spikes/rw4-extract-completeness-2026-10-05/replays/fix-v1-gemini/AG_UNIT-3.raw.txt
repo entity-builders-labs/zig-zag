@@ -1,0 +1,193 @@
+{
+  "candidates": [
+    {
+      "name": "Self Guided Walking Tour San Telmo to La Boca",
+      "description": "A comprehensive self-guided day tour starting from Tribunales and Teatro Colón, passing through Plaza de Mayo, walking down Defensa Street into San Telmo to see historical pharmacies, libraries, Mafalda's monument, Casa Mínima, San Telmo Market, and El Patio de los Ezeiza, then heading to Caminito in La Boca and finishing at Puerto Madero.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "food"
+      ],
+      "traits": [
+        "self-guided",
+        "walking tour",
+        "historic sights",
+        "local food"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "teatro-colon",
+          "name": "Teatro Colón",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "From there you can cross the park to see the stunning Teatro Colón from outside."
+        },
+        {
+          "key": "obelisco",
+          "name": "Obelisco",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Then you can walk a few streets to see the Obelisco and then walkthrough Av. Roque Saenz Peña directly to Plaza de Mayo."
+        },
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Once you arrive to Plaza de Mayo you can walk through Av. de Mayo (which is really beautiful avenue) at the end of this avenue you can see the Congress building."
+        },
+        {
+          "key": "cafe-tortoni",
+          "name": "Café Tortoni",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "the first is the iconic Café Tortoni, you can enjoy some \"Cafe con medialunas\" this is our typical breakfast."
+        },
+        {
+          "key": "london-city-coffee",
+          "name": "London City Coffee",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "In case Tortoni is too crowded you can walk back to London City Coffee where multiple famous writers and iconic figures of Buenos Aires spent time there, such as our writer Cortázar."
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "This Plaza is quite important here we have the Casa Rosada, the Cathedral (where the Pope use to give mass) and the Cabildo."
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "La Librería del Ávila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Oldest library in town, \"La Librería del Avila\"!"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires, not sure if this is true but is cute and the street as well ;)"
+        },
+        {
+          "key": "el-mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!!"
+        },
+        {
+          "key": "nuestra-parrilla",
+          "name": "Nuestra Parrilla",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "I recommend eating 1 choripan en Nuestra Parrilla (stop 10), is on the outside (over Bolivar street) of the market and not a tourist trap."
+        },
+        {
+          "key": "el-patio-de-los-ezeiza",
+          "name": "El Patio de los Ezeiza",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 10: Last stop, this is \"El Patio de los Ezeiza\"."
+        },
+        {
+          "key": "caminito",
+          "name": "Caminito",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "From \"El Patio de los Ezeiza\" you can take bus 29 to Caminito or take a taxi."
+        },
+        {
+          "key": "fundacion-proa",
+          "name": "Fundación Proa",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "After this, you can wander around Caminito Street, and maybe check the \"Fundación Proa\" sometimes they have interesting exhibitions."
+        },
+        {
+          "key": "puente-de-la-mujer",
+          "name": "Puente de la Mujer",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "The starting point here is the Puente de la Mujer, this is beautiful day or night."
+        }
+      ],
+      "suggestedDurationMinutes": 1440,
+      "shortReason": "A detailed multi-stop self-guided walking itinerary covering historic landmarks from Tribunales through San Telmo and La Boca.",
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

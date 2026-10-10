@@ -1,0 +1,485 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Galería Güemes",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 656,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5657864,
+        "lat": -34.6397571,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería Güemes, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Güemes",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C6M+3M",
+        "rank": {
+          "importance": 0.000046261539635263866,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51c34252b06b484dc05920f1868fe35141c0f00102f901d46af42200000000c0020192031047616c6572c3ad612047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.5660541,
+          "lat1": -34.6398031,
+          "lon2": -58.5655187,
+          "lat2": -34.6397112
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Güemes 51",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5659413,
+        "lat": -34.6397876,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería Güemes 51, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Güemes 51",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C6M+3J",
+        "rank": {
+          "importance": 0.000046261539635263866,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "51557ab7c370484dc0597331618fe45141c0f00103f901c3f2063403000000c0020192031347616c6572c3ad612047c3bc656d6573203531",
+        "bbox": {
+          "lon1": -58.5659913,
+          "lat1": -34.6398376,
+          "lon2": -58.5658913,
+          "lat2": -34.6397376
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería General Güemes",
+        "other_names": {
+          "alt_name": "Pasaje Güemes"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1005",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "Florida",
+        "iso3166_2": "AR-C",
+        "lon": -58.3743773,
+        "lat": -34.6063001,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería General Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "address_line1": "Galería General Güemes",
+        "address_line2": "Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+F6",
+        "plus_code_short": "VG+F6 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.3436304091577327,
+          "confidence": 0.9,
+          "match_type": "full_match"
+        },
+        "place_id": "51b1ee6998eb2f4dc059e087de3d9b4d41c0f00102f901142d550e00000000c0020192031847616c6572c3ad612047656e6572616c2047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.3750727,
+          "lat1": -34.6063441,
+          "lon2": -58.3736819,
+          "lat2": -34.6062562
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mirador Galería Güemes",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1005",
+        "district": "Comuna 1",
+        "suburb": "San Nicolás",
+        "quarter": "Microcentro",
+        "street": "Florida",
+        "iso3166_2": "AR-C",
+        "lon": -58.3747973,
+        "lat": -34.6063874,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Mirador Galería Güemes, Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "address_line1": "Mirador Galería Güemes",
+        "address_line2": "Florida, San Nicolás, C1005 Buenos Aires, Argentina",
+        "category": "tourism.attraction.viewpoint",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JVG+C3",
+        "plus_code_short": "VG+C3 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 1,
+          "match_type": "full_match"
+        },
+        "place_id": "518610a15bf92f4dc0596eda311a9e4d41c0f00103f9019c1cf09300000000c002019203184d697261646f722047616c6572c3ad612047c3bc656d6573",
+        "bbox": {
+          "lon1": -58.3748473,
+          "lat1": -34.6064374,
+          "lon2": -58.3747473,
+          "lat2": -34.6063374
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Casablanca",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "Ramos Mejía",
+        "postcode": "B1704ETD",
+        "suburb": "Ramos Mejía Norte",
+        "street": "Martín Miguel de Güemes",
+        "iso3166_2": "AR-B",
+        "lon": -58.5661163,
+        "lat": -34.6401757,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería Casablanca, Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "address_line1": "Galería Casablanca",
+        "address_line2": "Martín Miguel de Güemes, Ramos Mejía Norte, B1704 ETD Ramos Mejía, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C5M+WH",
+        "rank": {
+          "importance": 0.000051738002593988214,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51c31db97f76484dc059d298ff46f15141c0f00103f90132a2e73303000000c0020192031347616c6572c3ad612043617361626c616e6361",
+        "bbox": {
+          "lon1": -58.5661663,
+          "lat1": -34.6402257,
+          "lon2": -58.5660663,
+          "lat2": -34.6401257
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería Odea",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Haedo",
+        "postcode": "B1706ELH",
+        "suburb": "Güemes",
+        "street": "Galeria Odea",
+        "iso3166_2": "AR-B",
+        "lon": -58.5907718,
+        "lat": -34.6438106,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería Odea, Galeria Odea, Güemes, B1706 ELH Haedo, Argentina",
+        "address_line1": "Galería Odea",
+        "address_line2": "Galeria Odea, Güemes, B1706 ELH Haedo, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C45+FM",
+        "rank": {
+          "importance": 0.00004883421072704688,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5114330c699e4b4dc059b9e8bf62685241c0f00102f901e5cce52100000000c0020192030d47616c6572c3ad61204f646561",
+        "bbox": {
+          "lon1": -58.5909686,
+          "lat1": -34.6440038,
+          "lon2": -58.5906197,
+          "lat2": -34.6436117
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galería San Carlos",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Haedo",
+        "postcode": "B1706ELH",
+        "suburb": "Güemes",
+        "street": "Avenida Rivadavia",
+        "iso3166_2": "AR-B",
+        "lon": -58.591664,
+        "lat": -34.6461682,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galería San Carlos, Avenida Rivadavia, Güemes, B1706 ELH Haedo, Argentina",
+        "address_line1": "Galería San Carlos",
+        "address_line2": "Avenida Rivadavia, Güemes, B1706 ELH Haedo, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C35+G8",
+        "rank": {
+          "importance": 0.00004883421072704688,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513b1c5da5bb4b4dc0598b5bbba3b55241c0f00102f90116816a4700000000c0020192031347616c6572c3ad612053616e204361726c6f73",
+        "bbox": {
+          "lon1": -58.5919051,
+          "lat1": -34.6462488,
+          "lon2": -58.591488,
+          "lat2": -34.6459321
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galeria Odea",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Haedo",
+        "postcode": "B1706ELH",
+        "suburb": "Güemes",
+        "street": "Galeria Odea",
+        "iso3166_2": "AR-B",
+        "lon": -58.5907546,
+        "lat": -34.6438086,
+        "state_code": "B",
+        "result_type": "street",
+        "formatted": "Galeria Odea, Güemes, B1706 ELH Haedo, Argentina",
+        "address_line1": "Galeria Odea",
+        "address_line2": "Güemes, B1706 ELH Haedo, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C45+FM",
+        "rank": {
+          "importance": 0.04004883421072708,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51147bc3d89d4b4dc05918f1f851685241c0f00102f901e6cce52100000000c0020492030c47616c65726961204f646561",
+        "bbox": {
+          "lon1": -58.5909681,
+          "lat1": -34.6438258,
+          "lon2": -58.590541,
+          "lat2": -34.643792
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galeria Monumental",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Haedo",
+        "postcode": "B1706ELH",
+        "suburb": "Güemes",
+        "street": "Galeria Monumental",
+        "iso3166_2": "AR-B",
+        "lon": -58.5930627,
+        "lat": -34.6442513,
+        "state_code": "B",
+        "result_type": "street",
+        "formatted": "Galeria Monumental, Güemes, B1706 ELH Haedo, Argentina",
+        "address_line1": "Galeria Monumental",
+        "address_line2": "Güemes, B1706 ELH Haedo, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C44+7Q",
+        "rank": {
+          "importance": 0.04004883421072708,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "511d7d827ae94b4dc059e7f39bd3765241c0f00102f901efcce52100000000c0020492031247616c65726961204d6f6e756d656e74616c",
+        "bbox": {
+          "lon1": -58.5930931,
+          "lat1": -34.6444154,
+          "lon2": -58.5929965,
+          "lat2": -34.644247
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Galeria Haedo Center",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Morón",
+        "city": "Haedo",
+        "postcode": "B1706ELH",
+        "suburb": "Güemes",
+        "street": "Faustino Nicolás Cesio",
+        "iso3166_2": "AR-B",
+        "lon": -58.592703,
+        "lat": -34.6462929,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Galeria Haedo Center, Faustino Nicolás Cesio, Güemes, B1706 ELH Haedo, Argentina",
+        "address_line1": "Galeria Haedo Center",
+        "address_line2": "Faustino Nicolás Cesio, Güemes, B1706 ELH Haedo, Argentina",
+        "category": "commercial.shopping_mall",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39C34+FW",
+        "rank": {
+          "importance": 0.00004883421072704688,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51dc9e20b1dd4b4dc0598991cab9b95241c0f00102f90117816a4700000000c0020192031447616c6572696120486165646f2043656e746572",
+        "bbox": {
+          "lon1": -58.5927902,
+          "lat1": -34.6465158,
+          "lon2": -58.5924844,
+          "lat2": -34.6460623
+        }
+      }
+    ],
+    "query": {
+      "text": "Galería Güemes",
+      "categories": []
+    }
+  }
+}

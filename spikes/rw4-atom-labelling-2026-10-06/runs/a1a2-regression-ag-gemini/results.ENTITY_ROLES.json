@@ -1,0 +1,431 @@
+[
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "promptVersion": "labelling-prompt-v4",
+    "structureVersion": "editorial-structure-v1",
+    "consistency": "ENTITY_ROLES",
+    "batches": 5,
+    "atoms": 95,
+    "editorialAtoms": 90,
+    "nonEditorialBlocks": [
+      "a-084..a-088"
+    ],
+    "classified": 95,
+    "firstPassValid": false,
+    "firstPassIssueCount": 1,
+    "relabel": {
+      "scope": [
+        "a-072"
+      ],
+      "firstPassIssues": [
+        "STOP_WITHOUT_ENTITY:a-072"
+      ]
+    },
+    "missingAtomIds": [],
+    "duplicateAtomIds": [],
+    "unknownAtomIds": [],
+    "malformed": [],
+    "spanIssues": [],
+    "notes": [],
+    "labellingValid": true,
+    "outcome": "ASSEMBLED",
+    "histogram": {
+      "NON_ITINERARY": 43,
+      "ITINERARY_STOP": 18,
+      "ALTERNATIVE": 10,
+      "PASS_BY": 7,
+      "OPTIONAL_STOP": 5,
+      "TRANSFER": 5,
+      "ROUTE_LEG": 2,
+      "NON_EDITORIAL": 5
+    },
+    "segments": [
+      {
+        "segmentIndex": 1,
+        "openedBy": [],
+        "mandatory": [
+          "Teatro Colón",
+          "Obelisco",
+          "Plaza de Mayo",
+          "Congress building",
+          "Plaza",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Defensa Street",
+          "\"Farmacia la Estrella\"",
+          "\"La Librería del Avila\"",
+          "Monumento de Mafalda",
+          "Casa Mínima",
+          "The San Telmo Market",
+          "La Boca",
+          "\"El Patio de los Ezeiza\""
+        ],
+        "optional": [
+          "Museum of the city",
+          "Chile 371",
+          "Café Rivas y Galería Solar",
+          "Galería Solar"
+        ],
+        "alternativeGroups": [
+          [
+            "Café Tortoni",
+            "London City Coffee"
+          ],
+          [
+            "Alfonso"
+          ],
+          [
+            "market"
+          ],
+          [
+            "Nuestra Parrilla"
+          ],
+          [
+            "Coffee Town",
+            "Saigón",
+            "Desnivel"
+          ]
+        ],
+        "routeLegs": [
+          "Av. Roque Saenz Peña",
+          "Av. de Mayo",
+          "San Telmo"
+        ],
+        "passBy": [
+          "Plaza Dorrego",
+          "National School of Buenos Aires",
+          "Bolivar street"
+        ],
+        "conflicts": []
+      },
+      {
+        "segmentIndex": 2,
+        "openedBy": [
+          "a-058:UNSPECIFIED",
+          "a-059:BUS"
+        ],
+        "mandatory": [
+          "\"Don Carlos\"",
+          "Caminito Street"
+        ],
+        "optional": [
+          "\"Fundación Proa\""
+        ],
+        "alternativeGroups": [],
+        "routeLegs": [],
+        "passBy": [
+          "colorful houses",
+          "\"Estadio La Boca\""
+        ],
+        "conflicts": []
+      },
+      {
+        "segmentIndex": 3,
+        "openedBy": [
+          "a-069:BUS"
+        ],
+        "mandatory": [
+          "Puente de la Mujer"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "routeLegs": [
+          "Puerto Madero",
+          "\"Darsena Sur\"",
+          "Av. Int. Hernan Giralt"
+        ],
+        "passBy": [
+          "San Telmo",
+          "ecological park"
+        ],
+        "conflicts": []
+      },
+      {
+        "segmentIndex": 4,
+        "openedBy": [
+          "a-075:UNSPECIFIED"
+        ],
+        "mandatory": [],
+        "optional": [
+          "\"Centro Cultural Kirchner\""
+        ],
+        "alternativeGroups": [],
+        "routeLegs": [],
+        "passBy": [],
+        "conflicts": []
+      },
+      {
+        "segmentIndex": 5,
+        "openedBy": [
+          "a-077:BUS"
+        ],
+        "mandatory": [],
+        "optional": [],
+        "alternativeGroups": [
+          [
+            "Trade Sky Bar"
+          ]
+        ],
+        "routeLegs": [],
+        "passBy": [
+          "Puerto madero"
+        ],
+        "conflicts": []
+      }
+    ],
+    "segmentsAreDiagnosticShadow": false,
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "assembledSegment": 1,
+        "success": true,
+        "mandatoryRecall": "9/9",
+        "reasons": [],
+        "acceptablePromoted": [
+          "Congress building",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Defensa Street"
+        ],
+        "notInOracleMandatory": [
+          "Plaza",
+          "La Boca"
+        ],
+        "missingAtomDecisions": {}
+      },
+      {
+        "segment": "S2-la-boca",
+        "assembledSegment": 2,
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "acceptablePromoted": [
+          "\"Don Carlos\""
+        ],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "assembledSegment": 3,
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "acceptablePromoted": [],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      }
+    ],
+    "alternatives": [
+      {
+        "name": "Café Tortoni",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "London City",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Alfonso",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Nuestra Parrilla",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Coffee Town",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Saigón",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Desnivel",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Trade Sky Bar",
+        "emittedRole": "ALTERNATIVE"
+      }
+    ],
+    "mandatoryDecisions": {
+      "Teatro Colón": [
+        {
+          "atomId": "a-010",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-011",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Obelisco": [
+        {
+          "atomId": "a-012",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Plaza de Mayo": [
+        {
+          "atomId": "a-012",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-013",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-015",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-020",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-023",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-027",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Farmacia La Estrella": [
+        {
+          "atomId": "a-028",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Librería de Ávila": [
+        {
+          "atomId": "a-031",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Monumento de Mafalda": [
+        {
+          "atomId": "a-034",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-036",
+          "classification": "OPTIONAL_STOP",
+          "entityRole": null
+        }
+      ],
+      "Casa Mínima": [
+        {
+          "atomId": "a-037",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-038",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Mercado de San Telmo": [
+        {
+          "atomId": "a-040",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-052",
+          "classification": "OPTIONAL_STOP",
+          "entityRole": null
+        }
+      ],
+      "El Patio de los Ezeiza": [
+        {
+          "atomId": "a-053",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-057",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-059",
+          "classification": "TRANSFER",
+          "entityRole": "TRANSFER_DESTINATION"
+        }
+      ],
+      "Caminito": [
+        {
+          "atomId": "a-058",
+          "classification": "TRANSFER",
+          "entityRole": "TRANSFER_DESTINATION"
+        },
+        {
+          "atomId": "a-059",
+          "classification": "TRANSFER",
+          "entityRole": "TRANSFER_DESTINATION"
+        },
+        {
+          "atomId": "a-061",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-062",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-063",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-068",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Puente de la Mujer": [
+        {
+          "atomId": "a-070",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ]
+    },
+    "routeAreaPromoted": [
+      "Defensa",
+      "La Boca"
+    ],
+    "routeLegRoles": {
+      "Avenida Roque Sáenz Peña": "ROUTE_LEG",
+      "Avenida de Mayo": "ROUTE_LEG",
+      "Defensa": "ITINERARY_STOP",
+      "Dársena Sur": "ROUTE_LEG",
+      "Avenida Ingeniero Huergo / Hernán Giralt": "ROUTE_LEG",
+      "Puerto Madero": "ROUTE_LEG",
+      "San Telmo": "ROUTE_LEG",
+      "La Boca": "ITINERARY_STOP"
+    }
+  }
+]

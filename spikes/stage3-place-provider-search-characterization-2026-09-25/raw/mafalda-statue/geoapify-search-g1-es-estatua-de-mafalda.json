@@ -1,0 +1,479 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "text": "Estatua de Mafalda",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "lang": "es",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1035,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Ana Frank",
+        "other_names": {
+          "name:de": "Statue von Anne Frank",
+          "name:en": "Statue of Anne Frank",
+          "name:nl": "Standbeeld van Anne Frank",
+          "name:pt": "Estátua de Anne Frank"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1107CBS",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "street": "Olga Cossettini",
+        "iso3166_2": "AR-C",
+        "lon": -58.363968,
+        "lat": -34.6079701,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1682.1247260910895,
+        "formatted": "Estatua de Ana Frank, Olga Cossettini, Puerto Madero, C1107 CBS Buenos Aires, Argentina",
+        "address_line1": "Estatua de Ana Frank",
+        "address_line2": "Olga Cossettini, Puerto Madero, C1107 CBS Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRP+RC",
+        "plus_code_short": "RP+RC Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.699350350553567,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513065e080962e4dc0591239d8f6d14d41c0f00103f90135a3d40501000000c002019203144573746174756120646520416e61204672616e6be203236f70656e7374726565746d61703a76656e75653a6e6f64652f34333932373838373839",
+        "bbox": {
+          "lon1": -58.364018,
+          "lat1": -34.6080201,
+          "lon2": -58.363918,
+          "lat2": -34.6079201
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Juan Manuel Fangio",
+        "other_names": {
+          "name:de": "Statue von Juan Manuel Fangio",
+          "name:en": "Statue of Juan Manuel Fangio",
+          "alt_name": "Juan Manuel Fangio y su Mercedes-Benz W196 \"Flecha de Plata\""
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1107",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "street": "Azucena Villaflor",
+        "iso3166_2": "AR-C",
+        "lon": -58.3622212,
+        "lat": -34.61187,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 1992.6834714292625,
+        "formatted": "Estatua de Juan Manuel Fangio, Azucena Villaflor, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "address_line1": "Estatua de Juan Manuel Fangio",
+        "address_line2": "Azucena Villaflor, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQQ+74",
+        "plus_code_short": "9JQQ+74 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.331149605912559,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "517df5a7435d2e4dc059a7b393c1514e41c0f00103f901fb776b0601000000c0020192031d45737461747561206465204a75616e204d616e75656c2046616e67696fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343032363733363539",
+        "bbox": {
+          "lon1": -58.3622712,
+          "lat1": -34.61192,
+          "lon2": -58.3621712,
+          "lat2": -34.61182
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Eros",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1129",
+        "district": "Comuna 2",
+        "suburb": "Recoleta",
+        "street": "Avenida Alvear",
+        "iso3166_2": "AR-C",
+        "lon": -58.3908696,
+        "lat": -34.5865577,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2086.4546837903536,
+        "formatted": "Estatua de Eros, Avenida Alvear, Recoleta, 1129 Buenos Aires, Argentina",
+        "address_line1": "Estatua de Eros",
+        "address_line2": "Avenida Alvear, Recoleta, 1129 Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial.monument",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ75+9M",
+        "plus_code_short": "CJ75+9M Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.43465029988273,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "511480da0308324dc059c65b9d52144b41c0f00103f90139e9ac1f01000000c0020192030f457374617475612064652045726f73e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34383236333932383839",
+        "bbox": {
+          "lon1": -58.3909196,
+          "lat1": -34.5866077,
+          "lon2": -58.3908196,
+          "lat2": -34.5865077
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Louis Braille",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1128ACJ",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Doctor Luis Agote",
+        "iso3166_2": "AR-C",
+        "lon": -58.3938313,
+        "lat": -34.5842916,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2431.248907319751,
+        "formatted": "Estatua de Louis Braille, Doctor Luis Agote, Recoleta, C1128 ACJ Buenos Aires, Argentina",
+        "address_line1": "Estatua de Louis Braille",
+        "address_line2": "Doctor Luis Agote, Recoleta, C1128 ACJ Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ84+7F",
+        "plus_code_short": "CJ84+7F Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.339378109360379,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5112d2641069324dc059eca93011ca4a41c0f00103f9019a291f2301000000c0020192031845737461747561206465204c6f75697320427261696c6c65e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34383834323132313232",
+        "bbox": {
+          "lon1": -58.3938813,
+          "lat1": -34.5843416,
+          "lon2": -58.3937813,
+          "lat2": -34.5842416
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Poseidón",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425AAA",
+        "district": "Comuna 2",
+        "neighbourhood": "La Isla",
+        "suburb": "Recoleta",
+        "street": "Avenida Presidente Figueroa Alcorta",
+        "iso3166_2": "AR-C",
+        "lon": -58.3954504,
+        "lat": -34.581612,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2763.997997399366,
+        "formatted": "Estatua de Poseidón, Avenida Presidente Figueroa Alcorta, Recoleta, C1425 AAA Buenos Aires, Argentina",
+        "address_line1": "Estatua de Poseidón",
+        "address_line2": "Avenida Presidente Figueroa Alcorta, Recoleta, C1425 AAA Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial.monument",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CJ93+9R",
+        "plus_code_short": "CJ93+9R Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.067540079795047,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515698631e9e324dc059077b1343724a41c0f00103f901e26e1dde00000000c002019203144573746174756120646520506f73656964c3b36ee203236f70656e7374726565746d61703a76656e75653a6e6f64652f33373236343730383832",
+        "bbox": {
+          "lon1": -58.3955004,
+          "lat1": -34.581662,
+          "lon2": -58.3954004,
+          "lat2": -34.581562
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Confucio",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1425GMN",
+        "district": "Comuna 14",
+        "suburb": "Palermo",
+        "street": "Avenida Presidente Sarmiento",
+        "iso3166_2": "AR-C",
+        "lon": -58.4127049,
+        "lat": -34.5727932,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4463.009257659919,
+        "formatted": "Estatua de Confucio, Avenida Presidente Sarmiento, Palermo, C1425 GMN Buenos Aires, Argentina",
+        "address_line1": "Estatua de Confucio",
+        "address_line2": "Avenida Presidente Sarmiento, Palermo, C1425 GMN Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CHGP+VW",
+        "plus_code_short": "CHGP+VW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.785467676257464,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "511133a083d3344dc05983af9e49514941c0f00103f9010e22109102000000c002019203134573746174756120646520436f6e667563696fe203246f70656e7374726565746d61703a76656e75653a6e6f64652f3131303233363838323036",
+        "bbox": {
+          "lon1": -58.4127549,
+          "lat1": -34.5728432,
+          "lon2": -58.4126549,
+          "lat2": -34.5727432
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de Ringo Bonavena",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1284",
+        "district": "Comuna 4",
+        "suburb": "Parque Patricios",
+        "quarter": "Barrrio Estación Buenos Aires",
+        "street": "Miravé",
+        "iso3166_2": "AR-C",
+        "lon": -58.3961993,
+        "lat": -34.6439731,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 4673.17498046568,
+        "formatted": "Estatua de Ringo Bonavena, Miravé, Parque Patricios, 1284 Buenos Aires, Argentina",
+        "address_line1": "Estatua de Ringo Bonavena",
+        "address_line2": "Miravé, Parque Patricios, 1284 Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39J43+CG",
+        "plus_code_short": "9J43+CG Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.819115586208929,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "515b199ea8b6324dc0597a00e6b56d5241c0f00103f9017e1309bb02000000c00201920319457374617475612064652052696e676f20426f6e6176656e61e203246f70656e7374726565746d61703a76656e75653a6e6f64652f3131373237383638373938",
+        "bbox": {
+          "lon1": -58.3962493,
+          "lat1": -34.6440231,
+          "lon2": -58.3961493,
+          "lat2": -34.6439231
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de la Libertad",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1428DZF",
+        "district": "Comuna 13",
+        "neighbourhood": "Barrio Chino",
+        "suburb": "Belgrano",
+        "street": "La Pampa",
+        "iso3166_2": "AR-C",
+        "lon": -58.4476321,
+        "lat": -34.5607432,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 7704.499557265762,
+        "formatted": "Estatua de la Libertad, La Pampa, Belgrano, C1428 DZF Buenos Aires, Argentina",
+        "address_line1": "Estatua de la Libertad",
+        "address_line2": "La Pampa, Belgrano, C1428 DZF Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CHQ2+PW",
+        "plus_code_short": "CHQ2+PW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.871256675595976,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51e51137024c394dc05929bae46ec64741c0f00103f901126e5c0701000000c0020192031645737461747561206465206c61204c69626572746164e203236f70656e7374726565746d61703a76656e75653a6e6f64652f34343138343635323938",
+        "bbox": {
+          "lon1": -58.4476821,
+          "lat1": -34.5607932,
+          "lon2": -58.4475821,
+          "lat2": -34.5606932
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua Goyeneche",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "B1603",
+        "district": "Comuna 12",
+        "suburb": "Saavedra",
+        "street": "Avenida Doctor Ricardo Balbín",
+        "iso3166_2": "AR-C",
+        "lon": -58.4982465,
+        "lat": -34.5528125,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 12085.748862475013,
+        "formatted": "Estatua Goyeneche, Avenida Doctor Ricardo Balbín, Saavedra, B1603 Buenos Aires, Argentina",
+        "address_line1": "Estatua Goyeneche",
+        "address_line2": "Avenida Doctor Ricardo Balbín, Saavedra, B1603 Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CGW2+VP",
+        "plus_code_short": "CGW2+VP Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 6.7962201440231365,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51596c938ac63f4dc059f6285c8fc24641c0f00103f901b076d96b01000000c002019203114573746174756120476f79656e65636865e203236f70656e7374726565746d61703a76656e75653a6e6f64652f36313034333831313034",
+        "bbox": {
+          "lon1": -58.4982965,
+          "lat1": -34.5528625,
+          "lon2": -58.4981965,
+          "lat2": -34.5527625
+        }
+      }
+    ],
+    "query": {
+      "text": "Estatua de Mafalda"
+    }
+  }
+}

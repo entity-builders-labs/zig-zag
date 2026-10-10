@@ -1,0 +1,164 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walk Through San Telmo Historic Sites",
+      "description": "A self-guided walking itinerary through the historic San Telmo neighborhood, starting at Plaza de Mayo and moving through key landmarks including the Cabildo, Catedral Metropolitana, and the Feria de San Telmo on Defensa street. The route continues to the quiet Estados Unidos street, crosses Paseo de Colón, and visits the Mercado de San Telmo, Plaza Dorrego, and the Museum of Modern Art before concluding at Parque Lezama.",
+      "themes": [
+        "history",
+        "architecture",
+        "culture"
+      ],
+      "traits": [
+        "self-guided",
+        "cobblestone streets",
+        "historic neighborhood"
+      ],
+      "intents": [
+        "walk",
+        "route_like"
+      ],
+      "suggestedDurationMinutes": 180,
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "START AT PLAZA DE MAYO:"
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "surrounded by **Casa Rosada** (presidential palace)"
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "**Catedral Metropolitana**"
+        },
+        {
+          "key": "museo-del-cabildo",
+          "name": "Museo del Cabildo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "**Museo del Cabildo**"
+        },
+        {
+          "key": "calle-defensa",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "feria-san-telmo",
+          "name": "Feria de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Every Sunday Feria San Telmo takes place in street Defensa.",
+          "sourceName": "Feria San Telmo",
+          "normalizationKind": "CANONICAL_NAME"
+        },
+        {
+          "key": "calle-estados-unidos",
+          "name": "Calle Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "paseo-de-colon",
+          "name": "Paseo de Colón",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "cross the street Paseo de Colon."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "museo-de-arte-moderno",
+          "name": "Museo de Arte Moderno",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "there is the Museum of Modern Arts.",
+          "sourceName": "Museum of Modern Arts",
+          "normalizationKind": "TRANSLATION"
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "you will see Parque Lezama."
+        }
+      ],
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "shortReason": "Evidence ev-2 provides a step-by-step self-guided walking itinerary starting at Plaza de Mayo and moving through specific named stops in San Telmo, including streets, plazas, and museums, matching the user's request for a self-guided historic walk.",
+      "orderedByEvidence": true
+    }
+  ]
+}

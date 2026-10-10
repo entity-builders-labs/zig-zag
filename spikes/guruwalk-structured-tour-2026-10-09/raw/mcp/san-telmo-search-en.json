@@ -1,0 +1,52 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"place\":{\"id\":1191,\"name\":\"Saltillo\",\"slug\":\"saltillo\",\"country\":\"Mexico\",\"has_free_tours\":true,\"url\":\"https://www.guruwalk.com/en/a/saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":1},\"categories\":[{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"hub_slug\":\"saltillo\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=saltillo&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}],\"featured_products\":[{\"type\":\"free_tour\",\"id\":72194,\"name\":\"Tour the most iconic galleries and museums in the Historic Center of Saltillo.\",\"slug\":\"72194-tour-the-most-iconic-galleries-and-museums-in-the-historic-center-of-saltillo\",\"rating\":0.0,\"reviews_count\":0,\"duration\":150,\"booking_url\":\"https://www.guruwalk.com/walks/72194-tour-the-most-iconic-galleries-and-museums-in-the-historic-center-of-saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"}],\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "place": {
+    "id": 1191,
+    "name": "Saltillo",
+    "slug": "saltillo",
+    "country": "Mexico",
+    "has_free_tours": true,
+    "url": "https://www.guruwalk.com/en/a/saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+   },
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 1
+   },
+   "categories": [
+    {
+     "id": "free-tour",
+     "name": "Free Tours",
+     "slug": "free-tours",
+     "hub_slug": "saltillo",
+     "url": "https://www.guruwalk.com/en/a/search?hub=saltillo&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    }
+   ],
+   "featured_products": [
+    {
+     "type": "free_tour",
+     "id": 72194,
+     "name": "Tour the most iconic galleries and museums in the Historic Center of Saltillo.",
+     "slug": "72194-tour-the-most-iconic-galleries-and-museums-in-the-historic-center-of-saltillo",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 150,
+     "booking_url": "https://www.guruwalk.com/walks/72194-tour-the-most-iconic-galleries-and-museums-in-the-historic-center-of-saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    }
+   ],
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/saltillo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+  }
+ }
+}

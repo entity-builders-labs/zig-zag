@@ -1,0 +1,198 @@
+/**
+ * Forensic replay of the C3 retry "Don Carlos" LOCAL_OSM_POOL attempt.
+ * Real code path (ExperienceProposalResolverService.resolve), real local
+ * Overpass pool for the real Buenos Aires relation, real Wikidata summary of
+ * the selected candidate's own QID. Only acquisition providers that never
+ * ran live (Nominatim/Places/catalog) are empty stubs. Writes evidence JSON.
+ */
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { OverpassApiService } from '@integrations/osm/services/overpass-api.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { NominatimApiService } from '@integrations/osm/services/nominatim-api.service';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { overpassElementToGeoJson } from '@integrations/osm/utils/osm-geometry.util';
+import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
+import { IdentityVerifier } from '../services/identity-verifier.service';
+import { matchOsmCandidateByName } from '../utils/nominatim-match.util';
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
+
+const OUT = process.env.FORENSIC_OUT!;
+jest.setTimeout(240000);
+
+it('replays Don Carlos', async () => {
+  const config = new ConfigService({
+    OVERPASS_API_URL: 'http://localhost:12345/api/interpreter',
+    NOMINATIM_API_URL: 'http://localhost:8088/search',
+  });
+  const HINTS = (process.env.HINTS ?? 'Don Carlos').split('|');
+  const overpass = new OverpassApiService(config);
+  const osm = new OsmPlacesService(overpass as any, config);
+  const rel = await (overpass as any).execute(
+    '[out:json][timeout:120];relation(1224652);out geom;',
+  );
+  const geometry = overpassElementToGeoJson(rel[0]);
+  const boundary = {
+    id: 'osm:relation:1224652',
+    name: 'Buenos Aires',
+    osmType: 'relation' as const,
+    osmId: 1224652,
+    tags: rel[0].tags,
+    geometry,
+  };
+  const pool = await osm.lookupPoisWithin(boundary as any);
+  const summaryCache = new Map<string, any>();
+  const realSummary = async (qid: string) => {
+    if (summaryCache.has(qid)) return summaryCache.get(qid);
+    const res = await fetch(
+      `https://www.wikidata.org/wiki/Special:EntityData/${qid}.json`,
+      { headers: { 'User-Agent': 'zig-zag-forensic/1.0' } },
+    );
+    const entity = (await res.json()).entities[qid];
+    const summary = entity
+      ? {
+          label: entity.labels.es?.value ?? entity.labels.en?.value,
+          aliases: [
+            ...new Set(
+              Object.values(entity.aliases ?? {})
+                .flat()
+                .map((a: any) => a.value),
+            ),
+          ] as string[],
+          P31: (entity.claims.P31 ?? []).map(
+            (c: any) => c.mainsnak.datavalue?.value?.id,
+          ),
+          hasP625: Boolean(entity.claims.P625),
+        }
+      : undefined;
+    summaryCache.set(qid, summary);
+    return summary;
+  };
+  const calls: any[] = [];
+  const original = IdentityVerifier.prototype.decide;
+  const spy = jest
+    .spyOn(IdentityVerifier.prototype, 'decide')
+    .mockImplementation(function (this: any, hint: any, attempt: any) {
+      const decision = original.call(this, hint, attempt);
+      calls.push({
+        hint: hint.name,
+        strategy: attempt.strategy,
+        candidate: {
+          strategy: attempt.strategy,
+          externalId: attempt.candidate.externalId,
+          canonicalName: attempt.candidate.canonicalName,
+          wikidataQid: attempt.candidate.wikidataQid,
+          nameEvidenceMultiplicity: attempt.candidate.nameEvidenceMultiplicity,
+          nameAliasCandidates: attempt.candidate.nameAliasCandidates,
+        },
+        evidence: JSON.parse(JSON.stringify(attempt.evidence)),
+        decision,
+      });
+      return decision;
+    });
+
+  const osmPlaces = {
+    lookupPoisWithin: jest.fn().mockResolvedValue(pool),
+    lookupPoisNear: jest.fn().mockResolvedValue(pool),
+    lookupBoundaryById: jest.fn(),
+    lookupHighwaysByName: jest.fn(),
+    lookupContainingAdminUnits: jest
+      .fn()
+      .mockResolvedValue({ status: 'success', value: [] }),
+  };
+  const catalog = {
+    findGeoEntityCandidatesForHint: jest
+      .fn()
+      .mockResolvedValue({ candidates: [] }),
+    rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
+    findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
+    upsertGeoEntityWithIdentities: jest.fn().mockResolvedValue({
+      status: 'CREATED',
+      geoEntity: { id: 'geo' },
+      attachedExternalIds: [],
+    }),
+    upsertGeoEntity: jest.fn().mockResolvedValue({ id: 'geo' }),
+    resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+    persistVerifiedExperience: jest
+      .fn()
+      .mockResolvedValue({ id: 'exp', dedupeDecision: 'NEW' }),
+  };
+  // The production Wikidata adapter (labels/aliases exactly as it reads
+  // them), recorded so the report shows what the collector compared.
+  const realWikidata = new WikidataApiService(config);
+  const wikidata = {
+    getEntitySummaries: jest.fn(async (qids: string[]) => {
+      const map = await realWikidata.getEntitySummaries(qids);
+      for (const [qid, summary] of map) summaryCache.set(qid, summary);
+      return map;
+    }),
+    findNearbyPlaces: jest.fn((lat: number, lon: number, r: number) =>
+      realWikidata.findNearbyPlaces(lat, lon, r),
+    ),
+  };
+  const service = new ExperienceProposalResolverService(
+    osmPlaces as any,
+    catalog as any,
+    { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
+    undefined,
+    new NominatimApiService(config) as any,
+    undefined,
+    wikidata as any,
+  );
+  for (const hintName of HINTS) {
+    await service.resolve({
+      destinationName: 'Buenos Aires, Argentina',
+      destinationCountryCode: 'AR',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([
+        {
+          name: `${hintName} visit`,
+          themes: [],
+          traits: [],
+          intents: ['visit'],
+          componentHints: [
+            {
+              key: 'm-1',
+              name: hintName,
+              role: 'venue',
+              expectedKind: 'PLACE',
+              evidenceKeys: ['ev-1'],
+            },
+          ],
+          evidenceKeys: ['ev-1'],
+          shortReason: 'forensic',
+        },
+      ]),
+      evidence: [
+        { key: 'ev-1', source: 'web', title: 'Buenos Aires walk', snippet: hintName },
+      ],
+    } as any);
+  }
+  spy.mockRestore();
+
+  const matched = matchOsmCandidateByName('Don Carlos', pool.value as any);
+  const named = (pool.value as any[]).filter((c) =>
+    /carlos/i.test(c.name),
+  );
+  fs.writeFileSync(
+    OUT,
+    JSON.stringify(
+      {
+        poolStatus: pool.status,
+        poolSize: pool.value.length,
+        poolMembersNamedDonCarlos: (pool.value as any[])
+          .filter((c) => /^don carlos$/i.test(c.name))
+          .map((c) => ({ id: c.id, name: c.name, tags: c.tags })),
+        poolMembersContainingCarlos: named.map((c) => ({
+          id: c.id,
+          name: c.name,
+        })),
+        matchOsmCandidateByName: matched,
+        wikidata: Object.fromEntries(summaryCache),
+        verifierCalls: calls,
+      },
+      null,
+      1,
+    ),
+  );
+});

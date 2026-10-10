@@ -1,0 +1,14 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "ms": 339,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: AiProviderError: Groq error 413: {\"error\":{\"message\":\"Request too large for model `openai/gpt-oss-120b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on tokens per minute (TPM): Limit 8000, Requested 8077, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

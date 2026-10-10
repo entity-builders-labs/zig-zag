@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TOP="$(git rev-parse --show-toplevel 2>/dev/null || true)"
+[ -n "$TOP" ] || { echo 'Not inside a Git worktree.' >&2; exit 1; }
+
+BRANCH="$(git branch --show-current)"
+if [ -z "$BRANCH" ] && [ -n "${GITHUB_HEAD_REF:-}" ]; then
+  BRANCH="$GITHUB_HEAD_REF"
+fi
+[ -n "$BRANCH" ] || { echo 'PROGRESS GATE FAIL: detached HEAD' >&2; exit 1; }
+
+CONTEXT="$(cd "$TOP" && scripts/agent-track context 2>/dev/null)" || {
+  echo 'PROGRESS GATE FAIL: cannot resolve ACTIVE track for branch' "$BRANCH" >&2
+  exit 1
+}
+
+PROGRESS="$(sed -n 's/^Progress: //p' <<<"$CONTEXT")"
+BASE="$(sed -n 's/^Base snapshot: //p' <<<"$CONTEXT")"
+DECLARED_BRANCH="$(sed -n 's/^Branch: //p' <<<"$CONTEXT")"
+
+[ "$DECLARED_BRANCH" = "$BRANCH" ] || {
+  echo 'PROGRESS GATE FAIL: declared branch' "$DECLARED_BRANCH" '!= current branch' "$BRANCH" >&2
+  exit 1
+}
+
+for section in '## Current execution verdict' '## Current checkpoint' '## Next authorized action' '## Open findings / blockers'; do
+  grep -Fq "$section" "$TOP/$PROGRESS" || {
+    echo 'PROGRESS GATE FAIL: missing section' "$section" >&2
+    exit 1
+  }
+done
+
+LATEST="$(git -C "$TOP" rev-list -1 "$BASE"..HEAD 2>/dev/null || true)"
+if [ -z "$LATEST" ]; then
+  echo 'PROGRESS GATE PASS: no track changes since base'
+  exit 0
+fi
+
+if git -C "$TOP" diff-tree --no-commit-id --name-only -r "$LATEST" | grep -q "^$PROGRESS$"; then
+  echo 'PROGRESS GATE PASS: latest track change updates progress'
+  exit 0
+fi
+
+echo 'PROGRESS GATE FAIL: latest track change' "$LATEST" 'does not update progress' >&2
+exit 1

@@ -1,0 +1,983 @@
+{
+  "markers": {
+    "SOB_UNIT": {
+      "NUMBERED_STOP": [],
+      "SCHEDULE_HEADING": [],
+      "START_END_BANNER": [
+        "**START AT PLAZA DE MAYO:**"
+      ]
+    },
+    "AG_UNIT": {
+      "NUMBERED_STOP": [
+        "Stop 5",
+        "Stop 6",
+        "Stop 7",
+        "Stop 8",
+        "Stop 9",
+        "stop 10",
+        "Stop 10",
+        "Stop 13",
+        "Stop 12",
+        "Stop 16"
+      ],
+      "SCHEDULE_HEADING": [
+        "**9am - Teatro Colón**",
+        "**10am - Have Breakfast and visit Plaza de Mayo**",
+        "**12 am - Walk through Defensa Street**",
+        "**15hs - Go to Caminito en La Boca**",
+        "**20hs - Return home / hotel**"
+      ],
+      "START_END_BANNER": []
+    }
+  },
+  "oracleCorrect": {
+    "SOB_UNIT": {
+      "unlocatedOracleSpans": [],
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    "AG_UNIT": {
+      "unlocatedOracleSpans": [],
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13"
+        ],
+        "R3": [
+          "stop 11"
+        ]
+      }
+    }
+  },
+  "observed": [
+    {
+      "batch": "head-8981-gemini",
+      "input": "SOB_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981-gemini",
+      "input": "SOB_UNIT",
+      "run": 2,
+      "actuallyIncomplete": false,
+      "missing": [],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981-gemini",
+      "input": "SOB_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981-gemini",
+      "input": "AG_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981-gemini",
+      "input": "AG_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981-gemini",
+      "input": "AG_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 8"
+        ]
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "SOB_UNIT",
+      "run": 1,
+      "actuallyIncomplete": false,
+      "missing": [],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "SOB_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "SOB_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "AG_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco",
+        "Farmacia La Estrella",
+        "Librería de Ávila",
+        "Monumento de Mafalda",
+        "Casa Mínima",
+        "Mercado de San Telmo",
+        "El Patio de los Ezeiza"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "AG_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco"
+      ],
+      "notEmitted": [],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:Stop 10",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:Stop 10"
+        ],
+        "R3": [
+          "stop 8",
+          "stop 11"
+        ]
+      }
+    },
+    {
+      "batch": "head-8981b-gemini",
+      "input": "AG_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Obelisco",
+        "Librería de Ávila"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:stop 10"
+        ],
+        "R3": [
+          "stop 6"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "SOB_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "SOB_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "SOB_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "AG_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "AG_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 8"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-gemini",
+      "input": "AG_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo",
+        "Mercado de San Telmo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 9"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "SOB_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "SOB_UNIT",
+      "run": 2,
+      "actuallyIncomplete": false,
+      "missing": [],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "SOB_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "AG_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "AG_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": false
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-b-gemini",
+      "input": "AG_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo",
+        "Librería de Ávila",
+        "Mercado de San Telmo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 6",
+          "stop 9"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "SOB_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "SOB_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [
+        "S2-la-boca"
+      ],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "SOB_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Museo Histórico Nacional"
+      ],
+      "notEmitted": [],
+      "flagged": {
+        "R1": false,
+        "R2": false,
+        "R3": false
+      },
+      "flags": {
+        "R1": [],
+        "R2": [],
+        "R3": []
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "AG_UNIT",
+      "run": 1,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo",
+        "Librería de Ávila"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 6",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 6"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "AG_UNIT",
+      "run": 2,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 8",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 8"
+        ]
+      }
+    },
+    {
+      "batch": "normfix-c-gemini",
+      "input": "AG_UNIT",
+      "run": 3,
+      "actuallyIncomplete": true,
+      "missing": [
+        "Teatro Colón",
+        "Obelisco",
+        "Plaza de Mayo",
+        "Mercado de San Telmo"
+      ],
+      "notEmitted": [
+        "S2-la-boca",
+        "S3-puerto-madero"
+      ],
+      "flagged": {
+        "R1": true,
+        "R2": true,
+        "R3": true
+      },
+      "flags": {
+        "R1": [
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "NUMBERED_STOP:Stop 13",
+          "NUMBERED_STOP:Stop 12",
+          "NUMBERED_STOP:Stop 16",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**",
+          "SCHEDULE_HEADING:**15hs - Go to Caminito en La Boca**",
+          "SCHEDULE_HEADING:**20hs - Return home / hotel**"
+        ],
+        "R2": [
+          "NUMBERED_STOP:Stop 9",
+          "NUMBERED_STOP:stop 10",
+          "SCHEDULE_HEADING:**9am - Teatro Colón**",
+          "SCHEDULE_HEADING:**10am - Have Breakfast and visit Plaza de Mayo**"
+        ],
+        "R3": [
+          "stop 9"
+        ]
+      }
+    }
+  ],
+  "tally": {
+    "SOB_UNIT:R1": {
+      "incompleteCaught": 0,
+      "incompleteMissed": 12,
+      "completeFlagged": 0,
+      "completePassed": 3
+    },
+    "SOB_UNIT:R2": {
+      "incompleteCaught": 0,
+      "incompleteMissed": 12,
+      "completeFlagged": 0,
+      "completePassed": 3
+    },
+    "SOB_UNIT:R3": {
+      "incompleteCaught": 0,
+      "incompleteMissed": 12,
+      "completeFlagged": 0,
+      "completePassed": 3
+    },
+    "AG_UNIT:R1": {
+      "incompleteCaught": 15,
+      "incompleteMissed": 0,
+      "completeFlagged": 0,
+      "completePassed": 0
+    },
+    "AG_UNIT:R2": {
+      "incompleteCaught": 15,
+      "incompleteMissed": 0,
+      "completeFlagged": 0,
+      "completePassed": 0
+    },
+    "AG_UNIT:R3": {
+      "incompleteCaught": 9,
+      "incompleteMissed": 6,
+      "completeFlagged": 0,
+      "completePassed": 0
+    }
+  }
+}

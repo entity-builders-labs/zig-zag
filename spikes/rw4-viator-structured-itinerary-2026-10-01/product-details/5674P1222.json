@@ -1,0 +1,1520 @@
+{
+  "status": "ACTIVE",
+  "productCode": "5674P1222",
+  "language": "en",
+  "createdAt": "2026-04-30T16:12:44.086296Z",
+  "lastUpdatedAt": "2026-07-28T17:10:43Z",
+  "title": "Mendoza Wine Bus Tour Hop On Hop Off Wineries Experience",
+  "ticketInfo": {
+    "ticketTypes": [
+      "MOBILE_ONLY"
+    ],
+    "ticketTypeDescription": "Mobile or paper ticket accepted",
+    "ticketsPerBooking": "ONE_PER_BOOKING",
+    "ticketsPerBookingDescription": "One per booking"
+  },
+  "pricingInfo": {
+    "type": "PER_PERSON",
+    "ageBands": [
+      {
+        "ageBand": "ADULT",
+        "startAge": 8,
+        "endAge": 99,
+        "minTravelersPerBooking": 0,
+        "maxTravelersPerBooking": 15
+      }
+    ]
+  },
+  "images": [
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": true,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/1e/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/1e/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/9a/ea/42/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/9a/ea/42/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/9a/ea/4f/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/9a/ea/4f/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/9a/ea/4b/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/9a/ea/4b/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/9a/ea/49/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/9a/ea/49/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/24/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/24/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/05/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/05/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/2f/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/2f/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/09/fc/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/09/fc/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/1c/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/1c/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/10/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/10/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/26/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/26/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/08/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/08/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/0a/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/0a/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/13/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/13/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/29/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/29/caption.jpg"
+        }
+      ]
+    },
+    {
+      "imageSource": "SUPPLIER_PROVIDED",
+      "caption": "",
+      "isCover": false,
+      "variants": [
+        {
+          "height": 100,
+          "width": 100,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 200,
+          "width": 200,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 400,
+          "width": 400,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 240,
+          "width": 360,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 320,
+          "width": 480,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 360,
+          "width": 540,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 446,
+          "width": 674,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 480,
+          "width": 720,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 118,
+          "width": 210,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/r/33/0c/0a/2b/caption.jpg"
+        },
+        {
+          "height": 75,
+          "width": 75,
+          "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/r/33/0c/0a/2b/caption.jpg"
+        }
+      ]
+    }
+  ],
+  "logistics": {
+    "redemption": {
+      "redemptionType": "NONE",
+      "specialInstructions": "We suggest you to confirm the booking details with us prior to travel, or upon arrival at your destination. Please note that departure times and locations may vary slightly.\nIf you have any questions, do not hesitate to contact us!\n\nOFFICE NUMBER: (+54 11) 3221-8400 (Mon to Sun from 9 to 18 Hs)\nEMERGENCY MOBILE: (+54 911) 4991-4035 (After office hours)"
+    }
+  },
+  "timeZone": "America/Argentina/Mendoza",
+  "description": "Explore Mendoza’s renowned wine country with the Wine Bus Tour, a structured hop-on hop-off experience designed for wine lovers. Enjoy visits to selected wineries with guided tastings and pre-arranged access, all while traveling comfortably between vineyards.\n\nThis service offers full-day and half-day options across different wine routes, allowing you to choose your preferred itinerary while following a fixed schedule with confirmed stops.\n\nThe tour includes round-trip transportation from designated meeting points and a bilingual guide (Spanish, English, Portuguese), making it ideal for travelers who want a flexible yet organized wine experience.",
+  "inclusions": [
+    {
+      "category": "OTHER",
+      "categoryDescription": "Other",
+      "type": "OTHER",
+      "typeDescription": "Other",
+      "otherDescription": "Confirmed winery reservations"
+    },
+    {
+      "category": "OTHER",
+      "categoryDescription": "Other",
+      "type": "OTHER",
+      "typeDescription": "Other",
+      "otherDescription": "Bilingual guide"
+    },
+    {
+      "category": "OTHER",
+      "categoryDescription": "Other",
+      "type": "OTHER",
+      "typeDescription": "Other",
+      "otherDescription": "Transfers to/from fixed meeting points"
+    }
+  ],
+  "exclusions": [
+    {
+      "category": "OTHER",
+      "categoryDescription": "Other",
+      "type": "OTHER",
+      "typeDescription": "Other",
+      "otherDescription": "Winery entrance fees and wine tastings (paid on site)"
+    },
+    {
+      "category": "OTHER",
+      "categoryDescription": "Other",
+      "type": "OTHER",
+      "typeDescription": "Other",
+      "otherDescription": "Meals and/or lunches"
+    },
+    {
+      "category": "FEES_AND_TAXES",
+      "categoryDescription": "Fees",
+      "type": "GRATUITIES",
+      "typeDescription": "Gratuities",
+      "description": "Gratuities"
+    }
+  ],
+  "additionalInfo": [
+    {
+      "type": "WHEELCHAIR_ACCESSIBLE",
+      "description": "Wheelchair accessible"
+    },
+    {
+      "type": "INFANTS_MUST_SIT_ON_LAPS",
+      "description": "Infants are required to sit on an adult’s lap"
+    },
+    {
+      "type": "PHYSICAL_EASY",
+      "description": "Suitable for all physical fitness levels"
+    },
+    {
+      "type": "OTHER",
+      "description": "You must indicate your preferred pick-up point at the time of booking."
+    },
+    {
+      "type": "OTHER",
+      "description": "It includes transportation only for the winery excursion. The transfer ticket price does not include winery visits or wine tastings."
+    },
+    {
+      "type": "OTHER",
+      "description": "Alcohol consumption is not allowed for passengers under 18"
+    },
+    {
+      "type": "OTHER",
+      "description": "Each departure follows a set Wine Route; no prior booking at wineries is required"
+    }
+  ],
+  "cancellationPolicy": {
+    "type": "STANDARD",
+    "description": "For a full refund, cancel at least 24 hours before the scheduled departure time.",
+    "cancelIfBadWeather": false,
+    "cancelIfInsufficientTravelers": false,
+    "refundEligibility": [
+      {
+        "dayRangeMin": 1,
+        "percentageRefundable": 100
+      },
+      {
+        "dayRangeMin": 0,
+        "dayRangeMax": 1,
+        "percentageRefundable": 0
+      }
+    ]
+  },
+  "bookingConfirmationSettings": {
+    "bookingCutoffType": "START_TIME",
+    "bookingCutoffInMinutes": 1080,
+    "confirmationType": "INSTANT"
+  },
+  "bookingRequirements": {
+    "minTravelersPerBooking": 1,
+    "maxTravelersPerBooking": 15,
+    "requiresAdultForBooking": false
+  },
+  "languageGuides": [
+    {
+      "type": "GUIDE",
+      "language": "en",
+      "legacyGuide": "en/SERVICE_GUIDE"
+    },
+    {
+      "type": "GUIDE",
+      "language": "es",
+      "legacyGuide": "es/SERVICE_GUIDE"
+    }
+  ],
+  "bookingQuestions": [
+    "AGEBAND",
+    "FULL_NAMES_FIRST",
+    "FULL_NAMES_LAST",
+    "SPECIAL_REQUIREMENTS"
+  ],
+  "tags": [
+    21574,
+    22083,
+    367650,
+    11938,
+    11930,
+    12028,
+    12058,
+    367661,
+    11891,
+    20757,
+    22111,
+    21911
+  ],
+  "destinations": [
+    {
+      "ref": "931",
+      "primary": true
+    }
+  ],
+  "itinerary": {
+    "itineraryType": "HOP_ON_HOP_OFF",
+    "skipTheLine": false,
+    "privateTour": false,
+    "routes": [
+      {
+        "operatingSchedule": "Wine Route “Wine and Olives of Maipú” – Monday\n- Half-Day Morning Transfer Ticket: Availability to visit the olive oil factory and Santa Julia Winery.\n\nWine Route “El Sol” – Tuesday\nHalf-Day Morning Transfer Ticket: Availability to visit 2 wineries: Casa El Enemigo Vigil and a choice between Bressia or Viña Las Perdices.\n\nWine Route “Luján Sur” – Friday\nHalf-Day Morning Transfer Ticket: Availability to visit 2 wineries: Chandon and Zolo or Budeguer.",
+        "duration": {
+          "fixedDurationInMinutes": 300
+        },
+        "name": "Wine Route Half day Morning Option",
+        "stops": [
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5AiVBKe2tkcHjfelh5/vFB8yw+ihqSq1w0jZbqqg8p5J"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 07:55Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5C2ku9Fyno3LI1rNs7YyzyHiB4ki2ya+hsm8+7ybGLfl"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:00Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5BBEwppo180MsyYTLPsQD3r9eIbRNSJHmZtz/u0tBhTX"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:05Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Fs0Vn2fBcKwfEbpomFu0qtU8pUOtXZmp0mXOqSU04Id"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:08Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5G0FFNlBxcU4LplLJ2aBFeOVa6pt+4le/0cDlo2nHjQK"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:12Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5FXUyP1IqdOaQZ8RYgQp7vyVTu/bdMVRwH5c5Pg28o5N"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:15Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JjYphPDfdabWwogR4mfhOATbNmAmEMJVQv4ng1gys3W"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:18Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HhY1JECynMV1zoYXvt7iJvKocBgYl5gISlZtbKWk7Mq"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:21Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5M3gtFpf1IAzFJrAhn66kQEPfev/0VvDqMdXmaYcsV5T"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:23Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Gqv2dQDUyIhyo3gInu0yJznGijaYxoTR15p7bjZXrFl"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:25Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5MxhULMdbAEh/qq1OsM6n5iPabRz6p5djQsjBce7kaVL"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:28Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5LQJZ/DQ6+bwfKqHbs1XNsAoyTGopJOmP8DKx+WS80rG"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:30Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Hf4K/coOTSEydbK9bRFeg2kR4pvIRx+8xn0PYPFAs5k"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:35Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JF0zFIvu1Y7zSPHhzQTVb1IQcVDj5641Mn6eF2V7YAM"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:39Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5BpUNFx59jCEGiEhOPQvUdxPcPPtafbcanLLZmP/8CD/"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:40Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5DNsXdSjX+2GF10dXZqS9YjtiJGdUbdUjBhNm63PT5RR"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:41Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HQNROIvz77jMcsDxTD6zYvsVpSMir59mcwf56AGodLB"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:45Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ghehi57m+2QMu8128w9axpjfGqwjIYYRJcPtKF7SbBk"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:50Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-RaYlfRSLaIsd0SlazqDQkx1n0EEMgJgiSbQrllnzpG808XW7dRumHEPaVCZTeCuc+90ssBBWcWOsVY97HVnZSltOm34ni87RJmCIJwdXquKbKe4yFa2/bVBrZkMeyZ4twgUsIHaDX6cKJEUdhxpRSIU5oZ2PWmV1vJ8GziPeZBUA622kRwX7wTlIoELOQMPa"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:55Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5MvApYpgKVZ5+YDSIZKkIC0SvvYC2DePNucWqzeXaHLK"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 08:57Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5NCQiPrnHxHP9DxPMFUnXb5XaLR7EAJBOU6ZG9iWZLKv"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:00Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5GOpvB3AMwK3bEYpbWOiSYfT7dvp1dHhoI4pnClhvIOn"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:10Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5JjSi2f3RJQElTQwTFLXVRdKsaNFKamjWfaOLp+SdTiv"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:22Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5NjuRQ9jU18OWP+5Zw9TgNwFB2JIuDEFzjBQH9alDJlD"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:25Hs"
+          },
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5Ax5d3z6AizT4PQFouVI0mpSSYdo9iM3yI1n+gMc9G60"
+            },
+            "description": "Fixed Stops and Estimated Schedule for Half-Day Morning: 09:30Hs"
+          }
+        ],
+        "pointsOfInterest": [
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLk2LNbIdlCVTz+Ds+tcU58="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNqB6++GS4e0qtVcqs+go0Q="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPf+CPuA2IyTsPHjz6o3KaI="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY="
+            },
+            "attractionId": 27255
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPFcLXp+w6yUMXpsVFTkwhU="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCEbE3XfhcmlycYQambZotY="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyHk6YMwVoaAXsgPu2HKTzR8="
+            }
+          }
+        ]
+      },
+      {
+        "operatingSchedule": "Wine Route “Wine and Olives of Maipú” Monday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Santa Julia Winery and La Rural Winery.\n\nWine Route “El Sol” Tuesday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Séptima and Cruzat.\n\nWine Route “Luján Sur” Friday\nHalf-Day Afternoon Transfer Ticket: Availability to visit 2 wineries: Chandon and Casarena.",
+        "duration": {
+          "fixedDurationInMinutes": 300
+        },
+        "name": "Wine Route Half day Afternoon Option",
+        "stops": [
+          {
+            "stopLocation": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5HdesN4R/Whumz7u4r/8P13tExF2z/U/Lh2EtAKNjK1Y"
+            },
+            "description": "Single fixed stop for Afternoon Tour: 14:15Hs"
+          }
+        ],
+        "pointsOfInterest": [
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLk2LNbIdlCVTz+Ds+tcU58="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMweVrDSYcs40X8+FmEi0bg="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNnuCah+TlFIsNDKkAY1q7A="
+            }
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP2QtiEK6e8/dzQN+UrZ3hQ="
+            },
+            "attractionId": 26558
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP9qW+y4O2/AYEL/nPHEOdY="
+            },
+            "attractionId": 27255
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCEbE3XfhcmlycYQambZotY="
+            }
+          }
+        ]
+      }
+    ],
+    "duration": {
+      "fixedDurationInMinutes": 300
+    }
+  },
+  "productOptions": [
+    {
+      "productOptionCode": "TG6",
+      "description": "Chandon & Casarena: Itinerary with stops at 2 wineries: Chandon Winery and Casarena Winery\nMeeting point: 601 Las Heras Ave.",
+      "title": "Lujan Sur Wine Route ",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    },
+    {
+      "productOptionCode": "TG5",
+      "description": "Chandon & Zolo or Budeguer: Itinerary with stops at 2 wineries: Chandon Winery and Zolo or Budeguer Winery.",
+      "title": "Luján Sur Wine Route",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    },
+    {
+      "productOptionCode": "TG3",
+      "description": "Vigil & Bressia or Perdices: Itinerary with stops at 2 wineries: Casa El Enemigo Vigil and either Bressia or Viña Las Perdices.",
+      "title": "El Sol Wine Route ",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    },
+    {
+      "productOptionCode": "TG4",
+      "description": "Séptima & Cruzat: Itinerary with stops at 2 wineries: Séptima Winery and Cruzat Winery.\nMeeting point: 601 Las Heras Ave.",
+      "title": "El Sol Wine Route",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    },
+    {
+      "productOptionCode": "TG2",
+      "description": "Santa Julia & La Rural : Itinerary with stops at 2 wineries: Santa Julia Winery and La Rural Winery.\nMeeting point: 601 Las Heras Ave.",
+      "title": "Maipu Wine & Olive Grove",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    },
+    {
+      "productOptionCode": "TG1",
+      "description": "Santa Julia & La Almazara: Itinerary with stops at 2 wineries: Santa Julia Winery and La Almazara",
+      "title": "Maipú Wine & Olive Grove",
+      "languageGuides": [
+        {
+          "type": "GUIDE",
+          "language": "en",
+          "legacyGuide": "en/SERVICE_GUIDE"
+        },
+        {
+          "type": "GUIDE",
+          "language": "es",
+          "legacyGuide": "es/SERVICE_GUIDE"
+        }
+      ]
+    }
+  ],
+  "translationInfo": {
+    "containsMachineTranslatedText": false,
+    "translationSource": "ORIGINAL"
+  },
+  "supplier": {
+    "name": "Tangol",
+    "reference": "SUPPLIER-xaIxj5Hh9RETe5IHv/kVRw=="
+  },
+  "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Mendoza-Wine-Bus-Tour-Hop-On-Hop-Off-Wineries-Experience/d931-5674P1222?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+  "reviews": {
+    "totalReviews": 0
+  }
+}

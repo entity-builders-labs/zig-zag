@@ -1,0 +1,324 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-073",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "The text points out Parque Lezama as a sight to see."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the statue."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical background."
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-073"
+        },
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions park and street as historical context."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "park",
+          "supportSpan": "park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-073"
+        }
+      ],
+      "reason": "Tells the traveler to enjoy the park."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "national history museum",
+          "supportSpan": "national history museum",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs a stop at the museum."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "Parque Lezama",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-073"
+        }
+      ],
+      "reason": "Locates museum relative to the park."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Practical information."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Avenida Caseros",
+          "supportSpan": "Avenida Caseros",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out Avenida Caseros as a sight to see."
+    },
+    {
+      "atomId": "a-083",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the street."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "ITINERARY_STOP",
+      "entities": [],
+      "reason": "Walk and wander."
+    },
+    {
+      "atomId": "a-085",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Boca",
+          "supportSpan": "Boca",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-086",
+      "classification": "TRANSFER",
+      "entities": [],
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-087",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author's personal preference tip."
+    },
+    {
+      "atomId": "a-088",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Video instruction."
+    },
+    {
+      "atomId": "a-089",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad/link."
+    },
+    {
+      "atomId": "a-090",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "“El Caminito“",
+          "supportSpan": "“El Caminito“",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Arrival destination."
+    },
+    {
+      "atomId": "a-091",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description."
+    },
+    {
+      "atomId": "a-092",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact."
+    },
+    {
+      "atomId": "a-093",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact."
+    },
+    {
+      "atomId": "a-094",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description."
+    },
+    {
+      "atomId": "a-095",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "neighborhood",
+          "supportSpan": "neighborhood",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Description of the neighborhood."
+    },
+    {
+      "atomId": "a-096",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Reading link."
+    },
+    {
+      "atomId": "a-097",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Football club context."
+    },
+    {
+      "atomId": "a-098",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "La Bombonera",
+          "supportSpan": "La Bombonera",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs a visit to the stadium."
+    },
+    {
+      "atomId": "a-099",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Club colors fact."
+    },
+    {
+      "atomId": "a-100",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth description."
+    },
+    {
+      "atomId": "a-101",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions harbor at La Boca."
+    },
+    {
+      "atomId": "a-102",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth detail."
+    },
+    {
+      "atomId": "a-103",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary."
+    },
+    {
+      "atomId": "a-104",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety tip."
+    },
+    {
+      "atomId": "a-105",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-106",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author remark."
+    },
+    {
+      "atomId": "a-107",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description."
+    },
+    {
+      "atomId": "a-108",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "beer bars or restaurants",
+          "supportSpan": "beer bars or restaurants",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers choices for evening spots."
+    },
+    {
+      "atomId": "a-109",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tour summary."
+    },
+    {
+      "atomId": "a-110",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Link."
+    },
+    {
+      "atomId": "a-111",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Fragment."
+    }
+  ]
+}

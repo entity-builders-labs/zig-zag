@@ -1,0 +1,220 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":45349,\"name\":\"Tour gratuito Retiro e Recoleta: Buenos Aires Aristocratica\",\"slug\":\"45349-tour-gratuito-retiro-e-recoleta-buenos-aires-aristocratica\",\"rating\":4.84,\"reviews_count\":211,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45349-tour-gratuito-retiro-e-recoleta-buenos-aires-aristocratica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":38312,\"name\":\"La Parigi del Sud America! Icone, storia e miti di Buenos Aires. Free walking tour. (max 6 persone)\",\"slug\":\"38312-la-parigi-del-sud-america-icone-storia-e-miti-di-buenos-aires-free-walking-tour-max-6-persone\",\"rating\":4.97,\"reviews_count\":540,\"duration\":210,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/38312-la-parigi-del-sud-america-icone-storia-e-miti-di-buenos-aires-free-walking-tour-max-6-persone?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49154,\"name\":\"SAN TELMO: Dalla culla di Buenos Aires ai cortili del tango\",\"slug\":\"49154-san-telmo-le-storie-sotto-il-selciato\",\"rating\":4.92,\"reviews_count\":65,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49154-san-telmo-le-storie-sotto-il-selciato?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":30657,\"name\":\"Buenos Aires di notte\",\"slug\":\"30657-buenos-aires-di-notte\",\"rating\":4.77,\"reviews_count\":268,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/30657-buenos-aires-di-notte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":56186,\"name\":\"Scopri San Telmo: un viaggio nel tempo! ⌛\",\"slug\":\"56186-scopri-san-telmo-un-viaggio-nel-tempo\",\"rating\":4.82,\"reviews_count\":685,\"duration\":165,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/56186-scopri-san-telmo-un-viaggio-nel-tempo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":64119,\"name\":\"Donne nella storia argentina\",\"slug\":\"64119-donne-nella-storia-argentina\",\"rating\":4.6,\"reviews_count\":25,\"duration\":120,\"languages\":[\"es\",\"pt\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/64119-donne-nella-storia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55455,\"name\":\"Recoleta - Storia, arte e architettura di un quartiere emblematico\",\"slug\":\"55455-recoleta-storia-arte-e-architettura-di-un-quartiere-emblematico\",\"rating\":5.0,\"reviews_count\":231,\"duration\":150,\"languages\":[\"es\",\"en\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55455-recoleta-storia-arte-e-architettura-di-un-quartiere-emblematico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51665,\"name\":\"Magica Buenos Aires\",\"slug\":\"51665-magica-buenos-aires\",\"rating\":4.79,\"reviews_count\":28,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51665-magica-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":58175,\"name\":\"Recoleta: storia, architettura e aristocrazia nel quartiere più elegante di Buenos Aires\",\"slug\":\"58175-recoleta-storia-architettura-e-aristocrazia-nel-quartiere-piu-elegante-di-buenos-aires\",\"rating\":4.84,\"reviews_count\":267,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/58175-recoleta-storia-architettura-e-aristocrazia-nel-quartiere-piu-elegante-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":62076,\"name\":\"Palermo Soho: Tour di graffiti\",\"slug\":\"62076-palermo-soho-tour-di-graffiti\",\"rating\":4.87,\"reviews_count\":152,\"duration\":150,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/62076-palermo-soho-tour-di-graffiti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35557,\"name\":\"Tour gratuito per Retiro e Recoleta: Storia e storie 🏆\",\"slug\":\"35557-tour-gratuito-per-retiro-e-recoleta-storia-e-storie\",\"rating\":4.85,\"reviews_count\":390,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35557-tour-gratuito-per-retiro-e-recoleta-storia-e-storie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55258,\"name\":\"Un'oasi naturale a Buenos Aires: Scopri Costanera Sur!\",\"slug\":\"55258-un-oasi-naturale-a-buenos-aires-scopri-costanera-sur\",\"rating\":4.82,\"reviews_count\":44,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55258-un-oasi-naturale-a-buenos-aires-scopri-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":2,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 45349,
+     "name": "Tour gratuito Retiro e Recoleta: Buenos Aires Aristocratica",
+     "slug": "45349-tour-gratuito-retiro-e-recoleta-buenos-aires-aristocratica",
+     "rating": 4.84,
+     "reviews_count": 211,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45349-tour-gratuito-retiro-e-recoleta-buenos-aires-aristocratica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 38312,
+     "name": "La Parigi del Sud America! Icone, storia e miti di Buenos Aires. Free walking tour. (max 6 persone)",
+     "slug": "38312-la-parigi-del-sud-america-icone-storia-e-miti-di-buenos-aires-free-walking-tour-max-6-persone",
+     "rating": 4.97,
+     "reviews_count": 540,
+     "duration": 210,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/38312-la-parigi-del-sud-america-icone-storia-e-miti-di-buenos-aires-free-walking-tour-max-6-persone?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49154,
+     "name": "SAN TELMO: Dalla culla di Buenos Aires ai cortili del tango",
+     "slug": "49154-san-telmo-le-storie-sotto-il-selciato",
+     "rating": 4.92,
+     "reviews_count": 65,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49154-san-telmo-le-storie-sotto-il-selciato?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 30657,
+     "name": "Buenos Aires di notte",
+     "slug": "30657-buenos-aires-di-notte",
+     "rating": 4.77,
+     "reviews_count": 268,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/30657-buenos-aires-di-notte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 56186,
+     "name": "Scopri San Telmo: un viaggio nel tempo! ⌛",
+     "slug": "56186-scopri-san-telmo-un-viaggio-nel-tempo",
+     "rating": 4.82,
+     "reviews_count": 685,
+     "duration": 165,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/56186-scopri-san-telmo-un-viaggio-nel-tempo?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 64119,
+     "name": "Donne nella storia argentina",
+     "slug": "64119-donne-nella-storia-argentina",
+     "rating": 4.6,
+     "reviews_count": 25,
+     "duration": 120,
+     "languages": [
+      "es",
+      "pt"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/64119-donne-nella-storia-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55455,
+     "name": "Recoleta - Storia, arte e architettura di un quartiere emblematico",
+     "slug": "55455-recoleta-storia-arte-e-architettura-di-un-quartiere-emblematico",
+     "rating": 5.0,
+     "reviews_count": 231,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55455-recoleta-storia-arte-e-architettura-di-un-quartiere-emblematico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51665,
+     "name": "Magica Buenos Aires",
+     "slug": "51665-magica-buenos-aires",
+     "rating": 4.79,
+     "reviews_count": 28,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51665-magica-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 58175,
+     "name": "Recoleta: storia, architettura e aristocrazia nel quartiere più elegante di Buenos Aires",
+     "slug": "58175-recoleta-storia-architettura-e-aristocrazia-nel-quartiere-piu-elegante-di-buenos-aires",
+     "rating": 4.84,
+     "reviews_count": 267,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/58175-recoleta-storia-architettura-e-aristocrazia-nel-quartiere-piu-elegante-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 62076,
+     "name": "Palermo Soho: Tour di graffiti",
+     "slug": "62076-palermo-soho-tour-di-graffiti",
+     "rating": 4.87,
+     "reviews_count": 152,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/62076-palermo-soho-tour-di-graffiti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35557,
+     "name": "Tour gratuito per Retiro e Recoleta: Storia e storie 🏆",
+     "slug": "35557-tour-gratuito-per-retiro-e-recoleta-storia-e-storie",
+     "rating": 4.85,
+     "reviews_count": 390,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35557-tour-gratuito-per-retiro-e-recoleta-storia-e-storie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55258,
+     "name": "Un'oasi naturale a Buenos Aires: Scopri Costanera Sur!",
+     "slug": "55258-un-oasi-naturale-a-buenos-aires-scopri-costanera-sur",
+     "rating": 4.82,
+     "reviews_count": 44,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55258-un-oasi-naturale-a-buenos-aires-scopri-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 2,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

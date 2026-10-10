@@ -1,0 +1,58 @@
+{
+  "candidates": [
+    {
+      "name": "San Telmo Walking Tour",
+      "description": "A 2-hour walking tour exploring the colonial architecture, historic plazas, antique galleries, and bohemian spirit of Buenos Aires' oldest neighborhood.",
+      "themes": [
+        "history",
+        "architecture"
+      ],
+      "traits": [
+        "colonial architecture",
+        "bohemian spirit"
+      ],
+      "intents": [
+        "walk"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Plaza Dorrego"
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "El Mercado de San Telmo"
+        },
+        {
+          "key": "lezama-park",
+          "name": "Lezama Park",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-4"
+          ],
+          "supportSpan": "Lezama Park"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-4",
+        "ev-5"
+      ],
+      "shortReason": "Evidence explicitly names a walking tour that visits Plaza Dorrego, Mercado de San Telmo, and Lezama Park.",
+      "orderedByEvidence": false
+    }
+  ]
+}

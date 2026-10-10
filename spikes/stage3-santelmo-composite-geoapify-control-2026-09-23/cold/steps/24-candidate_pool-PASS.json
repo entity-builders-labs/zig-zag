@@ -1,0 +1,485 @@
+{
+  "label": "Ranking de Experiences",
+  "rules": [
+    {
+      "rule": "Ordenar Experiences por relevancia semántica y calidad",
+      "actual": 11,
+      "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+      "result": "PASS",
+      "ruleId": "EXPERIENCE-RANK-001"
+    }
+  ],
+  "stage": "candidate_pool",
+  "inputs": {
+    "eligibleCount": 11,
+    "requestedThemes": [
+      "history"
+    ],
+    "initialCatalogCount": 0,
+    "postAcquisitionCatalogCount": 11
+  },
+  "status": "PASS",
+  "outputs": {
+    "bySource": {
+      "refill": 0,
+      "catalog": 11,
+      "discovery": 0
+    },
+    "offeredCandidateCount": 11
+  },
+  "summary": "Se evaluaron 11 experiencias elegibles y se ofrecieron 11 candidatas (11 catálogo, 0 adquisición, 0 discovery).",
+  "decision": {
+    "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+    "status": "PASS",
+    "outcome": "EXPERIENCE_POOL_RANKED",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "RUN_DAILY_PLANNING"
+    ]
+  },
+  "component": "ExperienceRankingEngine",
+  "candidates": [
+    {
+      "id": "bd6a1c5b-38e7-409d-94e1-4c567ce3ef65",
+      "name": "Museo Histórico Nacional",
+      "chosen": false,
+      "detail": "score total 1.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.6045825481414795
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "e6735914-d266-4b2e-a374-da3476fb32c5",
+      "name": "Plaza Dorrego",
+      "chosen": false,
+      "detail": "score total 1.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.5015437752468521
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "c58d86f0-ca07-460e-89c5-44c8547548d5",
+      "name": "Mercado San Telmo",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6485493779182434
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "804c1021-b992-4620-b252-1adf6b88db94",
+      "name": "Casa Mínima",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6380043219925264
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "7623a464-8bd5-4927-8878-42077c7f7aec",
+      "name": "Monumento Canto al Trabajo",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6347599029541016
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "9b345dcf-2021-45fa-85a2-33d05e852cda",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6341620683670044
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "c703b23e-96de-4866-a711-2a5e01d65dbd",
+      "name": "Carnavales de la Calle Defensa",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6294130682945251
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "956ad29b-0e88-4e0f-bc0d-ad4c94a74771",
+      "name": "Museo de las Escuelas",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6086151781265493
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "3af3b665-c67a-4455-bfc3-a9af493f5915",
+      "name": "Monumento a Pedro de Mendoza",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5875569581985474
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "4d02f41d-4efe-48a6-85d4-59f6a4f20876",
+      "name": "Solar French",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5701092055472498
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    },
+    {
+      "id": "977a857d-dc05-4ef0-aaec-a69583433054",
+      "name": "Plaza 30'000 compañeros",
+      "chosen": false,
+      "detail": "score total 0.000",
+      "source": "db",
+      "offered": true,
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5649675130844116
+      },
+      "coverageContribution": {
+        "themes": []
+      }
+    }
+  ],
+  "candidatePool": {
+    "bySource": {
+      "refill": 0,
+      "catalog": 11,
+      "discovery": 0
+    },
+    "eligibleCount": 11,
+    "llmWindowCount": 11,
+    "initialCatalogCount": 0,
+    "postAcquisitionCatalogCount": 11
+  },
+  "candidateDecisions": [
+    {
+      "id": "bd6a1c5b-38e7-409d-94e1-4c567ce3ef65",
+      "name": "Museo Histórico Nacional",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.6045825481414795
+      }
+    },
+    {
+      "id": "e6735914-d266-4b2e-a374-da3476fb32c5",
+      "name": "Plaza Dorrego",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 1,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 1,
+        "preferenceScore": 1,
+        "semanticSimilarity": 0.5015437752468521
+      }
+    },
+    {
+      "id": "c58d86f0-ca07-460e-89c5-44c8547548d5",
+      "name": "Mercado San Telmo",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 3.5,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6485493779182434
+      }
+    },
+    {
+      "id": "804c1021-b992-4620-b252-1adf6b88db94",
+      "name": "Casa Mínima",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6380043219925264
+      }
+    },
+    {
+      "id": "7623a464-8bd5-4927-8878-42077c7f7aec",
+      "name": "Monumento Canto al Trabajo",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6347599029541016
+      }
+    },
+    {
+      "id": "9b345dcf-2021-45fa-85a2-33d05e852cda",
+      "name": "El Zanjón de Granados (historic ruins)",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6341620683670044
+      }
+    },
+    {
+      "id": "c703b23e-96de-4866-a711-2a5e01d65dbd",
+      "name": "Carnavales de la Calle Defensa",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6294130682945251
+      }
+    },
+    {
+      "id": "956ad29b-0e88-4e0f-bc0d-ad4c94a74771",
+      "name": "Museo de las Escuelas",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.6086151781265493
+      }
+    },
+    {
+      "id": "3af3b665-c67a-4455-bfc3-a9af493f5915",
+      "name": "Monumento a Pedro de Mendoza",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5875569581985474
+      }
+    },
+    {
+      "id": "4d02f41d-4efe-48a6-85d4-59f6a4f20876",
+      "name": "Solar French",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5701092055472498
+      }
+    },
+    {
+      "id": "977a857d-dc05-4ef0-aaec-a69583433054",
+      "name": "Plaza 30'000 compañeros",
+      "reason": "Entró al pool V2 por relevancia.",
+      "source": "db",
+      "status": "RANKED",
+      "reasonCodes": [
+        "INSIDE_EXPERIENCE_POOL"
+      ],
+      "scoreBreakdown": {
+        "totalScore": 0,
+        "qualityBonus": 0,
+        "diversityBonus": 0,
+        "proximityBonus": 0,
+        "preferenceBonus": 0,
+        "preferenceScore": 0,
+        "semanticSimilarity": 0.5649675130844116
+      }
+    }
+  ]
+}

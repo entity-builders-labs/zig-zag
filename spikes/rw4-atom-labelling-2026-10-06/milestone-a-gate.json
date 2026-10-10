@@ -1,0 +1,39 @@
+{
+  "frozenAt": "2026-10-06, before the first ROUTE_LEG (prompt v3) run",
+  "purpose": "Milestone A gate for the ROUTE_LEG taxonomy refinement. Evaluation only; never read by atomization, labelling, validation or assembly.",
+  "baseline": "runs/v2-batched-relabel-gemini (prompt v2, MEMBERSHIP rule, batched 4000 chars, one relabel), rescored with the same scorer",
+  "candidate": "runs/v3-batched-relabel-gemini, same settings, prompt v3, 5 runs per SOB/AG unit, 3 runs per regression fixture",
+  "routeOrAreaItems": {
+    "comment": "Oracle ACCEPTABLE items that are streets, avenues, waterfront paths or areas, plus areas outside the oracle, matched by the scorer's wordings. Promotion of any of these to mandatory is a route/area promotion.",
+    "secretsofbuenosaires-day1": ["Defensa", "Estados Unidos", "Paseo Colón", "Avenida San Juan", "Avenida Caseros", "La Boca", "San Telmo"],
+    "agusyornet-san-telmo": ["Avenida Roque Sáenz Peña", "Avenida de Mayo", "Defensa", "Dársena Sur", "Avenida Ingeniero Huergo / Hernán Giralt", "Puerto Madero", "San Telmo", "La Boca"]
+  },
+  "extraWordings": {
+    "comment": "Source wordings of the non-oracle areas above (scoring only).",
+    "San Telmo": ["San Telmo"],
+    "La Boca": ["La Boca", "Boca"]
+  },
+  "regressionFixtures": {
+    "RW3_EV3": {
+      "file": "fixtures/rw3-ev3-spans.md",
+      "provenance": "RECONSTRUCTION: the two verified support spans of grounded snippet ev-3 that produced the RW3 accepted composite (spikes/rw3-final-acceptance-2026-09-29/cold/generation-trace.json, trace-step-14 sourceSupportAudits). The full snippet text was not recorded; the joining punctuation is ours.",
+      "mandatory": [["Caminito", "Caminito Market"], ["Museo Benito Quinquela Martin"], ["Puente Transbordador Nicolás Avellaneda"], ["Estadio Alberto J. Armando"]],
+      "mustNotBeMandatory": []
+    },
+    "ROUTE_EXPERIENCE": {
+      "file": "fixtures/route-experience-synthetic.md",
+      "provenance": "Neutral synthetic text written before any run: a corridor that is itself the experience, reached by a connecting street.",
+      "mandatory": [["Harbour Square"], ["Painted Lane", "the Painted Lane"], ["Riverside Art Museum", "the Riverside Art Museum"]],
+      "mustNotBeMandatory": [["Mill Street"]],
+      "expectedRouteLeg": [["Mill Street"]]
+    }
+  },
+  "acceptance": {
+    "mandatoryRecall": "Total oracle-mandatory hits over SOB+AG runs (shadow included) >= baseline; no oracle segment with lower per-run full-recall count than baseline by more than 1 run.",
+    "transfers": "AG S2 and S3 and SOB S2 assembled in every valid run; SEGMENT_MIXED = 0; TRANSFER_BOUNDARY_MISSED = 0.",
+    "alternatives": "ALTERNATIVE_PROMOTED = 0.",
+    "routeAreaPromotion": "Mean route/area items promoted to mandatory per run strictly lower than baseline; Defensa and Estados Unidos (SOB) not mandatory in at least 4/5 runs.",
+    "failClosed": "CONTRACT_FAIL_CLOSED units <= baseline (3/10).",
+    "regression": "RW3_EV3 and ROUTE_EXPERIENCE: every expected mandatory present in every valid run; Painted Lane never only a ROUTE_LEG; Mill Street never mandatory."
+  }
+}

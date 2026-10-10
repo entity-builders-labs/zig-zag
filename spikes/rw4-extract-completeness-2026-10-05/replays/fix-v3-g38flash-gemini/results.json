@@ -1,0 +1,74 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "ms": 2981,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "ms": 3889,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "ms": 8445,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "ms": 4266,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "ms": 682,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "ms": 6788,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.8-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

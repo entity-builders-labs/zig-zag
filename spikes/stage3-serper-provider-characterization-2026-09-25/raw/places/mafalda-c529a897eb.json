@@ -1,0 +1,147 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Mafalda",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:22.867Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 1534
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mafalda",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "9JMH J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.615833,
+        "longitude": -58.371647,
+        "rating": 4.6,
+        "ratingCount": 8300,
+        "category": "Sculpture",
+        "phoneNumber": "011 7125-4793",
+        "cid": "10819767908987080422"
+      },
+      {
+        "position": 2,
+        "title": "Plaza Mafalda",
+        "address": "Conde 145, C1437 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.580643,
+        "longitude": -58.44561,
+        "rating": 4.3,
+        "ratingCount": 12000,
+        "category": "City park",
+        "website": "https://www.buenosaires.gob.ar/participacionciudadana/participa-en-obras-de-tu-barrio",
+        "cid": "11831447559535372241"
+      },
+      {
+        "position": 3,
+        "title": "El Rinconcito de Mafalda",
+        "address": "Moreno 319, C1091AAG Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.61118,
+        "longitude": -58.370842,
+        "rating": 4.2,
+        "ratingCount": 34,
+        "category": "Clothing store",
+        "cid": "14757241793681793699"
+      },
+      {
+        "position": 4,
+        "title": "Clemente - Paseo de la Historieta",
+        "address": "#15-07 The Metropolis Tower 2, 138589 wikipedia, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.612774,
+        "longitude": -58.370556,
+        "rating": 4.5,
+        "ratingCount": 497,
+        "category": "Tourist attraction",
+        "website": "https://turismo.buenosaires.gob.ar/es/atractivo/paseo-de-la-historieta-0",
+        "cid": "17867140343352663628"
+      },
+      {
+        "position": 5,
+        "title": "El mundo segun Mafalda",
+        "address": "C1067 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.60856,
+        "longitude": -58.374447,
+        "rating": 4.3,
+        "ratingCount": 9,
+        "category": "Tourist attraction",
+        "website": "https://buenosaires.gob.ar/noticias/restauramos-el-mural-de-mafalda-en-la-combinacion-de-las-lineas-y-d",
+        "cid": "15180657303031024680"
+      },
+      {
+        "position": 6,
+        "title": "Paseo Mafalda",
+        "address": "Av. Rivadavia 4879, C1424 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.61635,
+        "longitude": -58.43388,
+        "rating": 4.5,
+        "ratingCount": 2,
+        "category": "Tourist attraction",
+        "cid": "11128225495024475029"
+      },
+      {
+        "position": 7,
+        "title": "Jardin Mafalda",
+        "address": "EIF, Santos Dumont 3602, C1427 autonoma de buenos aires, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.58443,
+        "longitude": -58.448036,
+        "rating": 4.4,
+        "ratingCount": 72,
+        "category": "Association / Organization",
+        "phoneNumber": "011 2540-0619",
+        "website": "http://www.jardinmafalda.com/",
+        "cid": "11843244466397327179"
+      },
+      {
+        "position": 8,
+        "title": "Maxikiosco Mafalda",
+        "address": "Serrano 396, C1414 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.597282,
+        "longitude": -58.443924,
+        "rating": 4.7,
+        "ratingCount": 19,
+        "category": "Kiosk",
+        "phoneNumber": "011 2707-0580",
+        "cid": "17710173587506161204"
+      },
+      {
+        "position": 9,
+        "title": "Feria San Telmo calle defensa y chile",
+        "address": "Chile 371, C1098AAH, C1098 C1098AAH, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.615845,
+        "longitude": -58.371452,
+        "rating": 4.7,
+        "ratingCount": 784,
+        "category": "Shopping mall",
+        "phoneNumber": "011 5942-6204",
+        "cid": "12290163641982845701"
+      },
+      {
+        "position": 10,
+        "title": "Camino de la historieta",
+        "address": "Balcarce 678, C1064AAN C1064AAN, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.61547,
+        "longitude": -58.3707,
+        "rating": 4.4,
+        "ratingCount": 45,
+        "category": "Tourist attraction",
+        "cid": "4529232000318682457"
+      }
+    ],
+    "credits": 1
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "destination": {
+    "label": "Buenos Aires, Argentina",
+    "latitude": -34.6037,
+    "longitude": -58.3816,
+    "scaleHint": "settlement"
+  },
+  "days": 1,
+  "budgetLevel": "medium",
+  "groupType": "solo",
+  "intent": {
+    "interests": ["art"],
+    "intents": ["visit"],
+    "explorationStyle": "balanced",
+    "additionalPreferences": "quiero visitar lugares de arte, museos y galerías en Buenos Aires"
+  },
+  "mobility": {
+    "allowedTransportationModes": ["walking"],
+    "maxWalkingDistancePerDayMeters": 6000,
+    "maxContinuousWalkingDistanceMeters": 3000,
+    "travelPace": "moderate"
+  },
+  "skipImageGeneration": true
+}

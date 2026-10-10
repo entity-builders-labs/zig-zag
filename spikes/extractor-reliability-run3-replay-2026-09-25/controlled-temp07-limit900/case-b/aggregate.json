@@ -1,0 +1,23 @@
+{
+  "model": "qwen/qwen3.8-27b",
+  "temperature": 0.7,
+  "maxCompletionTokens": 900,
+  "responseFormat": "json_object",
+  "runs": 10,
+  "completedRuns": 5,
+  "blockedRuns": 5,
+  "blockedReason": "TPD daily limit (200000 tokens/day) exhausted",
+  "distribution": {
+    "CANDIDATE": 2,
+    "NO_CANDIDATE": 1,
+    "PROVIDER_FAILURE": 2
+  },
+  "outcomes": [
+    "CANDIDATE",
+    "CANDIDATE",
+    "NO_CANDIDATE",
+    "PROVIDER_FAILURE",
+    "PROVIDER_FAILURE"
+  ],
+  "note": "PROVIDER_FAILURE entries are TPD (daily) 429, not OTPM 429"
+}

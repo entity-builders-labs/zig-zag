@@ -1,0 +1,28 @@
+{
+  "provider": "gemini",
+  "model": "gemini-3.5-flash-lite",
+  "variant": "B",
+  "run": "2",
+  "ms": 1888,
+  "summary": [
+    {
+      "component": "c2",
+      "statement": "s3",
+      "place": "Alfa Crux",
+      "relation": "NEAR"
+    },
+    {
+      "component": "c5",
+      "statement": "s8",
+      "place": "Lujan de Cuyo",
+      "relation": "LOCATED_IN"
+    },
+    {
+      "component": "c5",
+      "statement": "s9",
+      "place": "Melipal",
+      "relation": "NEAR"
+    }
+  ],
+  "raw": "{\n  \"reports\": [\n    {\n      \"component\": \"c2\",\n      \"statement\": \"s3\",\n      \"place\": \"Alfa Crux\",\n      \"relation\": \"NEAR\"\n    },\n    {\n      \"component\": \"c5\",\n      \"statement\": \"s8\",\n      \"place\": \"Lujan de Cuyo\",\n      \"relation\": \"LOCATED_IN\"\n    },\n    {\n      \"component\": \"c5\",\n      \"statement\": \"s9\",\n      \"place\": \"Melipal\",\n      \"relation\": \"NEAR\"\n    }\n  ]\n}"
+}

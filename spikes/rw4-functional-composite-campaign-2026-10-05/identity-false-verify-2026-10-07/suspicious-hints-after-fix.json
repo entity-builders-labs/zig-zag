@@ -1,0 +1,1961 @@
+{
+ "poolStatus": "success",
+ "poolSize": 2712,
+ "poolMembersNamedDonCarlos": [],
+ "poolMembersContainingCarlos": [
+  {
+   "id": "osm:node:2619558669",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:2830477540",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:2853424950",
+   "name": "Monumento Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:3237238553",
+   "name": "Carlos Thays"
+  },
+  {
+   "id": "osm:node:4450016794",
+   "name": "Carlos Bernardo González Pecotche"
+  },
+  {
+   "id": "osm:node:4467271088",
+   "name": "Diputado Nacional Carlos Bello"
+  },
+  {
+   "id": "osm:node:4504572775",
+   "name": "Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:5332434913",
+   "name": "Carlos Pellegrini"
+  },
+  {
+   "id": "osm:node:5333292823",
+   "name": "Carlos Tejedor"
+  },
+  {
+   "id": "osm:node:5333608111",
+   "name": "Carlos Morra"
+  },
+  {
+   "id": "osm:node:5333987618",
+   "name": "Carlos Saavedra Lamas"
+  },
+  {
+   "id": "osm:node:6044053785",
+   "name": "Carlos Cisnetto Olivera"
+  },
+  {
+   "id": "osm:node:6046039490",
+   "name": "Carlos Bonorino Udaondo"
+  },
+  {
+   "id": "osm:node:6048854369",
+   "name": "Carlos Noel"
+  },
+  {
+   "id": "osm:node:6048878647",
+   "name": "Carlos Alberto Menditéguy"
+  },
+  {
+   "id": "osm:node:6049049260",
+   "name": "Carlos Calvo"
+  },
+  {
+   "id": "osm:node:6052636172",
+   "name": "Carlos Mayer"
+  },
+  {
+   "id": "osm:node:6052636177",
+   "name": "Carlos María de Alvear"
+  },
+  {
+   "id": "osm:node:6052717168",
+   "name": "Carlos Durand"
+  },
+  {
+   "id": "osm:node:6054975401",
+   "name": "Carlos Guido y Spano"
+  },
+  {
+   "id": "osm:node:6340469047",
+   "name": "Carlos Gardel"
+  },
+  {
+   "id": "osm:node:8189378790",
+   "name": "Pedro Leopoldo Barraza y Carlos Laham"
+  },
+  {
+   "id": "osm:node:11522462177",
+   "name": "Carlos \"Petete\" Almirón"
+  },
+  {
+   "id": "osm:node:12389302377",
+   "name": "Tumba Carlos Gardel"
+  },
+  {
+   "id": "osm:node:12470569853",
+   "name": "Padre Carlos Mugica"
+  },
+  {
+   "id": "osm:node:12709235030",
+   "name": "Román Carlos Vega"
+  },
+  {
+   "id": "osm:way:9937501",
+   "name": "Jardín Botánico Carlos Thays"
+  },
+  {
+   "id": "osm:way:23651010",
+   "name": "Parque Carlos Thays"
+  },
+  {
+   "id": "osm:way:26610905",
+   "name": "Plazoleta Carlos de la Púa"
+  },
+  {
+   "id": "osm:way:52773349",
+   "name": "Plazoleta Doctor Carlos A. Erro"
+  },
+  {
+   "id": "osm:way:52990882",
+   "name": "Plazoleta Doctor Carlos Pellegrini"
+  },
+  {
+   "id": "osm:way:114352739",
+   "name": "Plazoleta Carlos María Della Paolera"
+  },
+  {
+   "id": "osm:way:126149655",
+   "name": "Plazoleta Carlos Pellegrini"
+  },
+  {
+   "id": "osm:way:136792897",
+   "name": "Plaza Carlos Jáuregui"
+  },
+  {
+   "id": "osm:way:265725522",
+   "name": "Plazoleta Carlos Gardel"
+  },
+  {
+   "id": "osm:way:349372197",
+   "name": "Carlos Malagarriga"
+  },
+  {
+   "id": "osm:way:429288345",
+   "name": "Plazoleta Doctor Carlos Saavedra Lamas"
+  },
+  {
+   "id": "osm:way:439638630",
+   "name": "Plaza de los Niños, Doctor Carlos Arturo Gianantonio"
+  },
+  {
+   "id": "osm:way:442227803",
+   "name": "Plazoleta Carlos Norberto Vergara"
+  },
+  {
+   "id": "osm:way:450520806",
+   "name": "Plazoleta Carlos Di Sarli"
+  },
+  {
+   "id": "osm:way:477569998",
+   "name": "Basílica María Auxiliadora y San Carlos"
+  },
+  {
+   "id": "osm:way:619211859",
+   "name": "Museo Casa Carlos Gardel"
+  },
+  {
+   "id": "osm:way:679619857",
+   "name": "Monumento ecuestre a Carlos María de Alvear"
+  },
+  {
+   "id": "osm:way:710383626",
+   "name": "Carlos Sánchez Viamonte"
+  },
+  {
+   "id": "osm:way:907779810",
+   "name": "Plaza Carlos Gardel"
+  },
+  {
+   "id": "osm:relation:1282348",
+   "name": "Plaza Licenciado Carlos Campelo"
+  },
+  {
+   "id": "osm:relation:1959571",
+   "name": "Plazoleta Miguel Carlos Victorica"
+  }
+ ],
+ "matchOsmCandidateByName": {
+  "id": "osm:node:5332434913",
+  "name": "Carlos Pellegrini",
+  "osmType": "node",
+  "osmId": 5332434913,
+  "geometry": {
+   "type": "Point",
+   "coordinates": [
+    -58.3935416,
+    -34.5871795
+   ]
+  },
+  "tags": {
+   "historic": "tomb",
+   "name": "Carlos Pellegrini",
+   "wikidata": "Q270446",
+   "wikimedia_commons": "Category:Carlos Pellegrini",
+   "wikipedia": "es:Carlos Pellegrini"
+  }
+ },
+ "wikidata": {
+  "Q270446": {
+   "qid": "Q270446",
+   "label": "Carlos Pellegrini",
+   "description": "Lawyer, journalist and former president of Argentina (1846-1906)",
+   "aliases": [
+    "Carlos Pellegrini",
+    "Carlos Enrique José Pellegrini",
+    "Carlos Enrique Jose Pellegrini"
+   ],
+   "sitelinkCount": 31,
+   "extract": "Carlos Enrique José Pellegrini Bevans (October 11, 1846 – July 17, 1906) was Vice President of Argentina and became President of Argentina from August 6, 1890 to October 12, 1892, upon Miguel Ángel Juárez Celman's resignation (see Revolución del Parque)."
+  },
+  "Q27954921": {
+   "qid": "Q27954921",
+   "label": "Cathedral construction",
+   "description": "painting by Joaquín Torres García",
+   "aliases": [
+    "Catedral Constructiva"
+   ],
+   "sitelinkCount": 0
+  },
+  "Q5974908": {
+   "qid": "Q5974908",
+   "label": "Librería de Ávila",
+   "description": "building in Argentina",
+   "aliases": [
+    "Librería de Ávila",
+    "Libreria de Avila",
+    "Librería del Colegio",
+    "La libraría de Avila"
+   ],
+   "sitelinkCount": 2
+  },
+  "Q1024829": {
+   "qid": "Q1024829",
+   "label": "Cabildo of Buenos Aires",
+   "description": "historical building in Buenos Aires, government house during colonial times",
+   "aliases": [
+    "Cabildo de Buenos Aires",
+    "Cabildo building",
+    "Cabildo historico",
+    "Museo Historico Nacional del Cabildo y de la Revolucion de Mayo",
+    "Cabildo histórico"
+   ],
+   "sitelinkCount": 17,
+   "extract": "The Cabildo of Buenos Aires (Spanish: Cabildo de Buenos Aires) is the public building in the city of Buenos Aires, Argentina, that was used as a seat of the town council during the colonial era and the government house of the Viceroyalty of the Río de la Plata. \nThe building was also seat of other institutions such as the Royal Audience of Buenos Aires, the highest court for appeal of second instance in the territory, operated from April 6, 1661 to January 23, 1812, when it was replaced by an Appeals Chamber. On September 13, 1810, the Primera Junta created the Public Library of Buenos Aires, being the Cabildo its first location for two years. The institution that was housed for the longest in the building was the Buenos Aires prison, from 1608 to 1877, when the prisoners were transferred to the new National Penitentiary on Las Heras Street, when it was inaugurated.\nThe Cabildo was declared National Historic Monument in 1933 and was opened to public as a museum in 1938."
+  },
+  "Q111685526": {
+   "qid": "Q111685526",
+   "description": "square in Buenos Aires",
+   "aliases": [
+    "Plaza Dr. José C. Paz",
+    "Plaza Dr. Jose C. Paz",
+    "Plaza Doctor José C. Paz",
+    "Plaza José C. Paz"
+   ],
+   "sitelinkCount": 1
+  },
+  "Q111685589": {
+   "qid": "Q111685589",
+   "description": "square in Buenos Aires",
+   "aliases": [
+    "Plaza República Federativa de Brasil",
+    "Plaza República Federal de Brasil"
+   ],
+   "sitelinkCount": 0
+  },
+  "Q6010497": {
+   "qid": "Q6010497",
+   "label": "San Telmo market",
+   "description": "market in Buenos Aires, Argentina",
+   "aliases": [
+    "Mercado San Telmo",
+    "Mercado de San Telmo",
+    "Mercado de pulgas",
+    "Marché de San Telmo"
+   ],
+   "sitelinkCount": 3
+  },
+  "Q111038841": {
+   "qid": "Q111038841",
+   "label": "Mafalda statue",
+   "description": "statue in Buenos Aires",
+   "aliases": [
+    "estatua de Mafalda",
+    "Homenaje a Mafalda"
+   ],
+   "sitelinkCount": 1
+  },
+  "Q5966085": {
+   "qid": "Q5966085",
+   "label": "La casa mínima",
+   "description": "house in Buenos Aires, Argentina",
+   "aliases": [
+    "La casa mínima",
+    "casa mínima"
+   ],
+   "sitelinkCount": 2
+  }
+ },
+ "verifierCalls": [
+  {
+   "hint": "Don Carlos",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:5332434913",
+    "canonicalName": "Carlos Pellegrini",
+    "wikidataQid": "Q270446",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Carlos Pellegrini"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 11
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 11
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Don Carlos",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:5332434913",
+    "canonicalName": "Carlos Pellegrini",
+    "wikidataQid": "Q270446",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Carlos Pellegrini"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 11
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 11
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Don Carlos",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:4575480167",
+    "canonicalName": "Don Carlos",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 12
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 12
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Don Carlos",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:4575480167",
+    "canonicalName": "Don Carlos",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 12
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 12
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Catedral",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:6184996396",
+    "canonicalName": "Catedral Constructiva",
+    "wikidataQid": "Q27954921",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 5
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 5
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Catedral",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:6184996396",
+    "canonicalName": "Catedral Constructiva",
+    "wikidataQid": "Q27954921",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 5
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 5
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Catedral",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:4867324671",
+    "canonicalName": "Catedral",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 5
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 5
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Catedral",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:4867324671",
+    "canonicalName": "Catedral",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 5
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 5
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Club Atlético",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:4451139649",
+    "canonicalName": "Club Atlético Atlanta",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Club Atlético",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:4451139649",
+    "canonicalName": "Club Atlético Atlanta",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "OVERLAP"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Club Atlético",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:way:23634484",
+    "canonicalName": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_COMPETITOR_OBSERVED",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Club Atlético",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:way:23634484",
+    "canonicalName": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_COMPETITOR_OBSERVED",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:3348571875",
+    "canonicalName": "La Librería de Avila",
+    "wikidataQid": "Q5974908",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "La Librería del Avila",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:3348571875",
+    "canonicalName": "La Librería de Avila",
+    "wikidataQid": "Q5974908",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:767690911",
+    "canonicalName": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "wikidataQid": "Q1024829",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Ратуша Буэнос-Айреса",
+     "Ратуша Буенос-Айреса",
+     "Cabildo de Buenos Aires"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:767690911",
+    "canonicalName": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+    "wikidataQid": "Q1024829",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Ратуша Буэнос-Айреса",
+     "Ратуша Буенос-Айреса",
+     "Cabildo de Buenos Aires"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "MULTIPLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 1
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 1
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:5029112112",
+    "canonicalName": "Cabildo",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Cabildo",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:5029112112",
+    "canonicalName": "Cabildo",
+    "nameEvidenceMultiplicity": {
+     "exactName": "MULTIPLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "MULTIPLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Plaza",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:9937709",
+    "canonicalName": "Plaza José C. Paz",
+    "wikidataQid": "Q111685526",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 74
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 74
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Plaza",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:9937709",
+    "canonicalName": "Plaza José C. Paz",
+    "wikidataQid": "Q111685526",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 74
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 74
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Plaza",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:way:1546086983",
+    "canonicalName": "Plaza",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 74
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 74
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Plaza",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:way:1546086983",
+    "canonicalName": "Plaza",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 74
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "OVERLAP"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 74
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Bar El Federal",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:23727318",
+    "canonicalName": "Plaza República Federal de Brasil",
+    "wikidataQid": "Q111685589",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Plaza República Federativa de Brasil"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Bar El Federal",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:23727318",
+    "canonicalName": "Plaza República Federal de Brasil",
+    "wikidataQid": "Q111685589",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "MULTIPLE"
+    },
+    "nameAliasCandidates": [
+     "Plaza República Federativa de Brasil"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Bar El Federal",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:2722510492",
+    "canonicalName": "El Federal",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Bar El Federal",
+   "strategy": "NOMINATIM",
+   "candidate": {
+    "strategy": "NOMINATIM",
+    "externalId": "osm:node:2722510492",
+    "canonicalName": "El Federal",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    }
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "MATERIAL_COMPETITOR_KNOWN",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL",
+      "NOMINATIM"
+     ],
+     "competitorCount": 2
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "EQUIVALENT",
+     "candidateCorrespondence": "OVERLAP"
+    }
+   ],
+   "decision": {
+    "status": "AMBIGUOUS",
+    "rule": "MATERIAL_COMPETITOR_KNOWN",
+    "decisiveEvidence": [
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "MATERIAL_COMPETITOR_KNOWN",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL",
+       "NOMINATIM"
+      ],
+      "competitorCount": 2
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Iglesia San Ignacio de Loyola",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:239347480",
+    "canonicalName": "Parroquia San Ignacio de Loyola",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Iglesia San Ignacio de Loyola",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:239347480",
+    "canonicalName": "Parroquia San Ignacio de Loyola",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": []
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "NEARBY",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "NONE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Mercado San Telmo",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:158893271",
+    "canonicalName": "Mercado de San Telmo",
+    "wikidataQid": "Q6010497",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "SINGLE"
+    },
+    "nameAliasCandidates": [
+     "Mercado San Telmo"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "SINGLE",
+     "correspondence": "EQUIVALENT"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_UNIQUE_ALIAS",
+    "decisiveEvidence": [
+     {
+      "type": "DECLARED_ALIAS_MATCH",
+      "identityMultiplicity": "SINGLE",
+      "correspondence": "EQUIVALENT"
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  },
+  {
+   "hint": "San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:158893271",
+    "canonicalName": "Mercado de San Telmo",
+    "wikidataQid": "Q6010497",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mercado San Telmo"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:158893271",
+    "canonicalName": "Mercado de San Telmo",
+    "wikidataQid": "Q6010497",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mercado San Telmo"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "EQUIVALENT",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "QID_LINK",
+    "decisiveEvidence": [
+     {
+      "type": "WIKIDATA_IDENTITY_MATCH",
+      "source": "OWN_QID",
+      "hintCorrespondence": "EQUIVALENT",
+      "candidateCorrespondence": "DECLARES_QID"
+     },
+     {
+      "type": "COMPETITOR_EXAMINATION",
+      "outcome": "NO_MATERIAL_COMPETITOR",
+      "examinedStrategies": [
+       "LOCAL_OSM_POOL"
+      ],
+      "competitorCount": 0
+     }
+    ]
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:158893271",
+    "canonicalName": "Mercado de San Telmo",
+    "wikidataQid": "Q6010497",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mercado San Telmo"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "The San Telmo Market",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:way:158893271",
+    "canonicalName": "Mercado de San Telmo",
+    "wikidataQid": "Q6010497",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mercado San Telmo"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "OVERLAP",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Mafalda sculpture",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:2472979623",
+    "canonicalName": "Mafalda, Susanita y Manolito",
+    "wikidataQid": "Q111038841",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mafalda",
+     "Mafalda, Susanita and Manolito",
+     "Mafalda, Manolito e Susanita"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "INSUFFICIENT_EVIDENCE",
+    "rule": "NO_DECISIVE_EVIDENCE",
+    "decisiveEvidence": []
+   }
+  },
+  {
+   "hint": "Mafalda sculpture",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:2472979623",
+    "canonicalName": "Mafalda, Susanita y Manolito",
+    "wikidataQid": "Q111038841",
+    "nameEvidenceMultiplicity": {
+     "exactName": "UNKNOWN",
+     "declaredAlias": "UNKNOWN"
+    },
+    "nameAliasCandidates": [
+     "Mafalda",
+     "Mafalda, Susanita and Manolito",
+     "Mafalda, Manolito e Susanita"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    },
+    {
+     "type": "WIKIDATA_IDENTITY_MATCH",
+     "source": "OWN_QID",
+     "hintCorrespondence": "NONE",
+     "candidateCorrespondence": "DECLARES_QID"
+    }
+   ],
+   "decision": {
+    "status": "REJECTED",
+    "rule": "QID_LINK_MISMATCH",
+    "decisiveEvidence": [
+     {
+      "type": "WIKIDATA_IDENTITY_MATCH",
+      "source": "OWN_QID",
+      "hintCorrespondence": "NONE",
+      "candidateCorrespondence": "DECLARES_QID"
+     }
+    ]
+   }
+  },
+  {
+   "hint": "Casa Mínima",
+   "strategy": "LOCAL_OSM_POOL",
+   "candidate": {
+    "strategy": "LOCAL_OSM_POOL",
+    "externalId": "osm:node:4440588689",
+    "canonicalName": "Casa Mínima",
+    "wikidataQid": "Q5966085",
+    "nameEvidenceMultiplicity": {
+     "exactName": "SINGLE",
+     "declaredAlias": "SINGLE"
+    },
+    "nameAliasCandidates": [
+     "La casa mínima"
+    ]
+   },
+   "evidence": [
+    {
+     "type": "EXACT_NAME",
+     "identityMultiplicity": "SINGLE"
+    },
+    {
+     "type": "DECLARED_ALIAS_MATCH",
+     "identityMultiplicity": "SINGLE",
+     "correspondence": "OVERLAP"
+    },
+    {
+     "type": "COMPETITOR_EXAMINATION",
+     "outcome": "NO_MATERIAL_COMPETITOR",
+     "examinedStrategies": [
+      "LOCAL_OSM_POOL"
+     ],
+     "competitorCount": 0
+    },
+    {
+     "type": "GEOGRAPHIC_CORRESPONDENCE",
+     "basis": "BOUNDED_ADMISSION_SCOPE"
+    }
+   ],
+   "decision": {
+    "status": "VERIFIED",
+    "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+    "decisiveEvidence": [
+     {
+      "type": "EXACT_NAME",
+      "identityMultiplicity": "SINGLE"
+     },
+     {
+      "type": "GEOGRAPHIC_CORRESPONDENCE",
+      "basis": "BOUNDED_ADMISSION_SCOPE"
+     }
+    ]
+   }
+  }
+ ]
+}

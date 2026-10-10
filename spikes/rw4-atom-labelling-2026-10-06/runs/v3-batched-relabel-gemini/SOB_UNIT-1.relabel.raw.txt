@@ -1,0 +1,10 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes current use of the building without directing a visit."
+    }
+  ]
+}

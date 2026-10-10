@@ -1,0 +1,1601 @@
+{
+  "request": {
+    "url": "https://serpapi.com/search.json",
+    "params": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue",
+      "ll": "@-34.6037,-58.3816,12z",
+      "hl": "es",
+      "gl": "ar",
+      "api_key": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1049,
+  "response": {
+    "search_metadata": {
+      "id": "6ab6646127714336761c181f",
+      "status": "Success",
+      "json_endpoint": "https://serpapi.com/searches/NvKT5w1Aa-aK72-2B3Cxe7PqG7pAYn43t0Uq-e59Ss0/6ab6646127714336761c181f.json",
+      "markdown_endpoint": "https://serpapi.com/searches/NvKT5w1Aa-aK72-2B3Cxe7PqG7pAYn43t0Uq-e59Ss0/6ab6646127714336761c181f.md",
+      "created_at": "2026-09-25 12:09:05 UTC",
+      "processed_at": "2026-09-25 12:09:05 UTC",
+      "google_maps_url": "https://www.google.com/maps/search/Mafalda+Statue/@-34.6037,-58.3816,12z/data=!3m1!4b1!4m2!2m1!6e5?hl=es&gl=ar",
+      "raw_html_file": "https://serpapi.com/searches/NvKT5w1Aa-aK72-2B3Cxe7PqG7pAYn43t0Uq-e59Ss0/6ab6646127714336761c181f.html",
+      "prettify_html_file": "https://serpapi.com/searches/NvKT5w1Aa-aK72-2B3Cxe7PqG7pAYn43t0Uq-e59Ss0/6ab6646127714336761c181f.prettify",
+      "total_time_taken": 0.83
+    },
+    "search_parameters": {
+      "engine": "google_maps",
+      "type": "search",
+      "q": "Mafalda Statue",
+      "ll": "@-34.6037,-58.3816,12z",
+      "google_domain": "google.com",
+      "hl": "es",
+      "gl": "ar"
+    },
+    "search_information": {
+      "local_results_state": "Showing results for type: \"place\" instead of type: \"search\"",
+      "query_displayed": "Mafalda Statue"
+    },
+    "place_results": {
+      "title": "Estatua de Mafalda",
+      "place_id": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "data_id": "0x95a3354dd6271479:0x962789966f588ee6",
+      "data_cid": "10819767908987080422",
+      "reviews_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_reviews&hl=es",
+      "photos_link": "https://serpapi.com/search.json?data_id=0x95a3354dd6271479%3A0x962789966f588ee6&engine=google_maps_photos&hl=es",
+      "gps_coordinates": {
+        "latitude": -34.615832,
+        "longitude": -58.3716461
+      },
+      "place_id_search": "https://serpapi.com/search.json?engine=google_maps&google_domain=google.com&hl=es&place_id=ChIJeRQn1k01o5UR5o5Yb5aJJ5Y",
+      "provider_id": "/g/11t_kp4q5b",
+      "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkr-QixZM6HXZ8UfJtN1vLFfRCVYmUiB53uWYHlYikB7VQ6TUQGRZFZNaaSRV2J4yF6B0xPRC5zY5VLbyKJgiZKjD7otT5WcYzkZuFM_RjUgVKA-irDfpDwpe1bjOokT28qVbxS=w1000-h1000-c-n",
+      "serpapi_thumbnail": "https://serpapi.com/images/url/v1c6dXicHcRdDoIgAADgE5Faaa2th8yZ0_4kxeClJVNETUywrAt2hm7T1vfwfT-FUq1caFpdTEZMCFZnvcw6KhqVNWpExU1jrQRUAqmtPHiMkqoDIR_IzvLOZB7nvtobj62bwzXCt5jb5qRPsFdjXtkzFFpRHG4gccn-ej1BNPanL9ey9eEI1-Ybm2ibvgKfcRKUzkyoyEwoflekd3cXWMYMBSvAOydvnWebGWl5EFU0nt9ROpyWT0PXdVD8p6D5AQ5hREA",
+      "rating_summary": [
+        {
+          "stars": 1,
+          "amount": 65
+        },
+        {
+          "stars": 2,
+          "amount": 110
+        },
+        {
+          "stars": 3,
+          "amount": 593
+        },
+        {
+          "stars": 4,
+          "amount": 1386
+        },
+        {
+          "stars": 5,
+          "amount": 6141
+        }
+      ],
+      "rating": 4.6,
+      "reviews": 8295,
+      "type": [
+        "Escultura",
+        "Atracción turística"
+      ],
+      "type_ids": [
+        "sculpture",
+        "tourist_attraction"
+      ],
+      "extensions": [
+        {
+          "service_options": [
+            "Servicios en el lugar"
+          ]
+        },
+        {
+          "accessibility": [
+            "Entrada accesible para personas en silla de ruedas"
+          ]
+        },
+        {
+          "crowd": [
+            "Amigable con LGBTQ+",
+            "Espacio seguro para personas transgénero"
+          ]
+        }
+      ],
+      "service_options": {
+        "servicios_en_el_lugar": true
+      },
+      "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires",
+      "country": "Argentina",
+      "located_in": "Feria San Telmo calle defensa y chile",
+      "phone": "011 7125-4793",
+      "open_state": "Abierto las 24 horas",
+      "experiences": [
+        {
+          "title": "Walking Tour Barrio San Telmo Grupo Pequeño",
+          "link": "https://stayviax.com/activity/8fca1186-29c9-4311-8b71-d7fb7f167547?lang=es&currency=ARS",
+          "price": "$ 75.402",
+          "extracted_price": 75402,
+          "rating": 5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQrMdoOI7SHSlGsEnrs1dan1Bq4u20unGpBjg&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/TnA2X3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4s8k3J9_c0D_YIznEvds0rKjZMScwzdCo0KTUyKM1zL3DKSlcrtjUGAMnHIkk",
+          "source": "Stayviax",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://stayviax.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 10min"
+        },
+        {
+          "title": "Buenos Aires: tour guiado a pie por San Telmo y el mercado",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-san-telmo-and-market-guided-tour-in-english-t409439/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=409439&option_id=742975&partner_id=CD951",
+          "price": "$ 19.759",
+          "extracted_price": 19759,
+          "rating": 4.8,
+          "reviews": 132,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRAG4_EcyosMUxKH1UPgF7142VaklynpJ5qxA&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/s0MYp3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw5ydDeJd02uzC_2Da3w9jAMDUh3Mzc0MQpLzM6pzCvwMi2scFQrtjUGAL01Iec",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h"
+        },
+        {
+          "title": "Tour Premium a Pie por el Barrio de San Telmo",
+          "link": "https://www.viator.com/es-ES/Buenos-Aires/d901/p-14659P149?googlettd=true&src=papi&campaign=&surface=maps&funnel=nav",
+          "price": "$ 113.992",
+          "extracted_price": 113992,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmWExQzs95YqDqYv_1lEEgwbhKBwi9JSenmw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/O6MnjHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw7JDXetCKwqtjSNLHQpjCyLN8xxdU0vT8rwdirPtPQKTs3LLVcrtjUGANVFIuI",
+          "source": "Viator",
+          "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.viator.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 10min"
+        },
+        {
+          "title": "Mujeres en la Historia de Argentina Free Tour",
+          "link": "https://www.freetour.com/buenos-aires/mujeres-en-la-historia-de-argentina?source=",
+          "price": "Gratis",
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ9PMGWlTuOYVWD674TE5sDFrJTPQCO6FUjCg&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/q7_kPHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw60DPB1D88JKfWPDAt3MTM3CXE1LXZxK_IKCQh09jdzC81yTlcrtjUGAK7bIRI",
+          "source": "Freetour.com",
+          "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.freetour.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h 30min"
+        },
+        {
+          "title": "Buenos Aires Viaje Privado por la Cultura y la Historia",
+          "link": "https://www.tripadvisor.com.ar/AttractionProductHighlight-g312741-d27105891-Buenos_Aires_Private_Journey_Through_Culture_and_History-Buenos_Aires_Capital_Fede.html?supul=es-AR&supsf=maps&supfn=nav&supas=",
+          "price": "$ 1.102.430",
+          "extracted_price": 1102430,
+          "rating": 5,
+          "reviews": 2,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKccGijCKyWN8-LxEHPU1D_kn3x8Tv_pPi1A&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/bdB6UHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw70Tk52z8xy9q4M97PQ9alw9QgINXSJz84zrrAIKYsvCMg0dFQrtjUGAL65IcI",
+          "source": "Tripadvisor",
+          "icon": "https://encrypted-tbn3.gstatic.com/faviconV2?url=https://www.tripadvisor.com.ar/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "5h"
+        },
+        {
+          "title": "Más allá de Caminito y San Telmo: historias ocultas de Buenos Aires",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/san-telmo-caminito-the-local-walking-tour-t747764/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=747764&option_id=1208640&partner_id=CD951",
+          "price": "$ 53.136",
+          "extracted_price": 53136,
+          "rating": 5,
+          "reviews": 18,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZodC6mVfnY4JnDVHaGucDiF_uBK70m57Nag&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/isSTCHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw6Kyk9xNssNS8uLNPHKcwnzSHQvTXbJdIsvdfI2N8g1NfdLTFcrtjUGAMRaIcs",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "1d."
+        },
+        {
+          "title": "Tour privado de la ciudad de Buenos Aires con guía local",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-city-private-tour-with-local-guide-t680068/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=680068&option_id=1119359&partner_id=CD951",
+          "price": "$ 205.186",
+          "extracted_price": 205186,
+          "rating": 4.7,
+          "reviews": 176,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcReyD7W0WE8NuOOrBRrjd3NOa2lL3wg8o6pwQ&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/akpUzHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw5KrXQxDzcId7XwK_X3L3IKKspKMfbzTzTK8TEuT7fINysoD1QrtjUGALx8Idk",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "4h"
+        },
+        {
+          "title": "Tour a pie en grupo reducido por el barrio de San Telmo",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/small-group-walking-tour-san-telmo-neighborhood-t722361/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=722361&option_id=1175371&partner_id=CD951",
+          "price": "$ 120.072",
+          "extracted_price": 120072,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQsKepXWyO-OUOIqLUeO8SwlSIyi1qGVk1BoA&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/-afZQ3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4s9k4tiAiv9Nf1D_X3LPQJTfW3CC7PCfaszDQsdA_LNnTKd1QrtjUGAMvAIi4",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h"
+        },
+        {
+          "title": "Buenos Aires. Tour a pie de tango y calles ocultas en San Telmo",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-airestango-hidden-streets-walking-tour-in-santelmo-t882256/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=882256&option_id=1387374&partner_id=CD951",
+          "price": "$ 22.798",
+          "extracted_price": 22798,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGM68WcJBCs2nxJutZcVbOqjbB8WfcdoR6iQ&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/P7urt3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw509zWzCE_2cnIuNsqr8CotiUoOS_IvzEpysghPS07JDzLLDFQrtjUGAMHHIjU",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h"
+        },
+        {
+          "title": "Buenos Aires: walking tour sobre mujeres en la historia Argentina",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-sightseeing-tour-about-women-in-argentine-history-t1188905/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=1188905&option_id=1823623&partner_id=CD951",
+          "price": "$ 44.077",
+          "extracted_price": 44077,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRXHyGrAb5gnJGU_zPRAEER5KSEcTt-W87_4g&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/I9MDW3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw6K8Kh0L3JMMk3P83IPja8KCHJ0dQ0y9Q52TQ4p0Q23MI83SVcrtjUGAL1xIWo",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "2h"
+        },
+        {
+          "title": "Tour de la ciudad de Buenos Aires con Sabores Argentinos",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-tour-with-argentine-flavors-t741599/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=741599&option_id=1201389&partner_id=CD951",
+          "price": "$ 63.836",
+          "extracted_price": 63836,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQLTvLMozBppSNFQPFMFf3kQ9o17nxh-yvy0Q&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/Ly07gHicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw70CSnz8c2vciooCPZzCwxw83VLM84OtMw3NM-ryNCtLKs0CFQrtjUGAMdFIiA",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "5h"
+        },
+        {
+          "title": "Tour a pie por San Telmo y cata de vino",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/san-telmo-walking-tour-and-wine-tasting-t1375388/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=1375388&option_id=2099181&partner_id=CD951",
+          "price": "$ 288.780",
+          "extracted_price": 288780,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRQzuMBK6gOxnA68-6xK2LxGvolgVz0r8L8yA&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/VIYek3icuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4KrCr1dfI2S_evyHM0s9A1q_A28qlwL8vPSQ-rMiiy8LGodFQrtjUGAMBlIds",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        },
+        {
+          "title": "Buenos Aires: Montserrat, San Telmo, La Boca y Puerto…",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/buenos-aires-montserrat-san-telmo-la-boca-and-puerto--t743161/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=743161&option_id=1211264&partner_id=CD951",
+          "price": "$ 151.990",
+          "extracted_price": 151990,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQowG-2adSm1YFImaKPixDO6G_PsJFLt3SeqQ&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/1GKS5nicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw7ML3fXNUpMCc41jHTzzE30DsiscPE3c48PKPZy8ykxDk4tDFQrtjUGAL-vId8",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "4h"
+        },
+        {
+          "title": "Religión, comida, sociedad: el mejor tour cultural de Buenos Aires",
+          "link": "https://www.getyourguide.com/buenos-aires-l1/religion-food-society-ultimate-culture-tour-buenos-aires-t1399499/?locale=es-AR&currency=ARS&surface=maps&funnel=nav&google_ads_click_source=&product_id=1399499&option_id=2136848&partner_id=CD951",
+          "price": "$ 223.606",
+          "extracted_price": 223606,
+          "thumbnail": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWQUwwhp-hqK-45BZC3ZJkq8p7ekhpR1C5zw&s=3",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/HxVrjnicuxmXUVJSUGylr5-al1xUWVCSmqJbkpRnoJdeXJJYkpmsl5yfq5-Zm5ieWmxfaAuUsXL0S7F0Tw4ODwwtL88o0M0o9NY1MXWKcjaO8soutCgwT83OKAgydDatKlcrtjUGAMIpIe0",
+          "source": "GetYourGuide",
+          "icon": "https://encrypted-tbn0.gstatic.com/faviconV2?url=https://www.getyourguide.com/&client=DESTINATION_EXPLORE&type=FAVICON&size=32&fallback_opts=TYPE,SIZE,URL&nfrp=1",
+          "duration": "3h"
+        }
+      ],
+      "hours": [
+        {
+          "viernes": "Abierto las 24 horas"
+        },
+        {
+          "sábado": "Abierto las 24 horas"
+        },
+        {
+          "domingo": "Abierto las 24 horas"
+        },
+        {
+          "lunes": "Abierto las 24 horas"
+        },
+        {
+          "martes": "Abierto las 24 horas"
+        },
+        {
+          "miércoles": "Abierto las 24 horas"
+        },
+        {
+          "jueves": "Abierto las 24 horas"
+        }
+      ],
+      "images": [
+        {
+          "title": "Todas",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkr-QixZM6HXZ8UfJtN1vLFfRCVYmUiB53uWYHlYikB7VQ6TUQGRZFZNaaSRV2J4yF6B0xPRC5zY5VLbyKJgiZKjD7otT5WcYzkZuFM_RjUgVKA-irDfpDwpe1bjOokT28qVbxS=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/v1c6dXicHcRdDoIgAADgE5Faaa2th8yZ0_4kxeClJVNETUywrAt2hm7T1vfwfT-FUq1caFpdTEZMCFZnvcw6KhqVNWpExU1jrQRUAqmtPHiMkqoDIR_IzvLOZB7nvtobj62bwzXCt5jb5qRPsFdjXtkzFFpRHG4gccn-ej1BNPanL9ey9eEI1-Ybm2ibvgKfcRKUzkyoyEwoflekd3cXWMYMBSvAOydvnWebGWl5EFU0nt9ROpyWT0PXdVD8p6D5AQ5hREA"
+        },
+        {
+          "title": "Más recientes",
+          "last_updated": "Hace 2 días",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWk1IVO1mwk5b4PdNLXfKaGNquiualBPKTTIt-u5ocXBz4IuMUxANOZUlq9sf7xJD5-bmHEgrATl_oVypsxR8un1pczXiMhx24y-oSA8S8pBpF0kaCplMbacDnjXwZDxawKtXQnsJyKA_LVQ=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/wr_EHnicHcTNboIwAADgJ6qAg4yZ7FDEH0QQEbHxYkqH4ChttW0ovqTnvc0Sv8P392qVEnJmWbT9mDScN7TWsn4QzlTN1ITw3mqEBEQCacF1nhWnzonKndMPnVe52U-6RdcYr9K7vmlMgywuikgB7XGCgqcb6eRoYLo7H-n9S14_zSb0QNWvF80DFvTCy1FIk_uaOYI80S1pzdQdAT9A_-CLQCztDs8FTSpMQvaLhnNo8BArtGdyM8bwsi3334Nj2zZo3xPA_gH1W0jP"
+        },
+        {
+          "title": "Vídeos",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmLz2n8ZbLNa1zaXcnGCiVE-lxKcZKDPJh9opaK0QfDHSrWyX-XYeAxjisAVWkWstjTjGnZLtjGnNYq7Vyty-YFdK7JKW2YxIq558lAlor95aVpxD0gzTNjRfzEBVi6IxFRkndh5QtIm_9U=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/aC_bVnicHcTBboIwAADQL6pUDVNMdkBBxRKiiC1wMawiBUuLtMsKP-nZv9myd3jvF9O6UyvL4mw-qaSsePmtyp5KoUuhJ1S2VtUpQBVQlruPjwlpw3EmlvlXGBXTsUip2G1q7ANuEM2RdzwwR3YFgqe7tz_3ZEhBmpWuaWrlYvIgSjdJsxN5qP-OsucCD3oA2faGFgdEZpkJnra95C6XvWMXuDMerMYkauL76K9x_RGYbfwQN2afdNBencvnzxRCCNj_FIhf-ZlIXw"
+        },
+        {
+          "title": "Street View y 360°",
+          "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWkO1ZSIicLmNjcS1v4cOzLLh7_vW7NGl4l_qcln3Dgr4WdpzR0945SEQA3ZdeJzPgQ56L-iFJH7GJ0Q0WRnodR2mEUB8NjlBeBgvMV_TZUw2wA47Qjlz_Fj0Dur1atXhDfLpwOWTpzK7IV-=w1000-h1000-c-n",
+          "serpapi_thumbnail": "https://serpapi.com/images/url/b3eo0HicHcTbboMgAADQL6JitWVbsgeNvTmm9dKy-GIaZFCHwIRq4k_ueX-zZOfh_P4I54x98TwpghXXmkv2sGykWjmm3IrqwePGAmqB9aJjea7JV-431elO8ZD1tPKnkOYLxgK1E0HZQYay_aZSBQkfQ9KZpYTP4abaFVHQdCxdzrzYbDG479MjOqSwgKRUuivXw-4SP2W9jFnMp_drWzeXeT1HISp6ubT7HiaP0b-5D5F8YjPnpDbLGzpdwevsQwiB-J8C9Qc5SUZI"
+        }
+      ],
+      "user_reviews": {
+        "summary": [
+          {
+            "snippet": "\"Fines de semana cola para sacarse una foto, días de semana no hay cola.\"",
+            "thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjW_pjyskCwn2MvcWJ7RtPB9BVEMgTDwcmktthFOtVdIT6hVGH4CKg=s40-k-cc-rp-mo"
+          },
+          {
+            "snippet": "\"Si no estará abarrotado de gente, fui 2 veces y había fila para tomarse la foto\"",
+            "thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjW0zBO6CnYhVydHbxgDDKAOKAmdImfB9Q_52_kt9VKTEMMNi-8i=s40-k-cc-rp-mo"
+          },
+          {
+            "snippet": "\"Estoy cerquita te las llevo a las empanadas o budines\"",
+            "thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjWVTCTCxDXOi8-cCo8sUVjV2zhaHVup20o4dp5L3-XzkWMEZht9=s40-k-cc-rp-mo"
+          }
+        ],
+        "topics": [
+          {
+            "keyword": "foto",
+            "mentions": 1121,
+            "id": "/m/05wkw"
+          },
+          {
+            "keyword": "historietas",
+            "mentions": 127,
+            "id": "/m/012h24"
+          },
+          {
+            "keyword": "feria",
+            "mentions": 118,
+            "id": "/m/02jf28"
+          },
+          {
+            "keyword": "personaje literario",
+            "mentions": 70,
+            "id": "/g/1q6hz0vl1"
+          },
+          {
+            "keyword": "infancia",
+            "mentions": 60,
+            "id": "/g/11bc57m7v6"
+          },
+          {
+            "keyword": "barrio",
+            "mentions": 50,
+            "id": "/m/02q3znp"
+          },
+          {
+            "keyword": "souvenirs",
+            "mentions": 50,
+            "id": "/m/03rnxq"
+          },
+          {
+            "keyword": "caricatura",
+            "mentions": 38,
+            "id": "/m/01db9h"
+          },
+          {
+            "keyword": "días de semana",
+            "mentions": 36,
+            "id": "/g/11b6bttj_6"
+          },
+          {
+            "keyword": "cola",
+            "mentions": 31,
+            "id": "/m/06z_nw"
+          }
+        ],
+        "most_relevant": [
+          {
+            "username": "Alejandra Madrigal",
+            "rating": 5,
+            "contributor_id": "107622393921453553496",
+            "user_review_count": 97,
+            "user_photo_count": 353,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXe817onHiybhqKnvJ_-xttx4JAtlxTUYsRcfL-_9Re1TODYXa5Rw=s120-c-rp-mo-ba12-br100",
+            "description": "La famosa Mafalda! Es un punto turístico de interés si te gustan las historietas o si eres fan de Mafalda. Es fácil llegar y cualquiera te sabe decir las indicaciones. Al llegar hay fila para pasar a tomarte la foto. Fuimos en domingo y aproximadamente esperamos 1 hora para llegar a Mafalda. Como es época mundialista, estaba adornada con los colores de Argentina, quedó muy lindo todo.\nCerca de la estatua hay muchos negocios y vendedores con mercancía alusiva a Mafalda.\nBonita experiencia pero ve con tiempo y paciencia para hacer la fila.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2toU2JHcEdMVTFYTTBSRFdGTjFSbVZ6WlVwc2JVRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOkhSbGpGLU1XM0RDWFN1RmVzZUpsbUE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMehA2MmkRROa7NhVzd7KiaRnC2Ggq-wA3rVdgvyQpp5zwXK4OFHBK01QlNdFgRbbdhRqGF7W-yUtiaDZUBkYowa9ECGOewUsEw614lyuaYDOuRBvZ04D27TyG5q0wm0YVRV5EzxucN0TvE=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNEgpp4BHVFfM443Vqxzzz8wLfXl68Qgrs7Y7-wJ6x2MONAP_4K7PL5gtYnm-i6WEjHe306lbSVzN9LWPgw17A17e44Y4y_8c0JR0qbOvpgrMdCg3G8zQE9RZqq47m1cEHLbqFN2n-8FCZ4=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOFpQ8y6oA5ITcUGkAEb2gJsaJK68ZQguovO_3RtdjTJ-LyS-eggOt0iN0vw5_3UxpknzAYWrzEmZ-UVCKWR_EjwVgJFGsj8-grxvEvi4fZ1BacuW0vrT8w86mMgy4rbF3reVK1iRCE1RLG=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM9t2vIVg8iAWxeOYVS5gCGzFDVTvNRN825l210RMm4YSAfe4YCSVvh7FNN15KU2r6XqjKwtQO19ZN-Kyv0FpGx7lk6Jjz7GzSERKz6uOGsKQLbHod0xZ2YfbTOMK7Y98pJZt9_LS8aSOOF=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM069sxxSk-5X0mY0DsPTe-USuDyq2WbLkv6EoB-qEXzR2bqwptnlGvDMN00-IWMizfJyM8zHG0kIvOq3rL-LgFl3TlftDqOUKW7BxICFUe8lRd8_dflurRpXk78Vhrv7tU0PqKKgYLACmd=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNKKmnoSVmxvQPUwS_6fSfsO7ugLKlUGtT8aIap4LQ9LKvAlEMRsfl22i1go_thy3Y2r1W8xu35CirrsDIM8MeoatyyPE-SqjNRmDFdQqrsN6JL_MXvsUbpmaDeac0NJMQ6_zSSy3HOckvr=k-no"
+              }
+            ],
+            "date": "Hace 2 meses",
+            "date_iso8601": "2026-07-17T13:43:08+00:00"
+          },
+          {
+            "username": "Noelia López",
+            "rating": 5,
+            "contributor_id": "114317057959370072816",
+            "user_review_count": 4,
+            "user_photo_count": 7,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjWhKKh-pKa1vZIMTMVAsp7aBin5HqxLHAcb5SFBCiOIq8XoWqWf=s120-c-rp-mo-br100",
+            "description": "Muy lindo el paseo de las historietas. Durante el recorrido vas descubriendo a otros personajes, y al final está Mafalda. En esa esquina hay muchos restaurantes. Fui de noche así que la feria ya no estaba, seguro que de día es más hermoso! Toda la calle es de adoquines y las veredas son estrechas, detalle de accesibilidad (lo entiendo porque es del tiempo de antes pero no deja de ser una pena. Ojalá se pueda modificar sin perder tanto su esencia).",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xWSlRYcDFPRXhVVFUxM1ZUQk1ObkJwVEV3eldVRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlVJTXp1OExUTU13VTBMNnBpTEwzWUE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM9jOatnlgaA9UgUNjK2t9JIwGtRgTR8d9oyFhr0iNPLbyJEMraj66lOoMLd_TyNz3lHrWNOadcFcCqc0ijIy6eUHPFG3cCAbY12oAs2dJmYpRqipE1MhhP_iFX3KTElwxXd7tLTczk5fZ4=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMyqER2fmecEdlbjf-0c4VCk7TcAaPDfBB3giicbWXFrdOPKp6snG45au0C3JsCS1ZckftTGVqFq2vOIctEvG0gFpGRjhufhuhjWFYyXfbnI1f-HvE6wLy7H7NWhLOmTvMoWimTRwqqu9GZ=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNvMMB8BLQh1DunrMp7fuiLQhY3AbJIs1q3V-qVO4SMHv--jcNWKkkwCIUz84XHxfUo4o0tNhWmRSB2Ch6BsuAI9P6D9X1Z0h71VT03hK-vf-m6TfE0twwJpyvCLaKevYAKc707dp8C0KUX=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMDqSH2buOlWLZUJqdnNRGWAFj9p2PSLU0EX9ZkZJC_GMOBeMlDrPbnAQt8V70OzXGpJaxPr7Dta-qCbNDZPU1RNQeZUDQNwXSPIUZ2cp-BCBUsvV6WWF9qr3iugweAPDMOabzoFwmKT-g=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPhf7jqZ6STyOJ2DngerqETdcsIjLbEA_X4HF9MwpVqnTegoW6YtfR5Ak97_aUE74wXu5Amdn_T7-H9iJn1dOrdVlj9BM2oHt2mK_lpR52naOzxqRHeBKulp2QytZQXqk-OUjB3Z4zQkqwW=k-no"
+              }
+            ],
+            "date": "Hace 9 meses",
+            "date_iso8601": "2025-12-22T15:01:23+00:00"
+          },
+          {
+            "username": "Brandon Vásquez",
+            "rating": 5,
+            "contributor_id": "104643305210346736414",
+            "user_review_count": 96,
+            "user_photo_count": 353,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjXCIOdZtdxAdpsBi9DYbvUi0CWFYTBl1RnfMIbFjeVCbMlpryk=s120-c-rp-mo-ba12-br100",
+            "description": "La estatua de Mafalda es una de esas pequeñas paradas que hacen especial recorrer Buenos Aires. Encontrarse con este personaje tan querido de la cultura argentina en plena ciudad es una experiencia divertida, especialmente para quienes crecimos con sus historias o queremos conocer más sobre la cultura local. Como extranjero, me pareció un lugar encantador para detenerse, tomar algunas fotografías y continuar explorando el barrio de San Telmo y sus calles llenas de historia. 🇦🇷📸",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT21zM2VWRXhZemhSTkhCTlIzWXRXRlF3TFRkTFNXYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOms3eVExYzhRNHBNR3YtWFQwLTdLSWc%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPFnm1msNG9qyBJh0EtqAXyzrGuUKN-RAOVq7ZYKvr18aNf8i610Fq2949idjxu4KKiqCwC1QHO5HLUU-wimeORrL7Kd9irVx7NnYyRY1Udhbtf2BX_5Xc43VCllP-yG61sXRhLfyOnZ3cL=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNmvG4ybgQZEkFtnNP3A4F4AeLzXmBKjkoFgHRSZLyIOPqX97JBGLgcxhoP1f6I4nDAu-Ju8Zf8Hki0OCQhY5sO_dQGWOF6vrR01RYqE8ngCLnUTxkX-OuKWttqM7boe4oS0nzGU432UoU=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmO0sNz3BNnfYCG8idYc9YLUB9w9zAwY6NJL814-pEuFNQoZ2xsKnnMSPI8ZtLZL1jtciPLQwd8FCx2Xp6v5KUq37-YJsM8aaNCbN4tt3Dt5o45w-Vn2jvw_uS0WvjnOvTMrASyBJEsBE1CX=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNOjGWPP0AdjQiLaUDecfM1EMohO98I0YPBe5CcYzWP3N9Q_93Ggv-kQ3wAKq4SjMlvWTpz6igCOBMFsB1KVPvxjlGWeu74FZTuUE2ldBUMpugxahV5V9uQEFPVin3JlPkOyUn67ZQ5O49b=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMFCoQcwTl_MJLwcxHCdqVijDUU4KHvzEZ_btwyJQ__GzEuZ32NhGPsooFd37YeQDz8uMBrA4EyBIhXDMUCuIt6cyH3iO9uqurVJ-Yn8ELHiRpfrlATGlbadh7ZWgL5HjuapasSx6bICA_X=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMnY45gLwel592qu4uJmV_xOMr2ZHVuIVB9LVp65bLWCoPp9YWx4VL7_GF0oxIYXd4Rnwws8jwWjgjzysV8ViVzCA-HuJs8df4N1ZG1q6bP3nCkVlI3JYHzldo-tiXgoKOHs6nPuMLvN50L=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMx7WUCojFhiVfhGXo_madSKTni8pBqaCnLMC3JUdrgd3KcxwDhdyCgeTub7ZvUTblVW-qqVVePcf5W0NQPvxysKBv5-rr8SiJpRlxyPZcYq5bAWqOHV89BwjCQ7Wms68b3ggqlQNzcXF2Y=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmP483Yu8Yrr6TbhH4WYjoYIJNJGzZiu91mdr5lFp9ZuGhUdEh7e_9AVuo_mATow66xo7gnz1pold_JBcSF-SMqqC8xAzXyNOLa0oeawuRegq0-d60WTa10wRW6fxCsL41_THu5XeFD7V5oP=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmP1hTmSH5tdMZlr1_Ni7yP6WLLWcDx0jAa7IlFKtr5V5MmWulB23YaMPsMvEvAKNej_R_YiFs0o1fmdXuU9hZ2q2T5o_hLc5rL9ELvzMeTr-zY6kmTlhxVhvsr3xPtR2zV9GY2linpWexPg=k-no"
+              }
+            ],
+            "date": "Hace un mes",
+            "date_iso8601": "2026-08-08T20:19:11+00:00"
+          },
+          {
+            "username": "Cesar Victorio",
+            "rating": 4,
+            "contributor_id": "113642742447444351761",
+            "user_review_count": 160,
+            "user_photo_count": 833,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjUABugwau2Zc4Ejs4ayamRl0Zcas2-2E4WnSsDGPXqCR2on_0fq_A=s120-c-rp-mo-ba12-br100",
+            "description": "Siempre leía los cortos de las historietas en el periódico el Comercio cuando era niño, tenía un humor sarcástico sobre la realidad, por lo que no podía dejar de tomarme una foto con su estatua al visitar San Telmo.\nEs una escultura en fibra de vidrio al parecer, dónde ella está sentada en una banca pública y a su lado están sus amigos Susanita y Manolito.\nEstá en una esquina pero al ser popular debes de hacer una pequeña cola con el resto de turistas.\nNo recomiendo buscar esa foto un domingo ya que abre la feria y estará re copada.\nAlrededor hay muchos lugares para comprar souvenirs, cuero y dulces típicos.\nVolvería a tomarme cada visita y tener mi registro histórico.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2tkUGREWmFSbXhYZW1sbGJXNUhUR1F0WWtkblJrRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOkdPdDZaRmxXemllbW5HTGQtYkdnRkE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMpi_L1pRydw360x-Eh4oeEmbC5bu1cGdAQTsEhAxWGFA2uEicKLxgc71JE2bORI3XYZT7BYQSIto7SGGWTSSfak9GLnbIHHKjbkrtqct5PnAldFcPNLvw13sPnwSITpXuGwv30WebP3wlx=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNA00VDoq5NQ_2VDjhu-yaX-_lO4XhWpQr0eK-uo5UXb-qKnP7AOMYCF7gPxQ00UoUjoWjelZnoZxe6tUVxmeemNw1z1zFpNzTK0Pi-KwqbK2zM384zIVa4lLmwCv-rlV0gjvyhEPWF4eg=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOgWSLfWsHB8CF3sayU8KvH6OxicXvSip7Qcm5Miz04qw6xqH1fMtWFnNf9_7UwkmYh_IOKeVvBsYD85yd7Soj87cmZ_r8r0z_O7aqnMs13mo4qB5pDbiVNySK0uXUlIy2ueFSrhfjcoiGv=k-no"
+              }
+            ],
+            "date": "Hace un mes",
+            "date_iso8601": "2026-07-27T03:36:44+00:00"
+          },
+          {
+            "username": "noslen colina",
+            "rating": 5,
+            "contributor_id": "111509045044379289236",
+            "user_review_count": 115,
+            "user_photo_count": 731,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjX_VohchSwkhagl5AD5wVtRfSPoD5o8AW4sASD9yKl0uHShrCnHOw=s120-c-rp-mo-ba12-br100",
+            "description": "No podía ir a San Telmo y no pasar a verla 💛✨\n\nQuería conocerla porque a mi mamá le gusta mucho Mafalda, y quería llevarle una foto especial 📸🤍. La verdad, es muy tierna y bonita, de esas paradas simples pero que te sacan una sonrisa apenas llegas 😊\n\nSi estás recorriendo la zona, vale totalmente la pena detenerse un rato. Además, alrededor hay muchos lugares para comprar souvenirs y dulces típicos argentinos 🍬🛍️, así que aproveché de mirar varias cositas también.\n\nEl ambiente de San Telmo le da aún más encanto al paseo ✨\n\nVolvería sin duda, porque son esos pequeños lugares que hacen aún más especial el viaje 🙌",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2pabVUwVm1WSEV6TkV4V1RFUTVTbk13UWxGV2VsRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOjZmU0VmVHEzNExWTEQ5SnMwQlFWelE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMq51LTFRRfM4lFtlfXLh8Sm3eUVYz1o4UrIttt97_XKTFlPq2SDdlUxkCLVaNjzVMLH26cJi0VPzrKI3zq6hwz0wfPTI_cVsCEwZ8d2vkOYQP0ODD6yvj5jwPZlRxWEdhc8cYMyoT_b65-=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOW7FE0Fh55vAa7zT6_WzSkofdgmxwSIryoiJJPEU61ok7AnlZ7gIJvZkDjb8_vLNHYQaJCEkx19Vst1IhDUYnskMXkCBn8VgcA_tPSUWlRAqwI4aqDGoMSqVIRJZLXJaCUEBj967zmrNHu=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmN_oL9KQoTRe_Z3Q9VjP-ggIHRLdbnY0w33SAOe0iBHq10W8wXZdqMs7CCw_bEO9_7gkBQR0fnGl9xmGKOLdQfor2PVs4nB9zrxl6E0F8to-_04MckhNriKMLuGjYs-R7E1tx4qzrRCy3NP=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNqMYYLwASOXJBr4_guWwVPvXfBdx0ukA6yh4d9pprCoxjePRUshVq1p4FkPzZaQ-16iF3zLXqF923y6bJRxnPE2vHsFOSqhfDde1H_9WfYeTwxQIwCFCEK6ETe0meGtVPFW2I0z7NQNxw2=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPFqZ_2tgJnk0KbvqSHys8yznyrNdcIQQmB2xm__CrX2QgojyYroSv2FwJa6Vd5ZlVejGzn_oE4-_Uq6-0F388Hp-CDreV_QhIfqpquxZiPZ19SbDtsd8-SHoxKM3OP3GtLH5Zs5IamO2Qm=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPYBs0xOvVt140fFFy46ARfV9Eti8f9VbCDpzVE7wyZpOf05fMHidcZ-CI5WX4NMufb7bgJKrC6bUHWWbGSKOk2s8s7y4ryhywYbT_-eC9VPXAuuaz6idEnSzd_UKKxSIx6CDYh3gkvE07U=k-no"
+              }
+            ],
+            "date": "Hace 4 meses",
+            "date_iso8601": "2026-05-15T00:04:38+00:00"
+          },
+          {
+            "username": "Angel Herrera",
+            "rating": 5,
+            "contributor_id": "115969750931222135827",
+            "user_review_count": 31,
+            "user_photo_count": 39,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a/ACg8ocKXoXQ1Mx4LsUaK53Y_gsnibbVyzsdU5Hu8od_KBGZe6VUV5nI=s120-c-rp-mo-ba12-br100",
+            "description": "Fui con mi familia un domingo. Tuvimos que hacer fila para tomarnos la foto pero el ambiente hace que la espera sea amena. Vale la pena.!",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2xOcGRIWkpZMkZJYm5Jd1UyVmhXR1Z0Vm5aMmJFRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOlNpdHZJY2FIbnIwU2VhWGVtVnZ2bEE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmM4MR6Hgk4xbfrM9VnO8XfWbPrtPsnJEybo1UcjmzvfeLlGWQm3-4ON7_DeqWdXboLx6DMkiyvS8_t5dsLEcIgaGkpf6yy0mgXp-9aVdEs8jw3fWAwJaYh6xgeX0Guk05K3I-zhOey2ZxJu=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOuei8Oel6gERQ05xYP6rXuiIxxtdIKRHfLRMxg94v9To2koozkMqZD4VWRKrnHB1P4b7GMTS0Y08HNqikOPRo4G9aAb7m7Gmt22u4wnv1YDC7pqjcMXjn-BL4WbIhMEmfF1I1Ey2vXIMN7=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNIs-Ie327lUKhhk-4jGCtNfoG0eEJQRnua6hnd3ZO1HaUVEvjXfhg5YPbUb557tEXErq7wLkuw5wml7PUpGQNf_eyNKhL1ab2Q2APuJ7fgkOlwJRY9Q7C322yXwoCpoV-GftXjoeJV87hi=k-no"
+              }
+            ],
+            "date": "Hace 3 meses",
+            "date_iso8601": "2026-06-07T15:27:45+00:00"
+          },
+          {
+            "username": "raul rojas (Coco)",
+            "rating": 5,
+            "contributor_id": "102003225327211496554",
+            "user_review_count": 460,
+            "user_photo_count": 1271,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjVRC3won9rAIwNy4OoumOergMTDFaKHc9bAH8lj-u66my14YI7CKQ=s120-c-rp-mo-ba12-br100",
+            "description": "Genial el paseo por San Telmo!! Todo muy pintoresco y muchas cosas para ver! Si te gustan las antigüedades es el lugar correcto!!",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2paMWRtaHpMWE52TTFSMlVsOTVVa05IWjBabWNrRRAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOjZ1dmhzLXNvM1R2Ul95UkNHZ0ZmckE%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPqZjwsSpiYiVlpJS4zdCgPHUfaAn7fIGpasJGOdeHsCSmt2U7fjT07GgEPau_iuP9GUjH0gSbCIifCx-CYjhFNPv3qfFvnc657xnIWv-yp0g2oFj8dwARE9iaiL2Ie92LV0bDlANJNxKm-=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMtsN18GBLfeBl5q3HiP_9c_IH6Cj8bt3tozAin3vEieIqLZf7T2KGcgagDyQP4U8tKXg6X2ES_AahccDaGhsabdP8onMIK4sMvgx1ya3lhzZAzOFQAxlixnKI-Ki_Kqb5Q85dGIE4oDz8=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmMMjKuIiBdFzpY7VnpBQ6Fcv4VQlSqsQ2WaGj7xUo5B-nZw1FUd-FHdfgTqXkCfU4mg7Vok7ZllvW7HNENgQUUNrtIeuG9SXIElnSabe7Yv3-j4AJ0ELpTMHv3I_Ej5BlOo4d4P-eglKDHn=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPkVS13WOiNCPCY1nqxzqAnwb43ToKaoh8_p3xyuirgRhNSrXWbyRcY9GUElZEFjx45l5Pfay8jiS3_dLl7zJ6SkAw95HMZPsloonPRmw-GZ0WBfBjNlQr6jPrN9gDH6-E8owHU3ABoQaL-=k-no"
+              }
+            ],
+            "date": "Hace 2 meses",
+            "date_iso8601": "2026-07-16T22:29:08+00:00"
+          },
+          {
+            "username": "Alisson Jimenez",
+            "rating": 3,
+            "contributor_id": "109049624461811380434",
+            "user_review_count": 139,
+            "user_photo_count": 108,
+            "user_thumbnail": "https://lh3.googleusercontent.com/a-/ALV-UjV2MhHNspniJ7NngQr4cx7dOHEdAha8eMxSp3Ane2tvuBzQVrHX=s120-c-rp-mo-ba12-br100",
+            "description": "Es un lugar muy visitado. En día de mercado artesanal es muy concurrido y lastimosamente el paseo de la historieta no está muy bien cuidado. Con un mayor cuidado, puede ser un atractivo turístico más llamativo.",
+            "link": "https://www.google.com/maps/reviews/data=!4m8!14m7!1m6!2m5!1sCi9DQUlRQUNvZENodHljRjlvT2pNMU5ETlhjVGszYlZGdFgwTmtkM0kwUVRSWlIyYxAB!2m1!1s0x0:0x962789966f588ee6!3m1!1s2@1:CAIQACodChtycF9oOjM1NDNXcTk3bVFtX0Nkd3I0QTRZR2c%7C%7C?hl=es-419",
+            "images": [
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmPSRI_c73lhCQPI0huNkb467AhW5h_o5SAqAzqwGsoGsgMyYsikPJKd11A-Bnj2KNhRnnCGvw5GxLAV66q-iorC7Txiui9HjraAJfV-zaHtqKQ2oaQpCKe9DutivgcQzPMaJgT-LcstLEI=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOV7yio_VQw-LU3Tcr229u3jkeesOOltXcl5a67VIbhF9p4JSlRyVaOfWbh972X7Eo7dO-PeVccw7VyxtsjjEkMWFi_KuGMg1TW89bzD3i6C_sJ6JFTrHydxJajdr2WYrg2r4yCM6rTeCcP=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmNWCH5S_5Od-kFPYsi5sIHI1Kctd-YswiOTFbSUiKkpuCEjw3TWHEGnURu4zKVlDk1eJRZwivGUyJfIH6lWNRQTR05d78f_j5dJeuIL0vTp5OGYoV24cGGJ3-od7EJfyCdyiS8A6Tr6a1Ic=k-no"
+              },
+              {
+                "thumbnail": "https://lh3.googleusercontent.com/grass-cs/ACvplmOMt6tR8EWD4iNDjA8ntYC1Hw-j_AjSYKtn2m98DKuhgh1ZY6nLi0r9Xp7eJj7_lHs7pybDn5w6L_-AaJF1-yRZGlX-fJEEGgppyB69EXv1SH-IV8IhV-yb17NaW8OrdrTi0jqflew7FPH2=k-no"
+              }
+            ],
+            "date": "Hace 8 meses",
+            "date_iso8601": "2026-01-05T01:00:40+00:00"
+          }
+        ]
+      },
+      "people_also_search_for": [
+        {
+          "search_term": "También se buscó",
+          "local_results": [
+            {
+              "position": 1,
+              "title": "El mundo segun Mafalda",
+              "data_id": "0x0:0xd2ac8762f41a8c28",
+              "data_cid": "15180657303031024680",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xd2ac8762f41a8c28&engine=google_maps_reviews&hl=es",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xd2ac8762f41a8c28&engine=google_maps_photos&hl=es",
+              "gps_coordinates": {
+                "latitude": -34.6085585,
+                "longitude": -58.374448699999995
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xd2ac8762f41a8c28%218m2%213d-34.6085585%214d-58.374448699999995&engine=google_maps&gl=ar&google_domain=google.com&hl=es&type=place",
+              "rating": 4.3,
+              "reviews": 9,
+              "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWmm3CB4py47RcYuE43Stzr5I6cOF66mgXvOEQ8Squgc1ml1GpyL2MuHnC6GpAC7twP-YDojWCzpK62kUmeNJ1bXQLaIAxEsfM1rombX4kYGzr6n3vGXXbelW99znZIwFUjMzkY6rG1sjHM=w156-h156-n-k-no",
+              "type": [
+                "Atracción turística"
+              ]
+            },
+            {
+              "position": 2,
+              "title": "Plaza Mafalda",
+              "data_id": "0x0:0xa431bedea4c4a7d1",
+              "data_cid": "11831447559535372241",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xa431bedea4c4a7d1&engine=google_maps_reviews&hl=es",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xa431bedea4c4a7d1&engine=google_maps_photos&hl=es",
+              "gps_coordinates": {
+                "latitude": -34.5806439,
+                "longitude": -58.445611500000005
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xa431bedea4c4a7d1%218m2%213d-34.5806439%214d-58.445611500000005&engine=google_maps&gl=ar&google_domain=google.com&hl=es&type=place",
+              "rating": 4.3,
+              "reviews": 11622,
+              "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlgrpNLXNYkIGK7qC8mRVbAHfDB44DOfoLPlTFVJfHH6fOV0Alos9rkn5cBb1ST6te3Z3klbbrsdB1CyrBDqnZEgVw7gxlqysriwt1Akdn86KKyWfCPEh3fa_NuKSt4diNzOSJuyQ=w156-h156-n-k-no",
+              "type": [
+                "Parque local",
+                "Parque",
+                "Atracción turística"
+              ]
+            },
+            {
+              "position": 3,
+              "title": "Clemente - Paseo de la Historieta",
+              "data_id": "0x0:0xf7f4d57a65961e4c",
+              "data_cid": "17867140343352663628",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xf7f4d57a65961e4c&engine=google_maps_reviews&hl=es",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xf7f4d57a65961e4c&engine=google_maps_photos&hl=es",
+              "gps_coordinates": {
+                "latitude": -34.6127755,
+                "longitude": -58.3705551
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xf7f4d57a65961e4c%218m2%213d-34.6127755%214d-58.3705551&engine=google_maps&gl=ar&google_domain=google.com&hl=es&type=place",
+              "rating": 4.5,
+              "reviews": 496,
+              "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWneiEyQEPiEvEMmuMaUGZaOkUrFzGfK0hy9WOeMZYGxwZ3fVGPTqhZl5KQz0daISIb-KiyoCEdUTVlYxm-tBpsv7DKnxS0O2PpTC5ljIDCHzwO5tJd_RnfHbA9vrcIf0o_jYKHX=w156-h156-n-k-no",
+              "type": [
+                "Atracción turística"
+              ]
+            },
+            {
+              "position": 4,
+              "title": "El Rinconcito de Mafalda",
+              "data_id": "0x0:0xcccc413960f3a2a3",
+              "data_cid": "14757241793681793699",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0xcccc413960f3a2a3&engine=google_maps_reviews&hl=es",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0xcccc413960f3a2a3&engine=google_maps_photos&hl=es",
+              "gps_coordinates": {
+                "latitude": -34.61119370000001,
+                "longitude": -58.37084240000001
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0xcccc413960f3a2a3%218m2%213d-34.61119370000001%214d-58.37084240000001&engine=google_maps&gl=ar&google_domain=google.com&hl=es&type=place",
+              "rating": 4.2,
+              "reviews": 34,
+              "thumbnail": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWm9komHtb472iHjSBZA7wn4j7dwA2XG-tv2xd7y7bJkculNI2qPFjA6mtNJHY4OfbQC1EPslCRoy0dXPPTcaVvAN8idBaqDIjJ_w-n5qwIXMO8LaYddj5ZOr2NKftct29xBXOQ=w156-h156-n-k-no",
+              "type": [
+                "Tienda de ropa"
+              ]
+            },
+            {
+              "position": 5,
+              "title": "ESCULTURA DE MAFALDA",
+              "data_id": "0x0:0x31b938f3a015ff26",
+              "data_cid": "3582957597563944742",
+              "reviews_link": "https://serpapi.com/search.json?data_id=0x0%3A0x31b938f3a015ff26&engine=google_maps_reviews&hl=es",
+              "photos_link": "https://serpapi.com/search.json?data_id=0x0%3A0x31b938f3a015ff26&engine=google_maps_photos&hl=es",
+              "gps_coordinates": {
+                "latitude": -34.5757298,
+                "longitude": -58.4801061
+              },
+              "place_id_search": "https://serpapi.com/search.json?data=%214m5%213m4%211s0x0%3A0x31b938f3a015ff26%218m2%213d-34.5757298%214d-58.4801061&engine=google_maps&gl=ar&google_domain=google.com&hl=es&type=place",
+              "rating": 0,
+              "reviews": 0,
+              "thumbnail": "https://www.google.com/maps/vt/data=d6ZooY914FkktsA8KqjAnLsa0iKgwd9yt9XvPtfup6v8AfkdgFGOSffR0rfh-B0KzsdpWblwGJwgq30CsuZi1ZVXGr0KqH84I4Ly4eKeDAgKMxMXo8FSRabs3bqhLD-VuC37_hltR_9Fs3dNhPY6QGebfZzeM5oh",
+              "type": [
+                "Lugar de interés histórico"
+              ]
+            }
+          ]
+        }
+      ],
+      "popular_times": {
+        "current_day": "friday",
+        "live_hash": {
+          "info": "Poco concurrido",
+          "time_spent": "Promedio de permanencia: Entre 10 min y 1 h"
+        },
+        "graph_results": {
+          "sunday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 41
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, está un poco concurrido",
+              "busyness_score": 61
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, está un poco concurrido",
+              "busyness_score": 78
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, es cuando está más concurrido",
+              "busyness_score": 88
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, es cuando está más concurrido",
+              "busyness_score": 94
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, es cuando está más concurrido",
+              "busyness_score": 98
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, es cuando está más concurrido",
+              "busyness_score": 100
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, es cuando está más concurrido",
+              "busyness_score": 93
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, está un poco concurrido",
+              "busyness_score": 76
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está un poco concurrido",
+              "busyness_score": 52
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 31
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 7
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            }
+          ],
+          "monday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 13
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 16
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 16
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 14
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 11
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 9
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            }
+          ],
+          "tuesday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 18
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 21
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 25
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 25
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 13
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 9
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            }
+          ],
+          "wednesday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 14
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 18
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 18
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 15
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 9
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            }
+          ],
+          "thursday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 2
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 7
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 11
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 15
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 21
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 15
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 13
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 12
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            }
+          ],
+          "friday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 3
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 11,
+              "live_busyness_score": 22,
+              "current": true
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 15
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 20
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 24
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 24
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 24
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 25
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 24
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 13
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 9
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 7
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            }
+          ],
+          "saturday": [
+            {
+              "time": "4 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 5
+            },
+            {
+              "time": "5 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "6 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 4
+            },
+            {
+              "time": "7 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 6
+            },
+            {
+              "time": "8 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "9 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 17
+            },
+            {
+              "time": "10 a. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 26
+            },
+            {
+              "time": "11 a. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 33
+            },
+            {
+              "time": "12 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 36
+            },
+            {
+              "time": "1 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 34
+            },
+            {
+              "time": "2 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 31
+            },
+            {
+              "time": "3 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 30
+            },
+            {
+              "time": "4 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 31
+            },
+            {
+              "time": "5 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 31
+            },
+            {
+              "time": "6 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 28
+            },
+            {
+              "time": "7 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 25
+            },
+            {
+              "time": "8 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "9 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 22
+            },
+            {
+              "time": "10 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 23
+            },
+            {
+              "time": "11 p. m.",
+              "info": "Por lo general, no está tan concurrido",
+              "busyness_score": 24
+            },
+            {
+              "time": "12 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 19
+            },
+            {
+              "time": "1 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 15
+            },
+            {
+              "time": "2 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 10
+            },
+            {
+              "time": "3 a. m.",
+              "info": "Por lo general, está menos concurrido",
+              "busyness_score": 8
+            }
+          ]
+        }
+      },
+      "web_results_link": "https://www.google.com/search?q=local+guide+program&ibp=gwp;0,26,OjgKNiIyRXN0YXR1YSBkZSBNYWZhbGRhIENkYWQuIEF1dMOzbm9tYSBkZSBCdWVub3MgQWlyZXMoAg&pcl=lp",
+      "serpapi_web_results_link": "https://serpapi.com/search.json?device=desktop&engine=google&google_domain=google.com&ibp=gwp%3B0%2C26%2COjgKNiIyRXN0YXR1YSBkZSBNYWZhbGRhIENkYWQuIEF1dMOzbm9tYSBkZSBCdWVub3MgQWlyZXMoAg&q=local+guide+program"
+    }
+  }
+}

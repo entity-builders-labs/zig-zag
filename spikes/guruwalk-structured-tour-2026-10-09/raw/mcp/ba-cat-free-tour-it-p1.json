@@ -1,0 +1,222 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":49609,\"name\":\"Recoleta: Arte, eleganza e potere\",\"slug\":\"49609-recoleta-arte-eleganza-e-poder\",\"rating\":5.0,\"reviews_count\":3,\"duration\":180,\"languages\":[\"it\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49609-recoleta-arte-eleganza-e-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":52012,\"name\":\"Centro storico. Dove nasce la nostra identità.\",\"slug\":\"52012-centro-storico-dove-nasce-la-nostra-identita\",\"rating\":4.86,\"reviews_count\":22,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/52012-centro-storico-dove-nasce-la-nostra-identita?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":66170,\"name\":\"Un angolo tra Recoleta e Palermo Chico \",\"slug\":\"66170-un-angolo-tra-recoleta-e-palermo-chico\",\"rating\":4.6,\"reviews_count\":5,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/66170-un-angolo-tra-recoleta-e-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69009,\"name\":\"I luoghi simbolo del centro di Buenos Aires. \",\"slug\":\"69009-i-luoghi-simbolo-del-centro-di-buenos-aires\",\"rating\":0.0,\"reviews_count\":0,\"duration\":120,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69009-i-luoghi-simbolo-del-centro-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":65736,\"name\":\" Montserrat, culla del vicereame.\",\"slug\":\"65736-montserrat-culla-del-vicereame\",\"rating\":0.0,\"reviews_count\":0,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/65736-montserrat-culla-del-vicereame?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54972,\"name\":\"Tour a piedi nel quartiere di La Boca: Tango, Arte e Calcio, passioni argentine\",\"slug\":\"54972-tour-a-piedi-nel-quartiere-di-la-boca-tango-arte-e-calcio-passioni-argentine\",\"rating\":4.78,\"reviews_count\":1415,\"duration\":150,\"languages\":[\"en\",\"es\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54972-tour-a-piedi-nel-quartiere-di-la-boca-tango-arte-e-calcio-passioni-argentine?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55661,\"name\":\"Buenos Aires imprescindibile 🥇 Il tour essenziale per chi visita Buenos Aires per la prima volta\",\"slug\":\"55661-buenos-aires-imprescindibile-il-tour-essenziale-per-chi-visita-buenos-aires-per-la-prima-volta\",\"rating\":4.9,\"reviews_count\":701,\"duration\":150,\"languages\":[\"en\",\"pt\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55661-buenos-aires-imprescindibile-il-tour-essenziale-per-chi-visita-buenos-aires-per-la-prima-volta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45347,\"name\":\"Tour gratuito di Buenos Aires: Cuore della città\",\"slug\":\"45347-tour-gratuito-di-buenos-aires-cuore-della-citta\",\"rating\":4.88,\"reviews_count\":1304,\"duration\":180,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45347-tour-gratuito-di-buenos-aires-cuore-della-citta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51609,\"name\":\"Tour essenziale gratuito di San Telmo: Tango: Storia e leggende, mercati e musei\",\"slug\":\"51609-tour-essenziale-gratuito-di-san-telmo-tango-storia-e-leggende-mercati-e-musei\",\"rating\":4.83,\"reviews_count\":203,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51609-tour-essenziale-gratuito-di-san-telmo-tango-storia-e-leggende-mercati-e-musei?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":44811,\"name\":\"Tour gratuito Che! La Buenos Aires essenziale, Plata e paura mai avuti...\",\"slug\":\"44811-tour-gratuito-che-la-buenos-aires-essenziale-plata-e-paura-mai-avuti\",\"rating\":4.91,\"reviews_count\":1047,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/44811-tour-gratuito-che-la-buenos-aires-essenziale-plata-e-paura-mai-avuti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":53227,\"name\":\"Tour La Boca: Memorie di un Quartiere Operaio e Tanguero\",\"slug\":\"53227-tour-la-boca-memorie-di-un-quartiere-operaio-e-tanguero\",\"rating\":4.39,\"reviews_count\":575,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/53227-tour-la-boca-memorie-di-un-quartiere-operaio-e-tanguero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":20351,\"name\":\"\\\"La Parigi dell'America Latina\\\"\",\"slug\":\"20351-la-parigi-dell-america-latina\",\"rating\":4.66,\"reviews_count\":153,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/20351-la-parigi-dell-america-latina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 49609,
+     "name": "Recoleta: Arte, eleganza e potere",
+     "slug": "49609-recoleta-arte-eleganza-e-poder",
+     "rating": 5.0,
+     "reviews_count": 3,
+     "duration": 180,
+     "languages": [
+      "it",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49609-recoleta-arte-eleganza-e-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 52012,
+     "name": "Centro storico. Dove nasce la nostra identità.",
+     "slug": "52012-centro-storico-dove-nasce-la-nostra-identita",
+     "rating": 4.86,
+     "reviews_count": 22,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/52012-centro-storico-dove-nasce-la-nostra-identita?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 66170,
+     "name": "Un angolo tra Recoleta e Palermo Chico ",
+     "slug": "66170-un-angolo-tra-recoleta-e-palermo-chico",
+     "rating": 4.6,
+     "reviews_count": 5,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/66170-un-angolo-tra-recoleta-e-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69009,
+     "name": "I luoghi simbolo del centro di Buenos Aires. ",
+     "slug": "69009-i-luoghi-simbolo-del-centro-di-buenos-aires",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 120,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69009-i-luoghi-simbolo-del-centro-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 65736,
+     "name": " Montserrat, culla del vicereame.",
+     "slug": "65736-montserrat-culla-del-vicereame",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/65736-montserrat-culla-del-vicereame?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Tour a piedi nel quartiere di La Boca: Tango, Arte e Calcio, passioni argentine",
+     "slug": "54972-tour-a-piedi-nel-quartiere-di-la-boca-tango-arte-e-calcio-passioni-argentine",
+     "rating": 4.78,
+     "reviews_count": 1415,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54972-tour-a-piedi-nel-quartiere-di-la-boca-tango-arte-e-calcio-passioni-argentine?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Buenos Aires imprescindibile 🥇 Il tour essenziale per chi visita Buenos Aires per la prima volta",
+     "slug": "55661-buenos-aires-imprescindibile-il-tour-essenziale-per-chi-visita-buenos-aires-per-la-prima-volta",
+     "rating": 4.9,
+     "reviews_count": 701,
+     "duration": 150,
+     "languages": [
+      "en",
+      "pt",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55661-buenos-aires-imprescindibile-il-tour-essenziale-per-chi-visita-buenos-aires-per-la-prima-volta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Tour gratuito di Buenos Aires: Cuore della città",
+     "slug": "45347-tour-gratuito-di-buenos-aires-cuore-della-citta",
+     "rating": 4.88,
+     "reviews_count": 1304,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45347-tour-gratuito-di-buenos-aires-cuore-della-citta?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51609,
+     "name": "Tour essenziale gratuito di San Telmo: Tango: Storia e leggende, mercati e musei",
+     "slug": "51609-tour-essenziale-gratuito-di-san-telmo-tango-storia-e-leggende-mercati-e-musei",
+     "rating": 4.83,
+     "reviews_count": 203,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51609-tour-essenziale-gratuito-di-san-telmo-tango-storia-e-leggende-mercati-e-musei?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 44811,
+     "name": "Tour gratuito Che! La Buenos Aires essenziale, Plata e paura mai avuti...",
+     "slug": "44811-tour-gratuito-che-la-buenos-aires-essenziale-plata-e-paura-mai-avuti",
+     "rating": 4.91,
+     "reviews_count": 1047,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/44811-tour-gratuito-che-la-buenos-aires-essenziale-plata-e-paura-mai-avuti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 53227,
+     "name": "Tour La Boca: Memorie di un Quartiere Operaio e Tanguero",
+     "slug": "53227-tour-la-boca-memorie-di-un-quartiere-operaio-e-tanguero",
+     "rating": 4.39,
+     "reviews_count": 575,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/53227-tour-la-boca-memorie-di-un-quartiere-operaio-e-tanguero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 20351,
+     "name": "\"La Parigi dell'America Latina\"",
+     "slug": "20351-la-parigi-dell-america-latina",
+     "rating": 4.66,
+     "reviews_count": 153,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/20351-la-parigi-dell-america-latina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

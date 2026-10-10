@@ -1,0 +1,15 @@
+{
+  "runLabel": "stage5-dedupe-postfix-cold2",
+  "tourId": "a4c5875b-9b4a-4366-b6de-181e4bc10225",
+  "email": "stage3-spike-stage5-dedupe-postfix-cold2-1790382540942@example.com",
+  "baseUrl": "http://localhost:4124",
+  "requestFile": "request.json",
+  "createHttpMs": 64,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 131251,
+  "startedAt": "2026-09-26T00:29:01.175Z",
+  "finishedAt": "2026-09-26T00:31:12.436Z"
+}

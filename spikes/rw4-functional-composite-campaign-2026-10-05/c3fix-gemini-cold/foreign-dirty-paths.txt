@@ -1,0 +1,8 @@
+ M spikes/rw4-extract-completeness-2026-10-05/replay-extract.cjs
+?? spikes/rw4-extract-completeness-2026-10-05/replays/fix-v3-g35flash-gemini/
+?? spikes/rw4-extract-completeness-2026-10-05/replays/fix-v3-g38flash-gemini/
+?? spikes/rw4-extract-completeness-2026-10-05/replays/probe-gemini-2.5-flash-gemini/
+?? spikes/rw4-extract-completeness-2026-10-05/replays/probe-gemini-3.7-flash-gemini/
+?? spikes/rw4-extract-completeness-2026-10-05/replays/probe-ollama-ollama/
+?? spikes/rw4-extract-completeness-2026-10-05/score-live.cjs
+?? spikes/rw4-functional-composite-campaign-2026-10-05/c3fix-gemini-cold/

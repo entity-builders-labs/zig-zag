@@ -1,0 +1,239 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-064",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "colorful houses",
+          "supportSpan": "colorful houses",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions colorful houses seen in the area."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends Don Carlos as a food option."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "\"Estadio La Boca\"",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions Estadio La Boca for orientation."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "You sit here",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-065"
+        }
+      ],
+      "reason": "Describes the dining experience at the restaurant."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs to Caminito Street and mentions Fundación Proa as optional."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Announces transfer to Puerto Madero by bus or taxi.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to Puente de la Mujer."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Describes entering Puerto Madero by crossing the bridge."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Suggests walking and seeing architecture in Puerto Madero."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "\"Darsena Sur\"",
+          "supportSpan": "\"Darsena Sur\"",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Guides the traveller along specific streets."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Recommends a food option along the route."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "home / hotel",
+          "supportSpan": "Return home / hotel",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "\"Centro Cultural Kirchner\"",
+          "supportSpan": "\"Centro Cultural Kirchner\"",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Announces return transfer home while passing Centro Cultural Kirchner.",
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Centro Cultural Kirchner\"",
+          "supportSpan": "building",
+          "role": "OPTIONAL_STOP",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Suggests entering the building optionally."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Metrobus",
+          "supportSpan": "Metrobus",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes taking a taxi or bus from the location.",
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends Trade Sky Bar as an alternative activity."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides a booking tip."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions the view of Puerto Madero."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends an external guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Conclusion and closing remarks by the author."
+    }
+  ]
+}

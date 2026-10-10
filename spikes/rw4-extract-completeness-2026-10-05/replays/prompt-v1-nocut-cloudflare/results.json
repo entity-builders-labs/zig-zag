@@ -1,0 +1,98 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "ms": 522,
+    "inputChars": 8453,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (bcb166de-7e72-4f28-a703-a4e4fdc3327d)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "ms": 298,
+    "inputChars": 8453,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (158869f4-7316-4fff-a112-bc91026dfcee)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "ms": 147,
+    "inputChars": 11005,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (7a6b9eaa-7daa-4f0e-9667-8066d309f212)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "ms": 141,
+    "inputChars": 11005,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (7c3fff2f-85bf-4ada-8ace-0b2eb5cc2e1a)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 1,
+    "ms": 144,
+    "inputChars": 5493,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (617b2e87-c86d-45c8-b3c5-c499e95e9b2f)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_W3",
+    "run": 2,
+    "ms": 135,
+    "inputChars": 5493,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (9fd867b6-f735-4f5e-8bb9-e686a2e205e9)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 1,
+    "ms": 150,
+    "inputChars": 5873,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (69db3fdb-721e-4c85-a16a-3cf5ed5b9fdd)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_ARW_W1",
+    "run": 2,
+    "ms": 148,
+    "inputChars": 5873,
+    "failures": [
+      "THROWN: CloudflareDiscoveryError: Cloudflare Workers AI request failed with HTTP 429: {\"errors\":[{\"message\":\"AiError: AiError: you have used up your daily free allocation of 10,000 neurons, please upgrade to Cloudflare's Workers Paid plan if you would like to continue usage. (b232fb7e-8c90-47a5-9659-305d9afdfce3)\",\"code\":4006}],\"success\":false,\"result\":{},\"messages\":[]}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

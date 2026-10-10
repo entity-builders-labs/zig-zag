@@ -1,0 +1,16 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-072",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions San Telmo as a neighborhood to see contrasts."
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+/* Forensic jest setup (not committed): installs the R1 / R1+R2 simulation on
+ * every test. Groups are computed from each pool's own tags: same wikidata
+ * tag + same exact normalized address, located assumed TRUE (pessimistic). */
+import * as fs from 'fs';
+import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
+import * as competitorPolicy from '../utils/competitor-examination.policy';
+import { extractDeclaredNameAliases, normalizeGeoName } from '../utils/nominatim-match.util';
+
+const MODE = process.env.MODE!;
+const LOG = process.env.R1_LOG!;
+const NAME_KEYS = ['name', 'short_name', 'alt_name', 'official_name'];
+const groupsOf = (pool: any[]) => {
+  const by = new Map<string, any[]>();
+  for (const c of pool ?? []) {
+    const q = c?.tags?.wikidata, s = c?.tags?.['addr:street'], h = c?.tags?.['addr:housenumber'];
+    if (!q || !s || !h) continue;
+    const k = `${q}@${normalizeGeoName(s)} ${normalizeGeoName(h)}`;
+    (by.get(k) ?? by.set(k, []).get(k)!).push(c);
+  }
+  const map = new Map<string, { key: string; names: string[] }>();
+  for (const [k, v] of by) if (v.length > 1) {
+    const names = [...new Set(v.flatMap((c) => [...NAME_KEYS.flatMap((n) => (c.tags[n] ? String(c.tags[n]).split(';').map((x: string) => x.trim()) : [])), ...extractDeclaredNameAliases(c.tags)]))];
+    for (const c of v) map.set(c.id, { key: k, names });
+    fs.appendFileSync(LOG, `${expect.getState().currentTestName} :: group ${k} :: ${v.map((c) => c.id).join(',')}\n`);
+  }
+  return map;
+};
+const global = new Map<string, { key: string; names: string[] }>();
+beforeEach(() => {
+  global.clear();
+  if (MODE === 'BASELINE') return;
+  const proto: any = ExperienceProposalResolverService.prototype;
+  const mult = proto.localPoolNameMultiplicity, build = proto.buildOsmCandidate, pool = proto.localCompetitorPool;
+  jest.spyOn(proto, 'localCompetitorPool').mockImplementation(function (this: any, strategy: any, hint: any, p: any, scope: any) {
+    for (const [id, g] of groupsOf(p)) global.set(id, g);
+    return pool.call(this, strategy, hint, p, scope);
+  });
+  jest.spyOn(proto, 'localPoolNameMultiplicity').mockImplementation(function (this: any, hint: any, p: any, scope: any) {
+    const g = groupsOf(p); for (const [id, x] of g) global.set(id, x);
+    // One entry per identity: the group's record whose own name equals the
+    // hint (so a member's exact name is never lost), else its first record.
+    const needle = normalizeGeoName(hint);
+    const rep = new Map<string, any>();
+    for (const c of p) { const x = g.get(c.id); if (!x) continue; if (!rep.has(x.key) || normalizeGeoName(c.name) === needle) rep.set(x.key, c); }
+    const collapsed = p.flatMap((c: any) => { const x = g.get(c.id); if (!x) return [c]; if (rep.get(x.key) !== c) return []; return MODE === 'R1R2' ? [{ ...c, nameAliasCandidates: [...new Set([...extractDeclaredNameAliases(c.tags), ...x.names])] }] : [c]; });
+    return mult.call(this, hint, collapsed, scope);
+  });
+  jest.spyOn(proto, 'buildOsmCandidate').mockImplementation(function (this: any, hint: any, matched: any, m: any) {
+    const c = build.call(this, hint, matched, m);
+    const x = global.get(matched.id);
+    if (!x) return c;
+    c.identities = [...(c.identities?.length ? c.identities : [{ provider: c.provider, externalId: c.externalId }]), { provider: 'r1', externalId: x.key }];
+    if (MODE === 'R1R2') c.nameAliasCandidates = [...new Set([...(c.nameAliasCandidates ?? []), ...x.names])];
+    return c;
+  });
+  const examine = (competitorPolicy as any).examineCompetitors.getMockImplementation?.() ?? competitorPolicy.examineCompetitors;
+  jest.spyOn(competitorPolicy, 'examineCompetitors').mockImplementation((input: any) =>
+    examine({ ...input, pools: input.pools.map((pl: any) => ({ ...pl, members: pl.members.map((mb: any) => { const extra = mb.identityKeys.map((k: string) => global.get(k.replace(/^openstreetmap\//, ''))).filter(Boolean).map((x: any) => `r1/${x.key}`); return extra.length ? { ...mb, identityKeys: [...mb.identityKeys, ...extra] } : mb; }) })) }),
+  );
+});
+afterEach(() => jest.restoreAllMocks());

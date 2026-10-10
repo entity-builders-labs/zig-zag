@@ -1,0 +1,8 @@
+{
+  "error": {
+    "code": "badtitle",
+    "info": "The requested page title contains invalid characters.",
+    "docref": "See https://es.wikivoyage.org/w/api.php for API usage."
+  },
+  "servedby": "mw-api-ext"
+}

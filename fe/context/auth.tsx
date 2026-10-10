@@ -1,0 +1,311 @@
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from 'react';
+import { Platform, Alert } from 'react-native';
+import * as AppleAuthentication from 'expo-apple-authentication';
+import * as authApi from '../api/auth';
+import { AuthSession, AuthUser } from '../api/auth';
+import {
+  getAccessToken,
+  setTokens,
+  clearTokens,
+} from '../api/config/token-storage';
+import { setSessionExpiredHandler } from '../api/config/axios';
+import {
+  disablePushNotifications,
+  syncPushNotifications,
+} from '../features/notifications/push-notifications';
+
+export type AuthContextType = {
+  user: AuthUser | null;
+  isLoading: boolean;
+  isAuthenticated: boolean;
+  signInWithGoogle: (webIdToken?: string) => Promise<void>;
+  signInWithApple: () => Promise<void>;
+  requestEmailCode: (email: string) => Promise<{ devCode?: string }>;
+  signInWithEmailCode: (email: string, code: string) => Promise<void>;
+  signOut: () => Promise<void>;
+};
+
+export const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  signInWithGoogle: async () => {},
+  signInWithApple: async () => {},
+  requestEmailCode: async () => ({}),
+  signInWithEmailCode: async () => {},
+  signOut: async () => {},
+});
+
+export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const applySession = useCallback(async (session: AuthSession) => {
+    await setTokens(session.accessToken, session.refreshToken);
+    setUser(session.user);
+    syncPushNotifications().catch(() => {});
+  }, []);
+
+  const signOut = useCallback(async () => {
+    try {
+      await disablePushNotifications();
+    } catch {}
+    try {
+      await authApi.logout();
+    } catch {
+      // Best-effort — the local session is cleared either way.
+    }
+    await clearTokens();
+    setUser(null);
+  }, []);
+
+  // Lets the axios layer clear the in-memory user when a refresh ultimately
+  // fails (dead/revoked refresh token), without axios.ts importing this
+  // context module (would be circular — this file imports axios.ts's client).
+  useEffect(() => {
+    setSessionExpiredHandler(() => setUser(null));
+    return () => setSessionExpiredHandler(null);
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      const accessToken = await getAccessToken();
+      if (!accessToken) {
+        setIsLoading(false);
+        return;
+      }
+      try {
+        const me = await authApi.fetchCurrentUser();
+        setUser(me);
+        syncPushNotifications().catch(() => {});
+      } catch {
+        await clearTokens();
+      } finally {
+        setIsLoading(false);
+      }
+    })();
+  }, []);
+
+  const signInWithGoogle = useCallback(async (webIdToken?: string) => {
+    if (Platform.OS === 'web') {
+      if (!webIdToken) {
+        throw new Error('Google no devolvió un token de identidad');
+      }
+      const session = await authApi.loginWithGoogle(webIdToken);
+      await applySession(session);
+      return;
+    }
+
+    let googleMod: any = null;
+    try {
+      googleMod = require('@react-native-google-signin/google-signin');
+    } catch {
+      throw new Error(
+        'Google Sign-In nativo requiere un build de desarrollo (Dev Client) y no está incluido en Expo Go. En iPhone usá "Continuar con Apple" o "Ingresar con código por Email".',
+      );
+    }
+
+    if (!googleMod?.GoogleSignin) {
+      throw new Error(
+        'Google Sign-In nativo no está disponible en este entorno.',
+      );
+    }
+
+    try {
+      const { GoogleSignin, isSuccessResponse } = googleMod;
+      GoogleSignin.configure({
+        webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+        iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      });
+      if (Platform.OS === 'android') {
+        await GoogleSignin.hasPlayServices({
+          showPlayServicesUpdateDialog: true,
+        });
+      }
+      const response = await GoogleSignin.signIn();
+      if (!isSuccessResponse(response) || !response.data?.idToken) {
+        throw new Error('No se pudo completar el login con Google');
+      }
+      const session = await authApi.loginWithGoogle(response.data.idToken);
+      await applySession(session);
+    } catch (err: any) {
+      if (err?.message && err.message.includes('RNGoogleSignin')) {
+        throw new Error(
+          'Google Sign-In nativo requiere un build de desarrollo. En Expo Go podés usar "Continuar con Apple" o "Ingresar con código por Email".',
+        );
+      }
+      throw err;
+    }
+  }, [applySession]);
+
+  const signInWithApple = useCallback(async () => {
+    try {
+      const credential = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+      if (!credential.identityToken) {
+        throw new Error('No se pudo completar el login con Apple');
+      }
+      // Apple only sends the name on the very first authorization — the
+      // backend can't recover it from the token on later logins, so it must
+      // ride along here while it's available.
+      const fullName = credential.fullName
+        ? AppleAuthentication.formatFullName(credential.fullName)
+        : undefined;
+      const session = await authApi.loginWithApple(
+        credential.identityToken,
+        fullName || undefined,
+      );
+      await applySession(session);
+    } catch (err: any) {
+      console.warn(
+        '[Auth] Apple Sign-In native error code:',
+        err?.code,
+        'message:',
+        err?.message,
+      );
+      const isCanceled =
+        err?.code === 'ERR_REQUEST_CANCELED' ||
+        err?.code === '1001' ||
+        err?.code === 'ERR_CANCELED' ||
+        err?.message?.toLowerCase().includes('canceled') ||
+        err?.message?.toLowerCase().includes('cancelled');
+
+      if (isCanceled) {
+        // User voluntarily dismissed or canceled Apple Sign-In sheet.
+        // Return cleanly so caller resets loading and allows choosing another method.
+        return;
+      }
+
+      const isSimulatorOrDevError =
+        err?.code === 'ERR_REQUEST_UNKNOWN' ||
+        err?.message?.includes('unknown reason') ||
+        (err?.message?.includes('ASAuthorizationError') && !err?.message?.includes('1001'));
+
+      if (__DEV__ && isSimulatorOrDevError) {
+        return new Promise<void>((resolve, reject) => {
+          setTimeout(() => {
+            Alert.alert(
+              'Sign in with Apple (Simulador)',
+              'Apple restringe la ventana nativa en simuladores sin cuenta Apple Developer de pago ($99/año). ¿Cómo deseas ingresar?',
+              [
+                {
+                  text: 'Continuar como Javier Iseruk',
+                  onPress: async () => {
+                    try {
+                      const devToken = `dev_mock_apple_:javier.iseruk@privaterelay.appleid.com:001234.javier_iseruk_apple`;
+                      const session = await authApi.loginWithApple(
+                        devToken,
+                        'Javier Iseruk',
+                      );
+                      await applySession(session);
+                      resolve();
+                    } catch (e) {
+                      reject(e);
+                    }
+                  },
+                },
+                {
+                  text: 'Personalizar...',
+                  onPress: () => {
+                    if (Platform.OS === 'ios' && typeof Alert.prompt === 'function') {
+                      Alert.prompt(
+                        'Apple ID de Prueba',
+                        'Ingresá el email para la cuenta de Apple:',
+                        [
+                          {
+                            text: 'Cancelar',
+                            style: 'cancel',
+                            onPress: () => resolve(),
+                          },
+                          {
+                            text: 'Ingresar',
+                            onPress: async (inputEmail?: string) => {
+                              const trimmed = inputEmail?.trim();
+                              if (!trimmed) {
+                                resolve();
+                                return;
+                              }
+                              try {
+                                const name = trimmed.split('@')[0];
+                                const devToken = `dev_mock_apple_:${trimmed}:001234.${name}_apple`;
+                                const session = await authApi.loginWithApple(
+                                  devToken,
+                                  name,
+                                );
+                                await applySession(session);
+                                resolve();
+                              } catch (e) {
+                                reject(e);
+                              }
+                            },
+                          },
+                        ],
+                        'plain-text',
+                        'javier.iseruk@privaterelay.appleid.com',
+                        'email-address',
+                      );
+                    } else {
+                      resolve();
+                    }
+                  },
+                },
+                {
+                  text: 'Cancelar',
+                  style: 'cancel',
+                  onPress: () => resolve(),
+                },
+              ],
+              {
+                cancelable: true,
+                onDismiss: () => resolve(),
+              },
+            );
+          }, 100);
+        });
+      }
+      throw err;
+    }
+  }, [applySession]);
+
+  const requestEmailCode = useCallback(async (email: string) => {
+    const result = await authApi.requestEmailCode(email);
+    return { devCode: result.devCode };
+  }, []);
+
+  const signInWithEmailCode = useCallback(
+    async (email: string, code: string) => {
+      const session = await authApi.verifyEmailCode(email, code);
+      await applySession(session);
+    },
+    [applySession],
+  );
+
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        signInWithGoogle,
+        signInWithApple,
+        requestEmailCode,
+        signInWithEmailCode,
+        signOut,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
+
+export const useAuth = () => useContext(AuthContext);

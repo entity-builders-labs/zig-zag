@@ -1,0 +1,112 @@
+[
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 5937,
+      "total_input_tokens": 2282,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 2282
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 3655,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2847,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2847
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3673
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2847
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3673
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 6210,
+      "total_input_tokens": 2482,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 2482
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 3728,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 3047,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3047
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3747
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3047
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 3747
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>"
+  }
+]

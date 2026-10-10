@@ -1,0 +1,185 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-064",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the tourist part without directing a visit."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a restaurant to eat."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the restaurant and mentions Estadio La Boca."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the dining experience."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Directs traveller to wander Caminito Street and optionally check Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Announces transport to Puerto Madero.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs to the starting point Puente de la Mujer."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Crossing the bridge puts the traveller officially in Puerto Madero."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General description and contrast with San Telmo."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Recommends walking next to and through specific streets."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Recommends eating a choripan at a kiosk."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "home / hotel",
+          "supportSpan": "home / hotel",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Transfer back home or to hotel.",
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-076",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Offers additional tips about Centro Cultural Kirchner."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [],
+      "reason": "Describes taking transport from here.",
+      "transferMode": "TAXI"
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a sky bar as an alternative."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tip to book in advance."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the view from Trade Sky Bar."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends an external guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Concluding remarks."
+    }
+  ]
+}

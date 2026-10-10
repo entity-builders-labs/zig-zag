@@ -1,0 +1,49 @@
+{
+  "component": "Alfa Crux",
+  "sourceComposite": "Uco Valley Wine Tasting Itinerary (route_like-owned AREA_ROUTE_WALK, ROUTE_LIKE policy)",
+  "source": {
+    "evidence": "ev-1 https://solsalute.com/blog/mendoza-argentina-wine-capital/",
+    "span": "1. [Alfa Crux](https://www.agostinowinegroup.com/alfa-crux-wines) – 10 am – This winery is the furthest…",
+    "aliases": [],
+    "hyperlinkTarget": "https://www.agostinowinegroup.com/alfa-crux-wines (page on a wine GROUP domain)",
+    "addressText": null,
+    "locality": "Valle de Uco (section heading)"
+  },
+  "officialSite": {
+    "status": 200,
+    "title": "Alfa Crux Wines — AGOSTINO WINE GROUP",
+    "declared": [
+      "vineyards in El Cepillo, Uco Valley (~1,200 m)",
+      "Alfa Crux Calle Los Indios s/n, M5567 Valle de Uco, Mendoza",
+      "same group site also lists Carril Barrancas 10590, M5517 Maipú (Finca Agostino)"
+    ]
+  },
+  "acquisition": {
+    "strategiesAttempted": [
+      "CATALOG_REUSE (stub/empty in probe; COLD #11 fresh DB)",
+      "TRUSTED_OBSERVATION_REUSE",
+      "LOCAL_OSM_POOL",
+      "NOMINATIM",
+      "PLACES (geoapify, ROUTE_SCALE 80 km)"
+    ],
+    "queriesAttempted": [
+      "Alfa Crux (COLD #11 + replay)"
+    ],
+    "controlledVariants": {
+      "Bodega Alfa Crux": "Geoapify: 10 generic 'Bodega …' results near the city, none Alfa Crux; Nominatim 0",
+      "Alfa Crux winery": "Geoapify 0; Nominatim 0",
+      "Agostino (group host, NOT alias)": "Geoapify 0; Nominatim: unrelated Agostino/D'Agostino outside Mendoza"
+    },
+    "osmLocalOverpass": "no object named Alfa Crux in Mendoza province; group wineries present: node/11407427817 'Bodega Finca Agostino - Winery' and way/327349640 'Finca Agostino' (Barrancas, Maipú), website agostinowinegroup.com",
+    "wikidata": "no entity (wbsearchentities es/en)",
+    "priorProbe": "uco-identity-probe: 0 at 50 km and 150 km",
+    "candidateAcquired": false
+  },
+  "verification": "not reached (no candidate)",
+  "classification": [
+    "A_PROVIDER_COVERAGE_GAP",
+    "F_SOURCE_HAS_STRONGER_LOCATION_FACT_UNUSED (official page declares 'Calle Los Indios s/n, El Cepillo, Valle de Uco')"
+  ],
+  "notClassification": "not B: source-justified variants also return nothing; not D: nothing to filter",
+  "domainRisk": "group host agostinowinegroup.com is ALSO the OSM website of Finca Agostino (Maipú, ~30 km from the city, a different winery) -> host equality would mis-identify Alfa Crux"
+}

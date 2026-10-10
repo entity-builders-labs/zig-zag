@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-typo-norm-warm",
+  "tourId": "7d446916-f98c-4c74-9fbd-4e9257d9ee36",
+  "email": "rw3-spike-rw3-typo-norm-warm-1790554053625@example.com",
+  "baseUrl": "http://localhost:3030",
+  "requestFile": "request.json",
+  "createHttpMs": 48,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 92928,
+  "startedAt": "2026-09-28T00:07:33.812Z",
+  "finishedAt": "2026-09-28T00:09:06.751Z"
+}

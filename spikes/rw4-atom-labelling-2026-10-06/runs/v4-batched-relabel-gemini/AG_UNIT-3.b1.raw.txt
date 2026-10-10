@@ -1,0 +1,242 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-002",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-003",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-004",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Mentions living in San Telmo, not a visit."
+    },
+    {
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Overview list of areas, non-itinerary."
+    },
+    {
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General tips and intro."
+    },
+    {
+      "atomId": "a-007",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Tour note."
+    },
+    {
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Fair description and tip."
+    },
+    {
+      "atomId": "a-009",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Map note."
+    },
+    {
+      "atomId": "a-010",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Starts tour at Teatro Colon."
+    },
+    {
+      "atomId": "a-011",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Teatro Colón",
+          "supportSpan": "Teatro Colón",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-010"
+        }
+      ],
+      "reason": "See Teatro Colon from outside."
+    },
+    {
+      "atomId": "a-012",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Av. Roque Saenz Peña",
+          "supportSpan": "Av. Roque Saenz Peña",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Obelisco",
+          "supportSpan": "Obelisco",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walk through avenue as route."
+    },
+    {
+      "atomId": "a-013",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Visit Plaza de Mayo."
+    },
+    {
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Picture caption."
+    },
+    {
+      "atomId": "a-015",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-013"
+        },
+        {
+          "sourceName": "Congress building",
+          "supportSpan": "Congress building",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Walk avenue to see Congress building."
+    },
+    {
+      "atomId": "a-016",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Café Tortoni",
+          "supportSpan": "Café Tortoni",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends Cafe Tortoni."
+    },
+    {
+      "atomId": "a-017",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of Tortoni food."
+    },
+    {
+      "atomId": "a-018",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "London City Coffee",
+          "supportSpan": "London City Coffee",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Alternative option if crowded."
+    },
+    {
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo caption."
+    },
+    {
+      "atomId": "a-020",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Walk back through avenue."
+    },
+    {
+      "atomId": "a-021",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Cathedral",
+          "supportSpan": "Cathedral",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Plaza",
+          "supportSpan": "This Plaza",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes monuments inside the plaza."
+    },
+    {
+      "atomId": "a-022",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Contextual description."
+    },
+    {
+      "atomId": "a-023",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-013"
+        }
+      ],
+      "reason": "Features seen on the floor of the plaza."
+    }
+  ]
+}

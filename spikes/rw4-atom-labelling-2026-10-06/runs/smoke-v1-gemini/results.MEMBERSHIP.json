@@ -1,0 +1,829 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "promptVersion": "labelling-prompt-v1",
+    "consistency": "MEMBERSHIP",
+    "batches": 1,
+    "atoms": 182,
+    "classified": 182,
+    "firstPassValid": false,
+    "firstPassIssueCount": 3,
+    "relabel": null,
+    "missingAtomIds": [],
+    "duplicateAtomIds": [],
+    "unknownAtomIds": [],
+    "malformed": [
+      {
+        "batch": 1,
+        "code": "STOP_WITHOUT_ENTITY",
+        "atomId": "a-056",
+        "detail": "ITINERARY_STOP atom, strongest entity role none"
+      },
+      {
+        "batch": 1,
+        "code": "STOP_WITHOUT_ENTITY",
+        "atomId": "a-078",
+        "detail": "ITINERARY_STOP atom, strongest entity role none"
+      },
+      {
+        "batch": 1,
+        "code": "STOP_WITHOUT_ENTITY",
+        "atomId": "a-079",
+        "detail": "ITINERARY_STOP atom, strongest entity role none"
+      }
+    ],
+    "spanIssues": [],
+    "notes": [
+      {
+        "code": "UNNAMED_PASS_BY",
+        "atomId": "a-037"
+      },
+      {
+        "code": "UNNAMED_PASS_BY",
+        "atomId": "a-039"
+      },
+      {
+        "code": "UNNAMED_PASS_BY",
+        "atomId": "a-049"
+      },
+      {
+        "code": "UNNAMED_PASS_BY",
+        "atomId": "a-063"
+      },
+      {
+        "code": "UNNAMED_PASS_BY",
+        "atomId": "a-084"
+      }
+    ],
+    "labellingValid": false,
+    "outcome": "FAIL_CLOSED",
+    "histogram": {
+      "NON_ITINERARY": 143,
+      "ITINERARY_STOP": 15,
+      "PASS_BY": 21,
+      "TRANSFER": 3
+    },
+    "segments": [
+      {
+        "segmentIndex": 1,
+        "openedBy": [],
+        "mandatory": [
+          "PLAZA DE MAYO",
+          "Catedral",
+          "Defensa",
+          "Estados Unidos",
+          "Plaza Dorrego",
+          "Avenida San Juan",
+          "Avenida Paseo Colon"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "passBy": [
+          "Casa Rosada",
+          "Catedral Metropolitana",
+          "Museo del Cabildo",
+          "National Bank",
+          "Cabildo",
+          "Feria San Telmo",
+          "San Telmo",
+          "Bar Sur",
+          "Paseo de Colon",
+          "MetroBus",
+          "Mercado de San Telmo",
+          "Museum of Modern Arts",
+          "Club Atlético",
+          "Parque Lezama",
+          "Avenida Caseros"
+        ]
+      },
+      {
+        "segmentIndex": 2,
+        "openedBy": [
+          "a-085:BUS",
+          "a-086:TAXI"
+        ],
+        "mandatory": [
+          "Boca",
+          "El Caminito",
+          "La Bombonera"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "passBy": []
+      },
+      {
+        "segmentIndex": 3,
+        "openedBy": [
+          "a-105:BUS"
+        ],
+        "mandatory": [
+          "San Telmo"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "passBy": []
+      }
+    ],
+    "segmentsAreDiagnosticShadow": true,
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "assembledSegment": 1,
+        "success": false,
+        "mandatoryRecall": "3/8",
+        "reasons": [
+          "MISSING_MANDATORY:Casa Rosada|Cabildo|Mercado de San Telmo|Parque Lezama|Museo Histórico Nacional"
+        ],
+        "acceptablePromoted": [
+          "Defensa",
+          "Estados Unidos",
+          "Avenida San Juan",
+          "Avenida Paseo Colon"
+        ],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {
+          "Casa Rosada": [
+            {
+              "atomId": "a-004",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-009",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-018",
+              "classification": "NON_ITINERARY",
+              "entityRole": null
+            },
+            {
+              "atomId": "a-020",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            }
+          ],
+          "Cabildo": [
+            {
+              "atomId": "a-004",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-020",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-021",
+              "classification": "NON_ITINERARY",
+              "entityRole": null
+            },
+            {
+              "atomId": "a-022",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            }
+          ],
+          "Mercado de San Telmo": [
+            {
+              "atomId": "a-055",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-060",
+              "classification": "NON_ITINERARY",
+              "entityRole": null
+            },
+            {
+              "atomId": "a-061",
+              "classification": "ITINERARY_STOP",
+              "entityRole": "PASS_BY"
+            }
+          ],
+          "Parque Lezama": [
+            {
+              "atomId": "a-073",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            },
+            {
+              "atomId": "a-077",
+              "classification": "NON_ITINERARY",
+              "entityRole": null
+            },
+            {
+              "atomId": "a-080",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            }
+          ],
+          "Museo Histórico Nacional": [
+            {
+              "atomId": "a-079",
+              "classification": "ITINERARY_STOP",
+              "entityRole": null
+            }
+          ]
+        }
+      },
+      {
+        "segment": "S2-la-boca",
+        "assembledSegment": 2,
+        "success": true,
+        "mandatoryRecall": "2/2",
+        "reasons": [],
+        "acceptablePromoted": [
+          "Boca"
+        ],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      }
+    ],
+    "alternatives": [],
+    "mandatoryDecisions": {
+      "Plaza de Mayo": [
+        {
+          "atomId": "a-002",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-003",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-005",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-007",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-018",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-019",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        }
+      ],
+      "Casa Rosada": [
+        {
+          "atomId": "a-004",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-009",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-018",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-020",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Cabildo": [
+        {
+          "atomId": "a-004",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-020",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-021",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-022",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Catedral Metropolitana": [
+        {
+          "atomId": "a-004",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-022",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-025",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Mercado de San Telmo": [
+        {
+          "atomId": "a-055",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-060",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-061",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Plaza Dorrego": [
+        {
+          "atomId": "a-061",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Parque Lezama": [
+        {
+          "atomId": "a-073",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-077",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-080",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Museo Histórico Nacional": [
+        {
+          "atomId": "a-079",
+          "classification": "ITINERARY_STOP",
+          "entityRole": null
+        }
+      ],
+      "Caminito": [
+        {
+          "atomId": "a-090",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-091",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-125",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-126",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        }
+      ],
+      "La Bombonera": [
+        {
+          "atomId": "a-098",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ]
+    }
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "validity": "VALID",
+    "promptVersion": "labelling-prompt-v1",
+    "consistency": "MEMBERSHIP",
+    "batches": 1,
+    "atoms": 95,
+    "classified": 95,
+    "firstPassValid": false,
+    "firstPassIssueCount": 1,
+    "relabel": null,
+    "missingAtomIds": [],
+    "duplicateAtomIds": [],
+    "unknownAtomIds": [],
+    "malformed": [],
+    "spanIssues": [
+      {
+        "batch": 1,
+        "code": "NAME_NOT_IN_SPAN",
+        "atomId": "a-076",
+        "detail": "Centro Cultural Kirchner / building"
+      }
+    ],
+    "notes": [
+      {
+        "code": "UNNAMED_ALTERNATIVE",
+        "atomId": "a-045"
+      },
+      {
+        "code": "UNNAMED_ALTERNATIVE",
+        "atomId": "a-074"
+      }
+    ],
+    "labellingValid": false,
+    "outcome": "FAIL_CLOSED",
+    "histogram": {
+      "NON_ITINERARY": 43,
+      "ITINERARY_STOP": 18,
+      "PASS_BY": 10,
+      "ALTERNATIVE": 13,
+      "OPTIONAL_STOP": 7,
+      "TRANSFER": 4
+    },
+    "segments": [
+      {
+        "segmentIndex": 1,
+        "openedBy": [],
+        "mandatory": [
+          "Center",
+          "San Telmo",
+          "La Boca",
+          "Defensa",
+          "Teatro Colón",
+          "Plaza de Mayo",
+          "Plaza",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo",
+          "Farmacia la Estrella",
+          "La Librería del Avila",
+          "Monumento de Mafalda",
+          "Casa Mínima",
+          "The San Telmo Market",
+          "El Patio de los Ezeiza",
+          "Caminito"
+        ],
+        "optional": [
+          "Museum of the city",
+          "Café Rivas y Galería Solar",
+          "Café Rivas",
+          "Galería Solar"
+        ],
+        "alternativeGroups": [
+          [
+            "Café Tortoni",
+            "Tortoni",
+            "London City Coffee"
+          ],
+          [
+            "Alfonso"
+          ],
+          [
+            "Nuestra Parrilla"
+          ],
+          [
+            "Coffee Town",
+            "Saigón",
+            "Desnivel"
+          ]
+        ],
+        "passBy": [
+          "Obelisco",
+          "Defensa Street",
+          "Plaza Dorrego",
+          "National School of Buenos Aires",
+          "San Telmo Market"
+        ]
+      },
+      {
+        "segmentIndex": 2,
+        "openedBy": [
+          "a-059:BUS",
+          "a-060:TAXI"
+        ],
+        "mandatory": [
+          "Caminito",
+          "Caminito Street"
+        ],
+        "optional": [
+          "Fundación Proa"
+        ],
+        "alternativeGroups": [
+          [
+            "Don Carlos"
+          ]
+        ],
+        "passBy": [
+          "El Patio de los Ezeiza",
+          "Estadio La Boca"
+        ]
+      },
+      {
+        "segmentIndex": 3,
+        "openedBy": [
+          "a-069:BUS"
+        ],
+        "mandatory": [
+          "Puerto Madero",
+          "Puente de la Mujer",
+          "Centro Cultural Kirchner"
+        ],
+        "optional": [],
+        "alternativeGroups": [],
+        "passBy": [
+          "San Telmo",
+          "Darsena Sur",
+          "Av. Int. Hernan Giralt"
+        ]
+      },
+      {
+        "segmentIndex": 4,
+        "openedBy": [
+          "a-077:BUS"
+        ],
+        "mandatory": [],
+        "optional": [],
+        "alternativeGroups": [
+          [
+            "Trade Sky Bar"
+          ]
+        ],
+        "passBy": [
+          "Puerto madero"
+        ]
+      }
+    ],
+    "segmentsAreDiagnosticShadow": true,
+    "verdicts": [
+      {
+        "segment": "S1-walk",
+        "assembledSegment": 1,
+        "success": false,
+        "mandatoryRecall": "8/9",
+        "reasons": [
+          "MISSING_MANDATORY:Obelisco",
+          "SEGMENT_MIXED:Caminito"
+        ],
+        "acceptablePromoted": [
+          "Defensa",
+          "Casa Rosada",
+          "Cathedral",
+          "Cabildo"
+        ],
+        "notInOracleMandatory": [
+          "Center",
+          "San Telmo",
+          "La Boca",
+          "Plaza"
+        ],
+        "missingAtomDecisions": {
+          "Obelisco": [
+            {
+              "atomId": "a-012",
+              "classification": "PASS_BY",
+              "entityRole": "PASS_BY"
+            }
+          ]
+        }
+      },
+      {
+        "segment": "S2-la-boca",
+        "assembledSegment": 2,
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "acceptablePromoted": [],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      },
+      {
+        "segment": "S3-puerto-madero",
+        "assembledSegment": 3,
+        "success": true,
+        "mandatoryRecall": "1/1",
+        "reasons": [],
+        "acceptablePromoted": [
+          "Puerto Madero",
+          "Centro Cultural Kirchner"
+        ],
+        "notInOracleMandatory": [],
+        "missingAtomDecisions": {}
+      }
+    ],
+    "alternatives": [
+      {
+        "name": "Café Tortoni",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "London City",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Alfonso",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Nuestra Parrilla",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Coffee Town",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Saigón",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Desnivel",
+        "emittedRole": "ALTERNATIVE"
+      },
+      {
+        "name": "Trade Sky Bar",
+        "emittedRole": "ALTERNATIVE"
+      }
+    ],
+    "mandatoryDecisions": {
+      "Teatro Colón": [
+        {
+          "atomId": "a-010",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-011",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Obelisco": [
+        {
+          "atomId": "a-012",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Plaza de Mayo": [
+        {
+          "atomId": "a-012",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-013",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-015",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-020",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-023",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        },
+        {
+          "atomId": "a-027",
+          "classification": "PASS_BY",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Farmacia La Estrella": [
+        {
+          "atomId": "a-028",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Librería de Ávila": [
+        {
+          "atomId": "a-031",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Monumento de Mafalda": [
+        {
+          "atomId": "a-034",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-036",
+          "classification": "OPTIONAL_STOP",
+          "entityRole": null
+        }
+      ],
+      "Casa Mínima": [
+        {
+          "atomId": "a-037",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-038",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Mercado de San Telmo": [
+        {
+          "atomId": "a-040",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-052",
+          "classification": "OPTIONAL_STOP",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "El Patio de los Ezeiza": [
+        {
+          "atomId": "a-053",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-057",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-059",
+          "classification": "TRANSFER",
+          "entityRole": "PASS_BY"
+        }
+      ],
+      "Caminito": [
+        {
+          "atomId": "a-058",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-059",
+          "classification": "TRANSFER",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-061",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-062",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        },
+        {
+          "atomId": "a-063",
+          "classification": "NON_ITINERARY",
+          "entityRole": null
+        },
+        {
+          "atomId": "a-068",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ],
+      "Puente de la Mujer": [
+        {
+          "atomId": "a-070",
+          "classification": "ITINERARY_STOP",
+          "entityRole": "ITINERARY_STOP"
+        }
+      ]
+    }
+  }
+]

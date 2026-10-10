@@ -1,0 +1,2271 @@
+{
+  "label": "Adquisición multi-fuente (pase 1)",
+  "rules": [
+    {
+      "rule": "Los deficits se enrutan a fuentes por la tabla de capacidad, no por reglas ad hoc",
+      "reason": "Fuentes enrutadas: wikivoyage, google_places, web.",
+      "result": "PASS",
+      "ruleId": "ACQ-ROUTING-001"
+    },
+    {
+      "rule": "Una fuente que falla no aborta la adquisición",
+      "reason": "Todas las fuentes atendidas respondieron.",
+      "result": "PASS",
+      "ruleId": "ACQ-ISOLATION-001"
+    },
+    {
+      "rule": "Estructurados y web convergen en el boundary ExperienceCandidate antes del resolver",
+      "reason": "Los candidates quedan pendientes de entity resolution / validación geográfica.",
+      "result": "PASS",
+      "ruleId": "ACQ-CANDIDATE-001"
+    }
+  ],
+  "stage": "discovery",
+  "inputs": {
+    "deficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ],
+    "passNumber": 1,
+    "routedProviders": [
+      "wikivoyage",
+      "google_places",
+      "web"
+    ]
+  },
+  "status": "PASS",
+  "outputs": {
+    "webResults": [
+      {
+        "query": "San Telmo historic sites history histórica caminata San Telmo",
+        "status": "success",
+        "evidenceCount": 15,
+        "groundedModel": "google-ai-mode",
+        "candidateCount": 1,
+        "extractorModel": "qwen/qwen3.8-27b",
+        "groundingStatus": "applied",
+        "groundedProvider": "serpapi",
+        "validationErrors": [],
+        "extractorProvider": "groq"
+      }
+    ],
+    "candidateCount": 22,
+    "observationCount": 22,
+    "webCandidateCount": 1,
+    "structuredProviders": [
+      {
+        "status": "success",
+        "provider": "wikivoyage"
+      },
+      {
+        "status": "success",
+        "provider": "google_places"
+      }
+    ],
+    "structuredCandidateCount": 21
+  },
+  "summary": "Pase 1: fuentes [wikivoyage, google_places, web] → 22 observación(es) estructurada(s) + 22 candidate(s) (web: 1).",
+  "component": "ExperienceAcquisitionService",
+  "acquisition": {
+    "deficits": [
+      {
+        "key": "history",
+        "origin": "preference_facet",
+        "reason": "Preference facet [theme:history] has no strong catalog match yet.",
+        "dimension": "theme"
+      }
+    ],
+    "evidence": [
+      {
+        "title": "Manzana de las Luces",
+        "source": "wikivoyage",
+        "snippet": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+      },
+      {
+        "title": "Mercado San Telmo",
+        "source": "wikivoyage",
+        "snippet": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+      },
+      {
+        "title": "Plaza Dorrego",
+        "source": "wikivoyage",
+        "snippet": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+      },
+      {
+        "title": "Museo Histórico Nacional",
+        "source": "wikivoyage",
+        "snippet": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+      },
+      {
+        "title": "Pasaje San Lorenzo",
+        "source": "wikivoyage",
+        "snippet": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+        "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+      },
+      {
+        "title": "El Zanjón de Granados",
+        "source": "wikivoyage",
+        "snippet": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+        "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+      },
+      {
+        "title": "Roca granitica",
+        "source": "geoapify",
+        "snippet": "Roca granitica, Irala, La Boca, C1165 AEC Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361"
+      },
+      {
+        "title": "Monumento a Pedro de Mendoza",
+        "source": "geoapify",
+        "snippet": "Monumento a Pedro de Mendoza, Avenida Brasil, San Telmo, 1143 Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+      },
+      {
+        "title": "Museo de la Historia del Traje",
+        "source": "geoapify",
+        "snippet": "Museo de la Historia del Traje, Chile 832, Monserrat, 1071 Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65"
+      },
+      {
+        "title": "Princess",
+        "source": "geoapify",
+        "snippet": "Princess, Avenida Don Pedro de Mendoza, La Boca, C1156 ACB Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373"
+      },
+      {
+        "title": "Baloon",
+        "source": "geoapify",
+        "snippet": "Baloon, Balcarce 500, Monserrat, C1042 AAB Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e"
+      },
+      {
+        "title": "Monasterio San SAVAS",
+        "source": "geoapify",
+        "snippet": "Monasterio San SAVAS, Perú, Barracas, 1141 Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153"
+      },
+      {
+        "title": "La Hazana",
+        "source": "geoapify",
+        "snippet": "La Hazana, María Luisa Bemberg, Puerto Madero, C1063 AAA Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61"
+      },
+      {
+        "title": "El Zanjón de Granados (historic ruins)",
+        "source": "geoapify",
+        "snippet": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+      },
+      {
+        "title": "Plaza 30'000 compañeros",
+        "source": "geoapify",
+        "snippet": "Plaza 30'000 compañeros, Autopista 25 de Mayo, San Telmo, C1063 ADN Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+      },
+      {
+        "title": "Museo de las Escuelas",
+        "source": "geoapify",
+        "snippet": "Museo de las Escuelas, Avenida Paseo Colón 1318, San Telmo, C1063 ADN Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+      },
+      {
+        "title": "Solar French",
+        "source": "geoapify",
+        "snippet": "Solar French, Defensa 1066, San Telmo, C1065 AAR Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+      },
+      {
+        "title": "Monumento Canto al Trabajo",
+        "source": "geoapify",
+        "snippet": "Monumento Canto al Trabajo, Metrobus del Bajo, San Telmo, C1100 AAC Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+      },
+      {
+        "title": "Carnavales de la Calle Defensa",
+        "source": "geoapify",
+        "snippet": "Carnavales de la Calle Defensa, Defensa, San Telmo, C1065 AAJ Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+      },
+      {
+        "title": "Isidoro Cañones",
+        "source": "geoapify",
+        "snippet": "Isidoro Cañones, Balcarce 699, Monserrat, C1042 AAB Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573"
+      },
+      {
+        "title": "Museo Histórico Nacional",
+        "source": "geoapify",
+        "snippet": "National Historical Museum, Defensa 1652, San Telmo, C1143 AAH Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c"
+      },
+      {
+        "title": "Casa Mínima",
+        "source": "geoapify",
+        "snippet": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+        "evidenceKey": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 1,
+        "source": "google_ai_mode",
+        "snippet": "San Telmo is the oldest and most atmospheric neighborhood in Buenos Aires, Argentina. Steeped in colonial history, narrow cobblestone streets, and the soul of early tango, it offers a vivid look into the city's past.",
+        "evidenceKey": "ev-1"
+      },
+      {
+        "kind": "list_item",
+        "order": 2,
+        "title": "📜 Brief History of San Telmo",
+        "source": "📜 Brief History of San Telmo",
+        "snippet": "Origins (1580): Founded originally as Barrio Sur by Juan de Garay when he re-established Buenos Aires. It started as a humble industrial dockworker, brickmaking, and salting area along the river.",
+        "evidenceKey": "ev-2",
+        "contextHeading": "📜 Brief History of San Telmo"
+      },
+      {
+        "kind": "list_item",
+        "order": 3,
+        "title": "📜 Brief History of San Telmo",
+        "source": "📜 Brief History of San Telmo",
+        "snippet": "The Name: Named after San Pedro González Telmo, the patron saint of sailors, following the establishment of the Jesuits' Our Lady of Belén church.",
+        "evidenceKey": "ev-3",
+        "contextHeading": "📜 Brief History of San Telmo"
+      },
+      {
+        "kind": "list_item",
+        "order": 4,
+        "title": "📜 Brief History of San Telmo",
+        "source": "📜 Brief History of San Telmo",
+        "snippet": "The Yellow Fever Turning Point (1871): A devastating yellow fever epidemic forced wealthy elite families living in San Telmo to flee north to areas like Recoleta. Their grand colonial mansions were abandoned or converted into conventillos (multi-family tenement housing) for incoming waves of European immigrants.",
+        "evidenceKey": "ev-4",
+        "contextHeading": "📜 Brief History of San Telmo"
+      },
+      {
+        "kind": "list_item",
+        "order": 5,
+        "title": "📜 Brief History of San Telmo",
+        "source": "📜 Brief History of San Telmo",
+        "snippet": "Bohemian Revival: Decades later, the area transitioned into an artistic and bohemian hub, renowned today for preserving its 19th-century architecture, antique markets, and vibrant street culture.",
+        "evidenceKey": "ev-5",
+        "contextHeading": "📜 Brief History of San Telmo"
+      },
+      {
+        "kind": "list_item",
+        "order": 6,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "The beating heart of the neighborhood and the second-oldest public square in Buenos Aires. On Sundays, it transforms into the famous Feria de San Telmo antique market. Surrounding cafes make it the perfect place to stop and watch impromptu street tango.",
+        "evidenceKey": "ev-6",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "list_item",
+        "order": 7,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "Located at Defensa 755, this is an incredible historical complex featuring subterranean brick tunnels and water streams dating back to the 1700s and 1800s. It offers a literal \"underground layer\" look at early Buenos Aires infrastructure.",
+        "evidenceKey": "ev-7",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "list_item",
+        "order": 8,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "Built in 1897, this grand iron-and-timber indoor market retains its historic charm while functioning as a bustling food hall filled with local butchers, produce stands, cafes, and vintage stalls.",
+        "evidenceKey": "ev-8",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "list_item",
+        "order": 9,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "A stunning example of a late-19th-century aristocratic mansion converted into a massive conventillo housing over 30 families. Today, it is restored and filled with antique and craft shops.",
+        "evidenceKey": "ev-9",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "list_item",
+        "order": 10,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "Located at San Lorenzo 380, this is famously known as the narrowest house in Buenos Aires—measuring just 2.5 meters wide! Legend says it was freed or given to a freed slave, though historians debate the exact origin.",
+        "evidenceKey": "ev-10",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "list_item",
+        "order": 11,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "One of the city's oldest churches, standing proudly on Calle Defensa, representing the deep spiritual and architectural roots of the colonial era.",
+        "evidenceKey": "ev-11",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "kind": "narrative_paragraph",
+        "order": 12,
+        "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+        "snippet": "Would you like this walking tour mapped out in a specific chronological order, or are you looking for recommendations for local cafes and antique shops along the route?",
+        "evidenceKey": "ev-12",
+        "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+      },
+      {
+        "url": "https://en.wikipedia.org/wiki/San_Telmo,_Buenos_Aires",
+        "kind": "reference",
+        "order": 13,
+        "title": "San Telmo, Buenos Aires - Wikipedia",
+        "source": "Wikipedia",
+        "snippet": "San Telmo is the oldest neighborhood in Buenos Aires, Argentina (1.3 km2, population 25,969 in 2001), featuring preserved colonial buildings, cobblestone streets,",
+        "evidenceKey": "ev-13"
+      },
+      {
+        "url": "https://kittiaroundtheworld.com/a-short-guide-to-san-telmo-in-buenos-aires/",
+        "kind": "reference",
+        "order": 14,
+        "title": "A Short Guide to San Telmo in Buenos Aires - Kitti Around the World",
+        "source": "Kitti Around the World",
+        "snippet": "One of Buenos Aires' oldest, traditional neighborhoods featuring narrow cobblestone streets, colonial buildings, and multicultural history where tango was born.",
+        "evidenceKey": "ev-14"
+      },
+      {
+        "url": "https://worldfootprints.com/compass/central-and-south-america/historic-san-telmo-the-beating-heart-of-buenos-aires/",
+        "kind": "reference",
+        "order": 15,
+        "title": "Historic San Telmo, the Beating Heart of Buenos Aires   - World Footprints",
+        "source": "World Footprints",
+        "snippet": "Founded 1580 by Juan de Garay as Barrio Sur, originally populated by dock workers; named San Telmo after Jesuits established Our Lady of Belén church renamed San P...",
+        "evidenceKey": "ev-15"
+      }
+    ],
+    "candidates": [
+      {
+        "name": "Solar French",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "solar french:geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:component:Solar French",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368:component",
+            "name": "Solar French",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo de las Escuelas",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo de las escuelas:geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:component:Museo de las Escuelas",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173:component",
+            "name": "Museo de las Escuelas",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Roca granitica",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "roca granitica:geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361:geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361:component:Roca granitica",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361:component",
+            "name": "Roca granitica",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Monasterio San SAVAS",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "monasterio san savas:geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153:geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153:component:Monasterio San SAVAS",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153:component",
+            "name": "Monasterio San SAVAS",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Monumento a Pedro de Mendoza",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "monumento a pedro de mendoza:geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:component:Monumento a Pedro de Mendoza",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61:component",
+            "name": "Monumento a Pedro de Mendoza",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "El Zanjón de Granados (historic ruins)",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "el zanjón de granados (historic ruins):geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:component:El Zanjón de Granados (historic ruins)",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329:component",
+            "name": "El Zanjón de Granados (historic ruins)",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "La Hazana",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "la hazana:geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61:geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61:component:La Hazana",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61:component",
+            "name": "La Hazana",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Isidoro Cañones",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "isidoro cañones:geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573:geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573:component:Isidoro Cañones",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573:component",
+            "name": "Isidoro Cañones",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Monumento Canto al Trabajo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "monumento canto al trabajo:geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:component:Monumento Canto al Trabajo",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f:component",
+            "name": "Monumento Canto al Trabajo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Baloon",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "baloon:geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e:geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e:component:Baloon",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e:component",
+            "name": "Baloon",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo Histórico Nacional",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo histórico nacional:geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c|wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c:component:Museo Histórico Nacional",
+        "providers": [
+          "geoapify",
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+          "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c:component",
+            "name": "Museo Histórico Nacional",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+              "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Carnavales de la Calle Defensa",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "carnavales de la calle defensa:geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:component:Carnavales de la Calle Defensa",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361:component",
+            "name": "Carnavales de la Calle Defensa",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Museo de la Historia del Traje",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "museo de la historia del traje:geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65:geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65:component:Museo de la Historia del Traje",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65:component",
+            "name": "Museo de la Historia del Traje",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Casa Mínima",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "casa mínima:geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:component:Casa Mínima",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61:component",
+            "name": "Casa Mínima",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Plaza 30'000 compañeros",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "plaza 30'000 compañeros:geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:component:Plaza 30'000 compañeros",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73:component",
+            "name": "Plaza 30'000 compañeros",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Princess",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "princess:geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373:geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373:component:Princess",
+        "providers": [
+          "geoapify"
+        ],
+        "evidenceKeys": [
+          "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373"
+        ],
+        "componentHints": [
+          {
+            "key": "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373:component",
+            "name": "Princess",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Manzana de las Luces",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component",
+            "name": "Manzana de las Luces",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Mercado San Telmo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component",
+            "name": "Mercado San Telmo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Pasaje San Lorenzo",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component",
+            "name": "Pasaje San Lorenzo",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Plaza Dorrego",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component",
+            "name": "Plaza Dorrego",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "El Zanjón de Granados",
+        "origin": "structured",
+        "themes": [],
+        "intents": [],
+        "traceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados",
+        "providers": [
+          "wikivoyage"
+        ],
+        "evidenceKeys": [
+          "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+        ],
+        "componentHints": [
+          {
+            "key": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component",
+            "name": "El Zanjón de Granados",
+            "role": "venue",
+            "required": true,
+            "evidenceKeys": [
+              "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+            ]
+          }
+        ],
+        "orderedByEvidence": false
+      },
+      {
+        "name": "Caminata Histórica de San Telmo",
+        "origin": "web",
+        "themes": [
+          "history",
+          "architecture"
+        ],
+        "intents": [
+          "walk",
+          "route_like"
+        ],
+        "traceKey": "caminata histórica de san telmo:ev-10|ev-11|ev-12|ev-6|ev-7|ev-8|ev-9:casa-mas-estrecha:La Casa Más Estrecha de Buenos Aires|iglesia-san-pedro:Iglesia de San Pedro González de Aportela|mercado-de-san-telmo:Mercado de San Telmo|plaza-diez-de-junio:Plaza de Mayo|tunneles-ferrovias:Túneles Feroviarios",
+        "providers": [
+          "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+        ],
+        "evidenceKeys": [
+          "ev-6",
+          "ev-7",
+          "ev-8",
+          "ev-9",
+          "ev-10",
+          "ev-11",
+          "ev-12"
+        ],
+        "componentHints": [
+          {
+            "key": "plaza-diez-de-junio",
+            "name": "Plaza de Mayo",
+            "role": "waypoint",
+            "required": true,
+            "evidenceKeys": [
+              "ev-6"
+            ]
+          },
+          {
+            "key": "tunneles-ferrovias",
+            "name": "Túneles Feroviarios",
+            "role": "waypoint",
+            "required": true,
+            "addressHint": "Defensa 755",
+            "evidenceKeys": [
+              "ev-7"
+            ]
+          },
+          {
+            "key": "mercado-de-san-telmo",
+            "name": "Mercado de San Telmo",
+            "role": "waypoint",
+            "required": true,
+            "evidenceKeys": [
+              "ev-8"
+            ]
+          },
+          {
+            "key": "casa-mas-estrecha",
+            "name": "La Casa Más Estrecha de Buenos Aires",
+            "role": "waypoint",
+            "required": true,
+            "addressHint": "San Lorenzo 380",
+            "evidenceKeys": [
+              "ev-10"
+            ]
+          },
+          {
+            "key": "iglesia-san-pedro",
+            "name": "Iglesia de San Pedro González de Aportela",
+            "role": "waypoint",
+            "required": true,
+            "evidenceKeys": [
+              "ev-11"
+            ]
+          }
+        ],
+        "orderedByEvidence": false,
+        "suggestedDurationMinutes": 180
+      }
+    ],
+    "passNumber": 1,
+    "sourcePlans": [
+      {
+        "status": "success",
+        "provider": "wikivoyage",
+        "observations": [
+          {
+            "geo": {
+              "latitude": -34.610556,
+              "longitude": -58.374444
+            },
+            "title": "Manzana de las Luces",
+            "provider": "wikivoyage",
+            "externalId": "Q263127",
+            "description": "Este bloque, rodeado de las calles Alsina, Moreno, Perú y Bolívar, es el hogar de muchos de los más importantes y tradicionales de educación, instituciones religiosas y culturales de Buenos Aires, que datan del siglo 17 y 18. El nombre de este bloque proviene del número de instituciones intelectuales que estaban presentes en los viejos tiempos. Una de las atracciones más interesantes es una red subterránea de túneles misteriosos que comunica cada edificio.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.619528,
+              "longitude": -58.372832
+            },
+            "title": "Mercado San Telmo",
+            "provider": "wikivoyage",
+            "externalId": "Q6010497",
+            "description": "mercado alojado en una sala enorme Wrough-hierro. Todo, desde la albahaca fresca para zapatos y monedas antiguas se encuentra en exhibición en este mercado permanente. Venir durante la semana para ver el mercado de productos y la carne local. El domingo, cuando la acción está fuera, es prácticamente vacío.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.620556,
+              "longitude": -58.371667
+            },
+            "title": "Plaza Dorrego",
+            "provider": "wikivoyage",
+            "externalId": "Q3392154",
+            "description": "La segunda plaza más antigua de Buenos Aires, seis días a la semana, la plaza es un espacio relativamente tranquilo, con sombra junto a restaurantes y cafés. Los domingos un mercado de antigüedades se hace cargo y casi no se puede ver la plaza del pueblo y puestos de mercado. Los puestos de ser anulado distancia de aproximadamente 17:00, y de 20:00 Hay baile público, incluyendo el tango.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.626944,
+              "longitude": -58.370556
+            },
+            "title": "Museo Histórico Nacional",
+            "provider": "wikivoyage",
+            "externalId": "Q57785",
+            "description": "Historia de la Argentina, pero todos los subtítulos están en español y exhaustiva ni bien organizada. Entrada por donación",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "title": "Pasaje San Lorenzo",
+            "provider": "wikivoyage",
+            "description": "Caminando por la calle Balcarce, antes de llegar a la Av. Independencia, verá la calle \"San Lorenzo\". Una de las cosas interesantes que ver, es la casa más estrecha de la zona, entre la propia calle, que es muy agradable. Además, entre San Lorenzo y Av. Independencia, en la calle Balcarce, se puede encontrar el Almacén Don Manolo. Para aquellos que conocen Mafalda, almacén Don Manolo es donde Mafalda utiliza para ir de compras. La tienda en la calle Balcarce Nº 774 es en realidad la una de la qu…",
+            "evidenceKey": "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "title": "El Zanjón de Granados",
+            "provider": "wikivoyage",
+            "description": "El edificio arquitectónico más importante de San Telmo y uno de los más importantes de la ciudad. Cuenta con casi 500 años de historia. Consulte el sitio web para obtener más información.",
+            "evidenceKey": "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          }
+        ],
+        "configuration": {
+          "sections": [
+            "SEE"
+          ]
+        },
+        "observationCount": 6,
+        "runtimeProviders": [
+          "wikivoyage"
+        ]
+      },
+      {
+        "status": "success",
+        "provider": "google_places",
+        "observations": [
+          {
+            "geo": {
+              "latitude": -34.6310798,
+              "longitude": -58.3679784
+            },
+            "title": "Roca granitica",
+            "provider": "geoapify",
+            "externalId": "5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361",
+            "description": "Roca granitica, Irala, La Boca, C1165 AEC Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6257093,
+              "longitude": -58.3705765
+            },
+            "title": "Monumento a Pedro de Mendoza",
+            "provider": "geoapify",
+            "externalId": "514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61",
+            "description": "Monumento a Pedro de Mendoza, Avenida Brasil, San Telmo, 1143 Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6163302,
+              "longitude": -58.3779159
+            },
+            "title": "Museo de la Historia del Traje",
+            "provider": "geoapify",
+            "externalId": "51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65",
+            "description": "Museo de la Historia del Traje, Chile 832, Monserrat, 1071 Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6245576,
+              "longitude": -58.3597851
+            },
+            "title": "Princess",
+            "provider": "geoapify",
+            "externalId": "51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373",
+            "description": "Princess, Avenida Don Pedro de Mendoza, La Boca, C1156 ACB Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.613524,
+              "longitude": -58.3706003
+            },
+            "title": "Baloon",
+            "provider": "geoapify",
+            "externalId": "51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e",
+            "description": "Baloon, Balcarce 500, Monserrat, C1042 AAB Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6275633,
+              "longitude": -58.3735468
+            },
+            "title": "Monasterio San SAVAS",
+            "provider": "geoapify",
+            "externalId": "5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153",
+            "description": "Monasterio San SAVAS, Perú, Barracas, 1141 Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6233946,
+              "longitude": -58.3643086
+            },
+            "title": "La Hazana",
+            "provider": "geoapify",
+            "externalId": "51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61",
+            "description": "La Hazana, María Luisa Bemberg, Puerto Madero, C1063 AAA Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6166864,
+              "longitude": -58.3717972
+            },
+            "title": "El Zanjón de Granados (historic ruins)",
+            "provider": "geoapify",
+            "externalId": "51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329",
+            "description": "El Zanjón de Granados (historic ruins), Defensa, San Telmo, C1100 AAF Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6224616,
+              "longitude": -58.3684553
+            },
+            "title": "Plaza 30'000 compañeros",
+            "provider": "geoapify",
+            "externalId": "51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73",
+            "description": "Plaza 30'000 compañeros, Autopista 25 de Mayo, San Telmo, C1063 ADN Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6231646,
+              "longitude": -58.3678119
+            },
+            "title": "Museo de las Escuelas",
+            "provider": "geoapify",
+            "externalId": "5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173",
+            "description": "Museo de las Escuelas, Avenida Paseo Colón 1318, San Telmo, C1063 ADN Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6202364,
+              "longitude": -58.3713393
+            },
+            "title": "Solar French",
+            "provider": "geoapify",
+            "externalId": "511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368",
+            "description": "Solar French, Defensa 1066, San Telmo, C1065 AAR Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6177688,
+              "longitude": -58.3691116
+            },
+            "title": "Monumento Canto al Trabajo",
+            "provider": "geoapify",
+            "externalId": "518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f",
+            "description": "Monumento Canto al Trabajo, Metrobus del Bajo, San Telmo, C1100 AAC Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6162143,
+              "longitude": -58.371708
+            },
+            "title": "Carnavales de la Calle Defensa",
+            "provider": "geoapify",
+            "externalId": "51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361",
+            "description": "Carnavales de la Calle Defensa, Defensa, San Telmo, C1065 AAJ Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6158794,
+              "longitude": -58.3706068
+            },
+            "title": "Isidoro Cañones",
+            "provider": "geoapify",
+            "externalId": "516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573",
+            "description": "Isidoro Cañones, Balcarce 699, Monserrat, C1042 AAB Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6270114,
+              "longitude": -58.3705803
+            },
+            "title": "Museo Histórico Nacional",
+            "provider": "geoapify",
+            "externalId": "51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+            "description": "National Historical Museum, Defensa 1652, San Telmo, C1143 AAH Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          },
+          {
+            "geo": {
+              "latitude": -34.6167555,
+              "longitude": -58.3713487
+            },
+            "title": "Casa Mínima",
+            "provider": "geoapify",
+            "externalId": "51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61",
+            "description": "Casa Mínima, San Lorenzo 380, San Telmo, C1098 AAH Buenos Aires, Argentina",
+            "evidenceKey": "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61",
+            "evidenceType": "place",
+            "originationCapabilities": [
+              "SINGLE_PLACE"
+            ]
+          }
+        ],
+        "configuration": {
+          "searchTypes": [
+            "museum",
+            "tourist_attraction"
+          ]
+        },
+        "observationCount": 16,
+        "runtimeProviders": [
+          "geoapify"
+        ]
+      },
+      {
+        "web": {
+          "query": "San Telmo historic sites history histórica caminata San Telmo",
+          "evidence": [
+            {
+              "kind": "narrative_paragraph",
+              "order": 1,
+              "source": "google_ai_mode",
+              "snippet": "San Telmo is the oldest and most atmospheric neighborhood in Buenos Aires, Argentina. Steeped in colonial history, narrow cobblestone streets, and the soul of early tango, it offers a vivid look into the city's past.",
+              "evidenceKey": "ev-1"
+            },
+            {
+              "kind": "list_item",
+              "order": 2,
+              "title": "📜 Brief History of San Telmo",
+              "source": "📜 Brief History of San Telmo",
+              "snippet": "Origins (1580): Founded originally as Barrio Sur by Juan de Garay when he re-established Buenos Aires. It started as a humble industrial dockworker, brickmaking, and salting area along the river.",
+              "evidenceKey": "ev-2",
+              "contextHeading": "📜 Brief History of San Telmo"
+            },
+            {
+              "kind": "list_item",
+              "order": 3,
+              "title": "📜 Brief History of San Telmo",
+              "source": "📜 Brief History of San Telmo",
+              "snippet": "The Name: Named after San Pedro González Telmo, the patron saint of sailors, following the establishment of the Jesuits' Our Lady of Belén church.",
+              "evidenceKey": "ev-3",
+              "contextHeading": "📜 Brief History of San Telmo"
+            },
+            {
+              "kind": "list_item",
+              "order": 4,
+              "title": "📜 Brief History of San Telmo",
+              "source": "📜 Brief History of San Telmo",
+              "snippet": "The Yellow Fever Turning Point (1871): A devastating yellow fever epidemic forced wealthy elite families living in San Telmo to flee north to areas like Recoleta. Their grand colonial mansions were abandoned or converted into conventillos (multi-family tenement housing) for incoming waves of European immigrants.",
+              "evidenceKey": "ev-4",
+              "contextHeading": "📜 Brief History of San Telmo"
+            },
+            {
+              "kind": "list_item",
+              "order": 5,
+              "title": "📜 Brief History of San Telmo",
+              "source": "📜 Brief History of San Telmo",
+              "snippet": "Bohemian Revival: Decades later, the area transitioned into an artistic and bohemian hub, renowned today for preserving its 19th-century architecture, antique markets, and vibrant street culture.",
+              "evidenceKey": "ev-5",
+              "contextHeading": "📜 Brief History of San Telmo"
+            },
+            {
+              "kind": "list_item",
+              "order": 6,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "The beating heart of the neighborhood and the second-oldest public square in Buenos Aires. On Sundays, it transforms into the famous Feria de San Telmo antique market. Surrounding cafes make it the perfect place to stop and watch impromptu street tango.",
+              "evidenceKey": "ev-6",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "list_item",
+              "order": 7,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "Located at Defensa 755, this is an incredible historical complex featuring subterranean brick tunnels and water streams dating back to the 1700s and 1800s. It offers a literal \"underground layer\" look at early Buenos Aires infrastructure.",
+              "evidenceKey": "ev-7",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "list_item",
+              "order": 8,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "Built in 1897, this grand iron-and-timber indoor market retains its historic charm while functioning as a bustling food hall filled with local butchers, produce stands, cafes, and vintage stalls.",
+              "evidenceKey": "ev-8",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "list_item",
+              "order": 9,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "A stunning example of a late-19th-century aristocratic mansion converted into a massive conventillo housing over 30 families. Today, it is restored and filled with antique and craft shops.",
+              "evidenceKey": "ev-9",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "list_item",
+              "order": 10,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "Located at San Lorenzo 380, this is famously known as the narrowest house in Buenos Aires—measuring just 2.5 meters wide! Legend says it was freed or given to a freed slave, though historians debate the exact origin.",
+              "evidenceKey": "ev-10",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "list_item",
+              "order": 11,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "One of the city's oldest churches, standing proudly on Calle Defensa, representing the deep spiritual and architectural roots of the colonial era.",
+              "evidenceKey": "ev-11",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "kind": "narrative_paragraph",
+              "order": 12,
+              "title": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "source": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)",
+              "snippet": "Would you like this walking tour mapped out in a specific chronological order, or are you looking for recommendations for local cafes and antique shops along the route?",
+              "evidenceKey": "ev-12",
+              "contextHeading": "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+            },
+            {
+              "url": "https://en.wikipedia.org/wiki/San_Telmo,_Buenos_Aires",
+              "kind": "reference",
+              "order": 13,
+              "title": "San Telmo, Buenos Aires - Wikipedia",
+              "source": "Wikipedia",
+              "snippet": "San Telmo is the oldest neighborhood in Buenos Aires, Argentina (1.3 km2, population 25,969 in 2001), featuring preserved colonial buildings, cobblestone streets,",
+              "evidenceKey": "ev-13"
+            },
+            {
+              "url": "https://kittiaroundtheworld.com/a-short-guide-to-san-telmo-in-buenos-aires/",
+              "kind": "reference",
+              "order": 14,
+              "title": "A Short Guide to San Telmo in Buenos Aires - Kitti Around the World",
+              "source": "Kitti Around the World",
+              "snippet": "One of Buenos Aires' oldest, traditional neighborhoods featuring narrow cobblestone streets, colonial buildings, and multicultural history where tango was born.",
+              "evidenceKey": "ev-14"
+            },
+            {
+              "url": "https://worldfootprints.com/compass/central-and-south-america/historic-san-telmo-the-beating-heart-of-buenos-aires/",
+              "kind": "reference",
+              "order": 15,
+              "title": "Historic San Telmo, the Beating Heart of Buenos Aires   - World Footprints",
+              "source": "World Footprints",
+              "snippet": "Founded 1580 by Juan de Garay as Barrio Sur, originally populated by dock workers; named San Telmo after Jesuits established Our Lady of Belén church renamed San P...",
+              "evidenceKey": "ev-15"
+            }
+          ],
+          "extractor": {
+            "model": "qwen/qwen3.8-27b",
+            "provider": "groq",
+            "validationErrors": [],
+            "inputEvidenceKeys": [
+              "ev-1",
+              "ev-2",
+              "ev-3",
+              "ev-4",
+              "ev-5",
+              "ev-6",
+              "ev-7",
+              "ev-8",
+              "ev-9",
+              "ev-10",
+              "ev-11",
+              "ev-12",
+              "ev-13",
+              "ev-14",
+              "ev-15"
+            ],
+            "candidateDecisions": [
+              {
+                "reason": "MATCHING_EVIDENCE_REQUIREMENT",
+                "accepted": true,
+                "candidate": {
+                  "name": "Caminata Histórica de San Telmo",
+                  "origin": "web",
+                  "themes": [
+                    "history",
+                    "architecture"
+                  ],
+                  "intents": [
+                    "walk",
+                    "route_like"
+                  ],
+                  "traceKey": "caminata histórica de san telmo:ev-10|ev-11|ev-12|ev-6|ev-7|ev-8|ev-9:casa-mas-estrecha:La Casa Más Estrecha de Buenos Aires|iglesia-san-pedro:Iglesia de San Pedro González de Aportela|mercado-de-san-telmo:Mercado de San Telmo|plaza-diez-de-junio:Plaza de Mayo|tunneles-ferrovias:Túneles Feroviarios",
+                  "providers": [
+                    "🗺️ Itinerario para una Caminata Histórica (Key Stops on a Walking Tour)"
+                  ],
+                  "evidenceKeys": [
+                    "ev-6",
+                    "ev-7",
+                    "ev-8",
+                    "ev-9",
+                    "ev-10",
+                    "ev-11",
+                    "ev-12"
+                  ],
+                  "componentHints": [
+                    {
+                      "key": "plaza-diez-de-junio",
+                      "name": "Plaza de Mayo",
+                      "role": "waypoint",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-6"
+                      ]
+                    },
+                    {
+                      "key": "tunneles-ferrovias",
+                      "name": "Túneles Feroviarios",
+                      "role": "waypoint",
+                      "required": true,
+                      "addressHint": "Defensa 755",
+                      "evidenceKeys": [
+                        "ev-7"
+                      ]
+                    },
+                    {
+                      "key": "mercado-de-san-telmo",
+                      "name": "Mercado de San Telmo",
+                      "role": "waypoint",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-8"
+                      ]
+                    },
+                    {
+                      "key": "casa-mas-estrecha",
+                      "name": "La Casa Más Estrecha de Buenos Aires",
+                      "role": "waypoint",
+                      "required": true,
+                      "addressHint": "San Lorenzo 380",
+                      "evidenceKeys": [
+                        "ev-10"
+                      ]
+                    },
+                    {
+                      "key": "iglesia-san-pedro",
+                      "name": "Iglesia de San Pedro González de Aportela",
+                      "role": "waypoint",
+                      "required": true,
+                      "evidenceKeys": [
+                        "ev-11"
+                      ]
+                    }
+                  ],
+                  "orderedByEvidence": false,
+                  "suggestedDurationMinutes": 180
+                },
+                "candidateShapeMatches": [
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ],
+                "requestedRequirements": [
+                  "SINGLE_PLACE",
+                  "MULTI_COMPONENT_EXPERIENCE"
+                ]
+              }
+            ],
+            "sourceSupportAudits": [
+              {
+                "status": "SUPPORTED",
+                "components": [
+                  {
+                    "key": "plaza-diez-de-junio",
+                    "name": "Plaza de Mayo",
+                    "role": "waypoint",
+                    "index": 0,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-6"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "tunneles-ferrovias",
+                    "name": "Túneles Feroviarios",
+                    "role": "waypoint",
+                    "index": 1,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-7"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "mercado-de-san-telmo",
+                    "name": "Mercado de San Telmo",
+                    "role": "waypoint",
+                    "index": 2,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-8"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "casa-mas-estrecha",
+                    "name": "La Casa Más Estrecha de Buenos Aires",
+                    "role": "waypoint",
+                    "index": 3,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-10"
+                    ],
+                    "expectedKind": "PLACE"
+                  },
+                  {
+                    "key": "iglesia-san-pedro",
+                    "name": "Iglesia de San Pedro González de Aportela",
+                    "role": "waypoint",
+                    "index": 4,
+                    "status": "SUPPORTED",
+                    "evidenceKeys": [
+                      "ev-11"
+                    ],
+                    "expectedKind": "PLACE"
+                  }
+                ],
+                "candidateName": "Caminata Histórica de San Telmo",
+                "emittedComponentCount": 5,
+                "supportedComponentCount": 5,
+                "unsupportedComponentCount": 0
+              }
+            ],
+            "admittedCandidateCount": 1,
+            "rejectedCandidateCount": 0,
+            "extractedCandidateCount": 1
+          },
+          "groundedModel": "google-ai-mode",
+          "semanticQuery": "histórica caminata San Telmo",
+          "groundingStatus": "applied",
+          "requestedThemes": [
+            "history"
+          ],
+          "groundedProvider": "serpapi"
+        },
+        "status": "success",
+        "provider": "web",
+        "observations": [],
+        "configuration": {
+          "query": "San Telmo historic sites history histórica caminata San Telmo",
+          "semanticQuery": "histórica caminata San Telmo",
+          "requestedThemes": [
+            "history"
+          ]
+        },
+        "observationCount": 0,
+        "runtimeProviders": []
+      }
+    ],
+    "acquisitionContext": {
+      "strategy": "generic",
+      "passNumber": 1
+    },
+    "structuredCorroboration": {
+      "groups": [
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_1",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+          ],
+          "candidateName": "Solar French",
+          "mergedEvidenceKeys": [
+            "geoapify:511a9cd20b882f4dc059f7e406e8634f41c0f00103f9016a1d829b0100000092030c536f6c6172204672656e6368"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_2",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+          ],
+          "candidateName": "Museo de las Escuelas",
+          "mergedEvidenceKeys": [
+            "geoapify:5131cad875142f4dc05931838cdbc34f41c0f00103f901f0bbae7f010000009203154d7573656f206465206c61732045736375656c6173"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_3",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361"
+          ],
+          "candidateName": "Roca granitica",
+          "mergedEvidenceKeys": [
+            "geoapify:5134d18cea192f4dc05947150f39c75041c0f00103f9018c6c89800200000092030e526f6361206772616e6974696361"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_4",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153"
+          ],
+          "candidateName": "Monasterio San SAVAS",
+          "mergedEvidenceKeys": [
+            "geoapify:5142c3ac61d02f4dc059bdd584fe535041c0f00103f90149ff617b020000009203144d6f6e6173746572696f2053616e205341564153"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_5",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+          ],
+          "candidateName": "Monumento a Pedro de Mendoza",
+          "mergedEvidenceKeys": [
+            "geoapify:514415fe0c6f2f4dc059ca260a3e175041c0f00103f90133c30f520000000092031c4d6f6e756d656e746f206120506564726f206465204d656e646f7a61"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_6",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+          ],
+          "candidateName": "El Zanjón de Granados (historic ruins)",
+          "mergedEvidenceKeys": [
+            "geoapify:51485ff70c972f4dc059a9f17794ef4e41c0f00103f9012c273f5102000000920327456c205a616e6ac3b36e206465204772616e61646f732028686973746f726963207275696e7329"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_7",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61"
+          ],
+          "candidateName": "La Hazana",
+          "mergedEvidenceKeys": [
+            "geoapify:51665309aaa12e4dc05962c0ed64cb4f41c0f00103f901687c74da020000009203094c612048617a616e61"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_8",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573"
+          ],
+          "candidateName": "Isidoro Cañones",
+          "mergedEvidenceKeys": [
+            "geoapify:516dd62a0b702f4dc059daa3dc22d54e41c0f00103f901d89dad8100000000920310497369646f726f204361c3b16f6e6573"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_9",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+          ],
+          "candidateName": "Monumento Canto al Trabajo",
+          "mergedEvidenceKeys": [
+            "geoapify:518049850c3f2f4dc0599d3e4c0c134f41c0f00103f9014ea504590000000092031a4d6f6e756d656e746f2043616e746f20616c2054726162616a6f"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_10",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e"
+          ],
+          "candidateName": "Baloon",
+          "mergedEvidenceKeys": [
+            "geoapify:51a331a4d46f2f4dc059d2a755f4874e41c0f00103f90120cf10cc0000000092030642616c6f6f6e"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_11",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ],
+          "candidateName": "Museo Histórico Nacional",
+          "mergedEvidenceKeys": [
+            "geoapify:51a401655e702f4dc05915d4f7ad3f5041c0f00102f901a75e5407000000009203194d7573656f2048697374c3b37269636f204e6163696f6e616c",
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify",
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_12",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+          ],
+          "candidateName": "Carnavales de la Calle Defensa",
+          "mergedEvidenceKeys": [
+            "geoapify:51aed4b320942f4dc059ede9341ce04e41c0f00103f9011a8f7e420100000092031e4361726e6176616c6573206465206c612043616c6c6520446566656e7361"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_13",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65"
+          ],
+          "candidateName": "Museo de la Historia del Traje",
+          "mergedEvidenceKeys": [
+            "geoapify:51b791578c5f304dc059c14472e8e34e41c0f00103f9011696c8630100000092031e4d7573656f206465206c6120486973746f7269612064656c205472616a65"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_14",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+          ],
+          "candidateName": "Casa Mínima",
+          "mergedEvidenceKeys": [
+            "geoapify:51c0f4ac5a882f4dc05966101fd8f14e41c0f00103f9019101ae080100000092030c43617361204dc3ad6e696d61"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_15",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+          ],
+          "candidateName": "Plaza 30'000 compañeros",
+          "mergedEvidenceKeys": [
+            "geoapify:51d9c4138b292f4dc05907825bd2ac4f41c0f00103f901361b513b01000000920318506c617a612033302730303020636f6d7061c3b165726f73"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_16",
+          "accepted": true,
+          "proposalIds": [
+            "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373"
+          ],
+          "candidateName": "Princess",
+          "mergedEvidenceKeys": [
+            "geoapify:51e5970fa20d2e4dc059453b3673f14f41c0f00102f90184f99311000000009203085072696e63657373"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "geoapify"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_17",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          ],
+          "candidateName": "Manzana de las Luces",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_18",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ],
+          "candidateName": "Mercado San Telmo",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_19",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          ],
+          "candidateName": "Pasaje San Lorenzo",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_20",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ],
+          "candidateName": "Plaza Dorrego",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        },
+        {
+          "reason": "MATCHING_ORIGINATION_REQUIREMENT",
+          "groupId": "group_21",
+          "accepted": true,
+          "proposalIds": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ],
+          "candidateName": "El Zanjón de Granados",
+          "mergedEvidenceKeys": [
+            "wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1"
+          ],
+          "candidateShapeMatches": [
+            "SINGLE_PLACE"
+          ],
+          "contributingProviders": [
+            "wikivoyage"
+          ],
+          "requestedRequirements": [
+            "SINGLE_PLACE",
+            "MULTI_COMPONENT_EXPERIENCE"
+          ],
+          "observationCapabilities": [
+            "SINGLE_PLACE"
+          ],
+          "matchedOriginationRequirements": [
+            "SINGLE_PLACE"
+          ]
+        }
+      ],
+      "groupCount": 21,
+      "proposalCount": 22,
+      "acceptedGroupCount": 21,
+      "rejectedGroupCount": 0,
+      "pairDecisionSummary": {
+        "total": 231,
+        "byReason": {
+          "compatible_geo_and_name": 1,
+          "no_shared_identity_signal": 219,
+          "name_match_without_geography": 1,
+          "geographic_overlap_without_name_match": 10
+        },
+        "byDecision": {
+          "NEW": 219,
+          "SAME": 1,
+          "AMBIGUOUS": 11
+        }
+      }
+    }
+  },
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  }
+}

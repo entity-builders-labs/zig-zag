@@ -1,0 +1,33 @@
+[rw4-mendoza-cold10] requesting dev code for rw3-spike-rw4-mendoza-cold10-1790945094623@example.com
+[rw4-mendoza-cold10] verifying
+[rw4-mendoza-cold10] POST /tours/generate-tour
+[rw4-mendoza-cold10] tourId = 2725b1fd-ba92-46dd-8ff6-6f2bb3aef1e7 create http ms = 54
+[rw4-mendoza-cold10] polling until terminal (timeout 900000 ms)
+[rw4-mendoza-cold10] polling: {"elapsedMs":21,"generationStatus":"pending","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":10097,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":20186,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":30275,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":40364,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":50435,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":60516,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":70573,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":80634,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"route_like\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":90704,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"walk\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":100768,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"walk\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":110821,"generationStatus":"generating","generationMessage":"Buscando una experiencia de tipo \"walk\" en \"Ruta del Vino de Mendoza\"...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":120877,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":130933,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":140989,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":151080,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":161169,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":171255,"generationStatus":"generating","generationMessage":"Buscando más Experiences (fuentes: wikivoyage, google_places, web)...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":181363,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":191462,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":201595,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":211708,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":221825,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":231931,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":241997,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] polling: {"elapsedMs":250062,"generationStatus":"generating","generationMessage":"Planificando el itinerario día a día...","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] terminal: {"elapsedMs":254172,"generationStatus":"completed","generationMessage":"¡Listo! 4 experiencias generadas exitosamente.","lastTraceStage":null,"lastTraceStatus":null}
+[rw4-mendoza-cold10] done. generationStatus = completed observationTimeout = false

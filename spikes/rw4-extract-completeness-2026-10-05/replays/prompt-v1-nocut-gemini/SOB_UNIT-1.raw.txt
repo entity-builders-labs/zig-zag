@@ -1,0 +1,193 @@
+{
+  "candidates": [
+    {
+      "name": "Self-Guided Walking Tour: Plaza de Mayo to San Telmo",
+      "description": "A self-guided walking tour starting at Plaza de Mayo, leading through the historic neighborhood of San Telmo via Defensa and other key streets, passing iconic landmarks, markets, plazas, and historical sites.",
+      "themes": [
+        "history",
+        "culture",
+        "art",
+        "architecture",
+        "tango"
+      ],
+      "traits": [
+        "self-guided",
+        "historic sights",
+        "cobblestone streets",
+        "markets"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo."
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank."
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Close to the Cabildo is Catedral Metropolitana."
+        },
+        {
+          "key": "museo-historico-del-cabildo",
+          "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Cabildo was used as the seat of the town council during the Spanish colonial era."
+        },
+        {
+          "key": "defensa-street",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "estados-unidos-street",
+          "name": "Calle Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "We going to make a small detour and go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "paseo-de-colon",
+          "name": "Avenida Paseo Colón",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Continue and cross the street Paseo de Colon."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "avenida-san-juan",
+          "name": "Avenida San Juan",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Further, let’s walk on the street “Avenida San Juan”."
+        },
+        {
+          "key": "museo-de-arte-moderno-de-buenos-aires",
+          "name": "Museo de Arte Moderno de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "A little bit to the right side there is the Museum of Modern Arts."
+        },
+        {
+          "key": "club-atlletico",
+          "name": "Club Atlético",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Under the bridge, you see you a memory of “Club Atlético."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On your left side, you will see Parque Lezama."
+        },
+        {
+          "key": "museo-historico-nacional",
+          "name": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Make a stop at the national history museum."
+        },
+        {
+          "key": "avenida-caseros",
+          "name": "Avenida Caseros",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Across the museum, you will see Avenida Caseros."
+        }
+      ],
+      "suggestedDurationMinutes": 240,
+      "shortReason": "A comprehensive self-guided walking itinerary from Plaza de Mayo through San Telmo detailing major historical monuments, streets, and squares.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

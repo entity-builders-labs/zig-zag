@@ -1,0 +1,67 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Galería Güemes",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:44.511Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 965
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Galería Güemes",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Mirador Guemes Gallery",
+        "address": "Florida 165, San Martín 170, 1005 Buenos Aires",
+        "latitude": -34.60608,
+        "longitude": -58.37501,
+        "rating": 4.5,
+        "ratingCount": 13000,
+        "category": "Shopping mall",
+        "phoneNumber": "011 4331-5731",
+        "website": "http://www.galeriaguemes.com.ar/",
+        "cid": "16796121189498305479"
+      },
+      {
+        "position": 2,
+        "title": "Florida 165 Rooftop Bar",
+        "address": "Florida 165, B1602 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.606197,
+        "longitude": -58.375008,
+        "rating": 4.3,
+        "ratingCount": 4800,
+        "priceLevel": "$20,000–60,000",
+        "category": "Bar",
+        "phoneNumber": "011 6177-7169",
+        "website": "https://www.instagram.com/rooftopflorida165?igsh=MzFmM3VxdTdlbnk3",
+        "cid": "11150087814667769353"
+      },
+      {
+        "position": 3,
+        "title": "Galería Güemes . Arbol De Navidad",
+        "address": "San Nicolas, Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.606335,
+        "longitude": -58.37405,
+        "rating": 4.9,
+        "ratingCount": 10,
+        "category": "Scenic spot",
+        "cid": "1865344032706130523"
+      }
+    ],
+    "credits": 1
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "runLabel": "recoleta-cold",
+  "tourId": "7096ff33-c1ee-4dee-b2cd-83bba63471d1",
+  "email": "stage3-spike-recoleta-cold-1790263265367@example.com",
+  "baseUrl": "http://localhost:4014",
+  "requestFile": "request-recoleta.json",
+  "createHttpMs": 45,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 1200000,
+  "pollElapsedMs": 147807,
+  "startedAt": "2026-09-24T15:21:05.510Z",
+  "finishedAt": "2026-09-24T15:23:33.327Z"
+}

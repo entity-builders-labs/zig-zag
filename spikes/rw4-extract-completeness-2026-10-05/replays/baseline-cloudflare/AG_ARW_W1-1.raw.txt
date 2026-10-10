@@ -1,0 +1,90 @@
+{
+  "candidates": [
+    {
+      "name": "Self Guided Walking Tour San Telmo",
+      "description": "A self-guided walking itinerary through San Telmo and surrounding historic areas, featuring stops at key landmarks, markets, and cultural sites. The route includes Defensa Street, the San Telmo Market, and notable historical buildings, designed for independent exploration at your own pace.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture"
+      ],
+      "traits": [
+        "self-guided",
+        "independent exploration",
+        "historic landmarks"
+      ],
+      "intents": [
+        "walk",
+        "route_like"
+      ],
+      "suggestedDurationMinutes": 120,
+      "componentHints": [
+        {
+          "key": "defensa-street",
+          "name": "Defensa Street",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Defensa Street is the main street and on Sunday there is a huge street fair that starts from Plaza de Mayo and continues to Plaza Dorrego."
+        },
+        {
+          "key": "san-telmo-market",
+          "name": "San Telmo Market",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 9: The San Telmo Market!! My favorite place in the neighborhood, the oldest market in Buenos Aires"
+        },
+        {
+          "key": "farmacia-la-estrella",
+          "name": "Farmacia la Estrella",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 5: is a really old Pharmacy call \"Farmacia la Estrella\", from 1834."
+        },
+        {
+          "key": "la-libreria-del-avila",
+          "name": "La Librería del Avila",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 6: Oldest library in town, \"La Librería del Avila\"!, this is the library it has more than 100.000 books"
+        },
+        {
+          "key": "monumento-de-mafalda",
+          "name": "Monumento de Mafalda",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 7: Monumento de Mafalda, this is one of our most loved cartoon characters created by Quino."
+        },
+        {
+          "key": "casa-minima",
+          "name": "Casa Mínima",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-1"
+          ],
+          "supportSpan": "Stop 8: Casa Mínima, this is known to be the narrowest house in Buenos Aires"
+        }
+      ],
+      "evidenceKeys": [
+        "ev-1"
+      ],
+      "shortReason": "Evidence ev-1 explicitly describes a self-guided walking tour in San Telmo with a sequence of named stops including Defensa Street, San Telmo Market, and specific historic venues, matching the user's request for an independent, self-guided historical walk.",
+      "orderedByEvidence": true
+    }
+  ]
+}

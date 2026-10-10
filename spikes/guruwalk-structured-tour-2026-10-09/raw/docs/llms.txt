@@ -1,0 +1,49 @@
+# GuruWalk
+
+> GuruWalk is a global marketplace for free walking tours and paid activities, connecting independent local guides ("gurus") with travelers in 1,000+ cities across 120+ countries. Free tours have no fixed price: booking is free and takes a minute, can be cancelled at no cost, and travelers tip the guide what they feel the tour was worth ("pay what you feel").
+
+Key facts:
+
+- Paid activities with fixed prices: day trips, guided tours, food tours, boat tours, night tours and wine tours.
+- Website languages: English (default, no URL prefix), Spanish (/es), Italian (/it), German (/de).
+
+## How it works
+
+- [What is GuruWalk](https://support.guruwalk.com/portal/en/kb/articles/what-is-guruwalk): the free tour model explained
+- [Traveler help center](https://support.guruwalk.com/portal/en/kb): booking, cancellations, meeting points, tipping
+- [Become a guide](https://www.guruwalk.com/work-free-tour-guide): publish your own tours as a local guide
+
+## For AI agents
+
+- [MCP server](https://back.guruwalk.com/mcp): read-only — search destinations, browse tours and activities, check real-time availability; bookings complete on the website. Listed in the Anthropic and ChatGPT connector directories.
+- [MCP documentation](https://ai.guruwalk.com/docs/walkers): tools, examples and setup guides
+- [AI catalog](https://www.guruwalk.com/.well-known/ai-catalog.json): machine-readable capability discovery
+- [Entity map](https://www.guruwalk.com/entitymap.json): entity graph of destinations and tours
+
+## Destinations
+
+- [All destinations](https://www.guruwalk.com/free-tours): full index of countries and cities with free tours
+- [Free tours in Rome](https://www.guruwalk.com/rome)
+- [Free tours in Budapest](https://www.guruwalk.com/budapest)
+- [Free tours in Madrid](https://www.guruwalk.com/madrid)
+- [Free tours in Prague](https://www.guruwalk.com/prague)
+- [Free tours in London](https://www.guruwalk.com/london)
+- [Free tours in Barcelona](https://www.guruwalk.com/barcelona)
+- [Free tours in Lisbon](https://www.guruwalk.com/lisbon)
+- [Free tours in Amsterdam](https://www.guruwalk.com/amsterdam)
+- [Free tours in Paris](https://www.guruwalk.com/paris)
+- [Free tours in Berlin](https://www.guruwalk.com/berlin)
+- [Free tours in Porto](https://www.guruwalk.com/porto)
+- [Free tours in Florence](https://www.guruwalk.com/florence)
+- [Free tours in Vienna](https://www.guruwalk.com/vienna)
+- [Free tours in Seville](https://www.guruwalk.com/seville)
+- [Free tours in Tokyo](https://www.guruwalk.com/tokyo)
+
+## Paid activities
+
+- [Activity catalog](https://www.guruwalk.com/a/catalog): hubs and categories of paid activities by city
+
+## Optional
+
+- [Press room](https://discover.guruwalk.com/en/guruwalk-press-room/)
+- [Travel blog](https://blog.guruwalk.com)

@@ -1,0 +1,74 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": []
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "supportSpan": "Start at Harbour Square",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Starting destination"
+    },
+    {
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Mill Street",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Painted Lane",
+          "supportSpan": "Painted Lane",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Streets used as a route leg"
+    },
+    {
+      "atomId": "a-004",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The Painted Lane",
+          "supportSpan": "The Painted Lane",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Main attraction to visit"
+    },
+    {
+      "atomId": "a-005",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Sailors' Church",
+          "supportSpan": "Sailors' Church",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Passed by on the right"
+    },
+    {
+      "atomId": "a-006",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Riverside Art Museum",
+          "supportSpan": "Riverside Art Museum",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Destination museum to visit"
+    }
+  ]
+}

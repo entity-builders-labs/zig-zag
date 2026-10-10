@@ -1,0 +1,15 @@
+{
+  "runLabel": "mixed-cold",
+  "tourId": "09d8f862-2357-4e32-841b-060f830159ca",
+  "email": "stage3-spike-mixed-cold-1790191216917@example.com",
+  "baseUrl": "http://localhost:3002",
+  "requestFile": "request.json",
+  "createHttpMs": 40,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 26246,
+  "startedAt": "2026-09-23T19:20:17.044Z",
+  "finishedAt": "2026-09-23T19:20:43.296Z"
+}

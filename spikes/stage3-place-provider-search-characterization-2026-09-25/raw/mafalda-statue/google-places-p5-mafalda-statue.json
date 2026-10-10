@@ -1,0 +1,42 @@
+{
+  "request": {
+    "url": "POST https://places.googleapis.com/v1/places:searchText",
+    "fieldMask": "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
+    "body": "{\"textQuery\":\"Mafalda Statue\",\"locationBias\":{\"circle\":{\"center\":{\"latitude\":-34.6037,\"longitude\":-58.3816},\"radius\":50000}},\"includedType\":\"sculpture\",\"strictTypeFiltering\":false,\"pageSize\":10}"
+  },
+  "status": 429,
+  "durationMs": 1029,
+  "response": {
+    "error": {
+      "code": 429,
+      "message": "Quota exceeded for quota metric 'SearchTextRequest' and limit 'SearchTextRequest per day' of service 'places.googleapis.com' for consumer 'project_number:857593443146'.",
+      "status": "RESOURCE_EXHAUSTED",
+      "details": [
+        {
+          "@type": "type.googleapis.com/google.rpc.ErrorInfo",
+          "reason": "RATE_LIMIT_EXCEEDED",
+          "domain": "googleapis.com",
+          "metadata": {
+            "window_start_time": "1790319600",
+            "quota_location": "global",
+            "service": "places.googleapis.com",
+            "consumer": "projects/857593443146",
+            "quota_unit": "1/d/{project}",
+            "quota_limit": "SearchTextRequestPerDayPerProject",
+            "quota_metric": "places.googleapis.com/SearchTextRequest",
+            "quota_limit_value": "20"
+          }
+        },
+        {
+          "@type": "type.googleapis.com/google.rpc.Help",
+          "links": [
+            {
+              "description": "Request a higher quota limit.",
+              "url": "https://cloud.google.com/docs/quotas/help/request_increase"
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,150 @@
+{
+  "1_streets": {
+    "pass": true,
+    "mandatoryRuns": {
+      "Defensa": 0,
+      "Estados Unidos": 0
+    },
+    "validSobRuns": 4
+  },
+  "2_areas_as_direction": {
+    "pass": false,
+    "atomLevel": {
+      "SOB_UNIT": [
+        [],
+        [],
+        [],
+        []
+      ],
+      "AG_UNIT": [
+        [
+          "a-069:Puerto Madero"
+        ],
+        [
+          "a-069:Puerto Madero"
+        ],
+        [
+          "a-069:Puerto Madero"
+        ],
+        [
+          "a-069:Puerto Madero"
+        ],
+        [
+          "a-069:Puerto Madero"
+        ]
+      ]
+    },
+    "notMandatory": {
+      "SOB_UNIT:San Telmo": 0,
+      "AG_UNIT:Puerto Madero": 5,
+      "AG_UNIT:San Telmo": 0
+    }
+  },
+  "3_sight_street": {
+    "pass": true,
+    "mandatoryRuns": 1
+  },
+  "4_role_conflict": {
+    "pass": false,
+    "onGateEntities": 4,
+    "all": [
+      {
+        "run": "AG_UNIT#1",
+        "code": "ROLE_CONFLICT",
+        "sourceName": "Puerto Madero",
+        "routeLegAtoms": [
+          "a-071"
+        ],
+        "stopAtoms": [
+          "a-069"
+        ]
+      },
+      {
+        "run": "AG_UNIT#2",
+        "code": "ROLE_CONFLICT",
+        "sourceName": "Puerto Madero",
+        "routeLegAtoms": [
+          "a-071"
+        ],
+        "stopAtoms": [
+          "a-069"
+        ]
+      },
+      {
+        "run": "AG_UNIT#4",
+        "code": "ROLE_CONFLICT",
+        "sourceName": "Puerto Madero",
+        "routeLegAtoms": [
+          "a-071"
+        ],
+        "stopAtoms": [
+          "a-069"
+        ]
+      },
+      {
+        "run": "AG_UNIT#5",
+        "code": "ROLE_CONFLICT",
+        "sourceName": "Puerto Madero",
+        "routeLegAtoms": [
+          "a-071"
+        ],
+        "stopAtoms": [
+          "a-069"
+        ]
+      }
+    ]
+  },
+  "5_recall": {
+    "pass": false,
+    "hits": 94,
+    "total": 95,
+    "segmentsNotFull": {
+      "SOB_UNIT:S1-walk": 0,
+      "SOB_UNIT:S2-la-boca": 0,
+      "AG_UNIT:S1-walk": 1,
+      "AG_UNIT:S2-la-boca": 0,
+      "AG_UNIT:S3-puerto-madero": 0
+    }
+  },
+  "6_rw3": {
+    "pass": true,
+    "RW3_EV3": {
+      "valid": 3,
+      "success": 3,
+      "outcomes": [
+        "ASSEMBLED",
+        "ASSEMBLED",
+        "ASSEMBLED"
+      ]
+    },
+    "ROUTE_EXPERIENCE": {
+      "valid": 3,
+      "success": 3,
+      "outcomes": [
+        "CONTRACT_FAIL_CLOSED",
+        "CONTRACT_FAIL_CLOSED",
+        "ASSEMBLED"
+      ]
+    }
+  },
+  "7_transfers": {
+    "pass": true,
+    "violations": []
+  },
+  "8_alternatives": {
+    "pass": true,
+    "violations": []
+  },
+  "9_contract": {
+    "pass": false,
+    "contractFailClosed": 2,
+    "valid": 9
+  },
+  "10_operational": {
+    "pass": true,
+    "invalidRuns": 1,
+    "validRunRate": "9/10"
+  },
+  "semanticSuccess": "8/9 valid runs oracle-exact on every segment",
+  "verdict": "FAIL"
+}

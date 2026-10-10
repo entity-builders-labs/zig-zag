@@ -1,0 +1,127 @@
+== Experiences with more than one source member
+                  id                  |                  canonicalName                  |  status  |        createdAt        | source_members | resolved_members | distinct_geo_entities | unresolved_members | derived_completeness
+--------------------------------------+-------------------------------------------------+----------+-------------------------+----------------+------------------+-----------------------+--------------------+----------------------
+ 3f9434cb-9c14-4fd6-bd07-88398231c849 | Frequently Asked Questions                      | VERIFIED | 2026-10-08 23:02:21.494 |              6 |                2 |                     2 |                  4 | PARTIAL
+ 0613fabb-459b-4c10-aa9f-2f13783dc44c | Walking tour Buenos Aires – Day 1 (part 1 of 2) | VERIFIED | 2026-10-08 23:07:09.131 |             18 |                7 |                     7 |                 11 | PARTIAL
+(2 rows)
+
+== Source-member table of every multi-member Experience
+                  canonicalName                  | sourcePosition |               sourceName                | resolutionState |   resolutionReason    |             geoEntityId              |                         geo_entity_name                         | resolutionSource | order | role
+-------------------------------------------------+----------------+-----------------------------------------+-----------------+-----------------------+--------------------------------------+-----------------------------------------------------------------+------------------+-------+-------
+ Frequently Asked Questions                      |              0 | Church of San Ignacio de Loyola         | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     1 | venue
+ Frequently Asked Questions                      |              1 | Casa Mínima                             | RESOLVED        |                       | 183b708e-530d-43da-9294-084ff34dabcd | Casa Mínima                                                     | AUTOMATIC        |     2 | venue
+ Frequently Asked Questions                      |              2 | San Telmo Market                        | RESOLVED        |                       | ca51d99c-6313-4cda-996c-0f731180366d | Mercado de San Telmo                                            | AUTOMATIC        |     3 | venue
+ Frequently Asked Questions                      |              3 | San Telmo Fair                          | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     4 | venue
+ Frequently Asked Questions                      |              4 | Casa Mínima (Miniature House)           | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     5 | venue
+ Frequently Asked Questions                      |              5 | cobblestone streets of San Telmo        | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     6 | route
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              0 | PLAZA DE MAYO                           | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     1 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              1 | Casa Rosada                             | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     2 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              2 | Catedral Metropolitana                  | RESOLVED        |                       | 385ca9f3-3bf0-4752-b0d2-c5a2aa7b4c47 | Catedral Metropolitana                                          | AUTOMATIC        |     3 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              3 | Museo del Cabildo                       | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     4 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              4 | National Bank                           | RESOLVED        |                       | 8b5bf511-7ace-4a87-aed3-22f4fadb921c | Edificio First National Bank of Boston                          | AUTOMATIC        |     5 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              5 | Cabildo                                 | RESOLVED        |                       | e70fb6bf-1215-4488-805b-93c229495021 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | AUTOMATIC        |     6 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              6 | Mausoleum of General San Martín         | UNRESOLVED      | CANDIDATE_REJECTED    |                                      |                                                                 |                  |     7 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              7 | Feria San Telmo                         | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     8 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              8 | oldest neighborhood of the capital city | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     9 | area
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |              9 | Bar Sur                                 | RESOLVED        |                       | fcc03a01-b6af-417e-94bd-dee40f352b2f | Bar Sur                                                         | AUTOMATIC        |    10 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             10 | big building with columns               | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |    11 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             11 | Mercado de San Telmo                    | RESOLVED        |                       | ca51d99c-6313-4cda-996c-0f731180366d | Mercado de San Telmo                                            | AUTOMATIC        |    12 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             12 | Plaza Dorrego                           | RESOLVED        |                       | 6a3e5c9a-0336-4555-9b3a-15cf2ba3c3c7 | Plaza Dorrego                                                   | AUTOMATIC        |    13 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             13 | Museum of Modern Arts                   | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    14 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             14 | Club Atlético                           | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |    15 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             15 | Parque Lezama                           | RESOLVED        |                       | 7b257166-8578-4e45-bdcd-a83ea5087306 | Parque Lezama                                                   | AUTOMATIC        |    16 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             16 | national history museum                 | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    17 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2) |             17 | walkway                                 | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |    18 | route
+(24 rows)
+
+== Integrity: unresolved members never carry a GeoEntity; no member lost
+ unresolved_with_geo | resolved_without_geo | without_source_position | without_source_name
+---------------------+----------------------+-------------------------+---------------------
+                   0 |                    0 |                       0 |                   0
+(1 row)
+
+== Tours
+                  id                  |          name           |       createdAt
+--------------------------------------+-------------------------+------------------------
+ 85ebc2c6-5091-46b7-943c-7b7565ec7829 | Buenos Aires, Argentina | 2026-10-08 22:59:22.11
+(1 row)
+
+== TourExperience rows, with canonical member counts vs snapshot count
+                tourId                |          tour_experience_id          |             experienceId             |                  canonicalName                  | dayNumber | order | canonical_source_members | canonical_resolved | canonical_distinct_geo | snapshot_components
+--------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------------------+-----------+-------+--------------------------+--------------------+------------------------+---------------------
+ 85ebc2c6-5091-46b7-943c-7b7565ec7829 | 3874b51a-38de-41fb-ab5c-604c4896a8f0 | 0613fabb-459b-4c10-aa9f-2f13783dc44c | Walking tour Buenos Aires – Day 1 (part 1 of 2) |         1 |     1 |                       18 |                  7 |                      7 |                   7
+ 85ebc2c6-5091-46b7-943c-7b7565ec7829 | 8d2bf678-a699-41a0-9d26-24aced18e849 | ad174cd8-3604-442d-a1e5-522c330c8b6a | Museo Histórico Nacional                        |         1 |     2 |                        1 |                  1 |                      1 |                   1
+ 85ebc2c6-5091-46b7-943c-7b7565ec7829 | 187d7307-d3c5-4593-bb05-9d752e0d5d7e | 137ce001-0a61-462e-b539-8ccdabdb9d8f | Roca granitica                                  |         1 |     3 |                        1 |                  1 |                      1 |                   1
+ 85ebc2c6-5091-46b7-943c-7b7565ec7829 | 3800b40f-18f8-4237-abf6-a632d6dd2269 | a377c19b-f133-450c-8435-453488ee5437 | Manzana de las Luces                            |         1 |     4 |                        1 |                  1 |                      1 |                   1
+(4 rows)
+
+== TourExperienceComponent snapshot rows
+           tourExperienceId           | order |                              name                               |             geoEntityId
+--------------------------------------+-------+-----------------------------------------------------------------+--------------------------------------
+ 187d7307-d3c5-4593-bb05-9d752e0d5d7e |       | Roca granitica                                                  | 00315d14-7b33-45fc-ac93-22368af83936
+ 3800b40f-18f8-4237-abf6-a632d6dd2269 |       | Manzana de las Luces                                            | 2e57e485-b5a1-4f60-bd1f-0160eebf4185
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |     3 | Catedral Metropolitana                                          | 385ca9f3-3bf0-4752-b0d2-c5a2aa7b4c47
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |     5 | Edificio First National Bank of Boston                          | 8b5bf511-7ace-4a87-aed3-22f4fadb921c
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |     6 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | e70fb6bf-1215-4488-805b-93c229495021
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |    10 | Bar Sur                                                         | fcc03a01-b6af-417e-94bd-dee40f352b2f
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |    12 | Mercado de San Telmo                                            | ca51d99c-6313-4cda-996c-0f731180366d
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |    13 | Plaza Dorrego                                                   | 6a3e5c9a-0336-4555-9b3a-15cf2ba3c3c7
+ 3874b51a-38de-41fb-ab5c-604c4896a8f0 |    16 | Parque Lezama                                                   | 7b257166-8578-4e45-bdcd-a83ea5087306
+ 8d2bf678-a699-41a0-9d26-24aced18e849 |       | Museo Histórico Nacional                                        | 26c71dfd-aca5-4986-908d-e02d96a5cd88
+(10 rows)
+
+== Verified hint memory and assertions (National Bank class)
+                  id                  |                              name                               |                    verifiedHintNames
+--------------------------------------+-----------------------------------------------------------------+----------------------------------------------------------
+ fcc03a01-b6af-417e-94bd-dee40f352b2f | Bar Sur                                                         | {"Bar Sur"}
+ 183b708e-530d-43da-9294-084ff34dabcd | Casa Mínima                                                     | {"Casa Mínima"}
+ 385ca9f3-3bf0-4752-b0d2-c5a2aa7b4c47 | Catedral Metropolitana                                          | {"Catedral Metropolitana"}
+ 2d4e7afa-f615-437e-84c9-622d0022bdaf | Colón Fábrica                                                   | {"Colón Fábrica"}
+ 8b5bf511-7ace-4a87-aed3-22f4fadb921c | Edificio First National Bank of Boston                          | {"National Bank"}
+ 7051b7ef-4963-4f0b-944d-e3b1dc7bff14 | Estatua Hugo del Carril                                         | {"Estatua Hugo del Carril"}
+ 10457455-94b6-4381-8b46-62ef7771753e | Hidrovértigo                                                    | {Hidrovértigo}
+ e75b3aa4-1172-436b-9eab-8d2716c4842f | Himalaya                                                        | {Himalaya}
+ 3b8a1a36-fa25-4eaa-8562-9b8330a0923c | Juventud                                                        | {Juventud}
+ 68c18d39-f38d-4f35-a43e-6ed1a8dcfdeb | La flor de la vida                                              | {"La flor de la vida"}
+ e7f69da2-6da5-41ea-81c8-9bb126665d4f | La Madre                                                        | {"La Madre"}
+ 2e57e485-b5a1-4f60-bd1f-0160eebf4185 | Manzana de las Luces                                            | {"Manzana de las Luces"}
+ ca51d99c-6313-4cda-996c-0f731180366d | Mercado de San Telmo                                            | {"Mercado San Telmo","San Telmo Market"}
+ 911bc01c-d2fa-4082-ac40-2c32dbff48ae | Museo Casa Taller 'Celia Chevalier'                             | {"Museo Casa Taller 'Celia Chevalier'"}
+ 19a0e04c-b668-4aa7-84f6-25ca8c04a5ce | Museo de Artistas Argentinos Benito Quinquela Martín            | {"Museo de Artistas Argentinos Benito Quinquela Martín"}
+ c2f17f47-8348-4df0-ae89-1d2006d44028 | Museo del Cine Pablo Ducrós Hicken                              | {"Museo del Cine Pablo Ducrós Hicken"}
+ f072ac31-accc-4f86-a499-0df165d27767 | Museo Histórico de Cera                                         | {"Museo Histórico de Cera"}
+ 26c71dfd-aca5-4986-908d-e02d96a5cd88 | Museo Histórico Nacional                                        | {"Museo Histórico Nacional"}
+ e70fb6bf-1215-4488-805b-93c229495021 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | {Cabildo}
+ 06a1e161-cbbb-4d80-a030-8aed131008de | Nestor Kirchner                                                 | {"Nestor Kirchner"}
+ 7b257166-8578-4e45-bdcd-a83ea5087306 | Parque Lezama                                                   | {"Parque Lezama"}
+ 6a3e5c9a-0336-4555-9b3a-15cf2ba3c3c7 | Plaza Dorrego                                                   | {"Plaza Dorrego"}
+ 00315d14-7b33-45fc-ac93-22368af83936 | Roca granitica                                                  | {"Roca granitica"}
+(23 rows)
+
+                       hintName                       |                       hintKey                        |  source   | revokedAt |                         geo_entity_name
+------------------------------------------------------+------------------------------------------------------+-----------+-----------+-----------------------------------------------------------------
+ Bar Sur                                              | bar sur                                              | AUTOMATIC |           | Bar Sur
+ Cabildo                                              | cabildo                                              | AUTOMATIC |           | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo
+ Casa Mínima                                          | casa minima                                          | AUTOMATIC |           | Casa Mínima
+ Catedral Metropolitana                               | catedral metropolitana                               | AUTOMATIC |           | Catedral Metropolitana
+ Colón Fábrica                                        | colon fabrica                                        | AUTOMATIC |           | Colón Fábrica
+ Estatua Hugo del Carril                              | estatua hugo del carril                              | AUTOMATIC |           | Estatua Hugo del Carril
+ Hidrovértigo                                         | hidrovertigo                                         | AUTOMATIC |           | Hidrovértigo
+ Himalaya                                             | himalaya                                             | AUTOMATIC |           | Himalaya
+ Juventud                                             | juventud                                             | AUTOMATIC |           | Juventud
+ La flor de la vida                                   | la flor de la vida                                   | AUTOMATIC |           | La flor de la vida
+ La Madre                                             | la madre                                             | AUTOMATIC |           | La Madre
+ Manzana de las Luces                                 | manzana de las luces                                 | AUTOMATIC |           | Manzana de las Luces
+ Mercado San Telmo                                    | mercado san telmo                                    | AUTOMATIC |           | Mercado de San Telmo
+ Museo Casa Taller 'Celia Chevalier'                  | museo casa taller celia chevalier                    | AUTOMATIC |           | Museo Casa Taller 'Celia Chevalier'
+ Museo de Artistas Argentinos Benito Quinquela Martín | museo de artistas argentinos benito quinquela martin | AUTOMATIC |           | Museo de Artistas Argentinos Benito Quinquela Martín
+ Museo del Cine Pablo Ducrós Hicken                   | museo del cine pablo ducros hicken                   | AUTOMATIC |           | Museo del Cine Pablo Ducrós Hicken
+ Museo Histórico de Cera                              | museo historico de cera                              | AUTOMATIC |           | Museo Histórico de Cera
+ Museo Histórico Nacional                             | museo historico nacional                             | AUTOMATIC |           | Museo Histórico Nacional
+ National Bank                                        | national bank                                        | AUTOMATIC |           | Edificio First National Bank of Boston
+ Nestor Kirchner                                      | nestor kirchner                                      | AUTOMATIC |           | Nestor Kirchner
+ Parque Lezama                                        | parque lezama                                        | AUTOMATIC |           | Parque Lezama
+ Plaza Dorrego                                        | plaza dorrego                                        | AUTOMATIC |           | Plaza Dorrego
+ Roca granitica                                       | roca granitica                                       | AUTOMATIC |           | Roca granitica
+ San Telmo Market                                     | san telmo market                                     | AUTOMATIC |           | Mercado de San Telmo
+(24 rows)

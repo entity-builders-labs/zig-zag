@@ -1,0 +1,194 @@
+{
+  "candidates": [
+    {
+      "name": "Itinerario Autoguiado de San Telmo y Plaza de Mayo",
+      "description": "Un recorrido a pie autoguiado que comienza en la Plaza de Mayo y continúa a través de las calles históricas y puntos de interés de San Telmo.",
+      "themes": [
+        "history",
+        "culture",
+        "architecture",
+        "food",
+        "tango"
+      ],
+      "traits": [
+        "autoguiado",
+        "histórico",
+        "patrimonio",
+        "a pie"
+      ],
+      "intents": [
+        "walk",
+        "route_like",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Let’s start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo."
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "This historic place is surrounded by Casa Rosada (presidential palace), Catedral Metropolitana, Museo del Cabildo, and the headquarters of the National Bank."
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana de Buenos Aires",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Close to the Cabildo is Catedral Metropolitana."
+        },
+        {
+          "key": "cabildo",
+          "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "In front of Casa Rosada you will see a white building: Cabildo."
+        },
+        {
+          "key": "defensa",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa."
+        },
+        {
+          "key": "estados-unidos",
+          "name": "Calle Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "We going to make a small detour and go to the street Estados Unidos."
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On the corner, you will see Bar Sur."
+        },
+        {
+          "key": "paseo-de-colon",
+          "name": "Avenida Paseo Colón",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Continue and cross the street Paseo de Colon."
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "While walking you will pass the entrance of Mercado de San Telmo."
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Not far from Mercado de San Telmo is Plaza Dorrego."
+        },
+        {
+          "key": "avenida-san-juan",
+          "name": "Avenida San Juan",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Further, let’s walk on the street “Avenida San Juan”."
+        },
+        {
+          "key": "museo-de-arte-moderno",
+          "name": "Museo de Arte Moderno de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "A little bit to the right side there is the Museum of Modern Arts."
+        },
+        {
+          "key": "club-atlletico",
+          "name": "Club Atlético",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Under the bridge, you see you a memory of “Club Atlético."
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "waypoint",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "On your left side, you will see Parque Lezama."
+        },
+        {
+          "key": "museo-historico-nacional",
+          "name": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Make a stop at the national history museum."
+        },
+        {
+          "key": "avenida-caseros",
+          "name": "Avenida Caseros",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Across the museum, you will see Avenida Caseros."
+        }
+      ],
+      "suggestedDurationMinutes": 240,
+      "shortReason": "El texto detalla paso a paso un itinerario a pie autoguiado que recorre los principales puntos históricos desde Plaza de Mayo hasta San Telmo.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

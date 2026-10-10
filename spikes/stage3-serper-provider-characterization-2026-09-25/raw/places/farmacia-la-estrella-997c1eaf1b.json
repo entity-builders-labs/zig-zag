@@ -1,0 +1,77 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Farmacia la Estrella",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar",
+    "hl": "es"
+  },
+  "capturedAt": "2026-09-25T12:56:50.208Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 845
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Farmacia la Estrella",
+      "gl": "ar",
+      "hl": "es",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Farmacia De La Estrella",
+        "address": "Defensa 201, C1065AAD Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.610184,
+        "longitude": -58.372116,
+        "rating": 4.4,
+        "ratingCount": 196,
+        "category": "Farmacia",
+        "phoneNumber": "011 4343-4040",
+        "website": "https://www.instagram.com/farmaciadelaestrella.ba?igsh=MTd1MGk1ZnQxc3k1cQ==",
+        "cid": "16187983576554178413"
+      },
+      {
+        "position": 2,
+        "title": "Museo de la Ciudad -Farmacia la Estrella",
+        "address": "Adolfo Alsina, Alsina 402, C1087 Buenos Aires",
+        "latitude": -34.610203,
+        "longitude": -58.37211,
+        "rating": 5,
+        "ratingCount": 1,
+        "category": "Institución educativa",
+        "cid": "15065503677517978955"
+      },
+      {
+        "position": 3,
+        "title": "Ex Droguería La Estrella",
+        "address": "Av. Rivadavia 1501, C1085 Cdad. Autónoma de Buenos Aires",
+        "latitude": -34.608765,
+        "longitude": -58.387894,
+        "category": "Edificio de apartamentos",
+        "cid": "14734410587365428339"
+      },
+      {
+        "position": 4,
+        "title": "Farmacia La Estrella",
+        "address": "C. 48 848, B1900ANH La Plata, Provincia de Buenos Aires",
+        "latitude": -34.91835,
+        "longitude": -57.956093,
+        "rating": 4.4,
+        "ratingCount": 54,
+        "category": "Farmacia",
+        "phoneNumber": "0221 421-8244",
+        "website": "https://farmacialaestrella.com/",
+        "cid": "11915244044787622372"
+      }
+    ],
+    "credits": 1
+  }
+}

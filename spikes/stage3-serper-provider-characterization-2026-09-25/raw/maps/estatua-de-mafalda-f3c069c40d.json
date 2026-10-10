@@ -1,0 +1,57 @@
+{
+  "endpoint": "maps",
+  "request": {
+    "q": "Estatua de Mafalda",
+    "ll": "@-34.6037,-58.3816,12z",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:23.724Z",
+  "meta": {
+    "endpoint": "maps",
+    "httpStatus": 200,
+    "durationMs": 856
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Estatua de Mafalda",
+      "gl": "ar",
+      "type": "maps",
+      "num": 10,
+      "page": 1,
+      "ll": "@-34.6037,-58.3816,12z",
+      "engine": "google"
+    },
+    "ll": "@-34.615832,-58.374221,18.0536z",
+    "places": [
+      {
+        "position": 1,
+        "title": "Estatua de Mafalda",
+        "address": "9JMH+J8W, Defensa 700, C1064 Cdad. Autónoma de Buenos Aires, Argentina",
+        "latitude": -34.615832,
+        "longitude": -58.3716461,
+        "rating": 4.6,
+        "ratingCount": 8296,
+        "type": "Tourist attraction",
+        "types": [
+          "Tourist attraction",
+          "Sculpture"
+        ],
+        "phoneNumber": "+54 11 7125-4793",
+        "openingHours": {
+          "Friday": "Open 24 hours",
+          "Saturday": "Open 24 hours",
+          "Sunday": "Open 24 hours",
+          "Monday": "Open 24 hours",
+          "Tuesday": "Open 24 hours",
+          "Wednesday": "Open 24 hours",
+          "Thursday": "Open 24 hours"
+        },
+        "thumbnailUrl": "https://lh3.googleusercontent.com/gps-cs-s/AHRPTWlfse_ZeNFUfXnoGTCJ7TesS2DakiZk9jOK_3ByyDJdCwMkC4iztgf8ze1lZ3nJvjOHxv3eZghnLqzRHqKn7-bWyq0b2nHOly-RYr00wkvOVzbqfwzfeXkC5SzOQJbqvYLAd-2HjNAX1tyo",
+        "cid": "10819767908987080422",
+        "fid": "0x95a3354dd6271479:0x962789966f588ee6",
+        "placeId": "ChIJeRQn1k01o5UR5o5Yb5aJJ5Y"
+      }
+    ],
+    "credits": 3
+  }
+}

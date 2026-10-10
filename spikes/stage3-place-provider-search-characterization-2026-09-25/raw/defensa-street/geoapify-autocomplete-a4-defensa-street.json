@@ -1,0 +1,237 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Defensa Street",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1622,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "National University of Civil Defence of Ukraine",
+        "other_names": {
+          "name": "Національний університет цивільного захисту України",
+          "name:ar": "الجامعة الوطنية للدفاع المدني في أوكرانيا",
+          "name:az": "Ukrayna Milli Mülki Müdafiə Universiteti",
+          "name:be": "Нацыянальны ўніверсітэт грамадзянскай абароны Украіны",
+          "name:bg": "Национален университет за гражданска защита на Украйна",
+          "name:cs": "Národní univerzita civilní obrany Ukrajiny",
+          "name:da": "Ukraines Nationale Universitet for Civilforsvar",
+          "name:de": "Nationale Universität für Zivilschutz der Ukraine",
+          "name:el": "Εθνικό Πανεπιστήμιο Πολιτικής Άμυνας της Ουκρανίας",
+          "name:es": "Universidad Nacional de Defensa Civil de Ucrania",
+          "name:et": "Ukraina Riiklik Tsiviilkaitseülikool",
+          "name:fi": "Ukrainan kansallinen siviilipuolustusyliopisto",
+          "name:fr": "Université nationale de la défense civile d'Ukraine",
+          "name:ga": "Ollscoil Náisiúnta na Cosanta Sibhialta san Úcráin",
+          "name:he": "האוניברסיטה הלאומית להגנה אזרחית של אוקראינה",
+          "name:hr": "Nacionalno sveučilište civilne obrane Ukrajine",
+          "name:hu": "Ukrán Nemzeti Polgári Védelmi Egyetem",
+          "name:hy": "Ուկրաինայի քաղաքացիական պաշտպանության ազգային համալսարան",
+          "name:id": "Universitas Pertahanan Sipil Nasional Ukraina",
+          "name:is": "Þjóðarháskólinn í almannavörnum Úkraínu",
+          "name:it": "Università nazionale di protezione civile dell'Ucraina",
+          "name:ja": "ウクライナ国立民間防衛大学",
+          "name:ka": "უკრაინის სამოქალაქო თავდაცვის ეროვნული უნივერსიტეტი",
+          "name:ko": "우크라이나 국립 민방위대학교",
+          "name:ky": "Украинанын Жарандык коргонуунун Улуттук университети",
+          "name:lt": "Ukrainos nacionalinis civilinės gynybos universitetas",
+          "name:lv": "Ukrainas Nacionālā civilās aizsardzības universitāte",
+          "name:mk": "Национален универзитет за цивилна одбрана на Украина",
+          "name:mn": "Украины Иргэний хамгаалалтын үндэсний их сургууль",
+          "name:ne": "युक्रेनको नागरिक रक्षा राष्ट्रिय विश्वविद्यालय",
+          "name:nl": "Nationale Universiteit voor Civiele Bescherming van Oekraïne",
+          "name:no": "Ukrainas nasjonale universitet for sivilforsvar",
+          "name:pl": "Narodowy Uniwersytet Obrony Cywilnej Ukrainy",
+          "name:pt": "Universidade Nacional de Defesa Civil da Ucrânia",
+          "name:ro": "Universitatea Națională de Apărare Civilă din Ucraina",
+          "name:ru": "Национальный университет гражданской защиты Украины",
+          "name:sk": "Národná univerzita civilnej obrany Ukrajiny",
+          "name:sl": "Nacionalna univerza za civilno zaščito Ukrajine",
+          "name:sq": "Universiteti Kombëtar i Mbrojtjes Civile të Ukrainës",
+          "name:sr": "Национални универзитет цивилне одбране Украјине",
+          "name:sv": "Ukrainas nationella universitet för civilförsvar",
+          "name:tg": "Донишгоҳи миллии мудофиаи граждании Украина",
+          "name:th": "มหาวิทยาลัยป้องกันภัยพลเรือนแห่งชาติของยูเครน",
+          "name:tk": "Ukrainanyň Milli Raýat Goranyş Uniwersiteti",
+          "name:tr": "Ukrayna Ulusal Sivil Savunma Üniversitesi",
+          "name:uk": "Національний університет цивільного захисту України",
+          "name:uz": "Ukraina Fuqarolik Mudofaasi Milliy Universiteti",
+          "name:fil": "Pambansang Unibersidad ng Depensang Sibil ng Ukraine",
+          "name:kk-Cyrl": "Украинаның Азаматтық қорғаныс ұлттық университеті",
+          "name:zh-Hans": "乌克兰国立民防大学"
+        },
+        "country": "Ukraine",
+        "country_code": "ua",
+        "state": "Kharkiv Oblast",
+        "city": "Kharkiv",
+        "municipality": "Kharkiv Urban Hromada",
+        "postcode": "61023",
+        "district": "Kharkiv Raion",
+        "borough": "Київський район",
+        "suburb": "Толкачівка",
+        "street": "Olesya Honchara Street",
+        "iso3166_2": "UA-63",
+        "lon": 36.247984,
+        "lat": 50.0110664,
+        "result_type": "amenity",
+        "distance": 13181257.462401312,
+        "formatted": "National University of Civil Defence of Ukraine, Olesya Honchara Street, Толкачівка, Kharkiv, 61023, Ukraine",
+        "address_line1": "National University of Civil Defence of Ukraine",
+        "address_line2": "Olesya Honchara Street, Толкачівка, Kharkiv, 61023, Ukraine",
+        "category": "education.university",
+        "timezone": {
+          "name": "Europe/Kyiv",
+          "offset_STD": "+02:00",
+          "offset_DST": "+03:00",
+          "offset_STD_seconds": 7200,
+          "offset_DST_seconds": 10800,
+          "abbreviation_STD": "EET",
+          "abbreviation_DST": "EEST"
+        },
+        "plus_code": "9G2R266X+C5",
+        "plus_code_short": "266X+C5 Kharkiv, Kharkiv Oblast, Ukraine",
+        "rank": {
+          "importance": 0.3514206354333152,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5134f790f0bd1f424059cf0ab19f6a014940f00102f901deaf3b0c00000000c0020192032f4e6174696f6e616c20556e6976657273697479206f6620436976696c20446566656e6365206f6620556b7261696e65",
+        "bbox": {
+          "lon1": 36.2461405,
+          "lat1": 50.0103448,
+          "lon2": 36.2498602,
+          "lat2": 50.0118811
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Russian Defense Ministry",
+        "other_names": {
+          "name": "Министерство обороны РФ",
+          "name:ca": "Ministeri de Defensa de la Federació Russa",
+          "name:de": "Russisches Verteidigungsministerium",
+          "name:ru": "Министерство обороны РФ",
+          "official_name": "Министерство обороны Российской Федерации",
+          "official_name:de": "Verteidigungsministerium der Russischen Föderation",
+          "official_name:en": "Ministry of Defence of the Russian Federation"
+        },
+        "country": "Russia",
+        "country_code": "ru",
+        "region": "Central Federal District",
+        "state": "Moscow",
+        "city": "Moscow",
+        "postcode": "119019",
+        "suburb": "Arbat District",
+        "quarter": "35",
+        "street": "Znamenka Street",
+        "iso3166_2": "RU-MOW",
+        "lon": 37.6022455,
+        "lat": 55.749756,
+        "result_type": "amenity",
+        "distance": 13474475.670733826,
+        "formatted": "Russian Defense Ministry, Znamenka Street, Arbat District, Moscow, Russia, 119019",
+        "address_line1": "Russian Defense Ministry",
+        "address_line2": "Znamenka Street, Arbat District, Moscow, Russia, 119019",
+        "timezone": {
+          "name": "Europe/Moscow",
+          "offset_STD": "+03:00",
+          "offset_DST": "+03:00",
+          "offset_STD_seconds": 10800,
+          "offset_DST_seconds": 10800,
+          "abbreviation_STD": "MSK",
+          "abbreviation_DST": "MSK"
+        },
+        "plus_code": "9G7VPJX2+WV",
+        "plus_code_short": "X2+WV Moscow, Russia",
+        "rank": {
+          "importance": 0.5878105329793216,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51e3546b6116cd42405969fd2d01f8df4b40f00101f9012467330000000000c002019203185275737369616e20446566656e7365204d696e6973747279",
+        "bbox": {
+          "lon1": 37.6005397,
+          "lat1": 55.7486646,
+          "lon2": 37.6042183,
+          "lat2": 55.7509475
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Ministry of Defense",
+        "other_names": {
+          "name": "防衛省",
+          "name:es": "Ministerio de Defensa",
+          "name:ja": "防衛省"
+        },
+        "country": "Japan",
+        "country_code": "jp",
+        "city": "Shinjuku",
+        "postcode": "162-0845",
+        "district": "Ichigaya Honmurachō",
+        "street": "Yasukuni Street",
+        "iso3166_2": "JP-13",
+        "lon": 139.728755,
+        "lat": 35.692818,
+        "result_type": "amenity",
+        "distance": 18366408.910732247,
+        "formatted": "Ministry of Defense, Yasukuni Street, Shinjuku, Ichigaya Honmurachō 162-0845, Japan",
+        "address_line1": "Ministry of Defense",
+        "address_line2": "Yasukuni Street, Shinjuku, Ichigaya Honmurachō 162-0845, Japan",
+        "timezone": {
+          "name": "Asia/Tokyo",
+          "offset_STD": "+09:00",
+          "offset_DST": "+09:00",
+          "offset_STD_seconds": 32400,
+          "offset_DST_seconds": 32400,
+          "abbreviation_STD": "JST",
+          "abbreviation_DST": "JST"
+        },
+        "plus_code": "8Q7XMPVH+4G",
+        "rank": {
+          "importance": 0.5635714043939336,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "517d7901f65177614059420a9e42aed84140f00103f9018aaeaf5400000000c002019203134d696e6973747279206f6620446566656e7365",
+        "bbox": {
+          "lon1": 139.728705,
+          "lat1": 35.692768,
+          "lon2": 139.728805,
+          "lat2": 35.692868
+        }
+      }
+    ],
+    "query": {
+      "text": "Defensa Street",
+      "parsed": {
+        "street": "defensa street",
+        "expected_type": "unknown"
+      },
+      "categories": []
+    }
+  }
+}

@@ -1,0 +1,213 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":69794,\"name\":\"Barrio Parque: Storie di liberazione, arte e diplomazia\",\"slug\":\"69794-barrio-parque-storie-di-liberazione-arte-e-diplomazia\",\"rating\":5.0,\"reviews_count\":4,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69794-barrio-parque-storie-di-liberazione-arte-e-diplomazia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":43134,\"name\":\"Sulle orme di Mamá Antula, prima santa argentina!\",\"slug\":\"43134-sulle-orme-di-mama-antula-prima-santa-argentina\",\"rating\":5.0,\"reviews_count\":2,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43134-sulle-orme-di-mama-antula-prima-santa-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63487,\"name\":\"SAN NICOLÁS: Da Plaza Lavalle al Luna Park, il cuore che non dorme mai\",\"slug\":\"63487-san-nicolas-storia-glamour-e-microcentro\",\"rating\":5.0,\"reviews_count\":1,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63487-san-nicolas-storia-glamour-e-microcentro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":59376,\"name\":\"Tour gratuito dei Misteri e Leggende di Buenos Aires\",\"slug\":\"59376-tour-gratuito-dei-misteri-e-leggende-di-buenos-aires\",\"rating\":5.0,\"reviews_count\":1,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/59376-tour-gratuito-dei-misteri-e-leggende-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":46968,\"name\":\"Ritiro Palacios Mistica e Sapori!\",\"slug\":\"46968-ritiro-miti-architettura-e-degustazione\",\"rating\":5.0,\"reviews_count\":1,\"duration\":90,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/46968-ritiro-miti-architettura-e-degustazione?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63551,\"name\":\"Origini di Buenos Aires: San Telmo e Monserrat\",\"slug\":\"63551-origini-di-buenos-aires-san-telmo-e-monserrat\",\"rating\":4.96,\"reviews_count\":51,\"duration\":165,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63551-origini-di-buenos-aires-san-telmo-e-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54506,\"name\":\"RITIRO: Dal Centro Navale al Palazzo Noel, il lusso che gareggiava con l'Europa\",\"slug\":\"54506-ritiro-l-aristocrazia-creola\",\"rating\":4.95,\"reviews_count\":83,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54506-ritiro-l-aristocrazia-creola?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":43240,\"name\":\"AVENIDA DI MAGGIO: Dal Cabildo al Congresso, il viale che ha scritto la storia\",\"slug\":\"43240-avenida-de-mayo-il-viale-dei-sogni\",\"rating\":4.93,\"reviews_count\":409,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43240-avenida-de-mayo-il-viale-dei-sogni?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35555,\"name\":\"Tour a piedi del centro di Buenos Aires: Storia e racconti 🏆\",\"slug\":\"35555-tour-a-piedi-del-centro-di-buenos-aires-storia-e-racconti\",\"rating\":4.91,\"reviews_count\":647,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35555-tour-a-piedi-del-centro-di-buenos-aires-storia-e-racconti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55178,\"name\":\"Tour Notturno Gratuito: Buenos Aires Illuminata – Un Viaggio nella sua Storia\",\"slug\":\"55178-tour-notturno-gratuito-buenos-aires-illuminata-un-viaggio-nella-sua-storia\",\"rating\":4.9,\"reviews_count\":39,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55178-tour-notturno-gratuito-buenos-aires-illuminata-un-viaggio-nella-sua-storia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69004,\"name\":\"Abasto, Culla del Tango e della Cultura Portegna Tour Gratuito di Buenos Aires\",\"slug\":\"69004-abasto-culla-del-tango-e-della-cultura-portegna-tour-gratuito-di-buenos-aires\",\"rating\":4.81,\"reviews_count\":16,\"duration\":120,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69004-abasto-culla-del-tango-e-della-cultura-portegna-tour-gratuito-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":68379,\"name\":\"Tour essenziale di Buenos Aires\",\"slug\":\"68379-tour-essenziale-di-buenos-aires\",\"rating\":4.64,\"reviews_count\":47,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/68379-tour-essenziale-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":3,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 69794,
+     "name": "Barrio Parque: Storie di liberazione, arte e diplomazia",
+     "slug": "69794-barrio-parque-storie-di-liberazione-arte-e-diplomazia",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69794-barrio-parque-storie-di-liberazione-arte-e-diplomazia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 43134,
+     "name": "Sulle orme di Mamá Antula, prima santa argentina!",
+     "slug": "43134-sulle-orme-di-mama-antula-prima-santa-argentina",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43134-sulle-orme-di-mama-antula-prima-santa-argentina?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63487,
+     "name": "SAN NICOLÁS: Da Plaza Lavalle al Luna Park, il cuore che non dorme mai",
+     "slug": "63487-san-nicolas-storia-glamour-e-microcentro",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63487-san-nicolas-storia-glamour-e-microcentro?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 59376,
+     "name": "Tour gratuito dei Misteri e Leggende di Buenos Aires",
+     "slug": "59376-tour-gratuito-dei-misteri-e-leggende-di-buenos-aires",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/59376-tour-gratuito-dei-misteri-e-leggende-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 46968,
+     "name": "Ritiro Palacios Mistica e Sapori!",
+     "slug": "46968-ritiro-miti-architettura-e-degustazione",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 90,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/46968-ritiro-miti-architettura-e-degustazione?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63551,
+     "name": "Origini di Buenos Aires: San Telmo e Monserrat",
+     "slug": "63551-origini-di-buenos-aires-san-telmo-e-monserrat",
+     "rating": 4.96,
+     "reviews_count": 51,
+     "duration": 165,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63551-origini-di-buenos-aires-san-telmo-e-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54506,
+     "name": "RITIRO: Dal Centro Navale al Palazzo Noel, il lusso che gareggiava con l'Europa",
+     "slug": "54506-ritiro-l-aristocrazia-creola",
+     "rating": 4.95,
+     "reviews_count": 83,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54506-ritiro-l-aristocrazia-creola?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 43240,
+     "name": "AVENIDA DI MAGGIO: Dal Cabildo al Congresso, il viale che ha scritto la storia",
+     "slug": "43240-avenida-de-mayo-il-viale-dei-sogni",
+     "rating": 4.93,
+     "reviews_count": 409,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43240-avenida-de-mayo-il-viale-dei-sogni?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35555,
+     "name": "Tour a piedi del centro di Buenos Aires: Storia e racconti 🏆",
+     "slug": "35555-tour-a-piedi-del-centro-di-buenos-aires-storia-e-racconti",
+     "rating": 4.91,
+     "reviews_count": 647,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35555-tour-a-piedi-del-centro-di-buenos-aires-storia-e-racconti?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55178,
+     "name": "Tour Notturno Gratuito: Buenos Aires Illuminata – Un Viaggio nella sua Storia",
+     "slug": "55178-tour-notturno-gratuito-buenos-aires-illuminata-un-viaggio-nella-sua-storia",
+     "rating": 4.9,
+     "reviews_count": 39,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55178-tour-notturno-gratuito-buenos-aires-illuminata-un-viaggio-nella-sua-storia?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69004,
+     "name": "Abasto, Culla del Tango e della Cultura Portegna Tour Gratuito di Buenos Aires",
+     "slug": "69004-abasto-culla-del-tango-e-della-cultura-portegna-tour-gratuito-di-buenos-aires",
+     "rating": 4.81,
+     "reviews_count": 16,
+     "duration": 120,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69004-abasto-culla-del-tango-e-della-cultura-portegna-tour-gratuito-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 68379,
+     "name": "Tour essenziale di Buenos Aires",
+     "slug": "68379-tour-essenziale-di-buenos-aires",
+     "rating": 4.64,
+     "reviews_count": 47,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/68379-tour-essenziale-di-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 3,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Prenota su GuruWalk: https://www.guruwalk.com/it/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

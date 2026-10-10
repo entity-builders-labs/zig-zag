@@ -1,0 +1,171 @@
+{
+  "candidates": [
+    {
+      "name": "San Telmo Walking Tour",
+      "description": "An independent self-guided walking tour through the historic neighborhood of San Telmo and surrounding areas, featuring local markets, historic squares, and cultural landmarks.",
+      "themes": [
+        "history",
+        "culture",
+        "art"
+      ],
+      "traits": [
+        "self-guided",
+        "historic neighborhood",
+        "cobblestone streets"
+      ],
+      "intents": [
+        "walk",
+        "visit"
+      ],
+      "componentHints": [
+        {
+          "key": "plaza-de-mayo",
+          "name": "Plaza de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "START AT PLAZA DE MAYO"
+        },
+        {
+          "key": "casa-rosada",
+          "name": "Casa Rosada",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Casa Rosada (presidential palace)",
+          "physicalKindAssertion": {
+            "kind": "ESTABLISHMENT",
+            "term": "presidential palace",
+            "supportSpan": "Casa Rosada (presidential palace)"
+          }
+        },
+        {
+          "key": "catedral-metropolitana",
+          "name": "Catedral Metropolitana de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Catedral Metropolitana",
+          "sourceName": "Catedral Metropolitana"
+        },
+        {
+          "key": "cabildo",
+          "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Museo del Cabildo",
+          "sourceName": "Museo del Cabildo"
+        },
+        {
+          "key": "defensa",
+          "name": "Calle Defensa",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Go to the street Defensa.",
+          "sourceName": "street Defensa"
+        },
+        {
+          "key": "estados-unidos",
+          "name": "Calle Estados Unidos",
+          "role": "route",
+          "expectedKind": "ROUTE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "go to the street Estados Unidos.",
+          "sourceName": "street Estados Unidos"
+        },
+        {
+          "key": "bar-sur",
+          "name": "Bar Sur",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Bar Sur.",
+          "physicalKindAssertion": {
+            "kind": "ESTABLISHMENT",
+            "term": "tango shows",
+            "supportSpan": "Bar Sur. Well known for the tango shows."
+          }
+        },
+        {
+          "key": "mercado-de-san-telmo",
+          "name": "Mercado de San Telmo",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Mercado de San Telmo.",
+          "physicalKindAssertion": {
+            "kind": "ESTABLISHMENT",
+            "term": "market",
+            "supportSpan": "entrance of Mercado de San Telmo."
+          }
+        },
+        {
+          "key": "plaza-dorrego",
+          "name": "Plaza Dorrego",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Plaza Dorrego."
+        },
+        {
+          "key": "museo-de-arte-moderno",
+          "name": "Museo de Arte Moderno de Buenos Aires",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Museum of Modern Arts.",
+          "sourceName": "Museum of Modern Arts"
+        },
+        {
+          "key": "parque-lezama",
+          "name": "Parque Lezama",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "Parque Lezama."
+        },
+        {
+          "key": "museo-historico-nacional",
+          "name": "Museo Histórico Nacional",
+          "role": "venue",
+          "expectedKind": "PLACE",
+          "evidenceKeys": [
+            "ev-2"
+          ],
+          "supportSpan": "national history museum.",
+          "sourceName": "national history museum"
+        }
+      ],
+      "suggestedDurationMinutes": 180,
+      "shortReason": "Follows a detailed self-guided walking itinerary starting from Plaza de Mayo through San Telmo historic stops.",
+      "evidenceKeys": [
+        "ev-2"
+      ],
+      "orderedByEvidence": true
+    }
+  ]
+}

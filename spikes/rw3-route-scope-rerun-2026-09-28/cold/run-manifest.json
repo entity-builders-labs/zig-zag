@@ -1,0 +1,15 @@
+{
+  "runLabel": "rw3-clean-cold",
+  "tourId": "54e45b83-17a8-43e1-afaf-82deeab49d7f",
+  "email": "rw3-spike-rw3-clean-cold-1790565716795@example.com",
+  "baseUrl": "http://localhost:3123",
+  "requestFile": "request.json",
+  "createHttpMs": 42,
+  "generationStatus": "failed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 900000,
+  "pollElapsedMs": 10110,
+  "startedAt": "2026-09-28T03:21:56.957Z",
+  "finishedAt": "2026-09-28T03:22:07.070Z"
+}

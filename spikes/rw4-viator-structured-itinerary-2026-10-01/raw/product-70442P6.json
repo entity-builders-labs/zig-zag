@@ -1,0 +1,1181 @@
+{
+  "method": "GET",
+  "endpoint": "/products/70442P6",
+  "requestBody": null,
+  "status": 200,
+  "fetchedAt": "2026-10-01T11:41:27.035Z",
+  "body": {
+    "status": "ACTIVE",
+    "productCode": "70442P6",
+    "language": "en",
+    "createdAt": "2019-06-13T20:08:28.161219Z",
+    "lastUpdatedAt": "2026-09-09T13:40:45Z",
+    "title": "Uco Valley Wine Tour",
+    "ticketInfo": {
+      "ticketTypes": [
+        "MOBILE_ONLY"
+      ],
+      "ticketTypeDescription": "Mobile or paper ticket accepted",
+      "ticketsPerBooking": "ONE_PER_BOOKING",
+      "ticketsPerBookingDescription": "One per booking"
+    },
+    "pricingInfo": {
+      "type": "PER_PERSON",
+      "ageBands": [
+        {
+          "ageBand": "YOUTH",
+          "startAge": 0,
+          "endAge": 0,
+          "minTravelersPerBooking": 0,
+          "maxTravelersPerBooking": 14
+        },
+        {
+          "ageBand": "ADULT",
+          "startAge": 18,
+          "endAge": 59,
+          "minTravelersPerBooking": 0,
+          "maxTravelersPerBooking": 14
+        },
+        {
+          "ageBand": "SENIOR",
+          "startAge": 60,
+          "endAge": 80,
+          "minTravelersPerBooking": 0,
+          "maxTravelersPerBooking": 14
+        }
+      ]
+    },
+    "images": [
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": true,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/0b/1c.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/0b/1c.jpg"
+          }
+        ]
+      },
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": false,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/0b/1f.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/0b/1f.jpg"
+          }
+        ]
+      },
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": false,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/0b/4c.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/0b/4c.jpg"
+          }
+        ]
+      },
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": false,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/0b/95.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/0b/95.jpg"
+          }
+        ]
+      },
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": false,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/e8/68.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/e8/68.jpg"
+          }
+        ]
+      },
+      {
+        "imageSource": "SUPPLIER_PROVIDED",
+        "caption": "",
+        "isCover": false,
+        "variants": [
+          {
+            "height": 100,
+            "width": 100,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-100x100/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 200,
+            "width": 200,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-200x200/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 400,
+            "width": 400,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-400x400/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 240,
+            "width": 360,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-360x240/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 320,
+            "width": 480,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-480x320/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 360,
+            "width": 540,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-540x360/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 446,
+            "width": 674,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-674x446/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 480,
+            "width": 720,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-720x480/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 118,
+            "width": 210,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-210x118/07/a4/e9/87.jpg"
+          },
+          {
+            "height": 75,
+            "width": 75,
+            "url": "https://hare-media-cdn.tripadvisor.com/media/attractions-splice-spp-75x75/07/a4/e9/87.jpg"
+          }
+        ]
+      }
+    ],
+    "logistics": {
+      "redemption": {
+        "redemptionType": "NONE"
+      },
+      "travelerPickup": {
+        "pickupOptionType": "PICKUP_EVERYONE",
+        "allowCustomTravelerPickup": true,
+        "locations": [
+          {
+            "location": {
+              "ref": "CONTACT_SUPPLIER_LATER"
+            },
+            "pickupType": "OTHER"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGOvRUELTdZwwkzd3khaTXM="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOkGtrGT91kTO3kKXLqVU5Y="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMhW9DL9IsRBdl1QgOGcBWg="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyFC8hg4v75o8SMr1TJebYLA="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBNMUR2AZ8VBT7dp2R3dA04="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyCUzsHos51nUjqg8Hpkwduk="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-o0AXGEKPN4wJ9sIG0RAn5CaRU14e4RJivpTHKl+xcOb0PBnB8qbri+wQumsse9at"
+            },
+            "pickupType": "LOCATION"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyM+RwkaS/g6KhaPONCmPBFQ="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNPf5gahNYn9Y6pdebcfl7E="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGPt6199abEA4LUPaWmZkSM="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyJLhPMuYW0A2svyc/iHkXAg="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNn4DMCDb6oa9NeUYoBnxlY="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyD8s/PcqIuqhljwm3dtAjI4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBkXY5RzPAnJZWcvV2tS7Jo="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOxzTJDjLPK4ETkudf4mCp0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLDVVuos0fGcJdnZttG2yP0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyH+qho7WKlhWejYPhmSz9Gw="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOqAV+AJRSmK0veOYYO9Lm0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDwDLY2lf/LmTLoy0mXOlgc="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMfe1XjIO4NCRmNrhYTwOag="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyFAZdytd6rqmEfUufzDfO6Q="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyC90K8eJ+Ui56f8MNaNbucc="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOyvwVEjIwaSXMTp2DpUIV0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIxqjbWHw6iQL108mARLb5k="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyClpWONLTTF891tCnn7Hyeo="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPICu8J9gq1tcAYDrCP5c/4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNkJ/unb0o3zzvmCauY978c="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyEYDogRUFJHc+cqMbJe+kyc="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDAiFRV0Cig0sPn0zBcEatM="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyE6RnqUoaJRmGAdtRTFN7qQ="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyHXD/5l9QSYi9pemAt6nRII="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBJMK/i/t9fFhwOtZ+IgGzo="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPKcQptJmciSuzjYhJbqfmA="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDBL2AWy4QYWRHRTcb76W6E="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMndtTP4nhrIhkyYzimQ1cU="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLdla8vbO1Ue/7YCrWk+njU="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGKUlrNops0UjXeF7tb37oA="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyC6xvw8oPVC2nlwr6ERx1bI="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyFtMzmB46mcciecuWSeVxZE="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyErJhXAM9z51HPjItk8XBUs="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyFmf9+fXNWa/YihfvPHzNBA="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyO/F2HTzDzeNE+wTHVw9S8c="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyAUzlIIrwTueP4TfwP3JUTg="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNX0dZ/+yetSI9JfGaJJ42M="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyApbYYu+W8OqxwU+8qIosaU="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyO3O0Ote34qVTcllvRujZ6o="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyP2Nyardax/BHMPPtRTLlS0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIxCKhByeoyhHYK+XHNnba8="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGiKFkBe+fwHuwcz/7TN9x4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOMKanbcM+61ePODgrgf8y8="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGc8wAdMH+QSSRlJ1Sxf9cI="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyEC3BeR566c0aqwpe+666C8="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyHAn2bOeCKhmINyd30uRXc0="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPcImkjmz2POp3n/oHtk0S4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBL/V59u0lwEzP1C1yiAjR8="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyOiLHSKi8rsKnitFPhl27bI="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMYg78ABARjEuFVg8wJptKE="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBte6TEWknUYk5G67Lb7MpY="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyDBQBGSa8EiyXHqhdbyjjrk="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyEiIbTGR+XyIgWuMTBm3rhs="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPYmHTV36ryHvu4ku5mBjTc="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIW1sXW8D2pjS8kZH0oNY/4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyNZzDbswhPKZdzvr3Ln0iCM="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMzeJQsvVTjg4+rZmIbIp68="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyMT1r2w9y/TZ+ZQ+pJ33+Rg="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBzzczEm6GJdJ++ZgfMHau8="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyPNpNpPyssJ5WJoHHGx9EmM="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyKMLVikK14lVX16Jbauvato="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGtlLUSLIfqToQqzz+FqcZU="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLJuOuiIPwTAb0/PXkdAIjo="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIhPHqjMkwbPVPYF4+WqIMw="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyKDHTsiHbrJXFgcmOuCLfzQ="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyKbx7w5ilNQpuBxHrSwEld4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyGdZAKac1Ev31G0vqIvCI0U="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyIqUAbUFRknMOv5QsDcOhnc="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBiViHxCSf6y95duOLNSxJk="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyLraz8fpB7AFhz1cgSSZ++4="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyBnRBsFos0zlSVJE6t2q0ZQ="
+            },
+            "pickupType": "HOTEL"
+          },
+          {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyFjGn8Cwp07CBB5RZMXKDLo="
+            },
+            "pickupType": "HOTEL"
+          }
+        ],
+        "minutesBeforeDepartureTimeForPickup": 15,
+        "additionalInfo": "Hotels in the city of Mendoza, Lujan de Cuyo and Maipu."
+      }
+    },
+    "timeZone": "America/Argentina/Mendoza",
+    "description": "We offer an exclusive and warm experience that seeks to combine the aromas and flavors of our land with the panoramic splendor of the Central Andes. \n\nVisits to the wineries suggest touring their vineyards, getting to know the aging rooms where the wine rests in the oak, tasting their wines, together with the local guides of each of the sites, who are profound connoisseurs of the details and secrets. \n\nFinally, in the second of our wineries, we invite you to enjoy a thoughtful gourmet lunch paired with their best wines.",
+    "inclusions": [
+      {
+        "category": "TRANSPORT_AMENITIES",
+        "categoryDescription": "Transportation amenities",
+        "type": "PRIVATE_TRANSPORTATION",
+        "typeDescription": "Private transportation",
+        "description": "Private transportation"
+      },
+      {
+        "category": "FOOD_AND_DRINK",
+        "categoryDescription": "Food and drink",
+        "type": "BOTTLED_WATER",
+        "typeDescription": "Bottled water",
+        "description": "Bottled water"
+      },
+      {
+        "category": "FOOD_AND_DRINK",
+        "categoryDescription": "Food and drink",
+        "type": "LUNCH",
+        "typeDescription": "Lunch",
+        "description": "Step menu - gourmet paired with wines from the chosen winery"
+      },
+      {
+        "category": "OTHER",
+        "categoryDescription": "Other",
+        "type": "OTHER",
+        "typeDescription": "Other",
+        "otherDescription": "Visit and wine tasting in 1 prestigious winery."
+      }
+    ],
+    "exclusions": [
+      {
+        "category": "FEES_AND_TAXES",
+        "categoryDescription": "Fees",
+        "type": "GRATUITIES",
+        "typeDescription": "Gratuities",
+        "description": "Gratuities"
+      },
+      {
+        "category": "FOOD_AND_DRINK",
+        "categoryDescription": "Food and drink",
+        "type": "ALCOHOLIC_BEVERAGES",
+        "typeDescription": "Alcoholic beverages",
+        "description": "Drinks outside those included in the tasting and lunch."
+      }
+    ],
+    "additionalInfo": [
+      {
+        "type": "WHEELCHAIR_ACCESSIBLE",
+        "description": "Wheelchair accessible"
+      },
+      {
+        "type": "STROLLER_ACCESSIBLE",
+        "description": "Infants and small children can ride in a pram or stroller"
+      },
+      {
+        "type": "PETS_WELCOME",
+        "description": "Service animals allowed"
+      },
+      {
+        "type": "INFANTS_MUST_SIT_ON_LAPS",
+        "description": "Infants are required to sit on an adult’s lap"
+      },
+      {
+        "type": "TRANSPORTATION_WHEELCHAIR_ACCESSIBLE",
+        "description": "Transportation options are wheelchair accessible"
+      },
+      {
+        "type": "PHYSICAL_EASY",
+        "description": "Suitable for all physical fitness levels"
+      },
+      {
+        "type": "OTHER",
+        "description": "minimum operable 2 people."
+      }
+    ],
+    "cancellationPolicy": {
+      "type": "STANDARD",
+      "description": "For a full refund, cancel at least 24 hours before the scheduled departure time.",
+      "cancelIfBadWeather": false,
+      "cancelIfInsufficientTravelers": true,
+      "refundEligibility": [
+        {
+          "dayRangeMin": 1,
+          "percentageRefundable": 100
+        },
+        {
+          "dayRangeMin": 0,
+          "dayRangeMax": 1,
+          "percentageRefundable": 0
+        }
+      ]
+    },
+    "bookingConfirmationSettings": {
+      "bookingCutoffType": "FIXED_TIME",
+      "bookingCutoffInMinutes": 1440,
+      "confirmationType": "INSTANT",
+      "bookingCutoffFixedTime": "08:00:00"
+    },
+    "bookingRequirements": {
+      "minTravelersPerBooking": 1,
+      "maxTravelersPerBooking": 14,
+      "requiresAdultForBooking": true
+    },
+    "languageGuides": [
+      {
+        "type": "GUIDE",
+        "language": "pt",
+        "legacyGuide": "pt/SERVICE_GUIDE"
+      },
+      {
+        "type": "GUIDE",
+        "language": "en",
+        "legacyGuide": "en/SERVICE_GUIDE"
+      },
+      {
+        "type": "GUIDE",
+        "language": "es",
+        "legacyGuide": "es/SERVICE_GUIDE"
+      }
+    ],
+    "bookingQuestions": [
+      "AGEBAND",
+      "DATE_OF_BIRTH",
+      "FULL_NAMES_FIRST",
+      "FULL_NAMES_LAST",
+      "PASSPORT_EXPIRY",
+      "PASSPORT_NATIONALITY",
+      "PASSPORT_PASSPORT_NO",
+      "PICKUP_POINT",
+      "SPECIAL_REQUIREMENTS"
+    ],
+    "tags": [
+      21733,
+      11891,
+      21574,
+      22111,
+      21911,
+      367661,
+      367667,
+      11930,
+      11941,
+      12053,
+      11938,
+      11928
+    ],
+    "destinations": [
+      {
+        "ref": "931",
+        "primary": true
+      }
+    ],
+    "itinerary": {
+      "itineraryType": "STANDARD",
+      "skipTheLine": false,
+      "privateTour": true,
+      "duration": {
+        "variableDurationFromMinutes": 420,
+        "variableDurationToMinutes": 480
+      },
+      "itineraryItems": [
+        {
+          "pointOfInterestLocation": {
+            "location": {
+              "ref": "LOC-6eKJ+or5y8o99Qw0C8xWyI9xiqr0VcIKFnSvd5kx4og="
+            },
+            "attractionId": 17236
+          },
+          "duration": {
+            "fixedDurationInMinutes": 420
+          },
+          "passByWithoutStopping": false,
+          "admissionIncluded": "YES",
+          "description": "We propose to tour the Mendoza terroirs of Valle de Uco, of international recognition, visiting three prestigious wineries in its productive heart, in an exclusive experience that seeks to travel through its vineyards, learn about the aging rooms where the wine rests in oak, taste its wines and finish with a gourmet lunch paired with excellent wines.\n\nIn order to provide a more personalized and warm experience, we work with private transfers.\n\nTherefore, a minimum of 2 people is required."
+        }
+      ]
+    },
+    "productOptions": [
+      {
+        "productOptionCode": "DEFAULT",
+        "description": "Pickup included",
+        "title": "Uco Valley Wine Tour",
+        "languageGuides": [
+          {
+            "type": "GUIDE",
+            "language": "en",
+            "legacyGuide": "en/SERVICE_GUIDE"
+          },
+          {
+            "type": "GUIDE",
+            "language": "es",
+            "legacyGuide": "es/SERVICE_GUIDE"
+          },
+          {
+            "type": "GUIDE",
+            "language": "pt",
+            "legacyGuide": "pt/SERVICE_GUIDE"
+          }
+        ]
+      }
+    ],
+    "translationInfo": {
+      "containsMachineTranslatedText": true,
+      "translationSource": "MACHINE",
+      "translationAttribution": "GOOGLE"
+    },
+    "supplier": {
+      "name": "Outdoor Mendoza",
+      "reference": "SUPPLIER-T2M7+udY2dt8Vym10s1JZg=="
+    },
+    "productUrl": "https://shop.live.rc.viator.com/tours/Mendoza/Uco-Valley-Wine-Tour/d931-70442P6?mcid=42383&pid=P00315636&medium=api&api_version=2.0",
+    "reviews": {
+      "sources": [
+        {
+          "provider": "VIATOR",
+          "reviewCounts": [
+            {
+              "rating": 1,
+              "count": 0
+            },
+            {
+              "rating": 2,
+              "count": 0
+            },
+            {
+              "rating": 3,
+              "count": 0
+            },
+            {
+              "rating": 4,
+              "count": 0
+            },
+            {
+              "rating": 5,
+              "count": 1
+            }
+          ],
+          "totalCount": 1,
+          "averageRating": 5
+        },
+        {
+          "provider": "TRIPADVISOR",
+          "reviewCounts": [
+            {
+              "rating": 1,
+              "count": 0
+            },
+            {
+              "rating": 2,
+              "count": 0
+            },
+            {
+              "rating": 3,
+              "count": 0
+            },
+            {
+              "rating": 4,
+              "count": 0
+            },
+            {
+              "rating": 5,
+              "count": 11
+            }
+          ],
+          "totalCount": 11,
+          "averageRating": 5
+        }
+      ],
+      "reviewCountTotals": [
+        {
+          "rating": 1,
+          "count": 0
+        },
+        {
+          "rating": 2,
+          "count": 0
+        },
+        {
+          "rating": 3,
+          "count": 0
+        },
+        {
+          "rating": 4,
+          "count": 0
+        },
+        {
+          "rating": 5,
+          "count": 12
+        }
+      ],
+      "totalReviews": 12,
+      "combinedAverageRating": 5
+    }
+  }
+}

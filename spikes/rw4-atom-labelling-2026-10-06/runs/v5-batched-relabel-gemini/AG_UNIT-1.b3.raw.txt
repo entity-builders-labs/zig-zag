@@ -1,0 +1,218 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-044",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Nuestra Parrilla",
+          "supportSpan": "Nuestra Parrilla",
+          "role": "ALTERNATIVE"
+        },
+        {
+          "sourceName": "Bolivar street",
+          "supportSpan": "Bolivar street",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Offers an alternative place to eat a small bite."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes ice cream options without specific place names."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Coffee Town",
+          "supportSpan": "Coffee Town",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a specific café for coffee."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Saigón",
+          "supportSpan": "Saigón",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a specific restaurant for a big meal."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Desnivel",
+          "supportSpan": "Desnivel",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends an alternative restaurant for asado."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption or reference location."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas y Galería Solar",
+          "supportSpan": "Café Rivas y Galería Solar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Presents two optional places to visit."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas",
+          "supportSpan": "Café Rivas",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Describes the optional café."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo Market",
+          "supportSpan": "San Telmo Market",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Galería Solar",
+          "supportSpan": "Galería Solar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Presents Galería Solar as an optional stop near the market."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"El Patio de los Ezeiza\"",
+          "supportSpan": "\"El Patio de los Ezeiza\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Presents Stop 10, the final itinerary destination."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical background information."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical background information."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "El Patio de los Ezeiza",
+          "supportSpan": "wonder around",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-053"
+        }
+      ],
+      "reason": "Directs the traveller to wander around the stop."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Caption or address metadata."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Caminito en La Boca",
+          "supportSpan": "Go to Caminito en La Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-059",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "El Patio de los Ezeiza",
+          "supportSpan": "El Patio de los Ezeiza",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides transport tips and pricing."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides safety advice about the neighborhood."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions Caminito descriptively as the tourist street."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "go to Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to visit Caminito cautiously."
+    }
+  ]
+}

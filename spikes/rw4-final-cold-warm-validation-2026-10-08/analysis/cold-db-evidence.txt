@@ -1,0 +1,98 @@
+== Experiences with more than one source member
+                  id                  |                  canonicalName                   |  status  |        createdAt        | source_members | resolved_members | distinct_geo_entities | unresolved_members | derived_completeness
+--------------------------------------+--------------------------------------------------+----------+-------------------------+----------------+------------------+-----------------------+--------------------+----------------------
+ 32656b95-d509-4e0d-afca-af00680b2dd8 | Self Guided Walking Tour San Telmo (part 1 of 3) | VERIFIED | 2026-10-08 14:41:23.214 |             13 |                4 |                     4 |                  9 | PARTIAL
+(1 row)
+
+== Source-member table of every multi-member Experience
+                  canonicalName                   | sourcePosition |       sourceName       | resolutionState |   resolutionReason    |             geoEntityId              | geo_entity_name | resolutionSource | order | role
+--------------------------------------------------+----------------+------------------------+-----------------+-----------------------+--------------------------------------+-----------------+------------------+-------+-------
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              0 | Teatro Colón           | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                 |                  |     1 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              1 | Obelisco               | RESOLVED        |                       | 261e2fa0-ad4d-4ba2-afff-1cb5ec70d9b7 | Obelisco        | AUTOMATIC        |     2 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              2 | Plaza de Mayo          | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                 |                  |     3 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              3 | Congress               | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                 |                  |     4 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              4 | San Telmo              | RESOLVED        |                       | 2769257a-7cf5-478e-87b7-cbecbe281f0b | San Telmo       | AUTOMATIC        |     5 | area
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              5 | Defensa Street         | RESOLVED        |                       | 66e0c8de-1d67-4f38-b96b-e6f730e043bf | Defensa         | AUTOMATIC        |     6 | route
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              6 | Farmacia la Estrella   | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                 |                  |     7 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              7 | Museum of the city     | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                 |                  |     8 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              8 | La Librería del Avila  | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                 |                  |     9 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              9 | Monumento de Mafalda   | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                 |                  |    10 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             10 | Casa Mínima            | RESOLVED        |                       | 0fb59aea-8ea0-48ca-949f-db8e16390cfa | Casa Mínima     | AUTOMATIC        |    11 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             11 | The San Telmo Market   | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                 |                  |    12 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             12 | El Patio de los Ezeiza | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                 |                  |    13 | venue
+(13 rows)
+
+== Integrity: unresolved members never carry a GeoEntity; no member lost
+ unresolved_with_geo | resolved_without_geo | without_source_position | without_source_name
+---------------------+----------------------+-------------------------+---------------------
+                   0 |                    0 |                       0 |                   0
+(1 row)
+
+== Tours
+                  id                  |          name           |        createdAt
+--------------------------------------+-------------------------+-------------------------
+ 4d10c9f9-3faf-4922-97e6-579c3c2e51f7 | Buenos Aires, Argentina | 2026-10-08 14:39:03.825
+(1 row)
+
+== TourExperience rows, with canonical member counts vs snapshot count
+ tourId | tour_experience_id | experienceId | canonicalName | dayNumber | order | canonical_source_members | canonical_resolved | canonical_distinct_geo | snapshot_components
+--------+--------------------+--------------+---------------+-----------+-------+--------------------------+--------------------+------------------------+---------------------
+(0 rows)
+
+== TourExperienceComponent snapshot rows
+ tourExperienceId | order | name | geoEntityId
+------------------+-------+------+-------------
+(0 rows)
+
+== Verified hint memory and assertions (National Bank class)
+                  id                  |                         name                         |                    verifiedHintNames
+--------------------------------------+------------------------------------------------------+----------------------------------------------------------
+ bcfe38be-b0c7-4d43-b8bf-5e3888d6990d | Caminito                                             | {"Caminito Street"}
+ 0fb59aea-8ea0-48ca-949f-db8e16390cfa | Casa Mínima                                          | {"Casa Mínima"}
+ cb1f0447-e2bb-4ac3-bd66-39264b5458dd | Colón Fábrica                                        | {"Colón Fábrica"}
+ 66e0c8de-1d67-4f38-b96b-e6f730e043bf | Defensa                                              | {"Defensa Street"}
+ c8968bce-ae8a-4cc7-ab6a-506dd757e6f6 | Estatua Hugo del Carril                              | {"Estatua Hugo del Carril"}
+ e9b7ef20-0c8b-43f8-b17a-518a83ed4e13 | Hidrovértigo                                         | {Hidrovértigo}
+ 5085ff48-26df-4ddd-a5c9-bb5ca00060c6 | Himalaya                                             | {Himalaya}
+ 121767c3-740b-4b85-8744-9fc30ed213e0 | Juventud                                             | {Juventud}
+ dde4b269-024c-40b3-b07a-23ea0f794fab | La flor de la vida                                   | {"La flor de la vida"}
+ 5dd6419a-0d80-4ce3-b09b-731d0335e2cd | La Madre                                             | {"La Madre"}
+ 5530768e-0aac-41f7-88ae-f8998634af3a | Manzana de las Luces                                 | {"Manzana de las Luces"}
+ 0e3fddee-3c25-4cb6-a813-6f7ac067f6af | Mercado de San Telmo                                 | {"Mercado San Telmo"}
+ 3a1d5446-581d-4b3e-b95f-96d8365bc48d | Museo Casa Taller 'Celia Chevalier'                  | {"Museo Casa Taller 'Celia Chevalier'"}
+ c184a998-f6d9-49c0-8e5c-981a0e380aee | Museo de Artistas Argentinos Benito Quinquela Martín | {"Museo de Artistas Argentinos Benito Quinquela Martín"}
+ 5d480111-94db-4a5c-98c6-90e686507750 | Museo del Cine Pablo Ducrós Hicken                   | {"Museo del Cine Pablo Ducrós Hicken"}
+ 4c60f113-9d2d-4218-923e-a1d3915ffe49 | Museo Histórico de Cera                              | {"Museo Histórico de Cera"}
+ 28f1cc37-e0df-493a-8a14-a05c8e8f1614 | Museo Histórico Nacional                             | {"Museo Histórico Nacional"}
+ c8eed0f1-6339-41c4-9822-c610f17d13d8 | Nestor Kirchner                                      | {"Nestor Kirchner"}
+ 261e2fa0-ad4d-4ba2-afff-1cb5ec70d9b7 | Obelisco                                             | {Obelisco}
+ 5a1bd430-2bef-4808-b2dd-cb4dd9f6027b | Plaza Dorrego                                        | {"Plaza Dorrego"}
+ 3bc4fb3b-f284-424d-9805-4a992c93b9e0 | Recoleta Cemetry                                     | {"Recoleta Cemetery"}
+ b58c75d9-607f-47bb-80db-c9525ee4e4c9 | Roca granitica                                       | {"Roca granitica"}
+(22 rows)
+
+                       hintName                       |                       hintKey                        |  source   | revokedAt |                   geo_entity_name
+------------------------------------------------------+------------------------------------------------------+-----------+-----------+------------------------------------------------------
+ Caminito Street                                      | caminito street                                      | AUTOMATIC |           | Caminito
+ Casa Mínima                                          | casa minima                                          | AUTOMATIC |           | Casa Mínima
+ Colón Fábrica                                        | colon fabrica                                        | AUTOMATIC |           | Colón Fábrica
+ Defensa Street                                       | defensa street                                       | AUTOMATIC |           | Defensa
+ Estatua Hugo del Carril                              | estatua hugo del carril                              | AUTOMATIC |           | Estatua Hugo del Carril
+ Hidrovértigo                                         | hidrovertigo                                         | AUTOMATIC |           | Hidrovértigo
+ Himalaya                                             | himalaya                                             | AUTOMATIC |           | Himalaya
+ Juventud                                             | juventud                                             | AUTOMATIC |           | Juventud
+ La flor de la vida                                   | la flor de la vida                                   | AUTOMATIC |           | La flor de la vida
+ La Madre                                             | la madre                                             | AUTOMATIC |           | La Madre
+ Manzana de las Luces                                 | manzana de las luces                                 | AUTOMATIC |           | Manzana de las Luces
+ Mercado San Telmo                                    | mercado san telmo                                    | AUTOMATIC |           | Mercado de San Telmo
+ Museo Casa Taller 'Celia Chevalier'                  | museo casa taller celia chevalier                    | AUTOMATIC |           | Museo Casa Taller 'Celia Chevalier'
+ Museo de Artistas Argentinos Benito Quinquela Martín | museo de artistas argentinos benito quinquela martin | AUTOMATIC |           | Museo de Artistas Argentinos Benito Quinquela Martín
+ Museo del Cine Pablo Ducrós Hicken                   | museo del cine pablo ducros hicken                   | AUTOMATIC |           | Museo del Cine Pablo Ducrós Hicken
+ Museo Histórico de Cera                              | museo historico de cera                              | AUTOMATIC |           | Museo Histórico de Cera
+ Museo Histórico Nacional                             | museo historico nacional                             | AUTOMATIC |           | Museo Histórico Nacional
+ Nestor Kirchner                                      | nestor kirchner                                      | AUTOMATIC |           | Nestor Kirchner
+ Obelisco                                             | obelisco                                             | AUTOMATIC |           | Obelisco
+ Plaza Dorrego                                        | plaza dorrego                                        | AUTOMATIC |           | Plaza Dorrego
+ Recoleta Cemetery                                    | recoleta cemetery                                    | AUTOMATIC |           | Recoleta Cemetry
+ Roca granitica                                       | roca granitica                                       | AUTOMATIC |           | Roca granitica
+(22 rows)

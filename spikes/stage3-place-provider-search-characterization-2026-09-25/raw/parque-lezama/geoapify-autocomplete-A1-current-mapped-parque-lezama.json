@@ -1,0 +1,54 @@
+{
+  "note": "PlaceData[] exactly as GeoapifyPlacesApiService.searchText returns it (production path)",
+  "mapped": [
+    {
+      "id": "5154cc9c89442f4dc059d6901381455041c0f00102f901dd230a0100000000c0020192030d506172717565204c657a616d61",
+      "name": "Parque Lezama",
+      "displayName": {
+        "text": "Parque Lezama"
+      },
+      "formattedAddress": "Parque Lezama, San Telmo, Buenos Aires, Distrito de Las Artes, Argentina",
+      "location": {
+        "latitude": -34.6271211,
+        "longitude": -58.3692791
+      },
+      "types": [
+        "leisure.park"
+      ],
+      "primaryType": "leisure.park"
+    },
+    {
+      "id": "51d2a34ee5592f4dc05937d19d16725041c0f00103f90172241b4300000000c00201920313303036202d20506172717565204c657a616d61e203236f70656e7374726565746d61703a76656e75653a6e6f64652f31313235383532323734",
+      "name": "006 - Parque Lezama",
+      "displayName": {
+        "text": "006 - Parque Lezama"
+      },
+      "formattedAddress": "006 - Parque Lezama, Avenida Martín García, San Telmo, C1143 AAH Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6284817,
+        "longitude": -58.3699309
+      },
+      "types": [
+        "rental.bicycle"
+      ],
+      "primaryType": "rental.bicycle"
+    },
+    {
+      "id": "51bc7f87fdf92f4dc059936d8555615141c0f00102f901bc08811b00000000c0020192031547616c6963696120506172717565204c657a616d61e203216f70656e7374726565746d61703a76656e75653a7761792f343631343431323132",
+      "name": "Galicia Parque Lezama",
+      "displayName": {
+        "text": "Galicia Parque Lezama"
+      },
+      "formattedAddress": "Galicia Parque Lezama, Avenida Manuel Augusto Montes de Oca, Barracas, C1269 ABF Buenos Aires, Argentina",
+      "location": {
+        "latitude": -34.6357829,
+        "longitude": -58.3748166
+      },
+      "types": [
+        "service.financial.bank"
+      ],
+      "primaryType": "service.financial.bank"
+    }
+  ],
+  "failure": null
+}

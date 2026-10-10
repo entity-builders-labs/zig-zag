@@ -1,0 +1,35 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-037",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "restaurants",
+          "supportSpan": "pass the first restaurants in Buenos Aires",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to pass restaurants."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Atmospheric description."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical or informational fact about the building."
+    },
+    {
+      "atomId": "a-086",
+      "classification": "TRANSFER",
+      "entities": [],
+      "reason": "Alternative transport option.",
+      "transferMode": "TAXI"
+    }
+  ]
+}

@@ -1,0 +1,3 @@
+03e3222c-e646-494c-ab99-7733e44d173a | Walking tour Buenos Aires – Day 1 (part 1 of 2) | PARTIAL | navigable Casa Rosada, Catedral Metropolitana, Museo Histórico Nacional del Cabildo y de la Revolución de Mayo, San Telmo, Bar Sur, Mercado de San Telmo, Plaza Dorrego, Parque Lezama | unresolved undefined
+42211eec-ae54-4733-a33b-21c068359a38 | Self Guided Walking Tour San Telmo (part 1 of 3) | PARTIAL | navigable Casa Rosada, San Telmo, Casa Mínima | unresolved undefined
+total rows 19

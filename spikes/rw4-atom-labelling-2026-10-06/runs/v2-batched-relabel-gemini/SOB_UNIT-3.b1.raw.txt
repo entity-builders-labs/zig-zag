@@ -1,0 +1,510 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Title of the itinerary."
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "PLAZA DE MAYO",
+          "supportSpan": "START AT PLAZA DE MAYO",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading starting the tour at Plaza de Mayo."
+    },
+    {
+      "atomId": "a-003",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "start your Buenos Aires adventure at the center of the capital city: Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to start at Plaza de Mayo."
+    },
+    {
+      "atomId": "a-004",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Museo del Cabildo",
+          "supportSpan": "Museo del Cabildo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "National Bank",
+          "supportSpan": "National Bank",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Surrounding landmarks mentioned as context."
+    },
+    {
+      "atomId": "a-005",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical background."
+    },
+    {
+      "atomId": "a-006",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact."
+    },
+    {
+      "atomId": "a-007",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-003"
+        }
+      ],
+      "reason": "Mentions a feature inside Plaza de Mayo."
+    },
+    {
+      "atomId": "a-008",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Informational background."
+    },
+    {
+      "atomId": "a-009",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out Casa Rosada to see."
+    },
+    {
+      "atomId": "a-010",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of Casa Rosada."
+    },
+    {
+      "atomId": "a-011",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Rhetorical question."
+    },
+    {
+      "atomId": "a-012",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary."
+    },
+    {
+      "atomId": "a-013",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth description."
+    },
+    {
+      "atomId": "a-014",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth description."
+    },
+    {
+      "atomId": "a-015",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Alternative myth."
+    },
+    {
+      "atomId": "a-016",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Myth continuation."
+    },
+    {
+      "atomId": "a-017",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption/ad."
+    },
+    {
+      "atomId": "a-018",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo caption."
+    },
+    {
+      "atomId": "a-019",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Introductory sentence for more sights."
+    },
+    {
+      "atomId": "a-020",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Rosada",
+          "supportSpan": "Casa Rosada",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-009"
+        },
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out Cabildo to see."
+    },
+    {
+      "atomId": "a-021",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of Cabildo."
+    },
+    {
+      "atomId": "a-022",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Cabildo",
+          "supportSpan": "Cabildo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-020"
+        },
+        {
+          "sourceName": "Catedral Metropolitana",
+          "supportSpan": "Catedral Metropolitana",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs to Catedral Metropolitana."
+    },
+    {
+      "atomId": "a-023",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of cathedral."
+    },
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Construction year."
+    },
+    {
+      "atomId": "a-025",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Catedral",
+          "supportSpan": "Catedral",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-022"
+        }
+      ],
+      "reason": "Directs inside the cathedral."
+    },
+    {
+      "atomId": "a-026",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical information."
+    },
+    {
+      "atomId": "a-027",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical information."
+    },
+    {
+      "atomId": "a-028",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Editorial comment."
+    },
+    {
+      "atomId": "a-029",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Link/ad."
+    },
+    {
+      "atomId": "a-030",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General trivia."
+    },
+    {
+      "atomId": "a-031",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "General trivia."
+    },
+    {
+      "atomId": "a-032",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Transition text."
+    },
+    {
+      "atomId": "a-033",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs to street Defensa."
+    },
+    {
+      "atomId": "a-034",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of the street."
+    },
+    {
+      "atomId": "a-035",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Feria San Telmo",
+          "supportSpan": "Feria San Telmo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs to Feria San Telmo."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Commentary on Feria San Telmo."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "restaurants in Buenos Aires",
+          "supportSpan": "restaurants in Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Passing restaurants along the way."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Food descriptions."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "oldest neighborhood of the capital city",
+          "supportSpan": "oldest neighborhood of the capital city",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs exploration of San Telmo."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Observation."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY",
+          "mentionAtomId": "a-039"
+        }
+      ],
+      "reason": "Commentary on San Telmo."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Estados Unidos",
+          "supportSpan": "Estados Unidos",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs to street Estados Unidos."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Atmosphere description."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Atmosphere description."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Bar Sur",
+          "supportSpan": "Bar Sur",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out Bar Sur."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Paseo de Colon",
+          "supportSpan": "Paseo de Colon",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Crosses Paseo de Colon."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "MetroBus infrastructure",
+          "supportSpan": "MetroBus infrastructure",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Points out MetroBus infrastructure."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of MetroBus."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "big building with columns",
+          "supportSpan": "big building with columns",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Points out building to see."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of current usage."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical fact."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Image caption/ad."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Photo caption."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Defensa",
+          "supportSpan": "Defensa",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-033"
+        }
+      ],
+      "reason": "Directs back to street Defensa."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Mercado de San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Passes the entrance of Mercado de San Telmo."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Mercado de San Telmo",
+          "supportSpan": "Jump inside.",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-055"
+        }
+      ],
+      "reason": "Directs inside the market."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommendation commentary."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "History of the market."
+    }
+  ]
+}

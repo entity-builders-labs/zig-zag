@@ -1,0 +1,28 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-072",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions San Telmo as a contrast seen from the walk."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes the view from a previous stop."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Concluding author remarks and final thoughts."
+    }
+  ]
+}

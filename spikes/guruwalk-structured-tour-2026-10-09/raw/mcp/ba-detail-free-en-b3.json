@@ -1,0 +1,642 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"results\":[{\"product_id\":43134,\"type\":\"free_tour\",\"id\":43134,\"name\":\"In the footsteps of Mamá Antula, the first Argentine saint!\",\"slug\":\"43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint\",\"description_html\":\"<p><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\">We will walk </font></font><strong><em><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\">through the same places that Mamá Antula traveled 250 years ago</font></font></em></strong><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\">. Why did she choose Buenos Aires? Who received her? How? Was her stay here difficult? What was her mission? Did she achieve her goal? What is her legacy? Why is she today the First Argentine Saint? </font></font><strong><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\">You will learn her story and admire this Strong Woman as much as I do!</font></font></strong><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"><font dir=\\\"auto\\\" style=\\\"vertical-align: inherit;\\\"> You can't miss my Free Tour “In the footsteps of Mamá Antula!”</font></font><br><br></p>\",\"images\":[\"https://media.guruwalk.com/8bnesf0ws3cl1c4uszp6s48li2hw\",\"https://media.guruwalk.com/3zh3lx0nc6gm9pd9bnvjoytn0zus\",\"https://media.guruwalk.com/89m6ivnyu5tw1s5b1cbbpqwzs2wi\",\"https://media.guruwalk.com/00zmo4r9ypuftsex6o7d7kfli2in\",\"https://media.guruwalk.com/cwtpj0om07wgrixgfr5ic845gx38\"],\"duration\":\"2:30\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.60905,-58.388077\",\"meeting_point_latitude\":-34.60905,\"meeting_point_longitude\":-58.388077,\"how_to_find_me\":\"I will be in Plaza Lorea. On the corner of Rivadavia and Paraná, in front of the Liceo Theater. I will be dressed in light clothing and a flag with light blue and white scarves.\",\"itinerary\":[\"Basilica of Our Lady of Mercy\",\"Metropolitan Cathedral\",\"Parish of Saint Michael the Archangel\",\"Our Lady of Monserrat Parish\",\"Museum of the Holy House of Spiritual Exercises Sister María Antonia de la Paz y Figueroa\",\"Buenos Aires City Council\"],\"reviews\":{\"count\":2,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":30},\"guide\":{\"name\":\"Silvia Consoni\"},\"url\":\"https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":63487,\"type\":\"free_tour\",\"id\":63487,\"name\":\"SAN NICOLÁS: From Plaza Lavalle to Luna Park, the heart that never sleeps\",\"slug\":\"63487-san-nicolas-history-glamour-and-downtown\",\"description_html\":\"<p>Have you ever felt the pulse of a city that never sleeps?</p><p>San Nicolás is the neighborhood of contrasts: where our flag was born and where today the neon lights of the mythical Corrientes Street shine. Let's discover where the lives of Evita and Perón crossed, what secrets the domes of the Güemes Gallery hold, and why this corner of Buenos Aires was the dream of architects and visionaries. We will walk along Corrientes Avenue, among historic theaters and old bookstores; visit La Ideal Confectionery and the Güemes Gallery, the city's first skyscraper and home to Saint-Exupéry; discover the majesty of the Teatro Colón and the historic Plaza Lavalle; and we will reach, from Luna Park to the Obelisk, the stories that marked the destiny of Belgrano, Perón, and Evita.</p><p><br></p><p>If you wish, we will share a free mate experience while we unravel the secrets of the downtown area (request it in advance).</p><p><br></p><p>Important information:</p><p>Meeting point: Libertad 815 (in front of the Teatro Nacional Cervantes)</p><p>We start on time to respect your time and that of the group</p><p>Upon booking, I will send you my real-time location via WhatsApp and a complimentary PDF guide of Buenos Aires</p><p><br></p><p>\\\"San Nicolás is not visited. It is felt. Between the echo of the Obelisk and the murmur of Corrientes, the city tells you who it was... and who it still is.\\\"</p>\",\"images\":[\"https://media.guruwalk.com/unn7qbuugvgfn4gyencvo32qk8oc\",\"https://media.guruwalk.com/6h9jbawpjjdmgzud3jtada6op5wz\",\"https://media.guruwalk.com/z0k29s0x87rpnot2mygwa9pe8q93\",\"https://media.guruwalk.com/sa23frzbj8nbw6rmsjhu7q4k63qf\",\"https://media.guruwalk.com/5y9wjoywzs6xasb8gx28l7eomjkk\",\"https://media.guruwalk.com/dori05hea2m83yyvsbgx55so02br\",\"https://media.guruwalk.com/al67ljpe0rh4zhn4ebuu27cpabsm\",\"https://media.guruwalk.com/pl8ijnguo3xn4itgjb6119chqivq\",\"https://media.guruwalk.com/gaceq9tj458tbtwro5zuillh4hpi\",\"https://media.guruwalk.com/v2uqzbqk3mfmjhd2hy2fx4nmsw5m\"],\"duration\":\"2:00\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5989397,-58.3839028\",\"meeting_point_latitude\":-34.5989397,\"meeting_point_longitude\":-58.3839028,\"how_to_find_me\":\"I will be at the corner of the National Cervantes Theater: Libertad 815, corner with Av. Córdoba.\",\"itinerary\":[\"Teatro Colón\",\"Palacio de Justicia de la Nación\",\"Obelisco\",\"Confitería La Ideal\",\"Galería Güemes\",\"Monumento Histórico Nacional y primer edificio del Banco Central de la República Argentina\",\"Banco de Londres y América del Sur\",\"Centro Cultural Kirchner (CCK)\",\"Luna Park\"],\"reviews\":{\"count\":1,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":30},\"guide\":{\"name\":\"Gabriel Perez\"},\"url\":\"https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":59376,\"type\":\"free_tour\",\"id\":59376,\"name\":\"\\\"Recoleta Free Tour: Discover the Elegance and History of Buenos Aires' Aristocratic Legacy\\\"\",\"slug\":\"59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy\",\"description_html\":\"<p><strong>Discover the charm of one of the most fascinating neighborhoods in Buenos Aires: Recoleta.<br><br></strong>\\\"Although English is not my native language, my passion and enthusiasm for Buenos Aires have inspired me to create this tour in English. With my intermediate-advanced level of English, I hope to offer you an experience that you will truly enjoy.\\\"&nbsp;</p><p><br>On this tour, I will take you to explore its most elegant corners, where history, art, and architecture come together to tell the story of a city that dreamed of becoming a cultural powerhouse in the early 20th century.</p><p>You will walk past impressive palaces, European-style mansions, and monuments that witnessed the golden age of Buenos Aires. Throughout the tour, I will reveal the secrets of the most influential families of that time, who left their mark on these majestic buildings.</p><p>We will also learn about the work of French landscaper Carlos Thays, who transformed a dry city into a green urban paradise. His vision made Buenos Aires a place full of parks and green spaces, which today bring beauty and life to its historic streets and avenues.</p><p>This tour is not just a journey into the past but a unique experience to discover the cultural and architectural evolution of the city.<br><strong>Get ready to see it with new eyes!!!</strong></p><p><br></p>\",\"images\":[\"https://media.guruwalk.com/1yd1if9c40qg8tw3hgnts2mjdl5j\",\"https://media.guruwalk.com/fgtpsvolhsbak7pu2qtavarukahy\",\"https://media.guruwalk.com/7d7d32ace7kolokmt44poqqcm7ti\",\"https://media.guruwalk.com/4rexwtotef0vtnsep6cntwicbu9m\",\"https://media.guruwalk.com/9fouk08px89j9962pahppyubc050\",\"https://media.guruwalk.com/aah1pfadteek8lji20402i6649vm\",\"https://media.guruwalk.com/30b8o8vhewqq22il9zseoo7t9txi\",\"https://media.guruwalk.com/uepcg59ltaaben5unxqoqh8gov5u\",\"https://media.guruwalk.com/674k2e8a0w6p3tk2xkvy4zeoel7w\",\"https://media.guruwalk.com/swhrwpsfyvym0rlwoha27ak7okp6\"],\"duration\":\"2:15\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5948539,-58.3743164\",\"meeting_point_latitude\":-34.5948539,\"meeting_point_longitude\":-58.3743164,\"how_to_find_me\":\"\\\"I will be at Plaza Carlos Pellegrini, Avenida Alvear 1350, in CABA. We will be waiting for you with a multicolored umbrella.\\\"\",\"itinerary\":[\"Estacion Retiro\",\"Torre de los Ingleses\",\"Plaza San Martin\",\"Corina Kavanagh\",\"Plaza Hotel Buenos Aires\",\"Paz Palace\",\"Palacio Anchorena\",\"Estrugamou Building\",\"Edificio Mihanovich\",\"Plaza Israeli Embassy\",\"Jockey Club\"],\"reviews\":{\"count\":1,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Exploradores Urbanos BA Juan y Pablo\"},\"url\":\"https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":46968,\"type\":\"free_tour\",\"id\":46968,\"name\":\"Palacios Retreat: Mysticism and Flavors!\",\"slug\":\"46968-retreat-myths-architecture-and-tasting\",\"description_html\":\"Welcome to this immersive experience through Retiro with art, culture, architecture, and history! If you are passionate about urbanism, landscaping, and design, don't miss this opportunity.<div>During the tour, I will talk about architecture, share stories and myths of the city. We will climb stairs to appreciate the views from the cliff, where you can see the port and the iconic Torre de los Ingleses.&nbsp; &nbsp;</div><div><p></p><ul><li><b>At the end of the tour, we will include the palate with tastings of traditional delights such as alfajores, dulce de leche, liqueurs, etc...</b></li></ul><p></p><p>I will also recommend places to see shows.</p><div><div><br></div><div><br></div><div>-In case of rain, it will be canceled/Not suitable for reduced mobility!</div><div><br></div><div><br></div><div>-MEETING POINT: Steps of PLAZA MAIPU, I have a COLORFUL UMBRELLA!!</div></div></div>\",\"images\":[\"https://media.guruwalk.com/a8skjq3fd657gey0x8xqx5saw6yj\",\"https://media.guruwalk.com/5yjrswjn00p6x1q9h9x01s3i04kq\",\"https://media.guruwalk.com/m44lpm674toeqok3fbd7vqvbiz48\",\"https://media.guruwalk.com/b4xgbheu5fnbhnx47q5munb5kttu\",\"https://media.guruwalk.com/muj6fgcn6n23tpk1gtrk24w4975b\",\"https://media.guruwalk.com/5nlo09caz5xlqj7i7j5m6rr1yj1i\",\"https://media.guruwalk.com/bdki62ak3hwf1gir1567vrqxya4m\",\"https://media.guruwalk.com/9nnj91hfv2pcsh0nco3tuuoy9f64\",\"https://media.guruwalk.com/9rfq0rrz5p1lb68ua702vsnvyg1d\",\"https://media.guruwalk.com/6e6n8tmk3smz0hj7019mdnto5rmt\",\"https://media.guruwalk.com/wwaavxm4qnpyn0s4e9uzrc71lu2x\",\"https://media.guruwalk.com/eb5p101lrsvxrmu5p1vkhb9x75hx\"],\"duration\":\"1:30\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.59472896,-58.37769028\",\"meeting_point_latitude\":-34.59472896,\"meeting_point_longitude\":-58.37769028,\"how_to_find_me\":\"I will be with a colorful umbrella on the steps of PLAZA MAIPU, on Maipu street between Av. Santa Fe and Arenales.\",\"itinerary\":[\"Peace Palace\",\"Kavanagh Building\",\"Avenida Santa Fe & Maipú\",\"San Martín 1039\",\"La Casa del Dulce de Leche\",\"Florida 915\"],\"reviews\":{\"count\":1,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":20},\"guide\":{\"name\":\"Lorena Petrucci\"},\"url\":\"https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":49609,\"type\":\"free_tour\",\"id\":49609,\"name\":\"RECOLETA: ARTE, ELEGANCIA Y PODER\",\"slug\":\"49609-recoleta-arte-elegancia-y-poder\",\"description_html\":\"<p><strong>Bienvenidos a Recoleta</strong>, el barrio que se viste de gala para que no noten que, debajo del mármol, hay historia, poder, olvido y una Argentina que se niega a mirarse en el espejo.</p><p>No venimos a ver mansiones. Venimos a descubrir quiénes las hicieron, quiénes las habitaron y quiénes quedaron afuera.</p><p>Este no es un paseo por palacios. Es un recorrido por las decisiones que construyeron (y deshicieron) un país.</p><p><strong>¿Sabías que este barrio nació de una epidemia?</strong> En 1871, la fiebre amarilla diezmó el sur de la ciudad. Los ricos huyeron. Y eligieron este lugar: más alto, más ventilado, más lejos de los pobres. Así nació Recoleta, no por belleza, sino por exclusión.</p><p>Vamos a caminar por la Avenida Alvear, esa calle que parece sacada de París, con mansiones de piedra, balcones de hierro forjado y autos que cuestan más que una casa en el conurbano. Vamos a pararnos frente al Hotel Alvear, el Palacio Duhau, el Jockey Club, el Palacio Pereda, la Nunciatura Apostólica. Y vamos a preguntarnos: ¿Quiénes eran estos hombres que construyeron palacios como si fueran reyes? ¿Qué hicieron con su dinero? ¿Y qué hicieron con su poder?</p><p><strong>¿Qué vas a ver?</strong></p><p>Plaza de Francia</p><p>Museo Nacional de Bellas Artes (con entrada)</p><p>Plaza Alvear</p><p>Iglesia del Pilar</p><p>Centro Cultural Recoleta</p><p>Cementerio de la Recoleta</p><p>Hotel Alvear</p><p>Residencia Mc Guire</p><p>Palacio Duhau</p><p>Palacio de la Nunciatura</p><p>Palacio Pereda</p><p>Jockey Club</p><p>Plaza Carlos Pellegrini</p><p><strong>Este tour es para vos si…</strong></p><p>No te conformás con decir “qué lindo” y querés saber por qué.</p><p>Te interesa la historia, pero no como una lista de fechas, sino como una conversación con el presente.</p><p>Querés entender Argentina no desde el asado ni el tango, sino desde sus contradicciones.</p><p>Hablás español, sí, pero también quieres escuchar lo que no se dice.</p><p>Soy Inés, docente, viajera y cronista. He caminado estos adoquines muchas veces, no como turista, sino como alguien que busca entender. Este tour no es un trabajo. Es una conversación que se renueva cada vez.</p><p><strong>&nbsp;</strong></p><p><strong>PUNTO DE ENCUENTRO</strong></p><p>Av. del Libertador 1473, en las escalinatas del Museo Nacional de Bellas Artes.&nbsp;</p><p>&nbsp;</p><p><strong>NO LO OLVIDES&nbsp;</strong></p><p>Zapatillas cómodas, agua, ropa ligera.</p><p><strong>&nbsp;</strong></p><p><strong>IMPORTANTE: EL PASEO SE SUSPENDE POR LLUVIA</strong></p>\",\"images\":[\"https://media.guruwalk.com/52z3zofz2cd2gaxsj0h1od6fnbel\",\"https://media.guruwalk.com/4tb4s4w69l06aun4btquzu7ah0s7\",\"https://media.guruwalk.com/dxic7s1v6h6hb26t5diighqugh4c\",\"https://media.guruwalk.com/5ql79kxa9ove69hup2350auocpin\",\"https://media.guruwalk.com/31bto7ihiwlba1sycraac7kk3wsm\",\"https://media.guruwalk.com/3x60fzdzrllnljqo7g07btjahqul\",\"https://media.guruwalk.com/x6gz9qer0bzigerwwxn3yko3zt89\",\"https://media.guruwalk.com/3vlzyahhisx0207jo5jo5auk12t6\",\"https://media.guruwalk.com/rcjpkurrho6vukkmfjjn48i5kvhx\",\"https://media.guruwalk.com/hl4zt5y2q2bo4rxu0mvez6jwfvge\"],\"duration\":\"3:00\",\"available_languages\":[\"es\",\"it\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5839894,-58.3930044\",\"meeting_point_latitude\":-34.5839894,\"meeting_point_longitude\":-58.3930044,\"how_to_find_me\":\"Av. del Libertador 1473, en las escalinatas del Museo Nacional de Bellas Artes. \\r\\nLlevomi credencial de guía matriculada de la CABA en la solapa del saco y el parlante rojo de mi micrófono colgado del cuello. \",\"itinerary\":[\"Plaza Intendente Alvear\",\"La Biela\",\"Centro Cultural Recoleta\",\"Basílica Nuestra Señora del Pilar\",\"Avenida Alvear\",\"Plaza Carlos Pellegrini\",\"Ambassade de France / Embajada de Francia\",\"Plaza de Cataluña\"],\"reviews\":{\"count\":178,\"rating\":\"4.96\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":15},\"guide\":{\"name\":\"Inés Cordonnier\"},\"url\":\"https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":43240,\"type\":\"free_tour\",\"id\":43240,\"name\":\"AVENIDA DE MAYO: From the Cabildo to the Congress, the avenue that wrote history\",\"slug\":\"43240-avenida-de-mayo-the-avenue-of-dreams\",\"description_html\":\"<p>From the Casa Rosada to the Congress, there is a route that sums up a large part of Argentine history: the domes and their symbols, the cafes where politics and literature were crafted, the buildings we all pass by but few truly observe. We will walk through Plaza de Mayo —from the Cabildo to the Cathedral where San Martín rests—, discover Dante's mark in the Barolo Palace, and sit with a view of the Tortoni and London City, witnesses of poets and conspiracies, until we reach the dome of the Congress to understand how this path shaped today's Argentina.</p><p><br></p><p>And as always, we share some mate along the way (order it free of charge up to 2 hours before the tour) to chat about history and today's Argentina.</p><p><br></p><p>Important info:</p><p>Meeting point: Av. Rivadavia and Reconquista (Plaza de Mayo), next to the street sign</p><p>We start on time, to make the most of every minute</p><p>Wear comfortable shoes</p><p>Upon booking, you receive my real-time location and a complimentary PDF guide</p><p><br></p><p>\\\"The best place to understand reality is the street itself.\\\"</p>\",\"images\":[\"https://media.guruwalk.com/vajn4kibf533iqn1uhn57j5o2zx4\",\"https://media.guruwalk.com/ksef67yqdh5uu85ojnjck6vc7vdi\",\"https://media.guruwalk.com/z8s4s33veuy3pf4k1fjmx8gbt9cc\",\"https://media.guruwalk.com/pi7v8qt0gav61vovbp9o6q3ky5ux\",\"https://media.guruwalk.com/3osodp15p5dkharmz7v7z2wu5c8a\",\"https://media.guruwalk.com/lq6ebzopq2hljd7lvjcnrm4u3p3a\",\"https://media.guruwalk.com/qegcjbkqjq4nirjz6ez5sbuads09\",\"https://media.guruwalk.com/qo7s7m27ukfunjaep4x70kjr147n\",\"https://media.guruwalk.com/ihigb0oobiu2botws4bkuwp52usu\",\"https://media.guruwalk.com/rztbi3cd4ywzfzspn3to03svvwn3\",\"https://media.guruwalk.com/ekf7mnwqo2mvkh737gjkqnu4jtmq\",\"https://media.guruwalk.com/qrzowbg82xsvqzc4bbi7zd54pl1r\"],\"duration\":\"2:30\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6079074,-58.3721503\",\"meeting_point_latitude\":-34.6079074,\"meeting_point_longitude\":-58.3721503,\"how_to_find_me\":\"I will be at the CORNER of Av. Rivadavia and Reconquista ON Plaza de Mayo NEXT to the signpost indicating the streets.\",\"itinerary\":[\"Casa Rosada\",\"Catedral Metropolitana\",\"Cabildo de Buenos Aires\",\"Avenida de Mayo\",\"Café Tortoni\",\"Avenida 9 de Julio\",\"Palacio Barolo\",\"Congreso de la Nación Argentina\"],\"reviews\":{\"count\":409,\"rating\":\"4.93\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":30},\"guide\":{\"name\":\"Gabriel Perez\"},\"url\":\"https://www.guruwalk.com/walks/43240-avenida-de-mayo-the-avenue-of-dreams?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/43240-avenida-de-mayo-the-avenue-of-dreams?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":49154,\"type\":\"free_tour\",\"id\":49154,\"name\":\"SAN TELMO: From the Cradle of Buenos Aires to the Courtyards of Tango\",\"slug\":\"49154-san-telmo-the-stories-beneath-the-cobblestones\",\"description_html\":\"<p><b>San Telmo is one of the most historic neighborhoods in Buenos Aires: its cobblestones have witnessed much of the city, and its old mansions — abandoned after the yellow fever of 1871 — have turned into tango and art courtyards. I invite you to explore it with me, from the possible founding site to the corner where Mafalda was born. We will walk through Parque Lezama, a green lung and possible cradle of the first Buenos Aires in 1536; the Russian Orthodox Church, with its blue domes that seem like a piece of St. Petersburg; the San Telmo Market and Pasaje Defensa, iron and glass from 1880 among artists and taverns; and Plaza Dorrego and Defensa Street, where tango was born in the courtyards, until we reach the Paseo de la Historieta to meet Mafalda.</b></p><p><b><br></b></p><p><b>And as always, we share some mate along the way to chat about our identity (remember to request it free of charge 2 hours in advance, so I arrive with everything prepared).</b></p><p><b><br></b></p><p><b>Important info:</b></p><p><b>Meeting point: Monument to Don Pedro de Mendoza (Av. Brasil and Defensa)</b></p><p><b>We start on time</b></p><p><b>Bring cash: many artisans at the fair do not accept cards</b></p><p><b>Upon booking, you receive my real-time location via WhatsApp and a complimentary PDF guide</b></p><p><b><br></b></p><p><b>\\\"San Telmo is not visited, it is felt.\\\"</b></p>\",\"images\":[\"https://media.guruwalk.com/jg64w62k4e5prxivtri4t1kxsj57\",\"https://media.guruwalk.com/3ah09qzwk3ccjbrx52145yt8vnky\",\"https://media.guruwalk.com/rjnfqvvuf2y8qhp9t9brv23gp7wk\",\"https://media.guruwalk.com/k6e9ym4yy93agmkkoicdmfg83onk\",\"https://media.guruwalk.com/458wuxrgk645t919cmuqk2wbcqv2\",\"https://media.guruwalk.com/qa1motd116xq0rjwrqcch0ttj5qh\",\"https://media.guruwalk.com/wdd3uekn8kv5g59a1cw58x38n38i\",\"https://media.guruwalk.com/z9wn00f7q4oevd5jmvvy7akrwtyr\",\"https://media.guruwalk.com/eqvvswd47vyrk5uu2bewhwr3mg5r\",\"https://media.guruwalk.com/844z7b5ls6pst43j4ei6xztxz0cb\",\"https://media.guruwalk.com/vdks1gh9p2d08skj6iqm2lhmtzr7\",\"https://media.guruwalk.com/rwrcw7qgs46qwy82dfbdqjcvqkg3\"],\"duration\":\"2:00\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6265523,-58.369556\",\"meeting_point_latitude\":-34.6265523,\"meeting_point_longitude\":-58.369556,\"how_to_find_me\":\"Monument to Don Pedro de Mendoza.\\nAv. Brasil and Defensa. CABA.\",\"itinerary\":[\"Museo Histórico Nacional\",\"Iglesia Ortodoxa Rusa de la Santísima Trinidad\",\"Museo Moderno\",\"Casa Ezeiza\",\"Parroquia de San Pedro González Telmo\",\"Plaza Dorego\",\"Mercado de San Telmo\",\"Chile & Defensa\"],\"reviews\":{\"count\":65,\"rating\":\"4.92\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":30},\"guide\":{\"name\":\"Gabriel Perez\"},\"url\":\"https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":52012,\"type\":\"free_tour\",\"id\":52012,\"name\":\"Historic Center. Where our identity was born.\",\"slug\":\"52012-historic-center-where-our-identity-was-born\",\"description_html\":\"<p>We will walk through the “Historic Center” of the City of Buenos Aires in its center.</p><p> We'll observe the historical, sculptural, and architectural icons that distinguish it, such as the Church of San Francisco, the City Museum (Altos de Elorriaga), the Manzana de las Luces (Block of Lights), the San Ignacio Church, the National College of Buenos Aires, the Santo Domingo Complex, Paseo de la Historieta (Historical Walk), Zanjón de Granados (Granados Zane), the Casa Mínima (Minimal House), San Telmo Market, Plaza Dorrego, and the San Pedro Telmo Church. We'll then visit the Puerto Madero neighborhood and visit the iconic Puente de la Mujer (Women's Bridge), where we'll conclude the tour. We'll also remember the historical figures who walked these streets, their lives, and their work.</p><p> This historical approach to colonial Buenos Aires and its comparison with the current neighborhood can give us a broader view of the heritage that accompanies it, along with its indisputable visual attractions.</p>\",\"images\":[\"https://media.guruwalk.com/3bddlhispx8og1d9ncy81w6h5t24\",\"https://media.guruwalk.com/1fplvy8ej3i8eskeqjcv7i5v5j8d\",\"https://media.guruwalk.com/r370masb3eptrcksahcel7202xya\",\"https://media.guruwalk.com/umdvnmghl25vl9saa1ei50m28cbw\",\"https://media.guruwalk.com/q659krc764pzyrogtk79e9iqlbhi\"],\"duration\":\"2:30\",\"available_languages\":[\"es\",\"it\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.60847,-58.372237\",\"meeting_point_latitude\":-34.60847,\"meeting_point_longitude\":-58.372237,\"how_to_find_me\":\"I'll be waiting at the Pyramid of May, looking towards the Casa Rosada.\",\"itinerary\":[\"Metropolitan Cathedral\",\"Buenos Aires City Council\",\"Pink House\",\"Museum of the City\",\"Manzana de las Luces Historical Cultural Complex\",\"Santo Domingo Convent - Basilica Nuestra Señora del Rosario de la Defensa y Reconquista de Buenos Aires\",\"mafalda\",\"The Zanjón de Granados\",\"San Telmo Market\",\"Plaza Dorego\",\"MACBA - Museo de Arte Contemporáneo de Buenos Aires\",\"Puerto Madero\"],\"reviews\":{\"count\":35,\"rating\":\"4.91\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":30},\"guide\":{\"name\":\"Silvia Consoni\"},\"url\":\"https://www.guruwalk.com/walks/52012-historic-center-where-our-identity-was-born?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/52012-historic-center-where-our-identity-was-born?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":55178,\"type\":\"free_tour\",\"id\":55178,\"name\":\"Free Night Tour: Buenos Aires Illuminated – A Journey Through Its History\",\"slug\":\"55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history\",\"description_html\":\"<p>🌙 **BUENOS AIRES ILLUMINATED: FROM THE ANCIENT CITY TO THE MODERN**</p><p>Discover **a completely different Buenos Aires under the night lights**.</p><p>In this nighttime tour, we will see something fascinating: **how the city changes before our eyes**, from ancient Buenos Aires to the architecture, the grand avenues, and the symbols of a modern capital.</p><p><br></p><p>✨ With illuminated buildings and monuments as our backdrop, we will travel through different eras and discover how a small colonial city transformed into one of the great metropolises of America.</p><p><br></p><p>We will walk among **palaces, churches, monumental buildings, avenues, and historic corners**, while learning about the stories, characters, and transformations that built the Buenos Aires we see today.</p><p><br></p><p>🌃 The night gives the city a completely different atmosphere: the facades take center stage, details that go unnoticed during the day emerge, and **the contrast between ancient and modern Buenos Aires becomes spectacular**.</p><p><br></p><p>More than a nighttime stroll, it is **a journey through the transformation of Buenos Aires through its lights**.</p><p><br></p><p>✨ History, architecture, and one of the city's most beautiful faces, all in one night.</p><p><br></p>\",\"images\":[\"https://media.guruwalk.com/p3fxrt7o0swghkpezp6ifsb6drt3\",\"https://media.guruwalk.com/jd77e8pl7gxqqr7r32eoj5mjtlh5\",\"https://media.guruwalk.com/dx4kl07opu7u3msk7ws0e8pfzt5l\",\"https://media.guruwalk.com/n14z24bdkkn6ekjpdz0u4m2qujun\",\"https://media.guruwalk.com/bfa17g83gc68r447mjh5pks0u8e1\",\"https://media.guruwalk.com/1b70s3xd7lsd43gkdf600nlxlfdv\",\"https://media.guruwalk.com/c5pgui40sp3gg40uxqpufrb8wjxl\",\"https://media.guruwalk.com/pd5qoilf5tlm4u1jkvi0t1cxb78z\",\"https://media.guruwalk.com/fraiqjg89u91oy7hv3brhk60btzg\",\"https://media.guruwalk.com/9c8t87euobe0xcxgdna8761chgn7\",\"https://media.guruwalk.com/igdwautqx6e702sskxp72z7tn1cv\",\"https://media.guruwalk.com/mdg8jc85sxwk9fwktsumpp7vlpd3\",\"https://media.guruwalk.com/svgvx96ue1z3qkkxi71x8dz4ziu2\",\"https://media.guruwalk.com/vuowkskwguqkw0a3lxquyaqjirjt\",\"https://media.guruwalk.com/la1zi5gjfomj8zp29bq0ilgb0vdk\",\"https://media.guruwalk.com/iwo0hig4exf225fck329iijhl2mx\",\"https://media.guruwalk.com/xpn3jtp1vn0bnofa8nk7nrr734ls\",\"https://media.guruwalk.com/nft77i1w6b31l117ywasamv6alpu\",\"https://media.guruwalk.com/6it5tnso3kiwdnb5hgwt15cn36qu\",\"https://media.guruwalk.com/awouu7icfnkgjd92u0fw78wg62m4\",\"https://media.guruwalk.com/szmprcrrpudzpwqrdzsqj69ydo6s\"],\"duration\":\"2:15\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6083667,-58.3722832\",\"meeting_point_latitude\":-34.6083667,\"meeting_point_longitude\":-58.3722832,\"how_to_find_me\":\"Address: Av. Hipólito Yrigoyen 400\\n📍https://maps.app.goo.gl/N13rBYPGHAJ1gBYH7\\n\\nI will be with an umbrella in the center of the square (pyramid)\",\"itinerary\":[\"Ministry of Economy of the Nation\",\"Basilica and Convent of San Francisco de Asís\",\"Puente de la Mujer\",\"Legislature of the Autonomous City of Buenos Aires\",\"National Bank\",\"Buenos Aires City Council\",\"Madero Port\"],\"reviews\":{\"count\":39,\"rating\":\"4.9\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":15},\"guide\":{\"name\":\"Exploradores Urbanos BA Juan y Pablo\"},\"url\":\"https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":58175,\"type\":\"free_tour\",\"id\":58175,\"name\":\"Recoleta: history, architecture, and aristocracy in the most elegant neighborhood of Buenos Aires\",\"slug\":\"58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires\",\"description_html\":\"<p>Discover the most elegant Recoleta in Buenos Aires.</p><p>In this tour, you will not only see palaces and monuments: you will understand how the Argentine elite of the early 20th century turned the city into a new Paris.</p><p>Throughout the tour, we will explore aristocratic residences, embassies, and iconic buildings that reflect an era of extraordinary wealth, when Argentina was among the most prosperous countries in the world.</p><p>Behind each facade are stories of power, influential families, political decisions, and an economic model that forever marked the country's identity.</p><p>We will also discover the legacy of the French landscaper Carlos Thays, key in transforming Buenos Aires into one of the greenest and most sophisticated cities in Latin America.</p><p>This is a tour designed for those who want to go beyond the superficial:</p><p>to connect architecture with history, and beauty with context.</p><p>A tour to understand, not just to look.</p><p><br></p><p>Warning: Not recommended for children or for people who do not have a good understanding of the language.</p>\",\"images\":[\"https://media.guruwalk.com/2ieziit6gw0573qxuikujc7xefi1\",\"https://media.guruwalk.com/o8dnw2us93ak5sxlu6vquzzinamv\",\"https://media.guruwalk.com/t5mzgm5v5sdoji51y9lvji81pp1n\",\"https://media.guruwalk.com/qvxo6xnpm5iqd13oiv70rway5jpe\",\"https://media.guruwalk.com/fzth64n10qhlgmzyzk1u4s32grou\",\"https://media.guruwalk.com/dd4a0h02brgslmyoqowb8k1r2ti5\",\"https://media.guruwalk.com/8uvhn23ram5sk16mbftohxy4q5jf\",\"https://media.guruwalk.com/5inn0039iyd75a5enl3jun53jjlk\",\"https://media.guruwalk.com/ka3d119pgh1rqfa8or8fhgqnd19u\",\"https://media.guruwalk.com/zv246ia9bcrcd23lynqk7ojfparr\",\"https://media.guruwalk.com/q0vnvlrbghpjn0a89i97y5li6i16\",\"https://media.guruwalk.com/tk68vk0iusvwjchrrk6dqxcr58wa\",\"https://media.guruwalk.com/zws4t0f0sa6bqzcyuukyifoofkov\",\"https://media.guruwalk.com/w7ogv1nh4eyzwdyveq3rdq0vh3wz\",\"https://media.guruwalk.com/qks2nbbqv71awxx8gawo0tpxkgmh\",\"https://media.guruwalk.com/7rockqu6wh70tt561139ecsn7quw\",\"https://media.guruwalk.com/sc8lam79z31i1y8yt11irsrnklnx\",\"https://media.guruwalk.com/kcf1z1tm4khzvc4x50f3ql5ncrcu\",\"https://media.guruwalk.com/ufd6l4rj1474phxremuag9d9be74\",\"https://media.guruwalk.com/md990mnyvl9zgj9ruy9gpzcslwes\",\"https://media.guruwalk.com/ztyw5l2r9k8qig0bz8ddpdx5c8w0\",\"https://media.guruwalk.com/unghu2g9254i5563ti7bp53pw8k4\",\"https://media.guruwalk.com/68raf3peb3t7ropxes1ot543u9fr\"],\"duration\":\"2:15\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5913715,-58.3839558\",\"meeting_point_latitude\":-34.5913715,\"meeting_point_longitude\":-58.3839558,\"how_to_find_me\":\"I will be at the Carlos Pellegrini Square on Alvear Avenue 1350 in CABA\\nWe will be waiting for you with a blue umbrella\",\"itinerary\":[\"Bicentennial Museum\",\"Duhau Palace - Park Hyatt Buenos Aires\",\"Mansión Alzaga Unzué\",\"Jockey Club\",\"Nunciatura Apostólica\",\"Palacio Duhau - Park Hyatt Buenos Aires\",\"Residencia Maguire\",\"Alvear Palace Hotel\",\"Plaza Int. Torcuato de Alvear\",\"La Biela\",\"Gomero de la Recoleta - Árbol Histórico\",\"Cementerio de la Recoleta (solo exterior)\",\"Basílica Nuestra Señora del Pilar\",\"Monasterio de los monjes Recoletos\",\"National Museum of Fine Arts\",\"Facultad de Derecho (UBA)\",\"Floralis Generica\"],\"reviews\":{\"count\":4,\"rating\":\"3.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":15},\"guide\":{\"name\":\"Exploradores Urbanos BA Juan y Pablo\"},\"url\":\"https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"}]}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "results": [
+    {
+     "product_id": 43134,
+     "type": "free_tour",
+     "id": 43134,
+     "name": "In the footsteps of Mamá Antula, the first Argentine saint!",
+     "slug": "43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint",
+     "description_html": "<p><font dir=\"auto\" style=\"vertical-align: inherit;\"><font dir=\"auto\" style=\"vertical-align: inherit;\">We will walk </font></font><strong><em><font dir=\"auto\" style=\"vertical-align: inherit;\"><font dir=\"auto\" style=\"vertical-align: inherit;\">through the same places that Mamá Antula traveled 250 years ago</font></font></em></strong><font dir=\"auto\" style=\"vertical-align: inherit;\"><font dir=\"auto\" style=\"vertical-align: inherit;\">. Why did she choose Buenos Aires? Who received her? How? Was her stay here difficult? What was her mission? Did she achieve her goal? What is her legacy? Why is she today the First Argentine Saint? </font></font><strong><font dir=\"auto\" style=\"vertical-align: inherit;\"><font dir=\"auto\" style=\"vertical-align: inherit;\">You will learn her story and admire this Strong Woman as much as I do!</font></font></strong><font dir=\"auto\" style=\"vertical-align: inherit;\"><font dir=\"auto\" style=\"vertical-align: inherit;\"> You can't miss my Free Tour “In the footsteps of Mamá Antula!”</font></font><br><br></p>",
+     "images": [
+      "https://media.guruwalk.com/8bnesf0ws3cl1c4uszp6s48li2hw",
+      "https://media.guruwalk.com/3zh3lx0nc6gm9pd9bnvjoytn0zus",
+      "https://media.guruwalk.com/89m6ivnyu5tw1s5b1cbbpqwzs2wi",
+      "https://media.guruwalk.com/00zmo4r9ypuftsex6o7d7kfli2in",
+      "https://media.guruwalk.com/cwtpj0om07wgrixgfr5ic845gx38"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.60905,-58.388077",
+     "meeting_point_latitude": -34.60905,
+     "meeting_point_longitude": -58.388077,
+     "how_to_find_me": "I will be in Plaza Lorea. On the corner of Rivadavia and Paraná, in front of the Liceo Theater. I will be dressed in light clothing and a flag with light blue and white scarves.",
+     "itinerary": [
+      "Basilica of Our Lady of Mercy",
+      "Metropolitan Cathedral",
+      "Parish of Saint Michael the Archangel",
+      "Our Lady of Monserrat Parish",
+      "Museum of the Holy House of Spiritual Exercises Sister María Antonia de la Paz y Figueroa",
+      "Buenos Aires City Council"
+     ],
+     "reviews": {
+      "count": 2,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 30
+     },
+     "guide": {
+      "name": "Silvia Consoni"
+     },
+     "url": "https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 63487,
+     "type": "free_tour",
+     "id": 63487,
+     "name": "SAN NICOLÁS: From Plaza Lavalle to Luna Park, the heart that never sleeps",
+     "slug": "63487-san-nicolas-history-glamour-and-downtown",
+     "description_html": "<p>Have you ever felt the pulse of a city that never sleeps?</p><p>San Nicolás is the neighborhood of contrasts: where our flag was born and where today the neon lights of the mythical Corrientes Street shine. Let's discover where the lives of Evita and Perón crossed, what secrets the domes of the Güemes Gallery hold, and why this corner of Buenos Aires was the dream of architects and visionaries. We will walk along Corrientes Avenue, among historic theaters and old bookstores; visit La Ideal Confectionery and the Güemes Gallery, the city's first skyscraper and home to Saint-Exupéry; discover the majesty of the Teatro Colón and the historic Plaza Lavalle; and we will reach, from Luna Park to the Obelisk, the stories that marked the destiny of Belgrano, Perón, and Evita.</p><p><br></p><p>If you wish, we will share a free mate experience while we unravel the secrets of the downtown area (request it in advance).</p><p><br></p><p>Important information:</p><p>Meeting point: Libertad 815 (in front of the Teatro Nacional Cervantes)</p><p>We start on time to respect your time and that of the group</p><p>Upon booking, I will send you my real-time location via WhatsApp and a complimentary PDF guide of Buenos Aires</p><p><br></p><p>\"San Nicolás is not visited. It is felt. Between the echo of the Obelisk and the murmur of Corrientes, the city tells you who it was... and who it still is.\"</p>",
+     "images": [
+      "https://media.guruwalk.com/unn7qbuugvgfn4gyencvo32qk8oc",
+      "https://media.guruwalk.com/6h9jbawpjjdmgzud3jtada6op5wz",
+      "https://media.guruwalk.com/z0k29s0x87rpnot2mygwa9pe8q93",
+      "https://media.guruwalk.com/sa23frzbj8nbw6rmsjhu7q4k63qf",
+      "https://media.guruwalk.com/5y9wjoywzs6xasb8gx28l7eomjkk",
+      "https://media.guruwalk.com/dori05hea2m83yyvsbgx55so02br",
+      "https://media.guruwalk.com/al67ljpe0rh4zhn4ebuu27cpabsm",
+      "https://media.guruwalk.com/pl8ijnguo3xn4itgjb6119chqivq",
+      "https://media.guruwalk.com/gaceq9tj458tbtwro5zuillh4hpi",
+      "https://media.guruwalk.com/v2uqzbqk3mfmjhd2hy2fx4nmsw5m"
+     ],
+     "duration": "2:00",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5989397,-58.3839028",
+     "meeting_point_latitude": -34.5989397,
+     "meeting_point_longitude": -58.3839028,
+     "how_to_find_me": "I will be at the corner of the National Cervantes Theater: Libertad 815, corner with Av. Córdoba.",
+     "itinerary": [
+      "Teatro Colón",
+      "Palacio de Justicia de la Nación",
+      "Obelisco",
+      "Confitería La Ideal",
+      "Galería Güemes",
+      "Monumento Histórico Nacional y primer edificio del Banco Central de la República Argentina",
+      "Banco de Londres y América del Sur",
+      "Centro Cultural Kirchner (CCK)",
+      "Luna Park"
+     ],
+     "reviews": {
+      "count": 1,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 30
+     },
+     "guide": {
+      "name": "Gabriel Perez"
+     },
+     "url": "https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 59376,
+     "type": "free_tour",
+     "id": 59376,
+     "name": "\"Recoleta Free Tour: Discover the Elegance and History of Buenos Aires' Aristocratic Legacy\"",
+     "slug": "59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy",
+     "description_html": "<p><strong>Discover the charm of one of the most fascinating neighborhoods in Buenos Aires: Recoleta.<br><br></strong>\"Although English is not my native language, my passion and enthusiasm for Buenos Aires have inspired me to create this tour in English. With my intermediate-advanced level of English, I hope to offer you an experience that you will truly enjoy.\"&nbsp;</p><p><br>On this tour, I will take you to explore its most elegant corners, where history, art, and architecture come together to tell the story of a city that dreamed of becoming a cultural powerhouse in the early 20th century.</p><p>You will walk past impressive palaces, European-style mansions, and monuments that witnessed the golden age of Buenos Aires. Throughout the tour, I will reveal the secrets of the most influential families of that time, who left their mark on these majestic buildings.</p><p>We will also learn about the work of French landscaper Carlos Thays, who transformed a dry city into a green urban paradise. His vision made Buenos Aires a place full of parks and green spaces, which today bring beauty and life to its historic streets and avenues.</p><p>This tour is not just a journey into the past but a unique experience to discover the cultural and architectural evolution of the city.<br><strong>Get ready to see it with new eyes!!!</strong></p><p><br></p>",
+     "images": [
+      "https://media.guruwalk.com/1yd1if9c40qg8tw3hgnts2mjdl5j",
+      "https://media.guruwalk.com/fgtpsvolhsbak7pu2qtavarukahy",
+      "https://media.guruwalk.com/7d7d32ace7kolokmt44poqqcm7ti",
+      "https://media.guruwalk.com/4rexwtotef0vtnsep6cntwicbu9m",
+      "https://media.guruwalk.com/9fouk08px89j9962pahppyubc050",
+      "https://media.guruwalk.com/aah1pfadteek8lji20402i6649vm",
+      "https://media.guruwalk.com/30b8o8vhewqq22il9zseoo7t9txi",
+      "https://media.guruwalk.com/uepcg59ltaaben5unxqoqh8gov5u",
+      "https://media.guruwalk.com/674k2e8a0w6p3tk2xkvy4zeoel7w",
+      "https://media.guruwalk.com/swhrwpsfyvym0rlwoha27ak7okp6"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5948539,-58.3743164",
+     "meeting_point_latitude": -34.5948539,
+     "meeting_point_longitude": -58.3743164,
+     "how_to_find_me": "\"I will be at Plaza Carlos Pellegrini, Avenida Alvear 1350, in CABA. We will be waiting for you with a multicolored umbrella.\"",
+     "itinerary": [
+      "Estacion Retiro",
+      "Torre de los Ingleses",
+      "Plaza San Martin",
+      "Corina Kavanagh",
+      "Plaza Hotel Buenos Aires",
+      "Paz Palace",
+      "Palacio Anchorena",
+      "Estrugamou Building",
+      "Edificio Mihanovich",
+      "Plaza Israeli Embassy",
+      "Jockey Club"
+     ],
+     "reviews": {
+      "count": 1,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Exploradores Urbanos BA Juan y Pablo"
+     },
+     "url": "https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 46968,
+     "type": "free_tour",
+     "id": 46968,
+     "name": "Palacios Retreat: Mysticism and Flavors!",
+     "slug": "46968-retreat-myths-architecture-and-tasting",
+     "description_html": "Welcome to this immersive experience through Retiro with art, culture, architecture, and history! If you are passionate about urbanism, landscaping, and design, don't miss this opportunity.<div>During the tour, I will talk about architecture, share stories and myths of the city. We will climb stairs to appreciate the views from the cliff, where you can see the port and the iconic Torre de los Ingleses.&nbsp; &nbsp;</div><div><p></p><ul><li><b>At the end of the tour, we will include the palate with tastings of traditional delights such as alfajores, dulce de leche, liqueurs, etc...</b></li></ul><p></p><p>I will also recommend places to see shows.</p><div><div><br></div><div><br></div><div>-In case of rain, it will be canceled/Not suitable for reduced mobility!</div><div><br></div><div><br></div><div>-MEETING POINT: Steps of PLAZA MAIPU, I have a COLORFUL UMBRELLA!!</div></div></div>",
+     "images": [
+      "https://media.guruwalk.com/a8skjq3fd657gey0x8xqx5saw6yj",
+      "https://media.guruwalk.com/5yjrswjn00p6x1q9h9x01s3i04kq",
+      "https://media.guruwalk.com/m44lpm674toeqok3fbd7vqvbiz48",
+      "https://media.guruwalk.com/b4xgbheu5fnbhnx47q5munb5kttu",
+      "https://media.guruwalk.com/muj6fgcn6n23tpk1gtrk24w4975b",
+      "https://media.guruwalk.com/5nlo09caz5xlqj7i7j5m6rr1yj1i",
+      "https://media.guruwalk.com/bdki62ak3hwf1gir1567vrqxya4m",
+      "https://media.guruwalk.com/9nnj91hfv2pcsh0nco3tuuoy9f64",
+      "https://media.guruwalk.com/9rfq0rrz5p1lb68ua702vsnvyg1d",
+      "https://media.guruwalk.com/6e6n8tmk3smz0hj7019mdnto5rmt",
+      "https://media.guruwalk.com/wwaavxm4qnpyn0s4e9uzrc71lu2x",
+      "https://media.guruwalk.com/eb5p101lrsvxrmu5p1vkhb9x75hx"
+     ],
+     "duration": "1:30",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.59472896,-58.37769028",
+     "meeting_point_latitude": -34.59472896,
+     "meeting_point_longitude": -58.37769028,
+     "how_to_find_me": "I will be with a colorful umbrella on the steps of PLAZA MAIPU, on Maipu street between Av. Santa Fe and Arenales.",
+     "itinerary": [
+      "Peace Palace",
+      "Kavanagh Building",
+      "Avenida Santa Fe & Maipú",
+      "San Martín 1039",
+      "La Casa del Dulce de Leche",
+      "Florida 915"
+     ],
+     "reviews": {
+      "count": 1,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 20
+     },
+     "guide": {
+      "name": "Lorena Petrucci"
+     },
+     "url": "https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 49609,
+     "type": "free_tour",
+     "id": 49609,
+     "name": "RECOLETA: ARTE, ELEGANCIA Y PODER",
+     "slug": "49609-recoleta-arte-elegancia-y-poder",
+     "description_html": "<p><strong>Bienvenidos a Recoleta</strong>, el barrio que se viste de gala para que no noten que, debajo del mármol, hay historia, poder, olvido y una Argentina que se niega a mirarse en el espejo.</p><p>No venimos a ver mansiones. Venimos a descubrir quiénes las hicieron, quiénes las habitaron y quiénes quedaron afuera.</p><p>Este no es un paseo por palacios. Es un recorrido por las decisiones que construyeron (y deshicieron) un país.</p><p><strong>¿Sabías que este barrio nació de una epidemia?</strong> En 1871, la fiebre amarilla diezmó el sur de la ciudad. Los ricos huyeron. Y eligieron este lugar: más alto, más ventilado, más lejos de los pobres. Así nació Recoleta, no por belleza, sino por exclusión.</p><p>Vamos a caminar por la Avenida Alvear, esa calle que parece sacada de París, con mansiones de piedra, balcones de hierro forjado y autos que cuestan más que una casa en el conurbano. Vamos a pararnos frente al Hotel Alvear, el Palacio Duhau, el Jockey Club, el Palacio Pereda, la Nunciatura Apostólica. Y vamos a preguntarnos: ¿Quiénes eran estos hombres que construyeron palacios como si fueran reyes? ¿Qué hicieron con su dinero? ¿Y qué hicieron con su poder?</p><p><strong>¿Qué vas a ver?</strong></p><p>Plaza de Francia</p><p>Museo Nacional de Bellas Artes (con entrada)</p><p>Plaza Alvear</p><p>Iglesia del Pilar</p><p>Centro Cultural Recoleta</p><p>Cementerio de la Recoleta</p><p>Hotel Alvear</p><p>Residencia Mc Guire</p><p>Palacio Duhau</p><p>Palacio de la Nunciatura</p><p>Palacio Pereda</p><p>Jockey Club</p><p>Plaza Carlos Pellegrini</p><p><strong>Este tour es para vos si…</strong></p><p>No te conformás con decir “qué lindo” y querés saber por qué.</p><p>Te interesa la historia, pero no como una lista de fechas, sino como una conversación con el presente.</p><p>Querés entender Argentina no desde el asado ni el tango, sino desde sus contradicciones.</p><p>Hablás español, sí, pero también quieres escuchar lo que no se dice.</p><p>Soy Inés, docente, viajera y cronista. He caminado estos adoquines muchas veces, no como turista, sino como alguien que busca entender. Este tour no es un trabajo. Es una conversación que se renueva cada vez.</p><p><strong>&nbsp;</strong></p><p><strong>PUNTO DE ENCUENTRO</strong></p><p>Av. del Libertador 1473, en las escalinatas del Museo Nacional de Bellas Artes.&nbsp;</p><p>&nbsp;</p><p><strong>NO LO OLVIDES&nbsp;</strong></p><p>Zapatillas cómodas, agua, ropa ligera.</p><p><strong>&nbsp;</strong></p><p><strong>IMPORTANTE: EL PASEO SE SUSPENDE POR LLUVIA</strong></p>",
+     "images": [
+      "https://media.guruwalk.com/52z3zofz2cd2gaxsj0h1od6fnbel",
+      "https://media.guruwalk.com/4tb4s4w69l06aun4btquzu7ah0s7",
+      "https://media.guruwalk.com/dxic7s1v6h6hb26t5diighqugh4c",
+      "https://media.guruwalk.com/5ql79kxa9ove69hup2350auocpin",
+      "https://media.guruwalk.com/31bto7ihiwlba1sycraac7kk3wsm",
+      "https://media.guruwalk.com/3x60fzdzrllnljqo7g07btjahqul",
+      "https://media.guruwalk.com/x6gz9qer0bzigerwwxn3yko3zt89",
+      "https://media.guruwalk.com/3vlzyahhisx0207jo5jo5auk12t6",
+      "https://media.guruwalk.com/rcjpkurrho6vukkmfjjn48i5kvhx",
+      "https://media.guruwalk.com/hl4zt5y2q2bo4rxu0mvez6jwfvge"
+     ],
+     "duration": "3:00",
+     "available_languages": [
+      "es",
+      "it"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5839894,-58.3930044",
+     "meeting_point_latitude": -34.5839894,
+     "meeting_point_longitude": -58.3930044,
+     "how_to_find_me": "Av. del Libertador 1473, en las escalinatas del Museo Nacional de Bellas Artes. \r\nLlevomi credencial de guía matriculada de la CABA en la solapa del saco y el parlante rojo de mi micrófono colgado del cuello. ",
+     "itinerary": [
+      "Plaza Intendente Alvear",
+      "La Biela",
+      "Centro Cultural Recoleta",
+      "Basílica Nuestra Señora del Pilar",
+      "Avenida Alvear",
+      "Plaza Carlos Pellegrini",
+      "Ambassade de France / Embajada de Francia",
+      "Plaza de Cataluña"
+     ],
+     "reviews": {
+      "count": 178,
+      "rating": "4.96"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 15
+     },
+     "guide": {
+      "name": "Inés Cordonnier"
+     },
+     "url": "https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 43240,
+     "type": "free_tour",
+     "id": 43240,
+     "name": "AVENIDA DE MAYO: From the Cabildo to the Congress, the avenue that wrote history",
+     "slug": "43240-avenida-de-mayo-the-avenue-of-dreams",
+     "description_html": "<p>From the Casa Rosada to the Congress, there is a route that sums up a large part of Argentine history: the domes and their symbols, the cafes where politics and literature were crafted, the buildings we all pass by but few truly observe. We will walk through Plaza de Mayo —from the Cabildo to the Cathedral where San Martín rests—, discover Dante's mark in the Barolo Palace, and sit with a view of the Tortoni and London City, witnesses of poets and conspiracies, until we reach the dome of the Congress to understand how this path shaped today's Argentina.</p><p><br></p><p>And as always, we share some mate along the way (order it free of charge up to 2 hours before the tour) to chat about history and today's Argentina.</p><p><br></p><p>Important info:</p><p>Meeting point: Av. Rivadavia and Reconquista (Plaza de Mayo), next to the street sign</p><p>We start on time, to make the most of every minute</p><p>Wear comfortable shoes</p><p>Upon booking, you receive my real-time location and a complimentary PDF guide</p><p><br></p><p>\"The best place to understand reality is the street itself.\"</p>",
+     "images": [
+      "https://media.guruwalk.com/vajn4kibf533iqn1uhn57j5o2zx4",
+      "https://media.guruwalk.com/ksef67yqdh5uu85ojnjck6vc7vdi",
+      "https://media.guruwalk.com/z8s4s33veuy3pf4k1fjmx8gbt9cc",
+      "https://media.guruwalk.com/pi7v8qt0gav61vovbp9o6q3ky5ux",
+      "https://media.guruwalk.com/3osodp15p5dkharmz7v7z2wu5c8a",
+      "https://media.guruwalk.com/lq6ebzopq2hljd7lvjcnrm4u3p3a",
+      "https://media.guruwalk.com/qegcjbkqjq4nirjz6ez5sbuads09",
+      "https://media.guruwalk.com/qo7s7m27ukfunjaep4x70kjr147n",
+      "https://media.guruwalk.com/ihigb0oobiu2botws4bkuwp52usu",
+      "https://media.guruwalk.com/rztbi3cd4ywzfzspn3to03svvwn3",
+      "https://media.guruwalk.com/ekf7mnwqo2mvkh737gjkqnu4jtmq",
+      "https://media.guruwalk.com/qrzowbg82xsvqzc4bbi7zd54pl1r"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6079074,-58.3721503",
+     "meeting_point_latitude": -34.6079074,
+     "meeting_point_longitude": -58.3721503,
+     "how_to_find_me": "I will be at the CORNER of Av. Rivadavia and Reconquista ON Plaza de Mayo NEXT to the signpost indicating the streets.",
+     "itinerary": [
+      "Casa Rosada",
+      "Catedral Metropolitana",
+      "Cabildo de Buenos Aires",
+      "Avenida de Mayo",
+      "Café Tortoni",
+      "Avenida 9 de Julio",
+      "Palacio Barolo",
+      "Congreso de la Nación Argentina"
+     ],
+     "reviews": {
+      "count": 409,
+      "rating": "4.93"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 30
+     },
+     "guide": {
+      "name": "Gabriel Perez"
+     },
+     "url": "https://www.guruwalk.com/walks/43240-avenida-de-mayo-the-avenue-of-dreams?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/43240-avenida-de-mayo-the-avenue-of-dreams?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 49154,
+     "type": "free_tour",
+     "id": 49154,
+     "name": "SAN TELMO: From the Cradle of Buenos Aires to the Courtyards of Tango",
+     "slug": "49154-san-telmo-the-stories-beneath-the-cobblestones",
+     "description_html": "<p><b>San Telmo is one of the most historic neighborhoods in Buenos Aires: its cobblestones have witnessed much of the city, and its old mansions — abandoned after the yellow fever of 1871 — have turned into tango and art courtyards. I invite you to explore it with me, from the possible founding site to the corner where Mafalda was born. We will walk through Parque Lezama, a green lung and possible cradle of the first Buenos Aires in 1536; the Russian Orthodox Church, with its blue domes that seem like a piece of St. Petersburg; the San Telmo Market and Pasaje Defensa, iron and glass from 1880 among artists and taverns; and Plaza Dorrego and Defensa Street, where tango was born in the courtyards, until we reach the Paseo de la Historieta to meet Mafalda.</b></p><p><b><br></b></p><p><b>And as always, we share some mate along the way to chat about our identity (remember to request it free of charge 2 hours in advance, so I arrive with everything prepared).</b></p><p><b><br></b></p><p><b>Important info:</b></p><p><b>Meeting point: Monument to Don Pedro de Mendoza (Av. Brasil and Defensa)</b></p><p><b>We start on time</b></p><p><b>Bring cash: many artisans at the fair do not accept cards</b></p><p><b>Upon booking, you receive my real-time location via WhatsApp and a complimentary PDF guide</b></p><p><b><br></b></p><p><b>\"San Telmo is not visited, it is felt.\"</b></p>",
+     "images": [
+      "https://media.guruwalk.com/jg64w62k4e5prxivtri4t1kxsj57",
+      "https://media.guruwalk.com/3ah09qzwk3ccjbrx52145yt8vnky",
+      "https://media.guruwalk.com/rjnfqvvuf2y8qhp9t9brv23gp7wk",
+      "https://media.guruwalk.com/k6e9ym4yy93agmkkoicdmfg83onk",
+      "https://media.guruwalk.com/458wuxrgk645t919cmuqk2wbcqv2",
+      "https://media.guruwalk.com/qa1motd116xq0rjwrqcch0ttj5qh",
+      "https://media.guruwalk.com/wdd3uekn8kv5g59a1cw58x38n38i",
+      "https://media.guruwalk.com/z9wn00f7q4oevd5jmvvy7akrwtyr",
+      "https://media.guruwalk.com/eqvvswd47vyrk5uu2bewhwr3mg5r",
+      "https://media.guruwalk.com/844z7b5ls6pst43j4ei6xztxz0cb",
+      "https://media.guruwalk.com/vdks1gh9p2d08skj6iqm2lhmtzr7",
+      "https://media.guruwalk.com/rwrcw7qgs46qwy82dfbdqjcvqkg3"
+     ],
+     "duration": "2:00",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6265523,-58.369556",
+     "meeting_point_latitude": -34.6265523,
+     "meeting_point_longitude": -58.369556,
+     "how_to_find_me": "Monument to Don Pedro de Mendoza.\nAv. Brasil and Defensa. CABA.",
+     "itinerary": [
+      "Museo Histórico Nacional",
+      "Iglesia Ortodoxa Rusa de la Santísima Trinidad",
+      "Museo Moderno",
+      "Casa Ezeiza",
+      "Parroquia de San Pedro González Telmo",
+      "Plaza Dorego",
+      "Mercado de San Telmo",
+      "Chile & Defensa"
+     ],
+     "reviews": {
+      "count": 65,
+      "rating": "4.92"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 30
+     },
+     "guide": {
+      "name": "Gabriel Perez"
+     },
+     "url": "https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 52012,
+     "type": "free_tour",
+     "id": 52012,
+     "name": "Historic Center. Where our identity was born.",
+     "slug": "52012-historic-center-where-our-identity-was-born",
+     "description_html": "<p>We will walk through the “Historic Center” of the City of Buenos Aires in its center.</p><p> We'll observe the historical, sculptural, and architectural icons that distinguish it, such as the Church of San Francisco, the City Museum (Altos de Elorriaga), the Manzana de las Luces (Block of Lights), the San Ignacio Church, the National College of Buenos Aires, the Santo Domingo Complex, Paseo de la Historieta (Historical Walk), Zanjón de Granados (Granados Zane), the Casa Mínima (Minimal House), San Telmo Market, Plaza Dorrego, and the San Pedro Telmo Church. We'll then visit the Puerto Madero neighborhood and visit the iconic Puente de la Mujer (Women's Bridge), where we'll conclude the tour. We'll also remember the historical figures who walked these streets, their lives, and their work.</p><p> This historical approach to colonial Buenos Aires and its comparison with the current neighborhood can give us a broader view of the heritage that accompanies it, along with its indisputable visual attractions.</p>",
+     "images": [
+      "https://media.guruwalk.com/3bddlhispx8og1d9ncy81w6h5t24",
+      "https://media.guruwalk.com/1fplvy8ej3i8eskeqjcv7i5v5j8d",
+      "https://media.guruwalk.com/r370masb3eptrcksahcel7202xya",
+      "https://media.guruwalk.com/umdvnmghl25vl9saa1ei50m28cbw",
+      "https://media.guruwalk.com/q659krc764pzyrogtk79e9iqlbhi"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "es",
+      "it"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.60847,-58.372237",
+     "meeting_point_latitude": -34.60847,
+     "meeting_point_longitude": -58.372237,
+     "how_to_find_me": "I'll be waiting at the Pyramid of May, looking towards the Casa Rosada.",
+     "itinerary": [
+      "Metropolitan Cathedral",
+      "Buenos Aires City Council",
+      "Pink House",
+      "Museum of the City",
+      "Manzana de las Luces Historical Cultural Complex",
+      "Santo Domingo Convent - Basilica Nuestra Señora del Rosario de la Defensa y Reconquista de Buenos Aires",
+      "mafalda",
+      "The Zanjón de Granados",
+      "San Telmo Market",
+      "Plaza Dorego",
+      "MACBA - Museo de Arte Contemporáneo de Buenos Aires",
+      "Puerto Madero"
+     ],
+     "reviews": {
+      "count": 35,
+      "rating": "4.91"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 30
+     },
+     "guide": {
+      "name": "Silvia Consoni"
+     },
+     "url": "https://www.guruwalk.com/walks/52012-historic-center-where-our-identity-was-born?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/52012-historic-center-where-our-identity-was-born?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 55178,
+     "type": "free_tour",
+     "id": 55178,
+     "name": "Free Night Tour: Buenos Aires Illuminated – A Journey Through Its History",
+     "slug": "55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history",
+     "description_html": "<p>🌙 **BUENOS AIRES ILLUMINATED: FROM THE ANCIENT CITY TO THE MODERN**</p><p>Discover **a completely different Buenos Aires under the night lights**.</p><p>In this nighttime tour, we will see something fascinating: **how the city changes before our eyes**, from ancient Buenos Aires to the architecture, the grand avenues, and the symbols of a modern capital.</p><p><br></p><p>✨ With illuminated buildings and monuments as our backdrop, we will travel through different eras and discover how a small colonial city transformed into one of the great metropolises of America.</p><p><br></p><p>We will walk among **palaces, churches, monumental buildings, avenues, and historic corners**, while learning about the stories, characters, and transformations that built the Buenos Aires we see today.</p><p><br></p><p>🌃 The night gives the city a completely different atmosphere: the facades take center stage, details that go unnoticed during the day emerge, and **the contrast between ancient and modern Buenos Aires becomes spectacular**.</p><p><br></p><p>More than a nighttime stroll, it is **a journey through the transformation of Buenos Aires through its lights**.</p><p><br></p><p>✨ History, architecture, and one of the city's most beautiful faces, all in one night.</p><p><br></p>",
+     "images": [
+      "https://media.guruwalk.com/p3fxrt7o0swghkpezp6ifsb6drt3",
+      "https://media.guruwalk.com/jd77e8pl7gxqqr7r32eoj5mjtlh5",
+      "https://media.guruwalk.com/dx4kl07opu7u3msk7ws0e8pfzt5l",
+      "https://media.guruwalk.com/n14z24bdkkn6ekjpdz0u4m2qujun",
+      "https://media.guruwalk.com/bfa17g83gc68r447mjh5pks0u8e1",
+      "https://media.guruwalk.com/1b70s3xd7lsd43gkdf600nlxlfdv",
+      "https://media.guruwalk.com/c5pgui40sp3gg40uxqpufrb8wjxl",
+      "https://media.guruwalk.com/pd5qoilf5tlm4u1jkvi0t1cxb78z",
+      "https://media.guruwalk.com/fraiqjg89u91oy7hv3brhk60btzg",
+      "https://media.guruwalk.com/9c8t87euobe0xcxgdna8761chgn7",
+      "https://media.guruwalk.com/igdwautqx6e702sskxp72z7tn1cv",
+      "https://media.guruwalk.com/mdg8jc85sxwk9fwktsumpp7vlpd3",
+      "https://media.guruwalk.com/svgvx96ue1z3qkkxi71x8dz4ziu2",
+      "https://media.guruwalk.com/vuowkskwguqkw0a3lxquyaqjirjt",
+      "https://media.guruwalk.com/la1zi5gjfomj8zp29bq0ilgb0vdk",
+      "https://media.guruwalk.com/iwo0hig4exf225fck329iijhl2mx",
+      "https://media.guruwalk.com/xpn3jtp1vn0bnofa8nk7nrr734ls",
+      "https://media.guruwalk.com/nft77i1w6b31l117ywasamv6alpu",
+      "https://media.guruwalk.com/6it5tnso3kiwdnb5hgwt15cn36qu",
+      "https://media.guruwalk.com/awouu7icfnkgjd92u0fw78wg62m4",
+      "https://media.guruwalk.com/szmprcrrpudzpwqrdzsqj69ydo6s"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6083667,-58.3722832",
+     "meeting_point_latitude": -34.6083667,
+     "meeting_point_longitude": -58.3722832,
+     "how_to_find_me": "Address: Av. Hipólito Yrigoyen 400\n📍https://maps.app.goo.gl/N13rBYPGHAJ1gBYH7\n\nI will be with an umbrella in the center of the square (pyramid)",
+     "itinerary": [
+      "Ministry of Economy of the Nation",
+      "Basilica and Convent of San Francisco de Asís",
+      "Puente de la Mujer",
+      "Legislature of the Autonomous City of Buenos Aires",
+      "National Bank",
+      "Buenos Aires City Council",
+      "Madero Port"
+     ],
+     "reviews": {
+      "count": 39,
+      "rating": "4.9"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 15
+     },
+     "guide": {
+      "name": "Exploradores Urbanos BA Juan y Pablo"
+     },
+     "url": "https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 58175,
+     "type": "free_tour",
+     "id": 58175,
+     "name": "Recoleta: history, architecture, and aristocracy in the most elegant neighborhood of Buenos Aires",
+     "slug": "58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires",
+     "description_html": "<p>Discover the most elegant Recoleta in Buenos Aires.</p><p>In this tour, you will not only see palaces and monuments: you will understand how the Argentine elite of the early 20th century turned the city into a new Paris.</p><p>Throughout the tour, we will explore aristocratic residences, embassies, and iconic buildings that reflect an era of extraordinary wealth, when Argentina was among the most prosperous countries in the world.</p><p>Behind each facade are stories of power, influential families, political decisions, and an economic model that forever marked the country's identity.</p><p>We will also discover the legacy of the French landscaper Carlos Thays, key in transforming Buenos Aires into one of the greenest and most sophisticated cities in Latin America.</p><p>This is a tour designed for those who want to go beyond the superficial:</p><p>to connect architecture with history, and beauty with context.</p><p>A tour to understand, not just to look.</p><p><br></p><p>Warning: Not recommended for children or for people who do not have a good understanding of the language.</p>",
+     "images": [
+      "https://media.guruwalk.com/2ieziit6gw0573qxuikujc7xefi1",
+      "https://media.guruwalk.com/o8dnw2us93ak5sxlu6vquzzinamv",
+      "https://media.guruwalk.com/t5mzgm5v5sdoji51y9lvji81pp1n",
+      "https://media.guruwalk.com/qvxo6xnpm5iqd13oiv70rway5jpe",
+      "https://media.guruwalk.com/fzth64n10qhlgmzyzk1u4s32grou",
+      "https://media.guruwalk.com/dd4a0h02brgslmyoqowb8k1r2ti5",
+      "https://media.guruwalk.com/8uvhn23ram5sk16mbftohxy4q5jf",
+      "https://media.guruwalk.com/5inn0039iyd75a5enl3jun53jjlk",
+      "https://media.guruwalk.com/ka3d119pgh1rqfa8or8fhgqnd19u",
+      "https://media.guruwalk.com/zv246ia9bcrcd23lynqk7ojfparr",
+      "https://media.guruwalk.com/q0vnvlrbghpjn0a89i97y5li6i16",
+      "https://media.guruwalk.com/tk68vk0iusvwjchrrk6dqxcr58wa",
+      "https://media.guruwalk.com/zws4t0f0sa6bqzcyuukyifoofkov",
+      "https://media.guruwalk.com/w7ogv1nh4eyzwdyveq3rdq0vh3wz",
+      "https://media.guruwalk.com/qks2nbbqv71awxx8gawo0tpxkgmh",
+      "https://media.guruwalk.com/7rockqu6wh70tt561139ecsn7quw",
+      "https://media.guruwalk.com/sc8lam79z31i1y8yt11irsrnklnx",
+      "https://media.guruwalk.com/kcf1z1tm4khzvc4x50f3ql5ncrcu",
+      "https://media.guruwalk.com/ufd6l4rj1474phxremuag9d9be74",
+      "https://media.guruwalk.com/md990mnyvl9zgj9ruy9gpzcslwes",
+      "https://media.guruwalk.com/ztyw5l2r9k8qig0bz8ddpdx5c8w0",
+      "https://media.guruwalk.com/unghu2g9254i5563ti7bp53pw8k4",
+      "https://media.guruwalk.com/68raf3peb3t7ropxes1ot543u9fr"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5913715,-58.3839558",
+     "meeting_point_latitude": -34.5913715,
+     "meeting_point_longitude": -58.3839558,
+     "how_to_find_me": "I will be at the Carlos Pellegrini Square on Alvear Avenue 1350 in CABA\nWe will be waiting for you with a blue umbrella",
+     "itinerary": [
+      "Bicentennial Museum",
+      "Duhau Palace - Park Hyatt Buenos Aires",
+      "Mansión Alzaga Unzué",
+      "Jockey Club",
+      "Nunciatura Apostólica",
+      "Palacio Duhau - Park Hyatt Buenos Aires",
+      "Residencia Maguire",
+      "Alvear Palace Hotel",
+      "Plaza Int. Torcuato de Alvear",
+      "La Biela",
+      "Gomero de la Recoleta - Árbol Histórico",
+      "Cementerio de la Recoleta (solo exterior)",
+      "Basílica Nuestra Señora del Pilar",
+      "Monasterio de los monjes Recoletos",
+      "National Museum of Fine Arts",
+      "Facultad de Derecho (UBA)",
+      "Floralis Generica"
+     ],
+     "reviews": {
+      "count": 4,
+      "rating": "3.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 15
+     },
+     "guide": {
+      "name": "Exploradores Urbanos BA Juan y Pablo"
+     },
+     "url": "https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    }
+   ]
+  }
+ }
+}

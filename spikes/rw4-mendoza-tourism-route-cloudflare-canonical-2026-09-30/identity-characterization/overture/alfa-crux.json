@@ -1,0 +1,62 @@
+{
+  "fixture": "Alfa Crux",
+  "genericClass": "real entity absent from current canonical providers; additional facts on a source-linked page",
+  "release": "2026-09-23.1",
+  "evidenceLevels": {
+    "L1_sourceComponent": "SolSalute span '[Alfa Crux](https://www.agostinowinegroup.com/alfa-crux-wines)'; no address in the source",
+    "L2_linkedPage": "agostinowinegroup.com/alfa-crux-wines (GROUP host) declares 'Alfa Crux Calle Los Indios s/n, M5567 Valle de Uco, Mendoza'; vineyards in El Cepillo (../alfa-crux.json)",
+    "L3_overture": "below; never merged with L1/L2"
+  },
+  "probeQueries": {
+    "Alfa Crux": "exact normalized name: 1 record (WIDER_DIAGNOSTIC, 105.2 km)",
+    "Bodega Alfa Crux": "0 (PROBE_QUERY)",
+    "Crux": "token discovery only: 2 unrelated in-domain businesses (geological service, building supplies, ~3 km) + 3 WIDER_DIAGNOSTIC group objects"
+  },
+  "acquisition": {
+    "insideAuthorizedDomain": "NO_CANDIDATE",
+    "classification": "OUTSIDE_AUTHORIZED_DOMAIN",
+    "detail": "the only exact-name record lies 105.2 km from the COLD #11 route-scale center; authorized radius 80 km (destination-compatibility.policy.ts route-scale rule). Not an identity candidate."
+  },
+  "bestRecord_WIDER_DIAGNOSTIC": {
+    "overtureId": "79eb9ee4-0591-49f3-a077-51a7926a3ada",
+    "names": { "primary": "Alfa Crux", "common": null, "rules": null },
+    "coordinates": { "lat": -33.8040574593, "lon": -69.119154850671 },
+    "distanceFromRouteScaleCenterM": 105151,
+    "addresses": [{ "freeform": "El Cepillo", "locality": "Villa San Carlos", "postcode": "5569", "region": null, "country": "AR" }],
+    "websites": ["https://www.agostinowinegroup.com/"],
+    "phones": ["+542614671021"],
+    "emails": ["cruxcocina@agostinowinegroup.com"],
+    "taxonomy": { "primary": "winery", "hierarchy": ["food_and_drink", "alcoholic_beverage_venue", "winery"], "alternates": null },
+    "basic_category": "winery",
+    "brand": "struct present, all members null",
+    "operating_status": null,
+    "confidence": 0.9904,
+    "sources": [
+      { "dataset": "meta", "provider": "meta", "record_id": "113197860037852", "license": "CDLA-Permissive-2.0", "update_time": "2026-09-14", "property": "(whole record)" },
+      { "dataset": "Overture", "provider": "overture", "record_id": null, "license": "CDLA-Permissive-2.0", "property": "/properties/confidence" }
+    ],
+    "gers": { "first_seen": "2025-11-19.0", "last_changed": "2026-09-23.0", "live": true, "changelog_2026-09-23.1": "data_changed [categories] (schema v2 removal only)" },
+    "licenseStatus": "RESOLVED: CDLA-Permissive-2.0 (Meta upstream, single source)"
+  },
+  "comparisonWithLinkedPage": {
+    "name": "Overture primary == source component name (normalized exact)",
+    "address": "Overture 'El Cepillo, Villa San Carlos 5569' vs linked page 'Calle Los Indios s/n, M5567 Valle de Uco': locality-compatible (El Cepillo), NOT a street/number match; the linked-page street address appears verbatim on OTHER group records (Crux Cocina, Casa Crux), not on this one",
+    "website": "group HOMEPAGE agostinowinegroup.com/ (path-less); the source links a path on the same group host. Host equality is NOT identity: the group host is also the website of Finca Agostino (Maipú) in OSM",
+    "phone": "+542614671021 is shared with 'Crux Cocina' (restaurant, 7.8 km away per Overture coordinates)",
+    "email": "cruxcocina@ (restaurant mailbox) on the winery record"
+  },
+  "neighbourhood_2km": {
+    "Bodega O. Fournier": { "id": "e85907e4-1e55-497f-86b8-ce9b3f188288", "fromPointM": 5, "category": "winery", "website": "http://www.ofournier.com", "source": "meta 121267867975100", "note": "different-name winery record 5 m away; Overture declares NO relation (no shared id, alias or website). Consistent with a rebrand/duplicate pair, NOT established by any Overture fact" },
+    "Urban Restaurante": { "fromPointM": 24, "category": "restaurant" },
+    "groupObjects_WIDER_DIAGNOSTIC": "Crux Cocina (restaurant, cruxcocina.com, 'Calle Los Indios s/n ... 5567 La Consulta', 97.7 km); Casa Crux (hotel, 'Alfa Crux Calle Los Indios s/n', 101.5 km)"
+  },
+  "identityUsefulness": {
+    "couldBeCandidateUnderCurrentGeography": false,
+    "ifGeographyAuthorized": "EXACT_NAME with multiplicity SINGLE (1 record named 'Alfa Crux'); the existing verifier rule 1 would VERIFY. Caveat: a co-located different-name record (Bodega O. Fournier, 5 m) shows Overture may hold two records for one physical site; EXACT_NAME SINGLE does not detect that.",
+    "strongFactsBeyondName": "none usable: website is a group homepage, address is locality-level, phone shared with another facility"
+  },
+  "closes": {
+    "candidateAcquisition": "NO inside the authorized domain; YES as raw coverage (record exists)",
+    "identityCorroboration": "name only; no independent strong fact"
+  }
+}

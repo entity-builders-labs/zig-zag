@@ -1,0 +1,68 @@
+export interface DocumentaryPhoto {
+  url: string;
+  width?: number;
+  height?: number;
+  caption?: string;
+  author?: string;
+  authorUrl?: string;
+  license?: string;
+  licenseUrl?: string;
+  sourceUrl?: string;
+  provider: 'wikimedia_commons' | 'google_places';
+}
+
+export type MediaLookupOutcome =
+  | 'FOUND'
+  | 'AUTHORITATIVE_EMPTY'
+  | 'RETRYABLE_FAILURE'
+  | 'PERMANENT_FAILURE';
+
+export type MediaLookupResult =
+  | {
+      outcome: 'FOUND';
+      photos: DocumentaryPhoto[];
+    }
+  | {
+      outcome: 'AUTHORITATIVE_EMPTY';
+      photos: [];
+    }
+  | {
+      outcome: 'RETRYABLE_FAILURE';
+      photos: [];
+      error: string;
+    }
+  | {
+      outcome: 'PERMANENT_FAILURE';
+      photos: [];
+      error: string;
+    };
+
+export interface MediaPresentation {
+  photos: DocumentaryPhoto[];
+  primaryPhoto: {
+    url: string;
+    caption?: string;
+    author?: string;
+    license?: string;
+    licenseUrl?: string;
+    isFallback: boolean;
+  };
+  source: 'DOCUMENTARY' | 'CURATED_FALLBACK';
+}
+
+export interface ExperienceMediaEnrichmentPayload {
+  experienceId: string;
+  name: string;
+  destinationLabel?: string;
+  latitude: number;
+  longitude: number;
+  category?: string;
+}
+
+export interface ExperienceMediaUpdatedPayload {
+  experienceId: string;
+  mediaStatus: 'ENRICHED' | 'FAILED';
+  photoCount: number;
+  mediaUpdatedAt: string;
+  photos?: DocumentaryPhoto[];
+}

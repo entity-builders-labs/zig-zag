@@ -1,0 +1,75 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Title of the walk."
+    },
+    {
+      "atomId": "a-002",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Harbour Square",
+          "supportSpan": "Start at Harbour Square",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Starting point of the itinerary."
+    },
+    {
+      "atomId": "a-003",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Mill Street",
+          "supportSpan": "Mill Street",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "the Painted Lane",
+          "supportSpan": "the Painted Lane",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Walking route via Mill Street to the next stop."
+    },
+    {
+      "atomId": "a-004",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The Painted Lane",
+          "supportSpan": "The Painted Lane",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Main attraction to stroll and experience."
+    },
+    {
+      "atomId": "a-005",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "the Sailors' Church",
+          "supportSpan": "the Sailors' Church",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Place passed along the way."
+    },
+    {
+      "atomId": "a-006",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "the Riverside Art Museum",
+          "supportSpan": "visit the Riverside Art Museum",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Destination museum to visit."
+    }
+  ]
+}

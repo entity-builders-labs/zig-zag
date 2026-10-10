@@ -1,0 +1,52 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-112",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author credit and bio information."
+    },
+    {
+      "atomId": "a-113",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Personal background statement."
+    },
+    {
+      "atomId": "a-114",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Personal relocation background."
+    },
+    {
+      "atomId": "a-115",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author motivation statement."
+    },
+    {
+      "atomId": "a-116",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Author commentary."
+    },
+    {
+      "atomId": "a-117",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Closing remarks and well wishes."
+    },
+    {
+      "atomId": "a-122",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Related posts section heading."
+    },
+    {
+      "atomId": "a-131",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Comment section interface element."
+    }
+  ]
+}

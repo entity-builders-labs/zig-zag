@@ -1,0 +1,8 @@
+{
+  "runLabel": "laboca",
+  "tourId": "e4da8575-5599-47fe-a54b-15c9c7ea692f",
+  "email": "stage3-nominatim-bias-laboca-1790275529750965000@example.com",
+  "baseUrl": "http://localhost:4016",
+  "requestFile": "spikes/stage3-buenosaires-walks-component-survey-2026-09-24/request-laboca.json",
+  "generationStatus": "completed"
+}

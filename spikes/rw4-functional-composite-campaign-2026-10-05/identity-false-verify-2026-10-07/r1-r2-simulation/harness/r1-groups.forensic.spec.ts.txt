@@ -1,0 +1,93 @@
+/** Offline R1 group enumeration over the production POI pools (no production change). */
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { OverpassApiService } from '@integrations/osm/services/overpass-api.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { overpassElementToGeoJson } from '@integrations/osm/utils/osm-geometry.util';
+import { normalizeGeoName, extractDeclaredNameAliases } from '../utils/nominatim-match.util';
+import { nameCorrespondence, bestNameCorrespondence } from '../utils/identity-name-correspondence.util';
+import { structuralKindFromOsmTags } from '../utils/candidate-structural-kind.util';
+
+jest.setTimeout(900000);
+const DESTS = [
+  { label: 'Buenos Aires', osmId: 1224652 },
+  { label: 'Ciudad de Mendoza', osmId: 4206710 },
+];
+const NAME_KEYS = ['name', 'short_name', 'alt_name', 'official_name'];
+const declared = (tags: any) =>
+  NAME_KEYS.flatMap((k) => (tags[k] ? String(tags[k]).split(';').map((s) => s.trim()) : []));
+const addressOf = (tags: any) =>
+  tags['addr:street'] && tags['addr:housenumber']
+    ? `${normalizeGeoName(tags['addr:street'])} ${normalizeGeoName(tags['addr:housenumber'])}`
+    : undefined;
+const pointOf = (g: any): [number, number] | undefined => {
+  if (!g) return undefined;
+  if (g.type === 'Point') return g.coordinates;
+  const ring = g.type === 'Polygon' ? g.coordinates[0] : g.type === 'MultiPolygon' ? g.coordinates[0][0] : g.type === 'LineString' ? g.coordinates : undefined;
+  if (!ring) return undefined;
+  const n = ring.length; return [ring.reduce((s: number, c: any) => s + c[0], 0) / n, ring.reduce((s: number, c: any) => s + c[1], 0) / n];
+};
+const rings = (g: any): number[][][] => g?.type === 'Polygon' ? [g.coordinates[0]] : g?.type === 'MultiPolygon' ? g.coordinates.map((p: any) => p[0]) : [];
+const pip = (pt: number[], ring: number[][]) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) { const [xi, yi] = ring[i], [xj, yj] = ring[j]; if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < ((xj - xi) * (pt[1] - yi)) / (yj - yi) + xi) c = !c; } return c; };
+const meters = (a: number[], b: number[]) => { const R = 6371000, toR = Math.PI / 180; const dLat = (b[1] - a[1]) * toR, dLon = (b[0] - a[0]) * toR; const h = Math.sin(dLat / 2) ** 2 + Math.cos(a[1] * toR) * Math.cos(b[1] * toR) * Math.sin(dLon / 2) ** 2; return Math.round(2 * R * Math.asin(Math.sqrt(h))); };
+
+it('enumerates R1 groups', async () => {
+  const config = new ConfigService({ OVERPASS_API_URL: 'http://localhost:12345/api/interpreter' });
+  const overpass = new OverpassApiService(config);
+  const osm = new OsmPlacesService(overpass as any, config);
+  const wd = new WikidataApiService(config);
+  const report: any = {};
+  for (const dest of DESTS) {
+    const rel = await (overpass as any).execute(`[out:json][timeout:180];relation(${dest.osmId});out geom;`);
+    const boundary = { id: `osm:relation:${dest.osmId}`, name: dest.label, osmType: 'relation', osmId: dest.osmId, tags: rel[0].tags, geometry: overpassElementToGeoJson(rel[0]) };
+    const pool = process.env.BROAD
+      ? ((await (overpass as any).execute(`[out:json][timeout:180];relation(${dest.osmId});map_to_area->.a;(nwr(area.a)[name][wikidata][~"^(tourism|historic|amenity|leisure|shop|craft|office|healthcare|club|building|public_transport)$"~"."];);out tags geom;`)) as any[]).map((e) => ({ id: `osm:${e.type}:${e.id}`, name: e.tags.name, tags: e.tags, geometry: overpassElementToGeoJson(e) }))
+      : (await osm.lookupPoisWithin(boundary as any)).value;
+    const byQid = new Map<string, any[]>();
+    for (const c of pool) { const q = c.tags?.wikidata?.trim(); if (q && /^Q\d+$/.test(q)) (byQid.get(q) ?? byQid.set(q, []).get(q)!).push(c); }
+    const shared = [...byQid].filter(([, v]) => v.length > 1);
+    const qids = shared.map(([q]) => q);
+    const claims: Record<string, any> = {};
+    for (let i = 0; i < qids.length; i += 40) {
+      const r = await fetch(`https://www.wikidata.org/w/api.php?action=wbgetentities&format=json&props=claims|labels&languages=es|en&ids=${qids.slice(i, i + 40).join('|')}`, { headers: { 'User-Agent': 'zig-zag-forensic/1.0' } });
+      Object.assign(claims, (await r.json()).entities);
+    }
+    const summaries = await wd.getEntitySummaries(qids);
+    const groups: any[] = [];
+    for (const [qid, recs] of shared) {
+      const c = claims[qid];
+      const located = Boolean(c?.claims?.P625);
+      const p31 = (c?.claims?.P31 ?? []).map((x: any) => x.mainsnak.datavalue?.value?.id);
+      const summary = summaries.get(qid);
+      const itemNames = [summary?.label, ...(summary?.aliases ?? [])].filter(Boolean) as string[];
+      const byAddr = new Map<string, any[]>();
+      for (const r of recs) { const a = addressOf(r.tags); if (a) (byAddr.get(a) ?? byAddr.set(a, []).get(a)!).push(r); }
+      const r1Sets = [...byAddr].filter(([, v]) => v.length > 1);
+      const records = recs.map((r) => ({
+        id: r.id, structuralKind: structuralKindFromOsmTags(r.tags), address: addressOf(r.tags) ?? null,
+        names: Object.fromEntries(NAME_KEYS.filter((k) => r.tags[k]).map((k) => [k, r.tags[k]])),
+        declaredAliases: extractDeclaredNameAliases(r.tags),
+        recordVsItem: bestNameCorrespondence(r.name, itemNames),
+        recordAnyNameVsItem: declared(r.tags).reduce((best: string, n: string) => { const x = bestNameCorrespondence(n, itemNames); return best === 'EQUIVALENT' || x === 'NONE' ? best : best === 'OVERLAP' && x !== 'EQUIVALENT' ? best : x; }, 'NONE'),
+        point: pointOf(r.geometry), geometryType: r.geometry?.type, keyTags: Object.fromEntries(Object.entries(r.tags).filter(([k]) => /^(tourism|historic|amenity|leisure|shop|building|public_transport|railway|office|museum|heritage)$/.test(k))),
+      }));
+      const pairs: any[] = [];
+      for (let i = 0; i < recs.length; i++) for (let j = i + 1; j < recs.length; j++) {
+        const a = recs[i], b = recs[j], pa = pointOf(a.geometry), pb = pointOf(b.geometry);
+        const names = (r: any) => declared(r.tags);
+        let agree = 'NONE';
+        for (const x of names(a)) for (const y of names(b)) { const k = [nameCorrespondence(x, y), nameCorrespondence(y, x)]; if (k.includes('EQUIVALENT')) agree = 'EQUIVALENT'; else if (k.includes('OVERLAP') && agree === 'NONE') agree = 'OVERLAP'; }
+        pairs.push({
+          a: a.id, b: b.id, sameAddress: Boolean(addressOf(a.tags) && addressOf(a.tags) === addressOf(b.tags)),
+          meters: pa && pb ? meters(pa, pb) : null,
+          contained: (pa && rings(b.geometry).some((r) => pip(pa, r))) || (pb && rings(a.geometry).some((r) => pip(pb, r))) || false,
+          recordNameAgreement: agree,
+        });
+      }
+      groups.push({ qid, label: c?.labels?.es?.value ?? c?.labels?.en?.value, p31, located, itemNames, r1: located && r1Sets.length > 0, r1Sets: r1Sets.map(([a, v]) => ({ address: a, ids: v.map((r) => r.id) })), records, pairs });
+    }
+    report[dest.label] = { poolSize: pool.length, withQid: [...byQid.values()].flat().length, distinctQids: byQid.size, sharedQidGroups: shared.length, r1Groups: groups.filter((g) => g.r1).length, groups };
+  }
+  fs.writeFileSync(process.env.OUT!, JSON.stringify(report, null, 1));
+});

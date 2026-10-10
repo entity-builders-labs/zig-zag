@@ -1,0 +1,497 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/search",
+    "params": {
+      "name": "Plaza Dorrego",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "bias": "proximity:-58.3816,-34.6037",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1577,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "district": "Comuna 1",
+        "suburb": "San Telmo",
+        "iso3166_2": "AR-C",
+        "lon": -58.3717807,
+        "lat": -34.6204917,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 2072.143371404808,
+        "formatted": "Plaza Dorrego, San Telmo, Buenos Aires, Comuna 1, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "San Telmo, Buenos Aires, Comuna 1, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JHH+R7",
+        "plus_code_short": "HH+R7 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.22274623325780465,
+          "popularity": 7.953640848669934,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "515ae48d82962f4dc0594078a3456c4f41c0f00102f9013396de0100000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.3720765,
+          "lat1": -34.6206579,
+          "lon2": -58.3714819,
+          "lat2": -34.6202899
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Dorrego",
+        "street": "Dorrego",
+        "country": "Argentina",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Autonomous City of Buenos Aires",
+        "state_code": "CF",
+        "city": "Buenos Aires",
+        "district": "Comuna 13",
+        "suburb": "Colegiales",
+        "iso3166_2": "AR-C",
+        "lon": -58.440953,
+        "lat": -34.579458,
+        "result_type": "street",
+        "distance": 6065.005465119518,
+        "postcode": "1414",
+        "formatted": "Dorrego, Colegiales, 1414 Buenos Aires, Argentina",
+        "address_line1": "Dorrego",
+        "address_line2": "Colegiales, 1414 Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CHC5+6J",
+        "plus_code_short": "CHC5+6J Buenos Aires, Autonomous City of Buenos Aires, Argentina",
+        "rank": {
+          "popularity": 7.087365061901909,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "515b09dd2571384dc059eab303ae2b4a41c0c00204920307446f727265676fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353939363532",
+        "bbox": {
+          "lon1": -58.444418,
+          "lat1": -34.58318,
+          "lon2": -58.436902,
+          "lat2": -34.576129
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Bacan Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1414",
+        "city_district": "Comuna 14",
+        "district": "Distrito Audiovisual",
+        "suburb": "Palermo",
+        "street": "Dorrego",
+        "housenumber": "1651",
+        "iso3166_2": "AR-C",
+        "lon": -58.4436942,
+        "lat": -34.5823339,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 6160.433551888346,
+        "formatted": "Bacan Dorrego, Dorrego 1651, Palermo, 1414 Buenos Aires, Argentina",
+        "address_line1": "Bacan Dorrego",
+        "address_line2": "Dorrego 1651, Palermo, 1414 Buenos Aires, Argentina",
+        "category": "commercial;service.beauty.hairdresser",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CH94+3G",
+        "plus_code_short": "CH94+3G Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "popularity": 7.3632253131181935,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "516336b7f8ca384dc05913edcfea894a41c0f00103f90105de201502000000c0020192030d426163616e20446f727265676fe203236f70656e7374726565746d61703a76656e75653a6e6f64652f38393434343130313137",
+        "bbox": {
+          "lon1": -58.4437442,
+          "lat1": -34.5823839,
+          "lon2": -58.4436442,
+          "lat2": -34.5822839
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Dorrego",
+        "street": "Dorrego",
+        "country": "Argentina",
+        "county": "Quilmes",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "QU",
+        "iso3166_2": "AR-B",
+        "lon": -58.277688,
+        "lat": -34.715572,
+        "result_type": "street",
+        "distance": 15654.770453852834,
+        "postcode": "1878",
+        "formatted": "Dorrego, 1878 BA, Argentina",
+        "address_line1": "Dorrego",
+        "address_line2": "1878 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37PMC+QW",
+        "rank": {
+          "popularity": 6.362153468997767,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51ee3ec7478b234dc05977f700dd975b41c0c00204920307446f727265676fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238363034373938",
+        "bbox": {
+          "lon1": -58.278952,
+          "lat1": -34.717242,
+          "lon2": -58.27641,
+          "lat2": -34.713895
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Dorrego",
+        "street": "Dorrego",
+        "country": "Argentina",
+        "county": "Vicente López",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "VL",
+        "iso3166_2": "AR-B",
+        "lon": -58.505619,
+        "lat": -34.497458,
+        "result_type": "street",
+        "distance": 16387.98481981147,
+        "postcode": "1640",
+        "formatted": "Dorrego, 1640 BA, Argentina",
+        "address_line1": "Dorrego",
+        "address_line2": "1640 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GF3V+2Q",
+        "rank": {
+          "popularity": 6.209997907004522,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "513d9e961fb8404dc059199128b4ac3f41c0c00204920307446f727265676fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353637303430",
+        "bbox": {
+          "lon1": -58.513338,
+          "lat1": -34.500468,
+          "lon2": -58.498148,
+          "lat2": -34.493993
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Dorrego",
+        "street": "Dorrego",
+        "country": "Argentina",
+        "county": "San Fernando",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "SF",
+        "iso3166_2": "AR-B",
+        "lon": -58.542206,
+        "lat": -34.454791,
+        "result_type": "street",
+        "distance": 22150.05863772908,
+        "postcode": "1643",
+        "formatted": "Dorrego, 1643 BA, Argentina",
+        "address_line1": "Dorrego",
+        "address_line2": "1643 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GFW5+34",
+        "rank": {
+          "popularity": 6.06023179327284,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "51f5d8960167454dc059f0c16b97363a41c0c00204920307446f727265676fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353637323131",
+        "bbox": {
+          "lon1": -58.542973,
+          "lat1": -34.455478,
+          "lon2": -58.541423,
+          "lat2": -34.454116
+        }
+      },
+      {
+        "country_code": "ar",
+        "name": "Dorrego",
+        "street": "Dorrego",
+        "country": "Argentina",
+        "county": "Tigre",
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "state": "Buenos Aires",
+        "state_code": "BA",
+        "county_code": "TI",
+        "iso3166_2": "AR-B",
+        "lon": -58.572663,
+        "lat": -34.434758,
+        "result_type": "street",
+        "distance": 25677.052719715808,
+        "postcode": "1646",
+        "formatted": "Dorrego, 1646 BA, Argentina",
+        "address_line1": "Dorrego",
+        "address_line2": "1646 BA, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3HC8G+3W",
+        "rank": {
+          "popularity": 6.300297526549862,
+          "confidence": 0,
+          "match_type": "match_by_street"
+        },
+        "place_id": "518b506c054d494dc05952d66f26a63741c0c00204920307446f727265676fe203266f70656e7374726565746d61703a7374726565743a706f6c796c696e653a3238353730323231",
+        "bbox": {
+          "lon1": -58.572741,
+          "lat1": -34.435718,
+          "lon2": -58.572212,
+          "lat2": -34.433837
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "González Catán",
+        "suburb": "Dorrego",
+        "quarter": "Las Nieves",
+        "iso3166_2": "AR-B",
+        "lon": -58.6139902,
+        "lat": -34.7730828,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 28393.732021532753,
+        "postcode": "1759",
+        "formatted": "Plaza Dorrego, Dorrego, 1759 González Catán, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "Dorrego, 1759 González Catán, Argentina",
+        "category": "leisure.park",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q369GP+QC",
+        "rank": {
+          "importance": 0.08005018921187149,
+          "popularity": 5.412518141578262,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "5142881a3b974e4dc059d08c8f60f46241c0f00102f901267ac81100000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.6148891,
+          "lat1": -34.7738109,
+          "lon2": -58.6130909,
+          "lat2": -34.7723587
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "González Catán",
+        "postcode": "1759",
+        "suburb": "Dorrego",
+        "quarter": "Las Nieves",
+        "street": "Soberanía Nacional",
+        "iso3166_2": "AR-B",
+        "lon": -58.6141929,
+        "lat": -34.7723291,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 28352.1801803375,
+        "formatted": "Plaza Dorrego, Soberanía Nacional, Dorrego, 1759 González Catán, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "Soberanía Nacional, Dorrego, 1759 González Catán, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q369HP+38",
+        "rank": {
+          "importance": 0.00005018921187147353,
+          "popularity": 5.412518141578262,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "51bb7779df9d4e4dc059e31f11aedb6241c0f00103f901509ade7001000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.6142429,
+          "lat1": -34.7723791,
+          "lon2": -58.6141429,
+          "lat2": -34.7722791
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Plaza Dorrego",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Matanza",
+        "city": "González Catán",
+        "postcode": "1759",
+        "suburb": "Dorrego",
+        "quarter": "Las Nieves",
+        "street": "Achupallas",
+        "iso3166_2": "AR-B",
+        "lon": -58.6138442,
+        "lat": -34.7737546,
+        "state_code": "B",
+        "result_type": "amenity",
+        "distance": 28433.303615854573,
+        "formatted": "Plaza Dorrego, Achupallas, Dorrego, 1759 González Catán, Argentina",
+        "address_line1": "Plaza Dorrego",
+        "address_line2": "Achupallas, Dorrego, 1759 González Catán, Argentina",
+        "category": "public_transport.bus",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q369GP+FF",
+        "rank": {
+          "importance": 0.00005018921187147353,
+          "popularity": 5.302936350562046,
+          "confidence": 0,
+          "match_type": "match_by_building"
+        },
+        "place_id": "516eeb5d72924e4dc059951007640a6341c0f00103f90144b6e36f01000000c0020192030d506c617a6120446f727265676f",
+        "bbox": {
+          "lon1": -58.6138942,
+          "lat1": -34.7738046,
+          "lon2": -58.6137942,
+          "lat2": -34.7737046
+        }
+      }
+    ],
+    "query": {
+      "text": "",
+      "parsed": {
+        "house": "Plaza Dorrego",
+        "expected_type": "unknown"
+      }
+    }
+  }
+}

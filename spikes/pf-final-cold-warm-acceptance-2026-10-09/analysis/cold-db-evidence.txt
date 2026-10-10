@@ -1,0 +1,168 @@
+== Experiences with more than one source member
+                  id                  |                  canonicalName                   |  status  |        createdAt        | source_members | resolved_members | distinct_geo_entities | unresolved_members | derived_completeness
+--------------------------------------+--------------------------------------------------+----------+-------------------------+----------------+------------------+-----------------------+--------------------+----------------------
+ 1b9f86bc-59a2-40a4-b0e9-6a53d7d69554 | Self Guided Walking Tour San Telmo (part 1 of 3) | VERIFIED | 2026-10-09 23:04:59.461 |             17 |                5 |                     5 |                 12 | PARTIAL
+ 40dfef03-24fb-4019-8108-4d1b789b2762 | Map of Avenida de Mayo (part 2 of 2)             | VERIFIED | 2026-10-09 23:06:48.336 |             15 |                6 |                     6 |                  9 | PARTIAL
+ eabaf1ee-a68d-4b36-ba13-b90a178316a4 | Walking tour Buenos Aires – Day 1 (part 1 of 2)  | VERIFIED | 2026-10-09 23:10:51.734 |             16 |                8 |                     8 |                  8 | PARTIAL
+(3 rows)
+
+== Source-member table of every multi-member Experience
+                  canonicalName                   | sourcePosition |                 sourceName                  | resolutionState |   resolutionReason    |             geoEntityId              |                         geo_entity_name                         | resolutionSource | order | role
+--------------------------------------------------+----------------+---------------------------------------------+-----------------+-----------------------+--------------------------------------+-----------------------------------------------------------------+------------------+-------+-------
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              0 | Teatro Colón                                | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     1 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              1 | Obelisco                                    | RESOLVED        |                       | 08592a93-23a7-41e8-a3ed-eaf8ad798427 | Obelisco                                                        | AUTOMATIC        |     2 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              2 | Plaza de Mayo                               | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     3 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              3 | Congress building                           | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     4 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              4 | Plaza                                       | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     5 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              5 | Casa Rosada                                 | RESOLVED        |                       | 29474e1a-637c-4f7e-8635-e6b2c32f6255 | Casa Rosada                                                     | AUTOMATIC        |     6 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              6 | Cathedral                                   | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     7 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              7 | Cabildo                                     | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     8 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              8 | San Telmo                                   | RESOLVED        |                       | ede52cb2-c3d5-4a07-9240-d1689ec7ca44 | San Telmo                                                       | AUTOMATIC        |     9 | area
+ Self Guided Walking Tour San Telmo (part 1 of 3) |              9 | Defensa Street                              | RESOLVED        |                       | 8337af90-867f-45f3-b65c-d3d730071dd7 | Defensa                                                         | AUTOMATIC        |    10 | route
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             10 | Farmacia la Estrella                        | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    11 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             11 | Museum of the city                          | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |    12 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             12 | La Librería del Avila                       | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    13 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             13 | Monumento de Mafalda                        | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    14 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             14 | Casa Mínima                                 | RESOLVED        |                       | 65612a5b-62d2-46ee-aa51-4ab23c3364b7 | Casa Mínima                                                     | AUTOMATIC        |    15 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             15 | The San Telmo Market                        | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |    16 | venue
+ Self Guided Walking Tour San Telmo (part 1 of 3) |             16 | El Patio de los Ezeiza                      | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    17 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              0 | Rodin’s The Thinker                         | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     1 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              1 | Palacio Barolo                              | RESOLVED        |                       | 30c34eb8-9685-4842-9eb9-059667ca2e48 | Palacio Barolo                                                  | AUTOMATIC        |     2 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              2 | Los 36 Billares                             | RESOLVED        |                       | f77e5f61-b9be-4f90-a707-8641e9874b2d | Los 36 Billares                                                 | AUTOMATIC        |     3 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              3 | El Teatro Avenida                           | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     4 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              4 | Cafe Tortoni                                | RESOLVED        |                       | 57ae0330-3d58-4d69-9924-f43d0f1b423b | Café Tortoni                                                    | AUTOMATIC        |     5 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              5 | Plaza de Mayo                               | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     6 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              6 | El Tunel                                    | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     7 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              7 | Pasaje Roverano                             | RESOLVED        |                       | f3b18a72-8565-4c9c-baa7-222981232c2f | Pasaje Roverano                                                 | AUTOMATIC        |     8 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              8 | hair salon                                  | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |     9 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |              9 | Metropolitan Cathedral                      | RESOLVED        |                       | d33fc000-5f8e-4159-83ae-0d7a903c130c | Catedral Metropolitana                                          | AUTOMATIC        |    10 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |             10 | the Cabildo                                 | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |    11 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |             11 | history museum                              | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    12 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |             12 | second story balcony                        | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    13 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |             13 | Casa Rosada                                 | RESOLVED        |                       | 29474e1a-637c-4f7e-8635-e6b2c32f6255 | Casa Rosada                                                     | AUTOMATIC        |    14 | venue
+ Map of Avenida de Mayo (part 2 of 2)             |             14 | Mausoleum of General San Martín             | UNRESOLVED      | CANDIDATE_REJECTED    |                                      |                                                                 |                  |    15 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              0 | PLAZA DE MAYO                               | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     1 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              1 | Casa Rosada                                 | RESOLVED        |                       | 29474e1a-637c-4f7e-8635-e6b2c32f6255 | Casa Rosada                                                     | AUTOMATIC        |     2 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              2 | Catedral Metropolitana                      | RESOLVED        |                       | d33fc000-5f8e-4159-83ae-0d7a903c130c | Catedral Metropolitana                                          | AUTOMATIC        |     3 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              3 | Cabildo                                     | RESOLVED        |                       | 8e20ebc1-2b47-486a-a13f-66ff0d0a8de3 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | AUTOMATIC        |     4 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              4 | Feria San Telmo                             | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |     5 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              5 | the oldest neighborhood of the capital city | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     6 | area
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              6 | San Telmo                                   | RESOLVED        |                       | ede52cb2-c3d5-4a07-9240-d1689ec7ca44 | San Telmo                                                       | AUTOMATIC        |     7 | area
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              7 | Bar Sur                                     | RESOLVED        |                       | 250ff403-361d-460a-bddc-5a029c64e6f8 | Bar Sur                                                         | AUTOMATIC        |     8 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              8 | a big building with columns                 | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |     9 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |              9 | Mercado de San Telmo                        | RESOLVED        |                       | 94ed097c-035c-4be4-ba06-0cc425c6e4a5 | Mercado de San Telmo                                            | AUTOMATIC        |    10 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             10 | Plaza Dorrego                               | RESOLVED        |                       | 1f002714-eeb2-4816-b43a-618d2da3b642 | Plaza Dorrego                                                   | AUTOMATIC        |    11 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             11 | Museum of Modern Arts                       | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    12 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             12 | Club Atlético                               | UNRESOLVED      | AMBIGUOUS_CANDIDATES  |                                      |                                                                 |                  |    13 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             13 | Parque Lezama                               | RESOLVED        |                       | 6d087bf0-1658-4a27-a9f0-dff847137d0c | Parque Lezama                                                   | AUTOMATIC        |    14 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             14 | national history museum                     | UNRESOLVED      | CANDIDATE_UNCONFIRMED |                                      |                                                                 |                  |    15 | venue
+ Walking tour Buenos Aires – Day 1 (part 1 of 2)  |             15 | typical red walkway                         | UNRESOLVED      | NO_CANDIDATE_ACQUIRED |                                      |                                                                 |                  |    16 | route
+(48 rows)
+
+== Integrity: unresolved members never carry a GeoEntity; no member lost
+ unresolved_with_geo | resolved_without_geo | without_source_position | without_source_name
+---------------------+----------------------+-------------------------+---------------------
+                   0 |                    0 |                       0 |                   0
+(1 row)
+
+== Tours
+                  id                  |          name           |        createdAt
+--------------------------------------+-------------------------+-------------------------
+ e7862054-f2e8-469b-a94a-68c64eedcc30 | Buenos Aires, Argentina | 2026-10-09 23:03:20.845
+(1 row)
+
+== TourExperience rows, with canonical member counts vs snapshot count
+                tourId                |          tour_experience_id          |             experienceId             |                  canonicalName                  | dayNumber | order | canonical_source_members | canonical_resolved | canonical_distinct_geo | snapshot_components
+--------------------------------------+--------------------------------------+--------------------------------------+-------------------------------------------------+-----------+-------+--------------------------+--------------------+------------------------+---------------------
+ e7862054-f2e8-469b-a94a-68c64eedcc30 | 062bac03-9370-4b0f-b517-e80c365fda67 | eabaf1ee-a68d-4b36-ba13-b90a178316a4 | Walking tour Buenos Aires – Day 1 (part 1 of 2) |         1 |     1 |                       16 |                  8 |                      8 |                   8
+ e7862054-f2e8-469b-a94a-68c64eedcc30 | ad61d3ae-11e2-485f-8733-841ec0d46629 | 682fc0bf-d59d-49fd-9566-04dbc032ddfa | Museo Histórico Nacional                        |         1 |     2 |                        1 |                  1 |                      1 |                   1
+ e7862054-f2e8-469b-a94a-68c64eedcc30 | cbaec6c9-78d2-4ce3-8ecb-1268b025d23b | af5c3f2e-63a4-4d97-a8ea-60cc3a53656b | Roca granitica                                  |         1 |     3 |                        1 |                  1 |                      1 |                   1
+ e7862054-f2e8-469b-a94a-68c64eedcc30 | 62126bb4-3c94-4c2c-8222-daab59417638 | 1905f762-de79-4e27-b0a0-a197fc8abc56 | Manzana de las Luces                            |         1 |     4 |                        1 |                  1 |                      1 |                   1
+(4 rows)
+
+== TourExperienceComponent snapshot rows
+           tourExperienceId           | order |                              name                               |             geoEntityId
+--------------------------------------+-------+-----------------------------------------------------------------+--------------------------------------
+ 062bac03-9370-4b0f-b517-e80c365fda67 |     2 | Casa Rosada                                                     | 29474e1a-637c-4f7e-8635-e6b2c32f6255
+ 062bac03-9370-4b0f-b517-e80c365fda67 |     3 | Catedral Metropolitana                                          | d33fc000-5f8e-4159-83ae-0d7a903c130c
+ 062bac03-9370-4b0f-b517-e80c365fda67 |     4 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | 8e20ebc1-2b47-486a-a13f-66ff0d0a8de3
+ 062bac03-9370-4b0f-b517-e80c365fda67 |     7 | San Telmo                                                       | ede52cb2-c3d5-4a07-9240-d1689ec7ca44
+ 062bac03-9370-4b0f-b517-e80c365fda67 |     8 | Bar Sur                                                         | 250ff403-361d-460a-bddc-5a029c64e6f8
+ 062bac03-9370-4b0f-b517-e80c365fda67 |    10 | Mercado de San Telmo                                            | 94ed097c-035c-4be4-ba06-0cc425c6e4a5
+ 062bac03-9370-4b0f-b517-e80c365fda67 |    11 | Plaza Dorrego                                                   | 1f002714-eeb2-4816-b43a-618d2da3b642
+ 062bac03-9370-4b0f-b517-e80c365fda67 |    14 | Parque Lezama                                                   | 6d087bf0-1658-4a27-a9f0-dff847137d0c
+ 62126bb4-3c94-4c2c-8222-daab59417638 |       | Manzana de las Luces                                            | 9ca055b4-75c4-4d72-b71e-33964a21f0be
+ ad61d3ae-11e2-485f-8733-841ec0d46629 |       | Museo Histórico Nacional                                        | b6a640b5-03b3-40b4-b0a9-f123c17cae93
+ cbaec6c9-78d2-4ce3-8ecb-1268b025d23b |       | Roca granitica                                                  | b84b2138-fc1e-47bc-8f9b-041e721e1423
+(11 rows)
+
+== Verified hint memory and assertions (National Bank class)
+                  id                  |                              name                               |                    verifiedHintNames
+--------------------------------------+-----------------------------------------------------------------+----------------------------------------------------------
+ 250ff403-361d-460a-bddc-5a029c64e6f8 | Bar Sur                                                         | {"Bar Sur"}
+ 57ae0330-3d58-4d69-9924-f43d0f1b423b | Café Tortoni                                                    | {"Cafe Tortoni"}
+ ce157f45-f641-4388-8864-266e045f987d | Caminito                                                        | {Caminito}
+ 65612a5b-62d2-46ee-aa51-4ab23c3364b7 | Casa Mínima                                                     | {"Casa Mínima"}
+ 29474e1a-637c-4f7e-8635-e6b2c32f6255 | Casa Rosada                                                     | {"Casa Rosada"}
+ d33fc000-5f8e-4159-83ae-0d7a903c130c | Catedral Metropolitana                                          | {"Metropolitan Cathedral","Catedral Metropolitana"}
+ 5c81c51c-7052-4f24-9589-e7b4b52a5d82 | Colón Fábrica                                                   | {"Colón Fábrica"}
+ 8337af90-867f-45f3-b65c-d3d730071dd7 | Defensa                                                         | {"Defensa Street"}
+ e59e5a52-cedb-4849-a608-bde27479689f | Estatua Hugo del Carril                                         | {"Estatua Hugo del Carril"}
+ 9e031ea0-a36e-4c6d-b960-2884a3d28e8a | Hidrovértigo                                                    | {Hidrovértigo}
+ fbcdb823-3c4b-4324-942f-239a533c8eb3 | Juventud                                                        | {Juventud}
+ cdf41e3b-78f4-4748-ac58-ac741d917730 | La Boca                                                         | {"La Boca"}
+ 380d2452-b263-4a18-a727-cb27e2262720 | La flor de la vida                                              | {"La flor de la vida"}
+ e22bacd2-0689-4430-a6ed-79c7cc0dc1b6 | La Madre                                                        | {"La Madre"}
+ f77e5f61-b9be-4f90-a707-8641e9874b2d | Los 36 Billares                                                 | {"Los 36 Billares"}
+ 9ca055b4-75c4-4d72-b71e-33964a21f0be | Manzana de las Luces                                            | {"Manzana de las Luces"}
+ 94ed097c-035c-4be4-ba06-0cc425c6e4a5 | Mercado de San Telmo                                            | {"Mercado San Telmo","San Telmo Market"}
+ c0d629eb-0d4b-4127-a7e0-6c0310df162b | Museo Casa Taller 'Celia Chevalier'                             | {"Museo Casa Taller 'Celia Chevalier'"}
+ fd81f7b1-0406-4957-b24f-ef369ce3acd3 | Museo de Artistas Argentinos Benito Quinquela Martín            | {"Museo de Artistas Argentinos Benito Quinquela Martín"}
+ af7898d6-336c-4a9f-ac8c-a9c9619d8fcf | Museo del Cine Pablo Ducrós Hicken                              | {"Museo del Cine Pablo Ducrós Hicken"}
+ 986a5481-2eb6-4df5-b4b2-20da91e3787a | Museo Histórico de Cera                                         | {"Museo Histórico de Cera"}
+ b6a640b5-03b3-40b4-b0a9-f123c17cae93 | Museo Histórico Nacional                                        | {"Museo Histórico Nacional"}
+ 8e20ebc1-2b47-486a-a13f-66ff0d0a8de3 | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo | {Cabildo}
+ 08592a93-23a7-41e8-a3ed-eaf8ad798427 | Obelisco                                                        | {Obelisco}
+ 30c34eb8-9685-4842-9eb9-059667ca2e48 | Palacio Barolo                                                  | {"Palacio Barolo"}
+ 6d087bf0-1658-4a27-a9f0-dff847137d0c | Parque Lezama                                                   | {"Parque Lezama"}
+ f3b18a72-8565-4c9c-baa7-222981232c2f | Pasaje Roverano                                                 | {"Pasaje Roverano"}
+ 1f002714-eeb2-4816-b43a-618d2da3b642 | Plaza Dorrego                                                   | {"Plaza Dorrego"}
+ b84b2138-fc1e-47bc-8f9b-041e721e1423 | Roca granitica                                                  | {"Roca granitica"}
+ 6dd2d16d-10cb-4209-9c45-55da7037c2f1 | Teatro Colón                                                    | {"Teatro Colón"}
+(30 rows)
+
+                       hintName                       |                       hintKey                        |  source   | revokedAt |                         geo_entity_name
+------------------------------------------------------+------------------------------------------------------+-----------+-----------+-----------------------------------------------------------------
+ Bar Sur                                              | bar sur                                              | AUTOMATIC |           | Bar Sur
+ Cabildo                                              | cabildo                                              | AUTOMATIC |           | Museo Histórico Nacional del Cabildo y de la Revolución de Mayo
+ Cafe Tortoni                                         | cafe tortoni                                         | AUTOMATIC |           | Café Tortoni
+ Caminito                                             | caminito                                             | AUTOMATIC |           | Caminito
+ Casa Mínima                                          | casa minima                                          | AUTOMATIC |           | Casa Mínima
+ Casa Rosada                                          | casa rosada                                          | AUTOMATIC |           | Casa Rosada
+ Catedral Metropolitana                               | catedral metropolitana                               | AUTOMATIC |           | Catedral Metropolitana
+ Colón Fábrica                                        | colon fabrica                                        | AUTOMATIC |           | Colón Fábrica
+ Defensa Street                                       | defensa street                                       | AUTOMATIC |           | Defensa
+ Estatua Hugo del Carril                              | estatua hugo del carril                              | AUTOMATIC |           | Estatua Hugo del Carril
+ Hidrovértigo                                         | hidrovertigo                                         | AUTOMATIC |           | Hidrovértigo
+ Juventud                                             | juventud                                             | AUTOMATIC |           | Juventud
+ La Boca                                              | la boca                                              | AUTOMATIC |           | La Boca
+ La flor de la vida                                   | la flor de la vida                                   | AUTOMATIC |           | La flor de la vida
+ La Madre                                             | la madre                                             | AUTOMATIC |           | La Madre
+ Los 36 Billares                                      | los 36 billares                                      | AUTOMATIC |           | Los 36 Billares
+ Manzana de las Luces                                 | manzana de las luces                                 | AUTOMATIC |           | Manzana de las Luces
+ Mercado San Telmo                                    | mercado san telmo                                    | AUTOMATIC |           | Mercado de San Telmo
+ Metropolitan Cathedral                               | metropolitan cathedral                               | AUTOMATIC |           | Catedral Metropolitana
+ Museo Casa Taller 'Celia Chevalier'                  | museo casa taller celia chevalier                    | AUTOMATIC |           | Museo Casa Taller 'Celia Chevalier'
+ Museo de Artistas Argentinos Benito Quinquela Martín | museo de artistas argentinos benito quinquela martin | AUTOMATIC |           | Museo de Artistas Argentinos Benito Quinquela Martín
+ Museo del Cine Pablo Ducrós Hicken                   | museo del cine pablo ducros hicken                   | AUTOMATIC |           | Museo del Cine Pablo Ducrós Hicken
+ Museo Histórico de Cera                              | museo historico de cera                              | AUTOMATIC |           | Museo Histórico de Cera
+ Museo Histórico Nacional                             | museo historico nacional                             | AUTOMATIC |           | Museo Histórico Nacional
+ Obelisco                                             | obelisco                                             | AUTOMATIC |           | Obelisco
+ Palacio Barolo                                       | palacio barolo                                       | AUTOMATIC |           | Palacio Barolo
+ Parque Lezama                                        | parque lezama                                        | AUTOMATIC |           | Parque Lezama
+ Pasaje Roverano                                      | pasaje roverano                                      | AUTOMATIC |           | Pasaje Roverano
+ Plaza Dorrego                                        | plaza dorrego                                        | AUTOMATIC |           | Plaza Dorrego
+ Roca granitica                                       | roca granitica                                       | AUTOMATIC |           | Roca granitica
+ San Telmo Market                                     | san telmo market                                     | AUTOMATIC |           | Mercado de San Telmo
+ Teatro Colón                                         | teatro colon                                         | AUTOMATIC |           | Teatro Colón
+(32 rows)

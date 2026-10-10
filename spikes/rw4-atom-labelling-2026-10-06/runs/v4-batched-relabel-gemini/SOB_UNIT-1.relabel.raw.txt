@@ -1,0 +1,59 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-077"
+        }
+      ],
+      "reason": "Directs the traveller to enjoy the park mentioned earlier."
+    },
+    {
+      "atomId": "a-084",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "red walkway",
+          "supportSpan": "red walkway",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Tells the traveller to walk on the red walkway."
+    },
+    {
+      "atomId": "a-171",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad for hotels in Buenos Aires."
+    },
+    {
+      "atomId": "a-172",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad for hotels in San Telmo."
+    },
+    {
+      "atomId": "a-173",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad for hotels in Palermo."
+    },
+    {
+      "atomId": "a-177",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad for cycling."
+    },
+    {
+      "atomId": "a-179",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Ad for travel tips."
+    }
+  ]
+}

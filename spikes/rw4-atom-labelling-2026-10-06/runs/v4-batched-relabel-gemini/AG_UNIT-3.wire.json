@@ -1,0 +1,314 @@
+[
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 3738,
+      "total_input_tokens": 1879,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 1879
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 1859,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2444,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2444
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1877
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2444
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1877
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 3726,
+      "total_input_tokens": 2033,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 2033
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 1693,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2598,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2598
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1711
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2598
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1711
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 3606,
+      "total_input_tokens": 2066,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 2066
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 1540,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2631,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2631
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1557
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2631
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1557
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 3693,
+      "total_input_tokens": 2059,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 2059
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 1634,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2624,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2624
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1652
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2624
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1652
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 2325,
+      "total_input_tokens": 1580,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 1580
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 745,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 2145,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2145
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 764
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 2145
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 764
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  },
+  {
+    "url": "https://generativelanguage.googleapis.com/v1beta/interactions?key=<redacted>",
+    "status": 200,
+    "usage": {
+      "total_tokens": 1532,
+      "total_input_tokens": 1377,
+      "input_tokens_by_modality": [
+        {
+          "modality": "text",
+          "tokens": 1377
+        }
+      ],
+      "total_cached_tokens": 0,
+      "total_output_tokens": 155,
+      "total_tool_use_tokens": 0,
+      "total_thought_tokens": 0,
+      "raw_prompt_token": 1942,
+      "model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1942
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 173
+            }
+          ]
+        }
+      ],
+      "non_grounding_model_invocation_token_counts": [
+        {
+          "prompt_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 1942
+            }
+          ],
+          "candidates_tokens_details": [
+            {
+              "modality": "text",
+              "tokens": 173
+            }
+          ]
+        }
+      ]
+    },
+    "status_": "completed"
+  }
+]

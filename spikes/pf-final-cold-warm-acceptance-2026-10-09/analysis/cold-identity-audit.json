@@ -1,0 +1,960 @@
+{
+ "decisionCount": 68,
+ "verdictByRule": {
+  "AMBIGUOUS|MATERIAL_COMPETITOR_KNOWN": 14,
+  "VERIFIED|GROUNDED_UNIQUE_EXACT_NAME": 23,
+  "INSUFFICIENT_EVIDENCE|NO_DECISIVE_EVIDENCE": 18,
+  "VERIFIED|STRUCTURED_ROUTE": 2,
+  "VERIFIED|CATALOG_ROUTE_VARIANT": 2,
+  "AMBIGUOUS|NAME_COLLISION": 2,
+  "VERIFIED|QID_LINK": 1,
+  "INSUFFICIENT_EVIDENCE|NAME_UNIQUENESS_UNKNOWN": 1,
+  "REJECTED|QID_LINK_MISMATCH": 3,
+  "VERIFIED|GROUNDED_UNIQUE_ALIAS": 2
+ },
+ "convergenceEvidence": {
+  "AMBIGUOUS|undefined|RETRIEVAL_ONLY": 4,
+  "INSUFFICIENT_EVIDENCE|undefined|RETRIEVAL_ONLY": 2
+ },
+ "overlapOrNonePromotedToVerified": [],
+ "decisions": [
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Teatro Colón",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Colony Theatre",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Obelisco",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Obelisco",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza de Mayo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza 30'000 compañeros",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Congress building",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Brisas Office Building",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza Dorrego",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Rosada",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Rosada",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Cabildo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Cabildo de Buenos Aires",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Defensa Street",
+   "verdict": "VERIFIED",
+   "rule": "STRUCTURED_ROUTE",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Defensa",
+   "decisiveTypes": [
+    "STRUCTURED_ROUTE_RESOLUTION/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Farmacia la Estrella",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Farmacia Bolivar",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "La Librería del Avila",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "La Licoreria Del Mercado",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Monumento de Mafalda",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Monumento Canto al Trabajo",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Mínima",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Mínima",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "The San Telmo Market",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Mercado de San Telmo",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "El Patio de los Ezeiza",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "El Patio de Cabo Verde",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-30",
+   "stepName": "resolution.component_identity",
+   "name": "Caminito",
+   "verdict": "VERIFIED",
+   "rule": "STRUCTURED_ROUTE",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Caminito",
+   "decisiveTypes": [
+    "STRUCTURED_ROUTE_RESOLUTION/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-30",
+   "stepName": "resolution.component_identity",
+   "name": "Caminito Street",
+   "verdict": "VERIFIED",
+   "rule": "CATALOG_ROUTE_VARIANT",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Caminito",
+   "decisiveTypes": [
+    "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-31",
+   "stepName": "resolution.component_identity",
+   "name": "La Bombonera",
+   "verdict": "AMBIGUOUS",
+   "rule": "NAME_COLLISION",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "La Bombonera",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CORROBORATING",
+    "EXACT_NAME/CORROBORATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "Church of San Ignacio de Loyola",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Parroquia San Ignacio de Loyola",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Mínima (Miniature House)",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Casa San Juan",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo Market",
+   "verdict": "VERIFIED",
+   "rule": "QID_LINK",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Mercado de San Telmo",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CORROBORATING",
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo Fair",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NAME_UNIQUENESS_UNKNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "San Telmo Fair",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Mínima",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Mínima",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-53",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Palacio Barolo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Palacio Barolo",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Los 36 Billares",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Los 36 Billares",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "El Teatro Avenida",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "El Teatro",
+   "decisiveTypes": [],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Cafe Tortoni",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Café Tortoni",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza de Mayo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza de Mayo",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "El Tunel",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "El Túnel",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Pasaje Roverano",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Pasaje Roverano",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "hair salon",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Salon Alice",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Metropolitan Cathedral",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Metropolitan Cathedral",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "the Cabildo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "The Roxy Live!",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "history museum",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "National Museum of Fine Arts",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "second story balcony",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Bunker Second Hand",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Rosada",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Rosada",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-54",
+   "stepName": "resolution.component_identity",
+   "name": "Mausoleum of General San Martín",
+   "verdict": "REJECTED",
+   "rule": "QID_LINK_MISMATCH",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Monumento al General San Martín",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CONTRADICTORY"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Teatro Colón",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Teatro Colón",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza de Mayo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza de Mayo",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Congress building",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Poetry Building Recoleta",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Rosada",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Rosada",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Cathedral",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Russian Orthodox Church Abroad - Cathedral Of The Resurrection",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-94",
+   "stepName": "resolution.component_identity",
+   "name": "Cabildo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_ALIAS",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "decisiveTypes": [
+    "DECLARED_ALIAS_MATCH/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "Farmacia la Estrella",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Farmacia de la Estrella",
+   "decisiveTypes": [],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "Museum of the city",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Dome in the Heart of the City",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "La Librería del Avila",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Librería Puerta del Sol",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "Monumento de Mafalda",
+   "verdict": "REJECTED",
+   "rule": "QID_LINK_MISMATCH",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Monumento al Bandoneón",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CONTRADICTORY"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Mínima",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Mínima",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "The San Telmo Market",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-95",
+   "stepName": "resolution.component_identity",
+   "name": "El Patio de los Ezeiza",
+   "verdict": "REJECTED",
+   "rule": "QID_LINK_MISMATCH",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Museo Criollo de los Corrales",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CONTRADICTORY"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-96",
+   "stepName": "resolution.component_identity",
+   "name": "Don Carlos",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Carlos Pellegrini",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-96",
+   "stepName": "resolution.component_identity",
+   "name": "Caminito Street",
+   "verdict": "VERIFIED",
+   "rule": "CATALOG_ROUTE_VARIANT",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Caminito",
+   "decisiveTypes": [
+    "CATALOG_ROUTE_RETRIEVAL_VARIANT_MATCH/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "PLAZA DE MAYO",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza de Mayo",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Rosada",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Rosada",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Catedral Metropolitana",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Catedral Metropolitana",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Cabildo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_ALIAS",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "decisiveTypes": [
+    "DECLARED_ALIAS_MATCH/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Feria San Telmo",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Feria Americana",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Bar Sur",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Bar Sur",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Mercado de San Telmo",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Mercado de San Telmo",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza Dorrego",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Plaza Dorrego",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Museum of Modern Arts",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "National Museum of Fine Arts",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Club Atlético",
+   "verdict": "AMBIGUOUS",
+   "rule": "MATERIAL_COMPETITOR_KNOWN",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+   "decisiveTypes": [
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "Parque Lezama",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Parque Lezama",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-97",
+   "stepName": "resolution.component_identity",
+   "name": "national history museum",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "National Museum of Fine Arts",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-98",
+   "stepName": "resolution.component_identity",
+   "name": "La Boca",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "La Boca",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-98",
+   "stepName": "resolution.component_identity",
+   "name": "La Bombonera",
+   "verdict": "AMBIGUOUS",
+   "rule": "NAME_COLLISION",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "La Bombonera",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CORROBORATING",
+    "EXACT_NAME/CORROBORATING"
+   ],
+   "convergence": []
+  }
+ ]
+}

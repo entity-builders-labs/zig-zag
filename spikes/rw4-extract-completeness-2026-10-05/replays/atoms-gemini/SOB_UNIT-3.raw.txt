@@ -1,0 +1,745 @@
+{
+  "labels": [
+    {
+      "atom": "A1",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A2",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "PLAZA DE MAYO"
+        }
+      ]
+    },
+    {
+      "atom": "A3",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza de Mayo",
+          "span": "Plaza de Mayo"
+        }
+      ]
+    },
+    {
+      "atom": "A4",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A5",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A6",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A7",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A8",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A9",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A10",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A11",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A12",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A13",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A14",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A15",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A16",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A17",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A18",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A19",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A20",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A21",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A22",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A23",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A24",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A25",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A26",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A27",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A28",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A29",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A30",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A31",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A32",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A33",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa",
+          "span": "Defensa"
+        }
+      ]
+    },
+    {
+      "atom": "A34",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A35",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A36",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Feria San Telmo",
+          "span": "Feria San Telmo"
+        }
+      ]
+    },
+    {
+      "atom": "A37",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A38",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A39",
+      "kind": "OTHER",
+      "reason": "ALTERNATIVE"
+    },
+    {
+      "atom": "A40",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "San Telmo",
+          "span": "oldest neighborhood of the capital city"
+        }
+      ]
+    },
+    {
+      "atom": "A41",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A42",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A43",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Estados Unidos",
+          "span": "Estados Unidos"
+        }
+      ]
+    },
+    {
+      "atom": "A44",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A45",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A46",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Bar Sur",
+          "span": "Bar Sur"
+        }
+      ]
+    },
+    {
+      "atom": "A47",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A48",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A49",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A50",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A51",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A52",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A53",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A54",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A55",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa",
+          "span": "Defensa"
+        }
+      ]
+    },
+    {
+      "atom": "A56",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Mercado de San Telmo",
+          "span": "Mercado de San Telmo"
+        }
+      ]
+    },
+    {
+      "atom": "A57",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Mercado de San Telmo",
+          "span": "Mercado de San Telmo"
+        }
+      ]
+    },
+    {
+      "atom": "A58",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A59",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A60",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A61",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A62",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Plaza Dorrego",
+          "span": "Plaza Dorrego"
+        }
+      ]
+    },
+    {
+      "atom": "A63",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A64",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A65",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Avenida San Juan",
+          "span": "Avenida San Juan"
+        }
+      ]
+    },
+    {
+      "atom": "A66",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Museum of Modern Arts",
+          "span": "Museum of Modern Arts"
+        }
+      ]
+    },
+    {
+      "atom": "A67",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A68",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Club Atlético",
+          "span": "Club Atlético"
+        }
+      ]
+    },
+    {
+      "atom": "A69",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A70",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A71",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A72",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A73",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Defensa",
+          "span": "Defensa"
+        }
+      ]
+    },
+    {
+      "atom": "A74",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Parque Lezama",
+          "span": "Parque Lezama"
+        }
+      ]
+    },
+    {
+      "atom": "A75",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A76",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A77",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A78",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A79",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A80",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Parque Lezama",
+          "span": "park"
+        }
+      ]
+    },
+    {
+      "atom": "A81",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "national history museum",
+          "span": "national history museum"
+        }
+      ]
+    },
+    {
+      "atom": "A82",
+      "kind": "OTHER",
+      "reason": "PASSING"
+    },
+    {
+      "atom": "A83",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A84",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Avenida Caseros",
+          "span": "Avenida Caseros"
+        }
+      ]
+    },
+    {
+      "atom": "A85",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A86",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "Avenida Caseros",
+          "span": "red walkway"
+        }
+      ]
+    },
+    {
+      "atom": "A87",
+      "kind": "TRANSFER"
+    },
+    {
+      "atom": "A88",
+      "kind": "TRANSFER"
+    },
+    {
+      "atom": "A89",
+      "kind": "TRANSFER"
+    },
+    {
+      "atom": "A90",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A91",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A92",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A93",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "El Caminito",
+          "span": "El Caminito"
+        }
+      ]
+    },
+    {
+      "atom": "A94",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A95",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A96",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A97",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A98",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A99",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A100",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A101",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A102",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "La Bombonera",
+          "span": "La Bombonera"
+        }
+      ]
+    },
+    {
+      "atom": "A103",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A104",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A105",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A106",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A107",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A108",
+      "kind": "STOP",
+      "stops": [
+        {
+          "name": "La Boca",
+          "span": "La Boca"
+        }
+      ]
+    },
+    {
+      "atom": "A109",
+      "kind": "TRANSFER"
+    },
+    {
+      "atom": "A110",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A111",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A112",
+      "kind": "OTHER",
+      "reason": "ALTERNATIVE"
+    },
+    {
+      "atom": "A113",
+      "kind": "OTHER",
+      "reason": "CONTEXT"
+    },
+    {
+      "atom": "A114",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A115",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A116",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A117",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A118",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A119",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A120",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A121",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A122",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A123",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A124",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A125",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    },
+    {
+      "atom": "A126",
+      "kind": "OTHER",
+      "reason": "NOT_ITINERARY"
+    }
+  ]
+}

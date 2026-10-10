@@ -1,0 +1,802 @@
+{
+  "label": "Materialización en catálogo",
+  "rules": [
+    {
+      "rule": "Persistir composites solo después de GEO_VERIFIED",
+      "reason": "ExperienceCatalogService consume el resultado del validador geográfico.",
+      "result": "PASS",
+      "ruleId": "MAT-GEO-GATE-001"
+    },
+    {
+      "rule": "Exponer solo IDs canónicos persistidos al re-query/ranking",
+      "actual": 6,
+      "reason": "6 Experience id(s) quedaron disponibles para re-query.",
+      "result": "PASS",
+      "ruleId": "MAT-CANONICAL-001"
+    }
+  ],
+  "stage": "catalog_materialization",
+  "inputs": {
+    "geoVerifiedCount": 6
+  },
+  "status": "WARN",
+  "outputs": {
+    "rejectedCount": 20,
+    "materializedCount": 6,
+    "persistedExperienceIds": [
+      "a539265a-936a-49e0-850f-9be3d3429738",
+      "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "95638579-90f5-467e-941d-ec638cde0bf8",
+      "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4"
+    ]
+  },
+  "summary": "6 propuesta(s) geográficamente verificadas quedaron materializadas como Experiences verificadas; 20 no produjeron Experience persistida. La persistencia ocurre después de geographic_validation, nunca durante entity_resolution.",
+  "decision": {
+    "reason": "Las Experiences persistidas pueden reingresar al pool canónico del mismo pedido.",
+    "status": "WARN",
+    "outcome": "VERIFIED_EXPERIENCES_MATERIALIZED",
+    "reasonCodes": [
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "destination_mismatch",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH",
+      "NO_OSM_MATCH"
+    ],
+    "triggeredActions": [
+      "REQUERY_CANONICAL_CATALOG"
+    ]
+  },
+  "component": "ExperienceCatalogService",
+  "providerStatus": "success",
+  "acquisitionContext": {
+    "strategy": "generic",
+    "passNumber": 1
+  },
+  "candidateDecisions": [
+    {
+      "id": "a539265a-936a-49e0-850f-9be3d3429738",
+      "name": "Feria De las Artes San Telmo",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "The Port of Buenos Aires",
+      "name": "The Port of Buenos Aires",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "PRISON MUSEUM Antonio Ballvé",
+      "name": "PRISON MUSEUM Antonio Ballvé",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Paseo de las Historietas",
+      "name": "Paseo de las Historietas",
+      "reason": "destination_mismatch",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "destination_mismatch"
+      ]
+    },
+    {
+      "id": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "name": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "name": "Galeria Del Asombro",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "name": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "name": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "name": "Museo Moderno",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "Matías - Paseo de la Historieta",
+      "name": "Matías - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Camino de la historieta",
+      "name": "Camino de la historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "name": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "National Historic Museum",
+      "name": "National Historic Museum",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Isidoro Cañones - Paseo de la Historieta",
+      "name": "Isidoro Cañones - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Argentine Puppet Museum",
+      "name": "Argentine Puppet Museum",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Mural De Calé - Paseo de la Historieta",
+      "name": "Mural De Calé - Paseo de la Historieta",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Old Hotel Gallery",
+      "name": "Old Hotel Gallery",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Maqueta Barrio La Boca",
+      "name": "Maqueta Barrio La Boca",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "El Zanjón de Granados",
+      "name": "El Zanjón de Granados",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Puerto Madero",
+      "name": "Puerto Madero",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "Manzana de las Luces",
+      "name": "Manzana de las Luces",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "name": "Mercado San Telmo",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "name": "Museo Histórico Nacional",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "Pasaje San Lorenzo",
+      "name": "Pasaje San Lorenzo",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    {
+      "id": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "name": "Plaza Dorrego",
+      "reason": "Experience verificada materializada y lista para re-query.",
+      "source": "discovery",
+      "status": "ELIGIBLE",
+      "reasonCodes": [
+        "EXPERIENCE_MATERIALIZED"
+      ]
+    },
+    {
+      "id": "El Zanjón de Granados",
+      "name": "El Zanjón de Granados",
+      "reason": "NO_OSM_MATCH",
+      "source": "discovery",
+      "status": "REJECTED",
+      "reasonCodes": [
+        "NO_OSM_MATCH"
+      ]
+    }
+  ],
+  "classificationAudit": [
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [],
+      "traits": [],
+      "intents": [],
+      "provider": "groq",
+      "experienceId": "a539265a-936a-49e0-850f-9be3d3429738",
+      "promptVersion": 1,
+      "reasoningEvidence": []
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [],
+      "traits": [],
+      "intents": [],
+      "provider": "groq",
+      "experienceId": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "promptVersion": 1,
+      "reasoningEvidence": []
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [
+        "art"
+      ],
+      "traits": [
+        "museum"
+      ],
+      "intents": [
+        "visit"
+      ],
+      "provider": "groq",
+      "experienceId": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "promptVersion": 1,
+      "reasoningEvidence": [
+        {
+          "facet": "theme:art",
+          "reason": "The name 'Museo Moderno' (Modern Museum) strongly indicates an institution dedicated to modern art.",
+          "evidenceKeys": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ]
+        },
+        {
+          "facet": "intent:visit",
+          "reason": "Museums are typically visited as a primary activity.",
+          "evidenceKeys": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ]
+        },
+        {
+          "facet": "trait:museum",
+          "reason": "The name explicitly identifies the location as a 'Museo' (Museum).",
+          "evidenceKeys": [
+            "google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI"
+          ]
+        }
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [
+        "shopping"
+      ],
+      "traits": [
+        "antiques",
+        "local produce",
+        "iron architecture"
+      ],
+      "intents": [
+        "shopping"
+      ],
+      "provider": "groq",
+      "experienceId": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "promptVersion": 1,
+      "reasoningEvidence": [
+        {
+          "facet": "theme:shopping",
+          "reason": "The evidence describes it as a 'mercado' (market) where items like shoes, coins, and produce are on display, which is a shopping activity.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        },
+        {
+          "facet": "intent:shopping",
+          "reason": "The primary purpose of visiting a market where goods are 'en exhibición' (on display) is for shopping.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        },
+        {
+          "facet": "trait:antiques",
+          "reason": "The evidence explicitly mentions 'monedas antiguas' (ancient coins) being on display.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        },
+        {
+          "facet": "trait:local produce",
+          "reason": "The evidence mentions 'albahaca fresca' (fresh basil) and 'productos y la carne local' (local produce and meat).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        },
+        {
+          "facet": "trait:iron architecture",
+          "reason": "The evidence describes the market as being housed in a 'sala enorme Wrough-hierro' (huge wrought-iron hall).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1"
+          ]
+        }
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [
+        "history"
+      ],
+      "traits": [
+        "donation entry",
+        "spanish subtitles"
+      ],
+      "intents": [
+        "visit"
+      ],
+      "provider": "groq",
+      "experienceId": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "promptVersion": 1,
+      "reasoningEvidence": [
+        {
+          "facet": "theme:history",
+          "reason": "The evidence explicitly states the museum covers 'Historia de la Argentina' (History of Argentina).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ]
+        },
+        {
+          "facet": "intent:visit",
+          "reason": "The evidence describes the entry method ('Entrada por donación'), which is a standard aspect of visiting a museum.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ]
+        },
+        {
+          "facet": "trait:donation entry",
+          "reason": "The evidence explicitly mentions 'Entrada por donación' (Entry by donation).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ]
+        },
+        {
+          "facet": "trait:spanish subtitles",
+          "reason": "The evidence notes that 'todos los subtítulos están en español' (all subtitles are in Spanish).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1"
+          ]
+        }
+      ]
+    },
+    {
+      "model": "qwen/qwen3.8-27b",
+      "state": "classified",
+      "themes": [
+        "history",
+        "food",
+        "tango"
+      ],
+      "traits": [
+        "antique market",
+        "public dancing",
+        "historic plaza"
+      ],
+      "intents": [
+        "visit",
+        "food",
+        "performance"
+      ],
+      "provider": "groq",
+      "experienceId": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "promptVersion": 1,
+      "reasoningEvidence": [
+        {
+          "facet": "theme:history",
+          "reason": "The evidence describes it as the 'second oldest square in Buenos Aires' and mentions an 'antique market' (mercado de antigüedades).",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "theme:food",
+          "reason": "The evidence mentions the presence of 'restaurants and cafés' (restaurantes y cafés) around the square.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "theme:tango",
+          "reason": "The evidence explicitly states there is 'public dancing, including tango' (baile público, incluyendo el tango) on Sunday evenings.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "intent:visit",
+          "reason": "The evidence describes the square as a space to be seen and experienced, with specific times for markets and dancing, implying a visit.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "intent:food",
+          "reason": "The presence of 'restaurants and cafés' supports the intent of dining or having a drink.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "intent:performance",
+          "reason": "The mention of 'public dancing, including tango' supports the intent of watching or participating in a performance.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "trait:antique market",
+          "reason": "The evidence states that on Sundays, an 'antique market' (mercado de antigüedades) takes over the square.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "trait:public dancing",
+          "reason": "The evidence mentions 'public dancing' (baile público) occurs from 20:00 on Sundays.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        },
+        {
+          "facet": "trait:historic plaza",
+          "reason": "The evidence identifies it as the 'second oldest square in Buenos Aires'.",
+          "evidenceKeys": [
+            "wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1"
+          ]
+        }
+      ]
+    }
+  ],
+  "materializationAudit": [
+    {
+      "accepted": true,
+      "experienceId": "a539265a-936a-49e0-850f-9be3d3429738",
+      "candidateName": "Feria De las Artes San Telmo",
+      "canonicalName": "Feria De las Artes San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "feria de las artes san telmo:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:google_places:ChIJ-efrtizLvJURQbEIWsAFdEI:component:Feria De las Artes San Telmo",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": false,
+      "candidateName": "The Port of Buenos Aires",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "the port of buenos aires:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:google_places:ChIJ3bpXwdA0o5URPjw5VQY199Q:component:The Port of Buenos Aires"
+    },
+    {
+      "accepted": false,
+      "candidateName": "PRISON MUSEUM Antonio Ballvé",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "prison museum antonio ballvé:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:google_places:ChIJ494KN9M0o5URFFo9Pf3Vv4I:component:PRISON MUSEUM Antonio Ballvé"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Paseo de las Historietas",
+      "rejectionReasons": [
+        "destination_mismatch"
+      ],
+      "candidateTraceKey": "paseo de las historietas:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:google_places:ChIJ8y1-ZwA1o5URRQ8N0gZZiD4:component:Paseo de las Historietas"
+    },
+    {
+      "accepted": false,
+      "candidateName": "MACBA - Museum of Contemporary Art in Buenos Aires",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "macba - museum of contemporary art in buenos aires:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:google_places:ChIJD22T4NI0o5URUrud9LZoV-E:component:MACBA - Museum of Contemporary Art in Buenos Aires"
+    },
+    {
+      "accepted": true,
+      "experienceId": "5f317b57-4065-4b20-870c-34c23d7f2e2a",
+      "candidateName": "Galeria Del Asombro",
+      "canonicalName": "Galeria Del Asombro",
+      "rejectionReasons": [],
+      "candidateTraceKey": "galeria del asombro:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:google_places:ChIJE67Wy9I0o5URqnBGVI2UHwY:component:Galeria Del Asombro",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": false,
+      "candidateName": "Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "antigua cárcel de mujeres san telmo. ex penitenciaria nacional. museo:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:google_places:ChIJg4x3bxU1o5UR7l_eFQVhMvY:component:Antigua Cárcel de mujeres San Telmo. Ex penitenciaria Nacional. Museo"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Museo de la Dirección Antártica \"Gral. Hernán Pujato\"",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "museo de la dirección antártica \"gral. hernán pujato\":google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:google_places:ChIJGf_mj800o5UR0msA_Pbu9QU:component:Museo de la Dirección Antártica \"Gral. Hernán Pujato\""
+    },
+    {
+      "accepted": true,
+      "experienceId": "95638579-90f5-467e-941d-ec638cde0bf8",
+      "candidateName": "Museo Moderno",
+      "canonicalName": "Museo Moderno",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo moderno:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:google_places:ChIJhTzp3tI0o5URtSE1HNW4CdI:component:Museo Moderno",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": false,
+      "candidateName": "Matías - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "matías - paseo de la historieta:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:google_places:ChIJjwwEpyo1o5URlHR-rWAOwsg:component:Matías - Paseo de la Historieta"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Camino de la historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "camino de la historieta:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:google_places:ChIJjXYCCQA1o5URWbVT5IEQ2z4:component:Camino de la historieta"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Larguirucho y Super Hijitus - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "larguirucho y super hijitus - paseo de la historieta:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:google_places:ChIJkbtCW9U0o5URa7q6hmsWdbw:component:Larguirucho y Super Hijitus - Paseo de la Historieta"
+    },
+    {
+      "accepted": false,
+      "candidateName": "National Historic Museum",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "national historic museum:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:google_places:ChIJNfUyJs00o5URBEEv5fDne6U:component:National Historic Museum"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Isidoro Cañones - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "isidoro cañones - paseo de la historieta:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:google_places:ChIJOYnhO9U0o5UR4XdeViPtb2c:component:Isidoro Cañones - Paseo de la Historieta"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Argentine Puppet Museum",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "argentine puppet museum:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:google_places:ChIJPS8m6CnLvJURf9gEIkEcPgI:component:Argentine Puppet Museum"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Mural De Calé - Paseo de la Historieta",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "mural de calé - paseo de la historieta:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:google_places:ChIJQTY2YPo1o5URPtzefgIsDss:component:Mural De Calé - Paseo de la Historieta"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Old Hotel Gallery",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "old hotel gallery:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:google_places:ChIJrx7YQtM0o5URJKMiLhReiss:component:Old Hotel Gallery"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Maqueta Barrio La Boca",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "maqueta barrio la boca:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:google_places:ChIJWX2FQcw0o5URgbRjooRWd_I:component:Maqueta Barrio La Boca"
+    },
+    {
+      "accepted": false,
+      "candidateName": "El Zanjón de Granados",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "el zanjón de granados:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:google_places:ChIJxWZS0yrLvJUREyl88eDpbeM:component:El Zanjón de Granados"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Puerto Madero",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "puerto madero:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:google_places:ChIJYSkWn9Y0o5URXuJM6JOAdms:component:Puerto Madero"
+    },
+    {
+      "accepted": false,
+      "candidateName": "Manzana de las Luces",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "manzana de las luces:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:wikivoyage:San_Telmo:see:see:Manzana_de_las_Luces:1:component:Manzana de las Luces"
+    },
+    {
+      "accepted": true,
+      "experienceId": "4f8c6c4e-5c97-40d8-a9b8-80eff1599d4f",
+      "candidateName": "Mercado San Telmo",
+      "canonicalName": "Mercado San Telmo",
+      "rejectionReasons": [],
+      "candidateTraceKey": "mercado san telmo:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:wikivoyage:San_Telmo:see:see:Mercado_San_Telmo:1:component:Mercado San Telmo",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": true,
+      "experienceId": "cc0092c3-2a27-4647-80a4-71d81d223402",
+      "candidateName": "Museo Histórico Nacional",
+      "canonicalName": "Museo Histórico Nacional",
+      "rejectionReasons": [],
+      "candidateTraceKey": "museo histórico nacional:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:wikivoyage:San_Telmo:see:see:Museo_Historico_Nacional:1:component:Museo Histórico Nacional",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": false,
+      "candidateName": "Pasaje San Lorenzo",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "pasaje san lorenzo:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:wikivoyage:San_Telmo:see:see:Pasaje_San_Lorenzo:1:component:Pasaje San Lorenzo"
+    },
+    {
+      "accepted": true,
+      "experienceId": "9c77dbbb-76fa-4a6c-91e9-9dba1225ddd4",
+      "candidateName": "Plaza Dorrego",
+      "canonicalName": "Plaza Dorrego",
+      "rejectionReasons": [],
+      "candidateTraceKey": "plaza dorrego:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:wikivoyage:San_Telmo:see:see:Plaza_Dorrego:1:component:Plaza Dorrego",
+      "persistedComponentCount": 1
+    },
+    {
+      "accepted": false,
+      "candidateName": "El Zanjón de Granados",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "candidateTraceKey": "el zanjón de granados:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:wikivoyage:San_Telmo:see:ver:El_Zanjon_de_Granados:1:component:El Zanjón de Granados"
+    }
+  ]
+}

@@ -1,0 +1,98 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-012",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Obelisco",
+          "supportSpan": "Obelisco",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Av. Roque Saenz Peña",
+          "supportSpan": "Av. Roque Saenz Peña",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller to Obelisco and Plaza de Mayo via Av. Roque Saenz Peña."
+    },
+    {
+      "atomId": "a-020",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Av. de Mayo",
+          "supportSpan": "Av. de Mayo",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Plaza de Mayo",
+          "supportSpan": "Plaza de Mayo",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs traveller back through Av. de Mayo to Plaza de Mayo."
+    },
+    {
+      "atomId": "a-024",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides booking tips and information for Casa Rosada."
+    },
+    {
+      "atomId": "a-029",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Farmacia la Estrella\"",
+          "supportSpan": "inside",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-028"
+        }
+      ],
+      "reason": "Directs traveller to look inside the previously mentioned pharmacy."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes Café Rivas which was labelled in a-050."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "A small restaurant",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-065"
+        },
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "Estadio La Boca",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes Don Carlos introduced in a-065."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions San Telmo as a contrast for orientation."
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+/** FADU/Exactas transfer simulation: real tags of both nodes as the pool. */
+import './r1-setup';
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
+import { IdentityVerifier } from '../services/identity-verifier.service';
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
+
+jest.setTimeout(300000);
+const raw = JSON.parse(fs.readFileSync(process.env.NODES!, 'utf8')).elements;
+const POS: Record<number, [number, number]> = { 11254256164: [-58.44396, -34.54136], 11254256165: [-58.44232, -34.54195] };
+const pool = raw.map((e: any) => ({ id: `osm:node:${e.id}`, name: e.tags.name, osmType: 'node', osmId: e.id, geometry: { type: 'Point', coordinates: POS[e.id] }, tags: e.tags }));
+const DEST = { kind: 'AREA_BOUNDARY', boundary: { id: 'osm:relation:1224652', name: 'Buenos Aires', osmType: 'relation', osmId: 1224652, tags: {}, geometry: { type: 'Polygon', coordinates: [[[-58.53, -34.71], [-58.36, -34.71], [-58.36, -34.53], [-58.53, -34.53], [-58.53, -34.71]]] } } };
+
+it(`FADU/Exactas under ${process.env.MODE}`, async () => {
+  const wd = new WikidataApiService(new ConfigService({}));
+  const out: any[] = [];
+  const decide = IdentityVerifier.prototype.decide;
+  jest.spyOn(IdentityVerifier.prototype, 'decide').mockImplementation(function (this: any, hint: any, attempt: any) {
+    const d = decide.call(this, hint, attempt);
+    out.push({ hint: hint.name, candidate: attempt.candidate.canonicalName, aliases: attempt.candidate.nameAliasCandidates, status: d.status, rule: d.rule, evidence: attempt.evidence.map((e: any) => e.type + (e.correspondence ? ':' + e.correspondence : '') + (e.hintCorrespondence ? ':' + e.hintCorrespondence + '/' + e.candidateCorrespondence : '') + (e.outcome ? ':' + e.outcome : '') + (e.identityMultiplicity ? ':' + e.identityMultiplicity : '')) });
+    return d;
+  });
+  const service = new ExperienceProposalResolverService(
+    { lookupPoisWithin: jest.fn().mockResolvedValue({ status: 'success', value: pool }), lookupPoisNear: jest.fn().mockResolvedValue({ status: 'success', value: pool }), lookupBoundaryById: jest.fn(), lookupHighwaysByName: jest.fn() } as any,
+    { findGeoEntityCandidatesForHint: jest.fn().mockResolvedValue({ candidates: [] }), rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'), findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]), upsertGeoEntityWithIdentities: jest.fn(async (e: any) => ({ status: 'CREATED', geoEntity: { id: 'g', ...e }, attachedExternalIds: [] as string[] })), upsertGeoEntity: jest.fn(async (e: any) => ({ id: 'g', ...e })), resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]), persistVerifiedExperience: jest.fn().mockResolvedValue({ id: 'exp', dedupeDecision: 'NEW' }) } as any,
+    { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
+    undefined, { search: jest.fn().mockResolvedValue([]) } as any, undefined,
+    { getEntitySummaries: (q: string[]) => wd.getEntitySummaries(q), findNearbyPlaces: jest.fn().mockResolvedValue([]) } as any,
+  );
+  for (const h of ['FADU', 'FCEN', 'Facultad de Ciencias Exactas y Naturales', 'Facultad de Arquitectura, Diseño y Urbanismo']) {
+    await service.resolve({
+      destinationName: 'Buenos Aires, Argentina', destinationCountryCode: 'AR', geographicScope: DEST,
+      candidates: withDefaultGeographicAuthorization([{ name: `${h} visit`, themes: [], traits: [], intents: ['visit'], componentHints: [{ key: 'm-1', name: h, role: 'venue', expectedKind: 'PLACE', evidenceKeys: ['ev-1'] }], evidenceKeys: ['ev-1'], shortReason: 'f' }]),
+      evidence: [{ key: 'ev-1', source: 'web', title: `${h} Buenos Aires`, snippet: `${h} in Buenos Aires` }],
+    } as any);
+  }
+  fs.writeFileSync(process.env.OUT!, JSON.stringify(out, null, 1));
+});

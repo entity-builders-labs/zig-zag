@@ -1,0 +1,2944 @@
+[
+  {
+    "run": "cold-1",
+    "candidate": "San Telmo Walking Tour",
+    "origin": "web",
+    "shape": "composite",
+    "sourceComponentHints": [
+      "Lezama Park",
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Lezama Park": "RESOLVED",
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Lezama Park": "INSIDE",
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "2/2",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "component_defined"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "46554d95-891c-48b7-9b10-39e5667f369f",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Solar French",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Solar French"
+    ],
+    "identityStatuses": {
+      "Solar French": "RESOLVED"
+    },
+    "geoRelations": {
+      "Solar French": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "c009a80a-07fb-49d5-9b87-46cd236444ef",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Museo de las Escuelas",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de las Escuelas"
+    ],
+    "identityStatuses": {
+      "Museo de las Escuelas": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo de las Escuelas": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "c62ea33a-5769-4ea8-abaa-b1b3746ad19d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Roca granitica",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Roca granitica"
+    ],
+    "identityStatuses": {
+      "Roca granitica": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Roca granitica": "N/A"
+    },
+    "deficits": {
+      "Roca granitica": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Monasterio San SAVAS",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monasterio San SAVAS"
+    ],
+    "identityStatuses": {
+      "Monasterio San SAVAS": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Monasterio San SAVAS": "N/A"
+    },
+    "deficits": {
+      "Monasterio San SAVAS": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Monumento a Pedro de Mendoza",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento a Pedro de Mendoza"
+    ],
+    "identityStatuses": {
+      "Monumento a Pedro de Mendoza": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento a Pedro de Mendoza": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "3e5305d9-4a45-470e-9f99-eb074ab52765",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "El Zanjón de Granados (historic ruins)",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados (historic ruins)"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados (historic ruins)": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados (historic ruins)": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "5a33fb41-e1bd-45a9-a2ed-c70145fbb391",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "La Hazana",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "La Hazana"
+    ],
+    "identityStatuses": {
+      "La Hazana": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "La Hazana": "N/A"
+    },
+    "deficits": {
+      "La Hazana": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Isidoro Cañones",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Isidoro Cañones"
+    ],
+    "identityStatuses": {
+      "Isidoro Cañones": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Isidoro Cañones": "N/A"
+    },
+    "deficits": {
+      "Isidoro Cañones": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Monumento Canto al Trabajo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento Canto al Trabajo"
+    ],
+    "identityStatuses": {
+      "Monumento Canto al Trabajo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento Canto al Trabajo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "16544412-daeb-4f1b-bcb0-9798109db9b1",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Baloon",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Baloon"
+    ],
+    "identityStatuses": {
+      "Baloon": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Baloon": "N/A"
+    },
+    "deficits": {
+      "Baloon": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Carnavales de la Calle Defensa",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Carnavales de la Calle Defensa"
+    ],
+    "identityStatuses": {
+      "Carnavales de la Calle Defensa": "RESOLVED"
+    },
+    "geoRelations": {
+      "Carnavales de la Calle Defensa": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "f7f3d091-ede4-4473-ac81-262700af8526",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Museo de la Historia del Traje",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de la Historia del Traje"
+    ],
+    "identityStatuses": {
+      "Museo de la Historia del Traje": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Museo de la Historia del Traje": "N/A"
+    },
+    "deficits": {
+      "Museo de la Historia del Traje": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Casa Mínima",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Casa Mínima"
+    ],
+    "identityStatuses": {
+      "Casa Mínima": "RESOLVED"
+    },
+    "geoRelations": {
+      "Casa Mínima": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "607ad17e-10c1-4e02-a463-f6a368a74652",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Plaza 30'000 compañeros",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza 30'000 compañeros"
+    ],
+    "identityStatuses": {
+      "Plaza 30'000 compañeros": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza 30'000 compañeros": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "78c7c2d8-ad3a-4962-a5ed-a41c7edd14e9",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Princess",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Princess"
+    ],
+    "identityStatuses": {
+      "Princess": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Princess": "N/A"
+    },
+    "deficits": {
+      "Princess": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Bar El Federal",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Bar El Federal"
+    ],
+    "identityStatuses": {
+      "Bar El Federal": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Bar El Federal": "N/A"
+    },
+    "deficits": {
+      "Bar El Federal": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+      "dedupeDecision": "SAME"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "dedupeDecision": "SAME"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-1",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "warm",
+    "candidate": "Bar El Federal",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Bar El Federal"
+    ],
+    "identityStatuses": {
+      "Bar El Federal": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Bar El Federal": "N/A"
+    },
+    "deficits": {
+      "Bar El Federal": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "warm",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "warm",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "f1751f57-2b75-4dc7-9a37-167f3bb234c3",
+      "dedupeDecision": "SAME"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "warm",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "68ee2c3b-8ff8-472d-9226-6f374a9f48f1",
+      "dedupeDecision": "SAME"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "warm",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "warm",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "warm",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Solar French",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Solar French"
+    ],
+    "identityStatuses": {
+      "Solar French": "RESOLVED"
+    },
+    "geoRelations": {
+      "Solar French": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "0222d51f-9dab-4864-8b4c-3ccea9f9cb47",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Museo de las Escuelas",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de las Escuelas"
+    ],
+    "identityStatuses": {
+      "Museo de las Escuelas": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo de las Escuelas": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "3e2e23fb-7421-41c1-b0d6-a3221cf8fda3",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Roca granitica",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Roca granitica"
+    ],
+    "identityStatuses": {
+      "Roca granitica": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Roca granitica": "N/A"
+    },
+    "deficits": {
+      "Roca granitica": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Monasterio San SAVAS",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monasterio San SAVAS"
+    ],
+    "identityStatuses": {
+      "Monasterio San SAVAS": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Monasterio San SAVAS": "N/A"
+    },
+    "deficits": {
+      "Monasterio San SAVAS": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Monumento a Pedro de Mendoza",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento a Pedro de Mendoza"
+    ],
+    "identityStatuses": {
+      "Monumento a Pedro de Mendoza": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento a Pedro de Mendoza": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "7de12284-18a1-4b1b-bb50-1f57128cc19a",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "El Zanjón de Granados (historic ruins)",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados (historic ruins)"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados (historic ruins)": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados (historic ruins)": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "301703c5-abe8-40ec-9961-950888593827",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "La Hazana",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "La Hazana"
+    ],
+    "identityStatuses": {
+      "La Hazana": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "La Hazana": "N/A"
+    },
+    "deficits": {
+      "La Hazana": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Isidoro Cañones",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Isidoro Cañones"
+    ],
+    "identityStatuses": {
+      "Isidoro Cañones": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Isidoro Cañones": "N/A"
+    },
+    "deficits": {
+      "Isidoro Cañones": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Monumento Canto al Trabajo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento Canto al Trabajo"
+    ],
+    "identityStatuses": {
+      "Monumento Canto al Trabajo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento Canto al Trabajo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "6d189b79-814c-467d-9feb-e7484ff27f42",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Baloon",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Baloon"
+    ],
+    "identityStatuses": {
+      "Baloon": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Baloon": "N/A"
+    },
+    "deficits": {
+      "Baloon": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "74d05cea-80e5-4f64-9af3-4d4b58b3f5f5",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Carnavales de la Calle Defensa",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Carnavales de la Calle Defensa"
+    ],
+    "identityStatuses": {
+      "Carnavales de la Calle Defensa": "RESOLVED"
+    },
+    "geoRelations": {
+      "Carnavales de la Calle Defensa": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "9a9d9bd6-b7d4-472d-8efe-a6181c43574a",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Museo de la Historia del Traje",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de la Historia del Traje"
+    ],
+    "identityStatuses": {
+      "Museo de la Historia del Traje": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Museo de la Historia del Traje": "N/A"
+    },
+    "deficits": {
+      "Museo de la Historia del Traje": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Casa Mínima",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Casa Mínima"
+    ],
+    "identityStatuses": {
+      "Casa Mínima": "RESOLVED"
+    },
+    "geoRelations": {
+      "Casa Mínima": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "4e4b1e9e-dfcd-46d6-a167-e47dc4307f68",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Plaza 30'000 compañeros",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza 30'000 compañeros"
+    ],
+    "identityStatuses": {
+      "Plaza 30'000 compañeros": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza 30'000 compañeros": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "eb18bedf-2e4a-46b1-9af2-f1f1a24bda5d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Princess",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Princess"
+    ],
+    "identityStatuses": {
+      "Princess": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Princess": "N/A"
+    },
+    "deficits": {
+      "Princess": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "4e10c1f2-1610-4024-9d7d-fae4bf4ec2a7",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-2",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "4c9fbdc8-f5ee-4fe7-9bb0-f759455eb1cc",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-2",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Solar French",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Solar French"
+    ],
+    "identityStatuses": {
+      "Solar French": "RESOLVED"
+    },
+    "geoRelations": {
+      "Solar French": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "cd9d0552-cb2c-4cb8-a458-cc7f13ea21a5",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Museo de las Escuelas",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de las Escuelas"
+    ],
+    "identityStatuses": {
+      "Museo de las Escuelas": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo de las Escuelas": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "8cc95a06-81dc-4715-b88a-040399787d70",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Roca granitica",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Roca granitica"
+    ],
+    "identityStatuses": {
+      "Roca granitica": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Roca granitica": "N/A"
+    },
+    "deficits": {
+      "Roca granitica": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Monasterio San SAVAS",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monasterio San SAVAS"
+    ],
+    "identityStatuses": {
+      "Monasterio San SAVAS": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Monasterio San SAVAS": "N/A"
+    },
+    "deficits": {
+      "Monasterio San SAVAS": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Monumento a Pedro de Mendoza",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento a Pedro de Mendoza"
+    ],
+    "identityStatuses": {
+      "Monumento a Pedro de Mendoza": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento a Pedro de Mendoza": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "a37b3059-19f1-4d5d-8212-3be1871a877b",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "El Zanjón de Granados (historic ruins)",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados (historic ruins)"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados (historic ruins)": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados (historic ruins)": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "6294810d-b853-4df5-95e2-2a5880df4c87",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "La Hazana",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "La Hazana"
+    ],
+    "identityStatuses": {
+      "La Hazana": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "La Hazana": "N/A"
+    },
+    "deficits": {
+      "La Hazana": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Isidoro Cañones",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Isidoro Cañones"
+    ],
+    "identityStatuses": {
+      "Isidoro Cañones": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Isidoro Cañones": "N/A"
+    },
+    "deficits": {
+      "Isidoro Cañones": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Monumento Canto al Trabajo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento Canto al Trabajo"
+    ],
+    "identityStatuses": {
+      "Monumento Canto al Trabajo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento Canto al Trabajo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "1f4fdc52-ca90-4459-bebb-d1a17a956e6e",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Baloon",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Baloon"
+    ],
+    "identityStatuses": {
+      "Baloon": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Baloon": "N/A"
+    },
+    "deficits": {
+      "Baloon": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "8539224e-32a5-4f90-a467-b590d34689e9",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Carnavales de la Calle Defensa",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Carnavales de la Calle Defensa"
+    ],
+    "identityStatuses": {
+      "Carnavales de la Calle Defensa": "RESOLVED"
+    },
+    "geoRelations": {
+      "Carnavales de la Calle Defensa": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "1f50bf30-7c49-44c2-a667-1566f5b86995",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Museo de la Historia del Traje",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de la Historia del Traje"
+    ],
+    "identityStatuses": {
+      "Museo de la Historia del Traje": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Museo de la Historia del Traje": "N/A"
+    },
+    "deficits": {
+      "Museo de la Historia del Traje": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Casa Mínima",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Casa Mínima"
+    ],
+    "identityStatuses": {
+      "Casa Mínima": "RESOLVED"
+    },
+    "geoRelations": {
+      "Casa Mínima": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "f5b61bee-f40f-44bb-8d6a-5d6856f1e273",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Plaza 30'000 compañeros",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza 30'000 compañeros"
+    ],
+    "identityStatuses": {
+      "Plaza 30'000 compañeros": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza 30'000 compañeros": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "433a1a22-921f-440b-bce9-2c53dc34020d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Princess",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Princess"
+    ],
+    "identityStatuses": {
+      "Princess": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Princess": "N/A"
+    },
+    "deficits": {
+      "Princess": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "7409ce78-302c-4a57-ba3c-3069d7994168",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-3",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "2675fde1-f203-40e2-9383-fbbae68ba0fd",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-3",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Solar French",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Solar French"
+    ],
+    "identityStatuses": {
+      "Solar French": "RESOLVED"
+    },
+    "geoRelations": {
+      "Solar French": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "8e479af8-5c06-4a13-8ccd-13e95def481d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Museo de las Escuelas",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de las Escuelas"
+    ],
+    "identityStatuses": {
+      "Museo de las Escuelas": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo de las Escuelas": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "196e4b4d-1aff-4e96-a06b-272bfa6b430e",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Roca granitica",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Roca granitica"
+    ],
+    "identityStatuses": {
+      "Roca granitica": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Roca granitica": "N/A"
+    },
+    "deficits": {
+      "Roca granitica": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Monasterio San SAVAS",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monasterio San SAVAS"
+    ],
+    "identityStatuses": {
+      "Monasterio San SAVAS": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Monasterio San SAVAS": "N/A"
+    },
+    "deficits": {
+      "Monasterio San SAVAS": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Monumento a Pedro de Mendoza",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento a Pedro de Mendoza"
+    ],
+    "identityStatuses": {
+      "Monumento a Pedro de Mendoza": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento a Pedro de Mendoza": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "30ae870c-dc20-46dc-ae3c-8db60e1e608d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "El Zanjón de Granados (historic ruins)",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados (historic ruins)"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados (historic ruins)": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados (historic ruins)": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "dcc701ff-e130-43b7-b3be-391b7c7b345e",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "La Hazana",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "La Hazana"
+    ],
+    "identityStatuses": {
+      "La Hazana": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "La Hazana": "N/A"
+    },
+    "deficits": {
+      "La Hazana": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Isidoro Cañones",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Isidoro Cañones"
+    ],
+    "identityStatuses": {
+      "Isidoro Cañones": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Isidoro Cañones": "N/A"
+    },
+    "deficits": {
+      "Isidoro Cañones": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Monumento Canto al Trabajo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Monumento Canto al Trabajo"
+    ],
+    "identityStatuses": {
+      "Monumento Canto al Trabajo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Monumento Canto al Trabajo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "324fc5b9-db8d-4673-b9b7-e1274f4b348a",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Baloon",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Baloon"
+    ],
+    "identityStatuses": {
+      "Baloon": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Baloon": "N/A"
+    },
+    "deficits": {
+      "Baloon": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Museo Histórico Nacional",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo Histórico Nacional"
+    ],
+    "identityStatuses": {
+      "Museo Histórico Nacional": "RESOLVED"
+    },
+    "geoRelations": {
+      "Museo Histórico Nacional": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "bad01887-046d-4d1c-b1be-8581d43fe350",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Carnavales de la Calle Defensa",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Carnavales de la Calle Defensa"
+    ],
+    "identityStatuses": {
+      "Carnavales de la Calle Defensa": "RESOLVED"
+    },
+    "geoRelations": {
+      "Carnavales de la Calle Defensa": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "b19f90ca-6873-4fb1-b5ba-aea83456841d",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Museo de la Historia del Traje",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Museo de la Historia del Traje"
+    ],
+    "identityStatuses": {
+      "Museo de la Historia del Traje": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Museo de la Historia del Traje": "N/A"
+    },
+    "deficits": {
+      "Museo de la Historia del Traje": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Casa Mínima",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Casa Mínima"
+    ],
+    "identityStatuses": {
+      "Casa Mínima": "RESOLVED"
+    },
+    "geoRelations": {
+      "Casa Mínima": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "d0ab882c-5bfb-458e-84f7-2355dfda157c",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Plaza 30'000 compañeros",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza 30'000 compañeros"
+    ],
+    "identityStatuses": {
+      "Plaza 30'000 compañeros": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza 30'000 compañeros": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "19ba431f-2a27-44bf-ab20-742ab4c871d2",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Princess",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Princess"
+    ],
+    "identityStatuses": {
+      "Princess": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Princess": "N/A"
+    },
+    "deficits": {
+      "Princess": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Manzana de las Luces",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Manzana de las Luces"
+    ],
+    "identityStatuses": {
+      "Manzana de las Luces": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Manzana de las Luces": "N/A"
+    },
+    "deficits": {
+      "Manzana de las Luces": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Mercado San Telmo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Mercado San Telmo"
+    ],
+    "identityStatuses": {
+      "Mercado San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Mercado San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "e4adfa43-1d42-4060-829b-803ae78f081c",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Pasaje San Lorenzo",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Pasaje San Lorenzo"
+    ],
+    "identityStatuses": {
+      "Pasaje San Lorenzo": "UNRESOLVED"
+    },
+    "geoRelations": {
+      "Pasaje San Lorenzo": "N/A"
+    },
+    "deficits": {
+      "Pasaje San Lorenzo": "NO_CANDIDATE_ACQUIRED/PENDING_CLASSIFICATION"
+    },
+    "coverage": "0/1",
+    "sourceCompositionComplete": false,
+    "compositeDecision": {
+      "reason": "INCOMPLETE_SOURCE_COMPOSITION",
+      "status": "NOT_EVALUATED"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "NO_OSM_MATCH"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "Plaza Dorrego",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "Plaza Dorrego"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "PERSISTED",
+      "experienceId": "65e003d7-fd1b-44df-884f-c8511fd47850",
+      "dedupeDecision": "NEW"
+    },
+    "plannerEligible": true
+  },
+  {
+    "run": "cold-4",
+    "candidate": "El Zanjón de Granados",
+    "origin": "structured",
+    "shape": "simple",
+    "sourceComponentHints": [
+      "El Zanjón de Granados"
+    ],
+    "identityStatuses": {
+      "El Zanjón de Granados": "RESOLVED"
+    },
+    "geoRelations": {
+      "El Zanjón de Granados": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "1/1",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "venue_centric"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  },
+  {
+    "run": "cold-4",
+    "candidate": "San Telmo Walking Tour",
+    "origin": "web",
+    "shape": "composite",
+    "sourceComponentHints": [
+      "Plaza Dorrego",
+      "El Mercado de San Telmo"
+    ],
+    "identityStatuses": {
+      "Plaza Dorrego": "RESOLVED",
+      "El Mercado de San Telmo": "RESOLVED"
+    },
+    "geoRelations": {
+      "Plaza Dorrego": "INSIDE",
+      "El Mercado de San Telmo": "INSIDE"
+    },
+    "deficits": {},
+    "coverage": "2/2",
+    "sourceCompositionComplete": true,
+    "compositeDecision": {
+      "status": "ACCEPTED",
+      "strategy": "component_defined"
+    },
+    "persistence": {
+      "status": "NOT_PERSISTED",
+      "reasons": [
+        "AMBIGUOUS_DEDUPE"
+      ]
+    },
+    "plannerEligible": false
+  }
+]

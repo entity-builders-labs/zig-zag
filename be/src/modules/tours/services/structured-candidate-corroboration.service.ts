@@ -1,0 +1,628 @@
+import { Injectable, Logger } from '@nestjs/common';
+import {
+  ExperienceCandidate,
+  GeoEntityHint,
+} from '../interfaces/experience-discovery.interface';
+import {
+  NotabilityEvidence,
+  RatingEvidence,
+  SourceObservation,
+} from '../interfaces/experience-acquisition.interface';
+import { AcquisitionEvidenceRequirement } from '../interfaces/acquisition-evidence-requirement.interface';
+import { candidateSatisfiesEvidenceRequirement } from '../utils/acquisition-candidate-requirement.util';
+import { StructuredCandidateProposal } from '../interfaces/structured-candidate-proposal.interface';
+import {
+  distanceMeters,
+  normalizeRealWorldName,
+  REAL_WORLD_RECONCILIATION_RADIUS_METERS,
+  realWorldNamesMatch,
+} from '../utils/real-world-entity-matching.util';
+
+export type CorroborationDecision = 'SAME' | 'NEW' | 'AMBIGUOUS';
+
+export type CorroborationReason =
+  | 'same_evidence_key'
+  | 'same_wikidata_identity'
+  | 'compatible_geo_and_name'
+  | 'name_match_without_geography'
+  | 'geographic_overlap_without_name_match'
+  | 'incompatible_evidence_type'
+  | 'conflicting_component_expected_kind'
+  | 'no_shared_identity_signal';
+
+export interface CorroborationPairDecision {
+  decision: CorroborationDecision;
+  reasons: CorroborationReason[];
+  distanceMeters?: number;
+}
+
+export interface CorroborationGroupTrace {
+  groupId: string;
+  proposalIds: string[];
+  contributingProviders: string[];
+  mergedEvidenceKeys: string[];
+  candidateName: string;
+  requestedRequirements: AcquisitionEvidenceRequirement[];
+  observationCapabilities: AcquisitionEvidenceRequirement[];
+  candidateShapeMatches: AcquisitionEvidenceRequirement[];
+  matchedOriginationRequirements: AcquisitionEvidenceRequirement[];
+  accepted: boolean;
+  reason:
+    | 'MATCHING_ORIGINATION_REQUIREMENT'
+    | 'NO_MATCHING_ORIGINATION_REQUIREMENT';
+}
+
+export interface CorroborationPairTrace {
+  leftProposalId: string;
+  rightProposalId: string;
+  decision: CorroborationDecision;
+  reasons: CorroborationReason[];
+  distanceMeters?: number;
+}
+
+export interface CorroborationMergeResult {
+  candidates: ExperienceCandidate[];
+  groups: CorroborationGroupTrace[];
+  pairDecisions: CorroborationPairTrace[];
+  rejectedOriginations: Array<{
+    groupId: string;
+    proposalIds: string[];
+    requestedRequirements: AcquisitionEvidenceRequirement[];
+    observationCapabilities: AcquisitionEvidenceRequirement[];
+    candidateShapeMatches: AcquisitionEvidenceRequirement[];
+    reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT';
+  }>;
+}
+
+/**
+ * Reads the typed, adapter-populated `canonicalIdentity` fact directly --
+ * never branches on `SourceObservation.provider` and never decodes
+ * `externalId`/`evidenceKey` to reconstruct an identity a provider didn't
+ * explicitly resolve (see `CanonicalIdentity`).
+ */
+function canonicalExternalIdentity(obs: SourceObservation): string | undefined {
+  const qid = obs.canonicalIdentity?.wikidataQid;
+  return qid ? `wikidata:${qid}` : undefined;
+}
+
+function proposalIdentifier(proposal: StructuredCandidateProposal): string {
+  return (
+    proposal.candidate.evidenceKeys[0] ||
+    proposal.observations[0]?.evidenceKey ||
+    proposal.candidate.name
+  );
+}
+
+function compareProposals(
+  a: StructuredCandidateProposal,
+  b: StructuredCandidateProposal,
+): number {
+  const aKey = a.candidate.evidenceKeys[0] ?? '';
+  const bKey = b.candidate.evidenceKeys[0] ?? '';
+  if (aKey !== bKey) return aKey.localeCompare(bKey);
+
+  const aProvider = a.observations[0]?.provider ?? '';
+  const bProvider = b.observations[0]?.provider ?? '';
+  if (aProvider !== bProvider) return aProvider.localeCompare(bProvider);
+
+  const aName = a.candidate.name ?? '';
+  const bName = b.candidate.name ?? '';
+  if (aName !== bName) return aName.localeCompare(bName);
+
+  const aDesc = a.candidate.description ?? '';
+  const bDesc = b.candidate.description ?? '';
+  return aDesc.localeCompare(bDesc);
+}
+
+function extractCoordinates(
+  proposal: StructuredCandidateProposal,
+): { latitude: number; longitude: number } | undefined {
+  for (const obs of proposal.observations) {
+    if (
+      obs.geo &&
+      Number.isFinite(obs.geo.latitude) &&
+      Number.isFinite(obs.geo.longitude)
+    ) {
+      return {
+        latitude: obs.geo.latitude!,
+        longitude: obs.geo.longitude!,
+      };
+    }
+  }
+  return undefined;
+}
+
+@Injectable()
+export class StructuredCandidateCorroborationService {
+  private readonly logger = new Logger(
+    StructuredCandidateCorroborationService.name,
+  );
+
+  /**
+   * Pairwise comparison deciding if two proposals represent the SAME entity,
+   * distinct entities (NEW), or an AMBIGUOUS overlap.
+   */
+  decidePair(
+    left: StructuredCandidateProposal,
+    right: StructuredCandidateProposal,
+  ): CorroborationPairDecision {
+    // Rule A: Identical evidence key between any observations or candidate evidence keys
+    const leftKeys = new Set([
+      ...left.candidate.evidenceKeys,
+      ...left.observations.map((o) => o.evidenceKey),
+    ]);
+    const sharesEvidenceKey = [
+      ...right.candidate.evidenceKeys,
+      ...right.observations.map((o) => o.evidenceKey),
+    ].some((k) => leftKeys.has(k));
+
+    if (sharesEvidenceKey) {
+      return {
+        decision: 'SAME',
+        reasons: ['same_evidence_key'],
+      };
+    }
+
+    // Structural kind / observation compatibility check
+    const leftTypes = new Set(left.observations.map((o) => o.evidenceType));
+    const rightTypes = new Set(right.observations.map((o) => o.evidenceType));
+
+    const isActivityLike = (types: Set<string>) =>
+      types.has('tourism_activity') ||
+      types.has('operator') ||
+      types.has('editorial');
+
+    if (isActivityLike(leftTypes) || isActivityLike(rightTypes)) {
+      // Cross-provider activities / operators / editorial never auto-merge with places or other activities
+      return {
+        decision: 'NEW',
+        reasons: ['incompatible_evidence_type'],
+      };
+    }
+
+    // Both are place-like: check specific compatible kinds
+    if (
+      (leftTypes.has('place') && !rightTypes.has('place')) ||
+      (leftTypes.has('area') && !rightTypes.has('area')) ||
+      (leftTypes.has('route') && !rightTypes.has('route'))
+    ) {
+      return {
+        decision: 'NEW',
+        reasons: ['incompatible_evidence_type'],
+      };
+    }
+
+    // Component hint expectedKind check: conflicting kinds are never SAME
+    const leftHints = left.candidate.componentHints;
+    const rightHints = right.candidate.componentHints;
+    if (leftHints.length === 1 && rightHints.length === 1) {
+      if (leftHints[0].expectedKind !== rightHints[0].expectedKind) {
+        return {
+          decision: 'AMBIGUOUS',
+          reasons: ['conflicting_component_expected_kind'],
+        };
+      }
+    }
+
+    // Rule B: Shared canonical Wikidata identity
+    const leftQids = left.observations
+      .map(canonicalExternalIdentity)
+      .filter(Boolean);
+    const rightQids = right.observations
+      .map(canonicalExternalIdentity)
+      .filter(Boolean);
+
+    const sharedQid = leftQids.find((qid) => rightQids.includes(qid));
+    if (sharedQid) {
+      return {
+        decision: 'SAME',
+        reasons: ['same_wikidata_identity'],
+      };
+    }
+
+    // Multi-component check: if either has >1 component hints, require alignment
+    if (
+      left.candidate.componentHints.length > 1 ||
+      right.candidate.componentHints.length > 1
+    ) {
+      return {
+        decision: 'AMBIGUOUS',
+        reasons: ['no_shared_identity_signal'],
+      };
+    }
+
+    // Geography and Name check
+    const leftGeo = extractCoordinates(left);
+    const rightGeo = extractCoordinates(right);
+    const namesMatch = realWorldNamesMatch(
+      left.candidate.name,
+      right.candidate.name,
+    );
+
+    if (leftGeo && rightGeo) {
+      const dist = distanceMeters(leftGeo, rightGeo);
+
+      if (dist <= REAL_WORLD_RECONCILIATION_RADIUS_METERS) {
+        if (namesMatch) {
+          return {
+            decision: 'SAME',
+            reasons: ['compatible_geo_and_name'],
+            distanceMeters: dist,
+          };
+        } else {
+          return {
+            decision: 'AMBIGUOUS',
+            reasons: ['geographic_overlap_without_name_match'],
+            distanceMeters: dist,
+          };
+        }
+      } else {
+        // Distance > 150m
+        return {
+          decision: 'NEW',
+          reasons: ['no_shared_identity_signal'],
+          distanceMeters: dist,
+        };
+      }
+    }
+
+    // One or both lack coordinates
+    if (namesMatch) {
+      return {
+        decision: 'AMBIGUOUS',
+        reasons: ['name_match_without_geography'],
+      };
+    }
+
+    return {
+      decision: 'NEW',
+      reasons: ['no_shared_identity_signal'],
+    };
+  }
+
+  /**
+   * Deterministic corroboration and merging of structured candidate proposals.
+   */
+  corroborateAndMerge(
+    proposals: StructuredCandidateProposal[],
+    requirements: readonly AcquisitionEvidenceRequirement[],
+  ): CorroborationMergeResult {
+    if (!proposals.length) {
+      return {
+        candidates: [],
+        groups: [],
+        pairDecisions: [],
+        rejectedOriginations: [],
+      };
+    }
+
+    // Deterministic sort upfront ensures order-independence across permutations
+    const sorted = [...proposals].sort(compareProposals);
+
+    // Precompute all pairwise decisions
+    const pairDecisions: CorroborationPairTrace[] = [];
+    const pairMap = new Map<string, CorroborationPairDecision>();
+
+    const makePairKey = (idA: string, idB: string) =>
+      idA < idB ? `${idA}::${idB}` : `${idB}::${idA}`;
+
+    for (let i = 0; i < sorted.length; i++) {
+      for (let j = i + 1; j < sorted.length; j++) {
+        const left = sorted[i];
+        const right = sorted[j];
+        const leftId = proposalIdentifier(left);
+        const rightId = proposalIdentifier(right);
+        const decision = this.decidePair(left, right);
+
+        pairMap.set(makePairKey(leftId, rightId), decision);
+        pairDecisions.push({
+          leftProposalId: leftId,
+          rightProposalId: rightId,
+          decision: decision.decision,
+          reasons: decision.reasons,
+          distanceMeters: decision.distanceMeters,
+        });
+      }
+    }
+
+    const isPairSame = (
+      a: StructuredCandidateProposal,
+      b: StructuredCandidateProposal,
+    ): boolean => {
+      const idA = proposalIdentifier(a);
+      const idB = proposalIdentifier(b);
+      if (idA === idB) return true;
+      const dec = pairMap.get(makePairKey(idA, idB));
+      return dec?.decision === 'SAME';
+    };
+
+    // Conservative complete-link clustering:
+    // A proposal joins a cluster if and only if it is SAME with EVERY member in that cluster.
+    // If it could join multiple independent clusters, it is ambiguous across clusters -> keep separate.
+    const clusters: StructuredCandidateProposal[][] = [];
+
+    for (const proposal of sorted) {
+      const eligibleClusterIndices: number[] = [];
+
+      for (let cIdx = 0; cIdx < clusters.length; cIdx++) {
+        const cluster = clusters[cIdx];
+        const sameWithAll = cluster.every((member) =>
+          isPairSame(proposal, member),
+        );
+        if (sameWithAll) {
+          eligibleClusterIndices.push(cIdx);
+        }
+      }
+
+      if (eligibleClusterIndices.length === 1) {
+        clusters[eligibleClusterIndices[0]].push(proposal);
+      } else {
+        // Either matches 0 clusters or >1 clusters (ambiguous across clusters)
+        clusters.push([proposal]);
+      }
+    }
+
+    const candidates: ExperienceCandidate[] = [];
+    const groups: CorroborationGroupTrace[] = [];
+    const rejectedOriginations: CorroborationMergeResult['rejectedOriginations'] =
+      [];
+
+    for (let i = 0; i < clusters.length; i++) {
+      const cluster = clusters[i];
+      const mergedCandidate = this.synthesizeMergedCandidate(cluster);
+      const observationCapabilities = [
+        ...new Set(
+          cluster.flatMap((proposal) =>
+            proposal.observations.flatMap(
+              (observation) => observation.originationCapabilities,
+            ),
+          ),
+        ),
+      ].sort();
+      const candidateShapeMatches = requirements.filter((requirement) =>
+        candidateSatisfiesEvidenceRequirement(mergedCandidate, requirement),
+      );
+      const matchingRequirements = requirements.filter(
+        (requirement) =>
+          observationCapabilities.includes(requirement) &&
+          candidateShapeMatches.includes(requirement),
+      );
+      const groupId = `group_${i + 1}`;
+      const accepted = matchingRequirements.length > 0;
+      const groupTrace: CorroborationGroupTrace = {
+        groupId,
+        proposalIds: cluster.map(proposalIdentifier),
+        contributingProviders: [
+          ...new Set(
+            cluster.flatMap((p) => p.observations.map((o) => o.provider)),
+          ),
+        ].sort(),
+        mergedEvidenceKeys: [
+          ...new Set(cluster.flatMap((p) => p.candidate.evidenceKeys)),
+        ].sort(),
+        candidateName: mergedCandidate.name,
+        requestedRequirements: [...requirements],
+        observationCapabilities,
+        candidateShapeMatches,
+        matchedOriginationRequirements: [...matchingRequirements],
+        accepted,
+        reason: accepted
+          ? 'MATCHING_ORIGINATION_REQUIREMENT'
+          : 'NO_MATCHING_ORIGINATION_REQUIREMENT',
+      };
+      groups.push(groupTrace);
+      if (!accepted) {
+        rejectedOriginations.push({
+          groupId,
+          proposalIds: cluster.map(proposalIdentifier),
+          requestedRequirements: [...requirements],
+          observationCapabilities,
+          candidateShapeMatches,
+          reason: 'NO_MATCHING_ORIGINATION_REQUIREMENT',
+        });
+        continue;
+      }
+      candidates.push(mergedCandidate);
+    }
+
+    return {
+      candidates,
+      groups,
+      pairDecisions,
+      rejectedOriginations,
+    };
+  }
+
+  private synthesizeMergedCandidate(
+    cluster: StructuredCandidateProposal[],
+  ): ExperienceCandidate {
+    if (cluster.length === 1) {
+      const c = cluster[0].candidate;
+      return {
+        ...c,
+        themes: [...new Set(c.themes)].sort(),
+        traits: [...new Set(c.traits)].sort(),
+        intents: c.intents ? [...new Set(c.intents)].sort() : [],
+        evidenceKeys: [...new Set(c.evidenceKeys)].sort(),
+      };
+    }
+
+    // 10.1 evidenceKeys: Union of all contributor evidenceKeys, deduplicated and sorted
+    const evidenceKeys = [
+      ...new Set(cluster.flatMap((p) => p.candidate.evidenceKeys)),
+    ].sort();
+
+    // 10.2 themes, traits, intents: Union, deduplicated and sorted
+    const themes = [
+      ...new Set(cluster.flatMap((p) => p.candidate.themes)),
+    ].sort();
+    const traits = [
+      ...new Set(cluster.flatMap((p) => p.candidate.traits)),
+    ].sort();
+    const intents = [
+      ...new Set(cluster.flatMap((p) => p.candidate.intents ?? [])),
+    ].sort();
+
+    // 10.3 name: Longest normalized name, tie-break lexicographically
+    const names = cluster.map((p) => p.candidate.name.trim()).filter(Boolean);
+    const chosenName = names.reduce((best, curr) => {
+      const bestNorm = normalizeRealWorldName(best);
+      const currNorm = normalizeRealWorldName(curr);
+      if (currNorm.length > bestNorm.length) return curr;
+      if (currNorm.length < bestNorm.length) return best;
+      return curr.localeCompare(best) < 0 ? curr : best;
+    }, names[0] ?? '');
+
+    // 10.4 description: Longest non-empty description, tie-break lexicographically
+    const descriptions = cluster
+      .map((p) => p.candidate.description?.trim())
+      .filter((d): d is string => !!d);
+    const chosenDescription = descriptions.length
+      ? descriptions.reduce((best, curr) => {
+          if (curr.length > best.length) return curr;
+          if (curr.length < best.length) return best;
+          return curr.localeCompare(best) < 0 ? curr : best;
+        })
+      : undefined;
+
+    // 10.5 suggestedDurationMinutes: If none -> undefined. If all identical -> that duration. If conflict -> undefined.
+    const durations = [
+      ...new Set(
+        cluster
+          .map((p) => p.candidate.suggestedDurationMinutes)
+          .filter((d): d is number => d != null),
+      ),
+    ];
+    const suggestedDurationMinutes =
+      durations.length === 1 ? durations[0] : undefined;
+
+    // 10.6 orderedByEvidence: True only if ALL have orderedByEvidence === true
+    const orderedByEvidence = cluster.every(
+      (p) => p.candidate.orderedByEvidence === true,
+    );
+
+    // 10.8 componentHints: SAME-concept collapse
+    // For single-concept proposals, collapse into ONE merged GeoEntityHint
+    let componentHints: GeoEntityHint[] = [];
+    const allHints = cluster.flatMap((p) => p.candidate.componentHints);
+
+    const isSingleConceptCluster = cluster.every(
+      (p) => p.candidate.componentHints.length <= 1,
+    );
+
+    if (isSingleConceptCluster && allHints.length > 0) {
+      const distinctKinds = [...new Set(allHints.map((h) => h.expectedKind))];
+
+      // If expectedKind conflicts, do NOT silently choose PLACE. Keep hints separate.
+      if (distinctKinds.length > 1) {
+        componentHints = allHints;
+      } else {
+        const expectedKind = distinctKinds[0];
+        const distinctRoles = [...new Set(allHints.map((h) => h.role))];
+
+        let role: GeoEntityHint['role'] | undefined;
+        if (distinctRoles.length === 1) {
+          role = distinctRoles[0];
+        } else if (
+          distinctRoles.length === 2 &&
+          distinctRoles.includes('venue') &&
+          distinctRoles.includes('waypoint')
+        ) {
+          role = 'venue';
+        } else {
+          // Incompatible roles: keep hints separate
+          componentHints = allHints;
+        }
+
+        if (role) {
+          const hintEvidenceKeys = [
+            ...new Set(allHints.flatMap((h) => h.evidenceKeys)),
+          ].sort();
+
+          componentHints = [
+            {
+              key: `${evidenceKeys[0]}:component`,
+              name: chosenName,
+              role,
+              expectedKind,
+              evidenceKeys: hintEvidenceKeys,
+            },
+          ];
+        }
+      }
+    } else {
+      // Multi-component alignment fallback
+      componentHints = allHints;
+    }
+
+    // 10.7 shortReason: Deterministic explanation string mentioning contributing providers
+    const providers = [
+      ...new Set(cluster.flatMap((p) => p.observations.map((o) => o.provider))),
+    ].sort();
+    const shortReason = `Corroborated across ${providers.length} sources (${providers.join(', ')}): ${chosenName}`;
+
+    return {
+      name: chosenName,
+      description: chosenDescription,
+      themes,
+      traits,
+      intents,
+      suggestedDurationMinutes,
+      componentHints,
+      evidenceKeys,
+      shortReason,
+      orderedByEvidence,
+      qualityEvidence: this.mergeQualityEvidence(cluster),
+    };
+  }
+
+  /**
+   * B3 live wiring -- merges each contributor's own already-typed,
+   * already-normalized `qualityEvidence` (populated at the adapter
+   * boundary, never here) into ONE bundle for the merged candidate. Never
+   * reads `.provider` or any raw metadata -- purely composes evidence
+   * facts. Consumer rating: the contributor with the highest review count
+   * wins (most statistically confident), never averaged with a
+   * less-confident one. Editorial listing: present if ANY contributor
+   * carries one. Notability: the highest count wins. A cluster with no
+   * quality-bearing contributor returns `undefined` (never a fabricated
+   * value).
+   */
+  private mergeQualityEvidence(
+    cluster: StructuredCandidateProposal[],
+  ): ExperienceCandidate['qualityEvidence'] {
+    const ratings = cluster
+      .map((p) => p.candidate.qualityEvidence?.consumerRating)
+      .filter(
+        (rating): rating is RatingEvidence =>
+          rating != null &&
+          typeof rating.value === 'number' &&
+          Number.isFinite(rating.value),
+      )
+      .sort((a, b) => (b.reviewCount ?? 0) - (a.reviewCount ?? 0));
+    const editorialListing = cluster.some(
+      (p) => p.candidate.qualityEvidence?.editorialListing?.listed === true,
+    );
+    const notabilities = cluster
+      .map((p) => p.candidate.qualityEvidence?.notability)
+      .filter(
+        (notability): notability is NotabilityEvidence =>
+          notability != null && typeof notability.count === 'number',
+      )
+      .sort((a, b) => b.count - a.count);
+
+    if (
+      ratings.length === 0 &&
+      !editorialListing &&
+      notabilities.length === 0
+    ) {
+      return undefined;
+    }
+
+    return {
+      ...(ratings.length > 0 ? { consumerRating: ratings[0] } : {}),
+      ...(editorialListing ? { editorialListing: { listed: true } } : {}),
+      ...(notabilities.length > 0 ? { notability: notabilities[0] } : {}),
+    };
+  }
+}

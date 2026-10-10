@@ -1,0 +1,650 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"results\":[{\"product_id\":33767,\"type\":\"free_tour\",\"id\":33767,\"name\":\"🏆🥇Casco antiguo (Austrias), Plaza Mayor, Mercado de San Miguel, catedral, palacio, teatro y más \",\"slug\":\"33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas\",\"description_html\":\"<p><b>Tour premiado en los GuruWalk Awards 2026 como Mejor Free Tour del Mundo en la categoría: Español</b><br><br>Sumérgete en una <strong>OBRA DE TEATRO EN VIVO</strong>&nbsp; del <strong>CASCO HISTÓRICO DE LOS AUSTRIAS</strong> y su huella imborrable&nbsp; &nbsp; &nbsp;&nbsp;<br>&nbsp; &nbsp;&nbsp;</p><h3>&nbsp; <strong>🏆¿POR QUÉ NOSOTROS? 🏆</strong></h3><h3><strong>&nbsp;</strong></h3><ul><li><strong>IMPRESCINDIBLE:</strong> ¡Ningún otro recorrido cubre tantos puntos de referencia importantes de MADRID!&nbsp;</li></ul><ul><li><strong>GUÍAS LOCALES</strong> enamorados de nuestro Madrid con <strong>EXPERIENCIA</strong> entre 6 y 20 años</li></ul><ul><li><strong>DIVERSIÓN Y APRENDIZAJE</strong> en cada esquina&nbsp;</li></ul><p>&nbsp;</p><p>1 década de probar, quitar, poner y ajustar, hemos logrado crear una <strong>EXPERIENCIA </strong>de <strong>2 HORAS Y 20 MINUTOS</strong><br><br></p><h3><strong><em>🗺️:PUNTOS PRINCIPALES:</em></strong></h3><p>📍<strong>Puerta del sol</strong> <br> 📍Real casa de correos <br>📍<strong>Plaza Mayor<br> </strong>📍<strong>Puerta de Toledo</strong> <br>📍<strong>Restaurante más antiguo del mundo</strong> <br>📍<strong>Barbería más antigua de la UE</strong> <br>📍<strong>Mercado de San Miguel</strong> <br>📍<strong>Murallas</strong> <br>📍<strong>Farmacia más antigua de Madrid</strong> <br>📍<strong>Plaza de la villa</strong> <br>📍<strong>La estatua más famosa: (El vecino curioso)</strong> <br>📍<strong>Magnifico mirador del Palacio Real</strong> <br>📍<strong>Catedral de la Almudena</strong> <br>📍<strong>Palacio Real</strong> <br>📍<strong>Teatro Real</strong>&nbsp;</p><p><br></p><p>&nbsp;<strong>👀BUSCA EL </strong><strong><em>PARAGUA BICOLOR AMARILLO Y NARANJA👀<br><br>Usaremos radioguías inalámbricas para facilitar las explicaciones. Alquiler: 1 € por adulto, pago en efectivo o tarjeta antes del tour.</em></strong></p>\",\"images\":[\"https://media.guruwalk.com/ztyw2ca72kjugvcovx37uun38bkl\",\"https://media.guruwalk.com/fdjfbp1cle7v7qwxarh9r99tmim2\",\"https://media.guruwalk.com/9mbsudv5igjjfd6au9fil7uxygys\",\"https://media.guruwalk.com/2k4ex5wgng93znilwv5yjj02igj0\",\"https://media.guruwalk.com/gwvqoltoykgidzvlstj14kvz28yr\",\"https://media.guruwalk.com/luxxb2jozjwuq2kpo7ngjec43nza\",\"https://media.guruwalk.com/d5rwpxy2bp59ene97rdjr66dfr4d\",\"https://media.guruwalk.com/i7e9og19agdcz4au8jdk8iu671az\",\"https://media.guruwalk.com/7wu7vhlrgy59cffferhcdg8qbugs\",\"https://media.guruwalk.com/16y6x8vphu3vjecneyrixikkgqzx\",\"https://media.guruwalk.com/nawl219djyc3ld9b8ny6uwx31q54\"],\"duration\":\"2:15\",\"available_languages\":[\"en\",\"es\",\"fr\",\"it\",\"pt\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.4166359,-3.7038101\",\"meeting_point_latitude\":40.4166359,\"meeting_point_longitude\":-3.7038101,\"how_to_find_me\":\"En el centro de la plaza PUERTA DEL SOL. Busque nuestro paraguas AMARILLO Y NARANJA. Referencia #1: Puerta del Sol, es la única plaza con un gran cartel de \\\"Tio Pepe\\\"\",\"itinerary\":[\"Puerta del Sol\",\"Plaza Mayor\",\"Puerta de Toledo\",\"Restaurante más antiguo del mundo (Cuevas)\",\"Barbería más antigua de Madrid\",\"Mercado de San Miguel\",\"Muralla Cristiana\",\"Negocio mas antiguo de Madrid (Túnel)\",\"Plaza de la Villa\",\"Muralla Árabe\",\"Catedral de Santa María la Real de la Almudena\",\"Palacio Real de Madrid\",\"Teatro Real\"],\"reviews\":{\"count\":13660,\"rating\":\"4.98\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":45},\"guide\":{\"name\":\"Tourstilla Experiencias\"},\"url\":\"https://www.guruwalk.com/walks/33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":10911,\"type\":\"free_tour\",\"id\":10911,\"name\":\"🏆🥇 Casco Histórico de Madrid (Austrias) | Plaza Mayor, Mercado de San Miguel, Catedral, Palacio Real, Teatro Real y más\",\"slug\":\"10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas\",\"description_html\":\"<p>🏆<strong> Nº1 TripAdvisor Madrid · Best of the Best 9 años consecutivos (solo el 1% de experiencias en el mundo lo recibe)</strong><br><br>Sumérgete en la historia viva del <strong>MADRID DE LOS AUSTRIAS — secretos, leyendas </strong>y rincones que ninguna guía de viajes te va a contar.<br><br></p><p>🏆<b> ¿POR QUÉ TRIP TOURS MADRID?</b></p><p><br></p><p>···&gt; 🥇 <b>BEST OF THE BEST TripAdvisor</b> — 9 AÑOS CONSECUTIVOS (solo el 1% de experiencias en el mundo lo recibe)</p><p><span style=\\\"font-size: var(--text-sm);\\\">···&gt; 🏆</span><b style=\\\"font-size: var(--text-sm);\\\"> Nº1 TripAdvisor Madrid</b><span style=\\\"font-size: var(--text-sm);\\\"> — entre más de 1.200 empresas turísticas.</span></p><p>···&gt; 🥉 <b>Top 3 Free Tour de Europa 2026.</b></p><p>···&gt; ⭐ <b>+30.000 reseñas</b> en TripAdvisor, Google, GuruWalk y más plataformas.</p><p>···&gt; 📅 <b>Más de 10 años</b> recorriendo Madrid con viajeros de todo el mundo</p><p>···&gt; 👥 &nbsp;<b>GRUPOS REDUCIDOS</b> &nbsp;— máximo 25 personas por guía</p><p>···&gt; 🗺️ <b>Material audiovisual exclusivo</b>, mapas y folletos propios</p><p><br>Más de una década perfeccionando cada parada, cada historia y cada anécdota<br>para darte la mejor experiencia posible en 2 horas y media.<br><br>🗺️ <strong>PUNTOS DEL RECORRIDO:</strong><br><br>📍 Puerta del Sol &amp; Km 0<br>📍 Real Casa de Correos<br>📍 Plaza Mayor<br>📍 El restaurante más antiguo del mundo<br>📍 Mercado de San Miguel<br>📍 Muralla Árabe<br>📍 Farmacia más antigua de Madrid<br>📍 Plaza de la Villa<br>📍 Mirador del Palacio Real<br>📍 Catedral de la Almudena<br>📍 Palacio Real<br>📍 Teatro Real<br><br>🎁 <strong>TU REGALO AL RESERVAR:</strong><br><br>En cuanto reserves tu plaza recibirás <strong>GRATIS</strong> nuestra <strong>Guía Exclusiva de Madrid</strong> para que llegues preparado y no te pierdas nada.<br><br>Y al terminar el tour, te llevarás nuestra Guía de Dónde Comer y Beber en Madrid, los sitios de verdad, sin trampa, que solo conocen los que viven aquí.<br><br><strong>Detalles prácticos:</strong><br><br>⏰ <strong>Duración</strong>: 2 horas y media aprox.<br>👟 <strong>Qué traer</strong>: Zapatos cómodos y ganas de descubrir Madrid<br>🌂 <strong>Cómo encontrarnos</strong>: Busca el 💛 <strong>PARAGUAS AMARILLO</strong> 💛 junto al <strong>Oso y el Madroño</strong> — Puerta del Sol<br><br>⚠️ Al reservar, deja tu número de <strong>WhatsApp</strong>. Te confirmaremos el tour el mismo día y recibirás tu guía de Madrid directamente en el móvil.<br><br>🥇 <strong>El tour mejor valorado de Madrid lleva 10 años esperándote</strong>🥇</p>\",\"images\":[\"https://media.guruwalk.com/tdnzcc4osq9nm5gosw44s9vxlyab\",\"https://media.guruwalk.com/kwtd60mnkwvefb12xqt9x801e4rq\",\"https://media.guruwalk.com/1pgzjttyqfl0687rv4tsejvhqxqp\",\"https://media.guruwalk.com/ghnbrflqqb9gjolvar8bwriicrpy\",\"https://media.guruwalk.com/kgpxpidfjfi1ft5b17ho1vo33fpg\",\"https://media.guruwalk.com/bwty43mh3vvxvx1j8dvppy1yq7y9\",\"https://media.guruwalk.com/t2p9m60zt2slc40cpjsgm8tpasx8\",\"https://media.guruwalk.com/piyh54hzwsf7l6iq6whi9ttfm0g9\",\"https://media.guruwalk.com/hmwllxrtzcpimsqdvct9wfaym8fn\",\"https://media.guruwalk.com/dm6n1dkk3oo7296z19ew56q2pta0\",\"https://media.guruwalk.com/bo3ctfbt2xcdjbrmsk66by5shhxw\",\"https://media.guruwalk.com/p7gpx3exy3t975ducpcadz5zx4wh\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\",\"fr\",\"it\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.4170164,-3.7026175\",\"meeting_point_latitude\":40.4170164,\"meeting_point_longitude\":-3.7026175,\"how_to_find_me\":\"Puerta del Sol — junto a la Estatua del Oso y Madroño\\r\\nBusca el 💛 PARAGUAS AMARILLO 💛 Trip Tours Madrid\\r\\nReferencia: frente a la Apple Store\",\"itinerary\":[\"Puerta del Sol\",\"Kilómetro Cero\",\"Calle de la Sal\",\"Plaza Mayor\",\"Restaurante más antiguo del Mundo\",\"Mercado de San Miguel\",\"Comercio más antiguo de Madrid \",\"Muralla Árabe\",\"Plaza de la Villa\",\"El Vecino Curioso\",\"Catedral de Santa María la Real de la Almudena\",\"Palacio Real de Madrid\",\"Monumento a Felipe IV\",\"Teatro Real\"],\"reviews\":{\"count\":1240,\"rating\":\"4.95\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Trip Tours Madrid \"},\"url\":\"https://www.guruwalk.com/walks/10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":47773,\"type\":\"free_tour\",\"id\":47773,\"name\":\"🏆🥇Madrid Oscuro: Torturas, Fantasmas, Crímenes y  Leyendas ☠\",\"slug\":\"47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas\",\"description_html\":\"<p><strong>🏆 TOUR NOCTURNO CON LA PUNTUACIÓN MÁS ALTA 🏆</strong></p><p><strong>NO es el típico tour nocturno de mitos y leyendas, ¿POR QUE?:<br></strong><br></p><ul><li>Cubrimos CINE DEL TERROR MADRILEÑO ☠</li><li>Basado en ARCHIVOS HISTÓRICOS y HECHOS REALES</li><li>GUÍA LOCAL FREKI de lo macabro y sobrenatural</li><li>&nbsp;Escenas Actuadas y dramatizadas</li><li>El horror y la diversión se dan la mano</li><li>Incluye juegos, actividades interactivas y desafío</li></ul><p><br></p><h3>🗺️ El Madrid Macabro incluye:</h3><p><br></p><p>📍<strong>La iglesia maldita&nbsp;</strong></p><p>📍<strong>El Verdugo. </strong>Casa del Verdugo&nbsp;</p><p>📍<strong>El callejón del Hambre</strong>&nbsp;</p><p>📍<strong>Fantasma de Raimundita</strong>&nbsp;</p><p>📍<strong>Ángel Caído, </strong>Rituales satánicos, El demonio&nbsp;</p><p>📍<strong>El atentado al Rey Alfonso XIII. </strong>La historia de Mateo Morral&nbsp;</p><p>📍<strong>Crimen del Capitán Sánchez</strong>&nbsp;</p><p>📍<strong>Cine del horror en Madrid, </strong>basado en hecho reales<strong><br>📍Expediente Vallecas: </strong>Verónica o Malasaña 32&nbsp;</p><p>📍<strong>Primer cementerio de Madrid</strong>&nbsp;</p><p><br></p><p><strong>¿Te lo permitirá tu corazón?, descubre Madrid de NOCHE.&nbsp;<br></strong><br></p><p><strong>¿Menores de 16? Bienvenidos, pero no nos hacemos responsables” Buajajaja Buajajaja</strong></p><p><br></p><p><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀</strong></p><p><br></p>\",\"images\":[\"https://media.guruwalk.com/s9le0987q38ba8k0hblfoe4f16p3\",\"https://media.guruwalk.com/uex75waxol2324yowl7jzq1tvjyi\",\"https://media.guruwalk.com/opf5ctsw7hdltwta55sl61hcevxu\",\"https://media.guruwalk.com/sivxpr0j62pu655kqyw0d0stfupq\",\"https://media.guruwalk.com/pvdsslij68j15h2yqglustc0urz7\",\"https://media.guruwalk.com/j9gfkkv97zswyiw958kx42u5cwdc\",\"https://media.guruwalk.com/evpmba86w4tekt8ye9igx6vd6ph3\",\"https://media.guruwalk.com/fxsa9yyr55w14gash33pb3bfyga4\",\"https://media.guruwalk.com/w1pq4mydn9wf4y7a649kzumlxwby\"],\"duration\":\"2:15\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.415618,-3.707023\",\"meeting_point_latitude\":40.415618,\"meeting_point_longitude\":-3.707023,\"how_to_find_me\":\"Ubicado en el centro este de la Plaza. Busca el paraguas bicolor AMARILLO Y NARANJA. Referencia: Estamos en los alrededores de la escultura de Felipe III (escultura del caballo)\",\"itinerary\":[\"Parroquia de Santa Cruz. Madrid.\",\"Callejon del Verdugo\",\"Pasadizo del Panecillo\",\"Plaza del Conde de Miranda\",\"El Angel Caido\",\"Calle Mayor\",\"Real Iglesia Parroquial de Santiago y San Juan Bautista\",\"Plaza de Oriente\"],\"reviews\":{\"count\":3141,\"rating\":\"4.88\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":45},\"guide\":{\"name\":\"Tourstilla Experiencias\"},\"url\":\"https://www.guruwalk.com/walks/47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":52072,\"type\":\"free_tour\",\"id\":52072,\"name\":\"🏆🥇 Madrid Medieval al Atardecer | Muralla Árabe, Orígenes Musulmanes y Templo de Debod\",\"slug\":\"52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod\",\"description_html\":\"<p>🏆<b> Nº1 TripAdvisor Madrid · Best of the Best 9 años consecutivos (solo el 1% de experiencias en el mundo lo recibe)</b><div><br></div><div>Madrid tiene 800 años de historia musulmana, medieval y moderna, la&nbsp;<span style=\\\"font-size: var(--text-sm);\\\">mayoría de los tours solo rascan la superficie. Este recorrido empieza&nbsp;</span><span style=\\\"font-size: var(--text-sm);\\\">en la Plaza Mayor y termina donde ningún otro termina: con el sol&nbsp;</span><span style=\\\"font-size: var(--text-sm);\\\">poniéndose sobre el Templo de Debod, el único templo egipcio auténtico&nbsp;</span><span style=\\\"font-size: var(--text-sm);\\\">de España.</span></div><div><br></div><div>En 2 horas y media, recorrerás la ciudad que fue fortaleza árabe,&nbsp;<span style=\\\"font-size: var(--text-sm);\\\">capital medieval y cuna del Imperio Español. Murallas que siguen en pie.&nbsp;</span><span style=\\\"font-size: var(--text-sm);\\\">Plazas donde se decidió la historia. Y un final de película.</span></div><div><br></div><div>🏆<b> ¿POR QUÉ TRIP TOURS MADRID?</b></div><div><br></div><div>···&gt; 🥇<b> BEST OF THE BEST TripAdvisor</b> — 9 AÑOS CONSECUTIVOS (solo el 1% de experiencias en el mundo lo recibe).</div><div>···&gt; 🏆 <b>Nº1 TripAdvisor Madrid </b>— entre más de 1.200 empresas turísticas.</div><div>···&gt; 🥉<b> Top 3 Free Tour de Europa 2026.</b></div><div>···&gt; ⭐<b> +30.000 reseñas</b> en TripAdvisor, Google, GuruWalk  y más plataformas.</div><div>···&gt; 📅 <b>Más de 10 años</b> recorriendo Madrid con viajeros de todo el mundo.</div><div>···&gt; 👥 <b>GRUPOS REDUCIDOS </b>— máximo 25 personas por guía.</div><div>···&gt; 🗺️ <b>Material audiovisual exclusivo</b>, mapas y folletos propios.</div><div><br></div><div>🗺️<b> PUNTOS DEL RECORRIDO:</b></div><div>📍 Plaza Mayor</div><div>📍 Puerta Cerrada</div><div>📍 Calle de la Cava Baja</div><div>📍 Museo de San Isidro</div><div>📍 Plaza de la Paja — el corazón del Madrid medieval</div><div>📍 Basílica de San Francisco el Grande</div><div>📍 Las Vistillas — mirador secreto con vistas al Palacio Real</div><div>📍 Parque del Emir — los orígenes musulmanes de Madrid (Mayrit)</div><div>📍 Plaza de la Armería</div><div>📍 Jardines de Sabatini</div><div>📍 Plaza de España</div><div>📍 Templo de Debod — final épico al atardecer</div><div><br></div><div>🎁 <b>TU REGALO AL RESERVAR:</b></div><div><span style=\\\"font-size: var(--text-sm);\\\">En cuanto reserves tu plaza recibirás <b>GRATIS</b> por <b>WhatsApp</b> nuestra <b>Guía&nbsp;</b></span><span style=\\\"font-size: var(--text-sm);\\\"><b>Exclusiva de Madrid</b> — para que llegues preparado y no te pierdas nada.</span></div><div><br></div><div>Y al terminar el tour, te llevarás nuestra Guía de Dónde Comer y Beber&nbsp;<span style=\\\"font-size: var(--text-sm);\\\">en Madrid — los sitios de verdad, sin trampa, que solo conocen los que&nbsp;</span><span style=\\\"font-size: var(--text-sm);\\\">viven aquí.</span></div><div><br></div><div><b>Detalles prácticos:</b></div><div>⏰ <b>Duración</b>: 2 horas y 30 minutos aprox.</div><div>🗣️ <b>Idioma</b>: English — this tour is conducted in English</div><div>👟 <b>Qué traer</b>: Zapatos cómodos y, si viene a la tarde, cámara con<span style=\\\"font-size: var(--text-sm);\\\">&nbsp;batería para el atardecer en Debod</span></div><div>🌂 <b>Cómo encontrarnos:</b>&nbsp;<span style=\\\"font-size: var(--text-sm);\\\">Plaza Mayor — frente al Hotel Pestana Collection</span></div><div>&nbsp; &nbsp;Busca el 💛 <b>PARAGUAS AMARILLO</b> 💛 Trip Tours Madrid</div><div>&nbsp; &nbsp;Referencia: entrada norte de la Plaza Mayor (Calle Ciudad Rodrigo)</div><div><br></div><div>⚠️ Al reservar, deja tu número de <b>WhatsApp</b>. Te enviaremos tu <b>Guía de</b><span style=\\\"font-size: var(--text-sm);\\\"><b>&nbsp; Madrid</b> y te confirmaremos el tour el mismo día.</span></div><div><br></div><div>🥇<b> De la muralla árabe al templo egipcio — Madrid como nunca lo habías vivido </b>🥇</div></p>\",\"images\":[\"https://media.guruwalk.com/qrz8bjwcoih1s7se394qg128lv3u\",\"https://media.guruwalk.com/be2u3kzr5546bf0z7yc113t4vqvh\",\"https://media.guruwalk.com/53k2je25p13dhu7olnsoaycywssq\",\"https://media.guruwalk.com/vsns9wtybakn84jwq4kvaupstp81\",\"https://media.guruwalk.com/8209sn8pnewxd7zwd8qnndgl2w56\",\"https://media.guruwalk.com/wrqx6qtesacx81x7uwj8sjhelhsw\",\"https://media.guruwalk.com/6gct9sby82zxpb7sp18ksr4olrjp\",\"https://media.guruwalk.com/vwfft8lru0jijx90x2a3nu4w8pfn\",\"https://media.guruwalk.com/hehh1538190lqvjpj2mizwh4s0ir\",\"https://media.guruwalk.com/lpoq3ycay12l6numy8aov8e9iy7f\",\"https://media.guruwalk.com/3pvhwky4xgwsyhvq28xyu29gd5k2\",\"https://media.guruwalk.com/vd7rjrd3i8cfiebsuc3r71xdowds\"],\"duration\":\"2:30\",\"available_languages\":[\"en\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.415216,-3.707353\",\"meeting_point_latitude\":40.415216,\"meeting_point_longitude\":-3.707353,\"how_to_find_me\":\"Plaza Mayor — entrada por Calle Toledo (junto al Hotel Pestana Collection)\\nBusca el 💛 PARAGUAS AMARILLO 💛 Trip Tours Madrid\\nReferencia: entrada de la Plaza Mayor por Calle Toledo, junto al Hotel Pestana\",\"itinerary\":[\"Plaza Mayor\",\"Plaza de Puerta Cerrada\",\"Calle de la Cava Baja\",\"Museo de San Isidro\",\"Plaza de los Carros\",\"Real Basílica de San Francisco el Grande\",\"Jardín de las Vistillas\",\"Jardín de las Vistillas\",\"Parque Emir Mohamed\",\"Plaza de la Armería\",\"Jardines de Sabatini\",\"Plaza Espana\",\"Templo de Debod\"],\"reviews\":{\"count\":571,\"rating\":\"4.97\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Trip Tours Madrid \"},\"url\":\"https://www.guruwalk.com/walks/52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":37213,\"type\":\"free_tour\",\"id\":37213,\"name\":\"Free Tour Madrid imprescindible\",\"slug\":\"37213-free-tour-madrid-imprescindible\",\"description_html\":\"<p>¿Quieres que te expliquen la historia de Madrid <strong>con rigor, pero de una manera divertida? </strong>¿Quieres comprender Madrid y pasar un buen rato?&nbsp; Este es tu tour. Un paseo de más de dos horas por los <strong>lugares y monumentos más emblemáticos de la ciudad</strong>, también por aquellos lugares que no todo el mundo conoce. Iremos descubriendo la historia de la ciudad, desde su fundación musulmana hasta el Madrid cosmopolita actual. <strong>Anécdotas y secretos de la ciudad contados siempre de manera dinámica, con alegría y para todas las edades</strong>. Aprenderás, comprenderás mejor Madrid, te divertirás y <strong>te ayudaremos con recomendaciones</strong> para seguir conociendo la ciudad. Más de 10 años enseñando Madrid a miles de personas nos avalan. ¡¡No te quedes sin tu plaza!!</p><p>En este recorrido pasearemos:&nbsp;</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza Mayor</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Madrid de los Austrias</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Puerta del Sol</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Palacio Real</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Catedral de la Almudena</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Madrid musulmán</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Ópera</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza de la Villa</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza del Callao</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Monasterio de las Descalzas</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Inquisición española</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza de Santa Ana</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Guerra Civil española</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Barrio de las letras</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Mercado de San Miguel</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Movida Madrileña.&nbsp;</p><p>¡Ven con nosotros a descubrir Madrid!</p>\",\"images\":[\"https://media.guruwalk.com/hd2rb5yzoybj211b1qn8pa83psq4\",\"https://media.guruwalk.com/me53ygkuscz84d34ogocdl35llpy\",\"https://media.guruwalk.com/b4frv3dfrlvwb272c2na7ohf5kvi\",\"https://media.guruwalk.com/auesqkaoae4rrzg9lod3h6ohq765\",\"https://media.guruwalk.com/msh3oflrrpv86u2h01h40d5pqqym\",\"https://media.guruwalk.com/4d1hdv6itxjkubxd0d0jspjwm1gb\",\"https://media.guruwalk.com/jhq41qaf4pmi7ldocdbhvnyi6pel\",\"https://media.guruwalk.com/xrl4zozr4j1mvj6x4bezwt756y2t\",\"https://media.guruwalk.com/va8rwgjfrtrddtcvcwerqgdfh7hd\",\"https://media.guruwalk.com/jlfz5bpe8wtz2wbfygmypbx8lbp8\",\"https://media.guruwalk.com/3fc1xmy77zwd5pbwkeznpuxrix95\"],\"duration\":\"2:15\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.419911,-3.705911\",\"meeting_point_latitude\":40.419911,\"meeting_point_longitude\":-3.705911,\"how_to_find_me\":\"Plaza del Callao, verán el paraguas violeta!\",\"itinerary\":[\"Plaza del Callao\",\"Monasterio de las Descalzas Reales\",\"Teatro Real\",\"Palacio Real de Madrid\",\"Calle Factor\",\"Iglesia de San Nicolás de los Servitas - Orden Siervos de María - Servitas\",\"Plaza de la Villa\",\"Calle del Codo\",\"Mercado de San Miguel\",\"Plaza Mayor\",\"Plaza de Pontejos\",\"Puerta del Sol\",\"Plaza de Santa Ana\",\"Congreso de los Diputados\",\"Plaza de las Cortes\"],\"reviews\":{\"count\":867,\"rating\":\"4.91\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":20},\"guide\":{\"name\":\"Free Walking Tours Madrid \"},\"url\":\"https://www.guruwalk.com/walks/37213-free-tour-madrid-imprescindible?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/37213-free-tour-madrid-imprescindible?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":59360,\"type\":\"free_tour\",\"id\":59360,\"name\":\"🏆🥇GUERRA CIVIL Española inicio de la 2da Guerra Mundial, Bombardeos, Guernica, Franco y más\",\"slug\":\"59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas\",\"description_html\":\"<h3><strong><em>🏆 TOUR CON LA PUNTUACIÓN MÁS ALTA 🏆</em></strong></h3><p><br></p><ul><li><strong>Rigurosidad histórica: Diversión y Aprendizaje&nbsp;</strong></li></ul><p><br></p><ul><li>Guía local apasionado y experto en la Guerra Civil</li></ul><p><br></p><ul><li><strong>PISAREMOS</strong> el Frente de Batalla y los Sitios claves.</li></ul><p><br></p><ul><li>Material exclusivo: Mapas, imágenes, audio, Videos y más.&nbsp;</li></ul><p><br>Sumérgete en uno de los períodos más intensos y trágicos de España: La Guerra Civil Española, campo de ensayos de la 2da Guerra Mundial y el inicio de la Dictadura. &nbsp;</p><p><br></p><p><br><br></p><h3>🗺️Pisaremos el frente de Batalla:</h3><p><br></p><p><strong>📍</strong>Dos Españas Divididas, Guerra Civil&nbsp;</p><p><strong>📍</strong>España, Campo de Ensayo de la&nbsp; 2da Guerra Mundial</p><p><strong>📍</strong>Legión Cóndor Alemana y<strong> </strong>Cazas Italianos&nbsp;</p><p><strong>📍</strong>Francisco Franco&nbsp;</p><p><strong>📍</strong>Picasso<strong>, </strong>Guernica: Bombardeo a Civiles</p><p><strong>📍</strong>La defensa de la Capital: 900 días de asedio</p><p><strong>📍</strong>Madrid bajo bombas</p><p><strong>📍</strong>Museo del Prado: Arte Bajo Fuego</p><p><strong>📍</strong>Edificios con cicatrices</p><p><strong>📍</strong>Dinero: ¿Quién pagó la Guerra?&nbsp;</p><p><strong>📍</strong>Propaganda: Guerra de Ideas</p><p><strong>📍</strong>La Vida de un Español en Guerra ¿irías al cine?</p><p><strong>📍</strong>Música: No pasaran, Cara al Sol&nbsp;</p><p><strong>📍</strong>Navidad en Tregua: Un Respiro</p><p><strong>📍</strong>Metro de Madrid: La Vida Bajo Tierra</p><p><strong>📍1era</strong> Transfusión de Sangre Remota: Vida en Medio de Muerte.&nbsp;</p><p><strong>📍</strong>Arco de la victoria ¿Destruirlo o preservarlo?&nbsp;</p><p><strong>📍</strong>Fin de la Guerra inicia 2da Guerra Mundial y Dictadura</p><p><br><br>Cada parada cuenta una historia de valentía, tragedia y transformación, Aquí se escribió el destino de una nación.</p><p><br>***<strong>DIVERSIÓN REFLEXIÓN Y APRENDIZAJE GARANTIZADOS***<br></strong><br><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀</strong><br><br></p>\",\"images\":[\"https://media.guruwalk.com/g68j21djyahm92yh7dj2ldf44pa3\",\"https://media.guruwalk.com/3vmbaduzdq05ktwizr2cn7nkh3kz\",\"https://media.guruwalk.com/68i2f7emb088dv2kzmnjecpyjo6m\",\"https://media.guruwalk.com/feu3iiuftyowok0pztf0e3l4yh8f\",\"https://media.guruwalk.com/ne33wiajviwhdut74twjmb3o6z7i\",\"https://media.guruwalk.com/sjwkpgqi56poua1juy3l30ik1lbz\",\"https://media.guruwalk.com/jyf90bkor8xruiqxyshxjzz5xe82\",\"https://media.guruwalk.com/zrtqeuw7ekfdhkxhwky858vhtwzh\",\"https://media.guruwalk.com/a81wwdbhy0sh1lgk3qes4412vi0e\",\"https://media.guruwalk.com/h9vaphiukmv7q94mtf7h95w1bkdx\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.419664,-3.705842\",\"meeting_point_latitude\":40.419664,\"meeting_point_longitude\":-3.705842,\"how_to_find_me\":\"Plaza Callao  (frente al Rodilla)\\r\\n\\r\\n Referencia #1: Calle preciados 25 (Tienda: Rodilla, justo al frente nos veras) \\r\\n Referencia #2: Metro Callao \\r\\n Referencia #3: Al lado del Punto de información Turística\\r\\n\\r\\nBusca el paraguas bicolor AMARILLO Y NARANJA.   \",\"itinerary\":[\"Plaza del Callao\",\"Plaza de España\",\"Templo de Debod\",\"Cuartel General del Ejército del Aire y del Espacio\",\"arco de la victoria\"],\"reviews\":{\"count\":1564,\"rating\":\"4.94\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":45},\"guide\":{\"name\":\"Tourstilla Experiencias\"},\"url\":\"https://www.guruwalk.com/walks/59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":33804,\"type\":\"free_tour\",\"id\":33804,\"name\":\"🏆🥇Parque del Retiro, Gran Vía, Cibeles, Puerta de Alcalá, Borbones y más\",\"slug\":\"33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas\",\"description_html\":\"<p><strong>🏆TOUR CON LA CALIFICACION MÁS ALTA POSIBLE🏆 </strong><br><br>Abre las puertas de la <strong>Puerta de Alcalá</strong> para enamorarte con el <strong>Parque del Retiro</strong> y la cara más nueva y monumental del Madrid Borbón.&nbsp;</p><p><br></p><p>¡Descubre la emblemática <strong>Fuente de Cibeles</strong> y conoce la vibrante vida de <strong>la Gran Vía!</strong><br><br>***<strong>DIVERSIÓN Y APRENDIZAJE GARANTIZADOS***</strong></p><p><br><br></p><h3>🗺️Visitamos el Pulmón de Madrid:</h3><p><br></p><p>📍<strong>Calle Alcalá </strong>(más larga de Madrid) &nbsp;</p><p>📍Hotel Four Seasons&nbsp;</p><p>📍<strong>Cuadrigas BBVA&nbsp;</strong></p><p>📍Real Academia de Bellas Artes (DALI)&nbsp;</p><p>📍Edificio Metrópoli (Más fotografiado de Madrid)</p><p>📍<strong>La Gran Vía</strong></p><p>📍Instituto Cervantes&nbsp;</p><p>📍Palacio de Buenavista y Linares</p><p>📍Banco de España (Casa de Papel)</p><p>📍Puerta del Ratoncito Pérez&nbsp;</p><p>📍Palacio de Cibeles (Ayuntamiento)<strong>&nbsp;</strong></p><p>📍<strong>Fuente de Cibeles&nbsp; </strong>(Real Madrid)</p><p><strong>📍Puerta de Alcalá&nbsp;</strong></p><p><strong>📍Parque del Buen Retiro&nbsp;</strong></p><p>📍Estanque del Retiro y sus monumentos.</p><p><br>Sin Guía, tomarás 1000 fotos y ya¡ Con nosotros conocerás en verdad esos secretillos ocultos y curiosos del Madrid de los Borbones. Diversión y aprendizaje asegurado.</p><p><br></p><p><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀<br><br>Usaremos radioguías inalámbricas para facilitar las explicaciones. Alquiler: 1 € por adulto, pago en efectivo o tarjeta antes del tour.</strong></p>\",\"images\":[\"https://media.guruwalk.com/e1ice13hkenlopb0rmc1qqphzueu\",\"https://media.guruwalk.com/m8j9e8wofzyevuz1lxaiz4ymyxti\",\"https://media.guruwalk.com/lbnx9i7pe6ezgmkoidi1bvvxgmwu\",\"https://media.guruwalk.com/cmvkhzekkkydzjjvpey2pve3mb0w\",\"https://media.guruwalk.com/78vzycmi1ugtec6t04v3ng2usm41\",\"https://media.guruwalk.com/35x6pocqk9wb6g15a7t55vg0vgxu\",\"https://media.guruwalk.com/iediatckzntu3in3av7sac00h8d9\",\"https://media.guruwalk.com/0ft0qhpm0z4m8qp941ktc2uhkgh2\",\"https://media.guruwalk.com/9exh2g5eeexccfs6axqtuvsz0ff7\",\"https://media.guruwalk.com/f7k4es12yg6ycliv32jz6wwli9bl\",\"https://media.guruwalk.com/urqkhgnrxxx4l796h99r1awgmmlz\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\",\"fr\",\"it\",\"pt\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.416891,-3.70372\",\"meeting_point_latitude\":40.416891,\"meeting_point_longitude\":-3.70372,\"how_to_find_me\":\"ubicado en el centro de la plaza de  Puerta del Sol. Busca el paraguas bicolor AMARILLO Y NARANJA.    Referencia #1: El único monumento con un caballo dirige su mirada a nosotros.    Referencia #2: Puerta del Sol, es la única plaza con un cartel gigante de ¨Tio Pepe¨.\",\"itinerary\":[\"Calle Alcala\",\"Hotel Four Seasons Madrid\",\"Las Cuadrigas del edificio BBVA\",\"Real Academia de Bellas Artes de San Fernando\",\"Calle Gran Vía\",\"Edificio Metrópolis\",\"Instituto Cervantes\",\"Banco de España\",\"Puertica del Ratón Pérez\",\"Ayuntamiento de Madrid\",\"Fuente de Cibeles\",\"Puerta de Alcalá\",\"Parque de El Retiro\",\"Estanque Grande de El Retiro\"],\"reviews\":{\"count\":6577,\"rating\":\"4.95\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":45},\"guide\":{\"name\":\"Tourstilla Experiencias\"},\"url\":\"https://www.guruwalk.com/walks/33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":67004,\"type\":\"free_tour\",\"id\":67004,\"name\":\"Tour alternativo: Malasaña y Chueca\",\"slug\":\"67004-tour-alternativo-malasana-y-chueca\",\"description_html\":\"<p>¡Bienvenidos a la cara más vibrante, rebelde y auténtica de Madrid!</p><p>En 1 hora y 30 minutos recorrerás dos barrios que marcaron la identidad cultural de la ciudad: Malasaña, símbolo de resistencia y contracultura, y Chueca, referente mundial de diversidad y libertad.</p><p><br></p><p>Caminarás por las calles donde comenzó la revuelta del 1808, donde surgió la figura de Manuela Malasaña y donde, siglos después, estalló la creatividad de la Movida Madrileña con su música, cine y estética irreverente. Descubrirás cómo estas antiguas zonas obreras se llenaron de artistas, estudiantes y tribus urbanas que transformaron el barrio en un laboratorio cultural. Y al cruzar a Chueca, verás cómo un barrio deteriorado renació gracias a la fuerza de la comunidad LGTBI, convirtiéndose en un icono internacional de libertad, modernidad y vida nocturna. Historia, revolución, cultura pop y anécdotas sorprendentes se combinan en un recorrido que muestra el alma más auténtica del Madrid de ayer y de hoy.</p><p><br></p><p>Un recorrido dinámico, cultural y lleno de energía, guiado por madrileños que conocen estos barrios como nadie.</p><p>¿Listo para descubrir el corazón creativo y cultural de Madrid?</p>\",\"images\":[\"https://media.guruwalk.com/k49iuiw5nn4ptn1w55o6q0suqrtt\",\"https://media.guruwalk.com/mebzddcs2pkqv5ivexipir9yj71l\",\"https://media.guruwalk.com/brawgyurjddnec38gg47tf7phe8a\",\"https://media.guruwalk.com/r2ybyfjhk5vjlu8s0yqjqqspihp0\",\"https://media.guruwalk.com/obnqhns2ckjd0wux0afpxzdx74g0\"],\"duration\":\"1:30\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.4240994,-3.7021662\",\"meeting_point_latitude\":40.4240994,\"meeting_point_longitude\":-3.7021662,\"how_to_find_me\":\"Hola, estaremos en la pequeña plaza de San Ildefonso con un paraguas azul.\",\"itinerary\":[\"Calle de Fuencarral\",\"Plaza del Dos de Mayo\",\"Tribunal\",\"Calle de Hortaleza\",\"Plaza de Pedro Zerolo\",\"Calle de Pelayo\",\"Plaza de Chueca\"],\"reviews\":{\"count\":35,\"rating\":\"5.0\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":11},\"guide\":{\"name\":\"4 Gatos Tours Tours\"},\"url\":\"https://www.guruwalk.com/walks/67004-tour-alternativo-malasana-y-chueca?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/67004-tour-alternativo-malasana-y-chueca?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":35556,\"type\":\"free_tour\",\"id\":35556,\"name\":\"Free Tour Explora Madrid Historico\",\"slug\":\"35556-free-tour-explora-madrid-historico\",\"description_html\":\"<p>Descubre la gran capital de España en nuestro recorrido gratuito a pie por Madrid. En el transcurso de 2 horas, nos sumergiremos en la cultura de la ciudad, descubriremos sus secretos y exploraremos las principales atracciones de la ciudad. ¡Madrid fue durante varios siglos la capital de uno de los imperios más grandes de la historia y, por lo tanto, ofrece mucho para ver y descubrir! Esta actividad incluye: Puerta del Sol Square Plaza Mayor The Bakery House Posada del Peine The Oldest Restaurant in the World Royal Theatre Plaza de Oriente Royal Palace Almudena Cathedral Attack against King Alfonso XIII Plaza de la Villa Square Remains of Santa Maria Church San Miguel Market</p>\",\"images\":[\"https://media.guruwalk.com/q9maa9jb91qq7gw09nqywlranhdh\",\"https://media.guruwalk.com/3gykj2b6uicq6zevymhqetrd5kek\",\"https://media.guruwalk.com/ghnteec81n89lgtm2qooao9n96db\",\"https://media.guruwalk.com/ayxnzzg3r96nflwx43ijk23ok30m\",\"https://media.guruwalk.com/k6wn3g8s96g20ra1on32d6hzjlnk\",\"https://media.guruwalk.com/6ij5lx3xlxl8sk8i5jcu8mpdtheg\",\"https://media.guruwalk.com/731cblnxlamdrep80b6l0uxehjvh\",\"https://media.guruwalk.com/2tcobq7xm71mr0ib6i0g9dpvsrfl\",\"https://media.guruwalk.com/zsdg0g1753oj6tdl3nk5ujf31qkk\",\"https://media.guruwalk.com/c0w38wcq3esst74bddml0yegpein\"],\"duration\":\"2:00\",\"available_languages\":[\"en\",\"it\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.4199807,-3.706086\",\"meeting_point_latitude\":40.4199807,\"meeting_point_longitude\":-3.706086,\"how_to_find_me\":\"Estaremos al lado de la estatua con nuestro Banner distintivo\",\"itinerary\":[\"Kilómetro Cero\",\"Estatua Ecuestre de Carlos III\",\"Plaza Mayor\",\"Convento de las Carboneras del Corpus Christi\",\"Mercado de San Miguel\",\"Calle de Toledo\",\"Plaza Villa\",\"Sobrino de Botín\",\"El Vecino Curioso\",\"Catedral de Santa María la Real de la Almudena\",\"Palacio Real de Madrid\",\"Plaza de Oriente\"],\"reviews\":{\"count\":203,\"rating\":\"4.72\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":100},\"guide\":{\"name\":\"Walk Ba Madrid  \"},\"url\":\"https://www.guruwalk.com/walks/35556-free-tour-explora-madrid-historico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/35556-free-tour-explora-madrid-historico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":63591,\"type\":\"free_tour\",\"id\":63591,\"name\":\"🍷🍤 Tour de Cultura Alimentaria en Madrid 😋📚 \",\"slug\":\"63591-tour-de-cultura-alimentaria-en-madrid\",\"description_html\":\"<p>Embárcate en una visita guiada dirigida por un experto gastronómico certificado y disfruta de una experiencia de degustación única a través de algunos de los locales de comida más emblemáticos de la ciudad. Este tour está diseñado para tanto para aficionados como para foodies que viajan para conocer lugares a través de sus sabores auténticos, y a veces inesperados, se atreven a probar cosas nuevas y disfrutan las tradicionales, y se dejan sorprender con la variedad de tapas.<br><br></p><ol><li><em>Pasea y Saborea</em> : Pasea por calles con encanto mientras aprendes el fascinante origen de los platos tradicionales más queridos de España en las tabernas más antiguas.<br><br></li><li><em>Bebidas con y sin alcohol / Opciones vegetarianas</em>&nbsp;<br><br></li><li><em>Experiencia Inmersiva</em>: Si eres curioso acerca de la cultura alimentaria, este es tu tipo de tour, compartiremos muchos temas centrales de la actualidad gastronómica.</li></ol><p><br>&nbsp;¡No pierdas la oportunidad de conocer no solo a un guía gastronómico sino a un experto que se enfoca en pasar un buen rato y una experiencia total!</p><p><br>&nbsp;*Comida pagada por cada viajero</p><p>*No electronic payment for tipping.<br><br>* Ask for extra availability (slots) via private direct message!</p>\",\"images\":[\"https://media.guruwalk.com/ilijoc7td68y43sfqcwsazxkhykj\",\"https://media.guruwalk.com/b7kre4oeeopneb303qbw0wyzxw2x\",\"https://media.guruwalk.com/z4lmj8oxrzo63hfjwwclbaz53sxp\",\"https://media.guruwalk.com/q78ucd3d4k5gv60efnjeoym9krfa\",\"https://media.guruwalk.com/9g2w6rxrc9dcjxasp0pikde5347v\",\"https://media.guruwalk.com/y1zn5fa0e8gpiogih8i2j426wnrc\",\"https://media.guruwalk.com/ltobgpk4tzqm10wghn5cqbg7i685\",\"https://media.guruwalk.com/arvqfpmofx5nqi0dqma7tp8gg23e\",\"https://media.guruwalk.com/ve4ki9q33vi9vvzkmo4284a6wdmv\",\"https://media.guruwalk.com/qn8ayq628h5r8aul1nzrq9bdfghc\"],\"duration\":\"2:00\",\"available_languages\":[\"en\"],\"meeting_point_url\":\"https://www.google.com/maps?q=40.414606,-3.701359\",\"meeting_point_latitude\":40.414606,\"meeting_point_longitude\":-3.701359,\"how_to_find_me\":\"Estaré justo en el centro de la Plaza Santa Ana, al costado de la estatua negra de Federico García Lorca, en frente del Teatro Español. By the closest shadow at summer.\",\"itinerary\":[\"Plaza de Santa Ana\",\"La Casa del Abuelo\",\"Pez Tortilla\",\"Bartolomé Gourmet\",\"San Ginés Chocolateria\"],\"reviews\":{\"count\":95,\"rating\":\"4.77\"},\"place\":{\"id\":878,\"name\":\"Madrid\",\"country\":\"España\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Foodie  \"},\"url\":\"https://www.guruwalk.com/walks/63591-tour-de-cultura-alimentaria-en-madrid?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/walks/63591-tour-de-cultura-alimentaria-en-madrid?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"}]}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "results": [
+    {
+     "product_id": 33767,
+     "type": "free_tour",
+     "id": 33767,
+     "name": "🏆🥇Casco antiguo (Austrias), Plaza Mayor, Mercado de San Miguel, catedral, palacio, teatro y más ",
+     "slug": "33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas",
+     "description_html": "<p><b>Tour premiado en los GuruWalk Awards 2026 como Mejor Free Tour del Mundo en la categoría: Español</b><br><br>Sumérgete en una <strong>OBRA DE TEATRO EN VIVO</strong>&nbsp; del <strong>CASCO HISTÓRICO DE LOS AUSTRIAS</strong> y su huella imborrable&nbsp; &nbsp; &nbsp;&nbsp;<br>&nbsp; &nbsp;&nbsp;</p><h3>&nbsp; <strong>🏆¿POR QUÉ NOSOTROS? 🏆</strong></h3><h3><strong>&nbsp;</strong></h3><ul><li><strong>IMPRESCINDIBLE:</strong> ¡Ningún otro recorrido cubre tantos puntos de referencia importantes de MADRID!&nbsp;</li></ul><ul><li><strong>GUÍAS LOCALES</strong> enamorados de nuestro Madrid con <strong>EXPERIENCIA</strong> entre 6 y 20 años</li></ul><ul><li><strong>DIVERSIÓN Y APRENDIZAJE</strong> en cada esquina&nbsp;</li></ul><p>&nbsp;</p><p>1 década de probar, quitar, poner y ajustar, hemos logrado crear una <strong>EXPERIENCIA </strong>de <strong>2 HORAS Y 20 MINUTOS</strong><br><br></p><h3><strong><em>🗺️:PUNTOS PRINCIPALES:</em></strong></h3><p>📍<strong>Puerta del sol</strong> <br> 📍Real casa de correos <br>📍<strong>Plaza Mayor<br> </strong>📍<strong>Puerta de Toledo</strong> <br>📍<strong>Restaurante más antiguo del mundo</strong> <br>📍<strong>Barbería más antigua de la UE</strong> <br>📍<strong>Mercado de San Miguel</strong> <br>📍<strong>Murallas</strong> <br>📍<strong>Farmacia más antigua de Madrid</strong> <br>📍<strong>Plaza de la villa</strong> <br>📍<strong>La estatua más famosa: (El vecino curioso)</strong> <br>📍<strong>Magnifico mirador del Palacio Real</strong> <br>📍<strong>Catedral de la Almudena</strong> <br>📍<strong>Palacio Real</strong> <br>📍<strong>Teatro Real</strong>&nbsp;</p><p><br></p><p>&nbsp;<strong>👀BUSCA EL </strong><strong><em>PARAGUA BICOLOR AMARILLO Y NARANJA👀<br><br>Usaremos radioguías inalámbricas para facilitar las explicaciones. Alquiler: 1 € por adulto, pago en efectivo o tarjeta antes del tour.</em></strong></p>",
+     "images": [
+      "https://media.guruwalk.com/ztyw2ca72kjugvcovx37uun38bkl",
+      "https://media.guruwalk.com/fdjfbp1cle7v7qwxarh9r99tmim2",
+      "https://media.guruwalk.com/9mbsudv5igjjfd6au9fil7uxygys",
+      "https://media.guruwalk.com/2k4ex5wgng93znilwv5yjj02igj0",
+      "https://media.guruwalk.com/gwvqoltoykgidzvlstj14kvz28yr",
+      "https://media.guruwalk.com/luxxb2jozjwuq2kpo7ngjec43nza",
+      "https://media.guruwalk.com/d5rwpxy2bp59ene97rdjr66dfr4d",
+      "https://media.guruwalk.com/i7e9og19agdcz4au8jdk8iu671az",
+      "https://media.guruwalk.com/7wu7vhlrgy59cffferhcdg8qbugs",
+      "https://media.guruwalk.com/16y6x8vphu3vjecneyrixikkgqzx",
+      "https://media.guruwalk.com/nawl219djyc3ld9b8ny6uwx31q54"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "en",
+      "es",
+      "fr",
+      "it",
+      "pt"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.4166359,-3.7038101",
+     "meeting_point_latitude": 40.4166359,
+     "meeting_point_longitude": -3.7038101,
+     "how_to_find_me": "En el centro de la plaza PUERTA DEL SOL. Busque nuestro paraguas AMARILLO Y NARANJA. Referencia #1: Puerta del Sol, es la única plaza con un gran cartel de \"Tio Pepe\"",
+     "itinerary": [
+      "Puerta del Sol",
+      "Plaza Mayor",
+      "Puerta de Toledo",
+      "Restaurante más antiguo del mundo (Cuevas)",
+      "Barbería más antigua de Madrid",
+      "Mercado de San Miguel",
+      "Muralla Cristiana",
+      "Negocio mas antiguo de Madrid (Túnel)",
+      "Plaza de la Villa",
+      "Muralla Árabe",
+      "Catedral de Santa María la Real de la Almudena",
+      "Palacio Real de Madrid",
+      "Teatro Real"
+     ],
+     "reviews": {
+      "count": 13660,
+      "rating": "4.98"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 45
+     },
+     "guide": {
+      "name": "Tourstilla Experiencias"
+     },
+     "url": "https://www.guruwalk.com/walks/33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/33767-casco-antiguo-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-teatro-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 10911,
+     "type": "free_tour",
+     "id": 10911,
+     "name": "🏆🥇 Casco Histórico de Madrid (Austrias) | Plaza Mayor, Mercado de San Miguel, Catedral, Palacio Real, Teatro Real y más",
+     "slug": "10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas",
+     "description_html": "<p>🏆<strong> Nº1 TripAdvisor Madrid · Best of the Best 9 años consecutivos (solo el 1% de experiencias en el mundo lo recibe)</strong><br><br>Sumérgete en la historia viva del <strong>MADRID DE LOS AUSTRIAS — secretos, leyendas </strong>y rincones que ninguna guía de viajes te va a contar.<br><br></p><p>🏆<b> ¿POR QUÉ TRIP TOURS MADRID?</b></p><p><br></p><p>···&gt; 🥇 <b>BEST OF THE BEST TripAdvisor</b> — 9 AÑOS CONSECUTIVOS (solo el 1% de experiencias en el mundo lo recibe)</p><p><span style=\"font-size: var(--text-sm);\">···&gt; 🏆</span><b style=\"font-size: var(--text-sm);\"> Nº1 TripAdvisor Madrid</b><span style=\"font-size: var(--text-sm);\"> — entre más de 1.200 empresas turísticas.</span></p><p>···&gt; 🥉 <b>Top 3 Free Tour de Europa 2026.</b></p><p>···&gt; ⭐ <b>+30.000 reseñas</b> en TripAdvisor, Google, GuruWalk y más plataformas.</p><p>···&gt; 📅 <b>Más de 10 años</b> recorriendo Madrid con viajeros de todo el mundo</p><p>···&gt; 👥 &nbsp;<b>GRUPOS REDUCIDOS</b> &nbsp;— máximo 25 personas por guía</p><p>···&gt; 🗺️ <b>Material audiovisual exclusivo</b>, mapas y folletos propios</p><p><br>Más de una década perfeccionando cada parada, cada historia y cada anécdota<br>para darte la mejor experiencia posible en 2 horas y media.<br><br>🗺️ <strong>PUNTOS DEL RECORRIDO:</strong><br><br>📍 Puerta del Sol &amp; Km 0<br>📍 Real Casa de Correos<br>📍 Plaza Mayor<br>📍 El restaurante más antiguo del mundo<br>📍 Mercado de San Miguel<br>📍 Muralla Árabe<br>📍 Farmacia más antigua de Madrid<br>📍 Plaza de la Villa<br>📍 Mirador del Palacio Real<br>📍 Catedral de la Almudena<br>📍 Palacio Real<br>📍 Teatro Real<br><br>🎁 <strong>TU REGALO AL RESERVAR:</strong><br><br>En cuanto reserves tu plaza recibirás <strong>GRATIS</strong> nuestra <strong>Guía Exclusiva de Madrid</strong> para que llegues preparado y no te pierdas nada.<br><br>Y al terminar el tour, te llevarás nuestra Guía de Dónde Comer y Beber en Madrid, los sitios de verdad, sin trampa, que solo conocen los que viven aquí.<br><br><strong>Detalles prácticos:</strong><br><br>⏰ <strong>Duración</strong>: 2 horas y media aprox.<br>👟 <strong>Qué traer</strong>: Zapatos cómodos y ganas de descubrir Madrid<br>🌂 <strong>Cómo encontrarnos</strong>: Busca el 💛 <strong>PARAGUAS AMARILLO</strong> 💛 junto al <strong>Oso y el Madroño</strong> — Puerta del Sol<br><br>⚠️ Al reservar, deja tu número de <strong>WhatsApp</strong>. Te confirmaremos el tour el mismo día y recibirás tu guía de Madrid directamente en el móvil.<br><br>🥇 <strong>El tour mejor valorado de Madrid lleva 10 años esperándote</strong>🥇</p>",
+     "images": [
+      "https://media.guruwalk.com/tdnzcc4osq9nm5gosw44s9vxlyab",
+      "https://media.guruwalk.com/kwtd60mnkwvefb12xqt9x801e4rq",
+      "https://media.guruwalk.com/1pgzjttyqfl0687rv4tsejvhqxqp",
+      "https://media.guruwalk.com/ghnbrflqqb9gjolvar8bwriicrpy",
+      "https://media.guruwalk.com/kgpxpidfjfi1ft5b17ho1vo33fpg",
+      "https://media.guruwalk.com/bwty43mh3vvxvx1j8dvppy1yq7y9",
+      "https://media.guruwalk.com/t2p9m60zt2slc40cpjsgm8tpasx8",
+      "https://media.guruwalk.com/piyh54hzwsf7l6iq6whi9ttfm0g9",
+      "https://media.guruwalk.com/hmwllxrtzcpimsqdvct9wfaym8fn",
+      "https://media.guruwalk.com/dm6n1dkk3oo7296z19ew56q2pta0",
+      "https://media.guruwalk.com/bo3ctfbt2xcdjbrmsk66by5shhxw",
+      "https://media.guruwalk.com/p7gpx3exy3t975ducpcadz5zx4wh"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es",
+      "fr",
+      "it"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.4170164,-3.7026175",
+     "meeting_point_latitude": 40.4170164,
+     "meeting_point_longitude": -3.7026175,
+     "how_to_find_me": "Puerta del Sol — junto a la Estatua del Oso y Madroño\r\nBusca el 💛 PARAGUAS AMARILLO 💛 Trip Tours Madrid\r\nReferencia: frente a la Apple Store",
+     "itinerary": [
+      "Puerta del Sol",
+      "Kilómetro Cero",
+      "Calle de la Sal",
+      "Plaza Mayor",
+      "Restaurante más antiguo del Mundo",
+      "Mercado de San Miguel",
+      "Comercio más antiguo de Madrid ",
+      "Muralla Árabe",
+      "Plaza de la Villa",
+      "El Vecino Curioso",
+      "Catedral de Santa María la Real de la Almudena",
+      "Palacio Real de Madrid",
+      "Monumento a Felipe IV",
+      "Teatro Real"
+     ],
+     "reviews": {
+      "count": 1240,
+      "rating": "4.95"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Trip Tours Madrid "
+     },
+     "url": "https://www.guruwalk.com/walks/10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/10911-casco-historico-de-madrid-austrias-plaza-mayor-mercado-de-san-miguel-catedral-palacio-real-teatro-real-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 47773,
+     "type": "free_tour",
+     "id": 47773,
+     "name": "🏆🥇Madrid Oscuro: Torturas, Fantasmas, Crímenes y  Leyendas ☠",
+     "slug": "47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas",
+     "description_html": "<p><strong>🏆 TOUR NOCTURNO CON LA PUNTUACIÓN MÁS ALTA 🏆</strong></p><p><strong>NO es el típico tour nocturno de mitos y leyendas, ¿POR QUE?:<br></strong><br></p><ul><li>Cubrimos CINE DEL TERROR MADRILEÑO ☠</li><li>Basado en ARCHIVOS HISTÓRICOS y HECHOS REALES</li><li>GUÍA LOCAL FREKI de lo macabro y sobrenatural</li><li>&nbsp;Escenas Actuadas y dramatizadas</li><li>El horror y la diversión se dan la mano</li><li>Incluye juegos, actividades interactivas y desafío</li></ul><p><br></p><h3>🗺️ El Madrid Macabro incluye:</h3><p><br></p><p>📍<strong>La iglesia maldita&nbsp;</strong></p><p>📍<strong>El Verdugo. </strong>Casa del Verdugo&nbsp;</p><p>📍<strong>El callejón del Hambre</strong>&nbsp;</p><p>📍<strong>Fantasma de Raimundita</strong>&nbsp;</p><p>📍<strong>Ángel Caído, </strong>Rituales satánicos, El demonio&nbsp;</p><p>📍<strong>El atentado al Rey Alfonso XIII. </strong>La historia de Mateo Morral&nbsp;</p><p>📍<strong>Crimen del Capitán Sánchez</strong>&nbsp;</p><p>📍<strong>Cine del horror en Madrid, </strong>basado en hecho reales<strong><br>📍Expediente Vallecas: </strong>Verónica o Malasaña 32&nbsp;</p><p>📍<strong>Primer cementerio de Madrid</strong>&nbsp;</p><p><br></p><p><strong>¿Te lo permitirá tu corazón?, descubre Madrid de NOCHE.&nbsp;<br></strong><br></p><p><strong>¿Menores de 16? Bienvenidos, pero no nos hacemos responsables” Buajajaja Buajajaja</strong></p><p><br></p><p><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀</strong></p><p><br></p>",
+     "images": [
+      "https://media.guruwalk.com/s9le0987q38ba8k0hblfoe4f16p3",
+      "https://media.guruwalk.com/uex75waxol2324yowl7jzq1tvjyi",
+      "https://media.guruwalk.com/opf5ctsw7hdltwta55sl61hcevxu",
+      "https://media.guruwalk.com/sivxpr0j62pu655kqyw0d0stfupq",
+      "https://media.guruwalk.com/pvdsslij68j15h2yqglustc0urz7",
+      "https://media.guruwalk.com/j9gfkkv97zswyiw958kx42u5cwdc",
+      "https://media.guruwalk.com/evpmba86w4tekt8ye9igx6vd6ph3",
+      "https://media.guruwalk.com/fxsa9yyr55w14gash33pb3bfyga4",
+      "https://media.guruwalk.com/w1pq4mydn9wf4y7a649kzumlxwby"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.415618,-3.707023",
+     "meeting_point_latitude": 40.415618,
+     "meeting_point_longitude": -3.707023,
+     "how_to_find_me": "Ubicado en el centro este de la Plaza. Busca el paraguas bicolor AMARILLO Y NARANJA. Referencia: Estamos en los alrededores de la escultura de Felipe III (escultura del caballo)",
+     "itinerary": [
+      "Parroquia de Santa Cruz. Madrid.",
+      "Callejon del Verdugo",
+      "Pasadizo del Panecillo",
+      "Plaza del Conde de Miranda",
+      "El Angel Caido",
+      "Calle Mayor",
+      "Real Iglesia Parroquial de Santiago y San Juan Bautista",
+      "Plaza de Oriente"
+     ],
+     "reviews": {
+      "count": 3141,
+      "rating": "4.88"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 45
+     },
+     "guide": {
+      "name": "Tourstilla Experiencias"
+     },
+     "url": "https://www.guruwalk.com/walks/47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/47773-madrid-oscuro-torturas-fantasmas-crimenes-y-leyendas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 52072,
+     "type": "free_tour",
+     "id": 52072,
+     "name": "🏆🥇 Madrid Medieval al Atardecer | Muralla Árabe, Orígenes Musulmanes y Templo de Debod",
+     "slug": "52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod",
+     "description_html": "<p>🏆<b> Nº1 TripAdvisor Madrid · Best of the Best 9 años consecutivos (solo el 1% de experiencias en el mundo lo recibe)</b><div><br></div><div>Madrid tiene 800 años de historia musulmana, medieval y moderna, la&nbsp;<span style=\"font-size: var(--text-sm);\">mayoría de los tours solo rascan la superficie. Este recorrido empieza&nbsp;</span><span style=\"font-size: var(--text-sm);\">en la Plaza Mayor y termina donde ningún otro termina: con el sol&nbsp;</span><span style=\"font-size: var(--text-sm);\">poniéndose sobre el Templo de Debod, el único templo egipcio auténtico&nbsp;</span><span style=\"font-size: var(--text-sm);\">de España.</span></div><div><br></div><div>En 2 horas y media, recorrerás la ciudad que fue fortaleza árabe,&nbsp;<span style=\"font-size: var(--text-sm);\">capital medieval y cuna del Imperio Español. Murallas que siguen en pie.&nbsp;</span><span style=\"font-size: var(--text-sm);\">Plazas donde se decidió la historia. Y un final de película.</span></div><div><br></div><div>🏆<b> ¿POR QUÉ TRIP TOURS MADRID?</b></div><div><br></div><div>···&gt; 🥇<b> BEST OF THE BEST TripAdvisor</b> — 9 AÑOS CONSECUTIVOS (solo el 1% de experiencias en el mundo lo recibe).</div><div>···&gt; 🏆 <b>Nº1 TripAdvisor Madrid </b>— entre más de 1.200 empresas turísticas.</div><div>···&gt; 🥉<b> Top 3 Free Tour de Europa 2026.</b></div><div>···&gt; ⭐<b> +30.000 reseñas</b> en TripAdvisor, Google, GuruWalk  y más plataformas.</div><div>···&gt; 📅 <b>Más de 10 años</b> recorriendo Madrid con viajeros de todo el mundo.</div><div>···&gt; 👥 <b>GRUPOS REDUCIDOS </b>— máximo 25 personas por guía.</div><div>···&gt; 🗺️ <b>Material audiovisual exclusivo</b>, mapas y folletos propios.</div><div><br></div><div>🗺️<b> PUNTOS DEL RECORRIDO:</b></div><div>📍 Plaza Mayor</div><div>📍 Puerta Cerrada</div><div>📍 Calle de la Cava Baja</div><div>📍 Museo de San Isidro</div><div>📍 Plaza de la Paja — el corazón del Madrid medieval</div><div>📍 Basílica de San Francisco el Grande</div><div>📍 Las Vistillas — mirador secreto con vistas al Palacio Real</div><div>📍 Parque del Emir — los orígenes musulmanes de Madrid (Mayrit)</div><div>📍 Plaza de la Armería</div><div>📍 Jardines de Sabatini</div><div>📍 Plaza de España</div><div>📍 Templo de Debod — final épico al atardecer</div><div><br></div><div>🎁 <b>TU REGALO AL RESERVAR:</b></div><div><span style=\"font-size: var(--text-sm);\">En cuanto reserves tu plaza recibirás <b>GRATIS</b> por <b>WhatsApp</b> nuestra <b>Guía&nbsp;</b></span><span style=\"font-size: var(--text-sm);\"><b>Exclusiva de Madrid</b> — para que llegues preparado y no te pierdas nada.</span></div><div><br></div><div>Y al terminar el tour, te llevarás nuestra Guía de Dónde Comer y Beber&nbsp;<span style=\"font-size: var(--text-sm);\">en Madrid — los sitios de verdad, sin trampa, que solo conocen los que&nbsp;</span><span style=\"font-size: var(--text-sm);\">viven aquí.</span></div><div><br></div><div><b>Detalles prácticos:</b></div><div>⏰ <b>Duración</b>: 2 horas y 30 minutos aprox.</div><div>🗣️ <b>Idioma</b>: English — this tour is conducted in English</div><div>👟 <b>Qué traer</b>: Zapatos cómodos y, si viene a la tarde, cámara con<span style=\"font-size: var(--text-sm);\">&nbsp;batería para el atardecer en Debod</span></div><div>🌂 <b>Cómo encontrarnos:</b>&nbsp;<span style=\"font-size: var(--text-sm);\">Plaza Mayor — frente al Hotel Pestana Collection</span></div><div>&nbsp; &nbsp;Busca el 💛 <b>PARAGUAS AMARILLO</b> 💛 Trip Tours Madrid</div><div>&nbsp; &nbsp;Referencia: entrada norte de la Plaza Mayor (Calle Ciudad Rodrigo)</div><div><br></div><div>⚠️ Al reservar, deja tu número de <b>WhatsApp</b>. Te enviaremos tu <b>Guía de</b><span style=\"font-size: var(--text-sm);\"><b>&nbsp; Madrid</b> y te confirmaremos el tour el mismo día.</span></div><div><br></div><div>🥇<b> De la muralla árabe al templo egipcio — Madrid como nunca lo habías vivido </b>🥇</div></p>",
+     "images": [
+      "https://media.guruwalk.com/qrz8bjwcoih1s7se394qg128lv3u",
+      "https://media.guruwalk.com/be2u3kzr5546bf0z7yc113t4vqvh",
+      "https://media.guruwalk.com/53k2je25p13dhu7olnsoaycywssq",
+      "https://media.guruwalk.com/vsns9wtybakn84jwq4kvaupstp81",
+      "https://media.guruwalk.com/8209sn8pnewxd7zwd8qnndgl2w56",
+      "https://media.guruwalk.com/wrqx6qtesacx81x7uwj8sjhelhsw",
+      "https://media.guruwalk.com/6gct9sby82zxpb7sp18ksr4olrjp",
+      "https://media.guruwalk.com/vwfft8lru0jijx90x2a3nu4w8pfn",
+      "https://media.guruwalk.com/hehh1538190lqvjpj2mizwh4s0ir",
+      "https://media.guruwalk.com/lpoq3ycay12l6numy8aov8e9iy7f",
+      "https://media.guruwalk.com/3pvhwky4xgwsyhvq28xyu29gd5k2",
+      "https://media.guruwalk.com/vd7rjrd3i8cfiebsuc3r71xdowds"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.415216,-3.707353",
+     "meeting_point_latitude": 40.415216,
+     "meeting_point_longitude": -3.707353,
+     "how_to_find_me": "Plaza Mayor — entrada por Calle Toledo (junto al Hotel Pestana Collection)\nBusca el 💛 PARAGUAS AMARILLO 💛 Trip Tours Madrid\nReferencia: entrada de la Plaza Mayor por Calle Toledo, junto al Hotel Pestana",
+     "itinerary": [
+      "Plaza Mayor",
+      "Plaza de Puerta Cerrada",
+      "Calle de la Cava Baja",
+      "Museo de San Isidro",
+      "Plaza de los Carros",
+      "Real Basílica de San Francisco el Grande",
+      "Jardín de las Vistillas",
+      "Jardín de las Vistillas",
+      "Parque Emir Mohamed",
+      "Plaza de la Armería",
+      "Jardines de Sabatini",
+      "Plaza Espana",
+      "Templo de Debod"
+     ],
+     "reviews": {
+      "count": 571,
+      "rating": "4.97"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Trip Tours Madrid "
+     },
+     "url": "https://www.guruwalk.com/walks/52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/52072-madrid-medieval-al-atardecer-muralla-arabe-origenes-musulmanes-y-templo-de-debod?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 37213,
+     "type": "free_tour",
+     "id": 37213,
+     "name": "Free Tour Madrid imprescindible",
+     "slug": "37213-free-tour-madrid-imprescindible",
+     "description_html": "<p>¿Quieres que te expliquen la historia de Madrid <strong>con rigor, pero de una manera divertida? </strong>¿Quieres comprender Madrid y pasar un buen rato?&nbsp; Este es tu tour. Un paseo de más de dos horas por los <strong>lugares y monumentos más emblemáticos de la ciudad</strong>, también por aquellos lugares que no todo el mundo conoce. Iremos descubriendo la historia de la ciudad, desde su fundación musulmana hasta el Madrid cosmopolita actual. <strong>Anécdotas y secretos de la ciudad contados siempre de manera dinámica, con alegría y para todas las edades</strong>. Aprenderás, comprenderás mejor Madrid, te divertirás y <strong>te ayudaremos con recomendaciones</strong> para seguir conociendo la ciudad. Más de 10 años enseñando Madrid a miles de personas nos avalan. ¡¡No te quedes sin tu plaza!!</p><p>En este recorrido pasearemos:&nbsp;</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza Mayor</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Madrid de los Austrias</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Puerta del Sol</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Palacio Real</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Catedral de la Almudena</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Madrid musulmán</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Ópera</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza de la Villa</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza del Callao</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Monasterio de las Descalzas</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Inquisición española</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Plaza de Santa Ana</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Guerra Civil española</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Barrio de las letras</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Mercado de San Miguel</p><p>•&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;Movida Madrileña.&nbsp;</p><p>¡Ven con nosotros a descubrir Madrid!</p>",
+     "images": [
+      "https://media.guruwalk.com/hd2rb5yzoybj211b1qn8pa83psq4",
+      "https://media.guruwalk.com/me53ygkuscz84d34ogocdl35llpy",
+      "https://media.guruwalk.com/b4frv3dfrlvwb272c2na7ohf5kvi",
+      "https://media.guruwalk.com/auesqkaoae4rrzg9lod3h6ohq765",
+      "https://media.guruwalk.com/msh3oflrrpv86u2h01h40d5pqqym",
+      "https://media.guruwalk.com/4d1hdv6itxjkubxd0d0jspjwm1gb",
+      "https://media.guruwalk.com/jhq41qaf4pmi7ldocdbhvnyi6pel",
+      "https://media.guruwalk.com/xrl4zozr4j1mvj6x4bezwt756y2t",
+      "https://media.guruwalk.com/va8rwgjfrtrddtcvcwerqgdfh7hd",
+      "https://media.guruwalk.com/jlfz5bpe8wtz2wbfygmypbx8lbp8",
+      "https://media.guruwalk.com/3fc1xmy77zwd5pbwkeznpuxrix95"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.419911,-3.705911",
+     "meeting_point_latitude": 40.419911,
+     "meeting_point_longitude": -3.705911,
+     "how_to_find_me": "Plaza del Callao, verán el paraguas violeta!",
+     "itinerary": [
+      "Plaza del Callao",
+      "Monasterio de las Descalzas Reales",
+      "Teatro Real",
+      "Palacio Real de Madrid",
+      "Calle Factor",
+      "Iglesia de San Nicolás de los Servitas - Orden Siervos de María - Servitas",
+      "Plaza de la Villa",
+      "Calle del Codo",
+      "Mercado de San Miguel",
+      "Plaza Mayor",
+      "Plaza de Pontejos",
+      "Puerta del Sol",
+      "Plaza de Santa Ana",
+      "Congreso de los Diputados",
+      "Plaza de las Cortes"
+     ],
+     "reviews": {
+      "count": 867,
+      "rating": "4.91"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 20
+     },
+     "guide": {
+      "name": "Free Walking Tours Madrid "
+     },
+     "url": "https://www.guruwalk.com/walks/37213-free-tour-madrid-imprescindible?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/37213-free-tour-madrid-imprescindible?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 59360,
+     "type": "free_tour",
+     "id": 59360,
+     "name": "🏆🥇GUERRA CIVIL Española inicio de la 2da Guerra Mundial, Bombardeos, Guernica, Franco y más",
+     "slug": "59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas",
+     "description_html": "<h3><strong><em>🏆 TOUR CON LA PUNTUACIÓN MÁS ALTA 🏆</em></strong></h3><p><br></p><ul><li><strong>Rigurosidad histórica: Diversión y Aprendizaje&nbsp;</strong></li></ul><p><br></p><ul><li>Guía local apasionado y experto en la Guerra Civil</li></ul><p><br></p><ul><li><strong>PISAREMOS</strong> el Frente de Batalla y los Sitios claves.</li></ul><p><br></p><ul><li>Material exclusivo: Mapas, imágenes, audio, Videos y más.&nbsp;</li></ul><p><br>Sumérgete en uno de los períodos más intensos y trágicos de España: La Guerra Civil Española, campo de ensayos de la 2da Guerra Mundial y el inicio de la Dictadura. &nbsp;</p><p><br></p><p><br><br></p><h3>🗺️Pisaremos el frente de Batalla:</h3><p><br></p><p><strong>📍</strong>Dos Españas Divididas, Guerra Civil&nbsp;</p><p><strong>📍</strong>España, Campo de Ensayo de la&nbsp; 2da Guerra Mundial</p><p><strong>📍</strong>Legión Cóndor Alemana y<strong> </strong>Cazas Italianos&nbsp;</p><p><strong>📍</strong>Francisco Franco&nbsp;</p><p><strong>📍</strong>Picasso<strong>, </strong>Guernica: Bombardeo a Civiles</p><p><strong>📍</strong>La defensa de la Capital: 900 días de asedio</p><p><strong>📍</strong>Madrid bajo bombas</p><p><strong>📍</strong>Museo del Prado: Arte Bajo Fuego</p><p><strong>📍</strong>Edificios con cicatrices</p><p><strong>📍</strong>Dinero: ¿Quién pagó la Guerra?&nbsp;</p><p><strong>📍</strong>Propaganda: Guerra de Ideas</p><p><strong>📍</strong>La Vida de un Español en Guerra ¿irías al cine?</p><p><strong>📍</strong>Música: No pasaran, Cara al Sol&nbsp;</p><p><strong>📍</strong>Navidad en Tregua: Un Respiro</p><p><strong>📍</strong>Metro de Madrid: La Vida Bajo Tierra</p><p><strong>📍1era</strong> Transfusión de Sangre Remota: Vida en Medio de Muerte.&nbsp;</p><p><strong>📍</strong>Arco de la victoria ¿Destruirlo o preservarlo?&nbsp;</p><p><strong>📍</strong>Fin de la Guerra inicia 2da Guerra Mundial y Dictadura</p><p><br><br>Cada parada cuenta una historia de valentía, tragedia y transformación, Aquí se escribió el destino de una nación.</p><p><br>***<strong>DIVERSIÓN REFLEXIÓN Y APRENDIZAJE GARANTIZADOS***<br></strong><br><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀</strong><br><br></p>",
+     "images": [
+      "https://media.guruwalk.com/g68j21djyahm92yh7dj2ldf44pa3",
+      "https://media.guruwalk.com/3vmbaduzdq05ktwizr2cn7nkh3kz",
+      "https://media.guruwalk.com/68i2f7emb088dv2kzmnjecpyjo6m",
+      "https://media.guruwalk.com/feu3iiuftyowok0pztf0e3l4yh8f",
+      "https://media.guruwalk.com/ne33wiajviwhdut74twjmb3o6z7i",
+      "https://media.guruwalk.com/sjwkpgqi56poua1juy3l30ik1lbz",
+      "https://media.guruwalk.com/jyf90bkor8xruiqxyshxjzz5xe82",
+      "https://media.guruwalk.com/zrtqeuw7ekfdhkxhwky858vhtwzh",
+      "https://media.guruwalk.com/a81wwdbhy0sh1lgk3qes4412vi0e",
+      "https://media.guruwalk.com/h9vaphiukmv7q94mtf7h95w1bkdx"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.419664,-3.705842",
+     "meeting_point_latitude": 40.419664,
+     "meeting_point_longitude": -3.705842,
+     "how_to_find_me": "Plaza Callao  (frente al Rodilla)\r\n\r\n Referencia #1: Calle preciados 25 (Tienda: Rodilla, justo al frente nos veras) \r\n Referencia #2: Metro Callao \r\n Referencia #3: Al lado del Punto de información Turística\r\n\r\nBusca el paraguas bicolor AMARILLO Y NARANJA.   ",
+     "itinerary": [
+      "Plaza del Callao",
+      "Plaza de España",
+      "Templo de Debod",
+      "Cuartel General del Ejército del Aire y del Espacio",
+      "arco de la victoria"
+     ],
+     "reviews": {
+      "count": 1564,
+      "rating": "4.94"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 45
+     },
+     "guide": {
+      "name": "Tourstilla Experiencias"
+     },
+     "url": "https://www.guruwalk.com/walks/59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/59360-guerra-civil-espanola-inicio-de-la-2da-guerra-mundial-bombardeos-guernica-franco-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 33804,
+     "type": "free_tour",
+     "id": 33804,
+     "name": "🏆🥇Parque del Retiro, Gran Vía, Cibeles, Puerta de Alcalá, Borbones y más",
+     "slug": "33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas",
+     "description_html": "<p><strong>🏆TOUR CON LA CALIFICACION MÁS ALTA POSIBLE🏆 </strong><br><br>Abre las puertas de la <strong>Puerta de Alcalá</strong> para enamorarte con el <strong>Parque del Retiro</strong> y la cara más nueva y monumental del Madrid Borbón.&nbsp;</p><p><br></p><p>¡Descubre la emblemática <strong>Fuente de Cibeles</strong> y conoce la vibrante vida de <strong>la Gran Vía!</strong><br><br>***<strong>DIVERSIÓN Y APRENDIZAJE GARANTIZADOS***</strong></p><p><br><br></p><h3>🗺️Visitamos el Pulmón de Madrid:</h3><p><br></p><p>📍<strong>Calle Alcalá </strong>(más larga de Madrid) &nbsp;</p><p>📍Hotel Four Seasons&nbsp;</p><p>📍<strong>Cuadrigas BBVA&nbsp;</strong></p><p>📍Real Academia de Bellas Artes (DALI)&nbsp;</p><p>📍Edificio Metrópoli (Más fotografiado de Madrid)</p><p>📍<strong>La Gran Vía</strong></p><p>📍Instituto Cervantes&nbsp;</p><p>📍Palacio de Buenavista y Linares</p><p>📍Banco de España (Casa de Papel)</p><p>📍Puerta del Ratoncito Pérez&nbsp;</p><p>📍Palacio de Cibeles (Ayuntamiento)<strong>&nbsp;</strong></p><p>📍<strong>Fuente de Cibeles&nbsp; </strong>(Real Madrid)</p><p><strong>📍Puerta de Alcalá&nbsp;</strong></p><p><strong>📍Parque del Buen Retiro&nbsp;</strong></p><p>📍Estanque del Retiro y sus monumentos.</p><p><br>Sin Guía, tomarás 1000 fotos y ya¡ Con nosotros conocerás en verdad esos secretillos ocultos y curiosos del Madrid de los Borbones. Diversión y aprendizaje asegurado.</p><p><br></p><p><strong>👀BUSCA EL PARAGUA BICOLOR AMARILLO Y NARANJA👀<br><br>Usaremos radioguías inalámbricas para facilitar las explicaciones. Alquiler: 1 € por adulto, pago en efectivo o tarjeta antes del tour.</strong></p>",
+     "images": [
+      "https://media.guruwalk.com/e1ice13hkenlopb0rmc1qqphzueu",
+      "https://media.guruwalk.com/m8j9e8wofzyevuz1lxaiz4ymyxti",
+      "https://media.guruwalk.com/lbnx9i7pe6ezgmkoidi1bvvxgmwu",
+      "https://media.guruwalk.com/cmvkhzekkkydzjjvpey2pve3mb0w",
+      "https://media.guruwalk.com/78vzycmi1ugtec6t04v3ng2usm41",
+      "https://media.guruwalk.com/35x6pocqk9wb6g15a7t55vg0vgxu",
+      "https://media.guruwalk.com/iediatckzntu3in3av7sac00h8d9",
+      "https://media.guruwalk.com/0ft0qhpm0z4m8qp941ktc2uhkgh2",
+      "https://media.guruwalk.com/9exh2g5eeexccfs6axqtuvsz0ff7",
+      "https://media.guruwalk.com/f7k4es12yg6ycliv32jz6wwli9bl",
+      "https://media.guruwalk.com/urqkhgnrxxx4l796h99r1awgmmlz"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es",
+      "fr",
+      "it",
+      "pt"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.416891,-3.70372",
+     "meeting_point_latitude": 40.416891,
+     "meeting_point_longitude": -3.70372,
+     "how_to_find_me": "ubicado en el centro de la plaza de  Puerta del Sol. Busca el paraguas bicolor AMARILLO Y NARANJA.    Referencia #1: El único monumento con un caballo dirige su mirada a nosotros.    Referencia #2: Puerta del Sol, es la única plaza con un cartel gigante de ¨Tio Pepe¨.",
+     "itinerary": [
+      "Calle Alcala",
+      "Hotel Four Seasons Madrid",
+      "Las Cuadrigas del edificio BBVA",
+      "Real Academia de Bellas Artes de San Fernando",
+      "Calle Gran Vía",
+      "Edificio Metrópolis",
+      "Instituto Cervantes",
+      "Banco de España",
+      "Puertica del Ratón Pérez",
+      "Ayuntamiento de Madrid",
+      "Fuente de Cibeles",
+      "Puerta de Alcalá",
+      "Parque de El Retiro",
+      "Estanque Grande de El Retiro"
+     ],
+     "reviews": {
+      "count": 6577,
+      "rating": "4.95"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 45
+     },
+     "guide": {
+      "name": "Tourstilla Experiencias"
+     },
+     "url": "https://www.guruwalk.com/walks/33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/33804-parque-del-retiro-gran-via-cibeles-puerta-de-alcala-borbones-y-mas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 67004,
+     "type": "free_tour",
+     "id": 67004,
+     "name": "Tour alternativo: Malasaña y Chueca",
+     "slug": "67004-tour-alternativo-malasana-y-chueca",
+     "description_html": "<p>¡Bienvenidos a la cara más vibrante, rebelde y auténtica de Madrid!</p><p>En 1 hora y 30 minutos recorrerás dos barrios que marcaron la identidad cultural de la ciudad: Malasaña, símbolo de resistencia y contracultura, y Chueca, referente mundial de diversidad y libertad.</p><p><br></p><p>Caminarás por las calles donde comenzó la revuelta del 1808, donde surgió la figura de Manuela Malasaña y donde, siglos después, estalló la creatividad de la Movida Madrileña con su música, cine y estética irreverente. Descubrirás cómo estas antiguas zonas obreras se llenaron de artistas, estudiantes y tribus urbanas que transformaron el barrio en un laboratorio cultural. Y al cruzar a Chueca, verás cómo un barrio deteriorado renació gracias a la fuerza de la comunidad LGTBI, convirtiéndose en un icono internacional de libertad, modernidad y vida nocturna. Historia, revolución, cultura pop y anécdotas sorprendentes se combinan en un recorrido que muestra el alma más auténtica del Madrid de ayer y de hoy.</p><p><br></p><p>Un recorrido dinámico, cultural y lleno de energía, guiado por madrileños que conocen estos barrios como nadie.</p><p>¿Listo para descubrir el corazón creativo y cultural de Madrid?</p>",
+     "images": [
+      "https://media.guruwalk.com/k49iuiw5nn4ptn1w55o6q0suqrtt",
+      "https://media.guruwalk.com/mebzddcs2pkqv5ivexipir9yj71l",
+      "https://media.guruwalk.com/brawgyurjddnec38gg47tf7phe8a",
+      "https://media.guruwalk.com/r2ybyfjhk5vjlu8s0yqjqqspihp0",
+      "https://media.guruwalk.com/obnqhns2ckjd0wux0afpxzdx74g0"
+     ],
+     "duration": "1:30",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.4240994,-3.7021662",
+     "meeting_point_latitude": 40.4240994,
+     "meeting_point_longitude": -3.7021662,
+     "how_to_find_me": "Hola, estaremos en la pequeña plaza de San Ildefonso con un paraguas azul.",
+     "itinerary": [
+      "Calle de Fuencarral",
+      "Plaza del Dos de Mayo",
+      "Tribunal",
+      "Calle de Hortaleza",
+      "Plaza de Pedro Zerolo",
+      "Calle de Pelayo",
+      "Plaza de Chueca"
+     ],
+     "reviews": {
+      "count": 35,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 11
+     },
+     "guide": {
+      "name": "4 Gatos Tours Tours"
+     },
+     "url": "https://www.guruwalk.com/walks/67004-tour-alternativo-malasana-y-chueca?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/67004-tour-alternativo-malasana-y-chueca?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 35556,
+     "type": "free_tour",
+     "id": 35556,
+     "name": "Free Tour Explora Madrid Historico",
+     "slug": "35556-free-tour-explora-madrid-historico",
+     "description_html": "<p>Descubre la gran capital de España en nuestro recorrido gratuito a pie por Madrid. En el transcurso de 2 horas, nos sumergiremos en la cultura de la ciudad, descubriremos sus secretos y exploraremos las principales atracciones de la ciudad. ¡Madrid fue durante varios siglos la capital de uno de los imperios más grandes de la historia y, por lo tanto, ofrece mucho para ver y descubrir! Esta actividad incluye: Puerta del Sol Square Plaza Mayor The Bakery House Posada del Peine The Oldest Restaurant in the World Royal Theatre Plaza de Oriente Royal Palace Almudena Cathedral Attack against King Alfonso XIII Plaza de la Villa Square Remains of Santa Maria Church San Miguel Market</p>",
+     "images": [
+      "https://media.guruwalk.com/q9maa9jb91qq7gw09nqywlranhdh",
+      "https://media.guruwalk.com/3gykj2b6uicq6zevymhqetrd5kek",
+      "https://media.guruwalk.com/ghnteec81n89lgtm2qooao9n96db",
+      "https://media.guruwalk.com/ayxnzzg3r96nflwx43ijk23ok30m",
+      "https://media.guruwalk.com/k6wn3g8s96g20ra1on32d6hzjlnk",
+      "https://media.guruwalk.com/6ij5lx3xlxl8sk8i5jcu8mpdtheg",
+      "https://media.guruwalk.com/731cblnxlamdrep80b6l0uxehjvh",
+      "https://media.guruwalk.com/2tcobq7xm71mr0ib6i0g9dpvsrfl",
+      "https://media.guruwalk.com/zsdg0g1753oj6tdl3nk5ujf31qkk",
+      "https://media.guruwalk.com/c0w38wcq3esst74bddml0yegpein"
+     ],
+     "duration": "2:00",
+     "available_languages": [
+      "en",
+      "it"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.4199807,-3.706086",
+     "meeting_point_latitude": 40.4199807,
+     "meeting_point_longitude": -3.706086,
+     "how_to_find_me": "Estaremos al lado de la estatua con nuestro Banner distintivo",
+     "itinerary": [
+      "Kilómetro Cero",
+      "Estatua Ecuestre de Carlos III",
+      "Plaza Mayor",
+      "Convento de las Carboneras del Corpus Christi",
+      "Mercado de San Miguel",
+      "Calle de Toledo",
+      "Plaza Villa",
+      "Sobrino de Botín",
+      "El Vecino Curioso",
+      "Catedral de Santa María la Real de la Almudena",
+      "Palacio Real de Madrid",
+      "Plaza de Oriente"
+     ],
+     "reviews": {
+      "count": 203,
+      "rating": "4.72"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 100
+     },
+     "guide": {
+      "name": "Walk Ba Madrid  "
+     },
+     "url": "https://www.guruwalk.com/walks/35556-free-tour-explora-madrid-historico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/35556-free-tour-explora-madrid-historico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 63591,
+     "type": "free_tour",
+     "id": 63591,
+     "name": "🍷🍤 Tour de Cultura Alimentaria en Madrid 😋📚 ",
+     "slug": "63591-tour-de-cultura-alimentaria-en-madrid",
+     "description_html": "<p>Embárcate en una visita guiada dirigida por un experto gastronómico certificado y disfruta de una experiencia de degustación única a través de algunos de los locales de comida más emblemáticos de la ciudad. Este tour está diseñado para tanto para aficionados como para foodies que viajan para conocer lugares a través de sus sabores auténticos, y a veces inesperados, se atreven a probar cosas nuevas y disfrutan las tradicionales, y se dejan sorprender con la variedad de tapas.<br><br></p><ol><li><em>Pasea y Saborea</em> : Pasea por calles con encanto mientras aprendes el fascinante origen de los platos tradicionales más queridos de España en las tabernas más antiguas.<br><br></li><li><em>Bebidas con y sin alcohol / Opciones vegetarianas</em>&nbsp;<br><br></li><li><em>Experiencia Inmersiva</em>: Si eres curioso acerca de la cultura alimentaria, este es tu tipo de tour, compartiremos muchos temas centrales de la actualidad gastronómica.</li></ol><p><br>&nbsp;¡No pierdas la oportunidad de conocer no solo a un guía gastronómico sino a un experto que se enfoca en pasar un buen rato y una experiencia total!</p><p><br>&nbsp;*Comida pagada por cada viajero</p><p>*No electronic payment for tipping.<br><br>* Ask for extra availability (slots) via private direct message!</p>",
+     "images": [
+      "https://media.guruwalk.com/ilijoc7td68y43sfqcwsazxkhykj",
+      "https://media.guruwalk.com/b7kre4oeeopneb303qbw0wyzxw2x",
+      "https://media.guruwalk.com/z4lmj8oxrzo63hfjwwclbaz53sxp",
+      "https://media.guruwalk.com/q78ucd3d4k5gv60efnjeoym9krfa",
+      "https://media.guruwalk.com/9g2w6rxrc9dcjxasp0pikde5347v",
+      "https://media.guruwalk.com/y1zn5fa0e8gpiogih8i2j426wnrc",
+      "https://media.guruwalk.com/ltobgpk4tzqm10wghn5cqbg7i685",
+      "https://media.guruwalk.com/arvqfpmofx5nqi0dqma7tp8gg23e",
+      "https://media.guruwalk.com/ve4ki9q33vi9vvzkmo4284a6wdmv",
+      "https://media.guruwalk.com/qn8ayq628h5r8aul1nzrq9bdfghc"
+     ],
+     "duration": "2:00",
+     "available_languages": [
+      "en"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=40.414606,-3.701359",
+     "meeting_point_latitude": 40.414606,
+     "meeting_point_longitude": -3.701359,
+     "how_to_find_me": "Estaré justo en el centro de la Plaza Santa Ana, al costado de la estatua negra de Federico García Lorca, en frente del Teatro Español. By the closest shadow at summer.",
+     "itinerary": [
+      "Plaza de Santa Ana",
+      "La Casa del Abuelo",
+      "Pez Tortilla",
+      "Bartolomé Gourmet",
+      "San Ginés Chocolateria"
+     ],
+     "reviews": {
+      "count": 95,
+      "rating": "4.77"
+     },
+     "place": {
+      "id": 878,
+      "name": "Madrid",
+      "country": "España"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Foodie  "
+     },
+     "url": "https://www.guruwalk.com/walks/63591-tour-de-cultura-alimentaria-en-madrid?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/63591-tour-de-cultura-alimentaria-en-madrid?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    }
+   ]
+  }
+ }
+}

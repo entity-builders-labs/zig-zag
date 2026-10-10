@@ -1,0 +1,16 @@
+{
+  "database": "zigzag_spike_rw4_composite_c1",
+  "capturedAt": "2026-10-05T12:51:21Z",
+  "geoEntity": 0,
+  "geoEntityByKind": {},
+  "geoEntityIdentity": 0,
+  "verifiedHintMemoryEntries": 0,
+  "duplicateIdentityRows": 0,
+  "duplicateVerifiedHintKeysWithinKind": [],
+  "experience": 0,
+  "experienceByStatus": {},
+  "experienceComponent": 0,
+  "duplicateExperienceNames": 0,
+  "experiences": [],
+  "geoEntities": []
+}

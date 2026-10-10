@@ -1,0 +1,16 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-036",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Chile 371",
+          "supportSpan": "house in Chile 371 that actually exists, so you can check it out",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to check out Mafalda's house at Chile 371."
+    }
+  ]
+}

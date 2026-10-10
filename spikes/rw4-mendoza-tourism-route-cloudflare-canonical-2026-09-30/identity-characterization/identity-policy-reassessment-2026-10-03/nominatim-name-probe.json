@@ -1,0 +1,376 @@
+{
+  "provider": "local Nominatim (zigzag-nominatim-argentina, localhost:8088)",
+  "query": {
+    "countrycodes": "ar",
+    "limit": 40,
+    "format": "jsonv2"
+  },
+  "normalization": "lowercase, strip diacritics, non-alphanumerics to space (mirrors normalizeGeoName)",
+  "source": "SolSalute 'The Best Wineries in Mendoza' venue headings",
+  "byName": {
+    "Alfa Crux": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "SuperUco": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "Ojo de Agua": {
+      "resultCount": 31,
+      "exactNameCount": 31,
+      "exact": [
+        {
+          "osm": "node/5128388825",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "hamlet",
+          "lat": -24.6200586,
+          "lon": -64.9801895,
+          "displayName": "Ojo de Agua, Municipio de General Güemes, General Güemes, Salta, Argentina"
+        },
+        {
+          "osm": "node/5138938937",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "hamlet",
+          "lat": -26.8962286,
+          "lon": -65.7082525,
+          "displayName": "Ojo de Agua, Municipio de Tafí del Valle, Departamento Tafí del Valle, Tucumán, T4137, Argentina"
+        },
+        {
+          "osm": "node/6348417568",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "hamlet",
+          "lat": -39.6322868,
+          "lon": -70.0019147,
+          "displayName": "Ojo de Agua, Departamento Catán Lil, Neuquén, Argentina"
+        },
+        {
+          "osm": "node/198407364",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "hamlet",
+          "lat": -31.2168064,
+          "lon": -65.2463275,
+          "displayName": "Ojo de Agua, Pedanía San Carlos, Departamento Minas, Córdoba, X5291, Argentina"
+        },
+        {
+          "osm": "node/5112503863",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "lat": -23.8773874,
+          "lon": -65.8072056,
+          "displayName": "Ojo de Agua, Municipio de Tumbaya, Municipio de El Moreno, Departamento Tumbaya, Jujuy, Argentina"
+        },
+        {
+          "osm": "node/5110696301",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "lat": -23.4584412,
+          "lon": -65.9867325,
+          "displayName": "Ojo de Agua, Municipio de Abdón Castro Tolay, Departamento Cochinoca, Jujuy, Argentina"
+        },
+        {
+          "osm": "node/198407348",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "lat": -31.0706796,
+          "lon": -65.0671236,
+          "displayName": "Ojo de Agua, Pedanía Candelaria, Departamento Cruz del Eje, Córdoba, X5280, Argentina"
+        },
+        {
+          "osm": "node/198407304",
+          "name": "Ojo de Agua",
+          "class": "place",
+          "type": "isolated_dwelling",
+          "lat": -28.4733633,
+          "lon": -65.4403387,
+          "displayName": "Ojo de Agua, Municipio de El Alto, Departamento El Alto, Catamarca, K4235, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "Bodega Azul": {
+      "resultCount": 1,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Supermercado del Vino \"La Bodega de Azul\""
+      ]
+    },
+    "Bodega La Azul": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "node/4851595199",
+          "name": "Bodega La Azul",
+          "class": "craft",
+          "type": "winery",
+          "lat": -33.4692562,
+          "lon": -69.2207912,
+          "displayName": "Bodega La Azul, Ruta Provincial 89, Distrito Cordón del Plata, Distrito Gualtallary, Departamento Tupungato, Mendoza, M5561, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "La Azul": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "node/5792963498",
+          "name": "La Azul",
+          "class": "amenity",
+          "type": "restaurant",
+          "lat": -33.4694504,
+          "lon": -69.2206532,
+          "displayName": "La Azul, Ruta Provincial 89, Distrito Cordón del Plata, Distrito Gualtallary, Departamento Tupungato, Mendoza, M5561, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "A16": {
+      "resultCount": 9,
+      "exactNameCount": 3,
+      "exact": [
+        {
+          "osm": "way/1535885312",
+          "name": "a16",
+          "class": "building",
+          "type": "house",
+          "lat": -39.0242835,
+          "lon": -67.8419638,
+          "displayName": "a16, Viento Santa Rosa, Barrio Vientos del Oeste, Costa Oeste, Municipio de Allen, Departamento General Roca, Río Negro, R8328, Argentina"
+        },
+        {
+          "osm": "way/1169755120",
+          "name": "A16",
+          "class": "building",
+          "type": "house",
+          "lat": -31.5535361,
+          "lon": -68.5656739,
+          "displayName": "A16, Maestros de San Juan, Barrio Docentes Sanjuaninos, Comuna Sur, Rivadavia, San Juan, J5402AFK, Argentina"
+        },
+        {
+          "osm": "node/8067336819",
+          "name": "A16",
+          "class": "place",
+          "type": "house",
+          "lat": -34.4592759,
+          "lon": -58.8772988,
+          "displayName": "A16, Country Club S.H.A., Pilar, Partido del Pilar, Buenos Aires, B1631, Argentina"
+        }
+      ],
+      "nonExact": [
+        "FC Belgrano",
+        "FC Belgrano",
+        "FC Belgrano",
+        "FC Belgrano",
+        "FC Belgrano"
+      ]
+    },
+    "Corazon del Sol": {
+      "resultCount": 1,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Del Sol"
+      ]
+    },
+    "Solo Contigo": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "Familia Blanco": {
+      "resultCount": 1,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Comisaría de la Mujer y la Familia"
+      ]
+    },
+    "Domaine Bousquet": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "node/4851595198",
+          "name": "Domaine Bousquet",
+          "class": "shop",
+          "type": "wine",
+          "lat": -33.4292435,
+          "lon": -69.1985112,
+          "displayName": "Domaine Bousquet, Los Europeos, Distrito Gualtallary, Departamento Tupungato, Mendoza, M5561, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "Bodegas Salentein": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "Zuccardi Valle de Uco": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "Clos de Chacras": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "node/4692758589",
+          "name": "Clos de Chacras",
+          "class": "amenity",
+          "type": "restaurant",
+          "lat": -32.9826167,
+          "lon": -68.8766455,
+          "displayName": "Clos de Chacras, Monte Líbano, Distrito Chacras de Coria, Departamento Luján de Cuyo, Mendoza, 5505, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "Pulmary": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "node/5433668748",
+          "name": "Pulmary",
+          "class": "craft",
+          "type": "winery",
+          "lat": -32.987516,
+          "lon": -68.8844321,
+          "displayName": "Pulmary, Juan José Viamonte, Distrito Chacras de Coria, Departamento Luján de Cuyo, Mendoza, 5505, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "Finca Minimal": {
+      "resultCount": 0,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": []
+    },
+    "Lagarde": {
+      "resultCount": 2,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Bodega Lagarde",
+        "Bodega Lagarde"
+      ]
+    },
+    "Carmelo Patti": {
+      "resultCount": 1,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Bodega Carmelo Patti"
+      ]
+    },
+    "Mevi": {
+      "resultCount": 3,
+      "exactNameCount": 2,
+      "exact": [
+        {
+          "osm": "way/208357293",
+          "name": "Mevi",
+          "class": "highway",
+          "type": "residential",
+          "lat": -53.8060804,
+          "lon": -67.653179,
+          "displayName": "Mevi, La Esperanza, Municipio de Río Grande, Departamento Río Grande, Tierra del Fuego, V9420, Argentina"
+        },
+        {
+          "osm": "node/5543467500",
+          "name": "MEVI",
+          "class": "craft",
+          "type": "winery",
+          "lat": -33.0050844,
+          "lon": -68.7414706,
+          "displayName": "MEVI, Moreno, Barrio Jardín del Sol, Distrito Coquimbito, Departamento Maipú, Mendoza, M5523, Argentina"
+        }
+      ],
+      "nonExact": [
+        "Mevi;Calle 460"
+      ]
+    },
+    "Casa Vigil": {
+      "resultCount": 1,
+      "exactNameCount": 0,
+      "exact": [],
+      "nonExact": [
+        "Restaurant Casa El Enemigo Vigil"
+      ]
+    },
+    "Bodega La Rural": {
+      "resultCount": 1,
+      "exactNameCount": 1,
+      "exact": [
+        {
+          "osm": "way/425175968",
+          "name": "Bodega La Rural",
+          "class": "landuse",
+          "type": "vineyard",
+          "lat": -32.957862,
+          "lon": -68.7455569,
+          "displayName": "Bodega La Rural, 2625, Distrito Coquimbito, Departamento Maipú, Mendoza, 5522, Argentina"
+        }
+      ],
+      "nonExact": []
+    },
+    "Trapiche": {
+      "resultCount": 5,
+      "exactNameCount": 3,
+      "exact": [
+        {
+          "osm": "node/198430578",
+          "name": "Trapiche",
+          "class": "place",
+          "type": "village",
+          "lat": -33.1163592,
+          "lon": -66.0629656,
+          "displayName": "Trapiche, El trapiche, Comisión Municipal de El Trapiche, Coronel Pringles, San Luis, Argentina"
+        },
+        {
+          "osm": "node/13975346145",
+          "name": "Trapiche",
+          "class": "railway",
+          "type": "stop",
+          "lat": -32.944742,
+          "lon": -68.8513299,
+          "displayName": "Trapiche, Federico García Lorca, Barrio Calise, Distrito Gobernador Benegas, Departamento Godoy Cruz, Mendoza, 5501, Argentina"
+        },
+        {
+          "osm": "node/13975346120",
+          "name": "Trapiche",
+          "class": "railway",
+          "type": "halt",
+          "lat": -32.9447356,
+          "lon": -68.851311,
+          "displayName": "Trapiche, Federico García Lorca, Barrio Calise, Distrito Gobernador Benegas, Departamento Godoy Cruz, Mendoza, 5501, Argentina"
+        }
+      ],
+      "nonExact": [
+        "Distrito El Trapiche",
+        "Comisión Municipal de El Trapiche"
+      ]
+    }
+  }
+}

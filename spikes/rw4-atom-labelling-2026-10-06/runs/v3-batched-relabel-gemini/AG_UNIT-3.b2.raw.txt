@@ -1,0 +1,340 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-035",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Background information about the cartoon character."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "a house in Chile 371",
+          "supportSpan": "a house in Chile 371",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveler to check out the house."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption fragment."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Mínima",
+          "supportSpan": "Casa Mínima",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "Buenos Aires",
+          "supportSpan": "Buenos Aires",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Stop 8 directing to Casa Mínima."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Irrelevant text or itinerary title."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "The San Telmo Market",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 9 announcing San Telmo Market."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the market."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Warning tip."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "the market",
+          "supportSpan": "market",
+          "role": "ALTERNATIVE"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Offers a choice between two places to eat."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Nuestra Parrilla",
+          "supportSpan": "Nuestra Parrilla",
+          "role": "ALTERNATIVE"
+        },
+        {
+          "sourceName": "Bolivar street",
+          "supportSpan": "Bolivar street",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "market",
+          "supportSpan": "market",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Recommends an alternative eating spot."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Defensa street",
+          "supportSpan": "Defensa street",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions ice cream shops as an option."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Coffee Town",
+          "supportSpan": "Coffee Town",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a specific coffee shop option."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Saigón",
+          "supportSpan": "Saigón",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a restaurant option for a big meal."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Desnivel",
+          "supportSpan": "Desnivel",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers an alternative restaurant choice."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas y Galería Solar",
+          "supportSpan": "Café Rivas y Galería Solar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Presents additional places as optional visits."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Describes Café Rivas."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo Market",
+          "supportSpan": "San Telmo Market",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Galería Solar",
+          "supportSpan": "Galería Solar",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveler to find Galería Solar."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "El Patio de los Ezeiza",
+          "supportSpan": "El Patio de los Ezeiza",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 10 final stop introduction."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical description."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical context."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Historical details and wandering tips."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location metadata."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading announcing transfer to next location.",
+      "transferMode": "UNSPECIFIED"
+    },
+    {
+      "atomId": "a-059",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "El Patio de los Ezeiza",
+          "supportSpan": "El Patio de los Ezeiza",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Describes taking a bus or taxi to Caminito.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Cost and navigation tips for the transfer."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Neighborhood safety note."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Introduces Caminito as the tourist street to visit."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety advice and tips."
+    },
+    {
+      "atomId": "a-064",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Visual description of the tourist area."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Don Carlos",
+          "supportSpan": "Don Carlos",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Stop 13 recommending Don Carlos restaurant."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Estadio La Boca",
+          "supportSpan": "Estadio La Boca",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions a landmark nearby for orientation."
+    }
+  ]
+}

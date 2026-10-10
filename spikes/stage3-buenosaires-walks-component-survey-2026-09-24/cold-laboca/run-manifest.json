@@ -1,0 +1,15 @@
+{
+  "runLabel": "laboca-cold",
+  "tourId": "d9bce722-eb46-4bf2-a60f-e57426190f20",
+  "email": "stage3-spike-laboca-cold-1790263422940@example.com",
+  "baseUrl": "http://localhost:4014",
+  "requestFile": "request-laboca.json",
+  "createHttpMs": 60,
+  "generationStatus": "completed",
+  "terminal": true,
+  "observationTimeout": false,
+  "observationTimeoutMs": 1200000,
+  "pollElapsedMs": 48442,
+  "startedAt": "2026-09-24T15:23:43.091Z",
+  "finishedAt": "2026-09-24T15:24:31.542Z"
+}

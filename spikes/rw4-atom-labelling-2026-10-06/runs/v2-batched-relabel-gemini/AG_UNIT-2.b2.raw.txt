@@ -1,0 +1,310 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-035",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides description and background information about the cartoon."
+    },
+    {
+      "atomId": "a-036",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Chile 371",
+          "supportSpan": "Chile 371",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Suggests checking out the fictional character's house."
+    },
+    {
+      "atomId": "a-037",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption fragment."
+    },
+    {
+      "atomId": "a-038",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Casa Mínima",
+          "supportSpan": "Casa Mínima",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to Stop 8 Casa Minima."
+    },
+    {
+      "atomId": "a-039",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Irrelevant text or ad."
+    },
+    {
+      "atomId": "a-040",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "The San Telmo Market",
+          "supportSpan": "The San Telmo Market",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to Stop 9."
+    },
+    {
+      "atomId": "a-041",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides description and history of the market."
+    },
+    {
+      "atomId": "a-042",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides tourist advice."
+    },
+    {
+      "atomId": "a-043",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "market",
+          "supportSpan": "market",
+          "role": "ALTERNATIVE"
+        },
+        {
+          "sourceName": "La Boca",
+          "supportSpan": "La Boca",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers a choice between having lunch here or later in La Boca."
+    },
+    {
+      "atomId": "a-044",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Nuestra Parrilla",
+          "supportSpan": "Nuestra Parrilla",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Recommends a specific optional food stop."
+    },
+    {
+      "atomId": "a-045",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Mentions unnamed ice cream shops."
+    },
+    {
+      "atomId": "a-046",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Coffee Town",
+          "supportSpan": "Coffee Town",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Recommends an optional coffee spot."
+    },
+    {
+      "atomId": "a-047",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Saigón",
+          "supportSpan": "Saigón",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers one of two restaurant options for the big meal."
+    },
+    {
+      "atomId": "a-048",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Desnivel",
+          "supportSpan": "Desnivel",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Offers an alternative restaurant option for asado."
+    },
+    {
+      "atomId": "a-049",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption."
+    },
+    {
+      "atomId": "a-050",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas y Galería Solar",
+          "supportSpan": "Café Rivas y Galería Solar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Presents additional places to visit while around."
+    },
+    {
+      "atomId": "a-051",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Café Rivas",
+          "supportSpan": "Café Rivas",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Describes the first optional place."
+    },
+    {
+      "atomId": "a-052",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Galería Solar",
+          "supportSpan": "Galería Solar",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Describes the second optional place."
+    },
+    {
+      "atomId": "a-053",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"El Patio de los Ezeiza\"",
+          "supportSpan": "\"El Patio de los Ezeiza\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to the last stop."
+    },
+    {
+      "atomId": "a-054",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides history of the house."
+    },
+    {
+      "atomId": "a-055",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides historical context."
+    },
+    {
+      "atomId": "a-056",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Provides history and current status."
+    },
+    {
+      "atomId": "a-057",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Location caption."
+    },
+    {
+      "atomId": "a-058",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito en La Boca",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Heading announcing transfer to the next destination by transport.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-059",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "\"El Patio de los Ezeiza\"",
+          "supportSpan": "\"El Patio de los Ezeiza\"",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Describes taking a bus or taxi to the next stop.",
+      "transferMode": "BUS"
+    },
+    {
+      "atomId": "a-060",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Navigation tip and pricing details."
+    },
+    {
+      "atomId": "a-061",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety warning about the neighborhood."
+    },
+    {
+      "atomId": "a-062",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Caminito",
+          "supportSpan": "Caminito",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions the tourist street for orientation."
+    },
+    {
+      "atomId": "a-063",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Safety advice."
+    },
+    {
+      "atomId": "a-064",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Description of the tourist part."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to Stop 13 restaurant."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "NON_ITINERARY",
+      "entities": [
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "\"Estadio La Boca\"",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Describes the location of the restaurant using a landmark."
+    }
+  ]
+}

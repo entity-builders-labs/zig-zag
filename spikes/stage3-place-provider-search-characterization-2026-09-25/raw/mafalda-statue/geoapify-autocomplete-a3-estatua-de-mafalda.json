@@ -1,0 +1,502 @@
+{
+  "request": {
+    "url": "https://api.geoapify.com/v1/geocode/autocomplete",
+    "params": {
+      "text": "Estatua de Mafalda",
+      "filter": "circle:-58.3816,-34.6037,50000",
+      "limit": 10,
+      "format": "json",
+      "apiKey": "<REDACTED>"
+    }
+  },
+  "status": 200,
+  "durationMs": 1650,
+  "response": {
+    "results": [
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Villa Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Bernal Este",
+        "suburb": "Villa Mafalda",
+        "iso3166_2": "AR-B",
+        "lon": -58.2670476,
+        "lat": -34.7107545,
+        "state_code": "B",
+        "result_type": "suburb",
+        "formatted": "Villa Mafalda, Bernal Este, B, Argentina",
+        "address_line1": "Villa Mafalda",
+        "address_line2": "Bernal Este, B, Argentina",
+        "category": "administrative",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37PQM+M5",
+        "rank": {
+          "importance": 0.16005837567711909,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51d63ca29d2e224dc0590f7ee200fa5a41c0f00101f901b1722d0100000000c0020592030d56696c6c61204d6166616c6461",
+        "bbox": {
+          "lon1": -58.2721165,
+          "lat1": -34.7141313,
+          "lon2": -58.2611243,
+          "lat2": -34.7073892
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de La Plata",
+        "city": "Manuel B. Gonnet",
+        "postcode": "B1897",
+        "street": "Camino General Belgrano",
+        "iso3166_2": "AR-B",
+        "lon": -58.0235786,
+        "lat": -34.8867951,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Mafalda, Camino General Belgrano, B1897 Manuel B. Gonnet, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "Camino General Belgrano, B1897 Manuel B. Gonnet, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q34X7G+7H",
+        "rank": {
+          "importance": 0.000049548332951812273,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5157f1a19f04034dc05964607880827141c0f00103f901bd5ddada01000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.0236286,
+          "lat1": -34.8868451,
+          "lon2": -58.0235286,
+          "lat2": -34.8867451
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Villa Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "city": "Bernal Este",
+        "postcode": "1877",
+        "suburb": "Villa Mafalda",
+        "iso3166_2": "AR-B",
+        "lon": -58.2667001,
+        "lat": -34.7100162,
+        "state_code": "B",
+        "district": "Villa Mafalda",
+        "result_type": "suburb",
+        "formatted": "Villa Mafalda, 1877 Bernal Este, Argentina",
+        "address_line1": "Villa Mafalda",
+        "address_line2": "1877 Bernal Este, Argentina",
+        "category": "populated_place",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q37PQM+X8",
+        "rank": {
+          "importance": 0.13339170901045241,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5183ab973a23224dc059aa5093cfe15a41c0f00103f9015b492a1603000000c0020592030d56696c6c61204d6166616c6461",
+        "bbox": {
+          "lon1": -58.2767001,
+          "lat1": -34.7200162,
+          "lon2": -58.2567001,
+          "lat2": -34.7000162
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de Tres de Febrero",
+        "city": "Martín Coronado",
+        "postcode": "B1683AEV",
+        "street": "821 - San Lorenzo",
+        "iso3166_2": "AR-B",
+        "lon": -58.588698,
+        "lat": -34.5867727,
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Mafalda, 821 - San Lorenzo, B1683 AEV Martín Coronado, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "821 - San Lorenzo, B1683 AEV Martín Coronado, Argentina",
+        "category": "commercial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CC76+7G",
+        "rank": {
+          "importance": 0.0000462096589608151,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513d9cc0745a4b4dc059c2572a5e1b4b41c0f00103f901b302bc1301000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.588748,
+          "lat1": -34.5868227,
+          "lon2": -58.588648,
+          "lat2": -34.5867227
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda, Susanita and Manolito",
+        "other_names": {
+          "name": "Mafalda, Susanita y Manolito",
+          "name:es": "Mafalda, Susanita y Manolito",
+          "name:pt": "Mafalda, Manolito e Susanita",
+          "alt_name": "Mafalda"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1065AAJ",
+        "district": "Comuna 1",
+        "suburb": "Monserrat",
+        "street": "Defensa",
+        "iso3166_2": "AR-C",
+        "lon": -58.3716913,
+        "lat": -34.6159617,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Mafalda, Susanita and Manolito, Defensa, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+        "address_line1": "Mafalda, Susanita and Manolito",
+        "address_line2": "Defensa, Monserrat, C1065 AAJ Buenos Aires, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JMH+J8",
+        "plus_code_short": "MH+J8 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5197da9c94932f4dc059568b3ed5d74e41c0f00103f901a7ac669300000000c0020192031e4d6166616c64612c20537573616e69746120616e64204d616e6f6c69746f",
+        "bbox": {
+          "lon1": -58.3717413,
+          "lat1": -34.6160117,
+          "lon2": -58.3716413,
+          "lat2": -34.6159117
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Jardín de Infantes Común 03/16° Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1419",
+        "district": "Comuna 11",
+        "suburb": "Villa Devoto",
+        "street": "Fernández de Enciso",
+        "iso3166_2": "AR-C",
+        "lon": -58.5113813,
+        "lat": -34.5949629,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Jardín de Infantes Común 03/16° Mafalda, Fernández de Enciso, Villa Devoto, 1419 Buenos Aires, Argentina",
+        "address_line1": "Jardín de Infantes Común 03/16° Mafalda",
+        "address_line2": "Fernández de Enciso, Villa Devoto, 1419 Buenos Aires, Argentina",
+        "category": "childcare.kindergarten",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CF4Q+2C",
+        "plus_code_short": "CF4Q+2C Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "519aa443f174414dc059aaea8abe274c41c0f00103f9013864e13c00000000c0020192032a4a617264c3ad6e20646520496e66616e74657320436f6dc3ba6e2030332f3136c2b0204d6166616c6461",
+        "bbox": {
+          "lon1": -58.5114313,
+          "lat1": -34.5950129,
+          "lon2": -58.5113313,
+          "lat2": -34.5949129
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Mafalda",
+        "country": "Argentina",
+        "country_code": "ar",
+        "state": "Buenos Aires",
+        "county": "Partido de San Isidro",
+        "city": "San Isidro",
+        "postcode": "1642",
+        "suburb": "Lomas de San Isidro",
+        "street": "Avenida Bernabé Márquez",
+        "housenumber": "2938",
+        "iso3166_2": "AR-B",
+        "lon": -58.547888,
+        "lat": -34.4927531,
+        "state_code": "B",
+        "district": "Lomas de San Isidro",
+        "result_type": "amenity",
+        "formatted": "Mafalda, Avenida Bernabé Márquez 2938, Lomas de San Isidro, 1642 San Isidro, Argentina",
+        "address_line1": "Mafalda",
+        "address_line2": "Avenida Bernabé Márquez 2938, Lomas de San Isidro, 1642 San Isidro, Argentina",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3GF42+VR",
+        "plus_code_short": "GF42+VR, 1642 San Isidro, Argentina",
+        "rank": {
+          "importance": 0.000055487144274006525,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "5178efa83121464dc05956c09888123f41c0f00102f90136b0511c00000000c002019203074d6166616c6461",
+        "bbox": {
+          "lon1": -58.5479385,
+          "lat1": -34.4927911,
+          "lon2": -58.5478375,
+          "lat2": -34.4927151
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Statue of Juan Manuel Fangio",
+        "other_names": {
+          "name": "Estatua de Juan Manuel Fangio",
+          "name:de": "Statue von Juan Manuel Fangio",
+          "name:es": "Estatua de Juan Manuel Fangio",
+          "alt_name": "Juan Manuel Fangio y su Mercedes-Benz W196 \"Flecha de Plata\""
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "1107",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "street": "Azucena Villaflor",
+        "iso3166_2": "AR-C",
+        "lon": -58.3622212,
+        "lat": -34.61187,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Statue of Juan Manuel Fangio, Azucena Villaflor, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "address_line1": "Statue of Juan Manuel Fangio",
+        "address_line2": "Azucena Villaflor, Puerto Madero, 1107 Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JQQ+74",
+        "plus_code_short": "9JQQ+74 Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "517df5a7435d2e4dc059a7b393c1514e41c0f00103f901fb776b0601000000c0020192031c537461747565206f66204a75616e204d616e75656c2046616e67696f",
+        "bbox": {
+          "lon1": -58.3622712,
+          "lat1": -34.61192,
+          "lon2": -58.3621712,
+          "lat2": -34.61182
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Statue of Anne Frank",
+        "other_names": {
+          "name": "Estatua de Ana Frank",
+          "name:de": "Statue von Anne Frank",
+          "name:es": "Estatua de Ana Frank",
+          "name:nl": "Standbeeld van Anne Frank",
+          "name:pt": "Estátua de Anne Frank"
+        },
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1107CBS",
+        "district": "Comuna 1",
+        "suburb": "Puerto Madero",
+        "street": "Olga Cossettini",
+        "iso3166_2": "AR-C",
+        "lon": -58.363968,
+        "lat": -34.6079701,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Statue of Anne Frank, Olga Cossettini, Puerto Madero, C1107 CBS Buenos Aires, Argentina",
+        "address_line1": "Statue of Anne Frank",
+        "address_line2": "Olga Cossettini, Puerto Madero, C1107 CBS Buenos Aires, Argentina",
+        "category": "tourism.sights.memorial",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q39JRP+RC",
+        "plus_code_short": "RP+RC Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "513065e080962e4dc0591239d8f6d14d41c0f00103f90135a3d40501000000c00201920314537461747565206f6620416e6e65204672616e6b",
+        "bbox": {
+          "lon1": -58.364018,
+          "lat1": -34.6080201,
+          "lon2": -58.363918,
+          "lat2": -34.6079201
+        }
+      },
+      {
+        "datasource": {
+          "sourcename": "openstreetmap",
+          "attribution": "© OpenStreetMap contributors",
+          "license": "Open Database License",
+          "url": "https://www.openstreetmap.org/copyright"
+        },
+        "name": "Estatua de la Libertad",
+        "country": "Argentina",
+        "country_code": "ar",
+        "city": "Buenos Aires",
+        "postcode": "C1428DZF",
+        "district": "Comuna 13",
+        "neighbourhood": "Barrio Chino",
+        "suburb": "Belgrano",
+        "street": "La Pampa",
+        "iso3166_2": "AR-C",
+        "lon": -58.4476321,
+        "lat": -34.5607432,
+        "state": "Buenos Aires",
+        "state_code": "B",
+        "result_type": "amenity",
+        "formatted": "Estatua de la Libertad, La Pampa, Belgrano, C1428 DZF Buenos Aires, Argentina",
+        "address_line1": "Estatua de la Libertad",
+        "address_line2": "La Pampa, Belgrano, C1428 DZF Buenos Aires, Argentina",
+        "category": "tourism.attraction.artwork",
+        "timezone": {
+          "name": "America/Argentina/Buenos_Aires",
+          "offset_STD": "-03:00",
+          "offset_DST": "-03:00",
+          "offset_STD_seconds": -10800,
+          "offset_DST_seconds": -10800
+        },
+        "plus_code": "48Q3CHQ2+PW",
+        "plus_code_short": "CHQ2+PW Buenos Aires, Argentina",
+        "rank": {
+          "importance": 0.00008279926756690345,
+          "confidence": 0,
+          "match_type": "full_match"
+        },
+        "place_id": "51e51137024c394dc05929bae46ec64741c0f00103f901126e5c0701000000c0020192031645737461747561206465206c61204c69626572746164",
+        "bbox": {
+          "lon1": -58.4476821,
+          "lat1": -34.5607932,
+          "lon2": -58.4475821,
+          "lat2": -34.5606932
+        }
+      }
+    ],
+    "query": {
+      "text": "Estatua de Mafalda",
+      "categories": []
+    }
+  }
+}

@@ -1,4 +1,7 @@
 import axiosInstance from './config/axios';
+import { GenerateTourDto } from '../features/tours/tour-generation-contract';
+
+export type { GenerateTourDto } from '../features/tours/tour-generation-contract';
 
 export interface Tour {
   id: string;
@@ -10,65 +13,124 @@ export interface Tour {
   totalDistance?: number;
   totalDays?: number;
   categories?: string[];
-  activities?: {
-    activity?: {
-      id: string;
-      name: string;
-      description?: string;
-      type: string;
-      photos?: any;
-      latitude?: number;
-      longitude?: number;
-      address?: string;
-      price?: number;
-    };
-    // Inline fields in case activity relation is missing
-    activityName?: string;
-    activityType?: string;
-    activityLatitude?: number;
-    activityLongitude?: number;
-
-    order: number;
-    dayNumber?: number;
-    travelTimeToNext?: number;
-    distanceToNext?: number;
-    notes?: string;
-  }[];
+  /** Canonical V2 tour snapshots. */
+  experiences?: TourExperience[];
+  dayTotals?: DayTotals[];
   metadata?: any;
   options?: {
     latitude?: number;
     longitude?: number;
     radius?: number;
-    includeExistingActivities?: boolean;
+    includeExistingExperiences?: boolean;
   };
 }
 
-export interface GenerateTourDto {
-  prompt?: string;
-  destination?: string;
-  destinationLatitude?: number;
-  destinationLongitude?: number;
+export interface TourExperienceComponent {
+  id: string;
+  geoEntityId: string;
+  order?: number | null;
+  role?: string;
+  required: boolean;
+  name: string;
   latitude?: number;
   longitude?: number;
-  radius?: number;
-  includeExistingActivities?: boolean;
-  days?: number;
-  budgetLevel?: 'low' | 'medium' | 'high';
-  interests?: string[];
-  transportationMode?:
-    | 'walking'
-    | 'driving'
-    | 'public_transport'
-    | 'cycling'
-    | ('walking' | 'driving' | 'public_transport' | 'cycling')[];
-  groupType?: 'solo' | 'couple' | 'family' | 'friends';
-  travelPace?: 'relaxed' | 'moderate' | 'fast';
-  dietaryRestrictions?: string[];
-  startDates?: string[];
-  skipImageGeneration?: boolean;
-  skipActivities?: boolean;
-  excludeTours?: string[];
-  categories?: string[];
+  geometry?: unknown;
+}
+
+export interface DocumentaryPhoto {
+  url: string;
+  width?: number;
+  height?: number;
+  caption?: string;
+  author?: string;
+  authorUrl?: string;
+  license?: string;
+  licenseUrl?: string;
+  sourceUrl?: string;
+  provider?: 'wikimedia_commons' | 'google_places';
+}
+
+export interface MediaPresentation {
+  photos: DocumentaryPhoto[];
+  primaryPhoto?: {
+    url: string;
+    caption?: string;
+    author?: string;
+    license?: string;
+    licenseUrl?: string;
+    isFallback: boolean;
+  };
+  source?: 'DOCUMENTARY' | 'CURATED_FALLBACK';
+}
+
+export interface TravelFromPrevious {
+  mode: 'walking' | 'cycling' | 'driving' | 'public_transport';
+  durationMinutes: number;
+  distanceMeters: number;
+  walkingMinutes: number;
+  walkingDistanceMeters: number;
+  approximate: boolean;
+  provider?: string;
+  fallbackReason?: string;
+}
+
+export interface DayTotals {
+  dayNumber: number;
+  experienceCount: number;
+  totalExperienceMinutes: number;
+  totalTravelMinutes: number;
+  /**
+   * Walking BETWEEN experiences only (`travelFromPrevious`), not a
+   * multi-component Experience's own internal walking between its
+   * components — see `tour.metadata.generationTrace`'s own
+   * `totalWalkingMinutes` for the combined figure.
+   */
+  totalTravelWalkingMinutes: number;
+  totalMinutes: number;
+}
+
+export interface ExperiencePresentation {
+  geometryMode: 'POINT' | 'AREA' | 'ROUTE' | 'MULTI_POINT';
+  geometry?: unknown;
+  hasIntrinsicSequence: boolean;
+}
+
+export interface TourExperience {
+  id: string;
+  experienceId: string;
+  dayNumber?: number;
+  order: number;
+  startTime?: string;
+  duration?: number;
+  notes?: string;
+  travelFromPrevious?: TravelFromPrevious | null;
+  experiencePresentation?: ExperiencePresentation;
+  components: TourExperienceComponent[];
+  experience?: {
+    id: string;
+    canonicalName?: string;
+    name?: string;
+    description?: string;
+    status?: string;
+    mediaUpdatedAt?: string;
+    /** Resolved by the backend on every full tour fetch (real Wikimedia/etc. photos, falling back to a curated static bank only when none exist). */
+    mediaPresentation?: MediaPresentation;
+    themes?: string[];
+    traits?: Array<{ trait: string; value?: string }>;
+    components?: Array<{ name: string; role?: string; latitude?: number; longitude?: number }>;
+  };
+}
+
+export interface PaginatedTours {
+  tours: Tour[];
+  meta: { total: number; page: number; limit: number; totalPages: number };
+}
+
+export async function fetchMyTours(page: number = 1, limit: number = 20) {
+  const { data } = await axiosInstance.get<PaginatedTours>('/tours', {
+    params: { page, limit }
+  });
+  return data;
 }
 
 export async function fetchNearbyTours(
@@ -78,7 +140,7 @@ export async function fetchNearbyTours(
   radius: number = 1000
 ) {
   const { data } = await axiosInstance.get<Tour[]>('/tours/nearby', {
-    params: { lat, lng, category, radius },
+    params: { lat, lng, category, radius }
   });
   return data;
 }
@@ -88,9 +150,11 @@ export async function fetchTourById(id: string) {
   return data;
 }
 
-export async function generateTour(dataOrPrompt: string | GenerateTourDto) {
-  const payload =
-    typeof dataOrPrompt === 'string' ? { prompt: dataOrPrompt } : dataOrPrompt;
+// Rewrites which waypoints of a composite tour stop are shown for THIS tour
+// instance — the pre-confirmation review screen's "exclude a stop"
+// affordance. Never touches the shared variant's own content, nor any other
+// tour's Experience snapshot (see the corresponding backend update DTO).
+export async function generateTour(payload: GenerateTourDto) {
   const { data } = await axiosInstance.post<Tour>(
     '/tours/generate-tour',
     payload

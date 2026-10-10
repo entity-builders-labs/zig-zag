@@ -1,0 +1,54 @@
+{
+  "version": "atomizer-v1",
+  "maxAtomChars": 600,
+  "unitLength": 180,
+  "unitSha256": "f4008af1fe490d5cd1b9aefc556570d684c724d29f75aecc4b7cbd22f0a922c3",
+  "atoms": [
+    {
+      "atomId": "a-001",
+      "ordinal": 1,
+      "sourceStart": 0,
+      "sourceEnd": 124,
+      "text": "Highlights include visiting the Caminito Market, Museo Benito Quinquela Martin, and Puente Transbordador Nicolás Avellaneda.",
+      "blockKind": "LINE",
+      "blockOrdinal": 1
+    },
+    {
+      "atomId": "a-002",
+      "ordinal": 2,
+      "sourceStart": 125,
+      "sourceEnd": 179,
+      "text": "Your tour concludes at the Estadio Alberto J. Armando.",
+      "blockKind": "LINE",
+      "blockOrdinal": 2
+    }
+  ],
+  "separators": [
+    {
+      "start": 124,
+      "end": 125,
+      "kind": "NEWLINE"
+    },
+    {
+      "start": 179,
+      "end": 180,
+      "kind": "NEWLINE"
+    }
+  ],
+  "structure": {
+    "version": "editorial-structure-v1",
+    "minRun": 3,
+    "blocks": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "batchCount": 1,
+      "atomIds": [
+        "a-001",
+        "a-002"
+      ],
+      "contextAtomIds": []
+    }
+  ]
+}

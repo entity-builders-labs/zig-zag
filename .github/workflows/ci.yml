@@ -1,0 +1,202 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  agent-governance:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # The canonical preflight reasons about declared base snapshots and
+          # active integration branches, so CI needs full branch history.
+          # Check out the actual PR head SHA, not the synthetic merge commit,
+          # so base ancestry is validated against the real head.
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: ShellCheck governance scripts
+        run: shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh
+      - name: Governance fixture suite
+        run: bash scripts/agent-governance.spec.sh
+      - name: Agent collaboration preflight
+        run: bash scripts/agent-preflight --ci
+
+  track-progress-freshness:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+      - name: Track progress freshness
+        run: bash scripts/agent-progress-gate
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
+      - run: yarn workspace backend typecheck
+      - run: yarn workspace backend lint:check
+      - run: yarn workspace backend test --runInBand
+      - name: V2 acceptance suite
+        run: yarn workspace backend test:acceptance
+      - run: yarn workspace backend build
+
+  backend-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb-ha:pg16.15-ts2.30.2
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zigzag
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+      ALLOW_DESTRUCTIVE_TEST_DB: "1"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
+      - run: yarn workspace backend prisma:deploy
+      - name: Backend integration suite (real Postgres)
+        run: yarn workspace backend test:integration
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace fe build:web
+        env:
+          EXPO_PUBLIC_API_URL: http://localhost:4000
+          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: test-key
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: test.apps.googleusercontent.com
+          EXPO_PUBLIC_GEOAPIFY_API_KEY: test-key
+          EXPO_PUBLIC_PLACES_PROVIDER: geoapify
+          EXPO_PUBLIC_DIRECTIONS_PROVIDER: geoapify
+
+  e2e-deterministic:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb-ha:pg16.15-ts2.30.2
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: zigzag
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: yarn
+      - run: yarn install --frozen-lockfile
+      - run: yarn workspace backend prisma:generate
+      - run: yarn workspace backend prisma:deploy
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+      - run: yarn workspace backend build
+      - name: Start backend
+        run: |
+          mkdir -p ci-logs
+          yarn workspace backend start:prod > ci-logs/backend.log 2>&1 &
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          NODE_ENV: test
+          PORT: "4000"
+          ENABLE_AI: "false"
+          USE_MOCK_MAPS: "true"
+          JWT_ACCESS_SECRET: ci-access-secret-that-is-not-used-in-production
+          JWT_REFRESH_SECRET: ci-refresh-secret-that-is-not-used-in-production
+      - name: Build and serve web app
+        run: |
+          mkdir -p ci-logs
+          yarn workspace fe build:web
+          python3 fe/e2e/spa-server.py --directory fe/dist --port 19006 > ci-logs/frontend.log 2>&1 &
+        env:
+          EXPO_PUBLIC_API_URL: http://localhost:4000
+          EXPO_PUBLIC_GOOGLE_MAPS_API_KEY: test-key
+          EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID: test.apps.googleusercontent.com
+          EXPO_PUBLIC_GEOAPIFY_API_KEY: test-key
+          EXPO_PUBLIC_PLACES_PROVIDER: geoapify
+          EXPO_PUBLIC_DIRECTIONS_PROVIDER: geoapify
+      - run: npx playwright install --with-deps chromium
+        working-directory: fe
+      - name: Wait for services
+        run: |
+          for _ in {1..60}; do curl --fail --silent http://localhost:4000/health >/dev/null && break; sleep 1; done
+          curl --fail http://localhost:4000/health
+          for _ in {1..60}; do curl --fail --silent http://localhost:19006 >/dev/null && break; sleep 1; done
+          curl --fail http://localhost:19006
+      - name: Backend E2E
+        run: yarn workspace backend test:e2e --runInBand
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/zigzag
+          NODE_ENV: test
+          ENABLE_AI: "false"
+          # The e2e specs TRUNCATE the whole database. The service DB above is
+          # ephemeral (fresh per run) but named `zigzag`, so the disposable-DB
+          # guard (be/test/support/assert-disposable-database.ts) needs this
+          # explicit opt-in.
+          ALLOW_DESTRUCTIVE_TEST_DB: "1"
+          JWT_ACCESS_SECRET: ci-access-secret-that-is-not-used-in-production
+          JWT_REFRESH_SECRET: ci-refresh-secret-that-is-not-used-in-production
+      - name: Playwright deterministic suite
+        run: yarn workspace fe test:e2e --grep-invert @live
+        env:
+          E2E_WEB_URL: http://localhost:19006
+          E2E_API_URL: http://localhost:4000
+          E2E_VIDEO: retain-on-failure
+      - name: Upload Playwright evidence and service logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-results
+          path: |
+            fe/test-results
+            ci-logs
+          retention-days: 14

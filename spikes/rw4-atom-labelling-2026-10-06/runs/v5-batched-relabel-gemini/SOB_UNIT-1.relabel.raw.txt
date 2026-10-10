@@ -1,0 +1,29 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-025",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Catedral",
+          "supportSpan": "Inside the Catedral",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Directs the traveller to visit the cathedral."
+    },
+    {
+      "atomId": "a-078",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Parque Lezama",
+          "supportSpan": "enjoy the park",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-077"
+        }
+      ],
+      "reason": "Directs the traveller to enjoy the previously mentioned park."
+    }
+  ]
+}

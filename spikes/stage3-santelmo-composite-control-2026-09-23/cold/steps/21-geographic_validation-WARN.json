@@ -1,0 +1,85 @@
+{
+  "label": "Validación geográfica independiente",
+  "rules": [
+    {
+      "rule": "Grounded text por sí solo no prueba existencia geográfica",
+      "reason": "La aceptación requiere entidades resueltas independientemente del LLM.",
+      "result": "PASS",
+      "ruleId": "GEO-INDEPENDENT-001"
+    },
+    {
+      "rule": "Las composites pueden validarse por componentes reales sin exact-name global",
+      "reason": "ROUTE/EXPERIENCE/WALK pueden usar anchors/componentes según su estrategia.",
+      "result": "PASS",
+      "ruleId": "GEO-COMPONENTS-001"
+    },
+    {
+      "rule": "Conservar razones machine-readable para cada rechazo",
+      "reason": "No hubo rechazos geográficos.",
+      "result": "PASS",
+      "ruleId": "GEO-RESULT-001"
+    }
+  ],
+  "stage": "geographic_validation",
+  "inputs": {
+    "proposalCount": 0,
+    "validatorVersions": []
+  },
+  "status": "WARN",
+  "outputs": {
+    "results": [],
+    "rejectedCount": 0,
+    "geoVerifiedCount": 0,
+    "maxComputedRadiusMeters": null
+  },
+  "summary": "Validación geográfica: 0 propuesta(s) verificadas y 0 descartadas por coherencia espacial o falta de entidad real.",
+  "decision": {
+    "reason": "Ninguna propuesta alcanzó verificación geográfica.",
+    "status": "WARN",
+    "outcome": "NO_GEO_VERIFIED_PROPOSALS",
+    "reasonCodes": [],
+    "triggeredActions": [
+      "CONTINUE_WITH_EXISTING_POOL"
+    ]
+  },
+  "component": "CompositeGeographicValidationService",
+  "degradedReason": "no_geo_verified_proposals",
+  "providerStatus": "failed",
+  "acquisitionContext": {
+    "anchor": {
+      "kind": "area",
+      "usage": "geographic_scope",
+      "status": "resolved",
+      "rawName": "San Telmo",
+      "geometry": {
+        "type": "Polygon"
+      },
+      "priority": "soft",
+      "provider": "openstreetmap",
+      "externalId": "osm:relation:2223069",
+      "geoEntityId": "79effa94-ba26-4b63-b29a-c27314aaedeb",
+      "osmBoundary": {
+        "id": "osm:relation:2223069",
+        "name": "San Telmo",
+        "tags": {
+          "name": "San Telmo",
+          "type": "boundary",
+          "boundary": "administrative",
+          "wikidata": "Q1026688",
+          "wikipedia": "es:San Telmo (Buenos Aires)",
+          "admin_level": "9"
+        },
+        "osmId": 2223069,
+        "osmType": "relation",
+        "geometry": {
+          "type": "Polygon"
+        }
+      },
+      "canonicalName": "San Telmo"
+    },
+    "strategy": "area_route_walk",
+    "passNumber": 2
+  },
+  "candidateDecisions": [],
+  "geographicValidationAudit": []
+}

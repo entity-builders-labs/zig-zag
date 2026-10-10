@@ -1,0 +1,1577 @@
+{
+  "steps": [
+    {
+      "label": "Interpretación de preferencias",
+      "stage": "preference_interpretation",
+      "inputs": {
+        "intents": [
+          "walk"
+        ],
+        "groupType": "solo",
+        "budgetLevel": "medium",
+        "accessibilityNeeds": [],
+        "dietaryRestrictions": [],
+        "hasAdditionalPreferences": true
+      },
+      "status": "WARN",
+      "timing": {
+        "durationMs": 10619
+      },
+      "outputs": {
+        "intent": {
+          "notes": [
+            "deterministic_fallback"
+          ],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.9,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "unresolvedFreeText": "caminata histórica por San Telmo",
+          "interpretationStatus": "failed",
+          "positiveSemanticQuery": "caminata histórica por San Telmo",
+          "accessibilityPreferences": []
+        },
+        "preferenceSpec": {
+          "trip": {
+            "days": 1,
+            "pace": "moderate",
+            "startDates": []
+          },
+          "facets": [
+            {
+              "key": "history",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "theme"
+            },
+            {
+              "key": "walk",
+              "source": "wizard",
+              "weight": 1,
+              "required": false,
+              "dimension": "intent"
+            }
+          ],
+          "anchors": [],
+          "exclusions": {
+            "hard": [],
+            "themes": [],
+            "traits": []
+          },
+          "semanticQuery": "caminata histórica por San Telmo",
+          "resolvedAnchors": [],
+          "softConstraints": {
+            "group": [],
+            "budget": [],
+            "dietary": [],
+            "accessibility": []
+          },
+          "explorationStyle": "balanced"
+        }
+      },
+      "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+      "component": "PreferenceInterpreterService",
+      "preferenceInterpretation": {
+        "model": "qwen/qwen3.8-27b",
+        "stage": "preference_interpretation",
+        "status": "fallback",
+        "provider": "groq",
+        "durationMs": 10619,
+        "userPrompt": "caminata histórica por San Telmo",
+        "systemPrompt": "Interpret the user's supplemental tourism preferences into normalized intent.\nReturn JSON only. You interpret language; deterministic code enforces the result.\nNever invent geographic entities, provider IDs, coordinates, or evidence.\nDo not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.\nFor positive preferences, output preferredFacets as a list of objects with:\n- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.\n- key: CANONICAL domain key in English (e.g. \"architecture\" not \"arquitectura\", \"food\" not \"comida\", \"walk\" not \"caminata\", \"history\" not \"historia\").\n- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.\n- confidence: float between 0 and 1 indicating certainty.\n- strength: \"strong\" | \"medium\" | \"weak\" indicating user emphasis.\n- evidence: one or more short excerpts copied from the user's text that support\n  this facet. Never invent evidence; facets without supporting excerpts are rejected.\nDo not invent arbitrary importance numbers; code derives importance deterministically from strength.\nAlso output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by\nname (never a generic theme). For each, output:\n- rawName: the name as mentioned by the user.\n- usage: \"geographic_scope\" | \"specific_destination\" | \"named_path\" | \"unknown\". This describes how the phrase uses the name, not what geographic entity it is.\n- priority: \"must\" ONLY for explicit, unambiguous named-place intent, for example\n  \"quiero visitar X\", \"incluí X\", \"sí o sí quiero ir a X\", \"no me quiero perder X\".\n  Anything weaker or ambiguous -- including a place mentioned only in passing while\n  describing a theme, e.g. \"me interesa la arquitectura de X\" -- is priority \"soft\".\nExtract anchors conservatively: when in doubt about the name or the intent, omit the anchor\nrather than guessing. Do not invent named places that were not mentioned.\nOther fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,\ndietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,\npositiveSemanticQuery, notes. Use short lowercase phrases.",
+        "parsedResponse": {
+          "notes": [
+            "deterministic_fallback"
+          ],
+          "ambiguities": [],
+          "anchoredPlaces": [],
+          "excludedThemes": [],
+          "excludedTraits": [],
+          "hardExclusions": [],
+          "preferredFacets": [
+            {
+              "key": "walk",
+              "source": "free_text",
+              "evidence": [
+                {
+                  "text": "caminata",
+                  "source": "user_free_text"
+                }
+              ],
+              "dimension": "intent",
+              "confidence": 0.9,
+              "importance": 1
+            }
+          ],
+          "softConstraints": [],
+          "groupPreferences": [],
+          "budgetPreferences": [],
+          "dietaryPreferences": [],
+          "unresolvedFreeText": "caminata histórica por San Telmo",
+          "interpretationStatus": "failed",
+          "positiveSemanticQuery": "caminata histórica por San Telmo",
+          "accessibilityPreferences": []
+        },
+        "responseSchema": {
+          "type": "object",
+          "required": [
+            "preferredFacets",
+            "anchoredPlaces",
+            "excludedThemes",
+            "excludedTraits",
+            "hardExclusions",
+            "softConstraints",
+            "ambiguities",
+            "dietaryPreferences",
+            "accessibilityPreferences",
+            "budgetPreferences",
+            "groupPreferences",
+            "positiveSemanticQuery",
+            "notes"
+          ],
+          "properties": {
+            "notes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "ambiguities": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "anchoredPlaces": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "rawName",
+                  "usage",
+                  "priority"
+                ],
+                "properties": {
+                  "usage": {
+                    "enum": [
+                      "geographic_scope",
+                      "specific_destination",
+                      "named_path",
+                      "unknown"
+                    ],
+                    "type": "string"
+                  },
+                  "rawName": {
+                    "type": "string"
+                  },
+                  "priority": {
+                    "enum": [
+                      "soft",
+                      "must"
+                    ],
+                    "type": "string"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "excludedThemes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "excludedTraits": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hardExclusions": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "preferredFacets": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": [
+                  "dimension",
+                  "key",
+                  "confidence"
+                ],
+                "properties": {
+                  "key": {
+                    "type": "string"
+                  },
+                  "evidence": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "strength": {
+                    "enum": [
+                      "strong",
+                      "medium",
+                      "weak"
+                    ],
+                    "type": "string"
+                  },
+                  "dimension": {
+                    "type": "string"
+                  },
+                  "confidence": {
+                    "type": "number"
+                  }
+                },
+                "additionalProperties": false
+              }
+            },
+            "softConstraints": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "groupPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "budgetPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dietaryPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "positiveSemanticQuery": {
+              "type": "string"
+            },
+            "accessibilityPreferences": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "additionalProperties": false
+        },
+        "validationErrors": [
+          "Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1197. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+        ],
+        "unresolvedFreeText": "caminata histórica por San Telmo",
+        "facetNormalizationDecisions": [
+          {
+            "rawKey": "walk",
+            "reason": "VALID_AS_EMITTED",
+            "accepted": true,
+            "rawDimension": "intent",
+            "normalizedKey": "walk",
+            "normalizedDimension": "intent"
+          }
+        ]
+      }
+    },
+    {
+      "label": "Intención y movilidad solicitadas",
+      "rules": [
+        {
+          "rule": "Usar el wizard canónico como fuente de restricciones explícitas",
+          "actual": 1,
+          "reason": "La generación parte de TourGenerationRequest contractVersion=1.",
+          "result": "PASS",
+          "ruleId": "INTENT-CANONICAL-001",
+          "expected": 1
+        },
+        {
+          "rule": "Conservar preferencias adicionales como intención suplementaria",
+          "actual": "caminata histórica por San Telmo",
+          "reason": "Hay texto adicional disponible para búsqueda/ranking semántico.",
+          "result": "PASS",
+          "ruleId": "INTENT-FREETEXT-001"
+        }
+      ],
+      "stage": "tour_intent",
+      "inputs": {
+        "days": 1,
+        "themes": [
+          "history"
+        ],
+        "travelPace": "moderate",
+        "destination": "San Telmo, Buenos Aires, Argentina",
+        "explorationStyle": "balanced",
+        "accessibilityNeeds": [],
+        "additionalPreferences": "caminata histórica por San Telmo",
+        "allowedTransportationModes": [
+          "walking"
+        ],
+        "maxWalkingDistancePerDayMeters": 5000,
+        "maxContinuousWalkingDistanceMeters": 3000
+      },
+      "outputs": {
+        "requestedDays": 1,
+        "requestedThemes": [
+          "history"
+        ]
+      },
+      "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+      "decision": {
+        "reason": "La solicitud contiene el contrato canónico requerido por el motor.",
+        "status": "INFO",
+        "outcome": "INTENT_ACCEPTED",
+        "reasonCodes": [
+          "CANONICAL_REQUEST_AVAILABLE"
+        ],
+        "triggeredActions": [
+          "RESOLVE_DESTINATION"
+        ]
+      },
+      "component": "TourGenerationRequest"
+    },
+    {
+      "label": "Resolución del destino",
+      "rules": [
+        {
+          "rule": "Determinar si el destino puede usar boundary real o debe degradar a punto",
+          "actual": "area",
+          "reason": "Se obtuvo boundary administrativo utilizable.",
+          "result": "PASS",
+          "ruleId": "DEST-SCALE-001"
+        }
+      ],
+      "stage": "destination_resolution",
+      "inputs": {
+        "destinationText": "San Telmo, Buenos Aires, Argentina",
+        "attemptedQueries": [
+          "forward:San Telmo, Buenos Aires, Argentina"
+        ]
+      },
+      "status": "PASS",
+      "outputs": {
+        "scale": "area",
+        "boundaryName": "San Telmo"
+      },
+      "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+      "decision": {
+        "reason": "El boundary real es más preciso que un radio artificial para recuperación local.",
+        "status": "PASS",
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "reasonCodes": [
+          "AREA_BOUNDARY_RESOLVED"
+        ],
+        "triggeredActions": [
+          "RETRIEVE_CATALOG"
+        ]
+      },
+      "component": "DestinationResolutionService"
+    },
+    {
+      "label": "Resolución geográfica de anchors",
+      "stage": "anchor_geo_resolution",
+      "inputs": {
+        "anchors": []
+      },
+      "status": "PASS",
+      "outputs": {
+        "anchors": []
+      },
+      "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+      "component": "AreaRouteAnchorResolverService"
+    },
+    {
+      "label": "Cobertura de preferencias (facet-first)",
+      "rules": [
+        {
+          "rule": "Portafolio elegible global suficiente para días y ritmo solicitados",
+          "actual": 12,
+          "reason": "12 Experience(s) elegible(s) frente a 4 requerida(s).",
+          "result": "PASS",
+          "ruleId": "PCOV-QUANTITY-001",
+          "expected": 4
+        },
+        {
+          "rule": "Cobertura del facet solicitado: theme:history",
+          "actual": 3,
+          "reason": "3 coincidencia(s) fuerte(s), 2 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-THEME-HISTORY",
+          "expected": ">= 1"
+        },
+        {
+          "rule": "Cobertura del facet solicitado: intent:walk",
+          "actual": 1,
+          "reason": "1 coincidencia(s) fuerte(s), 0 débil(es).",
+          "result": "PASS",
+          "ruleId": "PCOV-FACET-INTENT-WALK",
+          "expected": ">= 1"
+        }
+      ],
+      "stage": "coverage_analysis",
+      "inputs": {
+        "providerHealth": {
+          "status": "healthy"
+        },
+        "requestedFacetCount": 2,
+        "offeredCandidateCount": 4
+      },
+      "status": "PASS",
+      "outputs": {
+        "sufficient": true,
+        "facetResults": [
+          {
+            "key": "history",
+            "dimension": "theme",
+            "satisfied": true,
+            "weakMatchCount": 2,
+            "strongMatchCount": 3
+          },
+          {
+            "key": "walk",
+            "dimension": "intent",
+            "satisfied": true,
+            "weakMatchCount": 0,
+            "strongMatchCount": 1
+          }
+        ],
+        "portfolioTarget": 4,
+        "allFacetsSatisfied": true,
+        "acquisitionDeficits": [],
+        "globalCapacityDeficit": null,
+        "totalDistinctEligibleExperiences": 12
+      },
+      "summary": "Portafolio suficiente: 12 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+      "decision": {
+        "reason": "Todos los facets solicitados tienen cobertura fuerte y el portafolio elegible alcanza el objetivo.",
+        "status": "PASS",
+        "outcome": "none",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "BUILD_CANDIDATE_POOL"
+        ]
+      },
+      "component": "FacetRetrievalService",
+      "semanticRanking": {
+        "status": "applied",
+        "indexedCandidateCount": 12,
+        "offeredCandidateCount": 4,
+        "eligibleCandidateCount": 12
+      }
+    },
+    {
+      "label": "Recuperación inicial del catálogo",
+      "rules": [
+        {
+          "rule": "Recuperar candidatos reales persistidos antes de adquirir nuevos",
+          "actual": 4,
+          "reason": "El catálogo aportó 4 candidato(s).",
+          "result": "PASS",
+          "ruleId": "CATALOG-RETRIEVAL-001"
+        }
+      ],
+      "stage": "db_search",
+      "inputs": {
+        "radiusKm": 1.012179374902135
+      },
+      "status": "PASS",
+      "outputs": {
+        "candidateCount": 4
+      },
+      "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+      "decision": {
+        "reason": "Hay candidatos persistidos para evaluar.",
+        "status": "PASS",
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "triggeredActions": [
+          "ANALYZE_COVERAGE"
+        ]
+      },
+      "component": "ExperienceCatalog.findVerifiedWithin",
+      "candidates": [
+        {
+          "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "name": "San Telmo Historic Walking Tour",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+          "name": "Plaza Dorrego",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        },
+        {
+          "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "chosen": false,
+          "detail": "sin datos adicionales",
+          "source": "db",
+          "offered": true
+        }
+      ],
+      "candidateDecisions": [
+        {
+          "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "name": "San Telmo Historic Walking Tour",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "name": "Museo Histórico Nacional",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+          "name": "Plaza Dorrego",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        },
+        {
+          "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "reason": "Candidato real recuperado del catálogo para evaluación posterior.",
+          "source": "db",
+          "status": "ELIGIBLE",
+          "reasonCodes": [
+            "CATALOG_MATCH"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Ranking de Experiences",
+      "rules": [
+        {
+          "rule": "Ordenar Experiences por relevancia semántica y calidad",
+          "actual": 12,
+          "reason": "El ranking determinístico consume únicamente Experiences verificadas.",
+          "result": "PASS",
+          "ruleId": "EXPERIENCE-RANK-001"
+        }
+      ],
+      "stage": "candidate_pool",
+      "inputs": {
+        "eligibleCount": 12,
+        "requestedThemes": [
+          "history"
+        ],
+        "initialCatalogCount": 12,
+        "postAcquisitionCatalogCount": 12
+      },
+      "status": "PASS",
+      "outputs": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 12,
+          "discovery": 0
+        },
+        "offeredCandidateCount": 12
+      },
+      "summary": "Se evaluaron 12 experiencias elegibles y se ofrecieron 12 candidatas (12 catálogo, 0 adquisición, 0 discovery).",
+      "decision": {
+        "reason": "El pool quedó limitado por capacidad, sin imponer formatos legacy.",
+        "status": "PASS",
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "RUN_DAILY_PLANNING"
+        ]
+      },
+      "component": "ExperienceRankingEngine",
+      "candidates": [
+        {
+          "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "name": "San Telmo Historic Walking Tour",
+          "chosen": false,
+          "detail": "score total 2.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 3.146365548060118,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6929380893707275
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "name": "Museo Histórico Nacional",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6530068516731262
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+          "name": "Plaza Dorrego",
+          "chosen": false,
+          "detail": "score total 1.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5103856477256314
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6520565152168274
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "d56e24cf-e5c3-486a-a5cd-dae340a4b4ca",
+          "name": "Mercado San Telmo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6490916013717651
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+          "name": "Monumento Canto al Trabajo",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6437505483627319
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+          "name": "Museo de las Escuelas",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6290815064037298
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "ee46f0c3-262a-4caa-91ee-bddcf9766c76",
+          "name": "Carnavales de la Calle Defensa",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6276365518569946
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "e11d073a-78b9-4e68-87ad-77268015930a",
+          "name": "Casa Mínima",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6227277702906066
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "a0d0cb81-d2c4-4bf7-9844-5e43d1087c36",
+          "name": "Monumento a Pedro de Mendoza",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6145670413970947
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "f9d02141-9e09-4747-984a-c21e7b74deae",
+          "name": "Solar French",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5670286585995158
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        },
+        {
+          "id": "6c0f0376-d3a8-417b-980a-9148a10acd23",
+          "name": "Plaza 30'000 compañeros",
+          "chosen": false,
+          "detail": "score total 0.000",
+          "source": "db",
+          "offered": true,
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5651294589042664
+          },
+          "coverageContribution": {
+            "themes": []
+          }
+        }
+      ],
+      "candidatePool": {
+        "bySource": {
+          "refill": 0,
+          "catalog": 12,
+          "discovery": 0
+        },
+        "eligibleCount": 12,
+        "llmWindowCount": 12,
+        "initialCatalogCount": 12,
+        "postAcquisitionCatalogCount": 12
+      },
+      "candidateDecisions": [
+        {
+          "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "name": "San Telmo Historic Walking Tour",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 2,
+            "qualityBonus": 3.146365548060118,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 2,
+            "preferenceScore": 2,
+            "semanticSimilarity": 0.6929380893707275
+          }
+        },
+        {
+          "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "name": "Museo Histórico Nacional",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.6530068516731262
+          }
+        },
+        {
+          "id": "1c605c97-c4b3-4ef0-899c-142ae191b3ed",
+          "name": "Plaza Dorrego",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 1,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 1,
+            "preferenceScore": 1,
+            "semanticSimilarity": 0.5103856477256314
+          }
+        },
+        {
+          "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6520565152168274
+          }
+        },
+        {
+          "id": "d56e24cf-e5c3-486a-a5cd-dae340a4b4ca",
+          "name": "Mercado San Telmo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 3.5,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6490916013717651
+          }
+        },
+        {
+          "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+          "name": "Monumento Canto al Trabajo",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6437505483627319
+          }
+        },
+        {
+          "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+          "name": "Museo de las Escuelas",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6290815064037298
+          }
+        },
+        {
+          "id": "ee46f0c3-262a-4caa-91ee-bddcf9766c76",
+          "name": "Carnavales de la Calle Defensa",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6276365518569946
+          }
+        },
+        {
+          "id": "e11d073a-78b9-4e68-87ad-77268015930a",
+          "name": "Casa Mínima",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6227277702906066
+          }
+        },
+        {
+          "id": "a0d0cb81-d2c4-4bf7-9844-5e43d1087c36",
+          "name": "Monumento a Pedro de Mendoza",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.6145670413970947
+          }
+        },
+        {
+          "id": "f9d02141-9e09-4747-984a-c21e7b74deae",
+          "name": "Solar French",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5670286585995158
+          }
+        },
+        {
+          "id": "6c0f0376-d3a8-417b-980a-9148a10acd23",
+          "name": "Plaza 30'000 compañeros",
+          "reason": "Entró al pool V2 por relevancia.",
+          "source": "db",
+          "status": "RANKED",
+          "reasonCodes": [
+            "INSIDE_EXPERIENCE_POOL"
+          ],
+          "scoreBreakdown": {
+            "totalScore": 0,
+            "qualityBonus": 0,
+            "diversityBonus": 0,
+            "proximityBonus": 0,
+            "preferenceBonus": 0,
+            "preferenceScore": 0,
+            "semanticSimilarity": 0.5651294589042664
+          }
+        }
+      ]
+    },
+    {
+      "label": "Ranking semántico",
+      "rules": [
+        {
+          "rule": "Usar similitud semántica solo cuando fue solicitada y está disponible",
+          "actual": "applied",
+          "reason": "La similitud se incorporó al ranking.",
+          "result": "PASS",
+          "ruleId": "RANK-SEMANTIC-001"
+        },
+        {
+          "rule": "Un candidato sin embedding no equivale a score semántico cero",
+          "reason": "La ausencia de embedding se conserva como señal no medida; otras señales pueden mantener el candidato.",
+          "result": "PASS",
+          "ruleId": "RANK-UNKNOWN-001"
+        }
+      ],
+      "stage": "embeddings",
+      "inputs": {
+        "model": "nomic-embed-text",
+        "provider": "ollama",
+        "eligibleCandidateCount": 12
+      },
+      "status": "PASS",
+      "outputs": {
+        "measuredRatio": 1,
+        "indexedCandidateCount": 12,
+        "offeredCandidateCount": 12
+      },
+      "summary": "Ranking semántico solicitado y aplicado sobre 12 candidato(s) elegible(s) del destino: 12 tenían un vector compatible con el índice activo y se ofrecieron 12 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+      "decision": {
+        "reason": "Índice semántico compatible disponible.",
+        "status": "PASS",
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "reasonCodes": [
+          "APPLIED"
+        ],
+        "triggeredActions": [
+          "BUILD_RANKED_WINDOW"
+        ]
+      },
+      "component": "VectorStoreService + pgvector",
+      "semanticRanking": {
+        "model": "nomic-embed-text",
+        "status": "applied",
+        "provider": "ollama",
+        "dimensions": 256,
+        "documentVersion": 3,
+        "indexedCandidateCount": 12,
+        "offeredCandidateCount": 12,
+        "eligibleCandidateCount": 12
+      }
+    },
+    {
+      "label": "Planificación diaria determinística",
+      "rules": [
+        {
+          "rule": "Mantener exactamente los buckets de días solicitados por el planner",
+          "actual": 1,
+          "reason": "El solver devolvió 1 bucket(s) de día.",
+          "result": "PASS",
+          "ruleId": "PLAN-DAYS-001"
+        },
+        {
+          "rule": "No seleccionar candidatos que el solver haya marcado como no factibles",
+          "reason": "0 candidato(s) quedaron fuera con reason codes explícitos.",
+          "result": "PASS",
+          "ruleId": "PLAN-FEASIBILITY-001"
+        },
+        {
+          "rule": "Declarar si las estimaciones de traslado son aproximadas",
+          "actual": false,
+          "reason": "El solver informa estimaciones de traslado no aproximadas.",
+          "result": "PASS",
+          "ruleId": "PLAN-TRAVEL-001"
+        }
+      ],
+      "stage": "daily_planning",
+      "inputs": {
+        "solver": "GreedyDailyPlanningSolver",
+        "iterations": 1,
+        "approximateTravel": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 30.40501666666666,
+            "utilizationMinutes": 648.6708333333331,
+            "totalWalkingMinutes": 48.67083333333333,
+            "totalExperienceMinutes": 618.2658166666666
+          }
+        ],
+        "score": 5,
+        "selectedCount": 5,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 11.32916666666688
+          }
+        ]
+      },
+      "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+      "decision": {
+        "reason": "El solver produjo una asignación determinística y físicamente evaluable.",
+        "status": "PASS",
+        "outcome": "DAILY_PLAN_BUILT",
+        "reasonCodes": [
+          "PLANNING_COMPLETED"
+        ],
+        "triggeredActions": [
+          "VALIDATE_COMPLETENESS",
+          "VALIDATE_FORMAT_COVERAGE"
+        ]
+      },
+      "component": "GreedyDailyPlanningSolver",
+      "dailyPlanning": {
+        "days": [
+          {
+            "dayNumber": 1,
+            "experienceCount": 5,
+            "totalTravelMinutes": 30.40501666666666,
+            "utilizationMinutes": 648.6708333333331,
+            "totalWalkingMinutes": 48.67083333333333,
+            "totalExperienceMinutes": 618.2658166666666
+          }
+        ],
+        "score": 5,
+        "solver": "GreedyDailyPlanningSolver",
+        "routing": {
+          "fallbackCount": 0,
+          "providerCounts": {
+            "geoapify": 6
+          },
+          "externalEstimateCount": 4,
+          "internalEstimateCount": 2,
+          "approximateEstimateCount": 0
+        },
+        "dayCount": 1,
+        "iterations": 1,
+        "selectedCount": 5,
+        "unselectedCount": 0,
+        "residualCapacity": [
+          {
+            "dayNumber": 1,
+            "meaningful": false,
+            "availableMinutes": 11.32916666666688
+          }
+        ],
+        "approximateTravel": false
+      },
+      "candidateDecisions": [
+        {
+          "id": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "name": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+          "order": 1,
+          "reason": "Asignada al día 1 en posición 1; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "name": "af952df1-4b53-4454-a531-0f68e0a1a068",
+          "order": 2,
+          "reason": "Asignada al día 1 en posición 2; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+          "name": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+          "order": 3,
+          "reason": "Asignada al día 1 en posición 3; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+          "name": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+          "order": 4,
+          "reason": "Asignada al día 1 en posición 4; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        },
+        {
+          "id": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "name": "c0264701-7b0e-4270-ab67-33dc70353934",
+          "order": 5,
+          "reason": "Asignada al día 1 en posición 5; pasó la factibilidad del solver.",
+          "status": "SELECTED",
+          "dayNumber": 1,
+          "reasonCodes": [
+            "FEASIBLE_AND_SELECTED"
+          ]
+        }
+      ]
+    },
+    {
+      "label": "Completitud del itinerario",
+      "rules": [
+        {
+          "rule": "Cada día debe tener un uso razonable cuando existen candidatos viables",
+          "reason": "No se detectaron días subutilizados con alternativas viables.",
+          "result": "PASS",
+          "ruleId": "COMP-DAY-USAGE-001"
+        }
+      ],
+      "stage": "tour_completeness",
+      "inputs": {
+        "retryAttempted": false
+      },
+      "status": "PASS",
+      "outputs": {
+        "issues": [],
+        "complete": true
+      },
+      "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+      "decision": {
+        "reason": "La política de completitud no detectó déficit accionable.",
+        "status": "PASS",
+        "outcome": "TOUR_COMPLETE",
+        "reasonCodes": [],
+        "triggeredActions": [
+          "CONTINUE"
+        ]
+      },
+      "component": "TourCompletenessValidator",
+      "providerStatus": "success",
+      "tourCompleteness": {
+        "issues": [],
+        "complete": true,
+        "retryAttempted": false
+      }
+    }
+  ],
+  "runtime": {
+    "buildCommit": "unknown",
+    "buildTimestamp": "unknown"
+  },
+  "version": 4,
+  "canonicalRequest": {
+    "days": 1,
+    "intent": {
+      "intents": [
+        "walk"
+      ],
+      "interests": [
+        "history"
+      ],
+      "explorationStyle": "balanced",
+      "additionalPreferences": "caminata histórica por San Telmo"
+    },
+    "mobility": {
+      "travelPace": "moderate",
+      "accessibilityNeeds": [],
+      "allowedTransportationModes": [
+        "walking"
+      ],
+      "maxWalkingDistancePerDayMeters": 5000,
+      "maxContinuousWalkingDistanceMeters": 3000
+    },
+    "groupType": "solo",
+    "categories": [],
+    "startDates": [],
+    "budgetLevel": "medium",
+    "destination": {
+      "label": "San Telmo, Buenos Aires, Argentina",
+      "latitude": -34.6214013,
+      "longitude": -58.37375,
+      "scaleHint": "settlement"
+    },
+    "excludeTours": [],
+    "contractVersion": 1,
+    "dietaryRestrictions": [],
+    "skipImageGeneration": true,
+    "includeExistingExperiences": true
+  },
+  "executionSummary": {
+    "status": "completed",
+    "orderedStages": [
+      {
+        "stage": "preference_interpretation",
+        "status": "WARN",
+        "ordinal": 1,
+        "summary": "Preferencias estructuradas aplicadas con respaldo determinístico.",
+        "component": "PreferenceInterpreterService"
+      },
+      {
+        "stage": "tour_intent",
+        "counts": {
+          "requestedDays": 1
+        },
+        "status": "INFO",
+        "ordinal": 2,
+        "outcome": "INTENT_ACCEPTED",
+        "summary": "Temas: history. Estilo: balanced. Modos: walking. Ritmo: moderate. Preferencias adicionales capturadas: \"caminata histórica por San Telmo\".",
+        "component": "TourGenerationRequest"
+      },
+      {
+        "stage": "destination_resolution",
+        "status": "PASS",
+        "ordinal": 3,
+        "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+        "summary": "\"San Telmo, Buenos Aires, Argentina\" resolvió a un límite real de ciudad: San Telmo. Se usa ese límite real para acotar la recuperación y adquisición de candidatos en vez de un único punto+radio. Intentos: forward:San Telmo, Buenos Aires, Argentina.",
+        "component": "DestinationResolutionService"
+      },
+      {
+        "stage": "anchor_geo_resolution",
+        "status": "PASS",
+        "ordinal": 4,
+        "summary": "La infraestructura geográfica resolvió o dejó explícitos los anchors no resueltos.",
+        "component": "AreaRouteAnchorResolverService"
+      },
+      {
+        "stage": "coverage_analysis",
+        "counts": {
+          "portfolioTarget": 4,
+          "totalDistinctEligibleExperiences": 12
+        },
+        "status": "PASS",
+        "ordinal": 5,
+        "outcome": "none",
+        "summary": "Portafolio suficiente: 12 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets solicitados satisfechos.",
+        "component": "FacetRetrievalService"
+      },
+      {
+        "stage": "db_search",
+        "counts": {
+          "candidateCount": 4
+        },
+        "status": "PASS",
+        "ordinal": 6,
+        "outcome": "CATALOG_POOL_AVAILABLE",
+        "summary": "4 Experiences recuperadas del catálogo dentro del alcance de búsqueda.",
+        "component": "ExperienceCatalog.findVerifiedWithin"
+      },
+      {
+        "stage": "candidate_pool",
+        "counts": {
+          "offeredCandidateCount": 12
+        },
+        "status": "PASS",
+        "ordinal": 7,
+        "outcome": "EXPERIENCE_POOL_RANKED",
+        "summary": "Se evaluaron 12 experiencias elegibles y se ofrecieron 12 candidatas (12 catálogo, 0 adquisición, 0 discovery).",
+        "component": "ExperienceRankingEngine"
+      },
+      {
+        "stage": "embeddings",
+        "counts": {
+          "measuredRatio": 1,
+          "indexedCandidateCount": 12,
+          "offeredCandidateCount": 12
+        },
+        "status": "PASS",
+        "ordinal": 8,
+        "outcome": "SEMANTIC_SIGNAL_APPLIED",
+        "summary": "Ranking semántico solicitado y aplicado sobre 12 candidato(s) elegible(s) del destino: 12 tenían un vector compatible con el índice activo y se ofrecieron 12 al selector. Todos los candidatos elegibles tenían embedding compatible.",
+        "component": "VectorStoreService + pgvector"
+      },
+      {
+        "stage": "daily_planning",
+        "counts": {
+          "score": 5,
+          "selectedCount": 5,
+          "unselectedCount": 0
+        },
+        "status": "PASS",
+        "ordinal": 9,
+        "outcome": "DAILY_PLAN_BUILT",
+        "summary": "Solver GreedyDailyPlanningSolver planificó 1 día(s) con 1 iteración(es) de mejora local: 5 Experience(s) seleccionada(s), 0 sin seleccionar (score total 5). Las estimaciones de traslado usadas son reales.",
+        "component": "GreedyDailyPlanningSolver"
+      },
+      {
+        "stage": "tour_completeness",
+        "status": "PASS",
+        "ordinal": 10,
+        "outcome": "TOUR_COMPLETE",
+        "summary": "El itinerario generado hace un uso razonable de los días solicitados.",
+        "component": "TourCompletenessValidator"
+      },
+      {
+        "stage": "tour_experience_materialization",
+        "counts": {
+          "componentSnapshots": 7,
+          "selectedExperiences": 5
+        },
+        "status": "PASS",
+        "ordinal": 11,
+        "outcome": "TOUR_EXPERIENCES_PERSISTED",
+        "summary": "5 TourExperience snapshot(s) persistidos desde Experience verificadas.",
+        "component": "Prisma.TourExperience"
+      }
+    ],
+    "rejectedProposals": 0,
+    "acceptedExperiences": 5,
+    "selectedExperiences": 5
+  },
+  "tourCompleteness": {
+    "issues": [],
+    "complete": true,
+    "retryAttempted": false
+  },
+  "materializedTourExperiences": [
+    {
+      "order": 1,
+      "dayNumber": 1,
+      "experienceId": "b501ba06-269a-4464-b15d-4d263b5c0be1",
+      "durationHours": 2.304430277777777,
+      "componentCount": 3
+    },
+    {
+      "order": 2,
+      "dayNumber": 1,
+      "experienceId": "af952df1-4b53-4454-a531-0f68e0a1a068",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 3,
+      "dayNumber": 1,
+      "experienceId": "d17ed5f9-1aa0-4742-92f4-45482feb2d6d",
+      "durationHours": 2,
+      "componentCount": 1
+    },
+    {
+      "order": 4,
+      "dayNumber": 1,
+      "experienceId": "86fcdaf3-2c86-4ef1-8713-c1f636a71ecb",
+      "durationHours": 1.999999999999998,
+      "componentCount": 1
+    },
+    {
+      "order": 5,
+      "dayNumber": 1,
+      "experienceId": "c0264701-7b0e-4270-ab67-33dc70353934",
+      "durationHours": 2,
+      "componentCount": 1
+    }
+  ]
+}

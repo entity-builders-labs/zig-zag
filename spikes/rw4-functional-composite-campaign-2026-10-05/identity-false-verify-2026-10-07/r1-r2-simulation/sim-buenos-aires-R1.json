@@ -1,0 +1,881 @@
+{
+ "mode": "R1",
+ "groups": [
+  [
+   "osm:node:767690911",
+   {
+    "key": "Q1024829@bolivar 65",
+    "names": [
+     "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+     "Ратуша Буэнос-Айреса",
+     "Ратуша Буенос-Айреса",
+     "Cabildo de Buenos Aires",
+     "Cabildo",
+     "Cabildo de Mayo",
+     "ブエノスアイレスのカビルド",
+     "布宜诺斯艾利斯卡比尔多"
+    ],
+    "ids": [
+     "osm:node:767690911",
+     "osm:way:293947112"
+    ]
+   }
+  ],
+  [
+   "osm:way:293947112",
+   {
+    "key": "Q1024829@bolivar 65",
+    "names": [
+     "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+     "Ратуша Буэнос-Айреса",
+     "Ратуша Буенос-Айреса",
+     "Cabildo de Buenos Aires",
+     "Cabildo",
+     "Cabildo de Mayo",
+     "ブエノスアイレスのカビルド",
+     "布宜诺斯艾利斯卡比尔多"
+    ],
+    "ids": [
+     "osm:node:767690911",
+     "osm:way:293947112"
+    ]
+   }
+  ]
+ ],
+ "runs": [
+  {
+   "label": "acquisition-pass-1-area_route_walk-san-telmo|Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "componentSearchScope": {
+    "kind": "ROUTE",
+    "provenance": "CANDIDATE_ROUTE",
+    "name": "Defensa",
+    "geoEntityId": "geo-undefined",
+    "destinationRelation": "INSIDE"
+   },
+   "components": [
+    {
+     "name": "Teatro Colón",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Teatro Colón",
+     "externalId": "osm:way:23633911",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Obelisco",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Obelisco",
+     "externalId": "osm:way:1332861812",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Plaza de Mayo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Plaza de Mayo",
+     "externalId": "osm:node:4867324600",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Congress building",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Plaza",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Plaza Dorrego",
+     "externalId": "osm:way:31364659",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Casa Rosada",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Casa Rosada",
+     "externalId": "osm:way:185738988",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Cathedral",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Russian Orthodox Church Abroad - Cathedral Of The Resurrection",
+     "externalId": "osm:node:10721964094",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Cabildo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Cabildo de Buenos Aires",
+     "externalId": "osm:way:293947112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Defensa Street",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "STRUCTURED_ROUTE",
+     "candidate": "Defensa",
+     "externalId": "osm:way:158893264",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TARGETED_ROUTE:VERIFIED"
+     ]
+    },
+    {
+     "name": "Farmacia la Estrella",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Farmacia de la Estrella",
+     "externalId": "osm:node:3348573778",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:INSUFFICIENT_EVIDENCE",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "La Librería del Avila",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "La Librería de Avila",
+     "externalId": "osm:node:3348571875",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Monumento de Mafalda",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Monumento Guardacostas",
+     "externalId": "osm:node:479750717",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Casa Mínima",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Casa Mínima",
+     "externalId": "osm:node:4440588689",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "The San Telmo Market",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Mercado de San Telmo",
+     "externalId": "osm:way:158893271",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "El Patio de los Ezeiza",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Patio de las Palmeras",
+     "externalId": "osm:way:531283814",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 1 of 3)",
+   "componentSearchScope": {
+    "kind": "AREA",
+    "provenance": "CANDIDATE_AREA",
+    "name": "San Telmo",
+    "geoEntityId": "geo-osm:relation:2223069",
+    "destinationRelation": "INSIDE"
+   },
+   "components": [
+    {
+     "name": "Teatro Colón",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Teatro Colón",
+     "externalId": "osm:way:23633911",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Plaza de Mayo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Plaza de Mayo",
+     "externalId": "osm:node:4867324673",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Casa Rosada",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Casa Rosada",
+     "externalId": "osm:way:185738988",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Cathedral",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Russian Orthodox Church Abroad - Cathedral Of The Resurrection",
+     "externalId": "osm:node:10721964094",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Cabildo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Cabildo de Buenos Aires",
+     "externalId": "osm:way:293947112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "San Telmo",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "QID_LINK",
+     "candidate": "San Telmo",
+     "externalId": "osm:relation:2223069",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:VERIFIED"
+     ]
+    },
+    {
+     "name": "Farmacia la Estrella",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Farmacia de la Estrella",
+     "externalId": "osm:node:3348573778",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:INSUFFICIENT_EVIDENCE",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "La Librería del Avila",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "La Librería de Avila",
+     "externalId": "osm:node:3348571875",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Monumento de Mafalda",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Monumento Guardacostas",
+     "externalId": "osm:node:479750717",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Casa Mínima",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Casa Mínima",
+     "externalId": "osm:node:4440588689",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "The San Telmo Market",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Mercado de San Telmo",
+     "externalId": "osm:way:158893271",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "El Patio de los Ezeiza",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Patio de las Palmeras",
+     "externalId": "osm:way:531283814",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "acquisition-pass-1-planner_capacity|Self Guided Walking Tour San Telmo (part 2 of 3)",
+   "componentSearchScope": {
+    "kind": "AREA",
+    "provenance": "DESTINATION_AREA",
+    "name": "Buenos Aires"
+   },
+   "components": [
+    {
+     "name": "Caminito",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "STRUCTURED_ROUTE",
+     "candidate": "Caminito",
+     "externalId": "osm:way:144844726",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TARGETED_ROUTE:VERIFIED"
+     ]
+    },
+    {
+     "name": "Don Carlos",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Don Carlos",
+     "externalId": "osm:node:4575480167",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Caminito Street",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "STRUCTURED_ROUTE",
+     "candidate": "Caminito",
+     "externalId": "osm:way:144844726",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TARGETED_ROUTE:VERIFIED"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "acquisition-pass-1-planner_capacity|Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+   "componentSearchScope": {
+    "kind": "AREA",
+    "provenance": "DESTINATION_AREA",
+    "name": "Buenos Aires"
+   },
+   "components": [
+    {
+     "name": "PLAZA DE MAYO",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Plaza de Mayo",
+     "externalId": "osm:node:11548018260",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Casa Rosada",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Casa Rosada",
+     "externalId": "osm:way:185738988",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Catedral Metropolitana",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Catedral Metropolitana",
+     "externalId": "osm:way:265344159",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Cabildo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Cabildo",
+     "externalId": "osm:node:5029112112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Catedral",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Catedral",
+     "externalId": "osm:node:4867324671",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Mausoleum of General San Martín",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Monumento al General San Martín",
+     "externalId": "osm:node:667772497",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Feria San Telmo",
+     "finalStatus": "unresolved",
+     "verdict": "REJECTED",
+     "rule": "QID_LINK_MISMATCH",
+     "candidate": "Mercado de San Telmo",
+     "externalId": "osm:way:158893271",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:REJECTED",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "oldest neighborhood of the capital city",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:-",
+      "AREA_TO_PLACE_CORRECTION:-"
+     ]
+    },
+    {
+     "name": "Bar Sur",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Bar Sur",
+     "externalId": "osm:node:2722400019",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:VERIFIED"
+     ]
+    },
+    {
+     "name": "big building with columns",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Mercado de San Telmo",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Mercado de San Telmo",
+     "externalId": "osm:way:158893271",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Plaza Dorrego",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Plaza Dorrego",
+     "externalId": "osm:way:31364659",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "Museum of Modern Arts",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Club Atlético",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Club Atlético San Lorenzo de Almagro - Sede Boedo",
+     "externalId": "osm:way:23634484",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:INSUFFICIENT_EVIDENCE",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Parque Lezama",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Parque Lezama",
+     "externalId": "osm:way:17441757",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    },
+    {
+     "name": "national history museum",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:-",
+      "NOMINATIM:-",
+      "PLACES:-"
+     ]
+    },
+    {
+     "name": "Avenida Caseros",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TARGETED_ROUTE:-"
+     ]
+    },
+    {
+     "name": "red walkway",
+     "finalStatus": "unresolved",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TARGETED_ROUTE:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Cabildo",
+   "components": [
+    {
+     "name": "Cabildo",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Cabildo",
+     "externalId": "osm:node:5029112112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Cabildo de Buenos Aires",
+   "components": [
+    {
+     "name": "Cabildo de Buenos Aires",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Cabildo de Buenos Aires",
+     "externalId": "osm:way:293947112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Cabildo de Mayo",
+   "components": [
+    {
+     "name": "Cabildo de Mayo",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Cabildo de Buenos Aires",
+     "externalId": "osm:way:293947112",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:INSUFFICIENT_EVIDENCE",
+      "PLACES:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "components": [
+    {
+     "name": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+     "candidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+     "externalId": "osm:node:767690911",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:VERIFIED"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Don Carlos",
+   "components": [
+    {
+     "name": "Don Carlos",
+     "finalStatus": "unresolved",
+     "verdict": "AMBIGUOUS",
+     "rule": "MATERIAL_COMPETITOR_KNOWN",
+     "candidate": "Don Carlos",
+     "externalId": "osm:node:4575480167",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:AMBIGUOUS",
+      "NOMINATIM:AMBIGUOUS",
+      "PLACES:-"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|El Zanjón de Granados",
+   "components": [
+    {
+     "name": "El Zanjón de Granados",
+     "finalStatus": "resolved",
+     "verdict": "VERIFIED",
+     "rule": "GROUNDED_CONVERGENCE",
+     "candidate": "El Zanjón de Granados (historic ruins)",
+     "externalId": "osm:node:9953027884",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:VERIFIED"
+     ]
+    }
+   ]
+  },
+  {
+   "label": "single|Farmacia la Estrella",
+   "components": [
+    {
+     "name": "Farmacia la Estrella",
+     "finalStatus": "unresolved",
+     "verdict": "INSUFFICIENT_EVIDENCE",
+     "rule": "NO_DECISIVE_EVIDENCE",
+     "candidate": "Farmacia de la Estrella",
+     "externalId": "osm:node:3348573778",
+     "attempts": [
+      "CATALOG_REUSE:-",
+      "TRUSTED_OBSERVATION_REUSE:-",
+      "LOCAL_OSM_POOL:INSUFFICIENT_EVIDENCE",
+      "NOMINATIM:INSUFFICIENT_EVIDENCE",
+      "PLACES:-"
+     ]
+    }
+   ]
+  }
+ ]
+}

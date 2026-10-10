@@ -1,0 +1,164 @@
+/**
+ * Offline R1 / R1+R2 decision-impact simulation (no production change).
+ * MODE=BASELINE | R1 | R1R2. R1 groups come from r1-groups.json (production
+ * pool, located QID + same exact address).
+ */
+import * as fs from 'fs';
+import { ConfigService } from '@nestjs/config';
+import { OverpassApiService } from '@integrations/osm/services/overpass-api.service';
+import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
+import { NominatimApiService } from '@integrations/osm/services/nominatim-api.service';
+import { WikidataApiService } from '@integrations/wikidata/services/wikidata-api.service';
+import { overpassElementToGeoJson } from '@integrations/osm/utils/osm-geometry.util';
+import { ExperienceProposalResolverService } from '../services/experience-proposal-resolver.service';
+import { IdentityVerifier } from '../services/identity-verifier.service';
+import * as competitorPolicy from '../utils/competitor-examination.policy';
+import { extractDeclaredNameAliases, normalizeGeoName } from '../utils/nominatim-match.util';
+import { withDefaultGeographicAuthorization } from '../utils/geographic-validation-authorization.util';
+import { projectComponentIdentityStepInputs } from '../utils/generation-trace/resolution-audit';
+
+jest.setTimeout(1800000);
+const MODE = process.env.MODE ?? 'BASELINE';
+
+it(`simulates ${MODE}`, async () => {
+  const groupsReport = JSON.parse(fs.readFileSync(process.env.GROUPS!, 'utf8'));
+  const groupOf = new Map<string, { key: string; names: string[]; ids: string[] }>();
+  for (const dest of Object.values<any>(groupsReport))
+    for (const g of dest.groups.filter((g: any) => g.r1))
+      for (const set of g.r1Sets) {
+        const recs = g.records.filter((r: any) => set.ids.includes(r.id));
+        const names = [...new Set(recs.flatMap((r: any) => [...Object.values<string>(r.names).flatMap((n) => n.split(';').map((s) => s.trim())), ...r.declaredAliases]))] as string[];
+        for (const id of set.ids) groupOf.set(id, { key: `${g.qid}@${set.address}`, names, ids: set.ids });
+      }
+
+  if (MODE !== 'BASELINE') {
+    const proto: any = ExperienceProposalResolverService.prototype;
+    const r1Key = (osmId: string) => groupOf.get(osmId) && `r1/${groupOf.get(osmId)!.key}`;
+    const examine = competitorPolicy.examineCompetitors;
+    jest.spyOn(competitorPolicy, 'examineCompetitors').mockImplementation((input: any) =>
+      examine({
+        ...input,
+        pools: input.pools.map((pool: any) => ({
+          ...pool,
+          members: pool.members.map((m: any) => {
+            const extra = m.identityKeys.map((k: string) => r1Key(k.replace(/^openstreetmap\//, ''))).filter(Boolean);
+            return extra.length ? { ...m, identityKeys: [...m.identityKeys, ...extra] } : m;
+          }),
+        })),
+      }),
+    );
+    const collapse = (pool: any[], hint: string) => {
+      const needle = normalizeGeoName(hint);
+      const rep = new Map<string, any>();
+      for (const c of pool) { const x = groupOf.get(c.id); if (!x) continue; if (!rep.has(x.key) || normalizeGeoName(c.name) === needle) rep.set(x.key, c); }
+      return pool.flatMap((c) => {
+        const g = groupOf.get(c.id);
+        if (!g) return [c];
+        if (rep.get(g.key) !== c) return [];
+        return MODE === 'R1R2'
+          ? [{ ...c, nameAliasCandidates: [...new Set([...extractDeclaredNameAliases(c.tags), ...g.names])] }]
+          : [c];
+      });
+    };
+    const multiplicity = proto.localPoolNameMultiplicity;
+    jest.spyOn(proto, 'localPoolNameMultiplicity').mockImplementation(function (this: any, hint: any, pool: any, scope: any) {
+      return multiplicity.call(this, hint, collapse(pool, hint), scope);
+    });
+    const build = proto.buildOsmCandidate;
+    jest.spyOn(proto, 'buildOsmCandidate').mockImplementation(function (this: any, hint: any, matched: any, mult: any) {
+      const candidate = build.call(this, hint, matched, mult);
+      const g = groupOf.get(matched.id);
+      if (!g) return candidate;
+      candidate.identities = [
+        ...(candidate.identities?.length ? candidate.identities : [{ provider: candidate.provider, externalId: candidate.externalId }]),
+        { provider: 'r1', externalId: g.key },
+      ];
+      if (MODE === 'R1R2') candidate.nameAliasCandidates = [...new Set([...(candidate.nameAliasCandidates ?? []), ...g.names])];
+      return candidate;
+    });
+  }
+
+  const config = new ConfigService({ OVERPASS_API_URL: 'http://localhost:12345/api/interpreter', NOMINATIM_API_URL: 'http://localhost:8088/search' });
+  const overpass = new OverpassApiService(config);
+  const osm = new OsmPlacesService(overpass as any, config);
+  const cache = new Map<string, any>();
+  const osmProxy: any = new Proxy(osm, {
+    get(target: any, prop: string) {
+      const value = target[prop];
+      if (typeof value !== 'function') return value;
+      return async (...args: any[]) => {
+        const key = `${prop}:${JSON.stringify(args.map((a) => (a && a.id ? a.id : a)))}`;
+        if (!cache.has(key)) cache.set(key, await value.apply(target, args));
+        return cache.get(key);
+      };
+    },
+  });
+  const wd = new WikidataApiService(config);
+  const decisions: any[] = [];
+  const decide = IdentityVerifier.prototype.decide;
+  jest.spyOn(IdentityVerifier.prototype, 'decide').mockImplementation(function (this: any, hint: any, attempt: any) {
+    const d = decide.call(this, hint, attempt);
+    decisions.push({ hint: hint.name, strategy: attempt.strategy, candidate: attempt.candidate.canonicalName, externalId: attempt.candidate.externalId, status: d.status, rule: d.rule, evidence: attempt.evidence.map((e: any) => e.type + (e.correspondence ? ':' + e.correspondence : '') + (e.hintCorrespondence ? ':' + e.hintCorrespondence + '/' + e.candidateCorrespondence : '') + (e.outcome ? ':' + e.outcome : '') + (e.identityMultiplicity ? ':' + e.identityMultiplicity : '') + (e.competitorCount !== undefined ? ':' + e.competitorCount : '')) });
+    return d;
+  });
+
+  // The C3 run held one catalog AREA by the time PLANNER_CAPACITY ran: San
+  // Telmo (osm:relation:2223069), resolved by an earlier pass and reused via
+  // CATALOG_REUSE. Seed exactly that row, nothing else.
+  const st = await (overpass as any).execute('[out:json][timeout:120];relation(2223069);out geom;');
+  const sanTelmo: any = {
+    geoEntityId: 'be1c0eff-3003-4b3c-bd18-72490bd6bc2f', name: 'San Telmo', kind: 'AREA',
+    latitude: null, longitude: null, geometry: overpassElementToGeoJson(st[0]), address: null,
+    identities: [{ provider: 'openstreetmap', externalId: 'osm:relation:2223069' }], matchKind: 'CANONICAL_NAME',
+  };
+  const service = new ExperienceProposalResolverService(
+    osmProxy,
+    {
+      findGeoEntityCandidatesForHint: jest.fn(async (...args: any[]) => {
+        const text = JSON.stringify(args).toLowerCase();
+        return { candidates: text.includes('"san telmo"') && text.includes('area') ? [sanTelmo] : [] };
+      }),
+      rememberVerifiedHintName: jest.fn().mockResolvedValue('REMEMBERED'),
+      findGeoEntityIdsByIdentities: jest.fn().mockResolvedValue([]),
+      upsertGeoEntityWithIdentities: jest.fn(async (e: any) => ({ status: 'CREATED', geoEntity: { id: `geo-${e.externalId}`, ...e }, attachedExternalIds: [] as string[] })),
+      upsertGeoEntity: jest.fn(async (e: any) => ({ id: `geo-${e.externalId}`, ...e })),
+      resolveOrCreateTraitDefinitions: jest.fn().mockResolvedValue([]),
+      persistVerifiedExperience: jest.fn().mockResolvedValue({ id: 'exp', dedupeDecision: 'NEW' }),
+    } as any,
+    { validate: jest.fn().mockReturnValue({ accepted: true }) } as any,
+    undefined,
+    new NominatimApiService(config) as any,
+    { provider: 'geoapify', declaresSourceIdentitiesInDetails: true, searchText: jest.fn().mockResolvedValue({ data: [], provenance: {} }), getPlaceDetails: jest.fn() } as any,
+    { getEntitySummaries: (q: string[]) => wd.getEntitySummaries(q), findNearbyPlaces: (a: number, b: number, c: number) => wd.findNearbyPlaces(a, b, c), lookupPhysicalLocation: (q: string[]) => wd.lookupPhysicalLocation(q) } as any,
+  );
+  const rel = await (overpass as any).execute('[out:json][timeout:120];relation(1224652);out geom;');
+  const boundary = { id: 'osm:relation:1224652', name: 'Buenos Aires', osmType: 'relation', osmId: 1224652, tags: rel[0].tags, geometry: overpassElementToGeoJson(rel[0]) };
+
+  const candidates = JSON.parse(fs.readFileSync(process.env.CANDIDATES!, 'utf8'));
+  const singles = (process.env.HINTS ?? '').split('|').filter(Boolean);
+  for (const h of singles)
+    candidates[`single|${h}`] = [{ key: 'm-1', name: h, role: 'venue', expectedKind: 'PLACE', evidenceKeys: ['ev-1'] }];
+  const runs: any[] = [];
+  for (const [label, hints] of Object.entries<any[]>(candidates)) {
+    const name = label.split('|')[1];
+    const start = decisions.length;
+    const result = await service.resolve({
+      destinationName: 'Buenos Aires, Argentina', destinationCountryCode: 'AR',
+      geographicScope: { kind: 'AREA_BOUNDARY', boundary },
+      candidates: withDefaultGeographicAuthorization([{ name, themes: [], traits: [], intents: ['visit'], componentHints: hints, evidenceKeys: ['ev-1'], shortReason: 'forensic' }]),
+      evidence: [{ key: 'ev-1', source: 'web', title: `${name} - Buenos Aires walk`, snippet: `${name} in Buenos Aires` }],
+    } as any);
+    const audit = (result as any).entityResolution.forensicAudit[0];
+    const steps = projectComponentIdentityStepInputs(result as any, { strategy: 'forensic', passNumber: 1 } as any);
+    runs.push({
+      label,
+      componentSearchScope: (steps[0]?.facts as any)?.componentSearchScope,
+      components: audit.componentAudits.map((c: any) => {
+        const deciding = [...c.attempts].reverse().find((a: any) => a.verificationDecision === 'VERIFIED') ?? [...c.attempts].reverse().find((a: any) => a.candidateAcquired);
+        return { name: c.hintName, finalStatus: c.finalStatus, verdict: deciding?.verificationDecision, rule: deciding?.verificationRule, candidate: deciding?.selectedCandidate?.canonicalName, externalId: deciding?.selectedCandidate?.externalId, attempts: c.attempts.map((a: any) => `${a.strategy}:${a.verificationDecision ?? '-'}`) };
+      }),
+      decisions: decisions.slice(start),
+    });
+  }
+  fs.writeFileSync(process.env.OUT!, JSON.stringify({ mode: MODE, groups: [...groupOf.entries()], runs }, null, 1));
+});

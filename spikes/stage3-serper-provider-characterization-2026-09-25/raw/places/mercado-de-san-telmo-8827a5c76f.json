@@ -1,0 +1,141 @@
+{
+  "endpoint": "places",
+  "request": {
+    "q": "Mercado de San Telmo",
+    "location": "Buenos Aires, Argentina",
+    "gl": "ar"
+  },
+  "capturedAt": "2026-09-25T12:54:34.694Z",
+  "meta": {
+    "endpoint": "places",
+    "httpStatus": 200,
+    "durationMs": 2675
+  },
+  "data": {
+    "searchParameters": {
+      "q": "Mercado de San Telmo",
+      "gl": "ar",
+      "uule": "w+CAIQICIXQnVlbm9zIEFpcmVzLCBBcmdlbnRpbmE=",
+      "type": "places",
+      "num": 10,
+      "page": 1,
+      "location": "Buenos Aires, Argentina",
+      "engine": "google"
+    },
+    "places": [
+      {
+        "position": 1,
+        "title": "Mercado San Telmo",
+        "address": "Bolívar 970, C1066AAT",
+        "latitude": -34.619305,
+        "longitude": -58.37282,
+        "rating": 4.5,
+        "ratingCount": 29000,
+        "category": "Market",
+        "cid": "8192213105842434178"
+      },
+      {
+        "position": 2,
+        "title": "Mercado de San Telmo",
+        "address": "Defensa 963, C1066AAQ",
+        "latitude": -34.618797,
+        "longitude": -58.372543,
+        "rating": 4.5,
+        "ratingCount": 12000,
+        "category": "Market",
+        "cid": "9185647501561373425"
+      },
+      {
+        "position": 3,
+        "title": "San Telmo Fair",
+        "address": "Defensa 320",
+        "latitude": -34.611446,
+        "longitude": -58.371906,
+        "rating": 4.5,
+        "ratingCount": 5400,
+        "category": "Market",
+        "cid": "1965224047085179733"
+      },
+      {
+        "position": 4,
+        "title": "MERCI Mercado de San Telmo",
+        "address": "Carlos Calvo 455",
+        "latitude": -34.61942,
+        "longitude": -58.37249,
+        "rating": 4.5,
+        "ratingCount": 3700,
+        "priceLevel": "$10,000–40,000",
+        "category": "Bakery",
+        "cid": "6682215339484553825"
+      },
+      {
+        "position": 5,
+        "title": "San Telmo Antiques Fair",
+        "address": "Humberto 1º 401",
+        "latitude": -34.620644,
+        "longitude": -58.37222,
+        "rating": 4.5,
+        "ratingCount": 2700,
+        "category": "Flea market",
+        "cid": "13481442954037015123"
+      },
+      {
+        "position": 6,
+        "title": "Mercado comida san Telmo",
+        "address": "Bolívar 976",
+        "latitude": -34.619305,
+        "longitude": -58.372505,
+        "rating": 4.7,
+        "ratingCount": 19,
+        "category": "Bakery",
+        "cid": "10750896036832355643"
+      },
+      {
+        "position": 7,
+        "title": "La Nueva Fortaleza de San Telmo",
+        "address": "Bolívar 1500",
+        "latitude": -34.625362,
+        "longitude": -58.37252,
+        "rating": 2.9,
+        "ratingCount": 28,
+        "category": "Market",
+        "cid": "14470607315781979012"
+      },
+      {
+        "position": 8,
+        "title": "Mercado San Telmo entrada por calle Defensa",
+        "address": "Defensa 961",
+        "latitude": -34.61912,
+        "longitude": -58.371613,
+        "rating": 4.1,
+        "ratingCount": 18,
+        "category": "Shopping mall",
+        "cid": "715794616937375860"
+      },
+      {
+        "position": 9,
+        "title": "Mercado de San Nicolás",
+        "address": "Av. Córdoba 1750",
+        "latitude": -34.599804,
+        "longitude": -58.39208,
+        "rating": 4,
+        "ratingCount": 317,
+        "category": "Market",
+        "cid": "7188157942409131150"
+      },
+      {
+        "position": 10,
+        "title": "The Market Burger",
+        "address": "Mercado San Telmo, Carlos Calvo 455 Loc 19/20",
+        "latitude": -34.619324,
+        "longitude": -58.37247,
+        "rating": 4.4,
+        "ratingCount": 374,
+        "priceLevel": "$10,000–20,000",
+        "category": "Hamburger",
+        "cid": "5847802914138170201"
+      }
+    ],
+    "credits": 1
+  }
+}

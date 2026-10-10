@@ -1,0 +1,72 @@
+{
+  "cold-1": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 3,
+    "geoapify.place-details": 9,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 124,
+    "groq": 29,
+    "localhost:11434": 15,
+    "nominatim.local/search": 4,
+    "overpass.local": 6,
+    "serper": 3,
+    "wikidata": 13,
+    "wikipedia(en.wikipedia.org)": 5,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "warm": {
+    "es.wikivoyage.org": 1,
+    "geoapify/v1/routing": 124,
+    "groq": 5,
+    "localhost:11434": 4,
+    "nominatim.local/search": 1,
+    "overpass.local": 2,
+    "serper": 1,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "cold-2": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 2,
+    "geoapify.place-details": 9,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 30,
+    "groq": 30,
+    "localhost:11434": 13,
+    "nominatim.local/search": 4,
+    "overpass.local": 4,
+    "serper": 2,
+    "wikidata": 12,
+    "wikipedia(en.wikipedia.org)": 3,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "cold-3": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 2,
+    "geoapify.place-details": 9,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 30,
+    "groq": 25,
+    "localhost:11434": 13,
+    "nominatim.local/search": 4,
+    "overpass.local": 4,
+    "serper": 2,
+    "wikidata": 12,
+    "wikipedia(en.wikipedia.org)": 3,
+    "wikipedia(es.wikipedia.org)": 1
+  },
+  "cold-4": {
+    "commons.wikimedia.org": 6,
+    "es.wikivoyage.org": 2,
+    "geoapify.place-details": 9,
+    "geoapify.places": 1,
+    "geoapify/v1/routing": 30,
+    "groq": 25,
+    "localhost:11434": 13,
+    "nominatim.local/search": 4,
+    "overpass.local": 4,
+    "serper": 2,
+    "wikidata": 12,
+    "wikipedia(en.wikipedia.org)": 3,
+    "wikipedia(es.wikipedia.org)": 1
+  }
+}

@@ -1,0 +1,74 @@
+[
+  {
+    "input": "SOB_UNIT",
+    "run": 1,
+    "ms": 50010,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: TimeoutError: The operation was aborted due to timeout"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 2,
+    "ms": 50013,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: TimeoutError: The operation was aborted due to timeout"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "SOB_UNIT",
+    "run": 3,
+    "ms": 3813,
+    "inputChars": 14926,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.5-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 1,
+    "ms": 25906,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.5-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 2,
+    "ms": 7437,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.5-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  },
+  {
+    "input": "AG_UNIT",
+    "run": 3,
+    "ms": 5544,
+    "inputChars": 13309,
+    "failures": [
+      "THROWN: Error: Gemini error 503: {\"error\":{\"message\":\"gemini-3.5-flash is currently experiencing high demand, spikes in demand are usually temporary. Please try again later.\",\"code\":\"service_unavailable\"}}"
+    ],
+    "validationErrors": [],
+    "candidatesTotal": 0,
+    "scored": []
+  }
+]

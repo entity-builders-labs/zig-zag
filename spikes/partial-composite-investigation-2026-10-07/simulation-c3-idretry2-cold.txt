@@ -1,0 +1,73 @@
+# as-run (c3-idretry2-cold)
+
+## area_route_walk-san-telmo | Self Guided Walking Tour San Telmo (part 1 of 3)
+   source=14 resolved=4 distinct=4 [Obelisco@-34.6037093,-58.3816296; Casa Rosada@-34.6080692,-58.3702762; Defensa@-34.6195152,-58.3715225; Casa Mínima@-34.6167555,-58.3713487]
+   unresolved=10 {"AMBIGUOUS_CANDIDATES":4,"CANDIDATE_UNCONFIRMED":5,"NO_CANDIDATE_ACQUIRED":1}  scope-role unresolved: -
+   => PARTIAL -> geographic validation
+
+## area_route_walk-san-telmo | Self Guided Walking Tour San Telmo (part 2 of 3)
+   source=3 resolved=2 distinct=1 [Caminito@-34.6393481,-58.3626552]
+   unresolved=1 {"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: -
+   => REJECT (below floor)
+
+## area_route_walk-san-telmo | Self-Guided Walking Tour of Buenos Aires Day 1: Plaza de Mayo to San Telmo
+   source=12 resolved=8 distinct=8 [Casa Rosada@-34.6080692,-58.3702762; Catedral Metropolitana@-34.6074744,-58.3732765; Defensa@-34.6195152,-58.3715225; Bar Sur@-34.6183462,-58.3700905; Mercado de San Telmo@-34.6190607,-58.3722354; Plaza Dorrego@-34.6204739,-58.3717792; Avenida San Juan@-34.6263034,-58.4220457; Parque Lezama@-34.6271301,-58.369574]
+   unresolved=4 {"AMBIGUOUS_CANDIDATES":3,"NO_CANDIDATE_ACQUIRED":1}  scope-role unresolved: Estados Unidos(route), Paseo de Colon(route)
+   => PARTIAL -> geographic validation
+
+## area_route_walk-san-telmo | Self-Guided Walking Tour of La Boca
+   source=2 resolved=0 distinct=0 []
+   unresolved=2 {"CANDIDATE_UNCONFIRMED":1,"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: -
+   => REJECT (below floor)
+
+## generic | Tour Description
+   source=6 resolved=2 distinct=2 [Casa Mínima@-34.6167555,-58.3713487; Mercado de San Telmo@-34.6190607,-58.3722354]
+   unresolved=4 {"CANDIDATE_UNCONFIRMED":2,"NO_CANDIDATE_ACQUIRED":1,"CANDIDATE_REJECTED":1}  scope-role unresolved: Comic Strip Walk(route)
+   => PARTIAL -> geographic validation
+
+## planner_capacity | Walking tour Buenos Aires – Day 1 (part 1 of 2)
+   source=19 resolved=9 distinct=9 [Casa Rosada@-34.6080692,-58.3702762; Catedral Metropolitana@-34.6074744,-58.3732765; Edificio First National Bank of Boston@-34.6070608,-58.3748214; Museo Histórico Nacional del Cabildo y de la Revolución de Mayo@-34.6087695,-58.3738806; Bar Sur@-34.6183462,-58.3700905; Mercado de San Telmo@-34.6190607,-58.3722354; Plaza Dorrego@-34.6204739,-58.3717792; Club Atlético San Lorenzo de Almagro - Sede Boedo@-34.6349503,-58.4238986; Parque Lezama@-34.6271301,-58.369574]
+   unresolved=10 {"AMBIGUOUS_CANDIDATES":4,"CANDIDATE_UNCONFIRMED":2,"CANDIDATE_REJECTED":1,"NO_CANDIDATE_ACQUIRED":3}  scope-role unresolved: oldest neighborhood of the capital city(area), Avenida Caseros(route)
+   => PARTIAL -> geographic validation
+
+## planner_capacity | Walking tour Buenos Aires – Day 1 (part 2 of 2)
+   source=2 resolved=0 distinct=0 []
+   unresolved=2 {"NO_CANDIDATE_ACQUIRED":1,"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: El Caminito(route)
+   => REJECT (below floor)
+
+# HEAD identity (Club Atletico AMBIGUOUS after 444e3bb3)
+
+## area_route_walk-san-telmo | Self Guided Walking Tour San Telmo (part 1 of 3)
+   source=14 resolved=4 distinct=4 [Obelisco@-34.6037093,-58.3816296; Casa Rosada@-34.6080692,-58.3702762; Defensa@-34.6195152,-58.3715225; Casa Mínima@-34.6167555,-58.3713487]
+   unresolved=10 {"AMBIGUOUS_CANDIDATES":4,"CANDIDATE_UNCONFIRMED":5,"NO_CANDIDATE_ACQUIRED":1}  scope-role unresolved: -
+   => PARTIAL -> geographic validation
+
+## area_route_walk-san-telmo | Self Guided Walking Tour San Telmo (part 2 of 3)
+   source=3 resolved=2 distinct=1 [Caminito@-34.6393481,-58.3626552]
+   unresolved=1 {"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: -
+   => REJECT (below floor)
+
+## area_route_walk-san-telmo | Self-Guided Walking Tour of Buenos Aires Day 1: Plaza de Mayo to San Telmo
+   source=12 resolved=8 distinct=8 [Casa Rosada@-34.6080692,-58.3702762; Catedral Metropolitana@-34.6074744,-58.3732765; Defensa@-34.6195152,-58.3715225; Bar Sur@-34.6183462,-58.3700905; Mercado de San Telmo@-34.6190607,-58.3722354; Plaza Dorrego@-34.6204739,-58.3717792; Avenida San Juan@-34.6263034,-58.4220457; Parque Lezama@-34.6271301,-58.369574]
+   unresolved=4 {"AMBIGUOUS_CANDIDATES":3,"NO_CANDIDATE_ACQUIRED":1}  scope-role unresolved: Estados Unidos(route), Paseo de Colon(route)
+   => PARTIAL -> geographic validation
+
+## area_route_walk-san-telmo | Self-Guided Walking Tour of La Boca
+   source=2 resolved=0 distinct=0 []
+   unresolved=2 {"CANDIDATE_UNCONFIRMED":1,"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: -
+   => REJECT (below floor)
+
+## generic | Tour Description
+   source=6 resolved=2 distinct=2 [Casa Mínima@-34.6167555,-58.3713487; Mercado de San Telmo@-34.6190607,-58.3722354]
+   unresolved=4 {"CANDIDATE_UNCONFIRMED":2,"NO_CANDIDATE_ACQUIRED":1,"CANDIDATE_REJECTED":1}  scope-role unresolved: Comic Strip Walk(route)
+   => PARTIAL -> geographic validation
+
+## planner_capacity | Walking tour Buenos Aires – Day 1 (part 1 of 2)
+   source=19 resolved=8 distinct=8 [Casa Rosada@-34.6080692,-58.3702762; Catedral Metropolitana@-34.6074744,-58.3732765; Edificio First National Bank of Boston@-34.6070608,-58.3748214; Museo Histórico Nacional del Cabildo y de la Revolución de Mayo@-34.6087695,-58.3738806; Bar Sur@-34.6183462,-58.3700905; Mercado de San Telmo@-34.6190607,-58.3722354; Plaza Dorrego@-34.6204739,-58.3717792; Parque Lezama@-34.6271301,-58.369574]
+   unresolved=11 {"AMBIGUOUS_CANDIDATES":5,"CANDIDATE_UNCONFIRMED":2,"CANDIDATE_REJECTED":1,"NO_CANDIDATE_ACQUIRED":3}  scope-role unresolved: oldest neighborhood of the capital city(area), Avenida Caseros(route)
+   => PARTIAL -> geographic validation
+
+## planner_capacity | Walking tour Buenos Aires – Day 1 (part 2 of 2)
+   source=2 resolved=0 distinct=0 []
+   unresolved=2 {"NO_CANDIDATE_ACQUIRED":1,"AMBIGUOUS_CANDIDATES":1}  scope-role unresolved: El Caminito(route)
+   => REJECT (below floor)

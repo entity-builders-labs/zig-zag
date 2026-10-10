@@ -1,0 +1,14 @@
+{
+  "scale": "point",
+  "attemptedQueries": [
+    "forward:Buenos Aires, Argentina"
+  ],
+  "selectedResult": {
+    "osmType": "relation",
+    "osmId": 1224652,
+    "displayName": "Buenos Aires, Comuna 1, Ciudad Autónoma de Buenos Aires, Argentina"
+  },
+  "degradationReason": "provider_failed",
+  "country": "Argentina",
+  "countryCode": "AR"
+}

@@ -1,0 +1,234 @@
+{
+  "atoms": [
+    {
+      "atomId": "a-064",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "colorful houses",
+          "supportSpan": "colorful houses",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Descriptive passing mention of colorful houses."
+    },
+    {
+      "atomId": "a-065",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "\"Don Carlos\"",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends a restaurant for food."
+    },
+    {
+      "atomId": "a-066",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Estadio La Boca\"",
+          "supportSpan": "\"Estadio La Boca\"",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "A small restaurant",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-065"
+        }
+      ],
+      "reason": "Describes the previously mentioned restaurant stop."
+    },
+    {
+      "atomId": "a-067",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "\"Don Carlos\"",
+          "supportSpan": "You sit here",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-065"
+        }
+      ],
+      "reason": "Describes the dining experience at the stop."
+    },
+    {
+      "atomId": "a-068",
+      "classification": "OPTIONAL_STOP",
+      "entities": [
+        {
+          "sourceName": "Caminito Street",
+          "supportSpan": "Caminito Street",
+          "role": "ITINERARY_STOP"
+        },
+        {
+          "sourceName": "\"Fundación Proa\"",
+          "supportSpan": "\"Fundación Proa\"",
+          "role": "OPTIONAL_STOP"
+        }
+      ],
+      "reason": "Suggests wandering around Caminito and checking out Fundación Proa."
+    },
+    {
+      "atomId": "a-069",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "transferMode": "BUS"},
+    {
+      "atomId": "a-070",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Puente de la Mujer",
+          "supportSpan": "Puente de la Mujer",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Highlights the starting point bridge."
+    },
+    {
+      "atomId": "a-071",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Puerto Madero",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Describes crossing the bridge into Puerto Madero."
+    },
+    {
+      "atomId": "a-072",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "San Telmo",
+          "supportSpan": "San Telmo",
+          "role": "PASS_BY"
+        },
+        {
+          "sourceName": "Puerto Madero",
+          "supportSpan": "Here",
+          "role": "ITINERARY_STOP"
+        }
+      ],
+      "reason": "Describes walking and contrasting architecture in Puerto Madero."
+    },
+    {
+      "atomId": "a-073",
+      "classification": "ROUTE_LEG",
+      "entities": [
+        {
+          "sourceName": "Darsena Sur",
+          "supportSpan": "Darsena Sur",
+          "role": "ROUTE_LEG"
+        },
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "ROUTE_LEG"
+        }
+      ],
+      "reason": "Directs walking along specific streets."
+    },
+    {
+      "atomId": "a-074",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Av. Int. Hernan Giralt",
+          "supportSpan": "Av. Int. Hernan Giralt",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Recommends a snack kiosk as an alternative food option."
+    },
+    {
+      "atomId": "a-075",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "Centro Cultural Kirchner",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "UNSPECIFIED"},
+    {
+      "atomId": "a-076",
+      "classification": "ITINERARY_STOP",
+      "entities": [
+        {
+          "sourceName": "Centro Cultural Kirchner",
+          "supportSpan": "building",
+          "role": "ITINERARY_STOP",
+          "mentionAtomId": "a-075"
+        }
+      ],
+      "reason": "Suggests entering to see the building."
+    },
+    {
+      "atomId": "a-077",
+      "classification": "TRANSFER",
+      "entities": [
+        {
+          "sourceName": "Metrobus",
+          "supportSpan": "Metrobus",
+          "role": "PASS_BY"
+        }
+      ],
+      "transferMode": "TAXI"},
+    {
+      "atomId": "a-078",
+      "classification": "ALTERNATIVE",
+      "entities": [
+        {
+          "sourceName": "Trade Sky Bar",
+          "supportSpan": "Trade Sky Bar",
+          "role": "ALTERNATIVE"
+        }
+      ],
+      "reason": "Recommends an alternative bar stop."
+    },
+    {
+      "atomId": "a-079",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Booking tip."
+    },
+    {
+      "atomId": "a-080",
+      "classification": "PASS_BY",
+      "entities": [
+        {
+          "sourceName": "Puerto madero",
+          "supportSpan": "Puerto madero",
+          "role": "PASS_BY"
+        }
+      ],
+      "reason": "Mentions the view of Puerto Madero."
+    },
+    {
+      "atomId": "a-081",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Recommends an external guide."
+    },
+    {
+      "atomId": "a-082",
+      "classification": "NON_ITINERARY",
+      "entities": [],
+      "reason": "Concluding author note."
+    }
+  ]
+}
