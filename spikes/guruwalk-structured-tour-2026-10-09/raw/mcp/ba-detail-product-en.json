@@ -1,0 +1,390 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"results\":[{\"product_id\":97108,\"type\":\"product\",\"id\":97108,\"name\":\"Buenos Aires: La Boca Guided Walking Tour in English\",\"slug\":\"buenos-aires-la-boca-guided-walking-tour-in-english\",\"description_html\":\"<p>Join a 2-hour walking tour around La Boca and discover one of the most picturesque places in Buenos Aires. Take in the colorful homes in the multicultural district and learn about the art of tango.\\n \\nOn your journey through the neighborhood, you will likely encounter live performances of Tango dancers on the streets. See many works of &quot;fileteado&quot; art and learn about its origin.\\n \\nFinish the tour outside La Bombonera Stadium, where you will get to know the history of the Boca Juniors, the most popular football club in Argentina. After the tour, you can enter the stadium and the Boca Juniors Museum.</p>\",\"subtitle_html\":\"Discover the birthplace of tango and its bohemian, artistic and multicultural history. Uncover the mysteries of this neighborhood with a knowledgeable local guide.\",\"images\":[\"https://cdn.getyourguide.com/img/tour/14c4ae2729b325daee77410f603a067290cd1d4ce0ede6d20c6c953dbaa4728e.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/3b7b8e20b6000fc1a686fa6304e750cbb5c2c46f1f6da6f92e2f8b2da5c3f492.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/46e9acc36eb9b778ed88afe2987fe1e35f927b052ad2d88aa5c280581d8cf8a3.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/7e52276b70889751e21c307ca3ca31b117304f76a0274fb97008935b19467302.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/7f08e94d1f762556fe6c20020fe469dc807603920aeba0456b385c8745b8be56.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/7f80a56c1c3bfc1dad023fe09d94c34e2dbe640ca3d57c21125fae48e830866a.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/88aa057856e1be3f134dd53c637fc895f21c7190dd7e10b59a0f78229831b372.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/90a41abd95510770a8d69c200c353ed4ea4f34ed4d11f3ca3ddbdbffe1af145d.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/d705b967d281bde12c467198a728d80a7ed02dc17e2bceee9eeb70d8385d41f7.jpg/148.jpg\"],\"highlights\":[\"Discover the history of tango while watching live performances on the streets\",\"Learn everything about the legendary football club Boca Juniors\",\"Marvel at the colorful \\\"Conventillos\\\" houses and learn about their history\"],\"included\":[\"2-hour guided tour of La Boca\"],\"excluded\":[\"Boca Juniors Stadium admission ticket\",\"Food and drink\",\"Gratuities (optional)\"],\"special_notes_html\":\"<p><strong>Know before you go</strong></p><ul><li>The tour will still take place even if it rains</li></ul>\",\"cancellation_policies\":[{\"type\":\"PERCENTAGE\",\"when\":\"BEFORE_TIMESLOT\",\"value\":100.0,\"period\":\"PT24H\"}],\"available_languages\":[\"en\"],\"duration_minutes\":{\"from\":120},\"where\":{\"name\":null,\"address_html\":null,\"latitude\":-34.6394589,\"longitude\":-58.36198141},\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6394589,-58.36198141\",\"reviews\":{\"count\":1771,\"rating\":4.82},\"pricing_from\":{\"retail\":11.0,\"currency\":\"EUR\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"timezone\":\"America/Argentina/Buenos_Aires\"},\"url\":\"https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":162994,\"type\":\"product\",\"id\":162994,\"name\":\"Buenos Aires: San Telmo Food Walking Tour with Tastings\",\"slug\":\"buenos-aires-san-telmo-food-walking-tour-with-tastings\",\"description_html\":\"<p>Meet your guide and set off on a 3-hour bilingual (English/Spanish) small-group food walking tour through San Telmo, the city&#39;s oldest and most atmospheric neighborhood. Discover cobblestone streets, a century-old covered market, tango dancers in the plaza, street art, and some of the best bites in the city.</p><p>Follow your bilingual local guide to 4 iconic stops, where you&#39;ll taste 10 authentic Argentine dishes. Begin at the legendary Mercado San Telmo — a covered market inaugurated in 1897 that remains the city&#39;s gastronomic heart — and sample classic empanadas, local cheeses, and cured meats from traditional market stalls.</p><p>Next, stop at a traditional parrilla for choripan with chimichurri sauce — Buenos Aires&#39; most beloved street food, eaten standing up just like a porteño. Then visit a local artisan shop to taste dulce de leche in all its forms, the iconic Argentine spread consumed more per capita here than anywhere else in the world.</p><p>Round off the experience with a glass of Argentine Malbec or a traditional mate ceremony, where your guide will teach you the ritual of preparing and sharing the gourd. Along the way, stroll the beautiful cobblestone streets of Balcarce and Defensa, spot the smallest house in the city, and hear the stories behind the food, the neighborhood, and Buenos Aires itself.</p><p>Tour is conducted in both English and Spanish throughout. Maximum 12 guests per group for a truly personal experience.</p>\",\"subtitle_html\":\"Discover the flavors of Buenos Aires on a guided food tour of San Telmo. Taste classic Argentine dishes, sip on Malbec, and learn about the city's food culture and history.\",\"images\":[\"https://cdn.getyourguide.com/img/tour/4bef3852c05c90ecf4b8dd189277dfe6622dcd1d80ebaec2a970900b85e87011.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/6732293a17e5af215a6612dc71f3ea958f1cb815635adaca4d8a87b28239a93b.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/6e637f610cb31f500e2c1416cc4e4229c11d3a74ef9e339b7e386b080d4b7dca.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/6ea837e77e01f3c64cd4e6e3877162655d451b59606d2d390e832499c65eabef.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/b7eefe64a6d3a0255d0c5840f7c257b84a222e9cee1797d577c2755e447cd46c.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/d9e87d9716d640f5d94d25b869caeacf30a40efe2c2386478f3b8f02174cf6e4.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/e999564474cb79bbda8c41f95c956fcb3f3b298e646cdb235018ed9215fdcbdd.jpg/148.jpg\"],\"highlights\":[\"Discover the flavors of Buenos Aires on a guided food tour of San Telmo\",\"Sample Argentina's iconic dulce de leche at a local artisan shop\",\"Savor a choripan, a grilled chorizo sandwich with chimichurri sauce\",\"Sip an Argentine Malbec or try a traditional mate with a local guide\",\"Taste classic Argentine empanadas, local cheeses, and cured meats\"],\"included\":[\"10 authentic Argentine food and drink tastings\",\"Bilingual local guide (English and Spanish)\",\"Drinks (Argentine Malbec wine or traditional mate)\",\"Entry to Mercado San Telmo (1897)\",\"Small-group experience (maximum 12 guests)\",\"Visits to 4 local restaurants and food stops\"],\"excluded\":[\"Any additional food or drinks beyond the included tastings\",\"Gratuities for your guide (tips are appreciated)\",\"Personal expenses\",\"Transport to and from the meeting point\"],\"special_notes_html\":\"<p><strong>Not suitable for</strong></p><ul><li>Children under 8 years</li></ul><p><strong>Know before you go</strong></p><ul><li>Maximum group size is 12 people</li><li>Tour is available daily with morning and afternoon options</li><li>Tour is suitable for food lovers, first-time visitors, couples, families with children over 8 years old, and small groups</li></ul>\",\"cancellation_policies\":[{\"type\":\"PERCENTAGE\",\"when\":\"BEFORE_TIMESLOT\",\"value\":100.0,\"period\":\"PT24H\"}],\"available_languages\":[\"en\",\"es\"],\"duration_minutes\":{\"from\":180},\"where\":{\"name\":null,\"address_html\":null,\"latitude\":-34.615832,\"longitude\":-58.3716461},\"meeting_point_url\":\"https://www.google.com/maps?q=-34.615832,-58.3716461\",\"reviews\":{\"count\":1,\"rating\":1.0},\"pricing_from\":{\"retail\":40.0,\"currency\":\"EUR\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"timezone\":\"America/Argentina/Buenos_Aires\"},\"url\":\"https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":84836,\"type\":\"product\",\"id\":84836,\"name\":\"Buenos Aires : Highlights Walking Tour With A Guide\",\"slug\":\"buenos-aires-highlights-walking-tour-with-a-guide\",\"description_html\":\"<p>Immerse yourself in the rich history and culture of Buenos Aires on this exclusive walking tour. Begin at the iconic Plaza de Mayo, where Argentina’s most significant events have unfolded. Marvel at the Casa Rosada presidential palace and stroll down the grand Avenida de Mayo.\\nWander through the historic San Telmo district, known for its cobblestone streets and tango roots. Visit La Boca to see the famous brightly colored houses along Caminito. Explore the modern waterfront of Puerto Madero and its luxurious surroundings. Conclude your tour at the Recoleta Cemetery, home to the extravagant tombs of national icons, including Evita’s grave. Enjoy round-trip, air-conditioned transport from your Buenos Aires hotel for a seamless experience.</p>\",\"subtitle_html\":\"Experience the charm of Buenos Aires on a walking tour. Discover historic sites, vibrant neighborhoods, and cultural landmarks with an expert local guide.\",\"images\":[\"https://cdn.getyourguide.com/img/tour/1a60bd21e7be4cd5ac0f4a3c9b8135b994ecd94a2c3e4c9575f982a8a164089c.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/213e37fef2ce803ed4f41be60c7ec87cf74852c7369afa4d32ef5e355251011e.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/3ed0e27da5fa8a7e821454548dd6b1f7a8f75d130fa7ef382c75f2667e5b468e.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/51dc791cf752e0e2cfa77691177f3eed29ea0bd71a38b0bc3960e4147d02a862.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/6b7ef69d3ad8a2503e1fec72ed310e120000c0dd18168bfed8410fa0090b144a.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/856811879f85c6e609e9ed4393f031312cf3b2764c847a81b1ac409c98052397.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/d251fd84ea6b5a722320cd6838b61b68aa2689e50d52e71e293b3f93784a25d1.png/148.jpg\",\"https://cdn.getyourguide.com/img/tour/e600b7f0251ea34e515e9ee84a3d1b79695bd5817f915cf08e50ef7deb2ed42b.png/148.jpg\"],\"highlights\":[\"Benefit from your guide’s familiarity with the area that interests you\",\"Get lots of valuable advice from your guide about other things to do in the city\",\"Get to know Buenos Aires through the eyes of a knowledgeable local Guide\",\"See the main tourist sights you want to see as well as discovering areas, venues\"],\"included\":[\"Customization of the tour\",\"English-speaking guide\",\"Help from our team to book the tickets for the desired visits.\",\"Private and exclusive tour, there won't be anyone else in your group.\",\"Small Group walking tour\",\"Walking tour and public transport (Except if you select one of the option)\"],\"excluded\":[\"Drink or Food\",\"Entry to monuments and museums\",\"Local transportation around the city (it’s a walking tour, car transportation isn’t included)\",\"Tickets to any attractions\",\"Tips (Optional)\"],\"cancellation_policies\":[{\"type\":\"PERCENTAGE\",\"when\":\"BEFORE_TIMESLOT\",\"value\":100.0,\"period\":\"PT24H\"}],\"available_languages\":[\"en\",\"es\",\"fr\",\"it\"],\"duration_minutes\":{\"from\":180},\"where\":{\"name\":null,\"address_html\":null,\"latitude\":-34.6019722,\"longitude\":-58.3735929},\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6019722,-58.3735929\",\"reviews\":{\"count\":11,\"rating\":4.91},\"pricing_from\":{\"retail\":31.0,\"currency\":\"EUR\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"timezone\":\"America/Argentina/Buenos_Aires\"},\"url\":\"https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":46839,\"type\":\"product\",\"id\":46839,\"name\":\"Buenos Aires: Plaza de Mayo Walking Tour\",\"slug\":\"buenos-aires-plaza-de-mayo-walking-tour\",\"description_html\":\"<p>Join a walking tour to explore the iconic Plaza de Mayo and its lively surroundings. This bustling spot in Buenos Aires is famous for hosting major events like the Argentinean Centennial or Bicentennial celebrations. As the birthplace of the nation, it&#39;s filled with fascinating stories waiting to be discovered. Join this tour to uncover the rich history of this remarkable place.</p>\",\"subtitle_html\":\"Explore the iconic May Square and its fascinating history\",\"images\":[\"https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/86e06cd4-f504-41fb-bd2a-20981cf784a4_cf21de495f38428e8015f6ad0a586da8.jpeg\",\"https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/860ebd4d-1d63-49ee-aa5d-629590732711_8cc35b794dce48298e938e7d1447cb63.jpeg\",\"https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/4fabe793-0e2a-4e7e-880a-d1a2df4bffe6_f930fd77f11e4d3c9c85e647fcda11a1.jpeg\"],\"included\":[\"A professional local guide\",\"Walking tour\"],\"excluded\":[\"Hotel pickup and drop-off\",\"Gratuities\"],\"instructions_html\":\"<ul><li>Show your mobile ticket or confirmation ID to your guide</li></ul>\",\"cancellation_policies\":[{\"type\":\"PERCENTAGE\",\"when\":\"BEFORE_DATE\",\"value\":100.0,\"period\":\"PT72H\"}],\"available_languages\":[\"en\",\"es\"],\"live_guide_languages\":[\"en\",\"es\"],\"duration_minutes\":{\"from\":120},\"where\":{\"name\":\"\",\"address_html\":\"160 Bolívar\",\"latitude\":-34.6096906,\"longitude\":-58.3728712},\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6096906,-58.3728712\",\"reviews\":{\"count\":0,\"rating\":0.0},\"pricing_from\":{\"retail\":43.65,\"currency\":\"EUR\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"timezone\":\"America/Argentina/Buenos_Aires\"},\"url\":\"https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":91724,\"type\":\"product\",\"id\":91724,\"name\":\"Recoleta cemetery for curious people\",\"slug\":\"recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455\",\"description_html\":\"<p>Step into the heart of Argentina’s Gilded Age—an era of opulence reserved for the few. This unique experience invites you to escape the tourist trail and engage with Recoleta’s grand mansions, hidden histories, and its magnificent cemetery from an anthropological perspective.</p><p>Forget just listening. This is an interactive journey. As we stroll from the historic Plaza San Martín to the iconic Recoleta Cemetery, we won’t just observe the opulence—we’ll investigate it. We’ll decode the architecture, question the narratives, and bring the neighborhood’s drama to life through spirited discussion. You are invited to become part of the conversation as we explore compelling themes:</p><p>The Parisian Illusion: Unpack the ambition and wealth that earned Buenos Aires its famous nickname.</p><p>The Rise and Fall: Delve into the era of vast landowners and debate Argentina’s rollercoaster journey as a potential world power.</p><p>City of the Dead: Explore Recoleta Cemetery as a mirror of society—who is remembered, who is forgotten, and what secrets lie within its walls?</p><p>This is more than a history lesson; it’s a chance to truly understand the forces that built modern Argentina. Practical Information: Actual entry into the cemetery is optional. Tickets can be easily purchased at the entrance or in advance online</p>\",\"subtitle_html\":\"This unique experience invites you to escape the tourist trail and engage with Recoleta’s grand mansions, hidden histories, and its magnificent cemetery from an anthropological perspective.\",\"images\":[\"https://cdn.getyourguide.com/img/tour/066ce457f1f98e7fba4493f8926b4b533d13669b921817bc3eefee9b7df77ddf.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/2956b8fe33fca8fff9802da7ad2009271599dc5afded9bda558e6521bc807f2e.jpeg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/5d7fee7d2dd1c5d45f6582a264884c0bb68a7f268e1ecc3daea55248389f2068.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/834c547bb1e828da986240d0f54bd93a658918765d9a4575e028620df85f7c15.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/854233498f728d9c036d5064d7c45b853f17eb458a178add445ff3eadb80be96.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/8b3dae7a51cafdda839c242c89387defc6ea3d5a81cffa52a1d62a5e3d73e4d2.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/a709abef708215d52c4cebe5ca5dd6050094a1f5ccefb26232c3312abb7cd6db.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/b67b42ff14628c4b4ef71c67693c9a27f7ce44fec3fa7c0a0e331cfd7a540e24.jpeg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/bfc0323ce3c1f1c83d756a948297cb2c161d50038d65460e3a43c23930f557a9.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/db6defa79dfb55bc750fff4f409a636f656cf1980b17102365784cd1715546ab.jpg/148.jpg\",\"https://cdn.getyourguide.com/img/tour/ef562ded04b6ff4df85e1933c01a618da6639095a241dda175feefcad50c1a9d.png/148.jpg\"],\"highlights\":[\"Be impressed by Argentina’s Gilded Age\",\"Discuss the past, present, and future of Argentina’s capital\",\"Explore the Recoleta Cemetery and learn about the people who are buried there\",\"Learn about the history of Argentina and the role of its elite\"],\"included\":[\"Discussion and interaction with a university degree guide\",\"Guided walk through Buenos Aires\"],\"excluded\":[\"Ticket to the cemetery\"],\"cancellation_policies\":[{\"type\":\"PERCENTAGE\",\"when\":\"BEFORE_TIMESLOT\",\"value\":100.0,\"period\":\"PT24H\"}],\"available_languages\":[\"en\",\"es\",\"fr\"],\"duration_minutes\":{\"from\":150},\"where\":{\"name\":null,\"address_html\":null,\"latitude\":-34.5952067,\"longitude\":-58.3778146},\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5952067,-58.3778146\",\"reviews\":{\"count\":39,\"rating\":4.97},\"pricing_from\":{\"retail\":22.0,\"currency\":\"EUR\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"timezone\":\"America/Argentina/Buenos_Aires\"},\"url\":\"https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"}]}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "results": [
+    {
+     "product_id": 97108,
+     "type": "product",
+     "id": 97108,
+     "name": "Buenos Aires: La Boca Guided Walking Tour in English",
+     "slug": "buenos-aires-la-boca-guided-walking-tour-in-english",
+     "description_html": "<p>Join a 2-hour walking tour around La Boca and discover one of the most picturesque places in Buenos Aires. Take in the colorful homes in the multicultural district and learn about the art of tango.\n \nOn your journey through the neighborhood, you will likely encounter live performances of Tango dancers on the streets. See many works of &quot;fileteado&quot; art and learn about its origin.\n \nFinish the tour outside La Bombonera Stadium, where you will get to know the history of the Boca Juniors, the most popular football club in Argentina. After the tour, you can enter the stadium and the Boca Juniors Museum.</p>",
+     "subtitle_html": "Discover the birthplace of tango and its bohemian, artistic and multicultural history. Uncover the mysteries of this neighborhood with a knowledgeable local guide.",
+     "images": [
+      "https://cdn.getyourguide.com/img/tour/14c4ae2729b325daee77410f603a067290cd1d4ce0ede6d20c6c953dbaa4728e.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/3b7b8e20b6000fc1a686fa6304e750cbb5c2c46f1f6da6f92e2f8b2da5c3f492.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/46e9acc36eb9b778ed88afe2987fe1e35f927b052ad2d88aa5c280581d8cf8a3.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/7e52276b70889751e21c307ca3ca31b117304f76a0274fb97008935b19467302.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/7f08e94d1f762556fe6c20020fe469dc807603920aeba0456b385c8745b8be56.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/7f80a56c1c3bfc1dad023fe09d94c34e2dbe640ca3d57c21125fae48e830866a.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/88aa057856e1be3f134dd53c637fc895f21c7190dd7e10b59a0f78229831b372.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/90a41abd95510770a8d69c200c353ed4ea4f34ed4d11f3ca3ddbdbffe1af145d.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/d705b967d281bde12c467198a728d80a7ed02dc17e2bceee9eeb70d8385d41f7.jpg/148.jpg"
+     ],
+     "highlights": [
+      "Discover the history of tango while watching live performances on the streets",
+      "Learn everything about the legendary football club Boca Juniors",
+      "Marvel at the colorful \"Conventillos\" houses and learn about their history"
+     ],
+     "included": [
+      "2-hour guided tour of La Boca"
+     ],
+     "excluded": [
+      "Boca Juniors Stadium admission ticket",
+      "Food and drink",
+      "Gratuities (optional)"
+     ],
+     "special_notes_html": "<p><strong>Know before you go</strong></p><ul><li>The tour will still take place even if it rains</li></ul>",
+     "cancellation_policies": [
+      {
+       "type": "PERCENTAGE",
+       "when": "BEFORE_TIMESLOT",
+       "value": 100.0,
+       "period": "PT24H"
+      }
+     ],
+     "available_languages": [
+      "en"
+     ],
+     "duration_minutes": {
+      "from": 120
+     },
+     "where": {
+      "name": null,
+      "address_html": null,
+      "latitude": -34.6394589,
+      "longitude": -58.36198141
+     },
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6394589,-58.36198141",
+     "reviews": {
+      "count": 1771,
+      "rating": 4.82
+     },
+     "pricing_from": {
+      "retail": 11.0,
+      "currency": "EUR"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "slug": "buenos-aires",
+      "timezone": "America/Argentina/Buenos_Aires"
+     },
+     "url": "https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 162994,
+     "type": "product",
+     "id": 162994,
+     "name": "Buenos Aires: San Telmo Food Walking Tour with Tastings",
+     "slug": "buenos-aires-san-telmo-food-walking-tour-with-tastings",
+     "description_html": "<p>Meet your guide and set off on a 3-hour bilingual (English/Spanish) small-group food walking tour through San Telmo, the city&#39;s oldest and most atmospheric neighborhood. Discover cobblestone streets, a century-old covered market, tango dancers in the plaza, street art, and some of the best bites in the city.</p><p>Follow your bilingual local guide to 4 iconic stops, where you&#39;ll taste 10 authentic Argentine dishes. Begin at the legendary Mercado San Telmo — a covered market inaugurated in 1897 that remains the city&#39;s gastronomic heart — and sample classic empanadas, local cheeses, and cured meats from traditional market stalls.</p><p>Next, stop at a traditional parrilla for choripan with chimichurri sauce — Buenos Aires&#39; most beloved street food, eaten standing up just like a porteño. Then visit a local artisan shop to taste dulce de leche in all its forms, the iconic Argentine spread consumed more per capita here than anywhere else in the world.</p><p>Round off the experience with a glass of Argentine Malbec or a traditional mate ceremony, where your guide will teach you the ritual of preparing and sharing the gourd. Along the way, stroll the beautiful cobblestone streets of Balcarce and Defensa, spot the smallest house in the city, and hear the stories behind the food, the neighborhood, and Buenos Aires itself.</p><p>Tour is conducted in both English and Spanish throughout. Maximum 12 guests per group for a truly personal experience.</p>",
+     "subtitle_html": "Discover the flavors of Buenos Aires on a guided food tour of San Telmo. Taste classic Argentine dishes, sip on Malbec, and learn about the city's food culture and history.",
+     "images": [
+      "https://cdn.getyourguide.com/img/tour/4bef3852c05c90ecf4b8dd189277dfe6622dcd1d80ebaec2a970900b85e87011.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/6732293a17e5af215a6612dc71f3ea958f1cb815635adaca4d8a87b28239a93b.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/6e637f610cb31f500e2c1416cc4e4229c11d3a74ef9e339b7e386b080d4b7dca.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/6ea837e77e01f3c64cd4e6e3877162655d451b59606d2d390e832499c65eabef.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/b7eefe64a6d3a0255d0c5840f7c257b84a222e9cee1797d577c2755e447cd46c.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/d9e87d9716d640f5d94d25b869caeacf30a40efe2c2386478f3b8f02174cf6e4.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/e999564474cb79bbda8c41f95c956fcb3f3b298e646cdb235018ed9215fdcbdd.jpg/148.jpg"
+     ],
+     "highlights": [
+      "Discover the flavors of Buenos Aires on a guided food tour of San Telmo",
+      "Sample Argentina's iconic dulce de leche at a local artisan shop",
+      "Savor a choripan, a grilled chorizo sandwich with chimichurri sauce",
+      "Sip an Argentine Malbec or try a traditional mate with a local guide",
+      "Taste classic Argentine empanadas, local cheeses, and cured meats"
+     ],
+     "included": [
+      "10 authentic Argentine food and drink tastings",
+      "Bilingual local guide (English and Spanish)",
+      "Drinks (Argentine Malbec wine or traditional mate)",
+      "Entry to Mercado San Telmo (1897)",
+      "Small-group experience (maximum 12 guests)",
+      "Visits to 4 local restaurants and food stops"
+     ],
+     "excluded": [
+      "Any additional food or drinks beyond the included tastings",
+      "Gratuities for your guide (tips are appreciated)",
+      "Personal expenses",
+      "Transport to and from the meeting point"
+     ],
+     "special_notes_html": "<p><strong>Not suitable for</strong></p><ul><li>Children under 8 years</li></ul><p><strong>Know before you go</strong></p><ul><li>Maximum group size is 12 people</li><li>Tour is available daily with morning and afternoon options</li><li>Tour is suitable for food lovers, first-time visitors, couples, families with children over 8 years old, and small groups</li></ul>",
+     "cancellation_policies": [
+      {
+       "type": "PERCENTAGE",
+       "when": "BEFORE_TIMESLOT",
+       "value": 100.0,
+       "period": "PT24H"
+      }
+     ],
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "duration_minutes": {
+      "from": 180
+     },
+     "where": {
+      "name": null,
+      "address_html": null,
+      "latitude": -34.615832,
+      "longitude": -58.3716461
+     },
+     "meeting_point_url": "https://www.google.com/maps?q=-34.615832,-58.3716461",
+     "reviews": {
+      "count": 1,
+      "rating": 1.0
+     },
+     "pricing_from": {
+      "retail": 40.0,
+      "currency": "EUR"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "slug": "buenos-aires",
+      "timezone": "America/Argentina/Buenos_Aires"
+     },
+     "url": "https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 84836,
+     "type": "product",
+     "id": 84836,
+     "name": "Buenos Aires : Highlights Walking Tour With A Guide",
+     "slug": "buenos-aires-highlights-walking-tour-with-a-guide",
+     "description_html": "<p>Immerse yourself in the rich history and culture of Buenos Aires on this exclusive walking tour. Begin at the iconic Plaza de Mayo, where Argentina’s most significant events have unfolded. Marvel at the Casa Rosada presidential palace and stroll down the grand Avenida de Mayo.\nWander through the historic San Telmo district, known for its cobblestone streets and tango roots. Visit La Boca to see the famous brightly colored houses along Caminito. Explore the modern waterfront of Puerto Madero and its luxurious surroundings. Conclude your tour at the Recoleta Cemetery, home to the extravagant tombs of national icons, including Evita’s grave. Enjoy round-trip, air-conditioned transport from your Buenos Aires hotel for a seamless experience.</p>",
+     "subtitle_html": "Experience the charm of Buenos Aires on a walking tour. Discover historic sites, vibrant neighborhoods, and cultural landmarks with an expert local guide.",
+     "images": [
+      "https://cdn.getyourguide.com/img/tour/1a60bd21e7be4cd5ac0f4a3c9b8135b994ecd94a2c3e4c9575f982a8a164089c.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/213e37fef2ce803ed4f41be60c7ec87cf74852c7369afa4d32ef5e355251011e.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/3ed0e27da5fa8a7e821454548dd6b1f7a8f75d130fa7ef382c75f2667e5b468e.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/51dc791cf752e0e2cfa77691177f3eed29ea0bd71a38b0bc3960e4147d02a862.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/6b7ef69d3ad8a2503e1fec72ed310e120000c0dd18168bfed8410fa0090b144a.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/856811879f85c6e609e9ed4393f031312cf3b2764c847a81b1ac409c98052397.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/d251fd84ea6b5a722320cd6838b61b68aa2689e50d52e71e293b3f93784a25d1.png/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/e600b7f0251ea34e515e9ee84a3d1b79695bd5817f915cf08e50ef7deb2ed42b.png/148.jpg"
+     ],
+     "highlights": [
+      "Benefit from your guide’s familiarity with the area that interests you",
+      "Get lots of valuable advice from your guide about other things to do in the city",
+      "Get to know Buenos Aires through the eyes of a knowledgeable local Guide",
+      "See the main tourist sights you want to see as well as discovering areas, venues"
+     ],
+     "included": [
+      "Customization of the tour",
+      "English-speaking guide",
+      "Help from our team to book the tickets for the desired visits.",
+      "Private and exclusive tour, there won't be anyone else in your group.",
+      "Small Group walking tour",
+      "Walking tour and public transport (Except if you select one of the option)"
+     ],
+     "excluded": [
+      "Drink or Food",
+      "Entry to monuments and museums",
+      "Local transportation around the city (it’s a walking tour, car transportation isn’t included)",
+      "Tickets to any attractions",
+      "Tips (Optional)"
+     ],
+     "cancellation_policies": [
+      {
+       "type": "PERCENTAGE",
+       "when": "BEFORE_TIMESLOT",
+       "value": 100.0,
+       "period": "PT24H"
+      }
+     ],
+     "available_languages": [
+      "en",
+      "es",
+      "fr",
+      "it"
+     ],
+     "duration_minutes": {
+      "from": 180
+     },
+     "where": {
+      "name": null,
+      "address_html": null,
+      "latitude": -34.6019722,
+      "longitude": -58.3735929
+     },
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6019722,-58.3735929",
+     "reviews": {
+      "count": 11,
+      "rating": 4.91
+     },
+     "pricing_from": {
+      "retail": 31.0,
+      "currency": "EUR"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "slug": "buenos-aires",
+      "timezone": "America/Argentina/Buenos_Aires"
+     },
+     "url": "https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/p84836-buenos-aires-highlights-walking-tour-with-a-guide?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 46839,
+     "type": "product",
+     "id": 46839,
+     "name": "Buenos Aires: Plaza de Mayo Walking Tour",
+     "slug": "buenos-aires-plaza-de-mayo-walking-tour",
+     "description_html": "<p>Join a walking tour to explore the iconic Plaza de Mayo and its lively surroundings. This bustling spot in Buenos Aires is famous for hosting major events like the Argentinean Centennial or Bicentennial celebrations. As the birthplace of the nation, it&#39;s filled with fascinating stories waiting to be discovered. Join this tour to uncover the rich history of this remarkable place.</p>",
+     "subtitle_html": "Explore the iconic May Square and its fascinating history",
+     "images": [
+      "https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/86e06cd4-f504-41fb-bd2a-20981cf784a4_cf21de495f38428e8015f6ad0a586da8.jpeg",
+      "https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/860ebd4d-1d63-49ee-aa5d-629590732711_8cc35b794dce48298e938e7d1447cb63.jpeg",
+      "https://cf-simple-s3-origin-cloudfront-s3-oneticket-prod-177734401659.s3-eu-west-1.amazonaws.com/images/activities/64863/1694963/4fabe793-0e2a-4e7e-880a-d1a2df4bffe6_f930fd77f11e4d3c9c85e647fcda11a1.jpeg"
+     ],
+     "included": [
+      "A professional local guide",
+      "Walking tour"
+     ],
+     "excluded": [
+      "Hotel pickup and drop-off",
+      "Gratuities"
+     ],
+     "instructions_html": "<ul><li>Show your mobile ticket or confirmation ID to your guide</li></ul>",
+     "cancellation_policies": [
+      {
+       "type": "PERCENTAGE",
+       "when": "BEFORE_DATE",
+       "value": 100.0,
+       "period": "PT72H"
+      }
+     ],
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "live_guide_languages": [
+      "en",
+      "es"
+     ],
+     "duration_minutes": {
+      "from": 120
+     },
+     "where": {
+      "name": "",
+      "address_html": "160 Bolívar",
+      "latitude": -34.6096906,
+      "longitude": -58.3728712
+     },
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6096906,-58.3728712",
+     "reviews": {
+      "count": 0,
+      "rating": 0.0
+     },
+     "pricing_from": {
+      "retail": 43.65,
+      "currency": "EUR"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "slug": "buenos-aires",
+      "timezone": "America/Argentina/Buenos_Aires"
+     },
+     "url": "https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/p46839-buenos-aires-plaza-de-mayo-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 91724,
+     "type": "product",
+     "id": 91724,
+     "name": "Recoleta cemetery for curious people",
+     "slug": "recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455",
+     "description_html": "<p>Step into the heart of Argentina’s Gilded Age—an era of opulence reserved for the few. This unique experience invites you to escape the tourist trail and engage with Recoleta’s grand mansions, hidden histories, and its magnificent cemetery from an anthropological perspective.</p><p>Forget just listening. This is an interactive journey. As we stroll from the historic Plaza San Martín to the iconic Recoleta Cemetery, we won’t just observe the opulence—we’ll investigate it. We’ll decode the architecture, question the narratives, and bring the neighborhood’s drama to life through spirited discussion. You are invited to become part of the conversation as we explore compelling themes:</p><p>The Parisian Illusion: Unpack the ambition and wealth that earned Buenos Aires its famous nickname.</p><p>The Rise and Fall: Delve into the era of vast landowners and debate Argentina’s rollercoaster journey as a potential world power.</p><p>City of the Dead: Explore Recoleta Cemetery as a mirror of society—who is remembered, who is forgotten, and what secrets lie within its walls?</p><p>This is more than a history lesson; it’s a chance to truly understand the forces that built modern Argentina. Practical Information: Actual entry into the cemetery is optional. Tickets can be easily purchased at the entrance or in advance online</p>",
+     "subtitle_html": "This unique experience invites you to escape the tourist trail and engage with Recoleta’s grand mansions, hidden histories, and its magnificent cemetery from an anthropological perspective.",
+     "images": [
+      "https://cdn.getyourguide.com/img/tour/066ce457f1f98e7fba4493f8926b4b533d13669b921817bc3eefee9b7df77ddf.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/2956b8fe33fca8fff9802da7ad2009271599dc5afded9bda558e6521bc807f2e.jpeg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/5d7fee7d2dd1c5d45f6582a264884c0bb68a7f268e1ecc3daea55248389f2068.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/834c547bb1e828da986240d0f54bd93a658918765d9a4575e028620df85f7c15.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/854233498f728d9c036d5064d7c45b853f17eb458a178add445ff3eadb80be96.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/8b3dae7a51cafdda839c242c89387defc6ea3d5a81cffa52a1d62a5e3d73e4d2.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/a709abef708215d52c4cebe5ca5dd6050094a1f5ccefb26232c3312abb7cd6db.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/b67b42ff14628c4b4ef71c67693c9a27f7ce44fec3fa7c0a0e331cfd7a540e24.jpeg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/bfc0323ce3c1f1c83d756a948297cb2c161d50038d65460e3a43c23930f557a9.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/db6defa79dfb55bc750fff4f409a636f656cf1980b17102365784cd1715546ab.jpg/148.jpg",
+      "https://cdn.getyourguide.com/img/tour/ef562ded04b6ff4df85e1933c01a618da6639095a241dda175feefcad50c1a9d.png/148.jpg"
+     ],
+     "highlights": [
+      "Be impressed by Argentina’s Gilded Age",
+      "Discuss the past, present, and future of Argentina’s capital",
+      "Explore the Recoleta Cemetery and learn about the people who are buried there",
+      "Learn about the history of Argentina and the role of its elite"
+     ],
+     "included": [
+      "Discussion and interaction with a university degree guide",
+      "Guided walk through Buenos Aires"
+     ],
+     "excluded": [
+      "Ticket to the cemetery"
+     ],
+     "cancellation_policies": [
+      {
+       "type": "PERCENTAGE",
+       "when": "BEFORE_TIMESLOT",
+       "value": 100.0,
+       "period": "PT24H"
+      }
+     ],
+     "available_languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "duration_minutes": {
+      "from": 150
+     },
+     "where": {
+      "name": null,
+      "address_html": null,
+      "latitude": -34.5952067,
+      "longitude": -58.3778146
+     },
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5952067,-58.3778146",
+     "reviews": {
+      "count": 39,
+      "rating": 4.97
+     },
+     "pricing_from": {
+      "retail": 22.0,
+      "currency": "EUR"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "slug": "buenos-aires",
+      "timezone": "America/Argentina/Buenos_Aires"
+     },
+     "url": "https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,216 @@
+
+GuruWalk
+            GuruWalk 
+MCP Server
+GuruWalk MCP Server
+Connect any AI assistant to explore free walking tours and activities in 1,000+ cities worldwide
+About GuruWalk
+GuruWalk is the world's largest free walking tour platform, connecting travelers with local guides in over 1,000 cities across 120+ countries. Founded in 2017 in Valencia, Spain, the platform operates on a unique 
+pay-what-you-want
+ model for free tours: travelers book for free and tip the guide based on their experience.
+Alongside free walking tours, GuruWalk offers paid activities including guided tours, skip-the-line tickets, food experiences, day trips, and more — all bookable in one place.
+1,000+
+Cities worldwide
+4,000+
+Local guides
+2M+
+Verified reviews
+4
+Languages
+What is this?
+GuruWalk's MCP server lets AI assistants search destinations, browse categories, check availability, and get full tour details — all without leaving the conversation. Works with any MCP-compatible client.
+Server URL
+https://back.guruwalk.com/mcp
+Protocol
+MCP (Model Context Protocol) over Streamable HTTP
+Auth
+No authentication required
+Type
+Read-only
+Setup
+Claude.ai / Claude Desktop
+Go to 
+Customize
+ → 
+Connectors
+Click the 
++
+ button and select 
+"Browse connectors"
+Search for 
+"GuruWalk"
+ and click 
++
+ to add it
+Start chatting about travel destinations
+Claude Code
+claude mcp add --transport http guruwalk https://back.guruwalk.com/mcp
+Any MCP Client
+Point your MCP client to:
+https://back.guruwalk.com/mcp
+No API key or authentication needed. Works with any client that supports MCP over Streamable HTTP.
+Also available on 
+Smithery
+, the MCP server registry.
+ChatGPT
+GuruWalk has a dedicated ChatGPT App with 5 tools and interactive cards. See 
+ChatGPT App documentation
+.
+Available Tools
+🔍
+search_tours_activities_by_destination
+Search a city to explore free walking tours and paid activities on GuruWalk, the world's largest free walking tour platform. Returns destination info, tour categories (free tours, food tours, day trips, tickets, and more), and featured listings with ratings and verified traveler reviews. Covers 1,000+ cities worldwide. Free tours operate on a pay-what-you-want model. Supports English, Spanish, German, and Italian — the language argument MUST be one of en, es, de, it. If the traveler speaks another language, pass the closest supported code and translate the answer into the traveler's language. Use this tool when the traveler asks what to do, what to see, or what tours or activities are available in a destination, or wants help planning their trip or days there. Do not call it when the destination is only mentioned in passing with no request for plans or recommendations. If the traveler mentions a landmark instead of a city, infer the city (e.g. 'eiffel tower' → Paris, 'colosseum' → Rome, 'sagrada familia' → Barcelona, 'big ben' → London). After getting results, review the categories and featured_products to find the most relevant matches for what the traveler asked about.
+Input: destination (city), country (optional), date range, group size, language (en/es/de/it)
+📂
+get_tours_activities_by_category
+Browse tours and activities within a specific category for a destination on GuruWalk. Categories include free walking tours, food tours, bike tours, day trips, skip-the-line tickets, and more. Returns listings with ratings, verified review counts, duration, available languages, and pricing. Use the category IDs returned by search_tours_activities_by_destination — never invent category IDs. Use this tool to dive deeper into a specific category that matches what the traveler has shared (e.g. food tours for a foodie, night tours for someone asking about evenings, kid-friendly activities for families). Supports en, es, de, it — the language argument MUST be one of these four codes. If the traveler speaks another language, pass the closest supported code and translate the answer into the traveler's language.
+Input: vertical_id (category ID from search_tours_activities_by_destination), hub_slug (for free tours), group size, language
+📅
+get_product_availability
+Check real-time availability for one or more tours or activities on GuruWalk in a single call. Pass an `items` array — each entry is independent and has its own type, product_id and date range. Returns a `results` array where every entry echoes its `type` and `product_id` so you can match each response to its request. Always batch when checking multiple tours: send them all in one call instead of invoking this tool several times. For paid activities, shows rates by traveler type (adult, child, infant). `price` is always per person — never state a group total by quoting `price` alone. When `total_price` is present on a rate, it's already computed for the participants you requested of that rate's type — quote it directly, don't multiply or divide it yourself. If the group mixes traveler types (e.g. adults and children), sum each rate's `total_price` for the full group total. For free walking tours, no upfront price — travelers pay what they want after the tour. Includes direct booking links. Maximum date range per item: 5 days. Per-item errors (invalid dates, product not found) are reported inside that item's result without failing the rest of the batch. Use this tool when the traveler asks about specific dates, wants to know if something is available, or is ready to book. When the traveler hasn't given specific dates, use the booking date ±2 days as the default search range. Supports en, es, de, it — the language argument MUST be one of these four codes. If the traveler speaks another language, pass the closest supported code and translate the answer into the traveler's language.
+Input: items[] — each with type (product/free_tour), product_id, date range, participants, language
+📋
+get_product_detail
+Get the full detail of one or more tours or activities on GuruWalk in a single call. Pass an `items` array — each entry has its own type, product_id and language, and is processed independently. Returns a `results` array where every entry echoes its `product_id` and `type` so you can match each response to its request. Always batch when you need details for several tours (e.g. before recommending or comparing them): send them all in one call instead of invoking this tool several times. Each successful entry returns description, images, reviews, duration, available languages, cancellation policies, and meeting point info. Paid `product` entries also return `highlights`, `included`/`excluded`, `pricing_from`, and `where` (address + coordinates). `free_tour` entries return `itinerary` as a flat array of point-title strings (no descriptions), plus `guide.name`, `meeting_point_url`, and `how_to_find_me`. Meeting point shape differs by type: paid `product` returns the address text plus coordinates in `where`; `free_tour` returns `meeting_point_url` (Google Maps link), `meeting_point_latitude` and `meeting_point_longitude` (use these coords as destination for routing), plus `how_to_find_me`: a free-text note written by the guide describing how the traveler can recognize them at the meeting point. Per-item errors (product not found) are reported inside that item's result without failing the rest of the batch. Use this tool whenever the traveler asks what a tour covers, which places it visits, its itinerary, route, description, meeting point, duration, or any content-related question. Always call this tool BEFORE answering questions about a specific tour — never give generic opinions or advice without consulting the real data first. Supports en, es, de, it — the language argument MUST be one of these four codes. If the traveler speaks another language, pass the closest supported code and translate the answer into the traveler's language.
+Input: items[] — each with product_id, type (product/free_tour), language
+Supported Languages
+All tools support four languages via the 
+language
+ parameter. Tour results, descriptions, and categories are returned in the requested language when available.
+en
+English (default)
+es
+Spanish
+de
+German
+it
+Italian
+What can you do with this?
+Ask your AI assistant anything about tours and activities — it will search GuruWalk's full catalog in real time.
+Find free walking tours in any city
+search_tours_activities_by_destination → get_tours_activities_by_category
+Compare food tours by rating
+get_tours_activities_by_category → get_product_detail
+Check spots for a specific date
+get_product_availability
+Get itinerary and meeting point
+get_product_detail
+Plan a full day with tours
+search_tours_activities_by_destination → get_product_availability
+Find night tours in a city
+get_tours_activities_by_category
+See what's included on a tour
+get_product_detail
+Discover day trips and excursions
+get_tours_activities_by_category
+Popular Destinations
+GuruWalk covers 
+1,000+ cities
+ across Europe, the Americas, Asia, Africa, and Oceania. Top destinations include 
+Rome
+, 
+Barcelona
+, 
+Paris
+, 
+London
+, 
+Istanbul
+, 
+Lisbon
+, 
+Prague
+, 
+Budapest
+, 
+Florence
+, 
+Vienna
+, 
+Amsterdam
+, 
+Berlin
+, 
+Madrid
+, 
+Porto
+, 
+Dublin
+, 
+Edinburgh
+, 
+New York
+, 
+Tokyo
+, 
+Bangkok
+, 
+Seville
+, 
+Venice
+, 
+Kraków
+, 
+Munich
+, 
+Dubrovnik
+, 
+Brussels
+, 
+Stockholm
+, 
+Copenhagen
+, 
+San Francisco
+, 
+Tirana
+, and 
+Sofia
+ — with new cities added regularly.
+Each destination offers a mix of free walking tours (pay-what-you-want), guided experiences, skip-the-line tickets, food and wine tours, bike tours, day trips, and more. Use 
+search_tours_activities_by_destination
+ with any city name to see what's available.
+Usage Examples
+Discover a destination
+Prompt:
+ "What can I do in Barcelona?"
+Found 170+ tours and activities in Barcelona. Free walking tours: Old Town: Gothic Quarter & El Born (★4.8, 7,200+ reviews), Uncover the Secrets of Barcelona (★4.9). Top paid experiences: Sagrada Família Guided Tour (from €48), Casa Batlló Entrance (from €29, 11,000+ reviews), Flamenco Show at Palau Dalmases (from €25). Categories: Free Tours, Sagrada Família Tickets, Food Tours, Bike Tours, Gothic Quarter Tours, Flamenco Shows...
+Browse a category
+Prompt:
+ "Show me wine tours in Barcelona"
+Found 46 wine experiences in Barcelona. In the city: Wine + Cheese Tasting (1h, ★4.56), Food Market Lunch with Wine Pairing (2.5h, ★5.0), Wine & Tapas e-Bike Tour (3h, from €69). Day trips: Montserrat Wine Tour (7.5h, ★4.82, 94 reviews), Penedès Vineyards Off-Roading Tour (5.5h), Montserrat + Wine & Cava Small Group (10h, ★4.69)...
+Check availability
+Prompt:
+ "Are there any places left on the guided tour of the neighbourhood with tapas next Saturday?"
+Two options for next Saturday, March 21: Barcelona District Tour with Traditional Tapas Tasting (3h, 92€/person) — 11:30 AM and 5:30 PM available. Small Group Guided Tapas & Wine Tour (3h30, 89€/person) — 5:30 PM, 21 spots available. Both are in English.
+Get tour details
+Prompt:
+ "Tell me more about the Rome City Center Walking Tour"
+Rome City Center Walking Tour, Trevi, Pantheon & 11+ Attractions (★4.96, 4,445 reviews, 2h45). This free walking tour covers 11 stops including Trevi Fountain, Pantheon, Piazza Navona, Spanish Steps, and the Colosseum area. Meet at Piazza di Spagna — look for the guide with the sign. Available in English. Accessible for strollers. Pet-friendly. Book free, pay what you want at the end.
+Privacy & Security
+✓
+All tools are 
+read-only
+ — no data is modified.
+✓
+No authentication required — only public tour data is accessible.
+✓
+No personal data is collected or stored.
+✓
+Privacy Policy: 
+guruwalk.com/terms/privacy_policy
+Support
+Help Center: 
+support.guruwalk.com
+Email: 
+support@guruwalk.com
+Website: 
+guruwalk.com
+ChatGPT App docs: 
+ai.guruwalk.com/docs/chatgpt
+All integrations: 
+ai.guruwalk.com
+GuruWalk for AI
+ChatGPT App Docs
+Support
+Privacy Policy

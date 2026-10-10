@@ -1,0 +1,217 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/en/a/rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":54194,\"name\":\"    Rome Central Free Walking Tour, Trevi, Pantheon, 11+ spots\",\"slug\":\"54194-rome-central-free-walking-tour-trevi-pantheon-11-spots\",\"rating\":4.99,\"reviews_count\":7033,\"duration\":165,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54194-rome-central-free-walking-tour-trevi-pantheon-11-spots?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":60977,\"name\":\"Highlights of Jewish Ghetto & Trastevere Free Walking Tour\",\"slug\":\"60977-highlights-of-jewish-ghetto-trastevere-free-walking-tour\",\"rating\":4.84,\"reviews_count\":1278,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/60977-highlights-of-jewish-ghetto-trastevere-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":59144,\"name\":\"Colosseum and Ancient Rome Free Walking Tour\",\"slug\":\"59144-colosseum-and-ancient-rome-free-walking-tour\",\"rating\":4.86,\"reviews_count\":1537,\"duration\":105,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/59144-colosseum-and-ancient-rome-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":67013,\"name\":\"Saint Peter’s Basilica Vatican Free Tour\",\"slug\":\"67013-saint-peter-s-basilica-vatican-free-tour\",\"rating\":4.72,\"reviews_count\":87,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/67013-saint-peter-s-basilica-vatican-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":66396,\"name\":\"From Jewish Rome to Bernini’s Hidden Gem in Trastevere\",\"slug\":\"66396-from-jewish-rome-to-bernini-s-hidden-trastevere-gem\",\"rating\":0.0,\"reviews_count\":0,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/66396-from-jewish-rome-to-bernini-s-hidden-trastevere-gem?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":48624,\"name\":\"The Original Free Walking Tour of The City Center of Rome\",\"slug\":\"48624-the-original-free-walking-tour-of-the-city-center-of-rome\",\"rating\":4.8,\"reviews_count\":1575,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/48624-the-original-free-walking-tour-of-the-city-center-of-rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":38348,\"name\":\"Rome's First Ghosts and Mysteries Free Walking Tour\",\"slug\":\"38348-rome-s-first-ghosts-and-mysteries-free-walking-tour\",\"rating\":4.57,\"reviews_count\":3829,\"duration\":90,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/38348-rome-s-first-ghosts-and-mysteries-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":68427,\"name\":\"Rome: From the Empire to the Pope\",\"slug\":\"68427-rome-from-the-empire-to-the-pope\",\"rating\":3.88,\"reviews_count\":16,\"duration\":120,\"languages\":[\"it\",\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/68427-rome-from-the-empire-to-the-pope?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":42206,\"name\":\"Rome's Art Free Walking Tour: Who Killed Caravaggio?\",\"slug\":\"42206-rome-s-art-free-walking-tour-who-killed-caravaggio\",\"rating\":4.92,\"reviews_count\":2057,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/42206-rome-s-art-free-walking-tour-who-killed-caravaggio?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":67175,\"name\":\"Sunset City Centre Free Walking Tour\",\"slug\":\"67175-sunset-city-centre-free-walking-tour\",\"rating\":4.5,\"reviews_count\":28,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/67175-sunset-city-centre-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":61048,\"name\":\"Colosseum ,Gladiators,  Julius Caesar & Emperor's Rome Free Walking Tour\",\"slug\":\"61048-colosseum-gladiators-julius-caesar-emperor-s-rome-free-walking-tour\",\"rating\":4.97,\"reviews_count\":65,\"duration\":135,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/61048-colosseum-gladiators-julius-caesar-emperor-s-rome-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":40793,\"name\":\"Highlights of the free walking tour of Rome\",\"slug\":\"40793-highlights-of-the-free-walking-tour-of-rome\",\"rating\":4.9,\"reviews_count\":722,\"duration\":120,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/40793-highlights-of-the-free-walking-tour-of-rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":60},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/en/a/rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 54194,
+     "name": "    Rome Central Free Walking Tour, Trevi, Pantheon, 11+ spots",
+     "slug": "54194-rome-central-free-walking-tour-trevi-pantheon-11-spots",
+     "rating": 4.99,
+     "reviews_count": 7033,
+     "duration": 165,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54194-rome-central-free-walking-tour-trevi-pantheon-11-spots?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 60977,
+     "name": "Highlights of Jewish Ghetto & Trastevere Free Walking Tour",
+     "slug": "60977-highlights-of-jewish-ghetto-trastevere-free-walking-tour",
+     "rating": 4.84,
+     "reviews_count": 1278,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/60977-highlights-of-jewish-ghetto-trastevere-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 59144,
+     "name": "Colosseum and Ancient Rome Free Walking Tour",
+     "slug": "59144-colosseum-and-ancient-rome-free-walking-tour",
+     "rating": 4.86,
+     "reviews_count": 1537,
+     "duration": 105,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/59144-colosseum-and-ancient-rome-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 67013,
+     "name": "Saint Peter’s Basilica Vatican Free Tour",
+     "slug": "67013-saint-peter-s-basilica-vatican-free-tour",
+     "rating": 4.72,
+     "reviews_count": 87,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/67013-saint-peter-s-basilica-vatican-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 66396,
+     "name": "From Jewish Rome to Bernini’s Hidden Gem in Trastevere",
+     "slug": "66396-from-jewish-rome-to-bernini-s-hidden-trastevere-gem",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/66396-from-jewish-rome-to-bernini-s-hidden-trastevere-gem?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 48624,
+     "name": "The Original Free Walking Tour of The City Center of Rome",
+     "slug": "48624-the-original-free-walking-tour-of-the-city-center-of-rome",
+     "rating": 4.8,
+     "reviews_count": 1575,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/48624-the-original-free-walking-tour-of-the-city-center-of-rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 38348,
+     "name": "Rome's First Ghosts and Mysteries Free Walking Tour",
+     "slug": "38348-rome-s-first-ghosts-and-mysteries-free-walking-tour",
+     "rating": 4.57,
+     "reviews_count": 3829,
+     "duration": 90,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/38348-rome-s-first-ghosts-and-mysteries-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 68427,
+     "name": "Rome: From the Empire to the Pope",
+     "slug": "68427-rome-from-the-empire-to-the-pope",
+     "rating": 3.88,
+     "reviews_count": 16,
+     "duration": 120,
+     "languages": [
+      "it",
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/68427-rome-from-the-empire-to-the-pope?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 42206,
+     "name": "Rome's Art Free Walking Tour: Who Killed Caravaggio?",
+     "slug": "42206-rome-s-art-free-walking-tour-who-killed-caravaggio",
+     "rating": 4.92,
+     "reviews_count": 2057,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/42206-rome-s-art-free-walking-tour-who-killed-caravaggio?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 67175,
+     "name": "Sunset City Centre Free Walking Tour",
+     "slug": "67175-sunset-city-centre-free-walking-tour",
+     "rating": 4.5,
+     "reviews_count": 28,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/67175-sunset-city-centre-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 61048,
+     "name": "Colosseum ,Gladiators,  Julius Caesar & Emperor's Rome Free Walking Tour",
+     "slug": "61048-colosseum-gladiators-julius-caesar-emperor-s-rome-free-walking-tour",
+     "rating": 4.97,
+     "reviews_count": 65,
+     "duration": 135,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/61048-colosseum-gladiators-julius-caesar-emperor-s-rome-free-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 40793,
+     "name": "Highlights of the free walking tour of Rome",
+     "slug": "40793-highlights-of-the-free-walking-tour-of-rome",
+     "rating": 4.9,
+     "reviews_count": 722,
+     "duration": 120,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/40793-highlights-of-the-free-walking-tour-of-rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 60
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/rome?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

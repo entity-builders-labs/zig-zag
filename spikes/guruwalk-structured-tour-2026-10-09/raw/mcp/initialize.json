@@ -1,0 +1,22 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "protocolVersion": "2025-06-18",
+  "capabilities": {
+   "extensions": {
+    "io.modelcontextprotocol/ui": {
+     "mimeTypes": [
+      "text/html;profile=mcp-app"
+     ]
+    }
+   },
+   "resources": {},
+   "tools": {}
+  },
+  "serverInfo": {
+   "name": "guruwalk",
+   "version": "1.0.0"
+  }
+ }
+}

@@ -1,0 +1,217 @@
+{
+ "decisionCount": 15,
+ "verdictByRule": {
+  "INSUFFICIENT_EVIDENCE|NO_DECISIVE_EVIDENCE": 5,
+  "VERIFIED|GROUNDED_UNIQUE_EXACT_NAME": 5,
+  "REJECTED|QID_LINK_MISMATCH": 1,
+  "VERIFIED|CATALOG_VERIFIED_HINT": 3,
+  "VERIFIED|QID_LINK": 1
+ },
+ "convergenceEvidence": {
+  "INSUFFICIENT_EVIDENCE|undefined|RETRIEVAL_ONLY": 1
+ },
+ "overlapOrNonePromotedToVerified": [],
+ "decisions": [
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "El Zanjón de Granados",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "El Zanjón de Granados (historic ruins)",
+   "decisiveTypes": [],
+   "convergence": [
+    {
+     "role": "RETRIEVAL_ONLY"
+    }
+   ]
+  },
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo Square",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza Dorrego",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Plaza Dorrego",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "El Balcón de la Plaza in San Telmo",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "El Muro de la Memoria",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo fair",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "San Andrés",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-25",
+   "stepName": "resolution.component_identity",
+   "name": "Mataderos neighborhood",
+   "verdict": "REJECTED",
+   "rule": "QID_LINK_MISMATCH",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "Plaza de los Mataderos",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CONTRADICTORY"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-26",
+   "stepName": "resolution.component_identity",
+   "name": "The San Telmo Market",
+   "verdict": "INSUFFICIENT_EVIDENCE",
+   "rule": "NO_DECISIVE_EVIDENCE",
+   "finalStatus": "unresolved",
+   "finalReason": "UNCONFIRMED_MATCH",
+   "selectedCandidate": "San Telmo",
+   "decisiveTypes": [],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-26",
+   "stepName": "resolution.component_identity",
+   "name": "Coffee Town",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Coffee town",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-27",
+   "stepName": "resolution.component_identity",
+   "name": "Plaza Dorrego",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Plaza Dorrego",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-27",
+   "stepName": "resolution.component_identity",
+   "name": "San Telmo Market",
+   "verdict": "VERIFIED",
+   "rule": "CATALOG_VERIFIED_HINT",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Mercado de San Telmo",
+   "decisiveTypes": [
+    "CATALOG_VERIFIED_HINT_MATCH/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-27",
+   "stepName": "resolution.component_identity",
+   "name": "empanadas",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Empanadas",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-28",
+   "stepName": "resolution.component_identity",
+   "name": "Metropolitan Cathedral",
+   "verdict": "VERIFIED",
+   "rule": "CATALOG_VERIFIED_HINT",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Catedral Metropolitana",
+   "decisiveTypes": [
+    "CATALOG_VERIFIED_HINT_MATCH/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-28",
+   "stepName": "resolution.component_identity",
+   "name": "Cabildo",
+   "verdict": "VERIFIED",
+   "rule": "CATALOG_VERIFIED_HINT",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Museo Histórico Nacional del Cabildo y de la Revolución de Mayo",
+   "decisiveTypes": [
+    "CATALOG_VERIFIED_HINT_MATCH/DISCRIMINATING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-28",
+   "stepName": "resolution.component_identity",
+   "name": "Casa Rosada",
+   "verdict": "VERIFIED",
+   "rule": "GROUNDED_UNIQUE_EXACT_NAME",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Casa Rosada",
+   "decisiveTypes": [
+    "EXACT_NAME/CORROBORATING",
+    "GEOGRAPHIC_CORRESPONDENCE/QUALIFYING"
+   ],
+   "convergence": []
+  },
+  {
+   "step": "trace-step-29",
+   "stepName": "resolution.component_identity",
+   "name": "Recoleta Cemetery",
+   "verdict": "VERIFIED",
+   "rule": "QID_LINK",
+   "finalStatus": "resolved",
+   "selectedCandidate": "Recoleta Cemetry",
+   "decisiveTypes": [
+    "WIKIDATA_IDENTITY_MATCH/CORROBORATING",
+    "COMPETITOR_EXAMINATION/QUALIFYING"
+   ],
+   "convergence": []
+  }
+ ]
+}

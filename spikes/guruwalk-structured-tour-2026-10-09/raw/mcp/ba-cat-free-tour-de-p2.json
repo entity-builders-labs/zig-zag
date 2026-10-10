@@ -1,0 +1,215 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":54506,\"name\":\"RÜCKZUG: Vom Centro Naval zum Palacio Noel, der Luxus, der mit Europa konkurrierte\",\"slug\":\"54506-ruckzug-die-kreolische-aristokratie\",\"rating\":4.95,\"reviews_count\":83,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54506-ruckzug-die-kreolische-aristokratie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35557,\"name\":\"Kostenlose Tour durch Retiro und Recoleta: Geschichte und Geschichten 🏆\",\"slug\":\"35557-kostenlose-tour-durch-retiro-und-recoleta-geschichte-und-geschichten\",\"rating\":4.85,\"reviews_count\":390,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35557-kostenlose-tour-durch-retiro-und-recoleta-geschichte-und-geschichten?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":64119,\"name\":\"Frauen in der argentinischen Geschichte\",\"slug\":\"64119-frauen-in-der-argentinischen-geschichte\",\"rating\":4.6,\"reviews_count\":25,\"duration\":120,\"languages\":[\"es\",\"pt\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/64119-frauen-in-der-argentinischen-geschichte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":62076,\"name\":\"Palermo Soho: Graffiti-Tour\",\"slug\":\"62076-palermo-soho-graffiti-tour\",\"rating\":4.87,\"reviews_count\":152,\"duration\":150,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/62076-palermo-soho-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":53227,\"name\":\"Tour La Boca: Erinnerungen an ein Arbeiter- und Tangoviertel\",\"slug\":\"53227-tour-la-boca-erinnerungen-an-ein-arbeiter-und-tangoviertel\",\"rating\":4.39,\"reviews_count\":575,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/53227-tour-la-boca-erinnerungen-an-ein-arbeiter-und-tangoviertel?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55455,\"name\":\"Recoleta - Geschichte, Kunst und Architektur eines emblematischen Viertels\",\"slug\":\"55455-recoleta-geschichte-kunst-und-architektur-eines-emblematischen-viertels\",\"rating\":5.0,\"reviews_count\":231,\"duration\":150,\"languages\":[\"es\",\"en\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55455-recoleta-geschichte-kunst-und-architektur-eines-emblematischen-viertels?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":30657,\"name\":\"Buenos Aires bei Nacht\",\"slug\":\"30657-buenos-aires-bei-nacht\",\"rating\":4.77,\"reviews_count\":268,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/30657-buenos-aires-bei-nacht?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69794,\"name\":\"Barrio Parque: Geschichten von Befreiung, Kunst und Diplomatie\",\"slug\":\"69794-barrio-parque-geschichten-von-befreiung-kunst-und-diplomatie\",\"rating\":5.0,\"reviews_count\":4,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69794-barrio-parque-geschichten-von-befreiung-kunst-und-diplomatie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":43134,\"name\":\"Auf den Spuren von Mamá Antula, der ersten argentinischen Heiligen!\",\"slug\":\"43134-auf-den-spuren-von-mama-antula-der-ersten-argentinischen-heiligen\",\"rating\":5.0,\"reviews_count\":2,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43134-auf-den-spuren-von-mama-antula-der-ersten-argentinischen-heiligen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63487,\"name\":\"SAN NICOLÁS: Von Plaza Lavalle bis Luna Park, das Herz, das niemals schläft\",\"slug\":\"63487-san-nicolas-geschichte-glamour-und-innenstadt\",\"rating\":5.0,\"reviews_count\":1,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63487-san-nicolas-geschichte-glamour-und-innenstadt?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":59376,\"name\":\"Kostenlose Tour zu den Geheimnissen und Legenden von Buenos Aires\",\"slug\":\"59376-kostenlose-tour-zu-den-geheimnissen-und-legenden-von-buenos-aires\",\"rating\":5.0,\"reviews_count\":1,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/59376-kostenlose-tour-zu-den-geheimnissen-und-legenden-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":46968,\"name\":\"Rückzug Palacios Mystik und Aromen!\",\"slug\":\"46968-ruckzug-mythen-architektur-und-verkostung\",\"rating\":5.0,\"reviews_count\":1,\"duration\":90,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/46968-ruckzug-mythen-architektur-und-verkostung?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":2,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 54506,
+     "name": "RÜCKZUG: Vom Centro Naval zum Palacio Noel, der Luxus, der mit Europa konkurrierte",
+     "slug": "54506-ruckzug-die-kreolische-aristokratie",
+     "rating": 4.95,
+     "reviews_count": 83,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54506-ruckzug-die-kreolische-aristokratie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35557,
+     "name": "Kostenlose Tour durch Retiro und Recoleta: Geschichte und Geschichten 🏆",
+     "slug": "35557-kostenlose-tour-durch-retiro-und-recoleta-geschichte-und-geschichten",
+     "rating": 4.85,
+     "reviews_count": 390,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35557-kostenlose-tour-durch-retiro-und-recoleta-geschichte-und-geschichten?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 64119,
+     "name": "Frauen in der argentinischen Geschichte",
+     "slug": "64119-frauen-in-der-argentinischen-geschichte",
+     "rating": 4.6,
+     "reviews_count": 25,
+     "duration": 120,
+     "languages": [
+      "es",
+      "pt"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/64119-frauen-in-der-argentinischen-geschichte?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 62076,
+     "name": "Palermo Soho: Graffiti-Tour",
+     "slug": "62076-palermo-soho-graffiti-tour",
+     "rating": 4.87,
+     "reviews_count": 152,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/62076-palermo-soho-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 53227,
+     "name": "Tour La Boca: Erinnerungen an ein Arbeiter- und Tangoviertel",
+     "slug": "53227-tour-la-boca-erinnerungen-an-ein-arbeiter-und-tangoviertel",
+     "rating": 4.39,
+     "reviews_count": 575,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/53227-tour-la-boca-erinnerungen-an-ein-arbeiter-und-tangoviertel?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55455,
+     "name": "Recoleta - Geschichte, Kunst und Architektur eines emblematischen Viertels",
+     "slug": "55455-recoleta-geschichte-kunst-und-architektur-eines-emblematischen-viertels",
+     "rating": 5.0,
+     "reviews_count": 231,
+     "duration": 150,
+     "languages": [
+      "es",
+      "en",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55455-recoleta-geschichte-kunst-und-architektur-eines-emblematischen-viertels?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 30657,
+     "name": "Buenos Aires bei Nacht",
+     "slug": "30657-buenos-aires-bei-nacht",
+     "rating": 4.77,
+     "reviews_count": 268,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/30657-buenos-aires-bei-nacht?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69794,
+     "name": "Barrio Parque: Geschichten von Befreiung, Kunst und Diplomatie",
+     "slug": "69794-barrio-parque-geschichten-von-befreiung-kunst-und-diplomatie",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69794-barrio-parque-geschichten-von-befreiung-kunst-und-diplomatie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 43134,
+     "name": "Auf den Spuren von Mamá Antula, der ersten argentinischen Heiligen!",
+     "slug": "43134-auf-den-spuren-von-mama-antula-der-ersten-argentinischen-heiligen",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43134-auf-den-spuren-von-mama-antula-der-ersten-argentinischen-heiligen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63487,
+     "name": "SAN NICOLÁS: Von Plaza Lavalle bis Luna Park, das Herz, das niemals schläft",
+     "slug": "63487-san-nicolas-geschichte-glamour-und-innenstadt",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63487-san-nicolas-geschichte-glamour-und-innenstadt?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 59376,
+     "name": "Kostenlose Tour zu den Geheimnissen und Legenden von Buenos Aires",
+     "slug": "59376-kostenlose-tour-zu-den-geheimnissen-und-legenden-von-buenos-aires",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/59376-kostenlose-tour-zu-den-geheimnissen-und-legenden-von-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 46968,
+     "name": "Rückzug Palacios Mystik und Aromen!",
+     "slug": "46968-ruckzug-mythen-architektur-und-verkostung",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 90,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/46968-ruckzug-mythen-architektur-und-verkostung?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 2,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

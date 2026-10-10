@@ -1,0 +1,293 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"country\":\"Argentina\",\"has_free_tours\":true,\"url\":\"https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":29},\"categories\":[{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"hub_slug\":\"buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67114,\"name\":\"City Tours & Sightseeing\",\"slug\":\"city-tours-sightseeing-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67114&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67112,\"name\":\"Tango Experiences\",\"slug\":\"tango-experiences-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67112&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67117,\"name\":\"Food & Wine\",\"slug\":\"food-wine-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67117&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67116,\"name\":\"Ferries & Boat Trips\",\"slug\":\"ferries-boat-trips-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67116&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67120,\"name\":\"Nightlife & Evening\",\"slug\":\"nightlife-evening-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67120&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67113,\"name\":\"Day Trips & Excursions\",\"slug\":\"day-trips-excursions-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67113&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67115,\"name\":\"Hop-On Hop-Off\",\"slug\":\"hop-on-hop-off-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67115&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67118,\"name\":\"Cooking Classes\",\"slug\":\"cooking-classes-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67118&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67119,\"name\":\"Outdoor & Sports\",\"slug\":\"outdoor-sports-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67119&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67121,\"name\":\"Multi-Day Trips\",\"slug\":\"multi-day-trips-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67121&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67122,\"name\":\"Transfers\",\"slug\":\"transfers-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67122&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67123,\"name\":\"Others\",\"slug\":\"others-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67123&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}],\"featured_products\":[{\"type\":\"product\",\"id\":162994,\"name\":\"Buenos Aires: San Telmo Food Walking Tour with Tastings\",\"slug\":\"buenos-aires-san-telmo-food-walking-tour-with-tastings\",\"rating\":1.0,\"reviews_count\":1,\"duration\":180,\"pricing_from\":{\"retail\":40.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":146095,\"name\":\"Small-Group South Bike Tour: San Telmo, La Boca & Pto Madero\",\"slug\":\"small-group-south-bike-tour-san-telmo-la-boca-pto-madero\",\"rating\":5.0,\"reviews_count\":4,\"duration\":240,\"pricing_from\":{\"retail\":41.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p146095-small-group-south-bike-tour-san-telmo-la-boca-pto-madero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":163191,\"name\":\"San Telmo Walking Tour and Wine Tasting\",\"slug\":\"san-telmo-walking-tour-and-wine-tasting\",\"rating\":5.0,\"reviews_count\":2,\"duration\":180,\"pricing_from\":{\"retail\":84.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p163191-san-telmo-walking-tour-and-wine-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":252194,\"name\":\"San Telmo: Theatrical Sightseeing Tour on Foot\",\"slug\":\"san-telmo-theatrical-sightseeing-tour-on-foot\",\"rating\":0.0,\"reviews_count\":0,\"duration\":90,\"pricing_from\":{\"retail\":20.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p252194-san-telmo-theatrical-sightseeing-tour-on-foot?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":237171,\"name\":\"San Telmo: Fileteado Folk Art Tour & Painting Workshop\",\"slug\":\"san-telmo-fileteado-folk-art-tour-painting-workshop\",\"rating\":5.0,\"reviews_count\":1,\"duration\":180,\"pricing_from\":{\"retail\":53.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p237171-san-telmo-fileteado-folk-art-tour-painting-workshop?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":162513,\"name\":\"Discover San Telmo: A Journey Through Time\",\"slug\":\"discover-san-telmo-a-journey-through-time\",\"rating\":4.5,\"reviews_count\":8,\"duration\":150,\"pricing_from\":{\"retail\":17.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p162513-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":158435,\"name\":\"Buenos Aires: San Telmo Wine Bar - Wine Tasting\",\"slug\":\"buenos-aires-san-telmo-wine-bar-wine-tasting\",\"rating\":5.0,\"reviews_count\":7,\"duration\":90,\"pricing_from\":{\"retail\":42.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p158435-buenos-aires-san-telmo-wine-bar-wine-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":128525,\"name\":\"Buenos Aires: La Boca & San Telmo Guided Walking Tour\",\"slug\":\"buenos-aires-la-boca-san-telmo-guided-walking-tour\",\"rating\":5.0,\"reviews_count\":2,\"duration\":240,\"pricing_from\":{\"retail\":42.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p128525-buenos-aires-la-boca-san-telmo-guided-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":106061,\"name\":\"Beyond Caminito & San Telmo: Hidden Stories of Buenos Aires\",\"slug\":\"beyond-caminito-san-telmo-hidden-stories-of-buenos-aires\",\"rating\":5.0,\"reviews_count\":18,\"duration\":1440,\"pricing_from\":{\"retail\":31.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p106061-beyond-caminito-san-telmo-hidden-stories-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":104673,\"name\":\"Buenos Aires: San Telmo and Market Guided Walking Tour\",\"slug\":\"buenos-aires-san-telmo-and-market-guided-walking-tour\",\"rating\":4.8,\"reviews_count\":133,\"duration\":120,\"pricing_from\":{\"retail\":11.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p104673-buenos-aires-san-telmo-and-market-guided-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":99920,\"name\":\"Buenos Aires Family Empanada Class in San Telmo Courtyard\",\"slug\":\"buenos-aires-family-empanada-class-in-san-telmo-courtyard\",\"rating\":5.0,\"reviews_count\":3,\"duration\":180,\"pricing_from\":{\"retail\":37.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p99920-buenos-aires-family-empanada-class-in-san-telmo-courtyard?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":95466,\"name\":\"Buenos Aires Fairs: San Telmo & Mataderos Cultural Tour\",\"slug\":\"buenos-aires-fairs-san-telmo-mataderos-cultural-tour\",\"rating\":3.0,\"reviews_count\":3,\"duration\":300,\"pricing_from\":{\"retail\":72.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p95466-buenos-aires-fairs-san-telmo-mataderos-cultural-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"}],\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "place": {
+    "id": 421,
+    "name": "Buenos Aires",
+    "slug": "buenos-aires",
+    "country": "Argentina",
+    "has_free_tours": true,
+    "url": "https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+   },
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 29
+   },
+   "categories": [
+    {
+     "id": "free-tour",
+     "name": "Free Tours",
+     "slug": "free-tours",
+     "hub_slug": "buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67114,
+     "name": "City Tours & Sightseeing",
+     "slug": "city-tours-sightseeing-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67114&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67112,
+     "name": "Tango Experiences",
+     "slug": "tango-experiences-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67112&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67117,
+     "name": "Food & Wine",
+     "slug": "food-wine-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67117&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67116,
+     "name": "Ferries & Boat Trips",
+     "slug": "ferries-boat-trips-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67116&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67120,
+     "name": "Nightlife & Evening",
+     "slug": "nightlife-evening-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67120&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67113,
+     "name": "Day Trips & Excursions",
+     "slug": "day-trips-excursions-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67113&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67115,
+     "name": "Hop-On Hop-Off",
+     "slug": "hop-on-hop-off-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67115&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67118,
+     "name": "Cooking Classes",
+     "slug": "cooking-classes-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67118&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67119,
+     "name": "Outdoor & Sports",
+     "slug": "outdoor-sports-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67119&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67121,
+     "name": "Multi-Day Trips",
+     "slug": "multi-day-trips-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67121&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67122,
+     "name": "Transfers",
+     "slug": "transfers-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67122&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67123,
+     "name": "Others",
+     "slug": "others-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67123&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    }
+   ],
+   "featured_products": [
+    {
+     "type": "product",
+     "id": 162994,
+     "name": "Buenos Aires: San Telmo Food Walking Tour with Tastings",
+     "slug": "buenos-aires-san-telmo-food-walking-tour-with-tastings",
+     "rating": 1.0,
+     "reviews_count": 1,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 40.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p162994-buenos-aires-san-telmo-food-walking-tour-with-tastings?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 146095,
+     "name": "Small-Group South Bike Tour: San Telmo, La Boca & Pto Madero",
+     "slug": "small-group-south-bike-tour-san-telmo-la-boca-pto-madero",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 240,
+     "pricing_from": {
+      "retail": 41.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p146095-small-group-south-bike-tour-san-telmo-la-boca-pto-madero?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 163191,
+     "name": "San Telmo Walking Tour and Wine Tasting",
+     "slug": "san-telmo-walking-tour-and-wine-tasting",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 84.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p163191-san-telmo-walking-tour-and-wine-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 252194,
+     "name": "San Telmo: Theatrical Sightseeing Tour on Foot",
+     "slug": "san-telmo-theatrical-sightseeing-tour-on-foot",
+     "rating": 0.0,
+     "reviews_count": 0,
+     "duration": 90,
+     "pricing_from": {
+      "retail": 20.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p252194-san-telmo-theatrical-sightseeing-tour-on-foot?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 237171,
+     "name": "San Telmo: Fileteado Folk Art Tour & Painting Workshop",
+     "slug": "san-telmo-fileteado-folk-art-tour-painting-workshop",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 53.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p237171-san-telmo-fileteado-folk-art-tour-painting-workshop?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 162513,
+     "name": "Discover San Telmo: A Journey Through Time",
+     "slug": "discover-san-telmo-a-journey-through-time",
+     "rating": 4.5,
+     "reviews_count": 8,
+     "duration": 150,
+     "pricing_from": {
+      "retail": 17.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p162513-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 158435,
+     "name": "Buenos Aires: San Telmo Wine Bar - Wine Tasting",
+     "slug": "buenos-aires-san-telmo-wine-bar-wine-tasting",
+     "rating": 5.0,
+     "reviews_count": 7,
+     "duration": 90,
+     "pricing_from": {
+      "retail": 42.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p158435-buenos-aires-san-telmo-wine-bar-wine-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 128525,
+     "name": "Buenos Aires: La Boca & San Telmo Guided Walking Tour",
+     "slug": "buenos-aires-la-boca-san-telmo-guided-walking-tour",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 240,
+     "pricing_from": {
+      "retail": 42.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p128525-buenos-aires-la-boca-san-telmo-guided-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 106061,
+     "name": "Beyond Caminito & San Telmo: Hidden Stories of Buenos Aires",
+     "slug": "beyond-caminito-san-telmo-hidden-stories-of-buenos-aires",
+     "rating": 5.0,
+     "reviews_count": 18,
+     "duration": 1440,
+     "pricing_from": {
+      "retail": 31.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p106061-beyond-caminito-san-telmo-hidden-stories-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 104673,
+     "name": "Buenos Aires: San Telmo and Market Guided Walking Tour",
+     "slug": "buenos-aires-san-telmo-and-market-guided-walking-tour",
+     "rating": 4.8,
+     "reviews_count": 133,
+     "duration": 120,
+     "pricing_from": {
+      "retail": 11.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p104673-buenos-aires-san-telmo-and-market-guided-walking-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 99920,
+     "name": "Buenos Aires Family Empanada Class in San Telmo Courtyard",
+     "slug": "buenos-aires-family-empanada-class-in-san-telmo-courtyard",
+     "rating": 5.0,
+     "reviews_count": 3,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 37.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p99920-buenos-aires-family-empanada-class-in-san-telmo-courtyard?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 95466,
+     "name": "Buenos Aires Fairs: San Telmo & Mataderos Cultural Tour",
+     "slug": "buenos-aires-fairs-san-telmo-mataderos-cultural-tour",
+     "rating": 3.0,
+     "reviews_count": 3,
+     "duration": 300,
+     "pricing_from": {
+      "retail": 72.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p95466-buenos-aires-fairs-san-telmo-mataderos-cultural-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    }
+   ],
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+  }
+ }
+}

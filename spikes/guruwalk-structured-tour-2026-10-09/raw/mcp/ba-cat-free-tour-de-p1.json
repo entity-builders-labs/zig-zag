@@ -1,0 +1,222 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":55661,\"name\":\"Unverzichtbares Buenos Aires 🥇 Die wesentliche Tour für diejenigen, die Buenos Aires zum ersten Mal besuchen\",\"slug\":\"55661-unverzichtbares-buenos-aires-die-wesentliche-tour-fur-diejenigen-die-buenos-aires-zum-ersten-mal-besuchen\",\"rating\":4.9,\"reviews_count\":701,\"duration\":150,\"languages\":[\"en\",\"pt\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55661-unverzichtbares-buenos-aires-die-wesentliche-tour-fur-diejenigen-die-buenos-aires-zum-ersten-mal-besuchen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54972,\"name\":\"Spaziergang durch das Viertel La Boca: Tango, Kunst und Fußball, argentinische Leidenschaften\",\"slug\":\"54972-spaziergang-durch-das-viertel-la-boca-tango-kunst-und-fussball-argentinische-leidenschaften\",\"rating\":4.78,\"reviews_count\":1415,\"duration\":150,\"languages\":[\"en\",\"es\",\"fr\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54972-spaziergang-durch-das-viertel-la-boca-tango-kunst-und-fussball-argentinische-leidenschaften?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45347,\"name\":\"Kostenlose Tour durch Buenos Aires: Herz der Stadt\",\"slug\":\"45347-kostenlose-tour-durch-buenos-aires-herz-der-stadt\",\"rating\":4.88,\"reviews_count\":1304,\"duration\":180,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45347-kostenlose-tour-durch-buenos-aires-herz-der-stadt?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":68379,\"name\":\"Essentielle Tour durch Buenos Aires\",\"slug\":\"68379-essentielle-tour-durch-buenos-aires\",\"rating\":4.64,\"reviews_count\":47,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/68379-essentielle-tour-durch-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":35555,\"name\":\"Stadtzentrum von Buenos Aires Rundgang: Geschichte und Geschichten 🏆\",\"slug\":\"35555-stadtzentrum-von-buenos-aires-rundgang-geschichte-und-geschichten\",\"rating\":4.91,\"reviews_count\":647,\"duration\":105,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/35555-stadtzentrum-von-buenos-aires-rundgang-geschichte-und-geschichten?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63551,\"name\":\"Buenos Aires Ursprünge: San Telmo und Monserrat\",\"slug\":\"63551-buenos-aires-ursprunge-san-telmo-und-monserrat\",\"rating\":4.96,\"reviews_count\":51,\"duration\":165,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63551-buenos-aires-ursprunge-san-telmo-und-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":38312,\"name\":\"Das Paris Südamerikas! Ikonen, Geschichte und Mythen von Buenos Aires. Free walking tour. (max. 6 Personen)\",\"slug\":\"38312-das-paris-sudamerikas-ikonen-geschichte-und-mythen-von-buenos-aires-free-walking-tour-max-6-personen\",\"rating\":4.97,\"reviews_count\":540,\"duration\":210,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/38312-das-paris-sudamerikas-ikonen-geschichte-und-mythen-von-buenos-aires-free-walking-tour-max-6-personen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51665,\"name\":\"Magica Buenos Aires\",\"slug\":\"51665-magica-buenos-aires\",\"rating\":4.79,\"reviews_count\":28,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51665-magica-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":56186,\"name\":\"Entdecke San Telmo: Eine Reise in die Vergangenheit! ⌛\",\"slug\":\"56186-entdecke-san-telmo-eine-reise-in-die-vergangenheit\",\"rating\":4.82,\"reviews_count\":685,\"duration\":165,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/56186-entdecke-san-telmo-eine-reise-in-die-vergangenheit?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":44811,\"name\":\"Kostenlose Tour Che! Das wesentliche Buenos Aires, Geld und Angst hatten wir nie...\",\"slug\":\"44811-kostenlose-tour-che-das-wesentliche-buenos-aires-geld-und-angst-hatten-wir-nie\",\"rating\":4.91,\"reviews_count\":1047,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/44811-kostenlose-tour-che-das-wesentliche-buenos-aires-geld-und-angst-hatten-wir-nie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":51609,\"name\":\"San Telmo Free Tour Essenziell: Tango: Geschichte und Legenden, Märkte und Museen\",\"slug\":\"51609-san-telmo-free-tour-essenziell-tango-geschichte-und-legenden-markte-und-museen\",\"rating\":4.83,\"reviews_count\":203,\"duration\":120,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/51609-san-telmo-free-tour-essenziell-tango-geschichte-und-legenden-markte-und-museen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":20351,\"name\":\"\\\"Das Paris Lateinamerikas\\\"\",\"slug\":\"20351-das-paris-lateinamerikas\",\"rating\":4.66,\"reviews_count\":153,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/20351-das-paris-lateinamerikas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Unverzichtbares Buenos Aires 🥇 Die wesentliche Tour für diejenigen, die Buenos Aires zum ersten Mal besuchen",
+     "slug": "55661-unverzichtbares-buenos-aires-die-wesentliche-tour-fur-diejenigen-die-buenos-aires-zum-ersten-mal-besuchen",
+     "rating": 4.9,
+     "reviews_count": 701,
+     "duration": 150,
+     "languages": [
+      "en",
+      "pt",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55661-unverzichtbares-buenos-aires-die-wesentliche-tour-fur-diejenigen-die-buenos-aires-zum-ersten-mal-besuchen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Spaziergang durch das Viertel La Boca: Tango, Kunst und Fußball, argentinische Leidenschaften",
+     "slug": "54972-spaziergang-durch-das-viertel-la-boca-tango-kunst-und-fussball-argentinische-leidenschaften",
+     "rating": 4.78,
+     "reviews_count": 1415,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54972-spaziergang-durch-das-viertel-la-boca-tango-kunst-und-fussball-argentinische-leidenschaften?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Kostenlose Tour durch Buenos Aires: Herz der Stadt",
+     "slug": "45347-kostenlose-tour-durch-buenos-aires-herz-der-stadt",
+     "rating": 4.88,
+     "reviews_count": 1304,
+     "duration": 180,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45347-kostenlose-tour-durch-buenos-aires-herz-der-stadt?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 68379,
+     "name": "Essentielle Tour durch Buenos Aires",
+     "slug": "68379-essentielle-tour-durch-buenos-aires",
+     "rating": 4.64,
+     "reviews_count": 47,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/68379-essentielle-tour-durch-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 35555,
+     "name": "Stadtzentrum von Buenos Aires Rundgang: Geschichte und Geschichten 🏆",
+     "slug": "35555-stadtzentrum-von-buenos-aires-rundgang-geschichte-und-geschichten",
+     "rating": 4.91,
+     "reviews_count": 647,
+     "duration": 105,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/35555-stadtzentrum-von-buenos-aires-rundgang-geschichte-und-geschichten?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63551,
+     "name": "Buenos Aires Ursprünge: San Telmo und Monserrat",
+     "slug": "63551-buenos-aires-ursprunge-san-telmo-und-monserrat",
+     "rating": 4.96,
+     "reviews_count": 51,
+     "duration": 165,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63551-buenos-aires-ursprunge-san-telmo-und-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 38312,
+     "name": "Das Paris Südamerikas! Ikonen, Geschichte und Mythen von Buenos Aires. Free walking tour. (max. 6 Personen)",
+     "slug": "38312-das-paris-sudamerikas-ikonen-geschichte-und-mythen-von-buenos-aires-free-walking-tour-max-6-personen",
+     "rating": 4.97,
+     "reviews_count": 540,
+     "duration": 210,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/38312-das-paris-sudamerikas-ikonen-geschichte-und-mythen-von-buenos-aires-free-walking-tour-max-6-personen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51665,
+     "name": "Magica Buenos Aires",
+     "slug": "51665-magica-buenos-aires",
+     "rating": 4.79,
+     "reviews_count": 28,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51665-magica-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 56186,
+     "name": "Entdecke San Telmo: Eine Reise in die Vergangenheit! ⌛",
+     "slug": "56186-entdecke-san-telmo-eine-reise-in-die-vergangenheit",
+     "rating": 4.82,
+     "reviews_count": 685,
+     "duration": 165,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/56186-entdecke-san-telmo-eine-reise-in-die-vergangenheit?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 44811,
+     "name": "Kostenlose Tour Che! Das wesentliche Buenos Aires, Geld und Angst hatten wir nie...",
+     "slug": "44811-kostenlose-tour-che-das-wesentliche-buenos-aires-geld-und-angst-hatten-wir-nie",
+     "rating": 4.91,
+     "reviews_count": 1047,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/44811-kostenlose-tour-che-das-wesentliche-buenos-aires-geld-und-angst-hatten-wir-nie?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 51609,
+     "name": "San Telmo Free Tour Essenziell: Tango: Geschichte und Legenden, Märkte und Museen",
+     "slug": "51609-san-telmo-free-tour-essenziell-tango-geschichte-und-legenden-markte-und-museen",
+     "rating": 4.83,
+     "reviews_count": 203,
+     "duration": 120,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/51609-san-telmo-free-tour-essenziell-tango-geschichte-und-legenden-markte-und-museen?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 20351,
+     "name": "\"Das Paris Lateinamerikas\"",
+     "slug": "20351-das-paris-lateinamerikas",
+     "rating": 4.66,
+     "reviews_count": 153,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/20351-das-paris-lateinamerikas?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Buche auf GuruWalk: https://www.guruwalk.com/de/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

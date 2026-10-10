@@ -1,0 +1,6 @@
+# Provider/runtime anomalies (WARN/ERROR lines from gitignored backend.log)
+## cold
+WARN [NominatimApiService] Nominatim search failed for "the Cabildo": socket hang up
+WARN [ExperienceProposalResolverService] Global trusted resolution failed for "the Cabildo": socket hang up
+## warm
+WARN [WikidataApiService] Wikidata proximity lookup failed (-34.6063874,-58.3747973,200m): timeout of 10000ms exceeded

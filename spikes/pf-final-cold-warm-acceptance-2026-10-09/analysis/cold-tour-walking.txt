@@ -1,0 +1,16 @@
+ order |             experienceId             |                  canonicalName                  | durationMinutes |     duration      |                                                                                         travelFromPrevious
+-------+--------------------------------------+-------------------------------------------------+-----------------+-------------------+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+     1 | eabaf1ee-a68d-4b36-ba13-b90a178316a4 | Walking tour Buenos Aires – Day 1 (part 1 of 2) |                 | 2.648042777777778 |
+     2 | 682fc0bf-d59d-49fd-9566-04dbc032ddfa | Museo Histórico Nacional                        |                 |               1.5 | {"mode": "walking", "provider": "geoapify", "approximate": false, "distanceMeters": 210, "walkingMinutes": 3.535033333333333, "durationMinutes": 3.535033333333333, "walkingDistanceMeters": 210}
+     3 | af5c3f2e-63a4-4d97-a8ea-60cc3a53656b | Roca granitica                                  |                 |               1.5 | {"mode": "walking", "provider": "geoapify", "approximate": false, "distanceMeters": 799, "walkingMinutes": 12.31936666666667, "durationMinutes": 12.31936666666667, "walkingDistanceMeters": 799}
+     4 | 1905f762-de79-4e27-b0a0-a197fc8abc56 | Manzana de las Luces                            |                 | 1.500000000000002 | {"mode": "walking", "provider": "geoapify", "approximate": false, "distanceMeters": 2724, "walkingMinutes": 44.23436666666667, "durationMinutes": 44.23436666666667, "walkingDistanceMeters": 2724}
+(4 rows)
+
+ total | dur_null | dur_120
+-------+----------+---------
+    18 |       18 |       0
+(1 row)
+
+ id | canonicalName | durationMinutes
+----+---------------+-----------------
+(0 rows)

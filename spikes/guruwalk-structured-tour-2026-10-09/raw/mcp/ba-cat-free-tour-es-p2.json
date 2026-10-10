@@ -1,0 +1,218 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":43240,\"name\":\"AVENIDA DE MAYO: Del Cabildo al Congreso, la avenida que escribió la historia\",\"slug\":\"43240-avenida-de-mayo-la-avenida-de-los-suenos\",\"rating\":4.93,\"reviews_count\":409,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43240-avenida-de-mayo-la-avenida-de-los-suenos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49154,\"name\":\"SAN TELMO: De la cuna de Buenos Aires a los patios del tango\",\"slug\":\"49154-san-telmo-las-historias-bajo-el-empedrado\",\"rating\":4.92,\"reviews_count\":65,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49154-san-telmo-las-historias-bajo-el-empedrado?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69004,\"name\":\"Abasto, Cuna del Tango y la Cultura Porteña Buenos Aires Free Tour\",\"slug\":\"69004-abasto-cuna-del-tango-y-la-cultura-portena-buenos-aires-free-tour\",\"rating\":4.67,\"reviews_count\":9,\"duration\":120,\"languages\":[\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69004-abasto-cuna-del-tango-y-la-cultura-portena-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54506,\"name\":\"RETIRO: Del Centro Naval al Palacio Noel, el lujo que compitió con Europa\",\"slug\":\"54506-retiro-la-aristocracia-criolla\",\"rating\":4.95,\"reviews_count\":83,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54506-retiro-la-aristocracia-criolla?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55661,\"name\":\"Buenos Aires imprescindible 🥇 El tour esencial para quienes visitan Buenos Aires por primera vez\",\"slug\":\"55661-buenos-aires-imprescindible-el-tour-esencial-para-quienes-visitan-buenos-aires-por-primera-vez\",\"rating\":4.77,\"reviews_count\":96,\"duration\":150,\"languages\":[\"en\",\"pt\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55661-buenos-aires-imprescindible-el-tour-esencial-para-quienes-visitan-buenos-aires-por-primera-vez?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":20351,\"name\":\"Buenos Aires, \\\"La París de Latinoamérica\\\"\",\"slug\":\"20351-buenos-aires-la-paris-de-latinoamerica\",\"rating\":4.79,\"reviews_count\":84,\"duration\":135,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/20351-buenos-aires-la-paris-de-latinoamerica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":46968,\"name\":\"Retiro Palacios Mística y Sabores !\",\"slug\":\"46968-retiro-mitos-arquitectura-y-degustacion\",\"rating\":5.0,\"reviews_count\":1,\"duration\":90,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/46968-retiro-mitos-arquitectura-y-degustacion?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":58175,\"name\":\"Recoleta: historia, arquitectura y aristocracia en el barrio más elegante de Buenos Aires\",\"slug\":\"58175-recoleta-historia-arquitectura-y-aristocracia-en-el-barrio-mas-elegante-de-buenos-aires\",\"rating\":4.92,\"reviews_count\":263,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/58175-recoleta-historia-arquitectura-y-aristocracia-en-el-barrio-mas-elegante-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":66170,\"name\":\"Un rincón de Recoleta y Palermo chico \",\"slug\":\"66170-un-rincon-de-recoleta-y-palermo-chico\",\"rating\":5.0,\"reviews_count\":4,\"duration\":150,\"languages\":[\"es\",\"it\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/66170-un-rincon-de-recoleta-y-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63551,\"name\":\"La cuna de Buenos Aires: San Telmo y Monserrat\",\"slug\":\"63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat\",\"rating\":4.86,\"reviews_count\":7,\"duration\":165,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45349,\"name\":\"Free tour Retiro y Recoleta: Buenos Aires Aristocrática\",\"slug\":\"45349-free-tour-retiro-y-recoleta-buenos-aires-aristocratica\",\"rating\":4.92,\"reviews_count\":96,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/45349-free-tour-retiro-y-recoleta-buenos-aires-aristocratica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55258,\"name\":\"Un Oasis Natural en Buenos Aires: ¡Descubre Costanera Sur!\",\"slug\":\"55258-un-oasis-natural-en-buenos-aires-descubre-costanera-sur\",\"rating\":4.87,\"reviews_count\":31,\"duration\":150,\"languages\":[\"en\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55258-un-oasis-natural-en-buenos-aires-descubre-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":2,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 43240,
+     "name": "AVENIDA DE MAYO: Del Cabildo al Congreso, la avenida que escribió la historia",
+     "slug": "43240-avenida-de-mayo-la-avenida-de-los-suenos",
+     "rating": 4.93,
+     "reviews_count": 409,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43240-avenida-de-mayo-la-avenida-de-los-suenos?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49154,
+     "name": "SAN TELMO: De la cuna de Buenos Aires a los patios del tango",
+     "slug": "49154-san-telmo-las-historias-bajo-el-empedrado",
+     "rating": 4.92,
+     "reviews_count": 65,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49154-san-telmo-las-historias-bajo-el-empedrado?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69004,
+     "name": "Abasto, Cuna del Tango y la Cultura Porteña Buenos Aires Free Tour",
+     "slug": "69004-abasto-cuna-del-tango-y-la-cultura-portena-buenos-aires-free-tour",
+     "rating": 4.67,
+     "reviews_count": 9,
+     "duration": 120,
+     "languages": [
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69004-abasto-cuna-del-tango-y-la-cultura-portena-buenos-aires-free-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54506,
+     "name": "RETIRO: Del Centro Naval al Palacio Noel, el lujo que compitió con Europa",
+     "slug": "54506-retiro-la-aristocracia-criolla",
+     "rating": 4.95,
+     "reviews_count": 83,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54506-retiro-la-aristocracia-criolla?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Buenos Aires imprescindible 🥇 El tour esencial para quienes visitan Buenos Aires por primera vez",
+     "slug": "55661-buenos-aires-imprescindible-el-tour-esencial-para-quienes-visitan-buenos-aires-por-primera-vez",
+     "rating": 4.77,
+     "reviews_count": 96,
+     "duration": 150,
+     "languages": [
+      "en",
+      "pt",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55661-buenos-aires-imprescindible-el-tour-esencial-para-quienes-visitan-buenos-aires-por-primera-vez?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 20351,
+     "name": "Buenos Aires, \"La París de Latinoamérica\"",
+     "slug": "20351-buenos-aires-la-paris-de-latinoamerica",
+     "rating": 4.79,
+     "reviews_count": 84,
+     "duration": 135,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/20351-buenos-aires-la-paris-de-latinoamerica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 46968,
+     "name": "Retiro Palacios Mística y Sabores !",
+     "slug": "46968-retiro-mitos-arquitectura-y-degustacion",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 90,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/46968-retiro-mitos-arquitectura-y-degustacion?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 58175,
+     "name": "Recoleta: historia, arquitectura y aristocracia en el barrio más elegante de Buenos Aires",
+     "slug": "58175-recoleta-historia-arquitectura-y-aristocracia-en-el-barrio-mas-elegante-de-buenos-aires",
+     "rating": 4.92,
+     "reviews_count": 263,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/58175-recoleta-historia-arquitectura-y-aristocracia-en-el-barrio-mas-elegante-de-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 66170,
+     "name": "Un rincón de Recoleta y Palermo chico ",
+     "slug": "66170-un-rincon-de-recoleta-y-palermo-chico",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 150,
+     "languages": [
+      "es",
+      "it"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/66170-un-rincon-de-recoleta-y-palermo-chico?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63551,
+     "name": "La cuna de Buenos Aires: San Telmo y Monserrat",
+     "slug": "63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat",
+     "rating": 4.86,
+     "reviews_count": 7,
+     "duration": 165,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45349,
+     "name": "Free tour Retiro y Recoleta: Buenos Aires Aristocrática",
+     "slug": "45349-free-tour-retiro-y-recoleta-buenos-aires-aristocratica",
+     "rating": 4.92,
+     "reviews_count": 96,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/45349-free-tour-retiro-y-recoleta-buenos-aires-aristocratica?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55258,
+     "name": "Un Oasis Natural en Buenos Aires: ¡Descubre Costanera Sur!",
+     "slug": "55258-un-oasis-natural-en-buenos-aires-descubre-costanera-sur",
+     "rating": 4.87,
+     "reviews_count": 31,
+     "duration": 150,
+     "languages": [
+      "en",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55258-un-oasis-natural-en-buenos-aires-descubre-costanera-sur?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 2,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/es/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

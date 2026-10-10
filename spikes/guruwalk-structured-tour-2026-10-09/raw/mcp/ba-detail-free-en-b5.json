@@ -1,0 +1,347 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"results\":[{\"product_id\":23191,\"type\":\"free_tour\",\"id\":23191,\"name\":\"Barracas Free Tour, the thousand faces of the deep south\",\"slug\":\"23191-barracas-free-tour-the-thousand-faces-of-the-deep-south\",\"description_html\":\"<p>Minimum 3 walkers per Reservation.<br>I dont take si one person bookings.<br><br>WHAT IS BARRACAS, THE THOUSAND FACES OF THE DEEP SOUTH?<br>The perfect route for those who are more travelers than tourists. Barracas is the neighborhood of aristocratic mansions, abandoned factories, design studios, recovered industries, collective worker housing, graffiti murals, bodegones and centennial bars, railroads, Jews from Syria. Barracas is the neighborhood of old spaces and new ideas, a small city within Buenos Aires, where thousands of styles coexist, treasuring countless stories, characters and well-kept secrets.<br><br>WHERE IS BARRACAS, THE THOUSAND FACES OF THE DEEP SOUTH?<br>We travel fifth and nineteenth century mansions of the upper class of Buenos Aires. We discovered cookie mills converted into modern housing complexes, and old markets became the Metropolitan Design Center. We walk the urban art factory that are the streets of Barracas, where we see \\\"El regreso de Quinquela\\\", a 2,000 square meter mural that exceeded the Guinness record; or the passage Lanín, where the color of mosaics and ceramics transform the fronts of more than 40 houses, in one of the most characteristic interventions of the city. We also visit a neo-Gothic church that recalls a tragic love of youth; an art deco train station in operation; an oriental synagogue of Mudejar style. A true journey through time, where trains, graffiti artists, workers, highways, designers, squares and cobblestones are the protagonists.<br><br>WHEN IS?<br>Every day of the week at 10 am and 2.30 pm We meet at the corner of Av. Montes de Oca and Av. Caseros, at the door of the Olivera Pharmacy.<br>Estimated time: Approximately 3 hours 30 min.<br>Minimum 3 walkers per Reservation.<br>Not suitable for children under 12 years old.<br>It is suspended due to rain.</p>\",\"images\":[\"https://media.guruwalk.com/xiipb2kncbrzk7mi01rhtafmufaf\",\"https://media.guruwalk.com/yys87bfw2ia12d419i1s7csp3uai\",\"https://media.guruwalk.com/xegjts7b0krcpipoqvok9gb72r34\",\"https://media.guruwalk.com/x3bupctlc0nl18xnse6d3fniaagd\",\"https://media.guruwalk.com/nux6he5cykvta4gxqweqmwfhy3zm\",\"https://media.guruwalk.com/zniib07a242bts44bc6zbl8nhh5i\",\"https://media.guruwalk.com/xxbj4hj8qa3jv6e9e1581os52wgu\",\"https://media.guruwalk.com/o7mxxoaoqws8ol9ej7zvuc4oue03\",\"https://media.guruwalk.com/nbu8ric2ubirgm2z7er75msss6ur\",\"https://media.guruwalk.com/szbqgmxjr14tdh994wo8qanr2ggl\",\"https://media.guruwalk.com/c7fibk32e4cda70t5j3nb3erzhus\",\"https://media.guruwalk.com/ph3vevtkc7n3efzxc9w64o87n3rx\",\"https://media.guruwalk.com/k03sh1bxo4w56v3hwi9npn1qf8ir\",\"https://media.guruwalk.com/09kl0gfv4n5by9wbagheaz1d0o6g\",\"https://media.guruwalk.com/0efrqf3avvy698yzh6s7gtkeo89a\",\"https://media.guruwalk.com/wglc805p7rd6lotbt2vujfzo84r8\",\"https://media.guruwalk.com/3an892cl0ntbdvsuyes3nboapl21\",\"https://media.guruwalk.com/aqaethpve9cz49swgnfetpf7ux0r\",\"https://media.guruwalk.com/5p3bn3fw08238v2y5x6q8ac9p5fs\",\"https://media.guruwalk.com/44go0ofur6gp6kahpt0r33px70ss\",\"https://media.guruwalk.com/1unxxbx8brw07xvdmzadvb14rf1b\"],\"duration\":\"3:30\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6286187,-58.3777327\",\"meeting_point_latitude\":-34.6286187,\"meeting_point_longitude\":-58.3777327,\"how_to_find_me\":\"We meet at the corner of Av. Montes de Oca and Av. Caseros, at the door of the Olivera Pharmacy.\",\"itinerary\":[\"Leones Palace\",\"Biscuit Factory\",\"Saint Felicitas Church\",\"Benito Quinquela Martín Square\",\"Lanin Passage\"],\"reviews\":{\"count\":281,\"rating\":\"4.99\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"GustaTrips Gustavo\"},\"url\":\"https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":65401,\"type\":\"free_tour\",\"id\":65401,\"name\":\"City classics for children\",\"slug\":\"65401-city-classics-for-children\",\"description_html\":\"<p>✨ <strong>Stroll: The City's Classics</strong> ✨<br><br></p><p> Once upon a time, there was a group of curious explorers between the ages of 4 and 12 (and their grown-up companions!) who dared to discover the best-kept secrets of the heart of Buenos Aires.<br><br></p><p> Our journey begins in <strong>Plaza de Mayo</strong> , the setting where unforgettable chapters of Argentine history were written. From there, we'll weave together stories and interesting facts in front of the imposing <strong>Casa Rosada</strong> , the solemn <strong>Cabildo</strong> , and the majestic <strong>Metropolitan Cathedral</strong> . And, as a mysterious finale, we'll delve into the <strong>Manzana de las Luces</strong> , a place that hides tunnels and legends that invite us to imagine times gone by.<br><br></p><p> But that's not all: each stop is designed for exploring, questioning, and playing. Little explorers will receive an <strong>activity booklet</strong> full of challenges and games, which they can complete both on the tour and later at home, so the adventure never ends.<br><br></p><p> 🌟 Ready to be part of this story?<br> Reserve your spot and come discover that the city also knows how to tell stories... you just have to know how to listen!</p>\",\"images\":[\"https://media.guruwalk.com/cemcjhp3hand005k3vtoz60f7ayo\",\"https://media.guruwalk.com/7ptt8p9r4bl5o0wnqh9ao9glcc1y\",\"https://media.guruwalk.com/c2wh32kov2zct5btkor9n5ii50oc\",\"https://media.guruwalk.com/acbp4pol9adgu9qdnvswrxrr21wj\",\"https://media.guruwalk.com/gf6j4kj8fk831zi8lxq0jugzawq5\"],\"duration\":\"1:45\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6083667,-58.3722832\",\"meeting_point_latitude\":-34.6083667,\"meeting_point_longitude\":-58.3722832,\"how_to_find_me\":\"I will be at the Pyramid of May (in the center of the Plaza) wearing a gray cap \",\"itinerary\":[\"Casa Rosada\",\"Monumento al General Manuel Belgrano\",\"Cabildo de Buenos Aires\",\"Catedral Metropolitana\",\"Complejo Histórico Cultural Manzana de las Luces\"],\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Agustina Graziano\"},\"url\":\"https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":35018,\"type\":\"free_tour\",\"id\":35018,\"name\":\"Buenos Aires Urban Walks - Free Tour of the City Center\",\"slug\":\"35018-buenos-aires-urban-walks-free-tour-of-the-city-center\",\"description_html\":\"<p><strong>Discover the city with a local.</strong><br>The best tour in town with the most entertaining and knowledgeable guides. <strong>History, culture, topicality,</strong> and the <strong>tips and secrets everyone who visits BA should know.</strong><br><strong>Stops:</strong></p><ul><li>\\\"<strong>Pink House</strong>\\\", the presidential palace</li><li>National Congress</li><li>How to move around?</li><li>KM Zero monolyth</li><li>May Avenue</li><li><strong>Barolo</strong> Palace</li><li><strong>Tortoni</strong> Cafe</li><li>Obelisk</li><li>Metropolitan Cathedral.&nbsp;</li><li><strong>Francis Pope</strong> last residence</li><li>Mothers of May Square. <strong>Human Rights&nbsp;</strong></li><li>The Cabildo.</li></ul><p><strong>Recommendations and tips!</strong></p>\",\"images\":[\"https://media.guruwalk.com/djn0yl3my7zfzgj5hiw7kxt1odls\",\"https://media.guruwalk.com/3yiowup2ta2bmpxtd8shiqjcmfvz\",\"https://media.guruwalk.com/g6cr6sha6pttveqwp48clwl72xgf\",\"https://media.guruwalk.com/ht430i5gatepsy63ue5w1f8jihye\",\"https://media.guruwalk.com/egwdy39d1s07qlbicje9uilwohup\"],\"duration\":\"2:30\",\"available_languages\":[\"en\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.609232,-58.390562\",\"meeting_point_latitude\":-34.609232,\"meeting_point_longitude\":-58.390562,\"how_to_find_me\":\"On the side of the square. Look for the guide with 💛 yellow 💛 T-shirt\",\"itinerary\":[\"Pink House\",\"Metropolitan Cathedral\",\"May Plaza\",\"May Avenue\",\"Buenos Aires City Council\",\"Cafe Tortoni\",\"Avenue July 9\",\"Barolo Palace\",\"Real Estate Building\",\"Congress of the Argentine Nation\"],\"reviews\":{\"count\":21,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Buenos Aires Urban Walks \"},\"url\":\"https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":52891,\"type\":\"free_tour\",\"id\":52891,\"name\":\"Secrets of the National Fine Arts Museum\",\"slug\":\"52891-secrets-of-the-national-fine-arts-museum\",\"description_html\":\"<p>In this 60 minutes free tour we will discover art and history through the National Museum of Fine Arts in Buenos Aires.<br>&nbsp;We will meet you at the Museum in Palermo and show you the main secrets Argentine and world art have to offer enjoying masterpieces that can be only found in Buenos Aires.</p>\",\"images\":[\"https://media.guruwalk.com/igpu5mlohdqoqu6tnl6by4o0qvun\",\"https://media.guruwalk.com/31bu38i0eyseiz6tbmi3m0mcybpj\",\"https://media.guruwalk.com/nlldgk8pzla0aufxz67xs23tvbaj\",\"https://media.guruwalk.com/32usxnbusxcs32mj86cq8wq7zt3l\",\"https://media.guruwalk.com/wxued4g9yfaqyfi766675g5cs56p\"],\"duration\":\"1:00\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.5839894,-58.3930044\",\"meeting_point_latitude\":-34.5839894,\"meeting_point_longitude\":-58.3930044,\"how_to_find_me\":\"We will meet you at the entrance of the Museum. We will share a contact number in case you need any assistance.\",\"itinerary\":[],\"reviews\":{\"count\":14,\"rating\":\"4.57\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Romina Fabbs \"},\"url\":\"https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":55938,\"type\":\"free_tour\",\"id\":55938,\"name\":\"Buenos Aires Historic Center Tour\",\"slug\":\"55938-buenos-aires-historic-center-tour\",\"description_html\":\"<p>Welcome to the beautiful City of Buenos Aires. In just over an hour, we will visit the historic center of this important place. From 1580 to the present day, this space has undergone constant changes. From the Casa Rosada, first used as the Fort of the Great Village to the Government House that is today, the Metropolitan Cathedral, which used to be a modest adobe church dedicated to San Nicolás de Bari and today is It is made up of three naves and inside it houses the Mausoleum of San Martín. The Cabildo, today a museum, was the headquarters of the first national government. Undisputed protagonists of this interesting and lively staging. We will end the tour with a surprise that you will like.</p>\",\"images\":[\"https://media.guruwalk.com/jm1mgtcou2umm7jg2gp1icotbicj\",\"https://media.guruwalk.com/m2ku2nin12r5d3coct216fe7s1al\",\"https://media.guruwalk.com/ccz8nq5aehxq6mrbo41ga0qnzfoi\",\"https://media.guruwalk.com/ao0l7xsi9f13hbot1wa1t238ciky\",\"https://media.guruwalk.com/habjn7c6megnb2pr61o9247hzv3v\"],\"duration\":\"1:00\",\"available_languages\":[\"en\",\"es\",\"pt\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.607907,-58.37215\",\"meeting_point_latitude\":-34.607907,\"meeting_point_longitude\":-58.37215,\"how_to_find_me\":\"I will be on the corner of Avenida Rivadavia and Reconquista with my official guide credential.\",\"itinerary\":[\"Plaza de Mayo\",\"Casa Rosada\",\"Catedral Metropolitana\",\"Cabildo de Buenos Aires\",\"Pirámide de Mayo\"],\"reviews\":{\"count\":1,\"rating\":\"5.0\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Agustina Nayme LIVA\"},\"url\":\"https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":49463,\"type\":\"free_tour\",\"id\":49463,\"name\":\"Free tour through the heart of the city and its most important bars\",\"slug\":\"49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars\",\"description_html\":\"<p>We will visit the heart of the city, its history and some of its most notable bars.<br> The <strong>tour begins in Plaza de Mayo and its surroundings, the cathedral, the Government House and its surroundings.</strong> Then, we will go to one of its outstanding bars such as La Puerto Rico. Then we will have the opportunity to see the <strong>oldest churches</strong> , belonging to different religious orders.<br> <strong>We will continue</strong> walking along the oldest artery in the city, <strong>Avenida de Mayo</strong> , and we will visit Florida Street, where one of the oldest tango venues is located, the Guemes Gallery. Then we will visit the most emblematic and well-known <strong>, Café Tortoni</strong> . We will continue through the area to <strong>end the tour in another recently restored highlight called La Ideal.</strong></p>\",\"images\":[\"https://media.guruwalk.com/m5dez4w4l5wjnqjfyixn9qhyrrlx\",\"https://media.guruwalk.com/4r8zcczurucml30xkp0gsnebgoj8\",\"https://media.guruwalk.com/klfu9pudpjzy9ggoumnyswhg9sj4\",\"https://media.guruwalk.com/gq75052crnb97onqzmeja9abgo29\",\"https://media.guruwalk.com/j5g7mv561f47i1pcbybuw5qt3c4u\",\"https://media.guruwalk.com/t5p0xsphy23cd4o1pjjj4ccb2s32\",\"https://media.guruwalk.com/5jjd3cxq8ormuf99omdgojpco3vc\",\"https://media.guruwalk.com/8r8mhu6hq7l08n8v5cgju2nt4n85\",\"https://media.guruwalk.com/b6tl5jotonagihtm9o5ygypw2y1l\",\"https://media.guruwalk.com/180hg7x8grqlxa3oqnkscvcmoiw0\",\"https://media.guruwalk.com/sk5d0hp19i5l4yk99av24g0ha5ct\",\"https://media.guruwalk.com/96jftdpexwqlg504hyruj59oml0w\",\"https://media.guruwalk.com/4o6ylboa9dgsrckrihd04uqwrg1w\",\"https://media.guruwalk.com/tgfuz2llchhutn60dojcsd8mcmrf\",\"https://media.guruwalk.com/5i1xe1peeknytx4opkem3ollx4rs\",\"https://media.guruwalk.com/3eoipgs8ogocudfmwwhqrng8hi6c\"],\"duration\":\"2:30\",\"available_languages\":[\"en\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.60847,-58.372237\",\"meeting_point_latitude\":-34.60847,\"meeting_point_longitude\":-58.372237,\"how_to_find_me\":\"We will meet you at Plaza de Mayo, you will be next to the Pyramid in the center of the square. I will have my Tour Guide badge and something orange.\",\"itinerary\":[\"Casa Rosada\",\"Casa Rosada\"],\"reviews\":{\"count\":11,\"rating\":\"4.64\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":true,\"large_groups_allowed\":false,\"large_groups_limit\":5},\"guide\":{\"name\":\"Silvia Cimmino\"},\"url\":\"https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"}]}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "results": [
+    {
+     "product_id": 23191,
+     "type": "free_tour",
+     "id": 23191,
+     "name": "Barracas Free Tour, the thousand faces of the deep south",
+     "slug": "23191-barracas-free-tour-the-thousand-faces-of-the-deep-south",
+     "description_html": "<p>Minimum 3 walkers per Reservation.<br>I dont take si one person bookings.<br><br>WHAT IS BARRACAS, THE THOUSAND FACES OF THE DEEP SOUTH?<br>The perfect route for those who are more travelers than tourists. Barracas is the neighborhood of aristocratic mansions, abandoned factories, design studios, recovered industries, collective worker housing, graffiti murals, bodegones and centennial bars, railroads, Jews from Syria. Barracas is the neighborhood of old spaces and new ideas, a small city within Buenos Aires, where thousands of styles coexist, treasuring countless stories, characters and well-kept secrets.<br><br>WHERE IS BARRACAS, THE THOUSAND FACES OF THE DEEP SOUTH?<br>We travel fifth and nineteenth century mansions of the upper class of Buenos Aires. We discovered cookie mills converted into modern housing complexes, and old markets became the Metropolitan Design Center. We walk the urban art factory that are the streets of Barracas, where we see \"El regreso de Quinquela\", a 2,000 square meter mural that exceeded the Guinness record; or the passage Lanín, where the color of mosaics and ceramics transform the fronts of more than 40 houses, in one of the most characteristic interventions of the city. We also visit a neo-Gothic church that recalls a tragic love of youth; an art deco train station in operation; an oriental synagogue of Mudejar style. A true journey through time, where trains, graffiti artists, workers, highways, designers, squares and cobblestones are the protagonists.<br><br>WHEN IS?<br>Every day of the week at 10 am and 2.30 pm We meet at the corner of Av. Montes de Oca and Av. Caseros, at the door of the Olivera Pharmacy.<br>Estimated time: Approximately 3 hours 30 min.<br>Minimum 3 walkers per Reservation.<br>Not suitable for children under 12 years old.<br>It is suspended due to rain.</p>",
+     "images": [
+      "https://media.guruwalk.com/xiipb2kncbrzk7mi01rhtafmufaf",
+      "https://media.guruwalk.com/yys87bfw2ia12d419i1s7csp3uai",
+      "https://media.guruwalk.com/xegjts7b0krcpipoqvok9gb72r34",
+      "https://media.guruwalk.com/x3bupctlc0nl18xnse6d3fniaagd",
+      "https://media.guruwalk.com/nux6he5cykvta4gxqweqmwfhy3zm",
+      "https://media.guruwalk.com/zniib07a242bts44bc6zbl8nhh5i",
+      "https://media.guruwalk.com/xxbj4hj8qa3jv6e9e1581os52wgu",
+      "https://media.guruwalk.com/o7mxxoaoqws8ol9ej7zvuc4oue03",
+      "https://media.guruwalk.com/nbu8ric2ubirgm2z7er75msss6ur",
+      "https://media.guruwalk.com/szbqgmxjr14tdh994wo8qanr2ggl",
+      "https://media.guruwalk.com/c7fibk32e4cda70t5j3nb3erzhus",
+      "https://media.guruwalk.com/ph3vevtkc7n3efzxc9w64o87n3rx",
+      "https://media.guruwalk.com/k03sh1bxo4w56v3hwi9npn1qf8ir",
+      "https://media.guruwalk.com/09kl0gfv4n5by9wbagheaz1d0o6g",
+      "https://media.guruwalk.com/0efrqf3avvy698yzh6s7gtkeo89a",
+      "https://media.guruwalk.com/wglc805p7rd6lotbt2vujfzo84r8",
+      "https://media.guruwalk.com/3an892cl0ntbdvsuyes3nboapl21",
+      "https://media.guruwalk.com/aqaethpve9cz49swgnfetpf7ux0r",
+      "https://media.guruwalk.com/5p3bn3fw08238v2y5x6q8ac9p5fs",
+      "https://media.guruwalk.com/44go0ofur6gp6kahpt0r33px70ss",
+      "https://media.guruwalk.com/1unxxbx8brw07xvdmzadvb14rf1b"
+     ],
+     "duration": "3:30",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6286187,-58.3777327",
+     "meeting_point_latitude": -34.6286187,
+     "meeting_point_longitude": -58.3777327,
+     "how_to_find_me": "We meet at the corner of Av. Montes de Oca and Av. Caseros, at the door of the Olivera Pharmacy.",
+     "itinerary": [
+      "Leones Palace",
+      "Biscuit Factory",
+      "Saint Felicitas Church",
+      "Benito Quinquela Martín Square",
+      "Lanin Passage"
+     ],
+     "reviews": {
+      "count": 281,
+      "rating": "4.99"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "GustaTrips Gustavo"
+     },
+     "url": "https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 65401,
+     "type": "free_tour",
+     "id": 65401,
+     "name": "City classics for children",
+     "slug": "65401-city-classics-for-children",
+     "description_html": "<p>✨ <strong>Stroll: The City's Classics</strong> ✨<br><br></p><p> Once upon a time, there was a group of curious explorers between the ages of 4 and 12 (and their grown-up companions!) who dared to discover the best-kept secrets of the heart of Buenos Aires.<br><br></p><p> Our journey begins in <strong>Plaza de Mayo</strong> , the setting where unforgettable chapters of Argentine history were written. From there, we'll weave together stories and interesting facts in front of the imposing <strong>Casa Rosada</strong> , the solemn <strong>Cabildo</strong> , and the majestic <strong>Metropolitan Cathedral</strong> . And, as a mysterious finale, we'll delve into the <strong>Manzana de las Luces</strong> , a place that hides tunnels and legends that invite us to imagine times gone by.<br><br></p><p> But that's not all: each stop is designed for exploring, questioning, and playing. Little explorers will receive an <strong>activity booklet</strong> full of challenges and games, which they can complete both on the tour and later at home, so the adventure never ends.<br><br></p><p> 🌟 Ready to be part of this story?<br> Reserve your spot and come discover that the city also knows how to tell stories... you just have to know how to listen!</p>",
+     "images": [
+      "https://media.guruwalk.com/cemcjhp3hand005k3vtoz60f7ayo",
+      "https://media.guruwalk.com/7ptt8p9r4bl5o0wnqh9ao9glcc1y",
+      "https://media.guruwalk.com/c2wh32kov2zct5btkor9n5ii50oc",
+      "https://media.guruwalk.com/acbp4pol9adgu9qdnvswrxrr21wj",
+      "https://media.guruwalk.com/gf6j4kj8fk831zi8lxq0jugzawq5"
+     ],
+     "duration": "1:45",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6083667,-58.3722832",
+     "meeting_point_latitude": -34.6083667,
+     "meeting_point_longitude": -58.3722832,
+     "how_to_find_me": "I will be at the Pyramid of May (in the center of the Plaza) wearing a gray cap ",
+     "itinerary": [
+      "Casa Rosada",
+      "Monumento al General Manuel Belgrano",
+      "Cabildo de Buenos Aires",
+      "Catedral Metropolitana",
+      "Complejo Histórico Cultural Manzana de las Luces"
+     ],
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Agustina Graziano"
+     },
+     "url": "https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/65401-city-classics-for-children?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 35018,
+     "type": "free_tour",
+     "id": 35018,
+     "name": "Buenos Aires Urban Walks - Free Tour of the City Center",
+     "slug": "35018-buenos-aires-urban-walks-free-tour-of-the-city-center",
+     "description_html": "<p><strong>Discover the city with a local.</strong><br>The best tour in town with the most entertaining and knowledgeable guides. <strong>History, culture, topicality,</strong> and the <strong>tips and secrets everyone who visits BA should know.</strong><br><strong>Stops:</strong></p><ul><li>\"<strong>Pink House</strong>\", the presidential palace</li><li>National Congress</li><li>How to move around?</li><li>KM Zero monolyth</li><li>May Avenue</li><li><strong>Barolo</strong> Palace</li><li><strong>Tortoni</strong> Cafe</li><li>Obelisk</li><li>Metropolitan Cathedral.&nbsp;</li><li><strong>Francis Pope</strong> last residence</li><li>Mothers of May Square. <strong>Human Rights&nbsp;</strong></li><li>The Cabildo.</li></ul><p><strong>Recommendations and tips!</strong></p>",
+     "images": [
+      "https://media.guruwalk.com/djn0yl3my7zfzgj5hiw7kxt1odls",
+      "https://media.guruwalk.com/3yiowup2ta2bmpxtd8shiqjcmfvz",
+      "https://media.guruwalk.com/g6cr6sha6pttveqwp48clwl72xgf",
+      "https://media.guruwalk.com/ht430i5gatepsy63ue5w1f8jihye",
+      "https://media.guruwalk.com/egwdy39d1s07qlbicje9uilwohup"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.609232,-58.390562",
+     "meeting_point_latitude": -34.609232,
+     "meeting_point_longitude": -58.390562,
+     "how_to_find_me": "On the side of the square. Look for the guide with 💛 yellow 💛 T-shirt",
+     "itinerary": [
+      "Pink House",
+      "Metropolitan Cathedral",
+      "May Plaza",
+      "May Avenue",
+      "Buenos Aires City Council",
+      "Cafe Tortoni",
+      "Avenue July 9",
+      "Barolo Palace",
+      "Real Estate Building",
+      "Congress of the Argentine Nation"
+     ],
+     "reviews": {
+      "count": 21,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Buenos Aires Urban Walks "
+     },
+     "url": "https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 52891,
+     "type": "free_tour",
+     "id": 52891,
+     "name": "Secrets of the National Fine Arts Museum",
+     "slug": "52891-secrets-of-the-national-fine-arts-museum",
+     "description_html": "<p>In this 60 minutes free tour we will discover art and history through the National Museum of Fine Arts in Buenos Aires.<br>&nbsp;We will meet you at the Museum in Palermo and show you the main secrets Argentine and world art have to offer enjoying masterpieces that can be only found in Buenos Aires.</p>",
+     "images": [
+      "https://media.guruwalk.com/igpu5mlohdqoqu6tnl6by4o0qvun",
+      "https://media.guruwalk.com/31bu38i0eyseiz6tbmi3m0mcybpj",
+      "https://media.guruwalk.com/nlldgk8pzla0aufxz67xs23tvbaj",
+      "https://media.guruwalk.com/32usxnbusxcs32mj86cq8wq7zt3l",
+      "https://media.guruwalk.com/wxued4g9yfaqyfi766675g5cs56p"
+     ],
+     "duration": "1:00",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.5839894,-58.3930044",
+     "meeting_point_latitude": -34.5839894,
+     "meeting_point_longitude": -58.3930044,
+     "how_to_find_me": "We will meet you at the entrance of the Museum. We will share a contact number in case you need any assistance.",
+     "itinerary": [],
+     "reviews": {
+      "count": 14,
+      "rating": "4.57"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Romina Fabbs "
+     },
+     "url": "https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 55938,
+     "type": "free_tour",
+     "id": 55938,
+     "name": "Buenos Aires Historic Center Tour",
+     "slug": "55938-buenos-aires-historic-center-tour",
+     "description_html": "<p>Welcome to the beautiful City of Buenos Aires. In just over an hour, we will visit the historic center of this important place. From 1580 to the present day, this space has undergone constant changes. From the Casa Rosada, first used as the Fort of the Great Village to the Government House that is today, the Metropolitan Cathedral, which used to be a modest adobe church dedicated to San Nicolás de Bari and today is It is made up of three naves and inside it houses the Mausoleum of San Martín. The Cabildo, today a museum, was the headquarters of the first national government. Undisputed protagonists of this interesting and lively staging. We will end the tour with a surprise that you will like.</p>",
+     "images": [
+      "https://media.guruwalk.com/jm1mgtcou2umm7jg2gp1icotbicj",
+      "https://media.guruwalk.com/m2ku2nin12r5d3coct216fe7s1al",
+      "https://media.guruwalk.com/ccz8nq5aehxq6mrbo41ga0qnzfoi",
+      "https://media.guruwalk.com/ao0l7xsi9f13hbot1wa1t238ciky",
+      "https://media.guruwalk.com/habjn7c6megnb2pr61o9247hzv3v"
+     ],
+     "duration": "1:00",
+     "available_languages": [
+      "en",
+      "es",
+      "pt"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.607907,-58.37215",
+     "meeting_point_latitude": -34.607907,
+     "meeting_point_longitude": -58.37215,
+     "how_to_find_me": "I will be on the corner of Avenida Rivadavia and Reconquista with my official guide credential.",
+     "itinerary": [
+      "Plaza de Mayo",
+      "Casa Rosada",
+      "Catedral Metropolitana",
+      "Cabildo de Buenos Aires",
+      "Pirámide de Mayo"
+     ],
+     "reviews": {
+      "count": 1,
+      "rating": "5.0"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Agustina Nayme LIVA"
+     },
+     "url": "https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 49463,
+     "type": "free_tour",
+     "id": 49463,
+     "name": "Free tour through the heart of the city and its most important bars",
+     "slug": "49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars",
+     "description_html": "<p>We will visit the heart of the city, its history and some of its most notable bars.<br> The <strong>tour begins in Plaza de Mayo and its surroundings, the cathedral, the Government House and its surroundings.</strong> Then, we will go to one of its outstanding bars such as La Puerto Rico. Then we will have the opportunity to see the <strong>oldest churches</strong> , belonging to different religious orders.<br> <strong>We will continue</strong> walking along the oldest artery in the city, <strong>Avenida de Mayo</strong> , and we will visit Florida Street, where one of the oldest tango venues is located, the Guemes Gallery. Then we will visit the most emblematic and well-known <strong>, Café Tortoni</strong> . We will continue through the area to <strong>end the tour in another recently restored highlight called La Ideal.</strong></p>",
+     "images": [
+      "https://media.guruwalk.com/m5dez4w4l5wjnqjfyixn9qhyrrlx",
+      "https://media.guruwalk.com/4r8zcczurucml30xkp0gsnebgoj8",
+      "https://media.guruwalk.com/klfu9pudpjzy9ggoumnyswhg9sj4",
+      "https://media.guruwalk.com/gq75052crnb97onqzmeja9abgo29",
+      "https://media.guruwalk.com/j5g7mv561f47i1pcbybuw5qt3c4u",
+      "https://media.guruwalk.com/t5p0xsphy23cd4o1pjjj4ccb2s32",
+      "https://media.guruwalk.com/5jjd3cxq8ormuf99omdgojpco3vc",
+      "https://media.guruwalk.com/8r8mhu6hq7l08n8v5cgju2nt4n85",
+      "https://media.guruwalk.com/b6tl5jotonagihtm9o5ygypw2y1l",
+      "https://media.guruwalk.com/180hg7x8grqlxa3oqnkscvcmoiw0",
+      "https://media.guruwalk.com/sk5d0hp19i5l4yk99av24g0ha5ct",
+      "https://media.guruwalk.com/96jftdpexwqlg504hyruj59oml0w",
+      "https://media.guruwalk.com/4o6ylboa9dgsrckrihd04uqwrg1w",
+      "https://media.guruwalk.com/tgfuz2llchhutn60dojcsd8mcmrf",
+      "https://media.guruwalk.com/5i1xe1peeknytx4opkem3ollx4rs",
+      "https://media.guruwalk.com/3eoipgs8ogocudfmwwhqrng8hi6c"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.60847,-58.372237",
+     "meeting_point_latitude": -34.60847,
+     "meeting_point_longitude": -58.372237,
+     "how_to_find_me": "We will meet you at Plaza de Mayo, you will be next to the Pyramid in the center of the square. I will have my Tour Guide badge and something orange.",
+     "itinerary": [
+      "Casa Rosada",
+      "Casa Rosada"
+     ],
+     "reviews": {
+      "count": 11,
+      "rating": "4.64"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": true,
+      "large_groups_allowed": false,
+      "large_groups_limit": 5
+     },
+     "guide": {
+      "name": "Silvia Cimmino"
+     },
+     "url": "https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    }
+   ]
+  }
+ }
+}

@@ -1,0 +1,1396 @@
+{
+  "run": "pf-final-20261009-warm",
+  "buildCommit": "c17d88280f16ca5845dc3f3d5f8b34211096b227",
+  "stepCount": 45,
+  "timeline": [
+    {
+      "id": "trace-step-1",
+      "name": "preference.interpretation",
+      "parent": null,
+      "outcome": "APPLIED",
+      "description": "Preferencias libres normalizadas y combinadas con filtros."
+    },
+    {
+      "id": "trace-step-2",
+      "name": "request.intent",
+      "parent": null,
+      "outcome": "ACCEPTED",
+      "description": "Intención y movilidad solicitadas"
+    },
+    {
+      "id": "trace-step-3",
+      "name": "destination.resolution",
+      "parent": null,
+      "outcome": "USE_ADMINISTRATIVE_BOUNDARY",
+      "description": "\"Buenos Aires, Argentina\" resolvió a un límite real de ciudad: Buenos Aires. Se usa ese límite real en vez de un único punto+radio."
+    },
+    {
+      "id": "trace-step-4",
+      "name": "anchor.geo_resolution",
+      "parent": null,
+      "outcome": "ALL_RESOLVED",
+      "description": "Resolución geográfica de anchors solicitados"
+    },
+    {
+      "id": "trace-step-5",
+      "name": "catalog.snapshot",
+      "parent": null,
+      "outcome": "INITIAL_CATALOG_SNAPSHOT",
+      "description": "INITIAL_CATALOG_SNAPSHOT: 18 Experience(s) elegibles leídas del catálogo canónico tras 0 ejecución(es) de adquisición."
+    },
+    {
+      "id": "trace-step-6",
+      "name": "coverage.analysis",
+      "parent": null,
+      "outcome": "SUFFICIENT",
+      "description": "Portafolio suficiente: 18 Experience(s) elegible(s) frente a 4 requerida(s); todos los facets satisfechos."
+    },
+    {
+      "id": "trace-step-7",
+      "name": "catalog.search",
+      "parent": null,
+      "outcome": "CATALOG_POOL_AVAILABLE",
+      "description": "4 Experiences recuperadas del catálogo dentro del alcance (13.420134076587049km)."
+    },
+    {
+      "id": "trace-step-8",
+      "name": "planning.provisional",
+      "parent": null,
+      "outcome": "PROVISIONAL_PLAN_DISCARDED_FOR_REFILL",
+      "description": "PROVISIONAL / ACQUISITION PLANNING: 4 Experience(s) planificadas solo para descubrir capacidad residual (RESERVOIR_EXHAUSTED); se autoriza adquisición PLANNER_CAPACITY y el plan se descarta."
+    },
+    {
+      "id": "trace-step-9",
+      "name": "generation.gather",
+      "parent": null,
+      "outcome": "GATHER_START",
+      "description": "GATHER_START: adquisición acotada para 1 déficit(s); el catálogo puede crecer y enriquecerse hasta GATHER_COMPLETE."
+    },
+    {
+      "id": "acquisition-pass-1-planner_capacity",
+      "name": "acquisition.pass",
+      "parent": null,
+      "outcome": "PASS_1_EXECUTED",
+      "description": "Pase de adquisición #1 (planner_capacity)"
+    },
+    {
+      "id": "trace-step-11",
+      "name": "acquisition.plan",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": null,
+      "description": "Plan de adquisición (2 fuentes configuradas)"
+    },
+    {
+      "id": "trace-step-12",
+      "name": "acquisition.structured_source",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "SUCCESS",
+      "description": "Ejecución de fuente estructurada: wikivoyage"
+    },
+    {
+      "id": "trace-step-13",
+      "name": "acquisition.structured_corroboration",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "12_PROPOSALS_CORROBORATED",
+      "description": "Corroboración de candidatos estructurados (12 propuestas)"
+    },
+    {
+      "id": "trace-step-14",
+      "name": "acquisition.web_search",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "SUCCESS",
+      "description": "Búsqueda web con grounding: \"Buenos Aires things to do top attractions solo walking historical landmarks San Telmo\""
+    },
+    {
+      "id": "trace-step-15",
+      "name": "acquisition.deep_source_selection",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "SOURCES_SELECTED",
+      "description": "Selección de fuentes web para contenido profundo (2 de 10 candidatas seleccionadas)"
+    },
+    {
+      "id": "trace-step-16",
+      "name": "acquisition.source_retrieval",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "RETRIEVED",
+      "description": "Recuperación de contenido web (2 páginas obtenidas)"
+    },
+    {
+      "id": "trace-step-17",
+      "name": "acquisition.deep_source_window",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "STOP_REQUIREMENT_SATISFIED",
+      "description": "Extracción atomizada sobre ventana 1/6 de https://www.tangol.com/blog/en/free-walking-tour-of-san-telmo-what-to-see-and-where-to-eat/n-19453"
+    },
+    {
+      "id": "trace-step-18",
+      "name": "acquisition.atomized_source_unit",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ASSEMBLED",
+      "description": "Unidad editorial atomizada ev-3:w1:6d85b839ce0d: 32 átomos (0 no editoriales), 2 lotes, ASSEMBLED, 2 candidatos"
+    },
+    {
+      "id": "trace-step-19",
+      "name": "acquisition.atomized_source_atoms",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ASSEMBLED",
+      "description": "Átomos 1/1 de ev-3:w1:6d85b839ce0d"
+    },
+    {
+      "id": "trace-step-20",
+      "name": "acquisition.deep_source_window",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "STOP_REQUIREMENT_SATISFIED",
+      "description": "Extracción atomizada sobre ventana 1/5 de https://www.argentina4u.com/en/buenos-aires/walking-tour"
+    },
+    {
+      "id": "trace-step-21",
+      "name": "acquisition.atomized_source_unit",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ASSEMBLED",
+      "description": "Unidad editorial atomizada ev-9:w1:4122444aab63: 20 átomos (0 no editoriales), 2 lotes, ASSEMBLED, 4 candidatos"
+    },
+    {
+      "id": "trace-step-22",
+      "name": "acquisition.atomized_source_atoms",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ASSEMBLED",
+      "description": "Átomos 1/1 de ev-9:w1:4122444aab63"
+    },
+    {
+      "id": "trace-step-23",
+      "name": "acquisition.semantic_extraction",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "CANDIDATES_EXTRACTED",
+      "description": "Extracción semántica de candidatos (5 admitidos de 6 extraídos)"
+    },
+    {
+      "id": "trace-step-24",
+      "name": "resolution.entity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ENTITIES_RESOLVED",
+      "description": "Resolución de identidades reales: 6 aceptadas, 9 rechazadas [resueltos 0/1: Centro Científico Tecnológicos.=UNRESOLVED/NO_CANDIDATE_ACQUIRED(PENDING_CLASSIFICATION)] [resueltos 0/1: Galería Güemes=UNRESOLVED/CANDIDATE_UN"
+    },
+    {
+      "id": "trace-step-25",
+      "name": "resolution.component_identity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "PARTIAL_COMPONENTS_RESOLVED",
+      "description": "Identidad por componente de \"The best things to do in San Telmo (part 1 of 2)\": 1/9 resueltos (política geográfica DEFAULT)"
+    },
+    {
+      "id": "trace-step-26",
+      "name": "resolution.component_identity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "PARTIAL_COMPONENTS_RESOLVED",
+      "description": "Identidad por componente de \"The best things to do in San Telmo — How to get to the San Telmo market and where to eat\": 1/2 resueltos (política geográfica DEFAULT)"
+    },
+    {
+      "id": "trace-step-27",
+      "name": "resolution.component_identity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "PARTIAL_COMPONENTS_RESOLVED",
+      "description": "Identidad por componente de \"Tour Description (part 1 of 4)\": 3/4 resueltos (política geográfica DEFAULT)"
+    },
+    {
+      "id": "trace-step-28",
+      "name": "resolution.component_identity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "PARTIAL_COMPONENTS_RESOLVED",
+      "description": "Identidad por componente de \"Tour Description (part 3 of 4)\": 3/4 resueltos (política geográfica DEFAULT)"
+    },
+    {
+      "id": "trace-step-29",
+      "name": "resolution.component_identity",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "PARTIAL_COMPONENTS_RESOLVED",
+      "description": "Identidad por componente de \"Tour Description (part 4 of 4)\": 1/2 resueltos (política geográfica DEFAULT)"
+    },
+    {
+      "id": "trace-step-30",
+      "name": "geography.validation",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "ALL_ACCEPTED",
+      "description": "Validación geográfica: 6 aceptadas, 0 rechazadas"
+    },
+    {
+      "id": "trace-step-31",
+      "name": "catalog.materialization",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "MATERIALIZED",
+      "description": "Materialización en catálogo (6 creadas/actualizadas, 9 no materializadas) — Centro Científico Tecnológicos.: 0/1 componentes resueltos, composición incompleta → no evaluada geográficamente, no persistida, no elegible par"
+    },
+    {
+      "id": "trace-step-32",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "REUSED",
+      "description": "Clasificación semántica de experiencia: 1905f762-de79-4e27-b0a0-a197fc8abc56 (reused)"
+    },
+    {
+      "id": "trace-step-33",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "REUSED",
+      "description": "Clasificación semántica de experiencia: 6c6b51f3-f872-4a67-9e9d-44c1de32ceb8 (reused)"
+    },
+    {
+      "id": "trace-step-34",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "REUSED",
+      "description": "Clasificación semántica de experiencia: 682fc0bf-d59d-49fd-9566-04dbc032ddfa (reused)"
+    },
+    {
+      "id": "trace-step-35",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "REUSED",
+      "description": "Clasificación semántica de experiencia: a74081ee-fb2b-4f7a-be01-681db912236c (reused)"
+    },
+    {
+      "id": "trace-step-36",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "CLASSIFIED",
+      "description": "Clasificación semántica de experiencia: 46f677a2-22bf-4a06-9689-670ef8be719a (classified)"
+    },
+    {
+      "id": "trace-step-37",
+      "name": "classification.semantic",
+      "parent": "acquisition-pass-1-planner_capacity",
+      "outcome": "CLASSIFIED",
+      "description": "Clasificación semántica de experiencia: d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f (classified)"
+    },
+    {
+      "id": "trace-step-38",
+      "name": "generation.gather",
+      "parent": null,
+      "outcome": "GATHER_COMPLETE",
+      "description": "GATHER_COMPLETE (ACQUISITION_COMPLETE_FOR_GENERATION): 1 ejecución(es), 15 candidato(s) materializados; NEW 2, SAME 4, AMBIGUOUS 0, rechazados 9. No se espera más adquisición en esta generación."
+    },
+    {
+      "id": "trace-step-39",
+      "name": "catalog.snapshot",
+      "parent": null,
+      "outcome": "FINAL_CATALOG_SNAPSHOT",
+      "description": "FINAL_CATALOG_SNAPSHOT: 20 Experience(s) elegibles leídas del catálogo canónico tras 1 ejecución(es) de adquisición."
+    },
+    {
+      "id": "trace-step-40",
+      "name": "candidate_pool.selection",
+      "parent": null,
+      "outcome": "EXPERIENCE_POOL_RANKED",
+      "description": "Ranking y selección de experiencias (20 ofrecidas: 20 catálogo, 0 adquisición, 0 discovery)."
+    },
+    {
+      "id": "trace-step-41",
+      "name": "ranking.semantic",
+      "parent": null,
+      "outcome": "APPLIED",
+      "description": "Ranking semántico aplicado sobre 20 candidato(s) elegible(s)."
+    },
+    {
+      "id": "trace-step-42",
+      "name": "planning.daily",
+      "parent": null,
+      "outcome": "DAILY_PLAN_BUILT",
+      "description": "Solver GreedyDailyPlanningSolver planificó 1 día(s): 4 Experience(s) seleccionada(s), 0 sin seleccionar."
+    },
+    {
+      "id": "trace-step-43",
+      "name": "selection.final",
+      "parent": null,
+      "outcome": "POST_RECONCILIATION_SELECTION",
+      "description": "POST_RECONCILIATION_SELECTION: 20 candidato(s) del snapshot final; 4 planificado(s) (convergencia RESERVOIR_EXHAUSTED)."
+    },
+    {
+      "id": "trace-step-44",
+      "name": "tour.completeness",
+      "parent": null,
+      "outcome": "TOUR_COMPLETE",
+      "description": "El itinerario generado hace un uso razonable de los días solicitados."
+    },
+    {
+      "id": "trace-step-45",
+      "name": "tour.materialization",
+      "parent": null,
+      "outcome": "TOUR_EXPERIENCES_PERSISTED",
+      "description": "4 TourExperience snapshot(s) persistidos desde Experiences verificadas."
+    }
+  ],
+  "snapshots": [
+    {
+      "id": "trace-step-5",
+      "description": "INITIAL_CATALOG_SNAPSHOT: 18 Experience(s) elegibles leídas del catálogo canónico tras 0 ejecución(es) de adquisición.",
+      "phase": "INITIAL",
+      "acquisitionEpoch": 0,
+      "eligibleCount": 18,
+      "compositeCount": 3,
+      "eligibleExperienceIds": [
+        "14327626-3d82-4fe9-94ee-ef2ed45183b6",
+        "1905f762-de79-4e27-b0a0-a197fc8abc56",
+        "1b9f86bc-59a2-40a4-b0e9-6a53d7d69554",
+        "1fadbaac-937c-4aa0-8e29-604f5424a00f",
+        "2697b70e-8b02-46ef-969f-8f25b36d75d3",
+        "314d0581-7a4f-453f-8ba5-8a91628c111e",
+        "40dfef03-24fb-4019-8108-4d1b789b2762",
+        "52b715ce-3021-4901-ab60-b671b82c52fc",
+        "54db4843-14dd-4eab-b6bb-f24abf4be1b5",
+        "64040d87-703b-411b-9a88-4e17c90d892f",
+        "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+        "6c6b51f3-f872-4a67-9e9d-44c1de32ceb8",
+        "a74081ee-fb2b-4f7a-be01-681db912236c",
+        "a781ba4b-0c56-43b1-ae5e-77d94e9ae341",
+        "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+        "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+        "ec6153a5-b498-47bf-91ae-b638d35ae66b",
+        "f83baa37-4c30-4cf6-b9d5-29e1716781a0"
+      ],
+      "composites": [
+        {
+          "label": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+          "id": "1b9f86bc-59a2-40a4-b0e9-6a53d7d69554",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 5,
+            "sourceMemberCount": 17,
+            "resolvedMemberCount": 5
+          }
+        },
+        {
+          "label": "Map of Avenida de Mayo (part 2 of 2)",
+          "id": "40dfef03-24fb-4019-8108-4d1b789b2762",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 6,
+            "sourceMemberCount": 15,
+            "resolvedMemberCount": 6
+          }
+        },
+        {
+          "label": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+          "id": "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 8,
+            "sourceMemberCount": 16,
+            "resolvedMemberCount": 8
+          }
+        }
+      ]
+    },
+    {
+      "id": "trace-step-39",
+      "description": "FINAL_CATALOG_SNAPSHOT: 20 Experience(s) elegibles leídas del catálogo canónico tras 1 ejecución(es) de adquisición.",
+      "phase": "FINAL",
+      "acquisitionEpoch": 1,
+      "eligibleCount": 20,
+      "compositeCount": 5,
+      "eligibleExperienceIds": [
+        "14327626-3d82-4fe9-94ee-ef2ed45183b6",
+        "1905f762-de79-4e27-b0a0-a197fc8abc56",
+        "1b9f86bc-59a2-40a4-b0e9-6a53d7d69554",
+        "1fadbaac-937c-4aa0-8e29-604f5424a00f",
+        "2697b70e-8b02-46ef-969f-8f25b36d75d3",
+        "314d0581-7a4f-453f-8ba5-8a91628c111e",
+        "40dfef03-24fb-4019-8108-4d1b789b2762",
+        "46f677a2-22bf-4a06-9689-670ef8be719a",
+        "52b715ce-3021-4901-ab60-b671b82c52fc",
+        "54db4843-14dd-4eab-b6bb-f24abf4be1b5",
+        "64040d87-703b-411b-9a88-4e17c90d892f",
+        "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+        "6c6b51f3-f872-4a67-9e9d-44c1de32ceb8",
+        "a74081ee-fb2b-4f7a-be01-681db912236c",
+        "a781ba4b-0c56-43b1-ae5e-77d94e9ae341",
+        "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+        "d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f",
+        "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+        "ec6153a5-b498-47bf-91ae-b638d35ae66b",
+        "f83baa37-4c30-4cf6-b9d5-29e1716781a0"
+      ],
+      "composites": [
+        {
+          "label": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+          "id": "1b9f86bc-59a2-40a4-b0e9-6a53d7d69554",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 5,
+            "sourceMemberCount": 17,
+            "resolvedMemberCount": 5
+          }
+        },
+        {
+          "label": "Map of Avenida de Mayo (part 2 of 2)",
+          "id": "40dfef03-24fb-4019-8108-4d1b789b2762",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 6,
+            "sourceMemberCount": 15,
+            "resolvedMemberCount": 6
+          }
+        },
+        {
+          "label": "Tour Description (part 1 of 4)",
+          "id": "46f677a2-22bf-4a06-9689-670ef8be719a",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 3,
+            "sourceMemberCount": 4,
+            "resolvedMemberCount": 3
+          }
+        },
+        {
+          "label": "Tour Description (part 3 of 4)",
+          "id": "d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 3,
+            "sourceMemberCount": 4,
+            "resolvedMemberCount": 3
+          }
+        },
+        {
+          "label": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+          "id": "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "facts": {
+            "completeness": "PARTIAL",
+            "navigableCount": 8,
+            "sourceMemberCount": 16,
+            "resolvedMemberCount": 8
+          }
+        }
+      ]
+    }
+  ],
+  "gathers": [
+    {
+      "id": "trace-step-9",
+      "boundary": "GATHER_START",
+      "description": "GATHER_START: adquisición acotada para 1 déficit(s); el catálogo puede crecer y enriquecerse hasta GATHER_COMPLETE.",
+      "affectedExperienceIds": [],
+      "executions": []
+    },
+    {
+      "id": "trace-step-38",
+      "boundary": "GATHER_COMPLETE",
+      "description": "GATHER_COMPLETE (ACQUISITION_COMPLETE_FOR_GENERATION): 1 ejecución(es), 15 candidato(s) materializados; NEW 2, SAME 4, AMBIGUOUS 0, rechazados 9. No se espera más adquisición en esta generación.",
+      "acquisitionEpoch": 1,
+      "newCount": 2,
+      "sameCount": 4,
+      "ambiguousCount": 0,
+      "rejectedCount": 9,
+      "enrichedCount": 0,
+      "affectedExperienceIds": [
+        "1905f762-de79-4e27-b0a0-a197fc8abc56",
+        "6c6b51f3-f872-4a67-9e9d-44c1de32ceb8",
+        "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+        "a74081ee-fb2b-4f7a-be01-681db912236c",
+        "46f677a2-22bf-4a06-9689-670ef8be719a",
+        "d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f"
+      ],
+      "executions": [
+        {
+          "label": "pass 1 PLANNER_CAPACITY",
+          "facts": {
+            "pass": 1,
+            "outcomes": [
+              "Centro Científico Tecnológicos.: REJECTED [NO_OSM_MATCH]",
+              "Galería Güemes: REJECTED [UNCONFIRMED_MATCH]",
+              "Iglesia San Ignacio de Loyola: REJECTED [UNCONFIRMED_MATCH]",
+              "Bar El Federal: REJECTED [UNCONFIRMED_MATCH]",
+              "Manzana de las Luces: PERSISTED SAME 1905f762-de79-4e27-b0a0-a197fc8abc56 reconciliation=NO_NEW_KNOWLEDGE",
+              "Mercado San Telmo: PERSISTED SAME 6c6b51f3-f872-4a67-9e9d-44c1de32ceb8 reconciliation=NO_NEW_KNOWLEDGE",
+              "Museo Histórico Nacional: PERSISTED SAME 682fc0bf-d59d-49fd-9566-04dbc032ddfa reconciliation=NO_NEW_KNOWLEDGE",
+              "Pasaje San Lorenzo: REJECTED [UNCONFIRMED_MATCH]",
+              "Plaza Dorrego: PERSISTED SAME a74081ee-fb2b-4f7a-be01-681db912236c reconciliation=NO_NEW_KNOWLEDGE",
+              "El Zanjón de Granados: REJECTED [UNCONFIRMED_MATCH]",
+              "The best things to do in San Telmo (part 1 of 2): REJECTED [INCOMPLETE_SOURCE_COMPOSITION]",
+              "The best things to do in San Telmo — How to get to the San Telmo market and where to eat: REJECTED [INCOMPLETE_SOURCE_COMPOSITION]",
+              "Tour Description (part 1 of 4): PERSISTED NEW 46f677a2-22bf-4a06-9689-670ef8be719a",
+              "Tour Description (part 3 of 4): PERSISTED NEW d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f",
+              "Tour Description (part 4 of 4): REJECTED [INCOMPLETE_SOURCE_COMPOSITION]"
+            ],
+            "workUnit": "PLANNER_CAPACITY",
+            "candidateCount": 15,
+            "sourcePlanCount": 2
+          }
+        }
+      ]
+    }
+  ],
+  "provisionals": [
+    {
+      "id": "trace-step-8",
+      "description": "PROVISIONAL / ACQUISITION PLANNING: 4 Experience(s) planificadas solo para descubrir capacidad residual (RESERVOIR_EXHAUSTED); se autoriza adquisición PLANNER_CAPACITY y el plan se descarta.",
+      "outcome": "PROVISIONAL_PLAN_DISCARDED_FOR_REFILL",
+      "facts": {
+        "stopReason": "RESERVOIR_EXHAUSTED",
+        "residualMinutes": 171.0286666666666,
+        "acquisitionEpoch": 0,
+        "refillAuthorized": true,
+        "plannedExperienceIds": [
+          "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+          "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+          "1905f762-de79-4e27-b0a0-a197fc8abc56"
+        ]
+      }
+    }
+  ],
+  "finalSelection": {
+    "id": "trace-step-43",
+    "description": "POST_RECONCILIATION_SELECTION: 20 candidato(s) del snapshot final; 4 planificado(s) (convergencia RESERVOIR_EXHAUSTED).",
+    "outcome": "POST_RECONCILIATION_SELECTION",
+    "facts": {
+      "convergence": {
+        "stopReason": "RESERVOIR_EXHAUSTED",
+        "acquisitionPasses": 1,
+        "promotionAttempts": 11
+      },
+      "acquisitionEpoch": 1,
+      "plannedExperienceIds": [
+        "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+        "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+        "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+        "1905f762-de79-4e27-b0a0-a197fc8abc56"
+      ]
+    },
+    "subjects": [
+      {
+        "label": "Walking tour Buenos Aires – Day 1 (part 1 of 2)",
+        "id": "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+        "decision": {
+          "reason": "day 1 #1",
+          "status": "PASS",
+          "outcome": "PLANNED"
+        },
+        "facts": {
+          "composition": "SELECTED",
+          "preferenceCoverage": 3,
+          "semanticSimilarity": 0.5723133087158203
+        }
+      },
+      {
+        "label": "Map of Avenida de Mayo (part 2 of 2)",
+        "id": "40dfef03-24fb-4019-8108-4d1b789b2762",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "SELECTED",
+          "preferenceCoverage": 3,
+          "semanticSimilarity": 0.48578941822052
+        }
+      },
+      {
+        "label": "Museo Histórico Nacional",
+        "id": "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+        "decision": {
+          "reason": "day 1 #2",
+          "status": "PASS",
+          "outcome": "PLANNED"
+        },
+        "facts": {
+          "composition": "SELECTED",
+          "preferenceCoverage": 1,
+          "semanticSimilarity": 0.5172154461507634
+        }
+      },
+      {
+        "label": "Manzana de las Luces",
+        "id": "1905f762-de79-4e27-b0a0-a197fc8abc56",
+        "decision": {
+          "reason": "day 1 #4",
+          "status": "PASS",
+          "outcome": "PLANNED"
+        },
+        "facts": {
+          "composition": "SELECTED",
+          "preferenceCoverage": 1,
+          "semanticSimilarity": 0.513278499641374
+        }
+      },
+      {
+        "label": "Plaza Dorrego",
+        "id": "a74081ee-fb2b-4f7a-be01-681db912236c",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 1,
+          "semanticSimilarity": 0.4450189769268036
+        }
+      },
+      {
+        "label": "Self Guided Walking Tour San Telmo (part 1 of 3)",
+        "id": "1b9f86bc-59a2-40a4-b0e9-6a53d7d69554",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.7324931780998017
+        }
+      },
+      {
+        "label": "Mercado San Telmo",
+        "id": "6c6b51f3-f872-4a67-9e9d-44c1de32ceb8",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.5416954755783081
+        }
+      },
+      {
+        "label": "Museo Histórico de Cera",
+        "id": "ec6153a5-b498-47bf-91ae-b638d35ae66b",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.5167492320091
+        }
+      },
+      {
+        "label": "La flor de la vida",
+        "id": "1fadbaac-937c-4aa0-8e29-604f5424a00f",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.5096906727368049
+        }
+      },
+      {
+        "label": "Museo Casa Taller 'Celia Chevalier'",
+        "id": "a781ba4b-0c56-43b1-ae5e-77d94e9ae341",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4993464947136355
+        }
+      },
+      {
+        "label": "Museo de Artistas Argentinos Benito Quinquela Martín",
+        "id": "64040d87-703b-411b-9a88-4e17c90d892f",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4921013263494174
+        }
+      },
+      {
+        "label": "Tour Description (part 3 of 4)",
+        "id": "d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4909079817208049
+        }
+      },
+      {
+        "label": "Tour Description (part 1 of 4)",
+        "id": "46f677a2-22bf-4a06-9689-670ef8be719a",
+        "decision": {
+          "reason": "REDUNDANT_WITH eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "status": "INFO",
+          "outcome": "OVERLAP_EXCLUDED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4893485453530715
+        }
+      },
+      {
+        "label": "Colón Fábrica",
+        "id": "314d0581-7a4f-453f-8ba5-8a91628c111e",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4765338599681854
+        }
+      },
+      {
+        "label": "Estatua Hugo del Carril",
+        "id": "14327626-3d82-4fe9-94ee-ef2ed45183b6",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4748460054397583
+        }
+      },
+      {
+        "label": "Juventud",
+        "id": "52b715ce-3021-4901-ab60-b671b82c52fc",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4724763317392078
+        }
+      },
+      {
+        "label": "Museo del Cine Pablo Ducrós Hicken",
+        "id": "f83baa37-4c30-4cf6-b9d5-29e1716781a0",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4715999803423878
+        }
+      },
+      {
+        "label": "La Madre",
+        "id": "54db4843-14dd-4eab-b6bb-f24abf4be1b5",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4696033140898741
+        }
+      },
+      {
+        "label": "Roca granitica",
+        "id": "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+        "decision": {
+          "reason": "day 1 #3",
+          "status": "PASS",
+          "outcome": "PLANNED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4675313532352448
+        }
+      },
+      {
+        "label": "Hidrovértigo",
+        "id": "2697b70e-8b02-46ef-969f-8f25b36d75d3",
+        "decision": {
+          "reason": "promotion stop: RESERVOIR_EXHAUSTED",
+          "status": "INFO",
+          "outcome": "RESERVOIR_NOT_PROMOTED"
+        },
+        "facts": {
+          "composition": "RESERVOIR",
+          "preferenceCoverage": 0,
+          "semanticSimilarity": 0.4653031229972839
+        }
+      }
+    ]
+  },
+  "materializations": [
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Centro Científico Tecnológicos.",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "NO_OSM_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Galería Güemes",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Iglesia San Ignacio de Loyola",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 1,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [
+          "wikivoyage:Buenos_Aires:see:ver:Iglesia_San_Ignacio_de_Loyola:1:component"
+        ],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Bar El Federal",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 1,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [
+          "wikivoyage:San_Telmo:eat:listado:Bar_El_Federal:1:component"
+        ],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Manzana de las Luces",
+      "accepted": true,
+      "experienceId": "1905f762-de79-4e27-b0a0-a197fc8abc56",
+      "canonicalName": "Manzana de las Luces",
+      "persistedComponentCount": 1,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Mercado San Telmo",
+      "accepted": true,
+      "experienceId": "6c6b51f3-f872-4a67-9e9d-44c1de32ceb8",
+      "canonicalName": "Mercado San Telmo",
+      "persistedComponentCount": 1,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Museo Histórico Nacional",
+      "accepted": true,
+      "experienceId": "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+      "canonicalName": "Museo Histórico Nacional",
+      "persistedComponentCount": 1,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Pasaje San Lorenzo",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Plaza Dorrego",
+      "accepted": true,
+      "experienceId": "a74081ee-fb2b-4f7a-be01-681db912236c",
+      "canonicalName": "Plaza Dorrego",
+      "persistedComponentCount": 1,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 1,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 0,
+        "sourceCompositionComplete": true,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "El Zanjón de Granados",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "UNCONFIRMED_MATCH"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0,
+        "totalComponents": 1,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 0,
+        "geographicallyAcceptedComponents": 0
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "The best things to do in San Telmo (part 1 of 2)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "INCOMPLETE_SOURCE_COMPOSITION"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0.1111111111111111,
+        "totalComponents": 9,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 8,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "The best things to do in San Telmo — How to get to the San Telmo market and where to eat",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "INCOMPLETE_SOURCE_COMPOSITION"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0.5,
+        "totalComponents": 2,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Tour Description (part 1 of 4)",
+      "accepted": true,
+      "experienceId": "46f677a2-22bf-4a06-9689-670ef8be719a",
+      "canonicalName": "Tour Description (part 1 of 4)",
+      "persistedComponentCount": 3,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 0.75,
+        "totalComponents": 4,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 3,
+        "geographicallyAcceptedComponents": 3
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Tour Description (part 3 of 4)",
+      "accepted": true,
+      "experienceId": "d981826d-0b6f-4e0d-9f1d-b7ef5e7a821f",
+      "canonicalName": "Tour Description (part 3 of 4)",
+      "persistedComponentCount": 3,
+      "rejectionReasons": [],
+      "dedupe": {
+        "resolutionRatio": 0.75,
+        "totalComponents": 4,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 3,
+        "geographicallyAcceptedComponents": 3
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "candidateName": "Tour Description (part 4 of 4)",
+      "accepted": false,
+      "experienceId": "undefined",
+      "canonicalName": "undefined",
+      "persistedComponentCount": "undefined",
+      "rejectionReasons": [
+        "INCOMPLETE_SOURCE_COMPOSITION"
+      ],
+      "dedupe": {
+        "resolutionRatio": 0.5,
+        "totalComponents": 2,
+        "ambiguousComponents": 0,
+        "conflictedComponents": 0,
+        "openResearchDeficits": [],
+        "unresolvedComponents": 1,
+        "sourceCompositionComplete": false,
+        "identityResolvedComponents": 1,
+        "geographicallyAcceptedComponents": 1
+      },
+      "sourceCompositionRelation": null,
+      "sourceRelation": null,
+      "reconciliation": null,
+      "durationMinutes": null,
+      "durationSource": null
+    }
+  ],
+  "tour": {
+    "id": "trace-step-45",
+    "decision": {
+      "status": "PASS",
+      "outcome": "TOUR_EXPERIENCES_PERSISTED"
+    },
+    "facts": {
+      "tourId": "529324be-e59d-4923-980b-d46dc66a9645",
+      "experiences": [
+        {
+          "order": 1,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "eabaf1ee-a68d-4b36-ba13-b90a178316a4",
+          "durationHours": 2.648042777777778,
+          "componentCount": 8
+        },
+        {
+          "order": 2,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "682fc0bf-d59d-49fd-9566-04dbc032ddfa",
+          "durationHours": 1.5,
+          "componentCount": 1
+        },
+        {
+          "order": 3,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "af5c3f2e-63a4-4d97-a8ea-60cc3a53656b",
+          "durationHours": 1.5,
+          "componentCount": 1
+        },
+        {
+          "order": 4,
+          "dayNumber": 1,
+          "startTime": "undefined",
+          "experienceId": "1905f762-de79-4e27-b0a0-a197fc8abc56",
+          "durationHours": 1.500000000000002,
+          "componentCount": 1
+        }
+      ],
+      "materializedCount": 4
+    }
+  },
+  "componentIdentity": [
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"The best things to do in San Telmo (part 1 of 2)\": 1/9 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "the best things to do in san telmo (part 1 of 2):ev-3:m-1:Manzana de las Luces Historical and Cultural Complex|m-2:El Zanjón de Granados|m-3:geographic and social center of the neighborhood|m-4:San Telmo Square|m-5:Plaza Dorrego|m-6:El Balcón de la Plaza in San Telmo|m-7:San Telmo fair|m-8:San Telmo and Mataderos Market Tour|m-9:Mataderos neighborhood",
+          "outcome": "1_OF_9_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"The best things to do in San Telmo — How to get to the San Telmo market and where to eat\": 1/2 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "the best things to do in san telmo — how to get to the san telmo market and where to eat:ev-3:m-1:The San Telmo Market|m-2:Coffee Town",
+          "outcome": "1_OF_2_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Tour Description (part 1 of 4)\": 3/4 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "tour description (part 1 of 4):ev-9:m-1:office located in the historic San Telmo neighborhood|m-2:Plaza Dorrego|m-3:San Telmo Market|m-4:empanadas",
+          "outcome": "3_OF_4_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Tour Description (part 3 of 4)\": 3/4 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "tour description (part 3 of 4):ev-9:m-1:Metropolitan Cathedral|m-2:Cabildo|m-3:Casa Rosada|m-4:Obelisk",
+          "outcome": "3_OF_4_RESOLVED"
+        }
+      ]
+    },
+    {
+      "pass": "acquisition-pass-1-planner_capacity",
+      "description": "Identidad por componente de \"Tour Description (part 4 of 4)\": 1/2 resueltos (política geográfica DEFAULT)",
+      "decision": {
+        "status": "WARN",
+        "outcome": "PARTIAL_COMPONENTS_RESOLVED"
+      },
+      "components": [
+        {
+          "name": "tour description (part 4 of 4):ev-9:m-1:Recoleta Cemetery|m-2:this elegant area",
+          "outcome": "1_OF_2_RESOLVED"
+        }
+      ]
+    }
+  ],
+  "epochChronology": [
+    {
+      "name": "catalog.snapshot",
+      "id": "trace-step-5",
+      "phase": "INITIAL",
+      "acquisitionEpoch": 0
+    },
+    {
+      "name": "planning.provisional",
+      "id": "trace-step-8",
+      "phase": "PROVISIONAL_PLAN_DISCARDED_FOR_REFILL",
+      "acquisitionEpoch": 0
+    },
+    {
+      "name": "generation.gather",
+      "id": "trace-step-9",
+      "phase": "GATHER_START",
+      "acquisitionEpoch": null
+    },
+    {
+      "name": "generation.gather",
+      "id": "trace-step-38",
+      "phase": "GATHER_COMPLETE",
+      "acquisitionEpoch": 1
+    },
+    {
+      "name": "catalog.snapshot",
+      "id": "trace-step-39",
+      "phase": "FINAL",
+      "acquisitionEpoch": 1
+    },
+    {
+      "name": "selection.final",
+      "id": "trace-step-43",
+      "phase": "POST_RECONCILIATION_SELECTION",
+      "acquisitionEpoch": 1
+    }
+  ]
+}

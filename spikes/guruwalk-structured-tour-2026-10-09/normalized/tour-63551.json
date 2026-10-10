@@ -1,0 +1,400 @@
+{
+ "spike": "GURUWALK-STRUCTURED-TOUR-1",
+ "captured": "2026-10-09",
+ "product_id": 63551,
+ "type": "free_tour",
+ "mcp_detail_en": {
+  "product_id": 63551,
+  "type": "free_tour",
+  "id": 63551,
+  "name": "Buenos Aires Origins: San Telmo and Monserrat",
+  "slug": "63551-buenos-aires-origins-san-telmo-and-monserrat",
+  "description_html": "<p><strong>Uncover centuries of captivating history on our San Telmo Free Walking Tour!</strong> <br><br>Begin at the iconic <strong>Cabildo</strong>, delving into Buenos Aires' fiery foundations, from Mendoza's 1536 landing to the 1810 May Revolution. Discover colonial secrets, the powerful legacy of the <strong>Jesuits at Manzana de las Luces</strong> (and its mysterious tunnels!), and the city's strategic yet contraband-filled past.<br><br></p><p>Wander along cobblestone streets where tango melodies float through the air, murals come to life on every corner, and every building has a story to tell. This free walking tour takes you deep into the soul of the city — where Buenos Aires was born and where its vibrant heart still beats today.<br><br></p><p>Stroll through the cradle of tango, filled with antique shops, colorful characters, and artistic rebellion. From the historic <strong>San Telmo Market</strong> to the whimsical world of Mafalda and the Comic Strip Walk, every stop adds a brushstroke to this living canvas of porteño culture.<br><br></p><p>This is more than a history lesson — it’s a sensory journey through art, passion, and time.</p><p><br><strong>Sites visited:</strong></p><p><br></p><ul><li>San Telmo</li></ul><p><br></p><ul><li>Monserrat</li></ul><p><br></p><ul><li>Plaza de Mayo</li></ul><p><br></p><ul><li>Manzana de las Luces</li></ul><p><br></p><ul><li>San Ignacio de Loyola Church</li></ul><p><br></p><ul><li>Otto Wulff Building</li></ul><p><br></p><ul><li>Rosario Basilic &amp; Manuel Belgrano Mausoleum</li></ul><p><br></p><ul><li>Peru Street</li></ul><p><br></p><ul><li>Mafalda</li></ul><p><br></p><ul><li>The Comic Strip Walk</li></ul><p><br></p><ul><li>Defensa Street</li></ul><p><br></p><ul><li>Plaza Dorrego</li></ul><p><br></p><ul><li>San Telmo Market</li></ul><p><br></p><ul><li>Street Art &amp; Muralism</li></ul><p><br></p><ul><li>Tango Spots</li></ul>",
+  "images": [
+   "https://media.guruwalk.com/vrvef5wrwe0nsswaz4hx0hj92bxn",
+   "https://media.guruwalk.com/v4lpbq3yfr8as07lazee2775nmpm",
+   "https://media.guruwalk.com/5xmey5tn7vb6xyt73sjr3x6txq41",
+   "https://media.guruwalk.com/yliabla1w3yp6qzrfg8ljxkrlpee",
+   "https://media.guruwalk.com/mf2d05ifdmtny8le2rn1yp9smify",
+   "https://media.guruwalk.com/4xjoos8yx5wfr6rfc0lze59dqyf7",
+   "https://media.guruwalk.com/jkgn0eoedw0rb05l8kb7iaglk4no",
+   "https://media.guruwalk.com/e7ib9tl38qyfvswdnescvmjb8qfs",
+   "https://media.guruwalk.com/48u9dnhz0oszvuq3c5oeg7e0heus",
+   "https://media.guruwalk.com/cbmjqs35aipvt59kxbhkorpl3nkw",
+   "https://media.guruwalk.com/n4s9eutc9n0fcs6jb6t5qyi3qcbr",
+   "https://media.guruwalk.com/0i2zyyrpnbgaes3r943ecyfhjyht",
+   "https://media.guruwalk.com/cs6y4mntj7dazqi9j2cn01or3vlg"
+  ],
+  "duration": "2:45",
+  "available_languages": [
+   "en",
+   "es"
+  ],
+  "meeting_point_url": "https://www.google.com/maps?q=-34.6087392,-58.3737862",
+  "meeting_point_latitude": -34.6087392,
+  "meeting_point_longitude": -58.3737862,
+  "how_to_find_me": "I will be waiting in front of the Historic \"Cabildo\" (White Colonial Building) opposite the Plaza de Mayo. If you are coming by Uber you can use the address Bolivar 65, Ciudad Autónoma de Buenos Aires. ",
+  "itinerary": [
+   "Montserrat",
+   "May Plaza",
+   "Saint Ignatius of Loyola",
+   "Complejo Histórico Cultural Manzana de las Luces",
+   "San Telmo",
+   "Otto Wolff Building",
+   "Basilica of Saint Rose of Lima.",
+   "Mausoleum of General Manuel Belgrano",
+   "Mafalda Statue",
+   "Comic Strip Walk",
+   "Plaza Dorego",
+   "San Telmo Market"
+  ],
+  "reviews": {
+   "count": 44,
+   "rating": "4.98"
+  },
+  "place": {
+   "id": 421,
+   "name": "Buenos Aires",
+   "country": "Argentina"
+  },
+  "features": {
+   "accessible": true,
+   "pets_allowed": true,
+   "large_groups_allowed": true,
+   "large_groups_limit": 10
+  },
+  "guide": {
+   "name": "Vive Buenos Aires Tours"
+  },
+  "url": "https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+  "source": "GuruWalk",
+  "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+ },
+ "mcp_detail_es": {
+  "product_id": 63551,
+  "type": "free_tour",
+  "id": 63551,
+  "name": "La cuna de Buenos Aires: San Telmo y Monserrat",
+  "slug": "63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat",
+  "description_html": "<p><strong>¡Viví siglos de historia en nuestro Free Walking Tour por San Telmo!<br></strong><br>Arrancamos en el emblemático Cabildo para viajar en el tiempo y descubrir los inicios apasionantes de Buenos Aires: desde el desembarco de Mendoza en 1536 hasta la Revolución de Mayo de 1810. Vas a conocer los secretos de la época colonial, el legado de los jesuitas en la mítica Manzana de las Luces (y sus túneles escondidos), el pasado estratégico del puerto, y su historia ligada al contrabando.<br><br></p><p>Recorré calles empedradas donde se respira tango, los murales cobran vida en cada esquina y cada fachada tiene una anécdota que contar. Este tour gratuito te invita a sumergirte en el alma de Buenos Aires: donde todo comenzó y donde todavía late con fuerza su corazón más auténtico.<br><br></p><p>San Telmo es historia viva, con su espíritu bohemio, sus antigüedades, personajes únicos y una energía artística que no se apaga. Desde el histórico Mercado de San Telmo hasta el mundo encantador de Mafalda y el Paseo de la Historieta, cada parada suma color y magia a esta experiencia inolvidable.<br><br></p><p><strong>¡No es solo un tour, es un viaje sensorial por el arte, la pasión y el alma porteña!<br></strong><br></p><p><strong>¿Qué lugares vas a conocer?<br></strong><br></p><ul><li>San Telmo</li><li>Monserrat</li><li>Plaza de Mayo</li><li>Manzana de las Luces</li><li>Iglesia San Ignacio de Loyola</li><li>Edificio Otto Wulff</li><li>Basílica de nuestra Señora del Rosario y Mausoleo de Manuel Belgrano</li><li>Calle Perú</li><li>Mafalda</li><li>Paseo de la Historieta</li><li>Calle Defensa</li><li>Plaza Dorrego</li><li>Mercado de San Telmo</li><li>Arte callejero y muralismo</li><li>Rincones donde el tango se vive</li></ul><p><br></p>",
+  "images": [
+   "https://media.guruwalk.com/vrvef5wrwe0nsswaz4hx0hj92bxn",
+   "https://media.guruwalk.com/v4lpbq3yfr8as07lazee2775nmpm",
+   "https://media.guruwalk.com/5xmey5tn7vb6xyt73sjr3x6txq41",
+   "https://media.guruwalk.com/yliabla1w3yp6qzrfg8ljxkrlpee",
+   "https://media.guruwalk.com/mf2d05ifdmtny8le2rn1yp9smify",
+   "https://media.guruwalk.com/4xjoos8yx5wfr6rfc0lze59dqyf7",
+   "https://media.guruwalk.com/jkgn0eoedw0rb05l8kb7iaglk4no",
+   "https://media.guruwalk.com/e7ib9tl38qyfvswdnescvmjb8qfs",
+   "https://media.guruwalk.com/48u9dnhz0oszvuq3c5oeg7e0heus",
+   "https://media.guruwalk.com/cbmjqs35aipvt59kxbhkorpl3nkw",
+   "https://media.guruwalk.com/n4s9eutc9n0fcs6jb6t5qyi3qcbr",
+   "https://media.guruwalk.com/0i2zyyrpnbgaes3r943ecyfhjyht",
+   "https://media.guruwalk.com/cs6y4mntj7dazqi9j2cn01or3vlg"
+  ],
+  "duration": "2:45",
+  "available_languages": [
+   "en",
+   "es"
+  ],
+  "meeting_point_url": "https://www.google.com/maps?q=-34.6087392,-58.3737862",
+  "meeting_point_latitude": -34.6087392,
+  "meeting_point_longitude": -58.3737862,
+  "how_to_find_me": "Estaré esperando frente al Cabildo Histórico (edificio colonial blanco), frente a la Plaza de Mayo. Si viene en Uber, puede usar la dirección: Bolívar 65, Ciudad Autónoma de Buenos Aires. ",
+  "itinerary": [
+   "Montserrat",
+   "Plaza de Mayo",
+   "San Ignacio de Loyola",
+   "Complejo Histórico Cultural Manzana de las Luces",
+   "San Telmo",
+   "Edificio Otto Wulff",
+   "Basílica Santa Rosa de Lima.",
+   "Mausoleo del General Manuel Belgrano",
+   "Estatua de Mafalda",
+   "Paseo de la Historieta",
+   "Plaza Dorego",
+   "Mercado de San Telmo"
+  ],
+  "reviews": {
+   "count": 7,
+   "rating": "4.86"
+  },
+  "place": {
+   "id": 421,
+   "name": "Buenos Aires",
+   "country": "Argentina"
+  },
+  "features": {
+   "accessible": true,
+   "pets_allowed": true,
+   "large_groups_allowed": true,
+   "large_groups_limit": 10
+  },
+  "guide": {
+   "name": "Vive Buenos Aires Tours"
+  },
+  "url": "https://www.guruwalk.com/walks/63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+  "source": "GuruWalk",
+  "attribution": "Reserva en GuruWalk: https://www.guruwalk.com/walks/63551-la-cuna-de-buenos-aires-san-telmo-y-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+ },
+ "web_pois_es": {
+  "note": "Characterization only: embedded RSC `pois` from the public tour page; NOT part of the official MCP contract.",
+  "source": "raw/web/walk-63551-es.html",
+  "pois": [
+   {
+    "id": 108938,
+    "poiId": 17722,
+    "type": "outside_visit",
+    "position": 2,
+    "title": "Montserrat",
+    "description": null,
+    "latitude": -34.6130871,
+    "longitude": -58.3813599
+   },
+   {
+    "id": 108925,
+    "poiId": 826,
+    "type": "outside_visit",
+    "position": 3,
+    "title": "Plaza de Mayo",
+    "description": null,
+    "latitude": -34.6083667,
+    "longitude": -58.3722832
+   },
+   {
+    "id": 108926,
+    "poiId": 9938,
+    "type": "outside_visit",
+    "position": 4,
+    "title": "San Ignacio de Loyola",
+    "description": null,
+    "latitude": -34.6105556,
+    "longitude": -58.3736111
+   },
+   {
+    "id": 108927,
+    "poiId": 10964,
+    "type": "free_ticket",
+    "position": 5,
+    "title": "Complejo Histórico Cultural Manzana de las Luces",
+    "description": "",
+    "latitude": -34.6105903,
+    "longitude": -58.3747968
+   },
+   {
+    "id": 108937,
+    "poiId": 10788,
+    "type": "outside_visit",
+    "position": 6,
+    "title": "San Telmo",
+    "description": null,
+    "latitude": -34.6218351,
+    "longitude": -58.3713942
+   },
+   {
+    "id": 108928,
+    "poiId": 10963,
+    "type": "outside_visit",
+    "position": 7,
+    "title": "Edificio Otto Wulff",
+    "description": null,
+    "latitude": -34.6124331,
+    "longitude": -58.3748104
+   },
+   {
+    "id": 108930,
+    "poiId": 35210,
+    "type": "outside_visit",
+    "position": 8,
+    "title": "Basílica Santa Rosa de Lima.",
+    "description": null,
+    "latitude": -34.6143579,
+    "longitude": -58.397669
+   },
+   {
+    "id": 108931,
+    "poiId": 23477,
+    "type": "outside_visit",
+    "position": 10,
+    "title": "Mausoleo del General Manuel Belgrano",
+    "description": null,
+    "latitude": -34.6127418,
+    "longitude": -58.3717477
+   },
+   {
+    "id": 108932,
+    "poiId": 16966,
+    "type": "outside_visit",
+    "position": 11,
+    "title": "Estatua de Mafalda",
+    "description": null,
+    "latitude": -34.6158402,
+    "longitude": -58.3716468
+   },
+   {
+    "id": 108933,
+    "poiId": 35211,
+    "type": "outside_visit",
+    "position": 12,
+    "title": "Paseo de la Historieta",
+    "description": null,
+    "latitude": -34.6111068,
+    "longitude": -58.3705327
+   },
+   {
+    "id": 108935,
+    "poiId": 1505,
+    "type": "outside_visit",
+    "position": 13,
+    "title": "Plaza Dorego",
+    "description": null,
+    "latitude": -34.6204914,
+    "longitude": -58.3717481
+   },
+   {
+    "id": 108936,
+    "poiId": 6408,
+    "type": "outside_visit",
+    "position": 14,
+    "title": "Mercado de San Telmo",
+    "description": null,
+    "latitude": -34.619164,
+    "longitude": -58.371913
+   }
+  ]
+ },
+ "comparison": [
+  {
+   "position_web": 2,
+   "poiId": 17722,
+   "type": "outside_visit",
+   "title_web_es": "Montserrat",
+   "mcp_es": "Montserrat",
+   "mcp_en": "Montserrat",
+   "lat": -34.6130871,
+   "lon": -58.3813599,
+   "has_description": false
+  },
+  {
+   "position_web": 3,
+   "poiId": 826,
+   "type": "outside_visit",
+   "title_web_es": "Plaza de Mayo",
+   "mcp_es": "Plaza de Mayo",
+   "mcp_en": "May Plaza",
+   "lat": -34.6083667,
+   "lon": -58.3722832,
+   "has_description": false
+  },
+  {
+   "position_web": 4,
+   "poiId": 9938,
+   "type": "outside_visit",
+   "title_web_es": "San Ignacio de Loyola",
+   "mcp_es": "San Ignacio de Loyola",
+   "mcp_en": "Saint Ignatius of Loyola",
+   "lat": -34.6105556,
+   "lon": -58.3736111,
+   "has_description": false
+  },
+  {
+   "position_web": 5,
+   "poiId": 10964,
+   "type": "free_ticket",
+   "title_web_es": "Complejo Histórico Cultural Manzana de las Luces",
+   "mcp_es": "Complejo Histórico Cultural Manzana de las Luces",
+   "mcp_en": "Complejo Histórico Cultural Manzana de las Luces",
+   "lat": -34.6105903,
+   "lon": -58.3747968,
+   "has_description": false
+  },
+  {
+   "position_web": 6,
+   "poiId": 10788,
+   "type": "outside_visit",
+   "title_web_es": "San Telmo",
+   "mcp_es": "San Telmo",
+   "mcp_en": "San Telmo",
+   "lat": -34.6218351,
+   "lon": -58.3713942,
+   "has_description": false
+  },
+  {
+   "position_web": 7,
+   "poiId": 10963,
+   "type": "outside_visit",
+   "title_web_es": "Edificio Otto Wulff",
+   "mcp_es": "Edificio Otto Wulff",
+   "mcp_en": "Otto Wolff Building",
+   "lat": -34.6124331,
+   "lon": -58.3748104,
+   "has_description": false
+  },
+  {
+   "position_web": 8,
+   "poiId": 35210,
+   "type": "outside_visit",
+   "title_web_es": "Basílica Santa Rosa de Lima.",
+   "mcp_es": "Basílica Santa Rosa de Lima.",
+   "mcp_en": "Basilica of Saint Rose of Lima.",
+   "lat": -34.6143579,
+   "lon": -58.397669,
+   "has_description": false
+  },
+  {
+   "position_web": 10,
+   "poiId": 23477,
+   "type": "outside_visit",
+   "title_web_es": "Mausoleo del General Manuel Belgrano",
+   "mcp_es": "Mausoleo del General Manuel Belgrano",
+   "mcp_en": "Mausoleum of General Manuel Belgrano",
+   "lat": -34.6127418,
+   "lon": -58.3717477,
+   "has_description": false
+  },
+  {
+   "position_web": 11,
+   "poiId": 16966,
+   "type": "outside_visit",
+   "title_web_es": "Estatua de Mafalda",
+   "mcp_es": "Estatua de Mafalda",
+   "mcp_en": "Mafalda Statue",
+   "lat": -34.6158402,
+   "lon": -58.3716468,
+   "has_description": false
+  },
+  {
+   "position_web": 12,
+   "poiId": 35211,
+   "type": "outside_visit",
+   "title_web_es": "Paseo de la Historieta",
+   "mcp_es": "Paseo de la Historieta",
+   "mcp_en": "Comic Strip Walk",
+   "lat": -34.6111068,
+   "lon": -58.3705327,
+   "has_description": false
+  },
+  {
+   "position_web": 13,
+   "poiId": 1505,
+   "type": "outside_visit",
+   "title_web_es": "Plaza Dorego",
+   "mcp_es": "Plaza Dorego",
+   "mcp_en": "Plaza Dorego",
+   "lat": -34.6204914,
+   "lon": -58.3717481,
+   "has_description": false
+  },
+  {
+   "position_web": 14,
+   "poiId": 6408,
+   "type": "outside_visit",
+   "title_web_es": "Mercado de San Telmo",
+   "mcp_es": "Mercado de San Telmo",
+   "mcp_en": "San Telmo Market",
+   "lat": -34.619164,
+   "lon": -58.371913,
+   "has_description": false
+  }
+ ]
+}

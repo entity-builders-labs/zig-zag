@@ -1,0 +1,21 @@
+{
+ "total": 484,
+ "routing": 376,
+ "nonRouting": 108,
+ "counts": {
+  "groq": 1,
+  "nominatim.local/search": 22,
+  "overpass.local": 12,
+  "wikipedia(es.wikipedia.org)": 1,
+  "localhost:11434": 8,
+  "geoapify/v1/routing": 376,
+  "es.wikivoyage.org": 2,
+  "serper": 1,
+  "google(generativelanguage.googleapis.com)": 16,
+  "tavily": 1,
+  "wikidata": 21,
+  "wikipedia(en.wikipedia.org)": 4,
+  "geoapify.geocode-search": 12,
+  "geoapify.place-details": 7
+ }
+}

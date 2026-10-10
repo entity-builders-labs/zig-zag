@@ -1,0 +1,416 @@
+<!DOCTYPE html><!--w8i3Kbpo3huagMTF9o5X_--><html class="nunito_5243351d-module__TCNtVW__variable"><head><meta charSet="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="preload" href="https://ai.guruwalk.com/_next/static/media/07454f8ad8aaac57-s.p.fc65572f.woff2" as="font" crossorigin="" type="font/woff2"/><link rel="stylesheet" href="https://ai.guruwalk.com/_next/static/chunks/37313080b0ff30fc.css?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" data-precedence="next"/><link rel="preload" as="script" fetchPriority="low" href="https://ai.guruwalk.com/_next/static/chunks/fb90a04d3ddc3464.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX"/><script src="https://ai.guruwalk.com/_next/static/chunks/2f65d146e0d125c4.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" async=""></script><script src="https://ai.guruwalk.com/_next/static/chunks/1fa1594ef8902aef.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" async=""></script><script src="https://ai.guruwalk.com/_next/static/chunks/turbopack-d5584a3d22ef18da.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" async=""></script><script src="https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" async=""></script><script src="https://ai.guruwalk.com/_next/static/chunks/e44a997f85f01072.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" async=""></script><meta name="next-size-adjust" content=""/><link rel="icon" href="/favicon.ico" sizes="any"/><link rel="dns-prefetch" href="https://media.guruwalk.com"/><link rel="preconnect" href="https://media.guruwalk.com"/><title>GuruWalk</title><meta name="description" content="GuruWalk"/><script src="https://ai.guruwalk.com/_next/static/chunks/a6dad97d9634a72d.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" noModule=""></script></head><body class="antialiased " data-theme="light"><div hidden=""><!--$--><!--/$--></div><style>
+        :root {
+            --highlight-400: hsl(358 100% 68%);
+            --highlight-500: hsl(358 85% 55%);
+            --primary-400: #1C1917;
+            --primary-500: #110F0F;
+            --primary-600: #FFFFFF;
+            --fill-base-100: #FFFFFF;
+            --fill-base-200: #FAFAFA;
+            --fill-base-300: #F6F5F4;
+            --stroke-base-100: #EEEDEC;
+            --stroke-base-200: #E1E0DF;
+            --text-base-600: #110F0F;
+            --text-base-500: rgba(17, 15, 15, 0.70);
+            --text-base-400: rgba(17, 15, 15, 0.45);
+            --text-contrast-600: #FFFFFF;
+            --success: hsl(150 98% 36%);
+            --chatgpt-green: #10a37f;
+            --radius: 12px;
+            --radius-sm: 8px;
+            --page-margin: 32px;
+            --section-gap: 48px;
+            --card-padding: 24px;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-base-600);
+            background: var(--fill-base-100);
+            line-height: 1.7;
+            font-size: 16px;
+            -webkit-font-smoothing: antialiased;
+        }
+        .header {
+            background: var(--primary-400);
+            color: var(--text-contrast-600);
+            padding: 3rem var(--page-margin) 2.5rem;
+            text-align: center;
+        }
+        .header__logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-contrast-600);
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .header__logo svg { width: 28px; height: 28px; }
+        .header__badge {
+            display: inline-block;
+            background: var(--chatgpt-green);
+            color: white;
+            font-size: 0.7rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .header h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; }
+        .header p { font-size: 1.15rem; opacity: 0.8; max-width: 500px; margin: 0 auto; }
+        .container { max-width: 800px; margin: 0 auto; padding: 0 var(--page-margin); }
+        section { padding: var(--section-gap) 0; }
+        section + section { border-top: 1px solid var(--stroke-base-100); }
+        h2 { font-size: 1.375rem; font-weight: 700; color: var(--primary-400); margin-bottom: 0.75rem; }
+        h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary-400); margin: 1.5rem 0 0.5rem; }
+        p { margin-bottom: 0.75rem; }
+        a { color: var(--highlight-500); text-decoration: none; }
+        a:hover { text-decoration: underline; }
+        strong { font-weight: 700; }
+        code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            background: var(--fill-base-300);
+            border: 1px solid var(--stroke-base-100);
+            padding: 0.15em 0.4em;
+            border-radius: 4px;
+        }
+        ol { margin: 0.75rem 0 0.75rem 1.5rem; line-height: 2; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin: 1.5rem 0;
+        }
+        .stat {
+            background: var(--fill-base-200);
+            border: 1px solid var(--stroke-base-100);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            text-align: center;
+        }
+        .stat__number { display: block; font-size: 1.5rem; font-weight: 800; color: var(--highlight-400); }
+        .stat__label { font-size: 0.8rem; font-weight: 500; color: var(--text-base-500); }
+        .connection-info {
+            background: var(--fill-base-200);
+            border: 1px solid var(--stroke-base-100);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem 1.5rem;
+            margin: 1.25rem 0;
+        }
+        .connection-info dl { display: grid; grid-template-columns: 120px 1fr; gap: 0.5rem 1rem; align-items: baseline; }
+        .connection-info dt { font-weight: 700; font-size: 0.875rem; color: var(--text-base-500); }
+        .connection-info dd { font-size: 0.9375rem; }
+        .tools-grid { display: grid; gap: 1rem; margin: 1.25rem 0; }
+        .tool-card {
+            border: 1px solid var(--stroke-base-200);
+            border-radius: var(--radius-sm);
+            padding: 1.25rem 1.5rem;
+            background: var(--fill-base-100);
+            transition: border-color 0.2s;
+        }
+        .tool-card:hover { border-color: var(--highlight-400); }
+        .tool-card__header { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.625rem; }
+        .tool-card__icon {
+            width: 32px; height: 32px; border-radius: 6px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1rem; flex-shrink: 0;
+        }
+        .tool-card__icon--discover { background: rgba(255, 92, 97, 0.15); }
+        .tool-card__icon--browse { background: #FEF3C7; }
+        .tool-card__icon--availability { background: #D1FAE5; }
+        .tool-card__icon--detail { background: #E0E7FF; }
+        .tool-card__icon--dates { background: #FCE7F3; }
+        .tool-card__name {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            font-size: 0.9375rem;
+            color: var(--primary-400);
+        }
+        .tool-card__desc { font-size: 0.9375rem; color: var(--text-base-500); line-height: 1.6; margin-bottom: 0.625rem; }
+        .tool-card__input { font-size: 0.8125rem; font-weight: 700; color: var(--text-base-600); }
+        .lang-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }
+        .lang-badge {
+            display: inline-flex; align-items: center; gap: 0.375rem;
+            padding: 0.5rem 1rem; background: var(--fill-base-200);
+            border: 1px solid var(--stroke-base-100); border-radius: 6px; font-size: 0.875rem;
+        }
+        .lang-badge code { font-weight: 700; color: var(--highlight-400); background: none; border: none; padding: 0; }
+        .lang-badge span { color: var(--text-base-500); font-size: 0.8125rem; }
+        .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }
+        .use-case {
+            border: 1px solid var(--stroke-base-100); border-radius: var(--radius-sm);
+            padding: 1rem 1.25rem; transition: border-color 0.2s;
+        }
+        .use-case:hover { border-color: var(--highlight-400); }
+        .use-case strong { display: block; font-size: 0.9375rem; font-weight: 700; color: var(--primary-400); margin-bottom: 0.25rem; }
+        .use-case em { font-style: normal; font-size: 0.8125rem; color: var(--text-base-500); }
+        .example {
+            margin: 1.5rem 0; border: 1px solid var(--stroke-base-200);
+            border-radius: var(--radius-sm); overflow: hidden;
+        }
+        .example__prompt {
+            background: var(--fill-base-200); padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--stroke-base-100); font-size: 0.9375rem;
+        }
+        .example__prompt span { font-weight: 700; color: var(--highlight-500); margin-right: 0.5rem; }
+        .example__response { padding: 1rem 1.25rem; font-size: 0.9375rem; line-height: 1.65; }
+        .privacy-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.625rem 0; }
+        .privacy-item__check { color: var(--success); font-size: 1.125rem; flex-shrink: 0; font-weight: 700; }
+        .footer {
+            background: var(--fill-base-200); border-top: 1px solid var(--stroke-base-100);
+            padding: 2rem; text-align: center; margin-top: 2rem;
+        }
+        .footer__links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }
+        .footer__links a { font-size: 0.9375rem; color: var(--text-base-500); font-weight: 500; }
+        .footer__links a:hover { color: var(--highlight-500); }
+        .screenshot {
+            margin: 1rem 0 2rem;
+            border: 1px solid var(--stroke-base-200);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .screenshot img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        .step-prompt {
+            font-style: italic;
+            color: var(--text-base-500);
+            margin-bottom: 0.5rem;
+        }
+        .step-prompt::before {
+            content: "\2192 ";
+            color: var(--highlight-400);
+            font-style: normal;
+        }
+        @media (max-width: 768px) {
+            :root { --page-margin: 16px; --section-gap: 40px; --card-padding: 16px; }
+            .header h1 { font-size: 1.75rem; }
+            .stats { grid-template-columns: repeat(2, 1fr); }
+            .use-cases { grid-template-columns: 1fr; }
+            .connection-info dl { grid-template-columns: 1fr; }
+        }
+    </style><div><script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "WebAPI",
+        "name": "GuruWalk ChatGPT App",
+        "description": "ChatGPT App that connects to GuruWalk's catalog of free walking tours and paid activities in 1,000+ cities. 5 tools with interactive cards.",
+        "url": "https://ai.guruwalk.com/docs/chatgpt",
+        "provider": {
+            "@type": "Organization",
+            "name": "GuruWalk",
+            "url": "https://www.guruwalk.com",
+            "foundingDate": "2017",
+            "foundingLocation": "Valencia, Spain"
+        },
+        "termsOfService": "https://www.guruwalk.com/terms/privacy_policy",
+        "documentation": "https://ai.guruwalk.com/docs/chatgpt"
+    }
+    </script></div><div>
+
+    <header class="header">
+        <a href="https://ai.guruwalk.com/" class="header__logo">
+            <img src="data:image/webp;base64,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" alt="GuruWalk" width="32" height="32">
+            GuruWalk <span class="header__badge">ChatGPT App</span>
+        </a>
+        <h1>GuruWalk ChatGPT App</h1>
+        <p>Connect ChatGPT to explore free walking tours and activities in 1,000+ cities worldwide</p>
+    </header>
+
+    <main class="container">
+
+        <section>
+            <h2>About GuruWalk</h2>
+            <p>GuruWalk is the world's largest free walking tour platform, connecting travelers with local guides in over 1,000 cities across 120+ countries. Founded in 2017 in Valencia, Spain, the platform operates on a unique <strong>pay-what-you-want</strong> model for free tours: travelers book for free and tip the guide based on their experience.</p>
+            <p>Alongside free walking tours, GuruWalk offers paid activities including guided tours, skip-the-line tickets, food experiences, day trips, and more — all bookable in one place.</p>
+            <div class="stats">
+                <div class="stat"><span class="stat__number">1,000+</span><div class="stat__label">Cities worldwide</div></div>
+                <div class="stat"><span class="stat__number">4,000+</span><div class="stat__label">Local guides</div></div>
+                <div class="stat"><span class="stat__number">2M+</span><div class="stat__label">Verified reviews</div></div>
+                <div class="stat"><span class="stat__number">5</span><div class="stat__label">Tools</div></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>What is this?</h2>
+            <p>GuruWalk's ChatGPT App renders an interactive widget inside the conversation. Ask about tours in any city and get a visual carousel with two actions per card: <strong>"See details"</strong> opens a fullscreen tour page, and <strong>"Availability"</strong> opens a fullscreen calendar to pick dates and book — all without leaving ChatGPT.</p>
+            <div class="connection-info">
+                <dl>
+                    <dt>Protocol</dt><dd>MCP (Model Context Protocol) over Streamable HTTP</dd>
+                    <dt>Auth</dt><dd>No authentication required</dd>
+                    <dt>Type</dt><dd>Read-only app with interactive cards</dd>
+                </dl>
+            </div>
+        </section>
+
+        <section>
+            <h2>Setup</h2>
+            <h3>ChatGPT App Directory</h3>
+            <ol>
+                <li>Go to <strong>Settings</strong> → <strong>Apps</strong></li>
+                <li>Search for <strong>"GuruWalk"</strong> in the App Directory</li>
+                <li>Click <strong>Connect</strong></li>
+                <li>Start chatting about travel destinations</li>
+            </ol>
+            <h3>Developer Mode (for testing)</h3>
+            <ol>
+                <li>Go to <strong>Settings</strong> → <strong>Apps</strong> → <strong>Developer Mode</strong></li>
+                <li>Click <strong>Add connector</strong></li>
+                <li>Paste the MCP server URL: <code>https://ai.guruwalk.com/mcp-openai</code></li>
+                <li>The 5 tools will appear in the tools menu</li>
+            </ol>
+            <h3>General MCP Server</h3>
+            <p>GuruWalk also has a general-purpose MCP server with 4 tools that works with any MCP-compatible client (Claude, Claude Code, and others). See <a href="https://ai.guruwalk.com/docs/walkers">MCP Server documentation</a>.</p>
+        </section>
+
+        <section>
+            <h2>Available Tools</h2>
+            <div class="tools-grid">
+                <div class="tool-card">
+                    <div class="tool-card__header">
+                        <div class="tool-card__icon tool-card__icon--discover">🔍</div>
+                        <div class="tool-card__name">discover-destination</div>
+                    </div>
+                    <div class="tool-card__desc">Search a city to explore free walking tours and paid activities on GuruWalk. Returns destination info, tour categories (free tours, food tours, day trips, tickets, and more), and featured listings with ratings and verified traveler reviews. Free tours operate on a pay-what-you-want model. Use this when the user asks about things to do, tours, or activities in a specific city. Do not use for weather, hotels, flights, or general city facts unrelated to tours.</div>
+                    <div class="tool-card__input">Input: city name, language (en/es/de/it), page</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card__header">
+                        <div class="tool-card__icon tool-card__icon--browse">📂</div>
+                        <div class="tool-card__name">browse-category</div>
+                    </div>
+                    <div class="tool-card__desc">Browse tours and activities within a specific category for a destination on GuruWalk. Categories include free walking tours, food tours, bike tours, day trips, skip-the-line tickets, and more. Returns listings with ratings, verified review counts, duration, available languages, and pricing. Use the category IDs returned by discover-destination. Do not use for hotel categories, restaurant lists, or non-tour content.</div>
+                    <div class="tool-card__input">Input: category/vertical ID, hub slug (for free tours), language, page</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card__header">
+                        <div class="tool-card__icon tool-card__icon--availability">📅</div>
+                        <div class="tool-card__name">check-availability</div>
+                    </div>
+                    <div class="tool-card__desc">Check real-time availability for a specific tour or activity on GuruWalk. Returns available time slots, remaining spots, and pricing details by traveler type (adult, child, infant). For free walking tours, no upfront price — travelers pay what they want after the tour. Includes direct booking links. Maximum date range: 3 days per request. Use this when the user asks if a specific tour has spots on a specific date.</div>
+                    <div class="tool-card__input">Input: product ID, type (product/free_tour), date range, language</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card__header">
+                        <div class="tool-card__icon tool-card__icon--detail">📋</div>
+                        <div class="tool-card__name">get-product-detail</div>
+                    </div>
+                    <div class="tool-card__desc">Get the full detail of any tour or activity on GuruWalk — description, itinerary with stops, highlights, what's included and excluded, images, verified traveler reviews, meeting point with instructions, accessibility info, cancellation policy, and available languages. Use this when the user asks what a tour covers, its itinerary, meeting point, or any content-related question about a specific tour.</div>
+                    <div class="tool-card__input">Input: product ID, type (product/free_tour), language</div>
+                </div>
+                <div class="tool-card">
+                    <div class="tool-card__header">
+                        <div class="tool-card__icon tool-card__icon--dates">🗓️</div>
+                        <div class="tool-card__name">get-available-dates</div>
+                    </div>
+                    <div class="tool-card__desc">Get dates that have availability for a specific tour or activity within a date range.</div>
+                    <div class="tool-card__input">Input: product ID, type (product/free_tour), month/date range</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Supported Languages</h2>
+            <p>All tools support four languages via the <code>language</code> parameter. Tour results, descriptions, and categories are returned in the requested language when available.</p>
+            <div class="lang-badges">
+                <div class="lang-badge"><code>en</code> <span>English (default)</span></div>
+                <div class="lang-badge"><code>es</code> <span>Spanish</span></div>
+                <div class="lang-badge"><code>de</code> <span>German</span></div>
+                <div class="lang-badge"><code>it</code> <span>Italian</span></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>What can you do with this?</h2>
+            <p>Ask ChatGPT anything about tours and activities — it renders an interactive widget with GuruWalk's full catalog in real time.</p>
+            <div class="use-cases">
+                <div class="use-case"><strong>Find free walking tours in any city</strong><em>discover-destination → browse-category</em></div>
+                <div class="use-case"><strong>Compare food tours by rating</strong><em>browse-category → get-product-detail</em></div>
+                <div class="use-case"><strong>See which dates have availability</strong><em>get-available-dates</em></div>
+                <div class="use-case"><strong>Check spots for a specific date</strong><em>check-availability</em></div>
+                <div class="use-case"><strong>Get itinerary and meeting point</strong><em>get-product-detail</em></div>
+                <div class="use-case"><strong>Plan a full day with tours</strong><em>discover → dates → availability</em></div>
+                <div class="use-case"><strong>Find night tours in a city</strong><em>browse-category</em></div>
+                <div class="use-case"><strong>Discover day trips and excursions</strong><em>browse-category</em></div>
+            </div>
+        </section>
+
+        <section>
+            <h2>Popular Destinations</h2>
+            <p>GuruWalk covers <strong>1,000+ cities</strong> across Europe, the Americas, Asia, Africa, and Oceania. Top destinations include <strong>Rome</strong>, <strong>Barcelona</strong>, <strong>Paris</strong>, <strong>London</strong>, <strong>Istanbul</strong>, <strong>Lisbon</strong>, <strong>Prague</strong>, <strong>Budapest</strong>, <strong>Florence</strong>, <strong>Vienna</strong>, <strong>Amsterdam</strong>, <strong>Berlin</strong>, <strong>Madrid</strong>, <strong>Porto</strong>, <strong>Dublin</strong>, <strong>Edinburgh</strong>, <strong>New York</strong>, <strong>Tokyo</strong>, <strong>Bangkok</strong>, <strong>Seville</strong>, <strong>Venice</strong>, <strong>Kraków</strong>, <strong>Munich</strong>, <strong>Dubrovnik</strong>, <strong>Brussels</strong>, <strong>Stockholm</strong>, <strong>Copenhagen</strong>, <strong>San Francisco</strong>, <strong>Tirana</strong>, and <strong>Sofia</strong> — with new cities added regularly.</p>
+        </section>
+
+        <section>
+            <h2>How it works</h2>
+            <p>When you ask about tours, ChatGPT renders an interactive widget directly in the conversation — not just text. You can browse, explore details, and book without leaving the chat.</p>
+
+            <h3>1. Discover tours in a city</h3>
+            <p class="step-prompt">"What can I do in Barcelona?"</p>
+            <p>ChatGPT shows an interactive carousel with tour cards. Each card displays the photo, rating, reviews, duration, and price. Scroll through to explore, then use either button: <strong>"See details"</strong> to view the full tour page, or <strong>"Availability"</strong> to jump straight to the calendar.</p>
+            <div class="screenshot">
+                <img src="/docs/chatgpt/images/widget-carousel.png" alt="Tour carousel showing free tours and activities in Barcelona" loading="lazy">
+            </div>
+
+            <h3>2. View tour details</h3>
+            <p>Click <strong>"See details"</strong> on any card to open the tour in fullscreen mode — the chat disappears and the widget takes over. You get the photo gallery, guide info, itinerary with stops, reviews, meeting point, and what's included. This view is read-only for focused browsing. Use ChatGPT's native X button to close and return to the carousel.</p>
+            <div class="screenshot">
+                <img src="/docs/chatgpt/images/widget-detail.png" alt="Tour detail view showing guide, itinerary, and ratings" loading="lazy">
+            </div>
+
+            <h3>3. Check availability and book</h3>
+            <p>Click <strong>"Availability"</strong> on any carousel card to open the calendar directly in fullscreen mode — no need to go through the detail page first. Select dates to see available time slots. Each slot shows the language and a <strong>"Book now"</strong> button that opens the booking page on GuruWalk. Use ChatGPT's native X button to close and return to the carousel.</p>
+            <div class="screenshot">
+                <img src="/docs/chatgpt/images/widget-availability.png" alt="Calendar showing available dates and time slots with Book now buttons" loading="lazy">
+            </div>
+        </section>
+
+        <section>
+            <h2>Privacy & Security</h2>
+            <div class="privacy-item">
+                <span class="privacy-item__check">✓</span>
+                <span>All tools are <strong>read-only</strong> — no data is created, modified, or deleted. Annotations: <code>readOnlyHint: true</code>, <code>destructiveHint: false</code>, <code>openWorldHint: false</code>.</span>
+            </div>
+            <div class="privacy-item">
+                <span class="privacy-item__check">✓</span>
+                <span>No authentication required — only public tour data is accessible.</span>
+            </div>
+            <div class="privacy-item">
+                <span class="privacy-item__check">✓</span>
+                <span>No personal data is collected or stored. No PII, session IDs, or internal identifiers in responses.</span>
+            </div>
+            <div class="privacy-item">
+                <span class="privacy-item__check">✓</span>
+                <span>Privacy Policy: <a href="https://www.guruwalk.com/terms/privacy_policy">guruwalk.com/terms/privacy_policy</a></span>
+            </div>
+        </section>
+
+        <section>
+            <h2>Support</h2>
+            <ul style="list-style: none; line-height: 2.2;">
+                <li>Help Center: <a href="https://support.guruwalk.com">support.guruwalk.com</a></li>
+                <li>Email: <a href="mailto:support@guruwalk.com">support@guruwalk.com</a></li>
+                <li>Website: <a href="https://www.guruwalk.com">guruwalk.com</a></li>
+                <li>MCP Server docs: <a href="https://ai.guruwalk.com/docs/walkers">ai.guruwalk.com/docs/walkers</a></li>
+            </ul>
+        </section>
+
+    </main>
+
+    <footer class="footer">
+        <div class="footer__links">
+            <a href="https://ai.guruwalk.com/">GuruWalk for AI</a>
+            <a href="https://ai.guruwalk.com/docs/walkers">MCP Server Docs</a>
+            <a href="https://support.guruwalk.com">Support</a>
+            <a href="https://www.guruwalk.com/terms/privacy_policy">Privacy Policy</a>
+        </div>
+    </footer>
+
+</div><!--$--><!--/$--><script src="https://ai.guruwalk.com/_next/static/chunks/fb90a04d3ddc3464.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX" id="_R_" async=""></script><script>(self.__next_f=self.__next_f||[]).push([0])</script><script>self.__next_f.push([1,"1:\"$Sreact.fragment\"\n3:I[79681,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"default\"]\n4:I[64324,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"default\"]\na:I[87926,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"default\"]\n:HL[\"https://ai.guruwalk.com/_next/static/chunks/37313080b0ff30fc.css?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\",\"style\"]\n:HL[\"https://ai.guruwalk.com/_next/static/media/07454f8ad8aaac57-s.p.fc65572f.woff2\",\"font\",{\"crossOrigin\":\"\",\"type\":\"font/woff2\"}]\n5:T23da,"])</script><script>self.__next_f.push([1,"\n        :root {\n            --highlight-400: hsl(358 100% 68%);\n            --highlight-500: hsl(358 85% 55%);\n            --primary-400: #1C1917;\n            --primary-500: #110F0F;\n            --primary-600: #FFFFFF;\n            --fill-base-100: #FFFFFF;\n            --fill-base-200: #FAFAFA;\n            --fill-base-300: #F6F5F4;\n            --stroke-base-100: #EEEDEC;\n            --stroke-base-200: #E1E0DF;\n            --text-base-600: #110F0F;\n            --text-base-500: rgba(17, 15, 15, 0.70);\n            --text-base-400: rgba(17, 15, 15, 0.45);\n            --text-contrast-600: #FFFFFF;\n            --success: hsl(150 98% 36%);\n            --chatgpt-green: #10a37f;\n            --radius: 12px;\n            --radius-sm: 8px;\n            --page-margin: 32px;\n            --section-gap: 48px;\n            --card-padding: 24px;\n        }\n        * { margin: 0; padding: 0; box-sizing: border-box; }\n        body {\n            font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;\n            color: var(--text-base-600);\n            background: var(--fill-base-100);\n            line-height: 1.7;\n            font-size: 16px;\n            -webkit-font-smoothing: antialiased;\n        }\n        .header {\n            background: var(--primary-400);\n            color: var(--text-contrast-600);\n            padding: 3rem var(--page-margin) 2.5rem;\n            text-align: center;\n        }\n        .header__logo {\n            display: inline-flex;\n            align-items: center;\n            gap: 0.5rem;\n            color: var(--text-contrast-600);\n            text-decoration: none;\n            font-weight: 700;\n            font-size: 1rem;\n            margin-bottom: 1.5rem;\n        }\n        .header__logo svg { width: 28px; height: 28px; }\n        .header__badge {\n            display: inline-block;\n            background: var(--chatgpt-green);\n            color: white;\n            font-size: 0.7rem;\n            font-weight: 700;\n            padding: 4px 12px;\n            border-radius: 20px;\n            text-transform: uppercase;\n            letter-spacing: 0.05em;\n            margin-left: 8px;\n            vertical-align: middle;\n        }\n        .header h1 { font-size: 2.25rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 0.75rem; }\n        .header p { font-size: 1.15rem; opacity: 0.8; max-width: 500px; margin: 0 auto; }\n        .container { max-width: 800px; margin: 0 auto; padding: 0 var(--page-margin); }\n        section { padding: var(--section-gap) 0; }\n        section + section { border-top: 1px solid var(--stroke-base-100); }\n        h2 { font-size: 1.375rem; font-weight: 700; color: var(--primary-400); margin-bottom: 0.75rem; }\n        h3 { font-size: 1.05rem; font-weight: 700; color: var(--primary-400); margin: 1.5rem 0 0.5rem; }\n        p { margin-bottom: 0.75rem; }\n        a { color: var(--highlight-500); text-decoration: none; }\n        a:hover { text-decoration: underline; }\n        strong { font-weight: 700; }\n        code {\n            font-family: 'JetBrains Mono', monospace;\n            font-size: 0.85rem;\n            background: var(--fill-base-300);\n            border: 1px solid var(--stroke-base-100);\n            padding: 0.15em 0.4em;\n            border-radius: 4px;\n        }\n        ol { margin: 0.75rem 0 0.75rem 1.5rem; line-height: 2; }\n        .stats {\n            display: grid;\n            grid-template-columns: repeat(4, 1fr);\n            gap: 16px;\n            margin: 1.5rem 0;\n        }\n        .stat {\n            background: var(--fill-base-200);\n            border: 1px solid var(--stroke-base-100);\n            border-radius: var(--radius-sm);\n            padding: 1rem;\n            text-align: center;\n        }\n        .stat__number { display: block; font-size: 1.5rem; font-weight: 800; color: var(--highlight-400); }\n        .stat__label { font-size: 0.8rem; font-weight: 500; color: var(--text-base-500); }\n        .connection-info {\n            background: var(--fill-base-200);\n            border: 1px solid var(--stroke-base-100);\n            border-radius: var(--radius-sm);\n            padding: 1.25rem 1.5rem;\n            margin: 1.25rem 0;\n        }\n        .connection-info dl { display: grid; grid-template-columns: 120px 1fr; gap: 0.5rem 1rem; align-items: baseline; }\n        .connection-info dt { font-weight: 700; font-size: 0.875rem; color: var(--text-base-500); }\n        .connection-info dd { font-size: 0.9375rem; }\n        .tools-grid { display: grid; gap: 1rem; margin: 1.25rem 0; }\n        .tool-card {\n            border: 1px solid var(--stroke-base-200);\n            border-radius: var(--radius-sm);\n            padding: 1.25rem 1.5rem;\n            background: var(--fill-base-100);\n            transition: border-color 0.2s;\n        }\n        .tool-card:hover { border-color: var(--highlight-400); }\n        .tool-card__header { display: flex; align-items: center; gap: 0.625rem; margin-bottom: 0.625rem; }\n        .tool-card__icon {\n            width: 32px; height: 32px; border-radius: 6px;\n            display: flex; align-items: center; justify-content: center;\n            font-size: 1rem; flex-shrink: 0;\n        }\n        .tool-card__icon--discover { background: rgba(255, 92, 97, 0.15); }\n        .tool-card__icon--browse { background: #FEF3C7; }\n        .tool-card__icon--availability { background: #D1FAE5; }\n        .tool-card__icon--detail { background: #E0E7FF; }\n        .tool-card__icon--dates { background: #FCE7F3; }\n        .tool-card__name {\n            font-family: 'JetBrains Mono', monospace;\n            font-weight: 600;\n            font-size: 0.9375rem;\n            color: var(--primary-400);\n        }\n        .tool-card__desc { font-size: 0.9375rem; color: var(--text-base-500); line-height: 1.6; margin-bottom: 0.625rem; }\n        .tool-card__input { font-size: 0.8125rem; font-weight: 700; color: var(--text-base-600); }\n        .lang-badges { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 1rem 0; }\n        .lang-badge {\n            display: inline-flex; align-items: center; gap: 0.375rem;\n            padding: 0.5rem 1rem; background: var(--fill-base-200);\n            border: 1px solid var(--stroke-base-100); border-radius: 6px; font-size: 0.875rem;\n        }\n        .lang-badge code { font-weight: 700; color: var(--highlight-400); background: none; border: none; padding: 0; }\n        .lang-badge span { color: var(--text-base-500); font-size: 0.8125rem; }\n        .use-cases { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin: 1rem 0; }\n        .use-case {\n            border: 1px solid var(--stroke-base-100); border-radius: var(--radius-sm);\n            padding: 1rem 1.25rem; transition: border-color 0.2s;\n        }\n        .use-case:hover { border-color: var(--highlight-400); }\n        .use-case strong { display: block; font-size: 0.9375rem; font-weight: 700; color: var(--primary-400); margin-bottom: 0.25rem; }\n        .use-case em { font-style: normal; font-size: 0.8125rem; color: var(--text-base-500); }\n        .example {\n            margin: 1.5rem 0; border: 1px solid var(--stroke-base-200);\n            border-radius: var(--radius-sm); overflow: hidden;\n        }\n        .example__prompt {\n            background: var(--fill-base-200); padding: 1rem 1.25rem;\n            border-bottom: 1px solid var(--stroke-base-100); font-size: 0.9375rem;\n        }\n        .example__prompt span { font-weight: 700; color: var(--highlight-500); margin-right: 0.5rem; }\n        .example__response { padding: 1rem 1.25rem; font-size: 0.9375rem; line-height: 1.65; }\n        .privacy-item { display: flex; align-items: flex-start; gap: 0.75rem; padding: 0.625rem 0; }\n        .privacy-item__check { color: var(--success); font-size: 1.125rem; flex-shrink: 0; font-weight: 700; }\n        .footer {\n            background: var(--fill-base-200); border-top: 1px solid var(--stroke-base-100);\n            padding: 2rem; text-align: center; margin-top: 2rem;\n        }\n        .footer__links { display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap; }\n        .footer__links a { font-size: 0.9375rem; color: var(--text-base-500); font-weight: 500; }\n        .footer__links a:hover { color: var(--highlight-500); }\n        .screenshot {\n            margin: 1rem 0 2rem;\n            border: 1px solid var(--stroke-base-200);\n            border-radius: var(--radius);\n            overflow: hidden;\n        }\n        .screenshot img {\n            width: 100%;\n            height: auto;\n            display: block;\n        }\n        .step-prompt {\n            font-style: italic;\n            color: var(--text-base-500);\n            margin-bottom: 0.5rem;\n        }\n        .step-prompt::before {\n            content: \"\\2192 \";\n            color: var(--highlight-400);\n            font-style: normal;\n        }\n        @media (max-width: 768px) {\n            :root { --page-margin: 16px; --section-gap: 40px; --card-padding: 16px; }\n            .header h1 { font-size: 1.75rem; }\n            .stats { grid-template-columns: repeat(2, 1fr); }\n            .use-cases { grid-template-columns: 1fr; }\n            .connection-info dl { grid-template-columns: 1fr; }\n        }\n    "])</script><script>self.__next_f.push([1,"0:{\"P\":null,\"b\":\"w8i3Kbpo3huagMTF9o5X_\",\"c\":[\"\",\"docs\",\"chatgpt\"],\"q\":\"\",\"i\":false,\"f\":[[[\"\",{\"children\":[\"docs\",{\"children\":[\"chatgpt\",{\"children\":[\"__PAGE__\",{}]}]}]},\"$undefined\",\"$undefined\",true],[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"link\",\"0\",{\"rel\":\"stylesheet\",\"href\":\"https://ai.guruwalk.com/_next/static/chunks/37313080b0ff30fc.css?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\",\"precedence\":\"next\",\"crossOrigin\":\"$undefined\",\"nonce\":\"$undefined\"}],[\"$\",\"script\",\"script-0\",{\"src\":\"https://ai.guruwalk.com/_next/static/chunks/e44a997f85f01072.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\",\"async\":true,\"nonce\":\"$undefined\"}]],\"$L2\"]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L3\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L4\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[null,[\"$\",\"$L3\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L4\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":\"$undefined\",\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]]}],{\"children\":[[\"$\",\"$1\",\"c\",{\"children\":[[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$5\"}}],\"$L6\",\"$L7\"],null,\"$L8\"]}],{},null,false,false]},null,false,false]},null,false,false]},null,false,false],\"$L9\",false]],\"m\":\"$undefined\",\"G\":[\"$a\",[]],\"S\":true}\n"])</script><script>self.__next_f.push([1,"c:I[82640,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"OutletBoundary\"]\nd:\"$Sreact.suspense\"\nf:I[82640,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"ViewportBoundary\"]\n11:I[82640,[\"https://ai.guruwalk.com/_next/static/chunks/8bc4e7d3b7064bb9.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"MetadataBoundary\"]\n13:I[95776,[\"https://ai.guruwalk.com/_next/static/chunks/e44a997f85f01072.js?dpl=dpl_F5rhvrFjdHn25M9ARBxBCB1jDqoX\"],\"default\"]\n6:[\"$\",\"div\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"\u003cscript type=\\\"application/ld+json\\\"\u003e\\n    {\\n        \\\"@context\\\": \\\"https://schema.org\\\",\\n        \\\"@type\\\": \\\"WebAPI\\\",\\n        \\\"name\\\": \\\"GuruWalk ChatGPT App\\\",\\n        \\\"description\\\": \\\"ChatGPT App that connects to GuruWalk's catalog of free walking tours and paid activities in 1,000+ cities. 5 tools with interactive cards.\\\",\\n        \\\"url\\\": \\\"https://ai.guruwalk.com/docs/chatgpt\\\",\\n        \\\"provider\\\": {\\n            \\\"@type\\\": \\\"Organization\\\",\\n            \\\"name\\\": \\\"GuruWalk\\\",\\n            \\\"url\\\": \\\"https://www.guruwalk.com\\\",\\n            \\\"foundingDate\\\": \\\"2017\\\",\\n            \\\"foundingLocation\\\": \\\"Valencia, Spain\\\"\\n        },\\n        \\\"termsOfService\\\": \\\"https://www.guruwalk.com/terms/privacy_policy\\\",\\n        \\\"documentation\\\": \\\"https://ai.guruwalk.com/docs/chatgpt\\\"\\n    }\\n    \u003c/script\u003e\"}}]\nb:T5b2e,"])</script><script>self.__next_f.push([1,"\n\n    \u003cheader class=\"header\"\u003e\n        \u003ca href=\"https://ai.guruwalk.com/\" class=\"header__logo\"\u003e\n            \u003cimg src=\"data:image/webp;base64,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\" alt=\"GuruWalk\" width=\"32\" height=\"32\"\u003e\n            GuruWalk \u003cspan class=\"header__badge\"\u003eChatGPT App\u003c/span\u003e\n        \u003c/a\u003e\n        \u003ch1\u003eGuruWalk ChatGPT App\u003c/h1\u003e\n        \u003cp\u003eConnect ChatGPT to explore free walking tours and activities in 1,000+ cities worldwide\u003c/p\u003e\n    \u003c/header\u003e\n\n    \u003cmain class=\"container\"\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eAbout GuruWalk\u003c/h2\u003e\n            \u003cp\u003eGuruWalk is the world's largest free walking tour platform, connecting travelers with local guides in over 1,000 cities across 120+ countries. Founded in 2017 in Valencia, Spain, the platform operates on a unique \u003cstrong\u003epay-what-you-want\u003c/strong\u003e model for free tours: travelers book for free and tip the guide based on their experience.\u003c/p\u003e\n            \u003cp\u003eAlongside free walking tours, GuruWalk offers paid activities including guided tours, skip-the-line tickets, food experiences, day trips, and more — all bookable in one place.\u003c/p\u003e\n            \u003cdiv class=\"stats\"\u003e\n                \u003cdiv class=\"stat\"\u003e\u003cspan class=\"stat__number\"\u003e1,000+\u003c/span\u003e\u003cdiv class=\"stat__label\"\u003eCities worldwide\u003c/div\u003e\u003c/div\u003e\n                \u003cdiv class=\"stat\"\u003e\u003cspan class=\"stat__number\"\u003e4,000+\u003c/span\u003e\u003cdiv class=\"stat__label\"\u003eLocal guides\u003c/div\u003e\u003c/div\u003e\n                \u003cdiv class=\"stat\"\u003e\u003cspan class=\"stat__number\"\u003e2M+\u003c/span\u003e\u003cdiv class=\"stat__label\"\u003eVerified reviews\u003c/div\u003e\u003c/div\u003e\n                \u003cdiv class=\"stat\"\u003e\u003cspan class=\"stat__number\"\u003e5\u003c/span\u003e\u003cdiv class=\"stat__label\"\u003eTools\u003c/div\u003e\u003c/div\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eWhat is this?\u003c/h2\u003e\n            \u003cp\u003eGuruWalk's ChatGPT App renders an interactive widget inside the conversation. Ask about tours in any city and get a visual carousel with two actions per card: \u003cstrong\u003e\"See details\"\u003c/strong\u003e opens a fullscreen tour page, and \u003cstrong\u003e\"Availability\"\u003c/strong\u003e opens a fullscreen calendar to pick dates and book — all without leaving ChatGPT.\u003c/p\u003e\n            \u003cdiv class=\"connection-info\"\u003e\n                \u003cdl\u003e\n                    \u003cdt\u003eProtocol\u003c/dt\u003e\u003cdd\u003eMCP (Model Context Protocol) over Streamable HTTP\u003c/dd\u003e\n                    \u003cdt\u003eAuth\u003c/dt\u003e\u003cdd\u003eNo authentication required\u003c/dd\u003e\n                    \u003cdt\u003eType\u003c/dt\u003e\u003cdd\u003eRead-only app with interactive cards\u003c/dd\u003e\n                \u003c/dl\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eSetup\u003c/h2\u003e\n            \u003ch3\u003eChatGPT App Directory\u003c/h3\u003e\n            \u003col\u003e\n                \u003cli\u003eGo to \u003cstrong\u003eSettings\u003c/strong\u003e → \u003cstrong\u003eApps\u003c/strong\u003e\u003c/li\u003e\n                \u003cli\u003eSearch for \u003cstrong\u003e\"GuruWalk\"\u003c/strong\u003e in the App Directory\u003c/li\u003e\n                \u003cli\u003eClick \u003cstrong\u003eConnect\u003c/strong\u003e\u003c/li\u003e\n                \u003cli\u003eStart chatting about travel destinations\u003c/li\u003e\n            \u003c/ol\u003e\n            \u003ch3\u003eDeveloper Mode (for testing)\u003c/h3\u003e\n            \u003col\u003e\n                \u003cli\u003eGo to \u003cstrong\u003eSettings\u003c/strong\u003e → \u003cstrong\u003eApps\u003c/strong\u003e → \u003cstrong\u003eDeveloper Mode\u003c/strong\u003e\u003c/li\u003e\n                \u003cli\u003eClick \u003cstrong\u003eAdd connector\u003c/strong\u003e\u003c/li\u003e\n                \u003cli\u003ePaste the MCP server URL: \u003ccode\u003ehttps://ai.guruwalk.com/mcp-openai\u003c/code\u003e\u003c/li\u003e\n                \u003cli\u003eThe 5 tools will appear in the tools menu\u003c/li\u003e\n            \u003c/ol\u003e\n            \u003ch3\u003eGeneral MCP Server\u003c/h3\u003e\n            \u003cp\u003eGuruWalk also has a general-purpose MCP server with 4 tools that works with any MCP-compatible client (Claude, Claude Code, and others). See \u003ca href=\"https://ai.guruwalk.com/docs/walkers\"\u003eMCP Server documentation\u003c/a\u003e.\u003c/p\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eAvailable Tools\u003c/h2\u003e\n            \u003cdiv class=\"tools-grid\"\u003e\n                \u003cdiv class=\"tool-card\"\u003e\n                    \u003cdiv class=\"tool-card__header\"\u003e\n                        \u003cdiv class=\"tool-card__icon tool-card__icon--discover\"\u003e🔍\u003c/div\u003e\n                        \u003cdiv class=\"tool-card__name\"\u003ediscover-destination\u003c/div\u003e\n                    \u003c/div\u003e\n                    \u003cdiv class=\"tool-card__desc\"\u003eSearch a city to explore free walking tours and paid activities on GuruWalk. Returns destination info, tour categories (free tours, food tours, day trips, tickets, and more), and featured listings with ratings and verified traveler reviews. Free tours operate on a pay-what-you-want model. Use this when the user asks about things to do, tours, or activities in a specific city. Do not use for weather, hotels, flights, or general city facts unrelated to tours.\u003c/div\u003e\n                    \u003cdiv class=\"tool-card__input\"\u003eInput: city name, language (en/es/de/it), page\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class=\"tool-card\"\u003e\n                    \u003cdiv class=\"tool-card__header\"\u003e\n                        \u003cdiv class=\"tool-card__icon tool-card__icon--browse\"\u003e📂\u003c/div\u003e\n                        \u003cdiv class=\"tool-card__name\"\u003ebrowse-category\u003c/div\u003e\n                    \u003c/div\u003e\n                    \u003cdiv class=\"tool-card__desc\"\u003eBrowse tours and activities within a specific category for a destination on GuruWalk. Categories include free walking tours, food tours, bike tours, day trips, skip-the-line tickets, and more. Returns listings with ratings, verified review counts, duration, available languages, and pricing. Use the category IDs returned by discover-destination. Do not use for hotel categories, restaurant lists, or non-tour content.\u003c/div\u003e\n                    \u003cdiv class=\"tool-card__input\"\u003eInput: category/vertical ID, hub slug (for free tours), language, page\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class=\"tool-card\"\u003e\n                    \u003cdiv class=\"tool-card__header\"\u003e\n                        \u003cdiv class=\"tool-card__icon tool-card__icon--availability\"\u003e📅\u003c/div\u003e\n                        \u003cdiv class=\"tool-card__name\"\u003echeck-availability\u003c/div\u003e\n                    \u003c/div\u003e\n                    \u003cdiv class=\"tool-card__desc\"\u003eCheck real-time availability for a specific tour or activity on GuruWalk. Returns available time slots, remaining spots, and pricing details by traveler type (adult, child, infant). For free walking tours, no upfront price — travelers pay what they want after the tour. Includes direct booking links. Maximum date range: 3 days per request. Use this when the user asks if a specific tour has spots on a specific date.\u003c/div\u003e\n                    \u003cdiv class=\"tool-card__input\"\u003eInput: product ID, type (product/free_tour), date range, language\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class=\"tool-card\"\u003e\n                    \u003cdiv class=\"tool-card__header\"\u003e\n                        \u003cdiv class=\"tool-card__icon tool-card__icon--detail\"\u003e📋\u003c/div\u003e\n                        \u003cdiv class=\"tool-card__name\"\u003eget-product-detail\u003c/div\u003e\n                    \u003c/div\u003e\n                    \u003cdiv class=\"tool-card__desc\"\u003eGet the full detail of any tour or activity on GuruWalk — description, itinerary with stops, highlights, what's included and excluded, images, verified traveler reviews, meeting point with instructions, accessibility info, cancellation policy, and available languages. Use this when the user asks what a tour covers, its itinerary, meeting point, or any content-related question about a specific tour.\u003c/div\u003e\n                    \u003cdiv class=\"tool-card__input\"\u003eInput: product ID, type (product/free_tour), language\u003c/div\u003e\n                \u003c/div\u003e\n                \u003cdiv class=\"tool-card\"\u003e\n                    \u003cdiv class=\"tool-card__header\"\u003e\n                        \u003cdiv class=\"tool-card__icon tool-card__icon--dates\"\u003e🗓️\u003c/div\u003e\n                        \u003cdiv class=\"tool-card__name\"\u003eget-available-dates\u003c/div\u003e\n                    \u003c/div\u003e\n                    \u003cdiv class=\"tool-card__desc\"\u003eGet dates that have availability for a specific tour or activity within a date range.\u003c/div\u003e\n                    \u003cdiv class=\"tool-card__input\"\u003eInput: product ID, type (product/free_tour), month/date range\u003c/div\u003e\n                \u003c/div\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eSupported Languages\u003c/h2\u003e\n            \u003cp\u003eAll tools support four languages via the \u003ccode\u003elanguage\u003c/code\u003e parameter. Tour results, descriptions, and categories are returned in the requested language when available.\u003c/p\u003e\n            \u003cdiv class=\"lang-badges\"\u003e\n                \u003cdiv class=\"lang-badge\"\u003e\u003ccode\u003een\u003c/code\u003e \u003cspan\u003eEnglish (default)\u003c/span\u003e\u003c/div\u003e\n                \u003cdiv class=\"lang-badge\"\u003e\u003ccode\u003ees\u003c/code\u003e \u003cspan\u003eSpanish\u003c/span\u003e\u003c/div\u003e\n                \u003cdiv class=\"lang-badge\"\u003e\u003ccode\u003ede\u003c/code\u003e \u003cspan\u003eGerman\u003c/span\u003e\u003c/div\u003e\n                \u003cdiv class=\"lang-badge\"\u003e\u003ccode\u003eit\u003c/code\u003e \u003cspan\u003eItalian\u003c/span\u003e\u003c/div\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eWhat can you do with this?\u003c/h2\u003e\n            \u003cp\u003eAsk ChatGPT anything about tours and activities — it renders an interactive widget with GuruWalk's full catalog in real time.\u003c/p\u003e\n            \u003cdiv class=\"use-cases\"\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eFind free walking tours in any city\u003c/strong\u003e\u003cem\u003ediscover-destination → browse-category\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eCompare food tours by rating\u003c/strong\u003e\u003cem\u003ebrowse-category → get-product-detail\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eSee which dates have availability\u003c/strong\u003e\u003cem\u003eget-available-dates\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eCheck spots for a specific date\u003c/strong\u003e\u003cem\u003echeck-availability\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eGet itinerary and meeting point\u003c/strong\u003e\u003cem\u003eget-product-detail\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003ePlan a full day with tours\u003c/strong\u003e\u003cem\u003ediscover → dates → availability\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eFind night tours in a city\u003c/strong\u003e\u003cem\u003ebrowse-category\u003c/em\u003e\u003c/div\u003e\n                \u003cdiv class=\"use-case\"\u003e\u003cstrong\u003eDiscover day trips and excursions\u003c/strong\u003e\u003cem\u003ebrowse-category\u003c/em\u003e\u003c/div\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003ePopular Destinations\u003c/h2\u003e\n            \u003cp\u003eGuruWalk covers \u003cstrong\u003e1,000+ cities\u003c/strong\u003e across Europe, the Americas, Asia, Africa, and Oceania. Top destinations include \u003cstrong\u003eRome\u003c/strong\u003e, \u003cstrong\u003eBarcelona\u003c/strong\u003e, \u003cstrong\u003eParis\u003c/strong\u003e, \u003cstrong\u003eLondon\u003c/strong\u003e, \u003cstrong\u003eIstanbul\u003c/strong\u003e, \u003cstrong\u003eLisbon\u003c/strong\u003e, \u003cstrong\u003ePrague\u003c/strong\u003e, \u003cstrong\u003eBudapest\u003c/strong\u003e, \u003cstrong\u003eFlorence\u003c/strong\u003e, \u003cstrong\u003eVienna\u003c/strong\u003e, \u003cstrong\u003eAmsterdam\u003c/strong\u003e, \u003cstrong\u003eBerlin\u003c/strong\u003e, \u003cstrong\u003eMadrid\u003c/strong\u003e, \u003cstrong\u003ePorto\u003c/strong\u003e, \u003cstrong\u003eDublin\u003c/strong\u003e, \u003cstrong\u003eEdinburgh\u003c/strong\u003e, \u003cstrong\u003eNew York\u003c/strong\u003e, \u003cstrong\u003eTokyo\u003c/strong\u003e, \u003cstrong\u003eBangkok\u003c/strong\u003e, \u003cstrong\u003eSeville\u003c/strong\u003e, \u003cstrong\u003eVenice\u003c/strong\u003e, \u003cstrong\u003eKraków\u003c/strong\u003e, \u003cstrong\u003eMunich\u003c/strong\u003e, \u003cstrong\u003eDubrovnik\u003c/strong\u003e, \u003cstrong\u003eBrussels\u003c/strong\u003e, \u003cstrong\u003eStockholm\u003c/strong\u003e, \u003cstrong\u003eCopenhagen\u003c/strong\u003e, \u003cstrong\u003eSan Francisco\u003c/strong\u003e, \u003cstrong\u003eTirana\u003c/strong\u003e, and \u003cstrong\u003eSofia\u003c/strong\u003e — with new cities added regularly.\u003c/p\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eHow it works\u003c/h2\u003e\n            \u003cp\u003eWhen you ask about tours, ChatGPT renders an interactive widget directly in the conversation — not just text. You can browse, explore details, and book without leaving the chat.\u003c/p\u003e\n\n            \u003ch3\u003e1. Discover tours in a city\u003c/h3\u003e\n            \u003cp class=\"step-prompt\"\u003e\"What can I do in Barcelona?\"\u003c/p\u003e\n            \u003cp\u003eChatGPT shows an interactive carousel with tour cards. Each card displays the photo, rating, reviews, duration, and price. Scroll through to explore, then use either button: \u003cstrong\u003e\"See details\"\u003c/strong\u003e to view the full tour page, or \u003cstrong\u003e\"Availability\"\u003c/strong\u003e to jump straight to the calendar.\u003c/p\u003e\n            \u003cdiv class=\"screenshot\"\u003e\n                \u003cimg src=\"/docs/chatgpt/images/widget-carousel.png\" alt=\"Tour carousel showing free tours and activities in Barcelona\" loading=\"lazy\"\u003e\n            \u003c/div\u003e\n\n            \u003ch3\u003e2. View tour details\u003c/h3\u003e\n            \u003cp\u003eClick \u003cstrong\u003e\"See details\"\u003c/strong\u003e on any card to open the tour in fullscreen mode — the chat disappears and the widget takes over. You get the photo gallery, guide info, itinerary with stops, reviews, meeting point, and what's included. This view is read-only for focused browsing. Use ChatGPT's native X button to close and return to the carousel.\u003c/p\u003e\n            \u003cdiv class=\"screenshot\"\u003e\n                \u003cimg src=\"/docs/chatgpt/images/widget-detail.png\" alt=\"Tour detail view showing guide, itinerary, and ratings\" loading=\"lazy\"\u003e\n            \u003c/div\u003e\n\n            \u003ch3\u003e3. Check availability and book\u003c/h3\u003e\n            \u003cp\u003eClick \u003cstrong\u003e\"Availability\"\u003c/strong\u003e on any carousel card to open the calendar directly in fullscreen mode — no need to go through the detail page first. Select dates to see available time slots. Each slot shows the language and a \u003cstrong\u003e\"Book now\"\u003c/strong\u003e button that opens the booking page on GuruWalk. Use ChatGPT's native X button to close and return to the carousel.\u003c/p\u003e\n            \u003cdiv class=\"screenshot\"\u003e\n                \u003cimg src=\"/docs/chatgpt/images/widget-availability.png\" alt=\"Calendar showing available dates and time slots with Book now buttons\" loading=\"lazy\"\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003ePrivacy \u0026 Security\u003c/h2\u003e\n            \u003cdiv class=\"privacy-item\"\u003e\n                \u003cspan class=\"privacy-item__check\"\u003e✓\u003c/span\u003e\n                \u003cspan\u003eAll tools are \u003cstrong\u003eread-only\u003c/strong\u003e — no data is created, modified, or deleted. Annotations: \u003ccode\u003ereadOnlyHint: true\u003c/code\u003e, \u003ccode\u003edestructiveHint: false\u003c/code\u003e, \u003ccode\u003eopenWorldHint: false\u003c/code\u003e.\u003c/span\u003e\n            \u003c/div\u003e\n            \u003cdiv class=\"privacy-item\"\u003e\n                \u003cspan class=\"privacy-item__check\"\u003e✓\u003c/span\u003e\n                \u003cspan\u003eNo authentication required — only public tour data is accessible.\u003c/span\u003e\n            \u003c/div\u003e\n            \u003cdiv class=\"privacy-item\"\u003e\n                \u003cspan class=\"privacy-item__check\"\u003e✓\u003c/span\u003e\n                \u003cspan\u003eNo personal data is collected or stored. No PII, session IDs, or internal identifiers in responses.\u003c/span\u003e\n            \u003c/div\u003e\n            \u003cdiv class=\"privacy-item\"\u003e\n                \u003cspan class=\"privacy-item__check\"\u003e✓\u003c/span\u003e\n                \u003cspan\u003ePrivacy Policy: \u003ca href=\"https://www.guruwalk.com/terms/privacy_policy\"\u003eguruwalk.com/terms/privacy_policy\u003c/a\u003e\u003c/span\u003e\n            \u003c/div\u003e\n        \u003c/section\u003e\n\n        \u003csection\u003e\n            \u003ch2\u003eSupport\u003c/h2\u003e\n            \u003cul style=\"list-style: none; line-height: 2.2;\"\u003e\n                \u003cli\u003eHelp Center: \u003ca href=\"https://support.guruwalk.com\"\u003esupport.guruwalk.com\u003c/a\u003e\u003c/li\u003e\n                \u003cli\u003eEmail: \u003ca href=\"mailto:support@guruwalk.com\"\u003esupport@guruwalk.com\u003c/a\u003e\u003c/li\u003e\n                \u003cli\u003eWebsite: \u003ca href=\"https://www.guruwalk.com\"\u003eguruwalk.com\u003c/a\u003e\u003c/li\u003e\n                \u003cli\u003eMCP Server docs: \u003ca href=\"https://ai.guruwalk.com/docs/walkers\"\u003eai.guruwalk.com/docs/walkers\u003c/a\u003e\u003c/li\u003e\n            \u003c/ul\u003e\n        \u003c/section\u003e\n\n    \u003c/main\u003e\n\n    \u003cfooter class=\"footer\"\u003e\n        \u003cdiv class=\"footer__links\"\u003e\n            \u003ca href=\"https://ai.guruwalk.com/\"\u003eGuruWalk for AI\u003c/a\u003e\n            \u003ca href=\"https://ai.guruwalk.com/docs/walkers\"\u003eMCP Server Docs\u003c/a\u003e\n            \u003ca href=\"https://support.guruwalk.com\"\u003eSupport\u003c/a\u003e\n            \u003ca href=\"https://www.guruwalk.com/terms/privacy_policy\"\u003ePrivacy Policy\u003c/a\u003e\n        \u003c/div\u003e\n    \u003c/footer\u003e\n\n"])</script><script>self.__next_f.push([1,"7:[\"$\",\"div\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"$b\"}}]\n8:[\"$\",\"$Lc\",null,{\"children\":[\"$\",\"$d\",null,{\"name\":\"Next.MetadataOutlet\",\"children\":\"$@e\"}]}]\n9:[\"$\",\"$1\",\"h\",{\"children\":[null,[\"$\",\"$Lf\",null,{\"children\":\"$L10\"}],[\"$\",\"div\",null,{\"hidden\":true,\"children\":[\"$\",\"$L11\",null,{\"children\":[\"$\",\"$d\",null,{\"name\":\"Next.Metadata\",\"children\":\"$L12\"}]}]}],[\"$\",\"meta\",null,{\"name\":\"next-size-adjust\",\"content\":\"\"}]]}]\n"])</script><script>self.__next_f.push([1,"2:[\"$\",\"html\",null,{\"className\":\"nunito_5243351d-module__TCNtVW__variable\",\"children\":[[\"$\",\"head\",null,{\"children\":[[\"$\",\"link\",null,{\"rel\":\"icon\",\"href\":\"/favicon.ico\",\"sizes\":\"any\"}],[\"$\",\"link\",null,{\"rel\":\"dns-prefetch\",\"href\":\"https://media.guruwalk.com\"}],[\"$\",\"link\",null,{\"rel\":\"preconnect\",\"href\":\"https://media.guruwalk.com\"}]]}],[\"$\",\"$L13\",null,{\"children\":[\"$\",\"$L3\",null,{\"parallelRouterKey\":\"children\",\"error\":\"$undefined\",\"errorStyles\":\"$undefined\",\"errorScripts\":\"$undefined\",\"template\":[\"$\",\"$L4\",null,{}],\"templateStyles\":\"$undefined\",\"templateScripts\":\"$undefined\",\"notFound\":[[[\"$\",\"title\",null,{\"children\":\"404: This page could not be found.\"}],[\"$\",\"div\",null,{\"style\":{\"fontFamily\":\"system-ui,\\\"Segoe UI\\\",Roboto,Helvetica,Arial,sans-serif,\\\"Apple Color Emoji\\\",\\\"Segoe UI Emoji\\\"\",\"height\":\"100vh\",\"textAlign\":\"center\",\"display\":\"flex\",\"flexDirection\":\"column\",\"alignItems\":\"center\",\"justifyContent\":\"center\"},\"children\":[\"$\",\"div\",null,{\"children\":[[\"$\",\"style\",null,{\"dangerouslySetInnerHTML\":{\"__html\":\"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}\"}}],[\"$\",\"h1\",null,{\"className\":\"next-error-h1\",\"style\":{\"display\":\"inline-block\",\"margin\":\"0 20px 0 0\",\"padding\":\"0 23px 0 0\",\"fontSize\":24,\"fontWeight\":500,\"verticalAlign\":\"top\",\"lineHeight\":\"49px\"},\"children\":404}],[\"$\",\"div\",null,{\"style\":{\"display\":\"inline-block\"},\"children\":[\"$\",\"h2\",null,{\"style\":{\"fontSize\":14,\"fontWeight\":400,\"lineHeight\":\"49px\",\"margin\":0},\"children\":\"This page could not be found.\"}]}]]}]}]],[]],\"forbidden\":\"$undefined\",\"unauthorized\":\"$undefined\"}]}]]}]\n"])</script><script>self.__next_f.push([1,"10:[[\"$\",\"meta\",\"0\",{\"charSet\":\"utf-8\"}],[\"$\",\"meta\",\"1\",{\"name\":\"viewport\",\"content\":\"width=device-width, initial-scale=1\"}]]\n"])</script><script>self.__next_f.push([1,"e:null\n12:[[\"$\",\"title\",\"0\",{\"children\":\"GuruWalk\"}],[\"$\",\"meta\",\"1\",{\"name\":\"description\",\"content\":\"GuruWalk\"}]]\n"])</script></body></html>

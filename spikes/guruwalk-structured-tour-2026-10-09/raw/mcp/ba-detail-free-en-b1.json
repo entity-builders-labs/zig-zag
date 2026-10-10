@@ -1,0 +1,620 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"results\":[{\"product_id\":55661,\"type\":\"free_tour\",\"id\":55661,\"name\":\"Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors\",\"slug\":\"55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors\",\"description_html\":\"<p><strong>Your Perfect Introduction to Buenos Aires</strong><br>First time in Buenos Aires? Start your visit with our tour, which is much more than just a walk—it’s a journey through the lively past and present of the city.&nbsp; This experience was designed especially for first-time visitors who want more than just pretty buildings.<br> You’ll walk away with great stories, local tips, and a deep connection to Buenos Aires.&nbsp;<br><br></p><p>👣 <strong>A Fun and Engaging Experience</strong><br>History here is anything but boring!&nbsp; We bring the city to life through passion, humor, and the unique things that make BA so epic—like <strong>football, tango, mate</strong>, and a bit of that sweet chaos we call <em>daily life</em>. As local guides, we mix history with culture, making every moment enjoyable.<br><br></p><p>&nbsp;💛 <strong>Why choose our Tour?<br></strong>&nbsp;✅ <strong>Feel the city, don’t just see it</strong>: This isn’t a Wikipedia dump. We connect history, culture and real local life.<br> ✅ <strong>Perfect for first-timers</strong>: We give you the context, tips and confidence to keep exploring BA like a local.<br> ✅ <strong>Real human connection</strong>: Our guides are fun, kind and obsessed with making your day unforgettable. <br> ✅ <strong>You’ll laugh, think, and feel</strong>: It’s not just info—it’s stories, emotions, and moments you’ll remember.&nbsp;<br><br></p><p><br></p><p><strong>Route Highlights:</strong></p><ul><li>Casa Rosada (The Pink House)</li><li>Cabildo &amp; Cathedral&nbsp;</li><li>Avenida de Mayo and the Oldest Café</li><li>9 de Julio (Widest avenue in the world?)</li><li>Obelisk</li><li>Palacio Barolo</li><li>National Congress</li><li>&nbsp;Cultural deep dives into <strong>fútbol</strong>, <strong>tango</strong>, <strong>mate</strong>, and the wild personality of the Argentine capital.&nbsp;</li></ul><p><br></p><p>⏳ <strong>2 Hours and 30 Minutes of Pure Buenos Aires</strong><br> In just over two hours, we will guide you through the heart of Buenos Aires, combining history, culture, and modern life. Whether you are alone or with friends, this tour will give you a rich and memorable experience.&nbsp;<br><br></p><p>&nbsp;<strong>Book Now—Spaces Fill Quickly!</strong><br>Places are limited, so reserve your spot today. Look for our yellow umbrella 🟡 and get ready for an unforgettable Buenos Aires experience!&nbsp;</p>\",\"images\":[\"https://media.guruwalk.com/41go0jvitrzrrrkur5xntn20p4qg\",\"https://media.guruwalk.com/gi5452sd12qmksjziw2qh85k97gh\",\"https://media.guruwalk.com/sgezg4vnnnvnrts2uo7jadv7he5z\",\"https://media.guruwalk.com/6nqn8ucr88j06ij29gv47og6igtx\",\"https://media.guruwalk.com/rj0w6r0enik5rsep9owmrjby16hb\",\"https://media.guruwalk.com/61qdtjnp1iiuwq49vlhfc88a769u\",\"https://media.guruwalk.com/qxqlt7t7jqkf9pl2bf45kmrnh41k\",\"https://media.guruwalk.com/lo4dryhkjubc5293nlk3x2a8tnfr\",\"https://media.guruwalk.com/27j7n1b12p7071nxaelxs9i2f1vq\",\"https://media.guruwalk.com/ci2ygvvd9tol44bwdm1k3h84x3cl\",\"https://media.guruwalk.com/li2bvgtpvfwqemma1oqrobad9avd\",\"https://media.guruwalk.com/cf6tfen9hnumvpjt775vuflipj0g\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\",\"pt\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.60847,-58.3722367\",\"meeting_point_latitude\":-34.60847,\"meeting_point_longitude\":-58.3722367,\"how_to_find_me\":\"Our Tour begins at Plaza de Mayo (the most important square in Buenos Aires). You'll find the guide right in the center of the square, in front of the Pirámide de Mayo — look for person with a yellow umbrella!\\n\\n\",\"itinerary\":[\"Metropolitan Cathedral\",\"Buenos Aires City Council\",\"May Avenue\",\"Cafe Tortoni\",\"Avenue July 9\",\"Obelisk\",\"Barolo Palace\",\"Congress of the Argentine Nation\"],\"reviews\":{\"count\":592,\"rating\":\"4.92\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Buenos Aires Horizon Tours \"},\"url\":\"https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":54972,\"type\":\"free_tour\",\"id\":54972,\"name\":\"Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions\",\"slug\":\"54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions\",\"description_html\":\"<p>Don't miss this fascinating walking tour through the iconic neighborhood of La Boca!<br>Discover the secrets of this Buenos Aires corner, where tango was born. We cannot overlook that here lies the sanctuary of world football, the home of Boca Juniors.<br>Embark on a visual journey as art permeates every corner of La Boca. The streets are filled with vibrant colors and murals that tell stories of passion and tradition. Delve into the life of Benito Quinquela Martin, an artist born in these lands whose legacy remains alive in every work and alley.<br>This is not just a tourist tour, but a unique opportunity to discover the authenticity of the neighborhood. You will get to know the essence of La Boca, observing how the locals live.<br>At the end of the tour, we will provide you with valuable recommendations. From authentic places to taste the exquisite local cuisine to other must-see spots to explore both in La Boca and the rest of vibrant Buenos Aires. Prepare your senses for an enriching experience that goes beyond the touristy. Join us and discover La Boca, the best neighborhood in the world!<br><br>Total approximate tour distance: 5 km. It is recommended to wear comfortable clothing and suitable footwear.</p>\",\"images\":[\"https://media.guruwalk.com/hyaec99wunc2ctbso9wtr8c9058j\",\"https://media.guruwalk.com/yrxfy3mmw9z66w3pv36lw8r735yf\",\"https://media.guruwalk.com/6cgaec6c1l7tc5y5hjh4hoyh8cme\",\"https://media.guruwalk.com/xg9b9g8d2eie0ht7abkuolot4u7g\",\"https://media.guruwalk.com/od9u5lk3931tuvohtg5488m99fct\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\",\"fr\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6280194,-58.3687065\",\"meeting_point_latitude\":-34.6280194,\"meeting_point_longitude\":-58.3687065,\"how_to_find_me\":\"We will meet on the sidewalk of McDonald's. I will bring with me a blue and yellow umbrella. The guide in Spanish is Angelo, in French is Solène, and in English is Pedro.\",\"itinerary\":[\"Torre del Fantasma\",\"Mural San Diego del Barrio de La Boca\",\"Torre del Fantasma\",\"Mural San Diego del Barrio de La Boca\",\"Silos Areneros - Mural de Alfredo Segatori\",\"Bar Portuario\",\"Estadio Boca Juniors \\\"La Bombonera\\\"\",\"Caminito\"],\"reviews\":{\"count\":782,\"rating\":\"4.71\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Almafuerte @almafuerte.turismo\"},\"url\":\"https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":45347,\"type\":\"free_tour\",\"id\":45347,\"name\":\"Free tour of Buenos Aires: Heart of the city\",\"slug\":\"45347-free-tour-of-buenos-aires-heart-of-the-city\",\"description_html\":\"<p><strong>Everything you need to know about Buenos Aires in three hours.</strong> <br><br>On this tour <strong>we will explore the heart of the city and will talk and learn about the fascinating political history of the Argentinian capital.</strong> <br><br>From life before the colonial times, the struggle and war of independence, and the waves of immigrants that forever changed the face of the city and the country. The “barn of the world” and how one of the richest countries of the world in the wake of the 20th ended in one of the biggest economic crises of the planet a century later. The lights and shadows behind the myth of the “Europe of the Americas”. <br><br>Tango, football, literature, psychotherapy, politics, dictatorships, and resistance, the history of Argentina has all of the ingredients for a passionate drama. And that reflects onto its population. <br><br>“To me, Buenos Aires is eternal, like water or air“ (as the famed writer Jorge Luis Borges once said) <br><br>Why does the seemingly never-ending energy of the city keeps mystifying onlookers and energizing passer-by’s. <br><br><strong>During the tour we will see:&nbsp;</strong></p><ul><li><strong>The palace of the parliament</strong></li><li><strong>The square of the congress&nbsp;</strong></li><li><strong>Palacio Barolo</strong></li><li><strong>Avenida de Mayo&nbsp;</strong></li><li><strong>9 de Julio avenue</strong></li><li><strong>The obelisk&nbsp;</strong></li><li><strong>Evita’s giant homage&nbsp;</strong></li><li><strong>Calle Florida&nbsp;</strong></li><li><strong>A mural for Messi</strong></li><li><strong>Metropolitan cathedral&nbsp;</strong></li><li><strong>Casa rosada (the pink house)&nbsp;</strong></li><li><strong>Plaza de Mayo (the pulsating heart of the city)&nbsp;</strong></li></ul>\",\"images\":[\"https://media.guruwalk.com/g0oh0tinquw2h5i8uc56v3rrhkpr\",\"https://media.guruwalk.com/vk51vvk0ut67ivuz2z841czayzgj\",\"https://media.guruwalk.com/ujmwdd3zrervdo1ni0tiqmdmybp5\",\"https://media.guruwalk.com/4qwq9m3s6sjvctz3o06drefzrayy\",\"https://media.guruwalk.com/7utlydcb70jkvu7og5djq0pqtde1\",\"https://media.guruwalk.com/8umu2h2ff3rcmktyixme3kvu8i75\",\"https://media.guruwalk.com/7el5ojdfg8vsqkdy133qwy3mkk7d\",\"https://media.guruwalk.com/gnf4ew9nccm2hxgpr79ju3n8fwcx\",\"https://media.guruwalk.com/fbmxtjol0lpjtm3fde9n6sj62whh\",\"https://media.guruwalk.com/jq1yharp0f4eomocpuerp4lhfxgx\",\"https://media.guruwalk.com/ref7ybzehbvb0civjhoosx1mwmn1\",\"https://media.guruwalk.com/aya7o5sn2bquk4suonywv1lgy3lb\",\"https://media.guruwalk.com/61q3hyj10nk0kjd5q9dktrl0ln7f\"],\"duration\":\"3:00\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.610343,-58.390982\",\"meeting_point_latitude\":-34.610343,\"meeting_point_longitude\":-58.390982,\"how_to_find_me\":\"We meet at the entrance of the of the “Biblioteca del congreso de la nación” (library of the country’s congress). If you are coming in Uber you can use the address: Hipólito Yrigoyen 1750, Ciudad Autónoma de Buenos Aires. I’m usually the only person just standing there so shouldn’t be hard to find me. \",\"itinerary\":[\"Biblioteca del Congreso de la Nación\",\"Congreso de la Nación Argentina\",\"Congress Square\",\"&quot;The Thinker&quot; by Rodin\",\"Barolo Palace\",\"May Avenue\",\"Ministerio de Desarrollo Social de la Nación y Ministerio de Salud de la Nación\",\"Messi Mural - Martin Ron\",\"Calle Florida\",\"May Plaza\",\"Pink House\"],\"reviews\":{\"count\":833,\"rating\":\"4.91\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Vive Buenos Aires Tours\"},\"url\":\"https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":68379,\"type\":\"free_tour\",\"id\":68379,\"name\":\"Essential Tour of Buenos Aires\",\"slug\":\"68379-essential-tour-of-buenos-aires\",\"description_html\":\"<p>From San Telmo to the Teatro Colón: history, identity and Buenos Aires passion!!<br><br><div> Discover the essence of Buenos Aires on a walking tour that connects its colonial roots, its political heart, and its cultural peak. This Essential Free Walking Tour is designed for travelers who want to understand Argentine history, the spirit of Buenos Aires, and the city's urban evolution in one dynamic and entertaining tour.<br> -Connects colonial origins with contemporary Argentina.<br> -It integrates political history, popular culture and European architecture.<br> -Explain the character of Buenos Aires: passionate, critical, immigrant and cultural.<br> -It offers a complete overview in just a few hours, ideal for those visiting Buenos Aires for the first time.</div></p>\",\"images\":[\"https://media.guruwalk.com/zddlm2brcipuykrqp17l2s9765ct\",\"https://media.guruwalk.com/qpykaxydhbdjnodfvav3se8yxb1y\",\"https://media.guruwalk.com/y9yst3m40jhyiv7g5nxu77jp2tj9\",\"https://media.guruwalk.com/11zelatcfpg2rfyv2gc24wwyj7b4\",\"https://media.guruwalk.com/pfln6fpus5ysxn26bvyixpyh8uj5\"],\"duration\":\"2:30\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6176188,-58.3691208\",\"meeting_point_latitude\":-34.6176188,\"meeting_point_longitude\":-58.3691208,\"how_to_find_me\":\"The guide will be at EVA PERÓN PLAZA wearing a green cap! \",\"itinerary\":[\"Mercado de San Telmo\",\"Calle Defensa\",\"El Zanjón de Granados\",\"Estatua de Mafalda\",\"Convento Santo Domingo - Basílica Nuestra Señora del Rosario de la Defensa y Reconquista de Buenos Aires\",\"San Ignacio de Loyola\",\"Basílica y Convento de San Francisco de Asís\",\"Plaza de Mayo\",\"Casa Rosada\",\"Museo Histórico Nacional del Cabildo y la Revolución de Mayo\",\"Escultura Roque Sáenz Peña\",\"Obelisco\",\"Teatro Colón\"],\"reviews\":{\"count\":7,\"rating\":\"4.86\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":8},\"guide\":{\"name\":\"UrbanTours \"},\"url\":\"https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":35555,\"type\":\"free_tour\",\"id\":35555,\"name\":\"Buenos Aires City Center Walking Tour: History and Stories 🏆 \",\"slug\":\"35555-buenos-aires-city-center-walking-tour-history-and-stories\",\"description_html\":\"<p>With WalkBA you will see how wonderful Buenos Aires is. Join Simon in one of our walking tours around the \\\"Paris of Latin America\\\".&nbsp;<br>IMPORTANT: <br>You can contact our guide if you have any questions (+5491168526656) or if you don't see the tour on the day you want.&nbsp;<br>If your group is too big, or need a different start time please contact him for help.&nbsp; &nbsp;</p><p>This is a great experience to know more about our city, learn facts and curiosities but also, you will have lots of fun.</p><p><br><strong>Included:</strong></p><ul><li><strong>&nbsp;National Congress</strong></li><li><strong>&nbsp;Palacio Barolo</strong></li><li><strong>&nbsp;Av 9 de julio</strong></li><li><strong>&nbsp;Cafe Tortoni</strong></li><li><strong>&nbsp;Plaza de Mayo</strong></li><li><strong>&nbsp;Casa Rosada</strong></li><li><strong>&nbsp;Obelisco</strong></li><li><strong>&nbsp;And more</strong></li></ul><p><br>&nbsp;We are waiting for your reservation to walk the city together!<br><br>Important:<br>- Our guide will contact you through whatsapp so PLEASE LEAVE THE PHONE NUMBER YOU USE IN WHATSAPP, NOT THE ONE FROM ARGENTINA.&nbsp;<br>- There's a minimum of three (3) walkers per tour. If we don't reach the minimum an hour before the start time, the tour could be canceled or rescheduled. Our guide will inform you if this or any rescheduling with a WhatsApp message.&nbsp;<br><br></p>\",\"images\":[\"https://media.guruwalk.com/9h6mfmlhb4ovo7bhhguva9pwbonp\",\"https://media.guruwalk.com/kce95xr0x3sxfi5ic73h4h52srlq\",\"https://media.guruwalk.com/63l8ixgb7xnvhu5jeg86mmho86mo\",\"https://media.guruwalk.com/00bx7sbot3wj0gitbuxf5enenrb7\",\"https://media.guruwalk.com/2k1aoix2oagi8x2jv76s21jtvy4p\",\"https://media.guruwalk.com/r6p91kb5oc1hj0d7q8lt1vzwz9ib\",\"https://media.guruwalk.com/s023qp3dw9w6xschqr9bwdoyf3r7\",\"https://media.guruwalk.com/3dtrclon9orn9phbq8hit6krua7q\"],\"duration\":\"1:45\",\"available_languages\":[\"en\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.609708,-58.390333\",\"meeting_point_latitude\":-34.609708,\"meeting_point_longitude\":-58.390333,\"how_to_find_me\":\"In front of the Congress Monument with a yellow vest.\",\"itinerary\":[\"Pink House\",\"Metropolitan Cathedral\",\"May Avenue\",\"Cafe Tortoni\",\"Barolo Palace\"],\"reviews\":{\"count\":611,\"rating\":\"4.91\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"WalkBa Tours \"},\"url\":\"https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":63551,\"type\":\"free_tour\",\"id\":63551,\"name\":\"Buenos Aires Origins: San Telmo and Monserrat\",\"slug\":\"63551-buenos-aires-origins-san-telmo-and-monserrat\",\"description_html\":\"<p><strong>Uncover centuries of captivating history on our San Telmo Free Walking Tour!</strong> <br><br>Begin at the iconic <strong>Cabildo</strong>, delving into Buenos Aires' fiery foundations, from Mendoza's 1536 landing to the 1810 May Revolution. Discover colonial secrets, the powerful legacy of the <strong>Jesuits at Manzana de las Luces</strong> (and its mysterious tunnels!), and the city's strategic yet contraband-filled past.<br><br></p><p>Wander along cobblestone streets where tango melodies float through the air, murals come to life on every corner, and every building has a story to tell. This free walking tour takes you deep into the soul of the city — where Buenos Aires was born and where its vibrant heart still beats today.<br><br></p><p>Stroll through the cradle of tango, filled with antique shops, colorful characters, and artistic rebellion. From the historic <strong>San Telmo Market</strong> to the whimsical world of Mafalda and the Comic Strip Walk, every stop adds a brushstroke to this living canvas of porteño culture.<br><br></p><p>This is more than a history lesson — it’s a sensory journey through art, passion, and time.</p><p><br><strong>Sites visited:</strong></p><p><br></p><ul><li>San Telmo</li></ul><p><br></p><ul><li>Monserrat</li></ul><p><br></p><ul><li>Plaza de Mayo</li></ul><p><br></p><ul><li>Manzana de las Luces</li></ul><p><br></p><ul><li>San Ignacio de Loyola Church</li></ul><p><br></p><ul><li>Otto Wulff Building</li></ul><p><br></p><ul><li>Rosario Basilic &amp; Manuel Belgrano Mausoleum</li></ul><p><br></p><ul><li>Peru Street</li></ul><p><br></p><ul><li>Mafalda</li></ul><p><br></p><ul><li>The Comic Strip Walk</li></ul><p><br></p><ul><li>Defensa Street</li></ul><p><br></p><ul><li>Plaza Dorrego</li></ul><p><br></p><ul><li>San Telmo Market</li></ul><p><br></p><ul><li>Street Art &amp; Muralism</li></ul><p><br></p><ul><li>Tango Spots</li></ul>\",\"images\":[\"https://media.guruwalk.com/vrvef5wrwe0nsswaz4hx0hj92bxn\",\"https://media.guruwalk.com/v4lpbq3yfr8as07lazee2775nmpm\",\"https://media.guruwalk.com/5xmey5tn7vb6xyt73sjr3x6txq41\",\"https://media.guruwalk.com/yliabla1w3yp6qzrfg8ljxkrlpee\",\"https://media.guruwalk.com/mf2d05ifdmtny8le2rn1yp9smify\",\"https://media.guruwalk.com/4xjoos8yx5wfr6rfc0lze59dqyf7\",\"https://media.guruwalk.com/jkgn0eoedw0rb05l8kb7iaglk4no\",\"https://media.guruwalk.com/e7ib9tl38qyfvswdnescvmjb8qfs\",\"https://media.guruwalk.com/48u9dnhz0oszvuq3c5oeg7e0heus\",\"https://media.guruwalk.com/cbmjqs35aipvt59kxbhkorpl3nkw\",\"https://media.guruwalk.com/n4s9eutc9n0fcs6jb6t5qyi3qcbr\",\"https://media.guruwalk.com/0i2zyyrpnbgaes3r943ecyfhjyht\",\"https://media.guruwalk.com/cs6y4mntj7dazqi9j2cn01or3vlg\"],\"duration\":\"2:45\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6087392,-58.3737862\",\"meeting_point_latitude\":-34.6087392,\"meeting_point_longitude\":-58.3737862,\"how_to_find_me\":\"I will be waiting in front of the Historic \\\"Cabildo\\\" (White Colonial Building) opposite the Plaza de Mayo. If you are coming by Uber you can use the address Bolivar 65, Ciudad Autónoma de Buenos Aires. \",\"itinerary\":[\"Montserrat\",\"May Plaza\",\"Saint Ignatius of Loyola\",\"Complejo Histórico Cultural Manzana de las Luces\",\"San Telmo\",\"Otto Wolff Building\",\"Basilica of Saint Rose of Lima.\",\"Mausoleum of General Manuel Belgrano\",\"Mafalda Statue\",\"Comic Strip Walk\",\"Plaza Dorego\",\"San Telmo Market\"],\"reviews\":{\"count\":44,\"rating\":\"4.98\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Vive Buenos Aires Tours\"},\"url\":\"https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":38312,\"type\":\"free_tour\",\"id\":38312,\"name\":\"The Paris of South America! Icons, history, and myths of Buenos Aires. Free Tour. (max 6 people)\",\"slug\":\"38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people\",\"description_html\":\"<p>On this free tour <strong>, we'll visit several iconic landmarks of the beautiful city of Buenos Aires</strong> , often called the Paris of South America. Along the way <strong>, I'll share some of the history of this great city.</strong><br><br> <strong>First,</strong> we'll see the imposing <strong>Obelisk</strong> , the iconic landmark photographed by all our visitors, its history, and why it was resisted by the people of Buenos Aires. We'll also talk about one of the widest avenues in the world, <strong>Avenida 9 de Julio</strong> , our <em>park-like avenue</em> .<br><br> Then we will walk <strong>along Corrientes Avenue</strong> , <em>our Broadway</em> , the center of theater in Buenos Aires, where we will see several iconic theaters and talk about the city's culture, before passing through the pedestrianized <strong>Florida</strong> Street, with all its shops and with a stop at the <strong>Güemes Gallery</strong> , the great gallery of Buenos Aires and where an emblematic figure of our city lived.<br><br> Next, we'll pass through the city's <strong>financial district</strong> and arrive at <strong>Avenida de Mayo,</strong> the oldest avenue in the city. We'll see classic buildings along this iconic avenue, as well as the emblematic <strong>Pasaje Roverano.</strong> We'll also see the <strong>Perú subway station,</strong> home to <em>the first subway line in Latin America.</em><br><br> The next step will be <strong>Plaza de Mayo</strong> , the heart of our city, with <strong>the Casa Rosada, the Buenos Aires Cathedral with the mausoleum of José de San Martín, the Cabildo</strong> and all the history of this mythical square.<br><br> And we'll finish in <strong>Puerto Madero</strong> , Buenos Aires' newest neighborhood, where we'll explore a bit of its history: the port that could have been, but wasn't. We'll end the tour at the <strong>Puente de la Mujer (Women's Bridge</strong> ).<br><br> <strong>Don't miss this free tour where in 3 and a half hours we will show you the most relevant aspects of this beautiful city.<br><br></strong><br></p>\",\"images\":[\"https://media.guruwalk.com/h8wd78jmjhr4t0zz3wbav9bey97h\",\"https://media.guruwalk.com/di7p3fbs9wpg4h2lex91haoopssg\",\"https://media.guruwalk.com/7qfayxs3vtylzf8yp0lrgqu99o7i\",\"https://media.guruwalk.com/8o1yaq25cg4mkeah2ddh9pryr469\",\"https://media.guruwalk.com/hwf9pbj5kv7ji25csj78uqczw2um\",\"https://media.guruwalk.com/9ai94g7f1j39p75pvmel1xd0d4gy\",\"https://media.guruwalk.com/u59w94jqh0ws2cs93mnevop2h4q6\",\"https://media.guruwalk.com/7b32939ac3ophlm1le3cospyk4p9\",\"https://media.guruwalk.com/a5qheb1zvvwwqee1e7x8phgnvzxn\"],\"duration\":\"3:30\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.603313,-58.382511\",\"meeting_point_latitude\":-34.603313,\"meeting_point_longitude\":-58.382511,\"how_to_find_me\":\"The meeting point is at the steps facing the Obelisk. There's a large sign that says \\\"City Police.\\\" We'll meet right under it, between the Mirador and Avenida 9 de Julio. There's also a Subway right next door. https://maps.app.goo.gl/8FHWmo8sQgtxZyc89 I'll be wearing a gray cap. Since it's a long tour, please bring water and a snack. We'll finish around 2:30 PM at Puente de la Mujer (Women's Bridge), where there are bars and restaurants!\\r\\n\",\"itinerary\":[\"Obelisco y Avenida 9 de Julio\",\"Av. Corrientes\",\"Calle Florida\",\"Galería Güemes\",\"Avenida de Mayo\",\"Plaza de Mayo\",\"Cabildo de Buenos Aires\",\"Catedral Metropolitana\",\"Casa Rosada\",\"Puerto Madero\"],\"reviews\":{\"count\":317,\"rating\":\"4.98\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":false,\"large_groups_allowed\":false,\"large_groups_limit\":6},\"guide\":{\"name\":\"Andreas Greiner\"},\"url\":\"https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":51665,\"type\":\"free_tour\",\"id\":51665,\"name\":\"Welcome to Buenos Aires! (max 12 people)\",\"slug\":\"51665-welcome-to-buenos-aires-max-12-people\",\"description_html\":\"<p><strong>A visit for those who want to know the Argentina of yesterday, today, and tomorrow.</strong><br> We will start at Plaza Congreso where we will talk about our current political and economic situation.<br> We will walk along Avenida de Mayo, the main street with a European flair.<br> We will cross <strong>the widest avenue in the world</strong> and talk about some of Argentina's internationally recognized personalities.<br> Our last stop will be at Plaza de Mayo, a place of protests and demonstrations, where the <strong>Cabildo, Casa Rosada, and Cathedral</strong> are located.<br> We will talk about a movement that emerged during the dictatorship of '78: <strong>the Mothers and Grandmothers of Plaza de Mayo.<br></strong> At the end of the tour, you will discover the best of our history, culture, and gastronomy with recommendations you cannot miss in Buenos Aires.<br> My groups are small (max 12) for better interaction among everyone.<br> I look forward to seeing you!<br><br><br></p>\",\"images\":[\"https://media.guruwalk.com/k4lu7odkmbfoevlstfnasd290nac\",\"https://media.guruwalk.com/jyvpq16wrbeady5q0phtbwr7p75x\",\"https://media.guruwalk.com/ckouovtschcn7zy7wc60qxp1rk3x\",\"https://media.guruwalk.com/zgwx1rrosn0v1okdgxi1wfsy7nmd\",\"https://media.guruwalk.com/66arfmdk9c2ddapuxkn6wd3w66qr\",\"https://media.guruwalk.com/uur78lr7i1jlisqw4wmlmp8feau7\",\"https://media.guruwalk.com/9oqprcadvs697qc1y4udch8n0m39\"],\"duration\":\"2:00\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6092016,-58.3905231\",\"meeting_point_latitude\":-34.6092016,\"meeting_point_longitude\":-58.3905231,\"how_to_find_me\":\"At the door of the Pain du Jour café in Plaza Congreso (Avenida Rivadavia 1697) I will be at the door with a BLUE folder in my hands\",\"itinerary\":[\"Barolo Palace\",\"Cafe Tortoni\",\"May Plaza\",\"cafe tortoni\",\"Plaza de Mayo\"],\"reviews\":{\"count\":21,\"rating\":\"4.76\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":true,\"pets_allowed\":false,\"large_groups_allowed\":true,\"large_groups_limit\":12},\"guide\":{\"name\":\"Patricio Ramos\"},\"url\":\"https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":56186,\"type\":\"free_tour\",\"id\":56186,\"name\":\"Discover San Telmo: A Journey Through Time! ⌛\",\"slug\":\"56186-discover-san-telmo-a-journey-through-time\",\"description_html\":\"<h3>Haven't explored San Telmo yet?</h3><p><br>Definitely one of the neighborhoods you <strong>can't miss</strong>! <br><br>In this tour, we will take an incredible walk through <strong>the most picturesque corners</strong> of the city, on a historical journey that will transport you to Colonial Buenos Aires, its architectural styles, customs, and secrets.<br><br>We will start at Parque Lezama, bordering the neighborhood of La Boca, exactly situated in the year 1536. We will explore the <strong>fascinating</strong> <strong>history</strong> of the founding of Buenos Aires and try to imagine that intercultural encounter with the indigenous peoples. <br><br>We will delight in <strong>architectural gems</strong> like the Russian Orthodox Church with its neo-Byzantine style.<br> <br>We will move through the 17th and 18th centuries, where we will learn about buildings founded by the Jesuits and the Bethlehemites, such as the Parish of San Pedro González Telmo.<br>We will walk down the street where the English troops entered at the beginning of the 19th century, and visit <strong>iconic buildings</strong> like the Ezeiza residence, built at the end of that century.<br><br>We will indulge in flavors and aromas at the <strong>SAN TELMO MARKET</strong>, exploring its tempting gastronomic patio.<br><br>We will be able to take <strong>charming photos</strong>, like the narrowest house in Buenos Aires and a sky of colorful umbrellas.<br><br><strong>+BONUS TRACK:</strong> If you come on a <strong>SUNDAY</strong>, we will cross the famous <strong>SAN TELMO FAIR.</strong><br><br>I will show you El Viejo Almacén, a traditional Tango house, where at night you can enjoy a spectacular show with some of the best artists in our country!<br><br>We will end by visiting MAFALDA! <br>at the border between San Telmo and Montserrat, an area of bars, art, history, food, beer, antiques, and more.<br><br><strong>San Telmo will be yours!</strong> Enjoy it 😊</p><p>&nbsp;</p><p><br>We are waiting for you!<br><br><br></p>\",\"images\":[\"https://media.guruwalk.com/j4ro540n6ilsg0qh1r2al9wep8f7\",\"https://media.guruwalk.com/xprnzj36khdgpytqdhj14p40cs9l\",\"https://media.guruwalk.com/yqep8axphi1hp3nmswis68xdfqtp\",\"https://media.guruwalk.com/d7v25b32qrjwq3gbncyt6ntfj46u\",\"https://media.guruwalk.com/wkdrpxh2nkcj2babapompxxewkjb\",\"https://media.guruwalk.com/f2wlo6mqnhxrbtr04ez7d29ysrit\"],\"duration\":\"2:45\",\"available_languages\":[\"en\",\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.6279798,-58.3696978\",\"meeting_point_latitude\":-34.6279798,\"meeting_point_longitude\":-58.3696978,\"how_to_find_me\":\"I'll be waiting for you under the Monument to Cordiality in Lezama Park. If you're coming by Uber, you can tell the driver the intersection of Irala Street and Martín García Avenue and then cross to the park. You'll recognize me by an umbrella.\",\"itinerary\":[\"Parque Lezama\",\"Museo Histórico Nacional\",\"Iglesia Ortodoxa Rusa de la Santísima Trinidad\",\"Defensa 1344\",\"Antigua panadería de José Canale\",\"Museo Moderno\",\"Casa Ezeiza / Pasaje de la Defensa\",\"Plaza Dorego\",\"Parroquia de San Pedro González Telmo\",\"ESCUELA 22 D.E. 4 - DR. GUILLERMO RAWSON\",\"Galería Solar de French\",\"Mercado de San Telmo\",\"El Viejo Almacén Tango Cena Show Buenos Aires\",\"El Zanjón de Granados\",\"Casa Mínima\",\"Chile & Defensa\"],\"reviews\":{\"count\":9,\"rating\":\"4.89\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":20},\"guide\":{\"name\":\"Emanuel Monchetti\"},\"url\":\"https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"},{\"product_id\":44811,\"type\":\"free_tour\",\"id\":44811,\"name\":\"Free tour, Che! The essential Buenos Aires, we never had silver and fear...\",\"slug\":\"44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear\",\"description_html\":\"<p>Welcome to my dear Buenos Aires... Political and cultural cradle of the city.</p><p><strong>This particular tour is a journey to the beginning, our Origin and also our Present. </strong>Its <strong>historic buildings, Palaces, squares, and Notable Cafés reflect the beginning and transformation of this city. </strong><br>We will start <strong>at Plaza de Mayo, </strong>&nbsp;<strong>a place where our history is breathed</strong> with political and cultural agreements and disagreements. <br><strong>We will continue</strong> along the significant <strong>Avenida de Mayo</strong>, an architectural walkway, with several Buenos Aires attractions, the Café Tortoni, Av. 9 de Julio, Diario la Crítica, the Soda Stereo corner....<br>We will end at the&nbsp; Palacio Barolo with a panoramic view of the National Congress<strong>..... </strong><br>&nbsp; &nbsp; &nbsp; &nbsp;<br>At the end of the tour, I will give you recommendations on what to do in the city.<br>Thank you very much for visiting us!</p>\",\"images\":[\"https://media.guruwalk.com/regmzq7789ttctx60z9jcyw6lxfd\",\"https://media.guruwalk.com/qnq0858pkeoo8ial4169a4d24sln\",\"https://media.guruwalk.com/evdagw7nlfsp9q7wuwor6k0664mw\",\"https://media.guruwalk.com/faqswow0emc6nn6kxy901b5ju57s\",\"https://media.guruwalk.com/e769vyrk9v5orqdq75f3lritrf5w\",\"https://media.guruwalk.com/4lu3l12snu85dlpxingqjm7lvg0a\",\"https://media.guruwalk.com/rw4d2gobfnbc187c3bft7n5w83wn\",\"https://media.guruwalk.com/kw19fhhgw0s0cjk8r63szxjhby8r\",\"https://media.guruwalk.com/mb4njr375ibwhvnu4ugjfhe20aps\",\"https://media.guruwalk.com/eie7sq8ectbr8kwv5gs35ddjyzu4\"],\"duration\":\"2:15\",\"available_languages\":[\"es\"],\"meeting_point_url\":\"https://www.google.com/maps?q=-34.60847,-58.3722367\",\"meeting_point_latitude\":-34.60847,\"meeting_point_longitude\":-58.3722367,\"how_to_find_me\":\"I will be at Plaza de Mayo, Av Hipólito Yrigoyen and Defensa, near the May Pyramid (center of the Plaza). If it rains, on the steps of the Afip (opposite)... I'll bring a BLACK umbrella. We meet 5 minutes before and leave on time. By reservation only. ...Love and many thanks.\",\"itinerary\":[\"Casa Rosada\",\"Catedral Metropolitana\",\"Cabildo de Buenos Aires\",\"Avenida de Mayo\",\"Café Tortoni\",\"Avenida 9 de Julio\",\"Palacio Barolo\"],\"reviews\":{\"count\":1047,\"rating\":\"4.91\"},\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"country\":\"Argentina\"},\"features\":{\"accessible\":false,\"pets_allowed\":true,\"large_groups_allowed\":true,\"large_groups_limit\":10},\"guide\":{\"name\":\"Griselda Baleato\"},\"url\":\"https://www.guruwalk.com/walks/44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\",\"source\":\"GuruWalk\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/walks/44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail\"}]}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "results": [
+    {
+     "product_id": 55661,
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors",
+     "slug": "55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors",
+     "description_html": "<p><strong>Your Perfect Introduction to Buenos Aires</strong><br>First time in Buenos Aires? Start your visit with our tour, which is much more than just a walk—it’s a journey through the lively past and present of the city.&nbsp; This experience was designed especially for first-time visitors who want more than just pretty buildings.<br> You’ll walk away with great stories, local tips, and a deep connection to Buenos Aires.&nbsp;<br><br></p><p>👣 <strong>A Fun and Engaging Experience</strong><br>History here is anything but boring!&nbsp; We bring the city to life through passion, humor, and the unique things that make BA so epic—like <strong>football, tango, mate</strong>, and a bit of that sweet chaos we call <em>daily life</em>. As local guides, we mix history with culture, making every moment enjoyable.<br><br></p><p>&nbsp;💛 <strong>Why choose our Tour?<br></strong>&nbsp;✅ <strong>Feel the city, don’t just see it</strong>: This isn’t a Wikipedia dump. We connect history, culture and real local life.<br> ✅ <strong>Perfect for first-timers</strong>: We give you the context, tips and confidence to keep exploring BA like a local.<br> ✅ <strong>Real human connection</strong>: Our guides are fun, kind and obsessed with making your day unforgettable. <br> ✅ <strong>You’ll laugh, think, and feel</strong>: It’s not just info—it’s stories, emotions, and moments you’ll remember.&nbsp;<br><br></p><p><br></p><p><strong>Route Highlights:</strong></p><ul><li>Casa Rosada (The Pink House)</li><li>Cabildo &amp; Cathedral&nbsp;</li><li>Avenida de Mayo and the Oldest Café</li><li>9 de Julio (Widest avenue in the world?)</li><li>Obelisk</li><li>Palacio Barolo</li><li>National Congress</li><li>&nbsp;Cultural deep dives into <strong>fútbol</strong>, <strong>tango</strong>, <strong>mate</strong>, and the wild personality of the Argentine capital.&nbsp;</li></ul><p><br></p><p>⏳ <strong>2 Hours and 30 Minutes of Pure Buenos Aires</strong><br> In just over two hours, we will guide you through the heart of Buenos Aires, combining history, culture, and modern life. Whether you are alone or with friends, this tour will give you a rich and memorable experience.&nbsp;<br><br></p><p>&nbsp;<strong>Book Now—Spaces Fill Quickly!</strong><br>Places are limited, so reserve your spot today. Look for our yellow umbrella 🟡 and get ready for an unforgettable Buenos Aires experience!&nbsp;</p>",
+     "images": [
+      "https://media.guruwalk.com/41go0jvitrzrrrkur5xntn20p4qg",
+      "https://media.guruwalk.com/gi5452sd12qmksjziw2qh85k97gh",
+      "https://media.guruwalk.com/sgezg4vnnnvnrts2uo7jadv7he5z",
+      "https://media.guruwalk.com/6nqn8ucr88j06ij29gv47og6igtx",
+      "https://media.guruwalk.com/rj0w6r0enik5rsep9owmrjby16hb",
+      "https://media.guruwalk.com/61qdtjnp1iiuwq49vlhfc88a769u",
+      "https://media.guruwalk.com/qxqlt7t7jqkf9pl2bf45kmrnh41k",
+      "https://media.guruwalk.com/lo4dryhkjubc5293nlk3x2a8tnfr",
+      "https://media.guruwalk.com/27j7n1b12p7071nxaelxs9i2f1vq",
+      "https://media.guruwalk.com/ci2ygvvd9tol44bwdm1k3h84x3cl",
+      "https://media.guruwalk.com/li2bvgtpvfwqemma1oqrobad9avd",
+      "https://media.guruwalk.com/cf6tfen9hnumvpjt775vuflipj0g"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es",
+      "pt"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.60847,-58.3722367",
+     "meeting_point_latitude": -34.60847,
+     "meeting_point_longitude": -58.3722367,
+     "how_to_find_me": "Our Tour begins at Plaza de Mayo (the most important square in Buenos Aires). You'll find the guide right in the center of the square, in front of the Pirámide de Mayo — look for person with a yellow umbrella!\n\n",
+     "itinerary": [
+      "Metropolitan Cathedral",
+      "Buenos Aires City Council",
+      "May Avenue",
+      "Cafe Tortoni",
+      "Avenue July 9",
+      "Obelisk",
+      "Barolo Palace",
+      "Congress of the Argentine Nation"
+     ],
+     "reviews": {
+      "count": 592,
+      "rating": "4.92"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Buenos Aires Horizon Tours "
+     },
+     "url": "https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 54972,
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions",
+     "slug": "54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions",
+     "description_html": "<p>Don't miss this fascinating walking tour through the iconic neighborhood of La Boca!<br>Discover the secrets of this Buenos Aires corner, where tango was born. We cannot overlook that here lies the sanctuary of world football, the home of Boca Juniors.<br>Embark on a visual journey as art permeates every corner of La Boca. The streets are filled with vibrant colors and murals that tell stories of passion and tradition. Delve into the life of Benito Quinquela Martin, an artist born in these lands whose legacy remains alive in every work and alley.<br>This is not just a tourist tour, but a unique opportunity to discover the authenticity of the neighborhood. You will get to know the essence of La Boca, observing how the locals live.<br>At the end of the tour, we will provide you with valuable recommendations. From authentic places to taste the exquisite local cuisine to other must-see spots to explore both in La Boca and the rest of vibrant Buenos Aires. Prepare your senses for an enriching experience that goes beyond the touristy. Join us and discover La Boca, the best neighborhood in the world!<br><br>Total approximate tour distance: 5 km. It is recommended to wear comfortable clothing and suitable footwear.</p>",
+     "images": [
+      "https://media.guruwalk.com/hyaec99wunc2ctbso9wtr8c9058j",
+      "https://media.guruwalk.com/yrxfy3mmw9z66w3pv36lw8r735yf",
+      "https://media.guruwalk.com/6cgaec6c1l7tc5y5hjh4hoyh8cme",
+      "https://media.guruwalk.com/xg9b9g8d2eie0ht7abkuolot4u7g",
+      "https://media.guruwalk.com/od9u5lk3931tuvohtg5488m99fct"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es",
+      "fr"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6280194,-58.3687065",
+     "meeting_point_latitude": -34.6280194,
+     "meeting_point_longitude": -58.3687065,
+     "how_to_find_me": "We will meet on the sidewalk of McDonald's. I will bring with me a blue and yellow umbrella. The guide in Spanish is Angelo, in French is Solène, and in English is Pedro.",
+     "itinerary": [
+      "Torre del Fantasma",
+      "Mural San Diego del Barrio de La Boca",
+      "Torre del Fantasma",
+      "Mural San Diego del Barrio de La Boca",
+      "Silos Areneros - Mural de Alfredo Segatori",
+      "Bar Portuario",
+      "Estadio Boca Juniors \"La Bombonera\"",
+      "Caminito"
+     ],
+     "reviews": {
+      "count": 782,
+      "rating": "4.71"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Almafuerte @almafuerte.turismo"
+     },
+     "url": "https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 45347,
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Free tour of Buenos Aires: Heart of the city",
+     "slug": "45347-free-tour-of-buenos-aires-heart-of-the-city",
+     "description_html": "<p><strong>Everything you need to know about Buenos Aires in three hours.</strong> <br><br>On this tour <strong>we will explore the heart of the city and will talk and learn about the fascinating political history of the Argentinian capital.</strong> <br><br>From life before the colonial times, the struggle and war of independence, and the waves of immigrants that forever changed the face of the city and the country. The “barn of the world” and how one of the richest countries of the world in the wake of the 20th ended in one of the biggest economic crises of the planet a century later. The lights and shadows behind the myth of the “Europe of the Americas”. <br><br>Tango, football, literature, psychotherapy, politics, dictatorships, and resistance, the history of Argentina has all of the ingredients for a passionate drama. And that reflects onto its population. <br><br>“To me, Buenos Aires is eternal, like water or air“ (as the famed writer Jorge Luis Borges once said) <br><br>Why does the seemingly never-ending energy of the city keeps mystifying onlookers and energizing passer-by’s. <br><br><strong>During the tour we will see:&nbsp;</strong></p><ul><li><strong>The palace of the parliament</strong></li><li><strong>The square of the congress&nbsp;</strong></li><li><strong>Palacio Barolo</strong></li><li><strong>Avenida de Mayo&nbsp;</strong></li><li><strong>9 de Julio avenue</strong></li><li><strong>The obelisk&nbsp;</strong></li><li><strong>Evita’s giant homage&nbsp;</strong></li><li><strong>Calle Florida&nbsp;</strong></li><li><strong>A mural for Messi</strong></li><li><strong>Metropolitan cathedral&nbsp;</strong></li><li><strong>Casa rosada (the pink house)&nbsp;</strong></li><li><strong>Plaza de Mayo (the pulsating heart of the city)&nbsp;</strong></li></ul>",
+     "images": [
+      "https://media.guruwalk.com/g0oh0tinquw2h5i8uc56v3rrhkpr",
+      "https://media.guruwalk.com/vk51vvk0ut67ivuz2z841czayzgj",
+      "https://media.guruwalk.com/ujmwdd3zrervdo1ni0tiqmdmybp5",
+      "https://media.guruwalk.com/4qwq9m3s6sjvctz3o06drefzrayy",
+      "https://media.guruwalk.com/7utlydcb70jkvu7og5djq0pqtde1",
+      "https://media.guruwalk.com/8umu2h2ff3rcmktyixme3kvu8i75",
+      "https://media.guruwalk.com/7el5ojdfg8vsqkdy133qwy3mkk7d",
+      "https://media.guruwalk.com/gnf4ew9nccm2hxgpr79ju3n8fwcx",
+      "https://media.guruwalk.com/fbmxtjol0lpjtm3fde9n6sj62whh",
+      "https://media.guruwalk.com/jq1yharp0f4eomocpuerp4lhfxgx",
+      "https://media.guruwalk.com/ref7ybzehbvb0civjhoosx1mwmn1",
+      "https://media.guruwalk.com/aya7o5sn2bquk4suonywv1lgy3lb",
+      "https://media.guruwalk.com/61q3hyj10nk0kjd5q9dktrl0ln7f"
+     ],
+     "duration": "3:00",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.610343,-58.390982",
+     "meeting_point_latitude": -34.610343,
+     "meeting_point_longitude": -58.390982,
+     "how_to_find_me": "We meet at the entrance of the of the “Biblioteca del congreso de la nación” (library of the country’s congress). If you are coming in Uber you can use the address: Hipólito Yrigoyen 1750, Ciudad Autónoma de Buenos Aires. I’m usually the only person just standing there so shouldn’t be hard to find me. ",
+     "itinerary": [
+      "Biblioteca del Congreso de la Nación",
+      "Congreso de la Nación Argentina",
+      "Congress Square",
+      "&quot;The Thinker&quot; by Rodin",
+      "Barolo Palace",
+      "May Avenue",
+      "Ministerio de Desarrollo Social de la Nación y Ministerio de Salud de la Nación",
+      "Messi Mural - Martin Ron",
+      "Calle Florida",
+      "May Plaza",
+      "Pink House"
+     ],
+     "reviews": {
+      "count": 833,
+      "rating": "4.91"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Vive Buenos Aires Tours"
+     },
+     "url": "https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 68379,
+     "type": "free_tour",
+     "id": 68379,
+     "name": "Essential Tour of Buenos Aires",
+     "slug": "68379-essential-tour-of-buenos-aires",
+     "description_html": "<p>From San Telmo to the Teatro Colón: history, identity and Buenos Aires passion!!<br><br><div> Discover the essence of Buenos Aires on a walking tour that connects its colonial roots, its political heart, and its cultural peak. This Essential Free Walking Tour is designed for travelers who want to understand Argentine history, the spirit of Buenos Aires, and the city's urban evolution in one dynamic and entertaining tour.<br> -Connects colonial origins with contemporary Argentina.<br> -It integrates political history, popular culture and European architecture.<br> -Explain the character of Buenos Aires: passionate, critical, immigrant and cultural.<br> -It offers a complete overview in just a few hours, ideal for those visiting Buenos Aires for the first time.</div></p>",
+     "images": [
+      "https://media.guruwalk.com/zddlm2brcipuykrqp17l2s9765ct",
+      "https://media.guruwalk.com/qpykaxydhbdjnodfvav3se8yxb1y",
+      "https://media.guruwalk.com/y9yst3m40jhyiv7g5nxu77jp2tj9",
+      "https://media.guruwalk.com/11zelatcfpg2rfyv2gc24wwyj7b4",
+      "https://media.guruwalk.com/pfln6fpus5ysxn26bvyixpyh8uj5"
+     ],
+     "duration": "2:30",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6176188,-58.3691208",
+     "meeting_point_latitude": -34.6176188,
+     "meeting_point_longitude": -58.3691208,
+     "how_to_find_me": "The guide will be at EVA PERÓN PLAZA wearing a green cap! ",
+     "itinerary": [
+      "Mercado de San Telmo",
+      "Calle Defensa",
+      "El Zanjón de Granados",
+      "Estatua de Mafalda",
+      "Convento Santo Domingo - Basílica Nuestra Señora del Rosario de la Defensa y Reconquista de Buenos Aires",
+      "San Ignacio de Loyola",
+      "Basílica y Convento de San Francisco de Asís",
+      "Plaza de Mayo",
+      "Casa Rosada",
+      "Museo Histórico Nacional del Cabildo y la Revolución de Mayo",
+      "Escultura Roque Sáenz Peña",
+      "Obelisco",
+      "Teatro Colón"
+     ],
+     "reviews": {
+      "count": 7,
+      "rating": "4.86"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 8
+     },
+     "guide": {
+      "name": "UrbanTours "
+     },
+     "url": "https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 35555,
+     "type": "free_tour",
+     "id": 35555,
+     "name": "Buenos Aires City Center Walking Tour: History and Stories 🏆 ",
+     "slug": "35555-buenos-aires-city-center-walking-tour-history-and-stories",
+     "description_html": "<p>With WalkBA you will see how wonderful Buenos Aires is. Join Simon in one of our walking tours around the \"Paris of Latin America\".&nbsp;<br>IMPORTANT: <br>You can contact our guide if you have any questions (+5491168526656) or if you don't see the tour on the day you want.&nbsp;<br>If your group is too big, or need a different start time please contact him for help.&nbsp; &nbsp;</p><p>This is a great experience to know more about our city, learn facts and curiosities but also, you will have lots of fun.</p><p><br><strong>Included:</strong></p><ul><li><strong>&nbsp;National Congress</strong></li><li><strong>&nbsp;Palacio Barolo</strong></li><li><strong>&nbsp;Av 9 de julio</strong></li><li><strong>&nbsp;Cafe Tortoni</strong></li><li><strong>&nbsp;Plaza de Mayo</strong></li><li><strong>&nbsp;Casa Rosada</strong></li><li><strong>&nbsp;Obelisco</strong></li><li><strong>&nbsp;And more</strong></li></ul><p><br>&nbsp;We are waiting for your reservation to walk the city together!<br><br>Important:<br>- Our guide will contact you through whatsapp so PLEASE LEAVE THE PHONE NUMBER YOU USE IN WHATSAPP, NOT THE ONE FROM ARGENTINA.&nbsp;<br>- There's a minimum of three (3) walkers per tour. If we don't reach the minimum an hour before the start time, the tour could be canceled or rescheduled. Our guide will inform you if this or any rescheduling with a WhatsApp message.&nbsp;<br><br></p>",
+     "images": [
+      "https://media.guruwalk.com/9h6mfmlhb4ovo7bhhguva9pwbonp",
+      "https://media.guruwalk.com/kce95xr0x3sxfi5ic73h4h52srlq",
+      "https://media.guruwalk.com/63l8ixgb7xnvhu5jeg86mmho86mo",
+      "https://media.guruwalk.com/00bx7sbot3wj0gitbuxf5enenrb7",
+      "https://media.guruwalk.com/2k1aoix2oagi8x2jv76s21jtvy4p",
+      "https://media.guruwalk.com/r6p91kb5oc1hj0d7q8lt1vzwz9ib",
+      "https://media.guruwalk.com/s023qp3dw9w6xschqr9bwdoyf3r7",
+      "https://media.guruwalk.com/3dtrclon9orn9phbq8hit6krua7q"
+     ],
+     "duration": "1:45",
+     "available_languages": [
+      "en"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.609708,-58.390333",
+     "meeting_point_latitude": -34.609708,
+     "meeting_point_longitude": -58.390333,
+     "how_to_find_me": "In front of the Congress Monument with a yellow vest.",
+     "itinerary": [
+      "Pink House",
+      "Metropolitan Cathedral",
+      "May Avenue",
+      "Cafe Tortoni",
+      "Barolo Palace"
+     ],
+     "reviews": {
+      "count": 611,
+      "rating": "4.91"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "WalkBa Tours "
+     },
+     "url": "https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 63551,
+     "type": "free_tour",
+     "id": 63551,
+     "name": "Buenos Aires Origins: San Telmo and Monserrat",
+     "slug": "63551-buenos-aires-origins-san-telmo-and-monserrat",
+     "description_html": "<p><strong>Uncover centuries of captivating history on our San Telmo Free Walking Tour!</strong> <br><br>Begin at the iconic <strong>Cabildo</strong>, delving into Buenos Aires' fiery foundations, from Mendoza's 1536 landing to the 1810 May Revolution. Discover colonial secrets, the powerful legacy of the <strong>Jesuits at Manzana de las Luces</strong> (and its mysterious tunnels!), and the city's strategic yet contraband-filled past.<br><br></p><p>Wander along cobblestone streets where tango melodies float through the air, murals come to life on every corner, and every building has a story to tell. This free walking tour takes you deep into the soul of the city — where Buenos Aires was born and where its vibrant heart still beats today.<br><br></p><p>Stroll through the cradle of tango, filled with antique shops, colorful characters, and artistic rebellion. From the historic <strong>San Telmo Market</strong> to the whimsical world of Mafalda and the Comic Strip Walk, every stop adds a brushstroke to this living canvas of porteño culture.<br><br></p><p>This is more than a history lesson — it’s a sensory journey through art, passion, and time.</p><p><br><strong>Sites visited:</strong></p><p><br></p><ul><li>San Telmo</li></ul><p><br></p><ul><li>Monserrat</li></ul><p><br></p><ul><li>Plaza de Mayo</li></ul><p><br></p><ul><li>Manzana de las Luces</li></ul><p><br></p><ul><li>San Ignacio de Loyola Church</li></ul><p><br></p><ul><li>Otto Wulff Building</li></ul><p><br></p><ul><li>Rosario Basilic &amp; Manuel Belgrano Mausoleum</li></ul><p><br></p><ul><li>Peru Street</li></ul><p><br></p><ul><li>Mafalda</li></ul><p><br></p><ul><li>The Comic Strip Walk</li></ul><p><br></p><ul><li>Defensa Street</li></ul><p><br></p><ul><li>Plaza Dorrego</li></ul><p><br></p><ul><li>San Telmo Market</li></ul><p><br></p><ul><li>Street Art &amp; Muralism</li></ul><p><br></p><ul><li>Tango Spots</li></ul>",
+     "images": [
+      "https://media.guruwalk.com/vrvef5wrwe0nsswaz4hx0hj92bxn",
+      "https://media.guruwalk.com/v4lpbq3yfr8as07lazee2775nmpm",
+      "https://media.guruwalk.com/5xmey5tn7vb6xyt73sjr3x6txq41",
+      "https://media.guruwalk.com/yliabla1w3yp6qzrfg8ljxkrlpee",
+      "https://media.guruwalk.com/mf2d05ifdmtny8le2rn1yp9smify",
+      "https://media.guruwalk.com/4xjoos8yx5wfr6rfc0lze59dqyf7",
+      "https://media.guruwalk.com/jkgn0eoedw0rb05l8kb7iaglk4no",
+      "https://media.guruwalk.com/e7ib9tl38qyfvswdnescvmjb8qfs",
+      "https://media.guruwalk.com/48u9dnhz0oszvuq3c5oeg7e0heus",
+      "https://media.guruwalk.com/cbmjqs35aipvt59kxbhkorpl3nkw",
+      "https://media.guruwalk.com/n4s9eutc9n0fcs6jb6t5qyi3qcbr",
+      "https://media.guruwalk.com/0i2zyyrpnbgaes3r943ecyfhjyht",
+      "https://media.guruwalk.com/cs6y4mntj7dazqi9j2cn01or3vlg"
+     ],
+     "duration": "2:45",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6087392,-58.3737862",
+     "meeting_point_latitude": -34.6087392,
+     "meeting_point_longitude": -58.3737862,
+     "how_to_find_me": "I will be waiting in front of the Historic \"Cabildo\" (White Colonial Building) opposite the Plaza de Mayo. If you are coming by Uber you can use the address Bolivar 65, Ciudad Autónoma de Buenos Aires. ",
+     "itinerary": [
+      "Montserrat",
+      "May Plaza",
+      "Saint Ignatius of Loyola",
+      "Complejo Histórico Cultural Manzana de las Luces",
+      "San Telmo",
+      "Otto Wolff Building",
+      "Basilica of Saint Rose of Lima.",
+      "Mausoleum of General Manuel Belgrano",
+      "Mafalda Statue",
+      "Comic Strip Walk",
+      "Plaza Dorego",
+      "San Telmo Market"
+     ],
+     "reviews": {
+      "count": 44,
+      "rating": "4.98"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Vive Buenos Aires Tours"
+     },
+     "url": "https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 38312,
+     "type": "free_tour",
+     "id": 38312,
+     "name": "The Paris of South America! Icons, history, and myths of Buenos Aires. Free Tour. (max 6 people)",
+     "slug": "38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people",
+     "description_html": "<p>On this free tour <strong>, we'll visit several iconic landmarks of the beautiful city of Buenos Aires</strong> , often called the Paris of South America. Along the way <strong>, I'll share some of the history of this great city.</strong><br><br> <strong>First,</strong> we'll see the imposing <strong>Obelisk</strong> , the iconic landmark photographed by all our visitors, its history, and why it was resisted by the people of Buenos Aires. We'll also talk about one of the widest avenues in the world, <strong>Avenida 9 de Julio</strong> , our <em>park-like avenue</em> .<br><br> Then we will walk <strong>along Corrientes Avenue</strong> , <em>our Broadway</em> , the center of theater in Buenos Aires, where we will see several iconic theaters and talk about the city's culture, before passing through the pedestrianized <strong>Florida</strong> Street, with all its shops and with a stop at the <strong>Güemes Gallery</strong> , the great gallery of Buenos Aires and where an emblematic figure of our city lived.<br><br> Next, we'll pass through the city's <strong>financial district</strong> and arrive at <strong>Avenida de Mayo,</strong> the oldest avenue in the city. We'll see classic buildings along this iconic avenue, as well as the emblematic <strong>Pasaje Roverano.</strong> We'll also see the <strong>Perú subway station,</strong> home to <em>the first subway line in Latin America.</em><br><br> The next step will be <strong>Plaza de Mayo</strong> , the heart of our city, with <strong>the Casa Rosada, the Buenos Aires Cathedral with the mausoleum of José de San Martín, the Cabildo</strong> and all the history of this mythical square.<br><br> And we'll finish in <strong>Puerto Madero</strong> , Buenos Aires' newest neighborhood, where we'll explore a bit of its history: the port that could have been, but wasn't. We'll end the tour at the <strong>Puente de la Mujer (Women's Bridge</strong> ).<br><br> <strong>Don't miss this free tour where in 3 and a half hours we will show you the most relevant aspects of this beautiful city.<br><br></strong><br></p>",
+     "images": [
+      "https://media.guruwalk.com/h8wd78jmjhr4t0zz3wbav9bey97h",
+      "https://media.guruwalk.com/di7p3fbs9wpg4h2lex91haoopssg",
+      "https://media.guruwalk.com/7qfayxs3vtylzf8yp0lrgqu99o7i",
+      "https://media.guruwalk.com/8o1yaq25cg4mkeah2ddh9pryr469",
+      "https://media.guruwalk.com/hwf9pbj5kv7ji25csj78uqczw2um",
+      "https://media.guruwalk.com/9ai94g7f1j39p75pvmel1xd0d4gy",
+      "https://media.guruwalk.com/u59w94jqh0ws2cs93mnevop2h4q6",
+      "https://media.guruwalk.com/7b32939ac3ophlm1le3cospyk4p9",
+      "https://media.guruwalk.com/a5qheb1zvvwwqee1e7x8phgnvzxn"
+     ],
+     "duration": "3:30",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.603313,-58.382511",
+     "meeting_point_latitude": -34.603313,
+     "meeting_point_longitude": -58.382511,
+     "how_to_find_me": "The meeting point is at the steps facing the Obelisk. There's a large sign that says \"City Police.\" We'll meet right under it, between the Mirador and Avenida 9 de Julio. There's also a Subway right next door. https://maps.app.goo.gl/8FHWmo8sQgtxZyc89 I'll be wearing a gray cap. Since it's a long tour, please bring water and a snack. We'll finish around 2:30 PM at Puente de la Mujer (Women's Bridge), where there are bars and restaurants!\r\n",
+     "itinerary": [
+      "Obelisco y Avenida 9 de Julio",
+      "Av. Corrientes",
+      "Calle Florida",
+      "Galería Güemes",
+      "Avenida de Mayo",
+      "Plaza de Mayo",
+      "Cabildo de Buenos Aires",
+      "Catedral Metropolitana",
+      "Casa Rosada",
+      "Puerto Madero"
+     ],
+     "reviews": {
+      "count": 317,
+      "rating": "4.98"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": false,
+      "large_groups_allowed": false,
+      "large_groups_limit": 6
+     },
+     "guide": {
+      "name": "Andreas Greiner"
+     },
+     "url": "https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 51665,
+     "type": "free_tour",
+     "id": 51665,
+     "name": "Welcome to Buenos Aires! (max 12 people)",
+     "slug": "51665-welcome-to-buenos-aires-max-12-people",
+     "description_html": "<p><strong>A visit for those who want to know the Argentina of yesterday, today, and tomorrow.</strong><br> We will start at Plaza Congreso where we will talk about our current political and economic situation.<br> We will walk along Avenida de Mayo, the main street with a European flair.<br> We will cross <strong>the widest avenue in the world</strong> and talk about some of Argentina's internationally recognized personalities.<br> Our last stop will be at Plaza de Mayo, a place of protests and demonstrations, where the <strong>Cabildo, Casa Rosada, and Cathedral</strong> are located.<br> We will talk about a movement that emerged during the dictatorship of '78: <strong>the Mothers and Grandmothers of Plaza de Mayo.<br></strong> At the end of the tour, you will discover the best of our history, culture, and gastronomy with recommendations you cannot miss in Buenos Aires.<br> My groups are small (max 12) for better interaction among everyone.<br> I look forward to seeing you!<br><br><br></p>",
+     "images": [
+      "https://media.guruwalk.com/k4lu7odkmbfoevlstfnasd290nac",
+      "https://media.guruwalk.com/jyvpq16wrbeady5q0phtbwr7p75x",
+      "https://media.guruwalk.com/ckouovtschcn7zy7wc60qxp1rk3x",
+      "https://media.guruwalk.com/zgwx1rrosn0v1okdgxi1wfsy7nmd",
+      "https://media.guruwalk.com/66arfmdk9c2ddapuxkn6wd3w66qr",
+      "https://media.guruwalk.com/uur78lr7i1jlisqw4wmlmp8feau7",
+      "https://media.guruwalk.com/9oqprcadvs697qc1y4udch8n0m39"
+     ],
+     "duration": "2:00",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6092016,-58.3905231",
+     "meeting_point_latitude": -34.6092016,
+     "meeting_point_longitude": -58.3905231,
+     "how_to_find_me": "At the door of the Pain du Jour café in Plaza Congreso (Avenida Rivadavia 1697) I will be at the door with a BLUE folder in my hands",
+     "itinerary": [
+      "Barolo Palace",
+      "Cafe Tortoni",
+      "May Plaza",
+      "cafe tortoni",
+      "Plaza de Mayo"
+     ],
+     "reviews": {
+      "count": 21,
+      "rating": "4.76"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": true,
+      "pets_allowed": false,
+      "large_groups_allowed": true,
+      "large_groups_limit": 12
+     },
+     "guide": {
+      "name": "Patricio Ramos"
+     },
+     "url": "https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 56186,
+     "type": "free_tour",
+     "id": 56186,
+     "name": "Discover San Telmo: A Journey Through Time! ⌛",
+     "slug": "56186-discover-san-telmo-a-journey-through-time",
+     "description_html": "<h3>Haven't explored San Telmo yet?</h3><p><br>Definitely one of the neighborhoods you <strong>can't miss</strong>! <br><br>In this tour, we will take an incredible walk through <strong>the most picturesque corners</strong> of the city, on a historical journey that will transport you to Colonial Buenos Aires, its architectural styles, customs, and secrets.<br><br>We will start at Parque Lezama, bordering the neighborhood of La Boca, exactly situated in the year 1536. We will explore the <strong>fascinating</strong> <strong>history</strong> of the founding of Buenos Aires and try to imagine that intercultural encounter with the indigenous peoples. <br><br>We will delight in <strong>architectural gems</strong> like the Russian Orthodox Church with its neo-Byzantine style.<br> <br>We will move through the 17th and 18th centuries, where we will learn about buildings founded by the Jesuits and the Bethlehemites, such as the Parish of San Pedro González Telmo.<br>We will walk down the street where the English troops entered at the beginning of the 19th century, and visit <strong>iconic buildings</strong> like the Ezeiza residence, built at the end of that century.<br><br>We will indulge in flavors and aromas at the <strong>SAN TELMO MARKET</strong>, exploring its tempting gastronomic patio.<br><br>We will be able to take <strong>charming photos</strong>, like the narrowest house in Buenos Aires and a sky of colorful umbrellas.<br><br><strong>+BONUS TRACK:</strong> If you come on a <strong>SUNDAY</strong>, we will cross the famous <strong>SAN TELMO FAIR.</strong><br><br>I will show you El Viejo Almacén, a traditional Tango house, where at night you can enjoy a spectacular show with some of the best artists in our country!<br><br>We will end by visiting MAFALDA! <br>at the border between San Telmo and Montserrat, an area of bars, art, history, food, beer, antiques, and more.<br><br><strong>San Telmo will be yours!</strong> Enjoy it 😊</p><p>&nbsp;</p><p><br>We are waiting for you!<br><br><br></p>",
+     "images": [
+      "https://media.guruwalk.com/j4ro540n6ilsg0qh1r2al9wep8f7",
+      "https://media.guruwalk.com/xprnzj36khdgpytqdhj14p40cs9l",
+      "https://media.guruwalk.com/yqep8axphi1hp3nmswis68xdfqtp",
+      "https://media.guruwalk.com/d7v25b32qrjwq3gbncyt6ntfj46u",
+      "https://media.guruwalk.com/wkdrpxh2nkcj2babapompxxewkjb",
+      "https://media.guruwalk.com/f2wlo6mqnhxrbtr04ez7d29ysrit"
+     ],
+     "duration": "2:45",
+     "available_languages": [
+      "en",
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.6279798,-58.3696978",
+     "meeting_point_latitude": -34.6279798,
+     "meeting_point_longitude": -58.3696978,
+     "how_to_find_me": "I'll be waiting for you under the Monument to Cordiality in Lezama Park. If you're coming by Uber, you can tell the driver the intersection of Irala Street and Martín García Avenue and then cross to the park. You'll recognize me by an umbrella.",
+     "itinerary": [
+      "Parque Lezama",
+      "Museo Histórico Nacional",
+      "Iglesia Ortodoxa Rusa de la Santísima Trinidad",
+      "Defensa 1344",
+      "Antigua panadería de José Canale",
+      "Museo Moderno",
+      "Casa Ezeiza / Pasaje de la Defensa",
+      "Plaza Dorego",
+      "Parroquia de San Pedro González Telmo",
+      "ESCUELA 22 D.E. 4 - DR. GUILLERMO RAWSON",
+      "Galería Solar de French",
+      "Mercado de San Telmo",
+      "El Viejo Almacén Tango Cena Show Buenos Aires",
+      "El Zanjón de Granados",
+      "Casa Mínima",
+      "Chile & Defensa"
+     ],
+     "reviews": {
+      "count": 9,
+      "rating": "4.89"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 20
+     },
+     "guide": {
+      "name": "Emanuel Monchetti"
+     },
+     "url": "https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    },
+    {
+     "product_id": 44811,
+     "type": "free_tour",
+     "id": 44811,
+     "name": "Free tour, Che! The essential Buenos Aires, we never had silver and fear...",
+     "slug": "44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear",
+     "description_html": "<p>Welcome to my dear Buenos Aires... Political and cultural cradle of the city.</p><p><strong>This particular tour is a journey to the beginning, our Origin and also our Present. </strong>Its <strong>historic buildings, Palaces, squares, and Notable Cafés reflect the beginning and transformation of this city. </strong><br>We will start <strong>at Plaza de Mayo, </strong>&nbsp;<strong>a place where our history is breathed</strong> with political and cultural agreements and disagreements. <br><strong>We will continue</strong> along the significant <strong>Avenida de Mayo</strong>, an architectural walkway, with several Buenos Aires attractions, the Café Tortoni, Av. 9 de Julio, Diario la Crítica, the Soda Stereo corner....<br>We will end at the&nbsp; Palacio Barolo with a panoramic view of the National Congress<strong>..... </strong><br>&nbsp; &nbsp; &nbsp; &nbsp;<br>At the end of the tour, I will give you recommendations on what to do in the city.<br>Thank you very much for visiting us!</p>",
+     "images": [
+      "https://media.guruwalk.com/regmzq7789ttctx60z9jcyw6lxfd",
+      "https://media.guruwalk.com/qnq0858pkeoo8ial4169a4d24sln",
+      "https://media.guruwalk.com/evdagw7nlfsp9q7wuwor6k0664mw",
+      "https://media.guruwalk.com/faqswow0emc6nn6kxy901b5ju57s",
+      "https://media.guruwalk.com/e769vyrk9v5orqdq75f3lritrf5w",
+      "https://media.guruwalk.com/4lu3l12snu85dlpxingqjm7lvg0a",
+      "https://media.guruwalk.com/rw4d2gobfnbc187c3bft7n5w83wn",
+      "https://media.guruwalk.com/kw19fhhgw0s0cjk8r63szxjhby8r",
+      "https://media.guruwalk.com/mb4njr375ibwhvnu4ugjfhe20aps",
+      "https://media.guruwalk.com/eie7sq8ectbr8kwv5gs35ddjyzu4"
+     ],
+     "duration": "2:15",
+     "available_languages": [
+      "es"
+     ],
+     "meeting_point_url": "https://www.google.com/maps?q=-34.60847,-58.3722367",
+     "meeting_point_latitude": -34.60847,
+     "meeting_point_longitude": -58.3722367,
+     "how_to_find_me": "I will be at Plaza de Mayo, Av Hipólito Yrigoyen and Defensa, near the May Pyramid (center of the Plaza). If it rains, on the steps of the Afip (opposite)... I'll bring a BLACK umbrella. We meet 5 minutes before and leave on time. By reservation only. ...Love and many thanks.",
+     "itinerary": [
+      "Casa Rosada",
+      "Catedral Metropolitana",
+      "Cabildo de Buenos Aires",
+      "Avenida de Mayo",
+      "Café Tortoni",
+      "Avenida 9 de Julio",
+      "Palacio Barolo"
+     ],
+     "reviews": {
+      "count": 1047,
+      "rating": "4.91"
+     },
+     "place": {
+      "id": 421,
+      "name": "Buenos Aires",
+      "country": "Argentina"
+     },
+     "features": {
+      "accessible": false,
+      "pets_allowed": true,
+      "large_groups_allowed": true,
+      "large_groups_limit": 10
+     },
+     "guide": {
+      "name": "Griselda Baleato"
+     },
+     "url": "https://www.guruwalk.com/walks/44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail",
+     "source": "GuruWalk",
+     "attribution": "Book on GuruWalk: https://www.guruwalk.com/walks/44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_product_detail"
+    }
+   ]
+  }
+ }
+}

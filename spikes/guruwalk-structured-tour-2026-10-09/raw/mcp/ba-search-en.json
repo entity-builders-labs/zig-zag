@@ -1,0 +1,280 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"place\":{\"id\":421,\"name\":\"Buenos Aires\",\"slug\":\"buenos-aires\",\"country\":\"Argentina\",\"has_free_tours\":true,\"url\":\"https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},\"pagination\":{\"page\":1,\"per_page\":12,\"total_count\":607},\"categories\":[{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"hub_slug\":\"buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67114,\"name\":\"City Tours & Sightseeing\",\"slug\":\"city-tours-sightseeing-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67114&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67112,\"name\":\"Tango Experiences\",\"slug\":\"tango-experiences-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67112&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67117,\"name\":\"Food & Wine\",\"slug\":\"food-wine-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67117&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67116,\"name\":\"Ferries & Boat Trips\",\"slug\":\"ferries-boat-trips-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67116&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67120,\"name\":\"Nightlife & Evening\",\"slug\":\"nightlife-evening-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67120&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67113,\"name\":\"Day Trips & Excursions\",\"slug\":\"day-trips-excursions-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67113&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67115,\"name\":\"Hop-On Hop-Off\",\"slug\":\"hop-on-hop-off-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67115&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67118,\"name\":\"Cooking Classes\",\"slug\":\"cooking-classes-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67118&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67119,\"name\":\"Outdoor & Sports\",\"slug\":\"outdoor-sports-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67119&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67121,\"name\":\"Multi-Day Trips\",\"slug\":\"multi-day-trips-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67121&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67122,\"name\":\"Transfers\",\"slug\":\"transfers-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67122&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"},{\"id\":67123,\"name\":\"Others\",\"slug\":\"others-buenos-aires\",\"url\":\"https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67123&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}],\"featured_products\":[{\"type\":\"free_tour\",\"id\":54972,\"name\":\"Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions\",\"slug\":\"54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions\",\"rating\":4.71,\"reviews_count\":782,\"duration\":150,\"booking_url\":\"https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":97108,\"name\":\"Buenos Aires: La Boca Guided Walking Tour in English\",\"slug\":\"buenos-aires-la-boca-guided-walking-tour-in-english\",\"rating\":4.8,\"reviews_count\":1812,\"duration\":120,\"pricing_from\":{\"retail\":11.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":138667,\"name\":\"Buenos Aires Hop-On Hop-Off Bus and Free Walking Tours\",\"slug\":\"buenos-aires-hop-on-hop-off-bus-and-free-walking-tours\",\"rating\":4.2,\"reviews_count\":2357,\"duration\":2880,\"pricing_from\":{\"retail\":34.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p138667-buenos-aires-hop-on-hop-off-bus-and-free-walking-tours?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":46833,\"name\":\"Buenos Aires: Hop-on Hop-off Bus Tour\",\"slug\":\"buenos-aires-hop-on-hop-off-bus-tour\",\"rating\":4.5,\"reviews_count\":8,\"pricing_from\":{\"retail\":34.74,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p46833-buenos-aires-hop-on-hop-off-bus-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55661,\"name\":\"Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors\",\"slug\":\"55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors\",\"rating\":4.92,\"reviews_count\":592,\"duration\":150,\"booking_url\":\"https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":67013,\"name\":\"Guided Bus Tour of Buenos Aires\",\"slug\":\"guided-bus-tour-of-buenos-aires\",\"rating\":4.2,\"reviews_count\":270,\"duration\":180,\"pricing_from\":{\"retail\":34.95,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p67013-guided-bus-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":66940,\"name\":\"Buenos Aires Graffiti Tour\",\"slug\":\"buenos-aires-graffiti-tour\",\"rating\":4.85,\"reviews_count\":6,\"duration\":120,\"pricing_from\":{\"retail\":12.5,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p66940-buenos-aires-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":126191,\"name\":\"Buenos Aires: Private Palermo Street Art Tour with Mate\",\"slug\":\"buenos-aires-private-palermo-street-art-tour-with-mate\",\"rating\":5.0,\"reviews_count\":2,\"duration\":120,\"pricing_from\":{\"retail\":44.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p126191-buenos-aires-private-palermo-street-art-tour-with-mate?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":45347,\"name\":\"Free tour of Buenos Aires: Heart of the city\",\"slug\":\"45347-free-tour-of-buenos-aires-heart-of-the-city\",\"rating\":4.91,\"reviews_count\":833,\"duration\":180,\"booking_url\":\"https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":98444,\"name\":\"Buenos Aires: Madero Tango Show with Optional Dinner\",\"slug\":\"buenos-aires-madero-tango-show-with-optional-dinner-28a0b229-b556-4acc-9322-f14771d256dc\",\"rating\":4.3,\"reviews_count\":1263,\"duration\":180,\"pricing_from\":{\"retail\":22.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p98444-buenos-aires-madero-tango-show-with-optional-dinner-28a0b229-b556-4acc-9322-f14771d256dc?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":106185,\"name\":\"Buenos Aires: Half Day Walking Tour of Palermo & Soho\",\"slug\":\"buenos-aires-half-day-walking-tour-of-palermo-soho\",\"rating\":5.0,\"reviews_count\":2,\"duration\":240,\"pricing_from\":{\"retail\":89.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p106185-buenos-aires-half-day-walking-tour-of-palermo-soho?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"},{\"type\":\"product\",\"id\":91724,\"name\":\"Recoleta cemetery for curious people\",\"slug\":\"recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455\",\"rating\":5.0,\"reviews_count\":47,\"duration\":150,\"pricing_from\":{\"retail\":22.0,\"currency\":\"EUR\"},\"booking_url\":\"https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\",\"source\":\"GuruWalk\"}],\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "place": {
+    "id": 421,
+    "name": "Buenos Aires",
+    "slug": "buenos-aires",
+    "country": "Argentina",
+    "has_free_tours": true,
+    "url": "https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+   },
+   "pagination": {
+    "page": 1,
+    "per_page": 12,
+    "total_count": 607
+   },
+   "categories": [
+    {
+     "id": "free-tour",
+     "name": "Free Tours",
+     "slug": "free-tours",
+     "hub_slug": "buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=free-tour&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67114,
+     "name": "City Tours & Sightseeing",
+     "slug": "city-tours-sightseeing-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67114&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67112,
+     "name": "Tango Experiences",
+     "slug": "tango-experiences-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67112&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67117,
+     "name": "Food & Wine",
+     "slug": "food-wine-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67117&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67116,
+     "name": "Ferries & Boat Trips",
+     "slug": "ferries-boat-trips-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67116&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67120,
+     "name": "Nightlife & Evening",
+     "slug": "nightlife-evening-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67120&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67113,
+     "name": "Day Trips & Excursions",
+     "slug": "day-trips-excursions-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67113&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67115,
+     "name": "Hop-On Hop-Off",
+     "slug": "hop-on-hop-off-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67115&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67118,
+     "name": "Cooking Classes",
+     "slug": "cooking-classes-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67118&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67119,
+     "name": "Outdoor & Sports",
+     "slug": "outdoor-sports-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67119&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67121,
+     "name": "Multi-Day Trips",
+     "slug": "multi-day-trips-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67121&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67122,
+     "name": "Transfers",
+     "slug": "transfers-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67122&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    },
+    {
+     "id": 67123,
+     "name": "Others",
+     "slug": "others-buenos-aires",
+     "url": "https://www.guruwalk.com/en/a/search?hub=buenos-aires&vertical=67123&ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+    }
+   ],
+   "featured_products": [
+    {
+     "type": "free_tour",
+     "id": 54972,
+     "name": "Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions",
+     "slug": "54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions",
+     "rating": 4.71,
+     "reviews_count": 782,
+     "duration": 150,
+     "booking_url": "https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 97108,
+     "name": "Buenos Aires: La Boca Guided Walking Tour in English",
+     "slug": "buenos-aires-la-boca-guided-walking-tour-in-english",
+     "rating": 4.8,
+     "reviews_count": 1812,
+     "duration": 120,
+     "pricing_from": {
+      "retail": 11.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p97108-buenos-aires-la-boca-guided-walking-tour-in-english?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 138667,
+     "name": "Buenos Aires Hop-On Hop-Off Bus and Free Walking Tours",
+     "slug": "buenos-aires-hop-on-hop-off-bus-and-free-walking-tours",
+     "rating": 4.2,
+     "reviews_count": 2357,
+     "duration": 2880,
+     "pricing_from": {
+      "retail": 34.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p138667-buenos-aires-hop-on-hop-off-bus-and-free-walking-tours?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 46833,
+     "name": "Buenos Aires: Hop-on Hop-off Bus Tour",
+     "slug": "buenos-aires-hop-on-hop-off-bus-tour",
+     "rating": 4.5,
+     "reviews_count": 8,
+     "pricing_from": {
+      "retail": 34.74,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p46833-buenos-aires-hop-on-hop-off-bus-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55661,
+     "name": "Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors",
+     "slug": "55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors",
+     "rating": 4.92,
+     "reviews_count": 592,
+     "duration": 150,
+     "booking_url": "https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 67013,
+     "name": "Guided Bus Tour of Buenos Aires",
+     "slug": "guided-bus-tour-of-buenos-aires",
+     "rating": 4.2,
+     "reviews_count": 270,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 34.95,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p67013-guided-bus-tour-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 66940,
+     "name": "Buenos Aires Graffiti Tour",
+     "slug": "buenos-aires-graffiti-tour",
+     "rating": 4.85,
+     "reviews_count": 6,
+     "duration": 120,
+     "pricing_from": {
+      "retail": 12.5,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p66940-buenos-aires-graffiti-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 126191,
+     "name": "Buenos Aires: Private Palermo Street Art Tour with Mate",
+     "slug": "buenos-aires-private-palermo-street-art-tour-with-mate",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 120,
+     "pricing_from": {
+      "retail": 44.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p126191-buenos-aires-private-palermo-street-art-tour-with-mate?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 45347,
+     "name": "Free tour of Buenos Aires: Heart of the city",
+     "slug": "45347-free-tour-of-buenos-aires-heart-of-the-city",
+     "rating": 4.91,
+     "reviews_count": 833,
+     "duration": 180,
+     "booking_url": "https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 98444,
+     "name": "Buenos Aires: Madero Tango Show with Optional Dinner",
+     "slug": "buenos-aires-madero-tango-show-with-optional-dinner-28a0b229-b556-4acc-9322-f14771d256dc",
+     "rating": 4.3,
+     "reviews_count": 1263,
+     "duration": 180,
+     "pricing_from": {
+      "retail": 22.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p98444-buenos-aires-madero-tango-show-with-optional-dinner-28a0b229-b556-4acc-9322-f14771d256dc?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 106185,
+     "name": "Buenos Aires: Half Day Walking Tour of Palermo & Soho",
+     "slug": "buenos-aires-half-day-walking-tour-of-palermo-soho",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 240,
+     "pricing_from": {
+      "retail": 89.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p106185-buenos-aires-half-day-walking-tour-of-palermo-soho?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "product",
+     "id": 91724,
+     "name": "Recoleta cemetery for curious people",
+     "slug": "recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455",
+     "rating": 5.0,
+     "reviews_count": 47,
+     "duration": 150,
+     "pricing_from": {
+      "retail": 22.0,
+      "currency": "EUR"
+     },
+     "booking_url": "https://www.guruwalk.com/walks/p91724-recoleta-cemetery-for-curious-people-862e5504-bb62-43b6-b590-cb5950737455?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination",
+     "source": "GuruWalk"
+    }
+   ],
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=search_tours_activities_by_destination"
+  }
+ }
+}

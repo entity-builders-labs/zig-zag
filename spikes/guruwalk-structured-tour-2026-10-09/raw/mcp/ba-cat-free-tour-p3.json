@@ -1,0 +1,213 @@
+{
+ "jsonrpc": "2.0",
+ "id": 2,
+ "result": {
+  "content": [
+   {
+    "type": "text",
+    "text": "{\"category\":{\"id\":\"free-tour\",\"name\":\"Free Tours\",\"slug\":\"free-tours\",\"url\":\"https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"},\"products\":[{\"type\":\"free_tour\",\"id\":55938,\"name\":\"Buenos Aires Historic Center Tour\",\"slug\":\"55938-buenos-aires-historic-center-tour\",\"rating\":5.0,\"reviews_count\":1,\"duration\":60,\"languages\":[\"pt\",\"es\",\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49463,\"name\":\"Free tour through the heart of the city and its most important bars\",\"slug\":\"49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars\",\"rating\":4.64,\"reviews_count\":11,\"duration\":150,\"languages\":[\"en\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":58175,\"name\":\"Recoleta: history, architecture, and aristocracy in the most elegant neighborhood of Buenos Aires\",\"slug\":\"58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires\",\"rating\":3.0,\"reviews_count\":4,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":55178,\"name\":\"Free Night Tour: Buenos Aires Illuminated – A Journey Through Its History\",\"slug\":\"55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history\",\"rating\":4.9,\"reviews_count\":39,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":53227,\"name\":\"Tour La Boca: Memories of a Working-Class and Tango Neighborhood\",\"slug\":\"53227-tour-la-boca-memories-of-a-working-class-and-tango-neighborhood\",\"rating\":4.39,\"reviews_count\":575,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/53227-tour-la-boca-memories-of-a-working-class-and-tango-neighborhood?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":49609,\"name\":\"RECOLETA: ARTE, ELEGANCIA Y PODER\",\"slug\":\"49609-recoleta-arte-elegancia-y-poder\",\"rating\":4.97,\"reviews_count\":178,\"duration\":180,\"languages\":[\"it\",\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":54506,\"name\":\"WITHDRAWAL: From the Naval Center to the Noel Palace, the luxury that competed with Europe\",\"slug\":\"54506-retreat-the-creole-aristocracy\",\"rating\":4.95,\"reviews_count\":83,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/54506-retreat-the-creole-aristocracy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":59376,\"name\":\"\\\"Recoleta Free Tour: Discover the Elegance and History of Buenos Aires' Aristocratic Legacy\\\"\",\"slug\":\"59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy\",\"rating\":5.0,\"reviews_count\":1,\"duration\":135,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":69794,\"name\":\"Barrio Parque: Stories of liberation, art and diplomacy\",\"slug\":\"69794-barrio-parque-stories-of-liberation-art-and-diplomacy\",\"rating\":5.0,\"reviews_count\":4,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/69794-barrio-parque-stories-of-liberation-art-and-diplomacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":43134,\"name\":\"In the footsteps of Mamá Antula, the first Argentine saint!\",\"slug\":\"43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint\",\"rating\":5.0,\"reviews_count\":2,\"duration\":150,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":63487,\"name\":\"SAN NICOLÁS: From Plaza Lavalle to Luna Park, the heart that never sleeps\",\"slug\":\"63487-san-nicolas-history-glamour-and-downtown\",\"rating\":5.0,\"reviews_count\":1,\"duration\":120,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"},{\"type\":\"free_tour\",\"id\":46968,\"name\":\"Palacios Retreat: Mysticism and Flavors!\",\"slug\":\"46968-retreat-myths-architecture-and-tasting\",\"rating\":5.0,\"reviews_count\":1,\"duration\":90,\"languages\":[\"es\"],\"pricing_from\":null,\"booking_url\":\"https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\",\"source\":\"GuruWalk\"}],\"pagination\":{\"page\":3,\"per_page\":12,\"total_count\":59},\"tip\":\"Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.\",\"attribution\":\"Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category\"}"
+   }
+  ],
+  "isError": false,
+  "structuredContent": {
+   "category": {
+    "id": "free-tour",
+    "name": "Free Tours",
+    "slug": "free-tours",
+    "url": "https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+   },
+   "products": [
+    {
+     "type": "free_tour",
+     "id": 55938,
+     "name": "Buenos Aires Historic Center Tour",
+     "slug": "55938-buenos-aires-historic-center-tour",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 60,
+     "languages": [
+      "pt",
+      "es",
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49463,
+     "name": "Free tour through the heart of the city and its most important bars",
+     "slug": "49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars",
+     "rating": 4.64,
+     "reviews_count": 11,
+     "duration": 150,
+     "languages": [
+      "en"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 58175,
+     "name": "Recoleta: history, architecture, and aristocracy in the most elegant neighborhood of Buenos Aires",
+     "slug": "58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires",
+     "rating": 3.0,
+     "reviews_count": 4,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 55178,
+     "name": "Free Night Tour: Buenos Aires Illuminated – A Journey Through Its History",
+     "slug": "55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history",
+     "rating": 4.9,
+     "reviews_count": 39,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 53227,
+     "name": "Tour La Boca: Memories of a Working-Class and Tango Neighborhood",
+     "slug": "53227-tour-la-boca-memories-of-a-working-class-and-tango-neighborhood",
+     "rating": 4.39,
+     "reviews_count": 575,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/53227-tour-la-boca-memories-of-a-working-class-and-tango-neighborhood?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 49609,
+     "name": "RECOLETA: ARTE, ELEGANCIA Y PODER",
+     "slug": "49609-recoleta-arte-elegancia-y-poder",
+     "rating": 4.97,
+     "reviews_count": 178,
+     "duration": 180,
+     "languages": [
+      "it",
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 54506,
+     "name": "WITHDRAWAL: From the Naval Center to the Noel Palace, the luxury that competed with Europe",
+     "slug": "54506-retreat-the-creole-aristocracy",
+     "rating": 4.95,
+     "reviews_count": 83,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/54506-retreat-the-creole-aristocracy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 59376,
+     "name": "\"Recoleta Free Tour: Discover the Elegance and History of Buenos Aires' Aristocratic Legacy\"",
+     "slug": "59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 135,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 69794,
+     "name": "Barrio Parque: Stories of liberation, art and diplomacy",
+     "slug": "69794-barrio-parque-stories-of-liberation-art-and-diplomacy",
+     "rating": 5.0,
+     "reviews_count": 4,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/69794-barrio-parque-stories-of-liberation-art-and-diplomacy?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 43134,
+     "name": "In the footsteps of Mamá Antula, the first Argentine saint!",
+     "slug": "43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint",
+     "rating": 5.0,
+     "reviews_count": 2,
+     "duration": 150,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 63487,
+     "name": "SAN NICOLÁS: From Plaza Lavalle to Luna Park, the heart that never sleeps",
+     "slug": "63487-san-nicolas-history-glamour-and-downtown",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 120,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    },
+    {
+     "type": "free_tour",
+     "id": 46968,
+     "name": "Palacios Retreat: Mysticism and Flavors!",
+     "slug": "46968-retreat-myths-architecture-and-tasting",
+     "rating": 5.0,
+     "reviews_count": 1,
+     "duration": 90,
+     "languages": [
+      "es"
+     ],
+     "pricing_from": null,
+     "booking_url": "https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category",
+     "source": "GuruWalk"
+    }
+   ],
+   "pagination": {
+    "page": 3,
+    "per_page": 12,
+    "total_count": 59
+   },
+   "tip": "Use get_product_detail to fetch the full details — pass product IDs and types inside its `items` array, batching several tours in one call when you need multiple.",
+   "attribution": "Book on GuruWalk: https://www.guruwalk.com/en/a/buenos-aires?ref=4919gdnlcf1ajvqq5mig&ref_campaign=get_tours_activities_by_category"
+  }
+ }
+}

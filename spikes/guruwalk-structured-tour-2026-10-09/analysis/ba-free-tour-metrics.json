@@ -1,0 +1,1206 @@
+[
+ {
+  "id": 55661,
+  "name": "Welcome to Buenos Aires! 🥇 The Essential Tour for First-Time Visitors",
+  "dur": 150,
+  "n_en": 8,
+  "n_es": 8,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es",
+   "pt"
+  ],
+  "guide": "Buenos Aires Horizon Tours ",
+  "reviews": 592,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 8,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/55661-welcome-to-buenos-aires-the-essential-tour-for-first-time-visitors"
+ },
+ {
+  "id": 54972,
+  "name": "Walking Tour of the La Boca Neighborhood: Tango, Art, and Football, Argentine Passions",
+  "dur": 150,
+  "n_en": 8,
+  "n_es": 8,
+  "dup_en": 2,
+  "same_len": true,
+  "area": [
+   "Caminito"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es",
+   "fr"
+  ],
+  "guide": "Almafuerte @almafuerte.turismo",
+  "reviews": 782,
+  "groups": [
+   "La Boca"
+  ],
+  "freetext_member": [],
+  "distinct_es": 8,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/54972-walking-tour-through-the-neighborhood-of-la-boca-tango-art-and-football-argentine-passions"
+ },
+ {
+  "id": 45347,
+  "name": "Free tour of Buenos Aires: Heart of the city",
+  "dur": 180,
+  "n_en": 11,
+  "n_es": 11,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [
+   "&quot;The Thinker&quot; by Rodin"
+  ],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Vive Buenos Aires Tours",
+  "reviews": 833,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 11,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/45347-free-tour-of-buenos-aires-heart-of-the-city"
+ },
+ {
+  "id": 68379,
+  "name": "Essential Tour of Buenos Aires",
+  "dur": 150,
+  "n_en": 13,
+  "n_es": 13,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "UrbanTours ",
+  "reviews": 7,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 13,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/68379-essential-tour-of-buenos-aires"
+ },
+ {
+  "id": 35555,
+  "name": "Buenos Aires City Center Walking Tour: History and Stories 🏆 ",
+  "dur": 105,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en"
+  ],
+  "guide": "WalkBa Tours ",
+  "reviews": 611,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 5,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/35555-buenos-aires-city-center-walking-tour-history-and-stories"
+ },
+ {
+  "id": 63551,
+  "name": "Buenos Aires Origins: San Telmo and Monserrat",
+  "dur": 165,
+  "n_en": 12,
+  "n_es": 12,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Montserrat",
+   "San Telmo"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Vive Buenos Aires Tours",
+  "reviews": 44,
+  "groups": [
+   "San Telmo"
+  ],
+  "freetext_member": [],
+  "distinct_es": 12,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/63551-buenos-aires-origins-san-telmo-and-monserrat"
+ },
+ {
+  "id": 38312,
+  "name": "The Paris of South America! Icons, history, and myths of Buenos Aires. Free Tour. (max 6 people)",
+  "dur": 210,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Puerto Madero"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Andreas Greiner",
+  "reviews": 317,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/38312-the-paris-of-south-america-icons-history-and-myths-of-buenos-aires-free-tour-max-6-people"
+ },
+ {
+  "id": 51665,
+  "name": "Welcome to Buenos Aires! (max 12 people)",
+  "dur": 120,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Patricio Ramos",
+  "reviews": 21,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 4,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/51665-welcome-to-buenos-aires-max-12-people"
+ },
+ {
+  "id": 56186,
+  "name": "Discover San Telmo: A Journey Through Time! ⌛",
+  "dur": 165,
+  "n_en": 16,
+  "n_es": 16,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Emanuel Monchetti",
+  "reviews": 9,
+  "groups": [
+   "San Telmo"
+  ],
+  "freetext_member": [],
+  "distinct_es": 16,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/56186-discover-san-telmo-a-journey-through-time"
+ },
+ {
+  "id": 44811,
+  "name": "Free tour, Che! The essential Buenos Aires, we never had silver and fear...",
+  "dur": 135,
+  "n_en": 7,
+  "n_es": 7,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Griselda Baleato",
+  "reviews": 1047,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 7,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/44811-free-tour-che-the-essential-buenos-aires-we-never-had-silver-and-fear"
+ },
+ {
+  "id": 51609,
+  "name": "San Telmo essential free tour: Tango: History and legends, markets and museums",
+  "dur": 120,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [
+   "&quot;Antonio Ballvé&quot; Penitentiary Museum"
+  ],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Magdalena Cruells",
+  "reviews": 197,
+  "groups": [
+   "San Telmo",
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/51609-san-telmo-essential-free-tour-tango-history-and-legends-markets-and-museums"
+ },
+ {
+  "id": 20351,
+  "name": "Buenos Aires, \"The Paris of Latin America\"",
+  "dur": 135,
+  "n_en": 16,
+  "n_es": 16,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Hernán danza",
+  "reviews": 69,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 16,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/20351-buenos-aires-the-paris-of-latin-america"
+ },
+ {
+  "id": 54506,
+  "name": "WITHDRAWAL: From the Naval Center to the Noel Palace, the luxury that competed with Europe",
+  "dur": 120,
+  "n_en": 12,
+  "n_es": 12,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "es"
+  ],
+  "guide": "Gabriel Perez",
+  "reviews": 83,
+  "groups": [
+   "Recoleta",
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 12,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/54506-retreat-the-creole-aristocracy"
+ },
+ {
+  "id": 35557,
+  "name": "Walking Tour Retiro and Recoleta: History and Stories",
+  "dur": 105,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en"
+  ],
+  "guide": "WalkBa Tours ",
+  "reviews": 380,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/35557-walking-tour-retiro-and-recoleta-history-and-stories"
+ },
+ {
+  "id": 64119,
+  "name": "Women in Argentine History",
+  "dur": 120,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 2,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es",
+   "pt"
+  ],
+  "guide": "Casandra Canelo",
+  "reviews": 25,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/64119-women-in-argentine-history"
+ },
+ {
+  "id": 62076,
+  "name": "Palermo Soho: Street Art Tour",
+  "dur": 150,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Palermo Soho"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Vive Buenos Aires Tours",
+  "reviews": 111,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/62076-palermo-soho-street-art-tour"
+ },
+ {
+  "id": 53227,
+  "name": "Tour La Boca: Memories of a Working-Class and Tango Neighborhood",
+  "dur": 120,
+  "n_en": 9,
+  "n_es": 9,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Caminito"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Nuria Barroso",
+  "reviews": 531,
+  "groups": [
+   "La Boca"
+  ],
+  "freetext_member": [],
+  "distinct_es": 9,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/53227-tour-la-boca-memories-of-a-working-class-and-tango-neighborhood"
+ },
+ {
+  "id": 55455,
+  "name": "Recoleta - History, Art, and Architecture of an Iconic Neighborhood",
+  "dur": 150,
+  "n_en": 9,
+  "n_es": 9,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es",
+   "fr"
+  ],
+  "guide": "Agustín  Abeledo ",
+  "reviews": 18,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 9,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/55455-recoleta-history-art-and-architecture-of-an-iconic-neighborhood"
+ },
+ {
+  "id": 30657,
+  "name": "Buenos Aires \"Never sleep\"",
+  "dur": 135,
+  "n_en": 17,
+  "n_es": 17,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Hernán danza",
+  "reviews": 119,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 17,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/30657-buenos-aires-never-sleep"
+ },
+ {
+  "id": 69794,
+  "name": "Barrio Parque: Stories of liberation, art and diplomacy",
+  "dur": 120,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Agustín  Abeledo ",
+  "reviews": 4,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/69794-barrio-parque-stories-of-liberation-art-and-diplomacy"
+ },
+ {
+  "id": 43134,
+  "name": "In the footsteps of Mamá Antula, the first Argentine saint!",
+  "dur": 150,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Silvia Consoni",
+  "reviews": 2,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/43134-in-the-footsteps-of-mama-antula-the-first-argentine-saint"
+ },
+ {
+  "id": 63487,
+  "name": "SAN NICOLÁS: From Plaza Lavalle to Luna Park, the heart that never sleeps",
+  "dur": 120,
+  "n_en": 9,
+  "n_es": 9,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Gabriel Perez",
+  "reviews": 1,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 9,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/63487-san-nicolas-history-glamour-and-downtown"
+ },
+ {
+  "id": 59376,
+  "name": "\"Recoleta Free Tour: Discover the Elegance and History of Buenos Aires' Aristocratic Legacy\"",
+  "dur": 135,
+  "n_en": 11,
+  "n_es": 11,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Exploradores Urbanos BA Juan y Pablo",
+  "reviews": 1,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 11,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/59376-recoleta-free-tour-discover-the-elegance-and-history-of-buenos-aires-aristocratic-legacy"
+ },
+ {
+  "id": 46968,
+  "name": "Palacios Retreat: Mysticism and Flavors!",
+  "dur": 90,
+  "n_en": 6,
+  "n_es": 6,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Lorena Petrucci",
+  "reviews": 1,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 6,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/46968-retreat-myths-architecture-and-tasting"
+ },
+ {
+  "id": 49609,
+  "name": "RECOLETA: ARTE, ELEGANCIA Y PODER",
+  "dur": 180,
+  "n_en": 8,
+  "n_es": 8,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "es",
+   "it"
+  ],
+  "guide": "Inés Cordonnier",
+  "reviews": 178,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 8,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/49609-recoleta-arte-elegancia-y-poder"
+ },
+ {
+  "id": 43240,
+  "name": "AVENIDA DE MAYO: From the Cabildo to the Congress, the avenue that wrote history",
+  "dur": 150,
+  "n_en": 8,
+  "n_es": 8,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "es"
+  ],
+  "guide": "Gabriel Perez",
+  "reviews": 409,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 8,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/43240-avenida-de-mayo-the-avenue-of-dreams"
+ },
+ {
+  "id": 49154,
+  "name": "SAN TELMO: From the Cradle of Buenos Aires to the Courtyards of Tango",
+  "dur": 120,
+  "n_en": 8,
+  "n_es": 8,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Gabriel Perez",
+  "reviews": 65,
+  "groups": [
+   "San Telmo"
+  ],
+  "freetext_member": [],
+  "distinct_es": 8,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/49154-san-telmo-the-stories-beneath-the-cobblestones"
+ },
+ {
+  "id": 52012,
+  "name": "Historic Center. Where our identity was born.",
+  "dur": 150,
+  "n_en": 12,
+  "n_es": 12,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Puerto Madero"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es",
+   "it"
+  ],
+  "guide": "Silvia Consoni",
+  "reviews": 35,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 12,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/52012-historic-center-where-our-identity-was-born"
+ },
+ {
+  "id": 55178,
+  "name": "Free Night Tour: Buenos Aires Illuminated – A Journey Through Its History",
+  "dur": 135,
+  "n_en": 7,
+  "n_es": 7,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [
+   "Puerto Madero"
+  ],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Exploradores Urbanos BA Juan y Pablo",
+  "reviews": 39,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 7,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/55178-free-night-tour-buenos-aires-illuminated-a-journey-through-its-history"
+ },
+ {
+  "id": 58175,
+  "name": "Recoleta: history, architecture, and aristocracy in the most elegant neighborhood of Buenos Aires",
+  "dur": 135,
+  "n_en": 17,
+  "n_es": 17,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Exploradores Urbanos BA Juan y Pablo",
+  "reviews": 4,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 17,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/58175-recoleta-history-architecture-and-aristocracy-in-the-most-elegant-neighborhood-of-buenos-aires"
+ },
+ {
+  "id": 45349,
+  "name": "Free tour Retiro and Recoleta: Aristocratic Buenos Aires",
+  "dur": 150,
+  "n_en": 11,
+  "n_es": 11,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Vive Buenos Aires Tours",
+  "reviews": 115,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 11,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/45349-free-tour-retiro-and-recoleta-aristocratic-buenos-aires"
+ },
+ {
+  "id": 55258,
+  "name": "A Natural Oasis in Buenos Aires: Discover Costanera Sur!",
+  "dur": 150,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Emanuel Monchetti",
+  "reviews": 13,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/55258-a-natural-oasis-in-buenos-aires-discover-costanera-sur"
+ },
+ {
+  "id": 69004,
+  "name": "Abasto, Cradle of Tango and Porteño Culture Buenos Aires Free Tour",
+  "dur": 120,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Almafuerte @almafuerte.turismo",
+  "reviews": 7,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 5,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/69004-abasto-cradle-of-tango-and-porteno-culture-buenos-aires-free-tour"
+ },
+ {
+  "id": 66170,
+  "name": "A corner of Recoleta and Palermo Chico ",
+  "dur": 150,
+  "n_en": 11,
+  "n_es": 11,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "es",
+   "it"
+  ],
+  "guide": "Silvia Consoni",
+  "reviews": 9,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 11,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/66170-a-corner-of-recoleta-and-palermo-chico"
+ },
+ {
+  "id": 69009,
+  "name": "The iconic landmarks of downtown Buenos Aires. ",
+  "dur": 120,
+  "n_en": 7,
+  "n_es": 7,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es",
+   "it"
+  ],
+  "guide": "Inés Cordonnier",
+  "reviews": null,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 7,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/69009-the-iconic-landmarks-of-downtown-buenos-aires"
+ },
+ {
+  "id": 65736,
+  "name": " Montserrat, cradle of the viceroyalty.",
+  "dur": 150,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es",
+   "it"
+  ],
+  "guide": "Inés Cordonnier",
+  "reviews": null,
+  "groups": [
+   "San Telmo"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/65736-montserrat-cradle-of-the-viceroyalty"
+ },
+ {
+  "id": 60076,
+  "name": "Free Tour of Conspiracies in Argentine History",
+  "dur": 150,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Hernán  Morlino ",
+  "reviews": 178,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/60076-free-tour-of-conspiracies-in-argentine-history"
+ },
+ {
+  "id": 62981,
+  "name": "Stories of Powers and Loves in the Recoleta Cemetery: An Intellectual and Fun Tour",
+  "dur": 105,
+  "n_en": 9,
+  "n_es": 9,
+  "dup_en": 2,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "es"
+  ],
+  "guide": "Mar Montiel",
+  "reviews": 31,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 9,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/62981-stories-of-powers-and-loves-in-the-recoleta-cemetery-an-intellectual-and-fun-tour"
+ },
+ {
+  "id": 63797,
+  "name": "Hidden Stories of the Recoleta Cemetery",
+  "dur": 120,
+  "n_en": 3,
+  "n_es": 3,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en"
+  ],
+  "guide": "Nicolas Sandez",
+  "reviews": 13,
+  "groups": [
+   "Recoleta"
+  ],
+  "freetext_member": [],
+  "distinct_es": 3,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/63797-hidden-stories-of-the-recoleta-cemetery"
+ },
+ {
+  "id": 46563,
+  "name": "Chacarita Cemetery: free walking tour",
+  "dur": 90,
+  "n_en": 0,
+  "n_es": 0,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en"
+  ],
+  "guide": "Andrea Sánchez",
+  "reviews": 3,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 0,
+  "usable_list": false,
+  "url": "https://www.guruwalk.com/walks/46563-chacarita-cemetery-free-walking-tour"
+ },
+ {
+  "id": 23191,
+  "name": "Barracas Free Tour, the thousand faces of the deep south",
+  "dur": 210,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "GustaTrips Gustavo",
+  "reviews": 281,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 5,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/23191-barracas-free-tour-the-thousand-faces-of-the-deep-south"
+ },
+ {
+  "id": 65401,
+  "name": "City classics for children",
+  "dur": 105,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Agustina Graziano",
+  "reviews": null,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 5,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/65401-city-classics-for-children"
+ },
+ {
+  "id": 35018,
+  "name": "Buenos Aires Urban Walks - Free Tour of the City Center",
+  "dur": 150,
+  "n_en": 10,
+  "n_es": 10,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en"
+  ],
+  "guide": "Buenos Aires Urban Walks ",
+  "reviews": 21,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 10,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/35018-buenos-aires-urban-walks-free-tour-of-the-city-center"
+ },
+ {
+  "id": 52891,
+  "name": "Secrets of the National Fine Arts Museum",
+  "dur": 60,
+  "n_en": 0,
+  "n_es": 0,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": false,
+  "langs": [
+   "en",
+   "es"
+  ],
+  "guide": "Romina Fabbs ",
+  "reviews": 14,
+  "groups": [
+   "other"
+  ],
+  "freetext_member": [],
+  "distinct_es": 0,
+  "usable_list": false,
+  "url": "https://www.guruwalk.com/walks/52891-secrets-of-the-national-fine-arts-museum"
+ },
+ {
+  "id": 55938,
+  "name": "Buenos Aires Historic Center Tour",
+  "dur": 60,
+  "n_en": 5,
+  "n_es": 5,
+  "dup_en": 0,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en",
+   "es",
+   "pt"
+  ],
+  "guide": "Agustina Nayme LIVA",
+  "reviews": 1,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [],
+  "distinct_es": 5,
+  "usable_list": true,
+  "url": "https://www.guruwalk.com/walks/55938-buenos-aires-historic-center-tour"
+ },
+ {
+  "id": 49463,
+  "name": "Free tour through the heart of the city and its most important bars",
+  "dur": 150,
+  "n_en": 2,
+  "n_es": 2,
+  "dup_en": 1,
+  "same_len": true,
+  "area": [],
+  "entity": [],
+  "coords": true,
+  "route_text": true,
+  "langs": [
+   "en"
+  ],
+  "guide": "Silvia Cimmino",
+  "reviews": 11,
+  "groups": [
+   "Historic center"
+  ],
+  "freetext_member": [
+   "La  Catedral metropolitana, la Casa Rosada, la pirámide de M  ayo, Av de  Mayo , Bar Tortoni y La Ideal               yo. el cabildo y la municipalidad."
+  ],
+  "distinct_es": 2,
+  "usable_list": false,
+  "url": "https://www.guruwalk.com/walks/49463-free-tour-through-the-heart-of-the-city-and-its-most-important-bars"
+ }
+]
