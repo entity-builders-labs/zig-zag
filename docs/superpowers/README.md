@@ -43,20 +43,24 @@ scripts/agent-track locate <track-id>
 
 Do not infer active state from filenames or dates.
 
-Current Preference-First navigation:
+Current Synthetic Tours + OpenSpec navigation:
 
-- Track: preference-first-selection
+- Track: synthetic-tours-openspec
 - Progress:
-  progress/2026-09-11-preference-first-selection-progress.md
-- Implementation plan:
-  plans/2026-09-11-preference-first-selection-implementation.md
-- Canonical design:
-  specs/2026-09-10-preference-first-selection-and-agent-convergence-design.md
-- Real-world acceptance gates:
-  plans/2026-09-12-real-world-tourism-research-spike-gate.md
+  progress/2026-10-10-synthetic-tours-openspec-progress.md
+- Migration plan:
+  plans/2026-10-09-openspec-documentation-governance-cutover.md
+- First real OpenSpec change:
+  `synthetic-experience-generation` (to be bootstrapped under `openspec/changes/`)
 
-The progress document owns current execution state for that track. The plan owns
-intended implementation/gates. Specs own durable behavior and architecture.
+Preference-First is merged and closed as an execution track. Its progress,
+implementation plan, design and acceptance evidence remain historical/supporting
+authority for the accepted foundation and must not be interpreted as the current
+execution pointer.
+
+The active progress document owns temporary execution/bootstrap state until the
+OpenSpec cutover decides and enforces the replacement authority. Stable specs
+continue to own durable behavior and architecture.
 
 ---
 
