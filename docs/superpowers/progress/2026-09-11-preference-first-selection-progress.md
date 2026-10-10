@@ -2148,6 +2148,18 @@ for this implementation run; M9 remains **NOT CLOSED** pending live validation.
 
 ## Current checkpoint
 
+Final evidence preservation (2026-10-10):
+- Commit `15862ae121c192ab3bc3c8a0eed8749c228dea40`
+  (`docs(spikes): preserve final Preference-First evidence`) committed the
+  previously local final evidence directories, including the GuruWalk
+  characterization, final Preference-First COLD/WARM acceptance, walking
+  forensic, and final COLD/WARM campaign artifacts.
+- This is evidence-only; no production behavior changed.
+- The track remains in owner-authorized closeout. Next action remains PR #71
+  merge reconciliation only; no additional Preference-First product work is
+  authorized.
+
+
 Preference-First closeout (2026-10-10, owner-authorized):
 - Track outcome: **ACCEPTED AS FOUNDATION / GENERIC WEB ACQUISITION RETIRED AS PRIMARY AUTHORITY**.
 - PF-REV-SNAPSHOT-WINDOW-1: CLOSED.
