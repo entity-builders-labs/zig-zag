@@ -27,9 +27,11 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
       - name: ShellCheck governance scripts
-        run: shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh
+        run: shellcheck scripts/agent-track scripts/agent-preflight scripts/agent-progress-gate scripts/agent-governance.spec.sh scripts/agent-review-baseline scripts/agent-review-baseline.spec.sh scripts/agent-review-context
       - name: Governance fixture suite
         run: bash scripts/agent-governance.spec.sh
+      - name: Contextual review range fixtures
+        run: bash scripts/agent-review-baseline.spec.sh
       - name: Agent collaboration preflight
         run: bash scripts/agent-preflight --ci
 

@@ -1,0 +1,38 @@
+{
+  "track": "preference-first-selection",
+  "reviewed_head": "15af1ccb641122d633de4c5f1fd853d963ba0a18",
+  "baseline": "1842004715930ea2cc2f27aed0ff483d90888ec7",
+  "range": "1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18",
+  "code_review_verdict": "CHANGES_REQUIRED",
+  "architecture_verdict": "ARCHITECTURE_DRIFT_WARNING",
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "MEDIUM",
+      "file": "be/src/modules/tours/services/identity-verifier.service.ts",
+      "line": "103-109",
+      "title": "EXACT_NAME/UNKNOWN multiplicity + corroborating NEARBY still VERIFIES",
+      "reason": "Pre-existing (the old code verified on any corroborated match), but directly exposed by this delta: Overture partial snapshots are the only production source of exactName=UNKNOWN (overture-places-index.service.ts:211-216), and the delta's own rationale (L95-102; identity-evidence-collector.service.ts:64-68) establishes that NEARBY is centered on the selected candidate and cannot decide which same-named facility the source meant. The same argument applies to uniqueness: a Wikidata item within 200m of the candidate cannot rule out another same-named facility outside the non-exhaustive AOI. A false VERIFIED here would persist a GeoEntity plus hint memory on the strength of a single record in a non-exhaustive dataset — the mirror image of the Ojo de Agua failure this delta fixes. Not demonstrated live (no matching item near the fixtures in either replay). The delta's comment \"It can confirm a unique candidate\" (L97) is inaccurate for UNKNOWN multiplicity, and no test pins this shape either way.",
+      "required_fix": "Either extend the disambiguation guard so that a NEARBY corroboration cannot VERIFY when an EXACT_NAME/DECLARED_ALIAS evidence of multiplicity UNKNOWN is present (treat unproven uniqueness like a collision for NEARBY-driven verification only), or deliberately document the retained semantics in the 2026-09-22 amendment / verifier header and pin it with a test. Record the decision in the open-findings section of the progress doc."
+    },
+    {
+      "id": "F2",
+      "severity": "LOW",
+      "file": "spikes/rw4-mendoza-tourism-route-cloudflare-canonical-2026-09-30/identity-characterization/verifier-characterization-2026-10-03/run.sh",
+      "line": "24-27",
+      "title": "committed evidence not reproducible under its own harness filenames (run.sh + live-spec outDir)",
+      "reason": "run.sh and the live spec write `resolver-replay.json` and `db-after-probe.json`, while the committed evidence is `resolver-replay.pre-fix.json`/`.post-fix.json` and `db-after-probe.pre-fix.json`/`.post-fix.json`; the pre/post distinction (verifier at f3910172 vs post-fix) is not encoded in run.sh. A reviewer re-running the committed harness cannot regenerate the committed artifact names. Diagnostic-only, not a gate. The second affected location is the outDir of be/test/live/rw4-identity-verifier-characterization.live-spec.ts.",
+      "required_fix": "Have the harness name outputs with build provenance (e.g. include the HEAD/BUILD_COMMIT in the filename or copy to the .pre-fix/.post-fix names in run.sh), so committed evidence is regenerable."
+    },
+    {
+      "id": "F3",
+      "severity": "LOW",
+      "file": "be/test/live/rw4-identity-verifier-characterization.live-spec.ts",
+      "line": "145-146",
+      "title": "non-null assertion on destination.countryCode",
+      "reason": "resolveDestination degrades to point-scale on provider failure (destination-resolution.service.ts:99-104, \"never throws\"); in that case countryCode is undefined and `destination.countryCode!` would crash the diagnostic probe instead of recording the failure. Diagnostic-only.",
+      "required_fix": "Fail the probe with a recorded error when destination.countryCode is undefined (or when scale !== 'area', which the spec already checks for `scale` but not for countryCode)."
+    }
+  ],
+  "verification_summary": "Read-only inspection only; no commands were executed. No unit tests, integration tests (require disposable Postgres), e2e, the live probe (require docker containers zigzag-postgres, Nominatim, Overpass, Geoapify, live Wikidata), typecheck, lint, or Git range verification were run; no CI evidence section was present in the input, so the CI state of head 15af1ccb641122d633de4c5f1fd853d963ba0a18 is unknown, and all test/CI results cited in the progress document are author-reported and unverified here. The incremental baseline is 1842004715930ea2cc2f27aed0ff483d90888ec7 (range 1842004715930ea2cc2f27aed0ff483d90888ec7..15af1ccb641122d633de4c5f1fd853d963ba0a18). Coverage limitation: the following remain unverified and are recorded as open work, correctly not attempted in this delta — the EXACT_NAME/SINGLE-vs-contradiction gap (RW4-ID-CONTRADICTION-1), QID homonym false-positive risk (RW4-ID-QID-HOMONYM-1), the UNKNOWN-multiplicity + corroborating-NEARBY VERIFIED hole (F1, neither fixed nor recorded), the repo-owned Overture COMPLETE_COUNTRY importer, Bodega Azul evidence acquisition (declared alias or component-bound fact), A16 coverage, COLD #12 and WARM reuse, and the e2e flake (RW4-E2E-FLAKE-1). The inspector read all 11 changed files on disk plus the canonical contracts they depend on, so this is a full read of the incremental range; the verdict rests on static analysis, not executed suites."
+}

@@ -1,0 +1,15 @@
+checkout_unchanged=true
+inspect_exit=0
+tool_calls<<EOF
+  24 grep
+  24 read
+EOF
+observed_read_paths=20
+normalize_exit=0
+schema_valid=false
+verdict=CHANGES_REQUIRED
+architecture_verdict=ARCHITECTURE_DRIFT_WARNING
+finding_count=3
+evidence_gate_passed=true
+finding_paths_missing=0
+RESULT=CHANGES_REQUIRED

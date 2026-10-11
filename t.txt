@@ -1,0 +1,2 @@
+BASELINE_SHA=abc
+COVERAGE=xyz

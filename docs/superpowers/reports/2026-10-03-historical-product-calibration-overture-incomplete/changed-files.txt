@@ -1,0 +1,4 @@
+be/prisma/migrations/20261002120000_add_overture_places_index/migration.sql
+be/prisma/schema.prisma
+be/src/modules/integrations/overture/overture-places-index.service.spec.ts
+be/src/modules/integrations/overture/overture-places-index.service.ts
