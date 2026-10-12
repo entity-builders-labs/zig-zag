@@ -1,0 +1,215 @@
+{
+ "city": "LA",
+ "scenario": "S2-tight-hours",
+ "solver": "greedy-current-costmodes",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(cost)",
+  "wall_s": 0.0001,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 13,
+ "desirability": 9.623,
+ "visit_min": 810.0,
+ "travel_min": 129.9,
+ "walk_min": 0.0,
+ "drive_legs": 10,
+ "walk_legs": 0,
+ "idle_min": 6.1,
+ "unknown_hours_scheduled": 7,
+ "objective_test_weights": 5323.0,
+ "day_spread_m": [
+  5889,
+  4186,
+  8847
+ ],
+ "residual_min": [
+  43,
+  51,
+  40
+ ],
+ "omitted_top": [
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "California Science Center",
+  "The Hollywood Museum"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 780,
+     "end": 825,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 835,
+     "end": 880,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:206463626",
+     "title": "Museum of Contemporary Art",
+     "start": 892,
+     "end": 982,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 11.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:4773740642",
+     "title": "1100 Wilshire",
+     "start": 986,
+     "end": 1031,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422524239",
+     "title": "The Playboy Mansion",
+     "start": 1052,
+     "end": 1097,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 20.8
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:node:150968103",
+     "title": "Koreatown",
+     "start": 780,
+     "end": 825,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 833,
+     "end": 923,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 940,
+     "end": 985,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 16.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 999,
+     "end": 1089,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 13.4
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:22728853",
+     "title": "Santa Monica Pier",
+     "start": 885,
+     "end": 930,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 14.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 949,
+     "end": 1039,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 18.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:322957598",
+     "title": "Angels Flight",
+     "start": 1055,
+     "end": 1100,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 15.3
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

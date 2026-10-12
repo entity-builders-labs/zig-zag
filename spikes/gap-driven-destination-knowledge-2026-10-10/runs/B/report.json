@@ -1,0 +1,312 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "B",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:20:33.125Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 2,
+    "thematicFacets": [
+      "theme:history"
+    ],
+    "experienceFormatFacets": [],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "A",
+  "report": {
+    "initialEpoch": 5,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 5,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      },
+      {
+        "epoch": 6,
+        "verdict": "READY",
+        "gapKeys": [],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 0,
+          "observed": 2,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Microcentro",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "92c3db773a2ce909",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://www.lonelyplanet.com/articles/best-neighborhoods-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:20:38.300Z",
+                  "contentFingerprint": "ea2e68bf81f91e4491b3c5c77547dd24ba634915fe445ab08fe4ae71b71c120d",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 34055,
+                    "end": 34140,
+                    "text": "History buffs should head to Microcentro; arts fans to Almagro; foodies to Chacarita."
+                  },
+                  "registrableDomain": "lonelyplanet.com",
+                  "proposedAuthorityClass": "travel blog / guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                },
+                {
+                  "id": "d25a1e37141b0e6c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://www.argentina-excepcion.com/en/regions-argentine/region-province-de-buenos-aires/microcentro"
+                  },
+                  "retrievedAt": "2026-10-11T01:20:43.146Z",
+                  "contentFingerprint": "2d79c011d5bbf961779fc82d0094f5c1f2ef58ebabcd329cdc8e4a46841596a7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1220,
+                    "end": 1378,
+                    "text": "Although spread over only sixty blocks around the Plaza de Mayo, this small district alone houses some of the most important traces of the country's history ."
+                  },
+                  "registrableDomain": "argentina-excepcion.com",
+                  "proposedAuthorityClass": "travel blog / guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog / guide"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 9,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 5
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Microcentro",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "92c3db773a2ce909",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://www.lonelyplanet.com/articles/best-neighborhoods-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:20:38.300Z",
+                  "contentFingerprint": "ea2e68bf81f91e4491b3c5c77547dd24ba634915fe445ab08fe4ae71b71c120d",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 34055,
+                    "end": 34140,
+                    "text": "History buffs should head to Microcentro; arts fans to Almagro; foodies to Chacarita."
+                  },
+                  "registrableDomain": "lonelyplanet.com",
+                  "proposedAuthorityClass": "travel blog / guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                },
+                {
+                  "id": "d25a1e37141b0e6c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://www.argentina-excepcion.com/en/regions-argentine/region-province-de-buenos-aires/microcentro"
+                  },
+                  "retrievedAt": "2026-10-11T01:20:43.146Z",
+                  "contentFingerprint": "2d79c011d5bbf961779fc82d0094f5c1f2ef58ebabcd329cdc8e4a46841596a7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1220,
+                    "end": 1378,
+                    "text": "Although spread over only sixty blocks around the Plaza de Mayo, this small district alone houses some of the most important traces of the country's history ."
+                  },
+                  "registrableDomain": "argentina-excepcion.com",
+                  "proposedAuthorityClass": "travel blog / guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog / guide"
+            },
+            "reason": "IDENTITY_NOT_FOUND",
+            "detail": "subject: no neighbourhood named \"Microcentro\" within the destination"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 9,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 5,
+          "at": "2026-10-11T01:20:33.667Z"
+        }
+      }
+    ],
+    "stoppedBecause": "READY",
+    "remainingGapKeys": [],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 0,
+          "observed": 2,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 9,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 5,
+          "at": "2026-10-11T01:20:33.667Z"
+        }
+      }
+    ],
+    "finalEpoch": 6,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 2,
+          "thematicFacets": [
+            "theme:history"
+          ],
+          "experienceFormatFacets": [],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 6,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 2,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

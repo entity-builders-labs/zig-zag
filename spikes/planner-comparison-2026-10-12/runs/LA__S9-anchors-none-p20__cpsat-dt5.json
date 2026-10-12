@@ -1,0 +1,276 @@
+{
+ "city": "LA",
+ "scenario": "S9-anchors-none-p20",
+ "solver": "cpsat-dt5",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 4.721,
+ "wall_s_max": 4.721,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 4.721,
+  "solve_s": 4.704,
+  "status": "FEASIBLE",
+  "objective": 8633.0,
+  "bound": 11502.0,
+  "variables": 1259,
+  "constraints": 1111
+ },
+ "scheduled": 19,
+ "desirability": 13.222,
+ "visit_min": 1395.0,
+ "travel_min": 147.4,
+ "walk_min": 36.1,
+ "drive_legs": 11,
+ "walk_legs": 5,
+ "idle_min": 98.6,
+ "unknown_hours_scheduled": 9,
+ "objective_test_weights": 8632.5,
+ "day_spread_m": [
+  9269,
+  4687,
+  2580
+ ],
+ "residual_min": [
+  78,
+  26,
+  55
+ ],
+ "omitted_top": [
+  "Hammer Museum"
+ ],
+ "readiness": "PLANNER_LIMITED",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 594,
+     "end": 639,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:427532197",
+     "title": "The Broad Museum",
+     "start": 660,
+     "end": 750,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 11.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:206463626",
+     "title": "Museum of Contemporary Art",
+     "start": 751,
+     "end": 841,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 0.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:322957598",
+     "title": "Angels Flight",
+     "start": 846,
+     "end": 891,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 912,
+     "end": 1002,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 20.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:22728853",
+     "title": "Santa Monica Pier",
+     "start": 1017,
+     "end": 1062,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 14.3
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:relation:6246565",
+     "title": "Hollyhock House",
+     "start": 540,
+     "end": 630,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 720,
+     "end": 810,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:470897671",
+     "title": "Grammy Museum",
+     "start": 829,
+     "end": 919,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 18.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:407373025",
+     "title": "Natural History Museum of Los Angeles County",
+     "start": 926,
+     "end": 1016,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:relation:21400392",
+     "title": "Lucas Museum of Narrative Art",
+     "start": 1024,
+     "end": 1114,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 7.0
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:way:422524239",
+     "title": "The Playboy Mansion",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:386067421",
+     "title": "Museum of Tolerance",
+     "start": 594,
+     "end": 684,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:913293590",
+     "title": "Academy Museum of Motion Pictures",
+     "start": 691,
+     "end": 781,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 788,
+     "end": 878,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 6.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 888,
+     "end": 978,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 987,
+     "end": 1032,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:150968103",
+     "title": "Koreatown",
+     "start": 1040,
+     "end": 1085,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.9
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

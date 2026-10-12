@@ -51,7 +51,9 @@ Current Synthetic Tours + OpenSpec navigation:
 - Migration plan:
   plans/2026-10-09-openspec-documentation-governance-cutover.md
 - First real OpenSpec change:
-  `synthetic-experience-generation` (to be bootstrapped under `openspec/changes/`)
+  `gap-driven-destination-knowledge`
+  (`openspec/changes/gap-driven-destination-knowledge/`; replaces the earlier
+  planned `synthetic-experience-generation`)
 
 Preference-First is merged and closed as an execution track. Its progress,
 implementation plan, design and acceptance evidence remain historical/supporting

@@ -1,0 +1,219 @@
+{
+ "city": "BA",
+ "scenario": "S9-anchors-startend-p20",
+ "solver": "greedy-current-walkrule",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  true,
+  true
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0003,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 13,
+ "desirability": 11.072,
+ "visit_min": 774.6,
+ "travel_min": 197.2,
+ "walk_min": 175.0,
+ "drive_legs": 6,
+ "walk_legs": 10,
+ "idle_min": 235.4,
+ "unknown_hours_scheduled": 7,
+ "objective_test_weights": 7577.7,
+ "day_spread_m": [
+  775,
+  759,
+  830
+ ],
+ "residual_min": [
+  141,
+  259,
+  215
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Instituto Sanmartiniano",
+  "Museo Fotogr\u00e1fico Simik",
+  "Museo Casa Rosada",
+  "Museo Sitio de Memoria ESMA"
+ ],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 544,
+     "end": 604,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:204263802",
+     "title": "Museo Mitre",
+     "start": 780,
+     "end": 840,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 22.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 853,
+     "end": 913,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 12.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 943,
+     "end": 1003,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 29.4
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 545,
+     "end": 605,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 628,
+     "end": 688,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 23.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 697,
+     "end": 751.6,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 755,
+     "end": 815,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:2038426439",
+     "title": "El Hipop\u00f3tamo",
+     "start": 826,
+     "end": 886,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.1
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 544,
+     "end": 604,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 631,
+     "end": 691,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 26.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:173065810",
+     "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+     "start": 780,
+     "end": 840,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 11.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:node:694078616",
+     "title": "Club Espa\u00f1ol",
+     "start": 869,
+     "end": 929,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 28.6
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,105 @@
+{
+ "city": "LA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "greedy-current-walkrule",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "LA:node:470897671"
+ ],
+ "pair_edges": 870,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing LA:node:470897671"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "LA:node:470897671"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0001,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "LA:node:470897671"
+  ]
+ },
+ "scheduled": 2,
+ "desirability": 1.506,
+ "visit_min": 135.0,
+ "travel_min": 5.2,
+ "walk_min": 5.2,
+ "drive_legs": 0,
+ "walk_legs": 1,
+ "idle_min": 0.8,
+ "unknown_hours_scheduled": 2,
+ "objective_test_weights": 1254.3,
+ "day_spread_m": [
+  96
+ ],
+ "residual_min": [
+  39
+ ],
+ "omitted_top": [
+  "Hollywood Sign",
+  "The J. Paul Getty Museum",
+  "La Brea Tar Pits",
+  "Griffith Observatory",
+  "Los Angeles County Museum of Art",
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Angels Flight",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "1100 Wilshire",
+  "California Science Center"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 60,
+     "end": 105,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:423448326",
+     "title": "The Hollywood Museum",
+     "start": 111,
+     "end": 201,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 5.2
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

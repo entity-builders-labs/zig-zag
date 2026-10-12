@@ -1,0 +1,1 @@
+{"statusCode":400,"error":"Bad Request","message":"\"mode\" must be one of [walk, hike, scooter, motorcycle, drive, truck, light_truck, medium_truck, truck_dangerous_goods, heavy_truck, long_truck, bicycle, mountain_bike, road_bike, bus, drive_shortest, drive_traffic_approximated, truck_traffic_approximated]"}

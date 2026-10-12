@@ -1,0 +1,3134 @@
+{
+  "header": {
+    "spike": "structured-world-first-2026-10-10",
+    "run": "A2",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T03:11:54.031Z",
+    "routingPolicy": "routing-spike2-1",
+    "readinessPolicy": "readiness-spike2-2",
+    "sourceCapability": "source-capability-spike2-1"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "memoryBefore": {
+    "documents": 0,
+    "pendingQuestions": 0,
+    "pendingCaptures": 0,
+    "mentions": 0,
+    "reuseEvents": 0
+  },
+  "memoryAfter": {
+    "documents": 23,
+    "pendingQuestions": 11,
+    "pendingCaptures": 15,
+    "mentions": 48,
+    "reuseEvents": 0
+  },
+  "report": {
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_CANDIDATES|scope=geo:osm:relation:1224652"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 133,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 136,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 139,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 142,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 145,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 148,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 151,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 154,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 157,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 160,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 163,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 166,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 169,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      }
+    ],
+    "iterations": [
+      {
+        "index": 1,
+        "gap": {
+          "key": "AREA_CANDIDATES|scope=geo:osm:relation:1224652",
+          "type": "AREA_CANDIDATES",
+          "kind": "DISCOVERY",
+          "scopeId": "geo:osm:relation:1224652"
+        },
+        "route": {
+          "gapKey": "AREA_CANDIDATES|scope=geo:osm:relation:1224652",
+          "gapType": "AREA_CANDIDATES",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "osm-admin-areas",
+            "osm-named-places",
+            "wikidata-area-facts"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "osm-admin-areas",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "osm-named-places",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "wikidata-area-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "SUCCESS"
+            }
+          ]
+        },
+        "discovery": {
+          "kind": "AREA",
+          "scopeId": "geo:osm:relation:1224652",
+          "status": "SUCCESS",
+          "acquired": 130,
+          "candidateIds": [
+            "geo:osm:node:10563587863",
+            "geo:osm:node:11781964072",
+            "geo:osm:node:1310853712",
+            "geo:osm:node:13204111853",
+            "geo:osm:node:13333815779",
+            "geo:osm:node:13363621268",
+            "geo:osm:node:13363621269",
+            "geo:osm:node:13588745211",
+            "geo:osm:node:13755786076",
+            "geo:osm:node:1618113952",
+            "geo:osm:node:1620577930",
+            "geo:osm:node:1637490509",
+            "geo:osm:node:1710124754",
+            "geo:osm:node:2154318976",
+            "geo:osm:node:2425303892",
+            "geo:osm:node:2425306209",
+            "geo:osm:node:2425310210",
+            "geo:osm:node:2667485376",
+            "geo:osm:node:3023753678",
+            "geo:osm:node:3049625933",
+            "geo:osm:node:3520887607",
+            "geo:osm:node:3520890188",
+            "geo:osm:node:4308292130",
+            "geo:osm:node:479744086",
+            "geo:osm:node:4936051999",
+            "geo:osm:node:4936147321",
+            "geo:osm:node:4973904314",
+            "geo:osm:node:5523257202",
+            "geo:osm:node:5849865702",
+            "geo:osm:node:5849865703",
+            "geo:osm:node:5849865704",
+            "geo:osm:node:5849865705",
+            "geo:osm:node:6099747372",
+            "geo:osm:node:7317613501",
+            "geo:osm:node:8086648014",
+            "geo:osm:relation:12320573",
+            "geo:osm:relation:12602898",
+            "geo:osm:relation:12720433",
+            "geo:osm:relation:12742959",
+            "geo:osm:relation:15592159",
+            "geo:osm:relation:2220602",
+            "geo:osm:relation:2220994",
+            "geo:osm:relation:2221081",
+            "geo:osm:relation:2221264",
+            "geo:osm:relation:2221272",
+            "geo:osm:relation:2221283",
+            "geo:osm:relation:2221308",
+            "geo:osm:relation:2221316",
+            "geo:osm:relation:2221347",
+            "geo:osm:relation:2221396",
+            "geo:osm:relation:2221410",
+            "geo:osm:relation:2221428",
+            "geo:osm:relation:2221446",
+            "geo:osm:relation:2221465",
+            "geo:osm:relation:2221479",
+            "geo:osm:relation:2222105",
+            "geo:osm:relation:2222108",
+            "geo:osm:relation:2222110",
+            "geo:osm:relation:2222113",
+            "geo:osm:relation:2222119",
+            "geo:osm:relation:2222167",
+            "geo:osm:relation:2222173",
+            "geo:osm:relation:2222175",
+            "geo:osm:relation:2222180",
+            "geo:osm:relation:2222226",
+            "geo:osm:relation:2222235",
+            "geo:osm:relation:2222237",
+            "geo:osm:relation:2222250",
+            "geo:osm:relation:2222256",
+            "geo:osm:relation:2222269",
+            "geo:osm:relation:2222296",
+            "geo:osm:relation:2222813",
+            "geo:osm:relation:2222826",
+            "geo:osm:relation:2222917",
+            "geo:osm:relation:2223057",
+            "geo:osm:relation:2223069",
+            "geo:osm:relation:2223078",
+            "geo:osm:relation:2223088",
+            "geo:osm:relation:2223107",
+            "geo:osm:relation:2223126",
+            "geo:osm:relation:2223172",
+            "geo:osm:relation:2223176",
+            "geo:osm:relation:2223536",
+            "geo:osm:relation:2223879",
+            "geo:osm:relation:2224056",
+            "geo:osm:relation:2224546",
+            "geo:osm:relation:2224562",
+            "geo:osm:relation:5328270",
+            "geo:osm:way:1001239866",
+            "geo:osm:way:1097864831",
+            "geo:osm:way:1188684732",
+            "geo:osm:way:1442402971",
+            "geo:osm:way:149009732",
+            "geo:osm:way:149693906",
+            "geo:osm:way:149763335",
+            "geo:osm:way:1509491808",
+            "geo:osm:way:205344125",
+            "geo:osm:way:205360649",
+            "geo:osm:way:205360910",
+            "geo:osm:way:205362557",
+            "geo:osm:way:205456680",
+            "geo:osm:way:205476342",
+            "geo:osm:way:205476375",
+            "geo:osm:way:205476470",
+            "geo:osm:way:205507596",
+            "geo:osm:way:23651039",
+            "geo:osm:way:298257464",
+            "geo:osm:way:329365872",
+            "geo:osm:way:370229235",
+            "geo:osm:way:373090950",
+            "geo:osm:way:424636843",
+            "geo:osm:way:446758778",
+            "geo:osm:way:474527786",
+            "geo:osm:way:492679065",
+            "geo:osm:way:492679066",
+            "geo:osm:way:519186316",
+            "geo:osm:way:620756879",
+            "geo:osm:way:653250878",
+            "geo:osm:way:700569079",
+            "geo:osm:way:722773886",
+            "geo:osm:way:763919066",
+            "geo:osm:way:804107557",
+            "geo:osm:way:837594663",
+            "geo:osm:way:837594664",
+            "geo:osm:way:911575169",
+            "geo:osm:way:912548402",
+            "geo:osm:way:912563514",
+            "geo:osm:way:912893483",
+            "geo:osm:way:945663097",
+            "geo:osm:way:948326524"
+          ],
+          "excluded": [],
+          "runs": [
+            {
+              "strategyId": "osm-admin-areas",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "osm-named-places",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "wikidata-area-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "SUCCESS"
+            }
+          ]
+        },
+        "gapOutcome": "SATISFIED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "overpass": 96,
+          "overpass-raw": 1,
+          "wikidata": 2
+        }
+      },
+      {
+        "index": 2,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223879",
+            "candidateName": "La Boca",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224562",
+            "candidateName": "Puerto Madero",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [],
+          "mentions": [
+            {
+              "name": "Costanera Sur Ecological Reserve",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a place to spot birds in Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Museum of Imagination and Play",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a family-friendly activity in Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Costanera Sur Ecological Reserve",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a spot to visit in Puerto Madero guide.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Museum of Imagination and Play",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a family-friendly activity near Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Costanera Sur Ecological Reserve",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a place to spot birds in Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Museum of Imagination and Play",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a family-friendly spot in Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Costanera Sur Ecological Reserve",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a nearby attraction in Puerto Madero guides.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Costanera Sur Ecological Reserve",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a place to spot birds in Puerto Madero guide.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Museum of Imagination and Play",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a family-friendly spot in Puerto Madero.",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 14
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2223879",
+              "facetKey": "theme:food"
+            },
+            "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+            "captures": [
+              {
+                "id": "2db4ea3ff3f2d797",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://solsalute.com/blog/what-to-do-in-la-boca/"
+                },
+                "retrievedAt": "2026-10-11T03:12:50.743Z",
+                "contentFingerprint": "b8b7cb777e756daca910c39dd3ee883a1ea249e68c1e16b76274b99a0e467209",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1370,
+                  "end": 1500,
+                  "text": "Tango performers hit up tourists to pose for cheesy photos, restaurants charge high prices for average food, and the shops are fil"
+                },
+                "registrableDomain": "solsalute.com",
+                "proposedAuthorityClass": "low",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:08.230Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": []
+              },
+              {
+                "id": "c240bd78261a6642",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://solsalute.com/blog/what-to-do-in-la-boca/"
+                },
+                "retrievedAt": "2026-10-11T03:12:50.743Z",
+                "contentFingerprint": "b8b7cb777e756daca910c39dd3ee883a1ea249e68c1e16b76274b99a0e467209",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1430,
+                  "end": 1500,
+                  "text": "restaurants charge high prices for average food, and the shops are fil"
+                },
+                "registrableDomain": "solsalute.com",
+                "proposedAuthorityClass": "well-documented",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:08.503Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": []
+              }
+            ]
+          },
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224562",
+              "facetKey": "theme:food"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "470c4a152c50b33e",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://cheargentinatravel.com/puerto-madero-neighbourhood-guide/"
+                },
+                "retrievedAt": "2026-10-11T03:12:53.829Z",
+                "contentFingerprint": "5483a0c49a4705b64d6899c6aa6a8ed35baee78f3b6802ddf57cbe3f14096ea1",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 424,
+                  "end": 553,
+                  "text": "This Puerto Madero neighbourhood guide covers things to do, where to eat, where to stay, easy day trips and family-friendly tips."
+                },
+                "registrableDomain": "cheargentinatravel.com",
+                "proposedAuthorityClass": "documented mean",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:08.746Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "PUBLISHER_ESTABLISHED",
+                    "publisher": "Che Argentina Travel",
+                    "basis": "JSON_LD_ORGANIZATION_URL_MATCHES_HOST",
+                    "registrableDomain": "cheargentinatravel.com"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions that the neighbourhood guide covers \"where to eat,\" which clearly implies that Puerto Madero is worth visiting for food-interested travellers, without explicitly stating the value judgment."
+                  }
+                ]
+              },
+              {
+                "id": "524ccf348e3ff588",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://cheargentinatravel.com/puerto-madero-neighbourhood-guide/"
+                },
+                "retrievedAt": "2026-10-11T03:12:53.829Z",
+                "contentFingerprint": "5483a0c49a4705b64d6899c6aa6a8ed35baee78f3b6802ddf57cbe3f14096ea1",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 651,
+                  "end": 815,
+                  "text": "The former docklands district is now home to glass high rises, riverfront promenades, and former red brick warehouses that hold gelato shops, cafes and restaurants."
+                },
+                "registrableDomain": "cheargentinatravel.com",
+                "proposedAuthorityClass": "medium",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:08.847Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "PUBLISHER_ESTABLISHED",
+                    "publisher": "Che Argentina Travel",
+                    "basis": "JSON_LD_ORGANIZATION_URL_MATCHES_HOST",
+                    "registrableDomain": "cheargentinatravel.com"
+                  }
+                ],
+                "supportVerdicts": []
+              },
+              {
+                "id": "bf98082ac4411109",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://cheargentinatravel.com/puerto-madero-neighbourhood-guide/"
+                },
+                "retrievedAt": "2026-10-11T03:12:53.829Z",
+                "contentFingerprint": "5483a0c49a4705b64d6899c6aa6a8ed35baee78f3b6802ddf57cbe3f14096ea1",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1159,
+                  "end": 1402,
+                  "text": "Our days in Puerto Madero were spent spotting birds at the Costanera Sur Ecological Reserve, strolling the riverside trails, playing with our daughter at the Museum of Imagination and Play, and diving right into the local Argentine food scene."
+                },
+                "registrableDomain": "cheargentinatravel.com",
+                "proposedAuthorityClass": "medium",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:08.938Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "PUBLISHER_ESTABLISHED",
+                    "publisher": "Che Argentina Travel",
+                    "basis": "JSON_LD_ORGANIZATION_URL_MATCHES_HOST",
+                    "registrableDomain": "cheargentinatravel.com"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions diving into the local Argentine food scene while staying in Puerto Madero, which clearly implies it is worth visiting for food enthusiasts without explicitly stating it as a recommendation."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 14,
+          "serper": 2,
+          "web": 8
+        }
+      },
+      {
+        "index": 3,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222226",
+            "candidateName": "Palermo",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224056",
+            "candidateName": "Recoleta",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "San Telmo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a neighborhood with dining spots.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "San Telmo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as another neighborhood with food spots in Buenos Aires.",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 13
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2222226",
+              "facetKey": "theme:food"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "8b42cc350e4de1fd",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://rebeccasinternationalkitchen.com/exploring-buenos-aires-palermo/"
+                },
+                "retrievedAt": "2026-10-11T03:13:24.082Z",
+                "contentFingerprint": "156de0551ace3da4755b92bda1530c82f095c5651c26db0faa3bc6a3e1a1ab6a",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 589,
+                  "end": 713,
+                  "text": "Palermo, a neighborhood in Buenos Aires that is known for its many restaurants, is where I am fortunate enough to call home."
+                },
+                "registrableDomain": "rebeccasinternationalkitchen.com",
+                "proposedAuthorityClass": "mainstream_travel",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:34.106Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions that Palermo is known for its many restaurants, which clearly implies it is worth visiting for food enthusiasts without explicitly stating that travelers should visit it for this reason."
+                  }
+                ]
+              },
+              {
+                "id": "34ea9133232c492e",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://postcardsfromtheworld.com/15-best-restaurants-to-eat-in-buenos-aires-according-to-locals/"
+                },
+                "retrievedAt": "2026-10-11T03:13:21.993Z",
+                "contentFingerprint": "b26f1ffb1288c2edfa102e83310e6b1a959ab6e6cbdd1ba1a0f375c8e3a07be2",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 8738,
+                  "end": 8883,
+                  "text": "In the heart of Palermo, El Preferido de Palermo has become a favorite among locals who appreciate traditional Argentine comfort food done right."
+                },
+                "registrableDomain": "postcardsfromtheworld.com",
+                "proposedAuthorityClass": "A",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:36.188Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+                    "level": "NONE",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions a restaurant in Palermo serving traditional Argentine food, but it does not state or imply that Palermo as a destination is worth visiting for travelers interested in food."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224056",
+              "facetKey": "theme:food"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "fec07af90141efb8",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://rebeccasinternationalkitchen.com/exploring-buenos-aires-recoleta/"
+                },
+                "retrievedAt": "2026-10-11T03:13:25.346Z",
+                "contentFingerprint": "cfc4117596d4e4e070c94d3fcd570a3245fd37baca1e96f481e6c50e0677d92d",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 34,
+                  "end": 95,
+                  "text": "Exploring Buenos Aires: What to Do & Where to Eat in Recoleta"
+                },
+                "registrableDomain": "rebeccasinternationalkitchen.com",
+                "proposedAuthorityClass": "mainstream_travel",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:13:55.302Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions Recoleta in the context of 'Where to Eat,' which clearly implies that the neighborhood is relevant or worth visiting for travelers interested in food."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 15,
+          "serper": 2,
+          "web": 6
+        }
+      },
+      {
+        "index": 4,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "EMPTY",
+              "detail": "BUDGET_EXHAUSTED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222180",
+            "candidateName": "Belgrano",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223069",
+            "candidateName": "San Telmo",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "BUDGET_EXHAUSTED",
+          "discarded": [],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 4,
+            "fetches": 1
+          },
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food": "BUDGET_EXHAUSTED"
+        },
+        "gapOutcome": "BUDGET_EXHAUSTED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 8,
+          "serper": 4,
+          "web": 1
+        }
+      },
+      {
+        "index": 5,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224546",
+            "candidateName": "Retiro",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222269",
+            "candidateName": "Almagro",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "Palermo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Neighborhood known for acclaimed bars and restaurants",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Neighborhood known for acclaimed bars and restaurants",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Balvanera",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Neighboring area known for Peruvian restaurants",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Balvanera",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as a neighboring area with great Peruvian restaurants.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Abasto",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned in the context of the Almagro and Abasto walking tour.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Palermo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as having acclaimed bars.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Mentioned as having acclaimed bars.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Balvanera",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "Neighboring area mentioned for Peruvian restaurants.",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 3
+        },
+        "grounding": [
+          {
+            "status": "FAILED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224546",
+              "facetKey": "theme:food"
+            },
+            "reason": "VERIFIER_UNAVAILABLE",
+            "detail": "Gemini completion error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"The service is currently unavailable.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n"
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food": "FAILED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:food": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 13,
+          "serper": 2,
+          "web": 5
+        }
+      },
+      {
+        "index": 6,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "FAILED",
+              "detail": "TOOL_FAILURE"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224546",
+            "candidateName": "Retiro",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222813",
+            "candidateName": "Balvanera",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "TOOL_FAILURE",
+          "discarded": [],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 3
+          },
+          "failure": "llm: Gemini completion error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"The service is currently unavailable.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food": "FAILED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food": "FAILED"
+        },
+        "gapOutcome": "FAILED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 6,
+          "serper": 2,
+          "web": 3
+        }
+      },
+      {
+        "index": 7,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223879",
+            "candidateName": "La Boca",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224562",
+            "candidateName": "Puerto Madero",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 2
+          },
+          "answers": 16
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2223879",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "dc36295788622232",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/discovering-la-boca%E2%80%99s-untold-stories"
+                },
+                "retrievedAt": "2026-10-11T03:15:32.423Z",
+                "contentFingerprint": "1d2c0af33468d4eeef71a5f22fd3b2b939962b8ca3e1371cb9280e5b736c97db",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1016,
+                  "end": 1269,
+                  "text": "When I decided to spend a day in the neighbourhood of La Boca, I was planning to take in the usual must-see attractions, the most obligatory being of course Boca Juniors’ legendary soccer stadium and the colourful open-air street museum of the Caminito."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official tourism site",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:16:31.707Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+                    "level": "NONE",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions visiting La Boca and its attractions, but it does not state or imply that it is worth visiting specifically for travellers interested in history."
+                  }
+                ]
+              },
+              {
+                "id": "413b7d02219dfc92",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/discovering-la-boca%E2%80%99s-untold-stories"
+                },
+                "retrievedAt": "2026-10-11T03:15:32.423Z",
+                "contentFingerprint": "1d2c0af33468d4eeef71a5f22fd3b2b939962b8ca3e1371cb9280e5b736c97db",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 905,
+                  "end": 1015,
+                  "text": "Discovering La Boca’s untold stories A visit full of curious tales in the city's most colourful neighbourhood."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:16:31.739Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence highlights La Boca's untold stories and curious tales, which implies it is worth visiting for those interested in history."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224562",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "f299c8ab3c5a2d72",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/recorrido/puerto-madero"
+                },
+                "retrievedAt": "2026-10-11T03:15:35.367Z",
+                "contentFingerprint": "f0a44ebd02974577b624317d4844cbb515c8bfcf979dc229f56b10954c3cc8c2",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 882,
+                  "end": 963,
+                  "text": "Puerto Madero History and style in the city's regenerated portside neighbourhood."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official tourism site",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:16:33.237Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions the history and style of Puerto Madero, which clearly implies it is worth visiting for travelers interested in history, without explicitly stating the recommendation."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 15,
+          "serper": 2,
+          "web": 5
+        }
+      },
+      {
+        "index": 8,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222226",
+            "candidateName": "Palermo",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224056",
+            "candidateName": "Recoleta",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "Plaza Francia",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as part of a historical tour in Recoleta.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta Cemetery",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as a historical attraction in Recoleta.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "El Zanjón de Granados",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "historic landmark mentioned in connection with Palermo tours",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Plaza Francia",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "historic quarter site in Recoleta",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Del Pilar Church",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "historic quarter site in Recoleta",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta Cemetery",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "historic quarter site in Recoleta",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 4,
+            "fetches": 3
+          },
+          "answers": 5
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224056",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "5592969918270cb5",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://study.buenosaires.gob.ar/en/actividades/view/73"
+                },
+                "retrievedAt": "2026-10-11T03:16:45.542Z",
+                "contentFingerprint": "68a739fe260d11801c900f2dcaa43c67ffaae997c1415f3573c839baf1a5bb98",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 852,
+                  "end": 1014,
+                  "text": "Get to know the historic quarter of the neighbourhood, its history, monuments and sculptures. A tour of Plaza Francia, Del Pilar Church and the Recoleta Cemetery."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "high",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:17:37.878Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence suggests exploring the historic quarter, monuments, and Recoleta Cemetery, which clearly implies that Recoleta is worth visiting for history enthusiasts without explicitly stating the exact claim."
+                  }
+                ]
+              },
+              {
+                "id": "fa72a81df4b0b27f",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://study.buenosaires.gob.ar/en/actividades/view/73"
+                },
+                "retrievedAt": "2026-10-11T03:16:39.415Z",
+                "contentFingerprint": "68a739fe260d11801c900f2dcaa43c67ffaae997c1415f3573c839baf1a5bb98",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 24,
+                  "end": 67,
+                  "text": "Come and learn all the secrets of Recoleta!"
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "useful",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:17:37.983Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence invites travelers to learn secrets, which implies historical interest, but does not explicitly mention history."
+                  }
+                ]
+              },
+              {
+                "id": "ab2845f074c0bc64",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://study.buenosaires.gob.ar/en/actividades/view/73"
+                },
+                "retrievedAt": "2026-10-11T03:16:45.542Z",
+                "contentFingerprint": "68a739fe260d11801c900f2dcaa43c67ffaae997c1415f3573c839baf1a5bb98",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 852,
+                  "end": 945,
+                  "text": "Get to know the historic quarter of the neighbourhood, its history, monuments and sculptures."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "documented",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:17:38.075Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 14,
+          "serper": 4,
+          "web": 6
+        }
+      },
+      {
+        "index": 9,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222180",
+            "candidateName": "Belgrano",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223069",
+            "candidateName": "San Telmo",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "Chinatown",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned in Belgrano guide",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Palermo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as a neighboring area",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as a neighboring area",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Plaza Mayor",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned in San Telmo guide",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Palermo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Neighborhood in Buenos Aires",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Recoleta",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Neighborhood in Buenos Aires",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "La Boca",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Neighborhood in Buenos Aires",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 2
+          },
+          "answers": 2
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2223069",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "0c7a9fa482c2195d",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://querandi.com.ar/en/san-telmo-buenos-aires-history-what-to-see-and-why-no-trip-is-complete-without-exploring-it/"
+                },
+                "retrievedAt": "2026-10-11T03:17:48.728Z",
+                "contentFingerprint": "e83e3d45aaea53d0a064eeb5479e831b8c998280954b723bce51627fd2d8a00b",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 670,
+                  "end": 903,
+                  "text": "The neighborhood of San Telmo is the oldest in Buenos Aires. It was the first stable settlement of the colonial city and the seat of the 19th-century Buenos Aires aristocracy until the yellow fever epidemic of 1871 pushed them north."
+                },
+                "registrableDomain": "querandi.com.ar",
+                "proposedAuthorityClass": "high",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:17:51.900Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "PUBLISHER_ESTABLISHED",
+                    "publisher": "El Querandí",
+                    "basis": "JSON_LD_ORGANIZATION_URL_MATCHES_HOST",
+                    "registrableDomain": "querandi.com.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence details San Telmo's deep historical significance as the oldest neighborhood and former aristocratic seat, which clearly implies it is worth visiting for history enthusiasts, even though it does not explicitly state that travellers should visit it."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 8,
+          "serper": 2,
+          "web": 3
+        }
+      },
+      {
+        "index": 10,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224546",
+            "candidateName": "Retiro",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222269",
+            "candidateName": "Almagro",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            }
+          ],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 1
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2224546",
+              "facetKey": "theme:history"
+            },
+            "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+            "captures": [
+              {
+                "id": "e9125a9eef05ed0b",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/retiro"
+                },
+                "retrievedAt": "2026-10-11T03:18:18.075Z",
+                "contentFingerprint": "168074d78451b76d89c4244ee3c73c7a21d348e02198b6b83d7b0b7483a6a7ee",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1261,
+                  "end": 1350,
+                  "text": "Monument to General San Martín Sculptural tribute to Argentina's liberator, made in 1862."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:18:20.597Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              },
+              {
+                "id": "798c7dc86e1e6388",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/retiro"
+                },
+                "retrievedAt": "2026-10-11T03:18:18.075Z",
+                "contentFingerprint": "168074d78451b76d89c4244ee3c73c7a21d348e02198b6b83d7b0b7483a6a7ee",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1136,
+                  "end": 1249,
+                  "text": "Cenotaph to the Fallen of the Malvinas War This monument pays tribute to those who died in the 1982 Malvinas War."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:18:20.612Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 8,
+          "serper": 2,
+          "web": 5
+        }
+      },
+      {
+        "index": 11,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222813",
+            "candidateName": "Balvanera",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222917",
+            "candidateName": "Monserrat",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [],
+          "mentions": [
+            {
+              "name": "Abasto",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as a shopping centre and area associated with the Children's Museum.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "San Telmo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned in relation to Buenos Aires origins and historic walking tours.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Abasto",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "shopping centre in Balvanera",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Casa Rosada",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "governmental palace in Monserrat",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "San Telmo",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "neighbourhood mentioned in travel guides",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 14
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2222813",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "ad20bce9b7082f11",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/balvanera"
+                },
+                "retrievedAt": "2026-10-11T03:18:23.215Z",
+                "contentFingerprint": "cec3e1313e35d334133c7350f88bc1bfae8ad5b202185dfdd343847a6c3aeab9",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 878,
+                  "end": 963,
+                  "text": "Balvanera Carlos Gardel House Museum One of the most important historic tango spaces."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official and independent travel guides",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:22.136Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence mentions that Balvanera houses a historic tango space, which clearly implies it is worth visiting for history enthusiasts."
+                  }
+                ]
+              },
+              {
+                "id": "fb73d3df9708cede",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/balvanera"
+                },
+                "retrievedAt": "2026-10-11T03:18:23.215Z",
+                "contentFingerprint": "cec3e1313e35d334133c7350f88bc1bfae8ad5b202185dfdd343847a6c3aeab9",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1094,
+                  "end": 1184,
+                  "text": "Confitería del Molino The emblematic “windmill cafe” holds more than a century of history."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "A",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:22.152Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              },
+              {
+                "id": "5c5461d611b2b3f4",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://solsalute.com/blog/once-buenos-aires/"
+                },
+                "retrievedAt": "2026-10-11T03:18:27.513Z",
+                "contentFingerprint": "aae1e619ad665ab26cd2dc170f39cb91a4faf7d084b371796e09e477496b7df1",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1352,
+                  "end": 1445,
+                  "text": "But besides being an open air shopping mall, Once is filled with history – some of it tragic."
+                },
+                "registrableDomain": "solsalute.com",
+                "proposedAuthorityClass": "official and independent travel guides",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:22.699Z",
+                    "fingerprintDrift": false
+                  }
+                ],
+                "supportVerdicts": []
+              }
+            ]
+          },
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2222917",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "1c453fcc300c33d8",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/monserrat"
+                },
+                "retrievedAt": "2026-10-11T03:18:26.587Z",
+                "contentFingerprint": "63ebb453c93aa49947609a383d64f996d9e3443789d13a94ea0b1e3fe27634b2",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 878,
+                  "end": 1022,
+                  "text": "Monserrat Cabildo National Historic Museum on the May Revolution A special site in Argentine history in which to discover the country's origins."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official and independent travel guides",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:23.373Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history",
+                    "level": "EXPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence directly states that the Monserrat museum is a special site in Argentine history to discover the country's origins, which supports the claim that Monserrat is worth visiting for history enthusiasts."
+                  }
+                ]
+              },
+              {
+                "id": "df3170d84449e175",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/monserrat"
+                },
+                "retrievedAt": "2026-10-11T03:18:26.587Z",
+                "contentFingerprint": "63ebb453c93aa49947609a383d64f996d9e3443789d13a94ea0b1e3fe27634b2",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1361,
+                  "end": 1425,
+                  "text": "Casa Rosada Visit Buenos Aires' iconic pink governmental palace."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "A",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:23.391Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 14,
+          "serper": 2,
+          "web": 8
+        }
+      },
+      {
+        "index": 12,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "SUCCESS",
+              "detail": "CLAIMS_PROPOSED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2221428",
+            "candidateName": "Caballito",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222296",
+            "candidateName": "Boedo",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q2"
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "detail": "q1"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "Parque Centenario",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Popular neighbourhood park in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Bernardino Rivadavia Museum of Natural Sciences",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Museum in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Mercado del Progreso",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Historic food market in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Parque Centenario",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as a popular neighbourhood park.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Bernardino Rivadavia Museum of Natural Sciences",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Mentioned as an exciting museum with dinosaur fossils.",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Parque Centenario",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Neighborhood park in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Bernardino Rivadavia Museum of Natural Sciences",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Museum in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Parque Centenario",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Neighbourhood park and geographical centre of Buenos Aires City",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Bernardino Rivadavia Museum of Natural Sciences",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Museum discovering dinosaur fossils and insect collections",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Parque Centenario",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Popular neighbourhood park in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            },
+            {
+              "name": "Bernardino Rivadavia Museum of Natural Sciences",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "Museum located in Caballito",
+              "at": "2026-10-11T03:11:55.108Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 2,
+            "fetches": 3
+          },
+          "answers": 7
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2221428",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "8ac370193b69266e",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/caballito"
+                },
+                "retrievedAt": "2026-10-11T03:19:32.651Z",
+                "contentFingerprint": "b0f160e3e60933a765c8b00c5d5d836764d40e220b60925366cd1e6b29710cd3",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 0,
+                  "end": 65,
+                  "text": "Caballito | Official English Website for the City of Buenos Aires"
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:42.561Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+                    "level": "NONE",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence only mentions the subject's name and its connection to Buenos Aires, but does not provide any information about its historical value or whether it is worth visiting."
+                  }
+                ]
+              },
+              {
+                "id": "3f6cce0bb2a9f527",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/caballito"
+                },
+                "retrievedAt": "2026-10-11T03:19:32.651Z",
+                "contentFingerprint": "b0f160e3e60933a765c8b00c5d5d836764d40e220b60925366cd1e6b29710cd3",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 878,
+                  "end": 1498,
+                  "text": "Caballito Parque Centenario Popular neighbourhood park, and geographical centre of Buenos Aires City. See more ❯ Bernardino Rivadavia Museum of Natural Sciences Discover dinosaur fossils and insect collections at this exciting museum. See more ❯ Historic tramway An original experience to enjoy with young visitors. See more ❯ Mercado del Progreso Historic food market popular with foodies in Caballito See more ❯ Luis Perlotti Sculpture Museum Museum located in the former sculptor's home and workshop. See more ❯ Bernardino Rivadavia Natural Science Museum Argentina's most important natural sciences museum See more ❯"
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official_guide",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:42.586Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence lists historic attractions in Caballito such as a historic tramway and a historic food market, which clearly implies it is worth visiting for history enthusiasts without explicitly stating that conclusion."
+                  }
+                ]
+              },
+              {
+                "id": "a0322dd61924e066",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/barrios/caballito"
+                },
+                "retrievedAt": "2026-10-11T03:19:32.651Z",
+                "contentFingerprint": "b0f160e3e60933a765c8b00c5d5d836764d40e220b60925366cd1e6b29710cd3",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 878,
+                  "end": 1193,
+                  "text": "Caballito Parque Centenario Popular neighbourhood park, and geographical centre of Buenos Aires City. See more ❯ Bernardino Rivadavia Museum of Natural Sciences Discover dinosaur fossils and insect collections at this exciting museum. See more ❯ Historic tramway An original experience to enjoy with young visitors."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "definitely worth visiting",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:19:42.607Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence lists historic attractions in Caballito such as a historic tramway and a museum of natural sciences, which supports the claim that the neighborhood is worth visiting for history enthusiasts."
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "status": "REJECTED",
+            "question": {
+              "key": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+              "claimType": "RELEVANT_FOR",
+              "candidateId": "geo:osm:relation:2222296",
+              "facetKey": "theme:history"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "captures": [
+              {
+                "id": "b6224ac90942ca78",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/boedo"
+                },
+                "retrievedAt": "2026-10-11T03:19:34.748Z",
+                "contentFingerprint": "fb696d006ee0975d7f6c47915a544e20901505d07ad8b3e1519251cf1d676d36",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 0,
+                  "end": 61,
+                  "text": "Boedo | Official English Website for the City of Buenos Aires"
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:20:32.986Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+                    "level": "NONE",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence only mentions Boedo as part of an official website title and does not provide any information about it being worth visiting for history enthusiasts."
+                  }
+                ]
+              },
+              {
+                "id": "f46a86c86698f7c2",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/boedo"
+                },
+                "retrievedAt": "2026-10-11T03:19:34.748Z",
+                "contentFingerprint": "fb696d006ee0975d7f6c47915a544e20901505d07ad8b3e1519251cf1d676d36",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 874,
+                  "end": 1015,
+                  "text": "Boedo A neighbourhood that pays homage to an independence hero, was home to an important literary set, and brims with Porteño tango identity."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "definitely worth visiting",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:20:33.005Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence describes Boedo as a neighborhood tied to an independence hero, a former home for an important literary set, and full of tango identity, which clearly implies it is worth visiting for history enthusiasts without explicitly stating so."
+                  }
+                ]
+              },
+              {
+                "id": "09c6c3951fe0d32d",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/boedo"
+                },
+                "retrievedAt": "2026-10-11T03:19:34.748Z",
+                "contentFingerprint": "fb696d006ee0975d7f6c47915a544e20901505d07ad8b3e1519251cf1d676d36",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 1314,
+                  "end": 1477,
+                  "text": "The neighbourhood is mentioned in many tangos of the 1920s and 30s, described as an \"arrabal\" - the kind of working class suburb much romanticised in tango lyrics."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "definitely",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:20:33.021Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": []
+              },
+              {
+                "id": "aed87c799e525ac2",
+                "locator": {
+                  "kind": "URL",
+                  "url": "https://turismo.buenosaires.gob.ar/en/article/boedo"
+                },
+                "retrievedAt": "2026-10-11T03:19:34.748Z",
+                "contentFingerprint": "fb696d006ee0975d7f6c47915a544e20901505d07ad8b3e1519251cf1d676d36",
+                "capture": {
+                  "kind": "PROSE_SPAN",
+                  "start": 874,
+                  "end": 1229,
+                  "text": "Boedo A neighbourhood that pays homage to an independence hero, was home to an important literary set, and brims with Porteño tango identity. This neighbourhood bears the name of the independence hero Mariano Joaquín Boedo, a lawyer who was active in the events of July 9, 1816 and was one of the men who signed the declaration of independence from Spain."
+                },
+                "registrableDomain": "buenosaires.gob.ar",
+                "proposedAuthorityClass": "official_guide",
+                "provenanceSignals": [
+                  {
+                    "kind": "REPRODUCIBLE",
+                    "refetchedAt": "2026-10-11T03:20:33.038Z",
+                    "fingerprintDrift": false
+                  },
+                  {
+                    "kind": "GOVERNMENT_HOSTED",
+                    "registrableDomain": "buenosaires.gob.ar"
+                  }
+                ],
+                "supportVerdicts": [
+                  {
+                    "claimKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+                    "level": "IMPLICIT",
+                    "verifier": {
+                      "provider": "gemini",
+                      "model": "gemini-3.5-flash-lite"
+                    },
+                    "rationale": "The evidence describes Boedo's rich history involving an independence hero and a literary set, which clearly implies it is worth visiting for history enthusiasts, even though it does not explicitly state that travellers should visit it."
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history": "INSUFFICIENT_EVIDENCE",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history": "INSUFFICIENT_EVIDENCE"
+        },
+        "gapOutcome": "INSUFFICIENT_EVIDENCE",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 18,
+          "serper": 2,
+          "web": 10
+        }
+      },
+      {
+        "index": 13,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "FAILED",
+              "detail": "TOOL_FAILURE"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223078",
+            "candidateName": "Constitución",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2221308",
+            "candidateName": "La Paternal",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "TOOL_FAILURE",
+          "discarded": [],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 3,
+            "searches": 2,
+            "fetches": 0
+          },
+          "failure": "llm: Gemini completion error 503: {\n  \"error\": {\n    \"code\": 503,\n    \"message\": \"The service is currently unavailable.\",\n    \"status\": \"UNAVAILABLE\"\n  }\n}\n",
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:history": "FAILED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:history": "FAILED"
+        },
+        "gapOutcome": "FAILED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 3,
+          "serper": 2
+        }
+      }
+    ],
+    "finalVerdict": "GAPS",
+    "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+    "limitations": [],
+    "result": {
+      "status": "INSUFFICIENT_KNOWLEDGE",
+      "limitations": []
+    }
+  }
+}

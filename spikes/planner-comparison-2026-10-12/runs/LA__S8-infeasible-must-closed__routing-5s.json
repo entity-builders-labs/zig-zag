@@ -1,0 +1,96 @@
+{
+ "city": "LA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "routing-5s",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "LA:node:470897671"
+ ],
+ "pair_edges": 870,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing LA:node:470897671"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "LA:node:470897671"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.001,
+ "wall_s_max": 0.001,
+ "solver_meta": {
+  "solver": "ortools-routing(gls,5s)",
+  "wall_s": 0.001,
+  "solve_s": 0,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "LA:node:470897671"
+  ],
+  "nodes": 16
+ },
+ "scheduled": 0,
+ "desirability": 0.0,
+ "visit_min": 0.0,
+ "travel_min": 0.0,
+ "walk_min": 0.0,
+ "drive_legs": 0,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 0,
+ "objective_test_weights": 0.0,
+ "day_spread_m": [
+  0
+ ],
+ "residual_min": [
+  180
+ ],
+ "omitted_top": [
+  "Walk of Fame",
+  "Hollywood Sign",
+  "The J. Paul Getty Museum",
+  "La Brea Tar Pits",
+  "Griffith Observatory",
+  "Los Angeles County Museum of Art",
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Angels Flight",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "1100 Wilshire",
+  "California Science Center",
+  "The Hollywood Museum",
+  "Japanese American National Museum",
+  "Hollywood Wax Museum",
+  "Psychiatry: An Industry of Death Museum",
+  "California African American Museum",
+  "Madame Tussaud's",
+  "Chinese American Museum",
+  "Neutra Studio and Residences (VDL Research House)"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": []
+  }
+ ]
+}

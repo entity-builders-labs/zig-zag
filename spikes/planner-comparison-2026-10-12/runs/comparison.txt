@@ -1,0 +1,297 @@
+
+## BA S1-normal-p10
+  greedy-current-walkrule    HEURISTIC     ok     n= 9 D=  8.14 obj=  6511.8 trav= 112.7 walk=112.7 drv= 0 unk= 5 idle=  83.7 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n= 9 D=  8.14 obj=  6564.7 trav=  23.7 walk=  0.0 drv= 6 unk= 5 idle= 179.7 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n= 9 D=  8.14 obj=  6936.2 trav=  31.2 walk= 22.2 drv= 3 unk= 5 idle=  51.2 t= 0.001/ 0.001 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n= 9 D=  8.14 obj=  6679.5 trav=  57.2 walk= 48.6 drv= 3 unk= 5 idle=   3.2 t= 1.001/ 1.240 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  OPTIMAL       ok     n= 9 D=  8.14 obj=  6997.5 trav=  51.4 walk= 48.6 drv= 1 unk= 5 idle= 107.1 t= 0.034/ 0.730 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+  routing-5s                 FEASIBLE      ok     n= 9 D=  8.14 obj=  6679.5 trav=  57.2 walk= 48.6 drv= 3 unk= 5 idle=   3.2 t= 5.004/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n= 9 D=  8.14 obj=  6997.5 trav=  51.4 walk= 48.6 drv= 1 unk= 5 idle= 107.1 t= 0.034/ 0.036 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## BA S1-normal-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=14 D= 11.76 obj=  8983.8 trav= 207.7 walk=207.7 drv= 0 unk= 7 idle= 188.7 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=18 D= 14.47 obj= 10142.0 trav=  96.5 walk=  0.0 drv=15 unk= 9 idle= 359.9 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=19 D= 15.14 obj= 11598.0 trav= 115.5 walk= 56.8 drv= 9 unk= 9 idle=   9.0 t= 0.008/ 0.008 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n=19 D= 15.14 obj= 11816.8 trav= 127.4 walk= 82.6 drv= 7 unk= 9 idle=   9.0 t= 1.003/ 1.004 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  FEASIBLE      ok     n=18 D= 14.47 obj= 11621.0 trav= 109.2 walk= 83.3 drv= 6 unk= 9 idle=  12.2 t= 1.607/ 1.711 rep== CANDIDATE_SUPPLY_LIMIT gap=6.703%
+  routing-5s                 FEASIBLE      ok     n=19 D= 15.14 obj= 11975.0 trav= 109.3 walk= 72.2 drv= 8 unk= 9 idle=   8.1 t= 5.006/ 5.009 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=18 D= 14.47 obj= 11621.0 trav= 109.2 walk= 83.3 drv= 6 unk= 9 idle=  12.2 t= 7.200/ 7.705 rep== CANDIDATE_SUPPLY_LIMIT gap=6.703%
+
+## BA S1-normal-pall
+  greedy-current-walkrule    HEURISTIC     ok     n=16 D= 12.74 obj=  9533.5 trav= 230.5 walk=230.5 drv= 0 unk= 9 idle=  21.9 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=21 D= 16.23 obj= 11135.0 trav= 125.4 walk= 11.4 drv=17 unk=10 idle= 186.1 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=26 D= 18.27 obj= 13647.5 trav= 146.8 walk= 91.2 drv=12 unk=14 idle=  12.6 t= 0.028/ 0.028 rep== READY
+  routing-1s                 FEASIBLE      ok     n=27 D= 18.87 obj= 13959.0 trav= 168.1 walk=105.0 drv=11 unk=15 idle=  13.3 t= 1.007/ 1.008 rep== READY
+  cpsat-dt1                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 1.605/ 1.699 rep== PLANNER_INFEASIBLE
+  routing-5s                 FEASIBLE      ok     n=27 D= 18.94 obj= 14354.8 trav= 136.8 walk= 85.1 drv=13 unk=14 idle=  13.7 t= 5.010/ 5.012 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.679/ 6.783 rep== PLANNER_INFEASIBLE
+  routing-30s                FEASIBLE      ok     n=27 D= 18.94 obj= 14354.8 trav= 136.8 walk= 85.1 drv=13 unk=14 idle=  13.7 t=30.010/30.010 rep== READY
+  cpsat-dt30                 UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t=28.922/28.922 rep== PLANNER_INFEASIBLE
+
+## BA S2-tight-hours
+  greedy-current-walkrule    HEURISTIC     ok     n=13 D= 11.12 obj=  8632.0 trav= 188.5 walk=188.5 drv= 0 unk= 6 idle=   3.9 t= 0.000/ 0.000 rep== READY
+  greedy-current-costmodes   HEURISTIC     ok     n=14 D= 11.92 obj=  9099.3 trav=  50.9 walk=  0.0 drv=11 unk= 7 idle=   5.5 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=15 D= 12.49 obj= 10193.7 trav=  75.3 walk= 50.4 drv= 6 unk= 7 idle=   6.2 t= 0.013/ 0.013 rep== READY
+  routing-5s                 FEASIBLE      ok     n=15 D= 12.52 obj= 10293.7 trav=  75.0 walk= 57.6 drv= 5 unk= 8 idle=   6.4 t= 5.009/ 5.009 rep== READY
+  cpsat-dt5                  FEASIBLE      ok     n=15 D= 11.24 obj=  8215.0 trav=  83.4 walk= 23.8 drv= 9 unk= 7 idle=   4.6 t= 5.456/ 5.456 rep== READY gap=86.709%
+
+## BA S3-unknown-penalize
+  greedy-current-walkrule    HEURISTIC     ok     n=16 D= 12.74 obj=  9533.5 trav= 230.5 walk=230.5 drv= 0 unk= 9 idle=  21.9 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=21 D= 16.23 obj= 11135.0 trav= 125.4 walk= 11.4 drv=17 unk=10 idle= 186.1 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=26 D= 18.27 obj= 13647.5 trav= 146.8 walk= 91.2 drv=12 unk=14 idle=  12.6 t= 0.031/ 0.031 rep== READY
+  routing-5s                 FEASIBLE      ok     n=27 D= 18.94 obj= 14354.8 trav= 136.8 walk= 85.1 drv=13 unk=14 idle=  13.7 t= 5.009/ 5.009 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.468/ 6.468 rep== PLANNER_INFEASIBLE
+
+## BA S3b-unknown-weight0
+  greedy-current-walkrule    HEURISTIC     ok     n=16 D= 12.74 obj= 10433.5 trav= 230.5 walk=230.5 drv= 0 unk= 9 idle=  21.9 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=21 D= 16.23 obj= 12135.0 trav= 125.4 walk= 11.4 drv=17 unk=10 idle= 186.1 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=26 D= 18.27 obj= 15061.5 trav= 139.4 walk= 87.8 drv=13 unk=14 idle=  12.0 t= 0.043/ 0.043 rep== PLANNER_LIMITED
+  routing-5s                 FEASIBLE      ok     n=27 D= 18.87 obj= 15462.3 trav= 169.1 walk=107.3 drv=11 unk=15 idle=  12.3 t= 5.013/ 5.013 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.616/ 6.616 rep== PLANNER_INFEASIBLE
+
+## BA S4-mustinclude
+  greedy-current-walkrule    HEURISTIC     ok     n=13 D= 10.36 obj=  8160.0 trav= 160.2 walk=160.2 drv= 0 unk= 6 idle= 106.2 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=24 D= 17.69 obj= 12333.3 trav= 113.8 walk= 11.4 drv=20 unk=12 idle=  10.6 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=27 D= 18.87 obj= 13468.0 trav= 146.1 walk= 61.8 drv=16 unk=15 idle=  12.3 t= 0.027/ 0.027 rep== READY
+  routing-5s                 FEASIBLE      ok     n=26 D= 18.41 obj= 13764.2 trav= 159.8 walk=105.5 drv=10 unk=15 idle=  12.6 t= 5.008/ 5.008 rep== READY
+  cpsat-dt5                  FEASIBLE      ok     n=26 D= 17.98 obj= 13145.0 trav= 146.5 walk= 79.3 drv=12 unk=15 idle=  11.9 t= 6.272/ 6.272 rep== PLANNER_LIMITED gap=16.689%
+
+## BA S5-oversupply-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  6.12 obj=  4964.5 trav=  85.2 walk= 85.2 drv= 0 unk= 3 idle=   4.2 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 9 D=  8.05 obj=  6178.7 trav=  28.6 walk=  0.0 drv= 8 unk= 5 idle=   6.9 t= 0.000/ 0.000 rep== READY
+  greedy-insertion           HEURISTIC     ok     n= 9 D=  8.05 obj=  6633.5 trav=  39.0 walk= 26.4 drv= 4 unk= 5 idle=   3.4 t= 0.012/ 0.012 rep== READY
+  routing-5s                 FEASIBLE      ok     n= 9 D=  8.01 obj=  6695.5 trav=  52.4 walk= 43.6 drv= 3 unk= 4 idle=   4.1 t= 5.012/ 5.012 rep== READY
+  cpsat-dt5                  FEASIBLE      ok     n= 9 D=  7.53 obj=  6010.7 trav=  48.9 walk= 35.5 drv= 4 unk= 5 idle=   4.1 t= 8.865/ 8.865 rep== READY gap=125.520%
+
+## BA S6-spatial-walkonly-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  6.12 obj=  4964.5 trav=  85.2 walk= 85.2 drv= 0 unk= 3 idle=   4.2 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 7 D=  6.12 obj=  4964.5 trav=  85.2 walk= 85.2 drv= 0 unk= 3 idle=   4.2 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n= 8 D=  7.00 obj=  5706.0 trav=  99.5 walk= 99.5 drv= 0 unk= 3 idle=   4.5 t= 0.002/ 0.002 rep== READY
+  routing-5s                 FEASIBLE      ok     n= 8 D=  7.03 obj=  5814.2 trav=  91.4 walk= 91.4 drv= 0 unk= 3 idle=   4.0 t= 5.011/ 5.011 rep== READY
+  cpsat-dt5                  FEASIBLE      ok     n= 8 D=  6.83 obj=  5603.7 trav=  82.4 walk= 82.4 drv= 0 unk= 4 idle=   5.0 t= 3.503/ 3.503 rep== READY gap=92.828%
+
+## BA S8-infeasible-must-closed
+  greedy-current-walkrule    MUST_CONFLICT ok     n= 2 D=  1.84 obj=  1408.7 trav=  23.6 walk= 23.6 drv= 0 unk= 2 idle=   0.4 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-current-costmodes   MUST_CONFLICT ok     n= 2 D=  1.93 obj=  1543.7 trav=   4.5 walk=  0.0 drv= 1 unk= 2 idle=   0.5 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-insertion           MUST_CONFLICT ok     n= 2 D=  1.93 obj=  1556.3 trav=   3.9 walk=  0.0 drv= 1 unk= 2 idle=   0.1 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  routing-5s                 MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.003/ 0.003 rep== PLANNER_INFEASIBLE (ex
+  cpsat-dt5                  MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.003/ 0.003 rep== PLANNER_INFEASIBLE (ex
+
+## BA S9-anchors-none-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=14 D= 11.76 obj=  8983.8 trav= 207.7 walk=207.7 drv= 0 unk= 7 idle= 188.7 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=18 D= 14.47 obj= 10142.0 trav=  96.5 walk=  0.0 drv=15 unk= 9 idle= 359.9 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=19 D= 15.14 obj= 11598.0 trav= 115.5 walk= 56.8 drv= 9 unk= 9 idle=   9.0 t= 0.008/ 0.008 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=19 D= 15.14 obj= 11975.0 trav= 109.3 walk= 72.2 drv= 8 unk= 9 idle=   8.1 t= 5.010/ 5.010 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=18 D= 14.47 obj= 11621.0 trav= 109.2 walk= 83.3 drv= 6 unk= 9 idle=  12.2 t= 6.849/ 6.849 rep== CANDIDATE_SUPPLY_LIMIT gap=6.703%
+
+## BA S9-anchors-start-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=13 D= 11.07 obj=  8094.3 trav= 186.4 walk=175.0 drv= 3 unk= 7 idle= 235.4 t= 0.001/ 0.001 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=18 D= 14.47 obj=  9761.0 trav= 111.5 walk= 12.0 drv=17 unk= 9 idle= 179.1 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=18 D= 14.47 obj= 10737.8 trav= 128.4 walk= 73.3 drv=10 unk= 9 idle=   8.8 t= 0.009/ 0.009 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=19 D= 15.14 obj= 11191.7 trav= 142.8 walk= 80.8 drv=10 unk= 9 idle=   9.0 t= 5.017/ 5.017 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=19 D= 15.14 obj= 11173.8 trav= 166.8 walk=107.2 drv= 8 unk= 9 idle=   9.0 t= 5.632/ 5.632 rep== CANDIDATE_SUPPLY_LIMIT gap=2.183%
+
+## BA S9-anchors-startend-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=13 D= 11.07 obj=  7577.7 trav= 197.2 walk=175.0 drv= 6 unk= 7 idle= 235.4 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=18 D= 14.47 obj=  9024.3 trav= 133.4 walk= 12.0 drv=20 unk= 9 idle= 179.1 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=17 D= 13.87 obj= 10035.0 trav= 113.6 walk= 53.5 drv=13 unk= 8 idle=  36.3 t= 0.009/ 0.009 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=18 D= 14.54 obj= 10420.8 trav= 136.0 walk= 70.2 drv=13 unk= 8 idle=   8.8 t= 5.009/ 5.009 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=17 D= 13.65 obj=  9551.5 trav= 114.8 walk= 39.8 drv=14 unk= 8 idle=  17.5 t= 6.058/ 6.058 rep== CANDIDATE_SUPPLY_LIMIT gap=17.555%
+
+## PA S1-normal-p10
+  greedy-current-walkrule    HEURISTIC     ok     n= 8 D=  7.00 obj=  5311.2 trav=  97.2 walk= 85.9 drv= 1 unk= 5 idle=   2.8 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=10 D=  8.71 obj=  6340.7 trav=  48.6 walk=  0.0 drv= 7 unk= 7 idle=   4.4 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=10 D=  8.71 obj=  6870.5 trav=  35.1 walk= 16.1 drv= 6 unk= 7 idle=   4.9 t= 0.001/ 0.001 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n=10 D=  8.71 obj=  6896.2 trav=  57.1 walk= 42.6 drv= 4 unk= 7 idle=   3.9 t= 1.003/ 1.004 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  OPTIMAL       ok     n=10 D=  8.71 obj=  6912.2 trav=  56.3 walk= 42.6 drv= 4 unk= 7 idle=   3.7 t= 0.040/ 0.040 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+  routing-5s                 FEASIBLE      ok     n=10 D=  8.71 obj=  6896.2 trav=  57.1 walk= 42.6 drv= 4 unk= 7 idle=   3.9 t= 5.008/ 5.010 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n=10 D=  8.71 obj=  6912.2 trav=  56.3 walk= 42.6 drv= 4 unk= 7 idle=   3.7 t= 0.045/ 0.050 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## PA S1-normal-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=17 D= 13.94 obj= 10356.5 trav= 191.8 walk=174.8 drv= 2 unk=13 idle=   7.2 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=20 D= 16.42 obj= 11485.2 trav=  98.1 walk= 12.9 drv=16 unk=15 idle=   8.9 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 16.42 obj= 12664.5 trav= 125.0 walk=104.5 drv= 8 unk=15 idle=   8.0 t= 0.014/ 0.015 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n=20 D= 16.42 obj= 12731.2 trav= 119.2 walk= 99.6 drv= 8 unk=15 idle=   7.8 t= 1.004/ 1.007 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  OPTIMAL       ok     n=20 D= 16.42 obj= 12763.8 trav= 116.3 walk= 97.1 drv= 8 unk=15 idle=   7.7 t= 0.553/ 0.575 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+  routing-5s                 FEASIBLE      ok     n=20 D= 16.42 obj= 12731.2 trav= 119.2 walk= 99.6 drv= 8 unk=15 idle=   7.8 t= 5.004/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n=20 D= 16.42 obj= 12763.8 trav= 116.3 walk= 97.1 drv= 8 unk=15 idle=   7.7 t= 0.558/ 0.692 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## PA S1-normal-pall
+  greedy-current-walkrule    HEURISTIC     ok     n=23 D= 18.26 obj= 14110.5 trav= 218.4 walk=201.5 drv= 2 unk=16 idle=   8.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=24 D= 19.34 obj= 14034.2 trav= 108.4 walk= 26.2 drv=18 unk=16 idle=  10.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=28 D= 22.22 obj= 17405.3 trav= 137.8 walk=104.2 drv=12 unk=19 idle=  18.2 t= 0.036/ 0.036 rep== READY
+  routing-1s                 FEASIBLE      ok     n=28 D= 22.19 obj= 17080.0 trav= 168.5 walk=125.7 drv=11 unk=19 idle=   9.5 t= 1.008/ 1.009 rep== READY
+  cpsat-dt1                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 1.307/ 1.394 rep== PLANNER_INFEASIBLE
+  routing-5s                 FEASIBLE      ok     n=28 D= 22.19 obj= 17080.0 trav= 168.5 walk=125.7 drv=11 unk=19 idle=   9.5 t= 5.010/ 5.011 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.734/ 6.781 rep== PLANNER_INFEASIBLE
+  routing-30s                FEASIBLE      ok     n=28 D= 22.19 obj= 17322.0 trav= 140.4 walk=103.7 drv=12 unk=19 idle=  10.5 t=30.016/30.016 rep== READY
+  cpsat-dt30                 UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t=32.776/32.776 rep== PLANNER_INFEASIBLE
+
+## PA S2-tight-hours
+  greedy-current-walkrule    HEURISTIC     ok     n=11 D=  9.27 obj=  7058.7 trav=  91.0 walk= 70.8 drv= 2 unk= 9 idle=   4.0 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=17 D= 14.16 obj=  9963.0 trav=  84.6 walk=  9.8 drv=13 unk=13 idle=   7.4 t= 0.000/ 0.000 rep== READY
+  greedy-insertion           HEURISTIC     ok     n=16 D= 13.05 obj= 10712.0 trav=  60.2 walk= 36.1 drv= 7 unk= 8 idle=   6.8 t= 0.018/ 0.018 rep== READY
+  routing-5s                 FEASIBLE      ok     n=18 D= 14.65 obj= 11960.2 trav=  86.0 walk= 73.3 drv= 5 unk=12 idle=   7.0 t= 5.009/ 5.009 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 5.604/ 5.604 rep== PLANNER_INFEASIBLE
+
+## PA S3-unknown-penalize
+  greedy-current-walkrule    HEURISTIC     ok     n=23 D= 18.26 obj= 14110.5 trav= 218.4 walk=201.5 drv= 2 unk=16 idle=   8.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=24 D= 19.34 obj= 14034.2 trav= 108.4 walk= 26.2 drv=18 unk=16 idle=  10.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=28 D= 22.22 obj= 17405.3 trav= 137.8 walk=104.2 drv=12 unk=19 idle=  18.2 t= 0.037/ 0.037 rep== READY
+  routing-5s                 FEASIBLE      ok     n=28 D= 22.19 obj= 17080.0 trav= 168.5 walk=125.7 drv=11 unk=19 idle=   9.5 t= 5.009/ 5.009 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.646/ 6.646 rep== PLANNER_INFEASIBLE
+
+## PA S3b-unknown-weight0
+  greedy-current-walkrule    HEURISTIC     ok     n=23 D= 18.26 obj= 15710.5 trav= 218.4 walk=201.5 drv= 2 unk=16 idle=   8.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=24 D= 19.34 obj= 15634.2 trav= 108.4 walk= 26.2 drv=18 unk=16 idle=  10.6 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=27 D= 21.48 obj= 18852.3 trav= 149.0 walk=125.1 drv= 9 unk=20 idle=  10.0 t= 0.037/ 0.037 rep== PLANNER_LIMITED
+  routing-5s                 FEASIBLE      ok     n=28 D= 22.24 obj= 19250.3 trav= 140.9 walk=102.8 drv=12 unk=20 idle=   9.1 t= 5.013/ 5.013 rep== PLANNER_LIMITED
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 7.124/ 7.124 rep== PLANNER_INFEASIBLE
+
+## PA S4-mustinclude
+  greedy-current-walkrule    HEURISTIC     ok     n=18 D= 14.34 obj= 10301.3 trav= 237.1 walk=220.2 drv= 2 unk=13 idle=   6.9 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=24 D= 19.28 obj= 13384.0 trav= 104.6 walk=  0.0 drv=21 unk=17 idle=  21.4 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=27 D= 21.34 obj= 16677.3 trav= 162.3 walk=128.1 drv= 9 unk=18 idle=  11.7 t= 0.035/ 0.035 rep== READY
+  routing-5s                 FEASIBLE      ok     n=28 D= 22.10 obj= 16995.2 trav= 171.9 walk=133.1 drv=10 unk=20 idle=  11.1 t= 5.007/ 5.007 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 5.656/ 5.656 rep== PLANNER_INFEASIBLE
+
+## PA S5-oversupply-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  5.62 obj=  3911.7 trav=  83.3 walk= 66.4 drv= 2 unk= 5 idle=   2.7 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 8 D=  7.13 obj=  5183.3 trav=  32.3 walk=  0.0 drv= 7 unk= 6 idle=   3.7 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n= 9 D=  7.70 obj=  6181.0 trav=  35.7 walk= 19.4 drv= 5 unk= 5 idle=   3.3 t= 0.009/ 0.009 rep== READY
+  routing-5s                 FEASIBLE      ok     n=10 D=  8.46 obj=  6804.5 trav=  30.3 walk= 14.6 drv= 5 unk= 7 idle=   4.7 t= 5.001/ 5.001 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 5.388/ 5.388 rep== PLANNER_INFEASIBLE
+
+## PA S6-spatial-walkonly-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.48 obj=  2131.5 trav=  24.6 walk= 24.6 drv= 0 unk= 1 idle=   0.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 3 D=  2.48 obj=  2131.5 trav=  24.6 walk= 24.6 drv= 0 unk= 1 idle=   0.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n= 8 D=  6.49 obj=  5384.2 trav=  60.7 walk= 60.7 drv= 0 unk= 5 idle=   2.3 t= 0.003/ 0.003 rep== READY
+  routing-5s                 FEASIBLE      ok     n= 9 D=  7.52 obj=  5801.2 trav= 111.8 walk=111.8 drv= 0 unk= 6 idle=   4.2 t= 5.004/ 5.004 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 3.921/ 3.921 rep== PLANNER_INFEASIBLE
+
+## PA S8-infeasible-must-closed
+  greedy-current-walkrule    MUST_CONFLICT ok     n= 2 D=  1.79 obj=  1266.7 trav=  11.2 walk=  0.0 drv= 1 unk= 2 idle=   0.8 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-current-costmodes   MUST_CONFLICT ok     n= 2 D=  1.98 obj=  1512.0 trav=   8.3 walk=  0.0 drv= 1 unk= 2 idle=   0.7 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-insertion           MUST_CONFLICT ok     n= 2 D=  1.90 obj=  1583.3 trav=   5.7 walk=  0.0 drv= 1 unk= 1 idle=   0.3 t= 0.001/ 0.001 rep== PLANNER_INFEASIBLE (ex
+  routing-5s                 MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.001/ 0.001 rep== PLANNER_INFEASIBLE (ex
+  cpsat-dt5                  MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.005/ 0.005 rep== PLANNER_INFEASIBLE (ex
+
+## PA S9-anchors-none-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=17 D= 13.94 obj= 10356.5 trav= 191.8 walk=174.8 drv= 2 unk=13 idle=   7.2 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=20 D= 16.42 obj= 11485.2 trav=  98.1 walk= 12.9 drv=16 unk=15 idle=   8.9 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 16.42 obj= 12664.5 trav= 125.0 walk=104.5 drv= 8 unk=15 idle=   8.0 t= 0.010/ 0.010 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 16.42 obj= 12731.2 trav= 119.2 walk= 99.6 drv= 8 unk=15 idle=   7.8 t= 5.005/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n=20 D= 16.42 obj= 12763.8 trav= 116.3 walk= 97.1 drv= 8 unk=15 idle=   7.7 t= 0.560/ 0.560 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## PA S9-anchors-start-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=17 D= 13.94 obj=  9929.8 trav= 206.8 walk=182.2 drv= 4 unk=13 idle=   6.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=20 D= 16.42 obj= 10934.8 trav= 110.7 walk= 12.9 drv=19 unk=15 idle=   8.5 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 16.42 obj= 12145.8 trav= 153.9 walk=120.4 drv= 9 unk=15 idle=   8.5 t= 0.013/ 0.013 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 16.42 obj= 12268.2 trav= 157.0 walk=128.8 drv= 8 unk=15 idle=   8.0 t= 5.004/ 5.004 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n=20 D= 16.42 obj= 12268.2 trav= 157.0 walk=128.8 drv= 8 unk=15 idle=  10.0 t= 0.743/ 0.743 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## PA S9-anchors-startend-p20
+  greedy-current-walkrule    HEURISTIC     ok     n=17 D= 13.94 obj=  9337.2 trav= 221.4 walk=182.2 drv= 7 unk=13 idle=   6.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=20 D= 16.42 obj= 10255.8 trav= 129.6 walk= 12.9 drv=22 unk=15 idle=   8.5 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 16.42 obj= 10807.5 trav= 176.3 walk=101.4 drv=16 unk=15 idle=   8.0 t= 0.013/ 0.013 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 16.42 obj= 11560.2 trav= 145.9 walk= 95.9 drv=14 unk=15 idle=   8.5 t= 5.005/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=20 D= 16.42 obj= 11590.3 trav= 172.0 walk=121.2 drv=11 unk=15 idle=   6.6 t= 7.209/ 7.209 rep== CANDIDATE_SUPPLY_LIMIT gap=4.936%
+
+## LA S1-normal-p10
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.73 obj=  2526.0 trav=   0.0 walk=  0.0 drv= 0 unk= 2 idle=   0.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=10 D=  7.87 obj=  4482.7 trav= 109.4 walk=  0.0 drv= 7 unk= 5 idle= 132.6 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=10 D=  7.87 obj=  5616.0 trav=  69.1 walk= 12.9 drv= 5 unk= 5 idle=   8.9 t= 0.001/ 0.001 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n=10 D=  7.87 obj=  5660.0 trav=  67.0 walk= 12.9 drv= 5 unk= 5 idle=   9.1 t= 1.001/ 1.002 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  OPTIMAL       ok     n=10 D=  7.87 obj=  5679.2 trav=  66.2 walk= 13.3 drv= 5 unk= 5 idle=   5.8 t= 0.058/ 0.060 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+  routing-5s                 FEASIBLE      ok     n=10 D=  7.87 obj=  5679.2 trav=  66.2 walk= 13.3 drv= 5 unk= 5 idle=   4.8 t= 5.005/ 5.007 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  OPTIMAL       ok     n=10 D=  7.87 obj=  5679.2 trav=  66.2 walk= 13.3 drv= 5 unk= 5 idle=   5.8 t= 0.058/ 0.065 rep== CANDIDATE_SUPPLY_LIMIT gap=0.000%
+
+## LA S1-normal-p20
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.73 obj=  2526.0 trav=   0.0 walk=  0.0 drv= 0 unk= 2 idle=   0.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=16 D= 11.52 obj=  5925.3 trav= 174.7 walk=  0.0 drv=13 unk= 8 idle= 126.3 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 13.86 obj=  8495.3 trav= 162.5 walk= 18.7 drv=14 unk= 9 idle=  61.5 t= 0.009/ 0.009 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-1s                 FEASIBLE      ok     n=20 D= 13.86 obj=  9410.5 trav= 122.8 walk= 20.9 drv=13 unk= 9 idle=   9.2 t= 1.004/ 1.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt1                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 1.199/ 1.211 rep== PLANNER_INFEASIBLE
+  routing-5s                 FEASIBLE      ok     n=20 D= 13.86 obj=  9581.0 trav= 116.4 walk= 25.1 drv=13 unk= 9 idle=  10.6 t= 5.005/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=19 D= 13.22 obj=  8632.5 trav= 147.4 walk= 36.1 drv=11 unk= 9 idle=  98.6 t= 4.945/ 5.059 rep== PLANNER_LIMITED gap=33.233%
+
+## LA S1-normal-pall
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  4.58 obj=  3839.3 trav=  23.7 walk= 23.7 drv= 0 unk= 5 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=16 D= 11.52 obj=  5925.3 trav= 174.7 walk=  0.0 drv=13 unk= 8 idle= 126.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=22 D= 14.71 obj=  9823.8 trav= 146.8 walk= 34.9 drv=13 unk=10 idle=  17.2 t= 0.025/ 0.030 rep== READY
+  routing-1s                 FEASIBLE      ok     n=21 D= 13.93 obj=  9712.3 trav= 123.4 walk= 35.6 drv=11 unk=10 idle=  13.6 t= 1.007/ 1.010 rep== PLANNER_LIMITED
+  cpsat-dt1                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 1.327/ 1.379 rep== PLANNER_INFEASIBLE
+  routing-5s                 FEASIBLE      ok     n=21 D= 13.93 obj= 10165.2 trav= 105.6 walk= 35.3 drv=11 unk= 9 idle=  27.4 t= 5.010/ 5.012 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.156/ 6.649 rep== PLANNER_INFEASIBLE
+  routing-30s                FEASIBLE      ok     n=22 D= 14.67 obj= 10218.0 trav= 129.9 walk= 35.3 drv=13 unk= 9 idle=   9.1 t=30.013/30.013 rep== READY
+  cpsat-dt30                 FEASIBLE      ok     n=21 D= 12.93 obj=  7963.8 trav= 143.3 walk= 39.9 drv=10 unk=15 idle=   8.7 t=27.319/27.319 rep== READY gap=80.485%
+
+## LA S2-tight-hours
+  greedy-current-walkrule    HEURISTIC     ok     n= 6 D=  4.13 obj=  3539.0 trav=  18.9 walk= 18.9 drv= 0 unk= 4 idle=   2.1 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=13 D=  9.62 obj=  5323.0 trav= 129.9 walk=  0.0 drv=10 unk= 7 idle=   6.1 t= 0.000/ 0.000 rep== READY
+  greedy-insertion           HEURISTIC     ok     n=13 D=  9.64 obj=  7192.3 trav=  81.6 walk= 28.3 drv= 6 unk= 5 idle=   5.4 t= 0.010/ 0.010 rep== READY
+  routing-5s                 FEASIBLE      ok     n=14 D= 10.18 obj=  7191.2 trav=  83.8 walk= 18.6 drv= 8 unk= 7 idle=   6.2 t= 5.009/ 5.009 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 4.677/ 4.677 rep== PLANNER_INFEASIBLE
+
+## LA S3-unknown-penalize
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  4.58 obj=  3839.3 trav=  23.7 walk= 23.7 drv= 0 unk= 5 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=16 D= 11.52 obj=  5925.3 trav= 174.7 walk=  0.0 drv=13 unk= 8 idle= 126.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=22 D= 14.71 obj=  9823.8 trav= 146.8 walk= 34.9 drv=13 unk=10 idle=  17.2 t= 0.024/ 0.024 rep== READY
+  routing-5s                 FEASIBLE      ok     n=21 D= 13.93 obj= 10165.2 trav= 105.6 walk= 35.3 drv=11 unk= 9 idle=  27.4 t= 5.007/ 5.007 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 6.361/ 6.361 rep== PLANNER_INFEASIBLE
+
+## LA S3b-unknown-weight0
+  greedy-current-walkrule    HEURISTIC     ok     n= 7 D=  4.58 obj=  4339.3 trav=  23.7 walk= 23.7 drv= 0 unk= 5 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n=16 D= 11.52 obj=  6725.3 trav= 174.7 walk=  0.0 drv=13 unk= 8 idle= 126.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n=21 D= 14.11 obj= 10429.2 trav= 141.8 walk= 35.7 drv=12 unk=11 idle=  31.2 t= 0.023/ 0.023 rep== PLANNER_LIMITED
+  routing-5s                 FEASIBLE      ok     n=22 D= 14.56 obj= 11028.2 trav= 133.4 walk= 34.1 drv=12 unk=12 idle=   8.6 t= 5.004/ 5.004 rep== READY
+  cpsat-dt5                  UNKNOWN       NO-SOL n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 5.067/ 5.067 rep== PLANNER_INFEASIBLE
+
+## LA S4-mustinclude
+  greedy-current-walkrule    MUST_CONFLICT ok     n= 7 D=  4.37 obj=  3536.3 trav=  23.7 walk= 23.7 drv= 0 unk= 6 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-current-costmodes   MUST_CONFLICT ok     n=17 D= 12.14 obj=  7177.0 trav= 153.9 walk= 11.1 drv=12 unk= 8 idle= 107.1 t= 0.001/ 0.001 rep== PLANNER_INFEASIBLE (ex
+  greedy-insertion           MUST_CONFLICT ok     n=21 D= 14.10 obj=  8801.5 trav= 155.8 walk= 21.6 drv=14 unk=10 idle=  13.2 t= 0.025/ 0.025 rep== PLANNER_INFEASIBLE (ex
+  routing-5s                 MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.002/ 0.002 rep== PLANNER_INFEASIBLE (ex
+  cpsat-dt5                  MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.029/ 0.029 rep== PLANNER_INFEASIBLE (ex
+
+## LA S5-oversupply-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 5 D=  2.85 obj=  2213.3 trav=  23.7 walk= 23.7 drv= 0 unk= 4 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 7 D=  5.81 obj=  3277.2 trav=  83.6 walk=  4.3 drv= 5 unk= 4 idle=   3.4 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n= 8 D=  6.24 obj=  4286.7 trav=  58.9 walk= 12.9 drv= 5 unk= 4 idle=   4.1 t= 0.005/ 0.005 rep== READY
+  routing-5s                 FEASIBLE      ok     n= 9 D=  6.38 obj=  4588.7 trav=  47.5 walk= 16.2 drv= 5 unk= 5 idle=   3.5 t= 5.000/ 5.000 rep== READY
+  cpsat-dt5                  FEASIBLE      ok     n= 8 D=  5.21 obj=  3594.5 trav=  49.3 walk= 17.2 drv= 4 unk= 4 idle=   8.7 t= 8.354/ 8.354 rep== READY gap=222.705%
+
+## LA S6-spatial-walkonly-1day
+  greedy-current-walkrule    HEURISTIC     ok     n= 5 D=  2.85 obj=  2213.3 trav=  23.7 walk= 23.7 drv= 0 unk= 4 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-current-costmodes   HEURISTIC     ok     n= 5 D=  2.85 obj=  2213.3 trav=  23.7 walk= 23.7 drv= 0 unk= 4 idle=   2.3 t= 0.000/ 0.000 rep== PLANNER_LIMITED
+  greedy-insertion           HEURISTIC     ok     n= 5 D=  2.85 obj=  2256.5 trav=  19.4 walk= 19.4 drv= 0 unk= 4 idle=   1.7 t= 0.001/ 0.001 rep== PLANNER_LIMITED
+  routing-5s                 FEASIBLE      ok     n= 5 D=  2.85 obj=  2256.5 trav=  19.4 walk= 19.4 drv= 0 unk= 4 idle=   1.7 t= 5.006/ 5.006 rep== PLANNER_LIMITED
+  cpsat-dt5                  OPTIMAL       ok     n= 5 D=  2.85 obj=  2256.5 trav=  19.4 walk= 19.4 drv= 0 unk= 4 idle=   2.7 t= 0.049/ 0.049 rep== PLANNER_LIMITED gap=0.000%
+
+## LA S8-infeasible-must-closed
+  greedy-current-walkrule    MUST_CONFLICT ok     n= 2 D=  1.51 obj=  1254.3 trav=   5.2 walk=  5.2 drv= 0 unk= 2 idle=   0.8 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-current-costmodes   MUST_CONFLICT ok     n= 3 D=  2.69 obj=  1855.0 trav=  16.7 walk=  0.0 drv= 2 unk= 3 idle=   1.3 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  greedy-insertion           MUST_CONFLICT ok     n= 3 D=  2.69 obj=  1855.0 trav=  16.7 walk=  0.0 drv= 2 unk= 3 idle=   1.3 t= 0.000/ 0.000 rep== PLANNER_INFEASIBLE (ex
+  routing-5s                 MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.001/ 0.001 rep== PLANNER_INFEASIBLE (ex
+  cpsat-dt5                  MUST_CONFLICT ok     n= 0 D=  0.00 obj=     0.0 trav=   0.0 walk=  0.0 drv= 0 unk= 0 idle=   0.0 t= 0.002/ 0.002 rep== PLANNER_INFEASIBLE (ex
+
+## LA S9-anchors-none-p20
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.73 obj=  2526.0 trav=   0.0 walk=  0.0 drv= 0 unk= 2 idle=   0.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=16 D= 11.52 obj=  5925.3 trav= 174.7 walk=  0.0 drv=13 unk= 8 idle= 126.3 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=20 D= 13.86 obj=  8495.3 trav= 162.5 walk= 18.7 drv=14 unk= 9 idle=  61.5 t= 0.009/ 0.009 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 13.86 obj=  9581.0 trav= 116.4 walk= 25.1 drv=13 unk= 9 idle=  10.6 t= 5.004/ 5.004 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=19 D= 13.22 obj=  8632.5 trav= 147.4 walk= 36.1 drv=11 unk= 9 idle=  98.6 t= 4.721/ 4.721 rep== PLANNER_LIMITED gap=33.233%
+
+## LA S9-anchors-start-p20
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.73 obj=  1443.3 trav=  39.1 walk=  0.0 drv= 3 unk= 2 idle=   0.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=17 D= 12.11 obj=  5939.7 trav= 188.3 walk=  0.0 drv=17 unk= 7 idle=   5.8 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=19 D= 13.25 obj=  8717.7 trav= 124.1 walk= 25.1 drv=15 unk= 8 idle=  74.9 t= 0.010/ 0.010 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 13.86 obj=  8687.7 trav= 153.4 walk= 29.8 drv=15 unk= 9 idle=   9.4 t= 5.005/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=20 D= 13.86 obj=  8203.2 trav= 162.3 walk= 19.2 drv=17 unk= 9 idle=  25.2 t= 6.505/ 6.505 rep== CANDIDATE_SUPPLY_LIMIT gap=30.745%
+
+## LA S9-anchors-startend-p20
+  greedy-current-walkrule    HEURISTIC     ok     n= 3 D=  2.73 obj=   355.0 trav=  78.6 walk=  0.0 drv= 6 unk= 2 idle=   0.0 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-current-costmodes   HEURISTIC     ok     n=17 D= 12.11 obj=  4636.3 trav= 238.5 walk=  0.0 drv=20 unk= 7 idle=   5.8 t= 0.000/ 0.000 rep== CANDIDATE_SUPPLY_LIMIT
+  greedy-insertion           HEURISTIC     ok     n=19 D= 13.21 obj=  6645.7 trav= 202.0 walk= 18.0 drv=19 unk= 8 idle=  78.1 t= 0.009/ 0.009 rep== CANDIDATE_SUPPLY_LIMIT
+  routing-5s                 FEASIBLE      ok     n=20 D= 13.86 obj=  7544.8 trav= 193.7 walk= 26.1 drv=18 unk= 9 idle=   8.6 t= 5.005/ 5.005 rep== CANDIDATE_SUPPLY_LIMIT
+  cpsat-dt5                  FEASIBLE      ok     n=18 D= 12.66 obj=  5488.2 trav= 224.7 walk=  2.8 drv=20 unk= 7 idle=  15.1 t= 5.140/ 5.140 rep== CANDIDATE_SUPPLY_LIMIT gap=87.208%

@@ -1,0 +1,679 @@
+{
+ "dataset": "g2-2026-10-12",
+ "osm_sources": {
+  "BA": "local Overpass, Geofabrik argentina extract (ui-redesign stack)",
+  "PA": "public Overpass mirror maps.mail.ru",
+  "LA": "public Overpass mirror maps.mail.ru"
+ },
+ "segments": [
+  {
+   "id": "BA-00",
+   "city": "BA",
+   "street": "Defensa",
+   "kind": "P-D1 San Telmo contract case (Chile -> Humberto I)",
+   "from": {
+    "node": 195866927,
+    "cross": "Chile"
+   },
+   "to": {
+    "node": 205553448,
+    "cross": "Humberto I"
+   },
+   "length_m": 521.4,
+   "osm_way_ids": [
+    473141731,
+    150893241,
+    158893264
+   ],
+   "osm_node_count": 13,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-01",
+   "city": "BA",
+   "street": "Defensa",
+   "kind": "pedestrian/living street, short blocks",
+   "from": {
+    "node": 195866927,
+    "cross": "Chile"
+   },
+   "to": {
+    "node": 205501572,
+    "cross": "Cochabamba"
+   },
+   "length_m": 782.7,
+   "osm_way_ids": [
+    473141731,
+    150893241,
+    158893264,
+    1435572237,
+    1435572238,
+    47521381
+   ],
+   "osm_node_count": 20,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-02",
+   "city": "BA",
+   "street": "Florida",
+   "kind": "pedestrian street",
+   "from": {
+    "node": 181119225,
+    "cross": "San Mart\u00edn"
+   },
+   "to": {
+    "node": 195721441,
+    "cross": "Lavalle"
+   },
+   "length_m": 883.9,
+   "osm_way_ids": [
+    1429445126,
+    46936320,
+    19754358,
+    1068670904,
+    19754565
+   ],
+   "osm_node_count": 29,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-03",
+   "city": "BA",
+   "street": "Avenida de Mayo",
+   "kind": "straight avenue, parallel streets",
+   "from": {
+    "node": 180487511,
+    "cross": "Bol\u00edvar"
+   },
+   "to": {
+    "node": 195737973,
+    "cross": "Avenida 9 de Julio"
+   },
+   "length_m": 747.0,
+   "osm_way_ids": [
+    17442200,
+    1217924063,
+    260546702,
+    1231824343,
+    697905449,
+    47034541,
+    47263571,
+    275088548,
+    325125728
+   ],
+   "osm_node_count": 40,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-04",
+   "city": "BA",
+   "street": "Caminito",
+   "kind": "short pedestrian",
+   "from": {
+    "node": 206112420,
+    "cross": "Del Valle Iberlucea"
+   },
+   "to": {
+    "node": 245004870,
+    "cross": "General Gregorio Ar\u00e1oz de Lamadrid"
+   },
+   "length_m": 143.0,
+   "osm_way_ids": [
+    144844726
+   ],
+   "osm_node_count": 9,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-05",
+   "city": "BA",
+   "street": "Avenida Alvear",
+   "kind": "gently curving avenue",
+   "from": {
+    "node": 193820445,
+    "cross": "Cerrito"
+   },
+   "to": {
+    "node": 194481040,
+    "cross": "Presidente Eduardo Victor Haedo"
+   },
+   "length_m": 881.5,
+   "osm_way_ids": [
+    22697211,
+    29382792,
+    308167144,
+    18686107,
+    79876746
+   ],
+   "osm_node_count": 34,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-06",
+   "city": "BA",
+   "street": "Lavalle",
+   "kind": "pedestrian street, several intersections",
+   "from": {
+    "node": 195721032,
+    "cross": "Suipacha"
+   },
+   "to": {
+    "node": 195754670,
+    "cross": "25 de Mayo"
+   },
+   "length_m": 768.5,
+   "osm_way_ids": [
+    126149628,
+    126149624,
+    126149623,
+    126149626
+   ],
+   "osm_node_count": 8,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-01",
+   "city": "PA",
+   "street": "Rue Montorgueil",
+   "kind": "pedestrian street",
+   "from": {
+    "node": 24558246,
+    "cross": "Rue L\u00e9opold-Bellan"
+   },
+   "to": {
+    "node": 1841630751,
+    "cross": "Rue de Turbigo"
+   },
+   "length_m": 345.7,
+   "osm_way_ids": [
+    171873401,
+    181676068,
+    1285482948,
+    173318400
+   ],
+   "osm_node_count": 17,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-02",
+   "city": "PA",
+   "street": "Rue de Rivoli",
+   "kind": "long straight, many intersections",
+   "from": {
+    "node": 693550591,
+    "cross": "Rue Saint-Martin"
+   },
+   "to": {
+    "node": 693583565,
+    "cross": "Rue de Marengo"
+   },
+   "length_m": 860.5,
+   "osm_way_ids": [
+    193100626,
+    193751719,
+    210062186,
+    192222115,
+    693307149,
+    517156351,
+    411292100,
+    688234528,
+    192222131,
+    545615071,
+    164094065,
+    678442978
+   ],
+   "osm_node_count": 56,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-03",
+   "city": "PA",
+   "street": "Rue Mouffetard",
+   "kind": "curving old street",
+   "from": {
+    "node": 25033083,
+    "cross": "Rue Thouin"
+   },
+   "to": {
+    "node": 6170821704,
+    "cross": "Place Georges Moustaki"
+   },
+   "length_m": 634.7,
+   "osm_way_ids": [
+    22880026,
+    1018732344,
+    1015556772,
+    1018732345,
+    164010797,
+    1015556769,
+    22879975,
+    1015506864,
+    164010798,
+    1092865448
+   ],
+   "osm_node_count": 32,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-04",
+   "city": "PA",
+   "street": "Rue des Rosiers",
+   "kind": "short street",
+   "from": {
+    "node": 26400953,
+    "cross": "Rue Vieille du Temple"
+   },
+   "to": {
+    "node": 26400969,
+    "cross": "Rue Malher"
+   },
+   "length_m": 315.6,
+   "osm_way_ids": [
+    220442418,
+    220442415,
+    23071694,
+    995241575,
+    576429487,
+    576429486,
+    576429484,
+    576429483,
+    576429481,
+    23071686
+   ],
+   "osm_node_count": 18,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-05",
+   "city": "PA",
+   "street": "Rue Lepic",
+   "kind": "strongly curving hill street",
+   "from": {
+    "node": 367929,
+    "cross": "Rue Puget"
+   },
+   "to": {
+    "node": 444848661,
+    "cross": "Place Jean-Baptiste Cl\u00e9ment"
+   },
+   "length_m": 836.4,
+   "osm_way_ids": [
+    1424186147,
+    1476887630,
+    10662784,
+    1476887631,
+    143406300,
+    548396126,
+    77483303,
+    901200374,
+    77483311,
+    143407081
+   ],
+   "osm_node_count": 58,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "LA-01",
+   "city": "LA",
+   "street": "Hollywood Boulevard",
+   "kind": "long straight boulevard",
+   "from": {
+    "node": 122740597,
+    "cross": "Ivar Avenue"
+   },
+   "to": {
+    "node": 13511039860,
+    "cross": "North McCadden Place"
+   },
+   "length_m": 851.1,
+   "osm_way_ids": [
+    398205342,
+    404994716,
+    1314554423,
+    398205343,
+    404994723,
+    398205189,
+    404994726,
+    404994727,
+    404994719,
+    398205190,
+    1298505756,
+    380778227,
+    398224720,
+    1378253996,
+    398224719,
+    398224786,
+    1380156817,
+    380779253,
+    398225283
+   ],
+   "osm_node_count": 39,
+   "alternatives": [
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "LA-02",
+   "city": "LA",
+   "street": "3rd Street Promenade",
+   "kind": "pedestrian promenade",
+   "from": {
+    "node": 4587795990,
+    "cross": "Santa Monica Boulevard"
+   },
+   "to": {
+    "node": 12640072167,
+    "cross": "3rd Street"
+   },
+   "length_m": 423.2,
+   "osm_way_ids": [
+    508933310
+   ],
+   "osm_node_count": 21,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "LA-03",
+   "city": "LA",
+   "street": "Ocean Front Walk",
+   "kind": "beach path",
+   "from": {
+    "node": 122997675,
+    "cross": "Westminster Avenue"
+   },
+   "to": {
+    "node": 122997692,
+    "cross": "South Venice Boulevard"
+   },
+   "length_m": 651.4,
+   "osm_way_ids": [
+    121942893,
+    1295390871,
+    256216065
+   ],
+   "osm_node_count": 17,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-07",
+   "city": "BA",
+   "street": "Per\u00fa",
+   "kind": "straight residential, several intersections",
+   "from": {
+    "node": 195867142,
+    "cross": "Avenida Independencia"
+   },
+   "to": {
+    "node": 1485388576,
+    "cross": "Avenida Presidente Julio A. Roca"
+   },
+   "length_m": 759.6,
+   "osm_way_ids": [
+    1561855610,
+    1561855609,
+    467958785,
+    75032342
+   ],
+   "osm_node_count": 15,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "BA-08",
+   "city": "BA",
+   "street": "Reconquista",
+   "kind": "downtown street",
+   "from": {
+    "node": 205498209,
+    "cross": "Marcelo T. de Alvear"
+   },
+   "to": {
+    "node": 301084867,
+    "cross": "Avenida Corrientes"
+   },
+   "length_m": 778.9,
+   "osm_way_ids": [
+    399146484,
+    533144380,
+    533144382
+   ],
+   "osm_node_count": 17,
+   "alternatives": [
+    "DETOUR",
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-07",
+   "city": "PA",
+   "street": "Rue Saint-Antoine",
+   "kind": "busy street",
+   "from": {
+    "node": 5092153447,
+    "cross": "Rue Castex"
+   },
+   "to": {
+    "node": 6405905300,
+    "cross": "Place de la Bastille"
+   },
+   "length_m": 842.1,
+   "osm_way_ids": [
+    1030027031,
+    607979644,
+    1030027033,
+    1327965463,
+    1327965462,
+    656543773,
+    657327017,
+    34684272,
+    55338728,
+    41465215,
+    41463245,
+    390294220,
+    505935716,
+    963932923
+   ],
+   "osm_node_count": 48,
+   "alternatives": [
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "PA-08",
+   "city": "PA",
+   "street": "Rue du Faubourg Saint-Antoine",
+   "kind": "long straight street",
+   "from": {
+    "node": 368000,
+    "cross": "Rue de Reuilly"
+   },
+   "to": {
+    "node": 13073136259,
+    "cross": "Rue de Charonne"
+   },
+   "length_m": 826.1,
+   "osm_way_ids": [
+    809612799,
+    1343028884,
+    1286263235,
+    164406554,
+    975255605,
+    34566164,
+    962900769
+   ],
+   "osm_node_count": 51,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "LA-07",
+   "city": "LA",
+   "street": "Abbot Kinney Boulevard",
+   "kind": "diagonal boulevard",
+   "from": {
+    "node": 11340633092,
+    "cross": "Westminster Avenue"
+   },
+   "to": {
+    "node": 13414492166,
+    "cross": "Venice Boulevard"
+   },
+   "length_m": 829.8,
+   "osm_way_ids": [
+    403712264,
+    403712275,
+    403712256,
+    403712262,
+    403712263,
+    170301011,
+    403712258,
+    403712271,
+    403712270,
+    170301005,
+    403712266,
+    403712261,
+    403712267,
+    371956757
+   ],
+   "osm_node_count": 31,
+   "alternatives": [
+    "PARALLEL",
+    "PARTIAL",
+    "REVERSED"
+   ]
+  },
+  {
+   "id": "LA-08",
+   "city": "LA",
+   "street": "Main Street",
+   "kind": "commercial street (Santa Monica)",
+   "from": {
+    "node": 122655578,
+    "cross": "Rose Avenue"
+   },
+   "to": {
+    "node": 12983962693,
+    "cross": "Ocean Park Boulevard"
+   },
+   "length_m": 893.1,
+   "osm_way_ids": [
+    397528873,
+    397528862,
+    397528860,
+    397528872,
+    397528869,
+    397528863,
+    397528867,
+    397528865,
+    382736099,
+    397528861,
+    397528870,
+    397528866,
+    397528871,
+    397528864,
+    397528859,
+    397528868,
+    607283990
+   ],
+   "osm_node_count": 39,
+   "alternatives": [
+    "PARTIAL",
+    "REVERSED"
+   ]
+  }
+ ],
+ "excluded_candidates": [
+  {
+   "id": "PA-06",
+   "street": "Coul\u00e9e verte Ren\u00e9-Dumont",
+   "reason": "no segment between named intersections / public Overpass failure"
+  },
+  {
+   "id": "LA-04",
+   "street": "Olvera Street",
+   "reason": "single way without named intersections: no structural bounds"
+  },
+  {
+   "id": "LA-05",
+   "street": "Lake Hollywood Drive",
+   "reason": "public Overpass failure (gateway timeouts)"
+  },
+  {
+   "id": "LA-06",
+   "street": "Sunset Boulevard",
+   "reason": "no segment between named intersections in the chosen bbox"
+  }
+ ],
+ "providers": {
+  "geoapify": "Map Matching (walk) and Routing (walk, drive), 2026-10-12",
+  "valhalla": "3.9.1 trace_route map_snap + route (pedestrian); Argentina and Ile-de-France tiles, image ghcr.io/valhalla/valhalla-scripted@sha256:449c8d20\u2026"
+ },
+ "labels": "ground truth by OSM way identity (scripts/ground_truth.py), independent of the validator; structural alternatives also labelled by construction (all agree)"
+}

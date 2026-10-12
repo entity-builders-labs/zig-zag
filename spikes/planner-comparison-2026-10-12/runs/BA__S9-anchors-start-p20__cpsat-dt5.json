@@ -1,0 +1,285 @@
+{
+ "city": "BA",
+ "scenario": "S9-anchors-start-p20",
+ "solver": "cpsat-dt5",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  true,
+  false
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 5.632,
+ "wall_s_max": 5.632,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 5.631,
+  "solve_s": 5.598,
+  "status": "FEASIBLE",
+  "objective": 11175.0,
+  "bound": 11419.0,
+  "variables": 1101,
+  "constraints": 1017
+ },
+ "scheduled": 19,
+ "desirability": 15.139,
+ "visit_min": 1134.6,
+ "travel_min": 166.8,
+ "walk_min": 107.2,
+ "drive_legs": 8,
+ "walk_legs": 11,
+ "idle_min": 9.0,
+ "unknown_hours_scheduled": 9,
+ "objective_test_weights": 11173.8,
+ "day_spread_m": [
+  878,
+  5848,
+  3559
+ ],
+ "residual_min": [
+  65,
+  398,
+  53
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda"
+ ],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 554,
+     "end": 614,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 13.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 625,
+     "end": 685,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:694078616",
+     "title": "Club Espa\u00f1ol",
+     "start": 695,
+     "end": 755,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 766,
+     "end": 826,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 831,
+     "end": 891,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 900,
+     "end": 954.6,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 958,
+     "end": 1018,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:2038426439",
+     "title": "El Hipop\u00f3tamo",
+     "start": 1029,
+     "end": 1089,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.1
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 544,
+     "end": 604,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 608,
+     "end": 668,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:node:5617667887",
+     "title": "Museo Criollo de los Corrales",
+     "start": 686,
+     "end": 746,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 17.5
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:node:5405921752",
+     "title": "Museo Fotogr\u00e1fico Simik",
+     "start": 551,
+     "end": 611,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.5
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:219731998",
+     "title": "Museo Sitio de Memoria ESMA",
+     "start": 621,
+     "end": 681,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:147938686",
+     "title": "Instituto Sanmartiniano",
+     "start": 689,
+     "end": 749,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:18514760",
+     "title": "Biblioteca Nacional Mariano Moreno",
+     "start": 751,
+     "end": 811,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 1.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:204263802",
+     "title": "Museo Mitre",
+     "start": 819,
+     "end": 879,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:176333994",
+     "title": "Museo Casa Rosada",
+     "start": 896,
+     "end": 956,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 16.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:173065810",
+     "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+     "start": 967,
+     "end": 1027,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 1038,
+     "end": 1098,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.6
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

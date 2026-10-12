@@ -1,0 +1,204 @@
+{
+ "matrix": {
+  "pedestrian:10": {
+   "median_ms": 441.5,
+   "max_ms": 531.8,
+   "unreachable_pairs": 0
+  },
+  "pedestrian:20": {
+   "median_ms": 2383.2,
+   "max_ms": 2540.1,
+   "unreachable_pairs": 0
+  },
+  "pedestrian:30": {
+   "median_ms": 4843.1,
+   "max_ms": 5193.5,
+   "unreachable_pairs": 0
+  },
+  "pedestrian:45": {
+   "median_ms": 9754.1,
+   "max_ms": 17991.9,
+   "unreachable_pairs": 0
+  },
+  "auto:10": {
+   "median_ms": 1418.2,
+   "max_ms": 1632.6,
+   "unreachable_pairs": 0
+  },
+  "auto:20": {
+   "median_ms": 2808.7,
+   "max_ms": 2990.1,
+   "unreachable_pairs": 0
+  },
+  "auto:30": {
+   "median_ms": 5351.7,
+   "max_ms": 6386.7,
+   "unreachable_pairs": 0
+  },
+  "auto:45": {
+   "median_ms": 6495.4,
+   "max_ms": 9177.5,
+   "unreachable_pairs": 0
+  },
+  "bicycle:10": {
+   "median_ms": 745.7,
+   "max_ms": 891.4,
+   "unreachable_pairs": 0
+  },
+  "bicycle:20": {
+   "median_ms": 2384.1,
+   "max_ms": 2520.2,
+   "unreachable_pairs": 0
+  },
+  "bicycle:30": {
+   "median_ms": 3706.1,
+   "max_ms": 5230.1,
+   "unreachable_pairs": 0
+  },
+  "bicycle:45": {
+   "median_ms": 9580.7,
+   "max_ms": 10371.7,
+   "unreachable_pairs": 0
+  }
+ },
+ "concurrency": {
+  "1": {
+   "requests": 4,
+   "wall_s": 29.72,
+   "throughput_rps": 0.1,
+   "p50_ms": 7528.9,
+   "max_ms": 7808.7
+  },
+  "4": {
+   "requests": 16,
+   "wall_s": 25.9,
+   "throughput_rps": 0.6,
+   "p50_ms": 6428.2,
+   "max_ms": 6877.0
+  },
+  "8": {
+   "requests": 32,
+   "wall_s": 48.29,
+   "throughput_rps": 0.7,
+   "p50_ms": 9267.3,
+   "max_ms": 22423.6
+  },
+  "16": {
+   "requests": 64,
+   "wall_s": 94.42,
+   "throughput_rps": 0.7,
+   "p50_ms": 20414.3,
+   "max_ms": 44822.7
+  }
+ },
+ "route": {
+  "pedestrian": {
+   "ms": 385.1,
+   "length_m": 523.0,
+   "time_s": 376.2
+  },
+  "auto": {
+   "ms": 205.6,
+   "length_m": 1021.0,
+   "time_s": 210.5
+  },
+  "bicycle": {
+   "ms": 60.7,
+   "length_m": 888.0,
+   "time_s": 198.8
+  }
+ },
+ "trace": {
+  "pedestrian:map_snap": {
+   "ms": 155.3,
+   "length_m": 523.0,
+   "time_s": 376.2
+  },
+  "pedestrian:edge_walk": {
+   "ms": 22.8,
+   "length_m": 522.0,
+   "time_s": 376.2
+  },
+  "pedestrian:walk_or_snap": {
+   "ms": 147.0,
+   "length_m": 522.0,
+   "time_s": 376.2
+  },
+  "pedestrian:attributes": {
+   "way_ids": [
+    150893241,
+    158893264,
+    473141731
+   ],
+   "names": [
+    "Defensa"
+   ],
+   "max_point_offset_m": 0.06,
+   "unmatched_points": 0
+  },
+  "auto:map_snap": {
+   "ms": 321.4,
+   "length_m": 0.0,
+   "time_s": 0.0
+  },
+  "auto:edge_walk": {
+   "ms": 80.5,
+   "error": "{\"error_code\":443,\"error\":\"Exact route match algorithm failed to find path: edge_walk algorithm failed to find exact route match.  Try using shape_match:'walk_or_snap' to fallback to map-matching algorithm\",\"status_code\":400,\"status\":\"Bad Request\"}"
+  },
+  "auto:walk_or_snap": {
+   "ms": 40.8,
+   "length_m": 0.0,
+   "time_s": 0.0
+  },
+  "auto:attributes": {
+   "way_ids": [
+    18905278,
+    22697012,
+    136104176,
+    178934407,
+    501298747
+   ],
+   "names": [
+    "Balcarce",
+    "Bethlem",
+    "Carlos Calvo",
+    "Estados Unidos",
+    "San Lorenzo"
+   ],
+   "max_point_offset_m": 45.7,
+   "unmatched_points": 4
+  },
+  "bicycle:map_snap": {
+   "ms": 99.0,
+   "length_m": 0.0,
+   "time_s": 0.0
+  },
+  "bicycle:edge_walk": {
+   "ms": 6.9,
+   "error": "{\"error_code\":443,\"error\":\"Exact route match algorithm failed to find path: edge_walk algorithm failed to find exact route match.  Try using shape_match:'walk_or_snap' to fallback to map-matching algorithm\",\"status_code\":400,\"status\":\"Bad Request\"}"
+  },
+  "bicycle:walk_or_snap": {
+   "ms": 9.8,
+   "length_m": 0.0,
+   "time_s": 0.0
+  },
+  "bicycle:attributes": {
+   "way_ids": [
+    18905278,
+    22697012,
+    136104176,
+    178934407,
+    501298747
+   ],
+   "names": [
+    "Balcarce",
+    "Bethlem",
+    "Carlos Calvo",
+    "Estados Unidos",
+    "San Lorenzo"
+   ],
+   "max_point_offset_m": 45.7,
+   "unmatched_points": 4
+  }
+ }
+}

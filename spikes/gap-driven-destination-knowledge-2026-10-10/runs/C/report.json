@@ -1,0 +1,224 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "C",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:20:52.676Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 3,
+    "thematicFacets": [
+      "theme:food"
+    ],
+    "experienceFormatFacets": [],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "A",
+  "report": {
+    "initialEpoch": 5,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 5,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      },
+      {
+        "epoch": 6,
+        "verdict": "READY",
+        "gapKeys": [],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 0,
+          "observed": 3,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "NO_EVIDENCE_FOUND",
+          "claims": [],
+          "discarded": [
+            {
+              "reason": "CLAIM_TYPE_NOT_PERMITTED",
+              "claim": {
+                "claimType": "NOTABLE_WITHIN",
+                "subjectMention": "Villa Crespo"
+              }
+            },
+            {
+              "reason": "CLAIM_TYPE_NOT_PERMITTED",
+              "claim": {
+                "claimType": "NOTABLE_WITHIN",
+                "subjectMention": "Puerto Madero"
+              }
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 1
+          },
+          "snapshotEpoch": 5
+        },
+        "grounding": [],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 1
+          },
+          "snapshotEpoch": 5,
+          "at": "2026-10-11T01:20:53.309Z"
+        }
+      }
+    ],
+    "stoppedBecause": "READY",
+    "remainingGapKeys": [],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 0,
+          "observed": 3,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 1
+          },
+          "snapshotEpoch": 5,
+          "at": "2026-10-11T01:20:53.309Z"
+        }
+      }
+    ],
+    "finalEpoch": 6,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 3,
+          "thematicFacets": [
+            "theme:food"
+          ],
+          "experienceFormatFacets": [],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 6,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 3,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

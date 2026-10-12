@@ -1,0 +1,1110 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "A",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:18:11.833Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "report": {
+    "initialEpoch": 1,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 2,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      },
+      {
+        "epoch": 3,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      },
+      {
+        "epoch": 4,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ]
+      },
+      {
+        "epoch": 5,
+        "verdict": "READY",
+        "gapKeys": [],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "c830d10e90d7462c",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://goaskalocal.com/blog/best-restaurants-in-buenos-aires"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:20.535Z",
+                  "contentFingerprint": "c3d904b15a9c73ae3ef7569c41c9fc3abcb25dd53236ccc3d55396979d5da225",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5541,
+                    "end": 5757,
+                    "text": "The preferred neighborhoods to enjoy the pleasures of Argentine gastronomy are Recoleta, Palermo, Las Cañitas and Puerto Madero, but also vibrant and bohemian neighborhoods like San Telmo, Villa Crespo and Chacarita."
+                  },
+                  "registrableDomain": "goaskalocal.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "74565d6caa593a6d",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/atractivo/san-telmo"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:38.836Z",
+                  "contentFingerprint": "694b38c3bda120d72416dcc06ad9859bf02722c5226f531bcef78a5fe9a64ee8",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 969,
+                    "end": 1042,
+                    "text": "San Telmo is one of the city's oldest and most emblematic neighbourhoods."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Monserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "c142141158c662e1",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://esplendortango.com/en/monserrat-neighborhood/"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:42.571Z",
+                  "contentFingerprint": "a51bae6b6b8e6f948347b3858f92cdd6f5fde4593e3966bbc2b35520a48dee68",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1113,
+                    "end": 1328,
+                    "text": "As one of the city’s oldest areas, Monserrat owes its name to the creation of the Brotherhood of Our Lady of Montserrat, where the church of the devotees of the Virgin Mary—venerated in Catalonia, Spain—was founded."
+                  },
+                  "registrableDomain": "esplendortango.com",
+                  "proposedAuthorityClass": "blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "blog"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "74565d6caa593a6d",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/atractivo/san-telmo"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:38.836Z",
+                  "contentFingerprint": "694b38c3bda120d72416dcc06ad9859bf02722c5226f531bcef78a5fe9a64ee8",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 969,
+                    "end": 1042,
+                    "text": "San Telmo is one of the city's oldest and most emblematic neighbourhoods."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Monserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "c142141158c662e1",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://esplendortango.com/en/monserrat-neighborhood/"
+                  },
+                  "retrievedAt": "2026-10-11T01:18:42.571Z",
+                  "contentFingerprint": "a51bae6b6b8e6f948347b3858f92cdd6f5fde4593e3966bbc2b35520a48dee68",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1113,
+                    "end": 1328,
+                    "text": "As one of the city’s oldest areas, Monserrat owes its name to the creation of the Brotherhood of Our Lady of Montserrat, where the church of the devotees of the Virgin Mary—venerated in Catalonia, Spain—was founded."
+                  },
+                  "registrableDomain": "esplendortango.com",
+                  "proposedAuthorityClass": "blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "blog"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "kind": "NO_EVIDENCE_FOUND",
+          "claims": [],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 3
+        },
+        "grounding": [],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Montserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Nicolás",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Balvanera",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 2
+          },
+          "snapshotEpoch": 4
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Montserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            },
+            "reason": "IDENTITY_NOT_FOUND",
+            "detail": "subject: no neighbourhood named \"Montserrat\" within the destination"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Nicolás",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Balvanera",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d3dcabd0e4954d9a",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=2"
+                  },
+                  "retrievedAt": "2026-10-11T01:19:55.213Z",
+                  "contentFingerprint": "839252f1b77cc6b1c0aaac48609de0deba4fca6cf138faf2b3e0239ed47caacf",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5544,
+                    "end": 5665,
+                    "text": "you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera)"
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Website",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 2
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      }
+    ],
+    "stoppedBecause": "READY",
+    "remainingGapKeys": [],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 2
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:18:12.420Z"
+        }
+      }
+    ],
+    "finalEpoch": 5,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 4,
+          "thematicFacets": [
+            "theme:food",
+            "theme:history"
+          ],
+          "experienceFormatFacets": [
+            "intent:walk"
+          ],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 5,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 4,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

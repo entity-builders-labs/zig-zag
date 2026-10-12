@@ -251,6 +251,9 @@ consulta inicial sin volver a descubrirla.
     Places Text Search, grounded Discovery, Places Nearby, and direct entity
     resolution have explicit triggers based on destination knowledge and user
     intent.
+    **SUPERSEDED (pending cutover)** by "Destination knowledge catalog and
+    gap-driven research (2026-10)": research runs only for typed readiness
+    gaps and discovers sources dynamically.
 21. A grounded proposal is recommendation evidence, not authoritative entity
     identity. Citations are retained, but Places/OSM resolution and backend
     validation remain mandatory before persistence or itinerary selection.
@@ -1398,6 +1401,8 @@ reconfirmation of every already-known physical entity on every request.
 
 ### Component resolution does not create standalone Experiences
 
+> **SUPERSEDED (pending cutover)** by "Destination knowledge catalog and gap-driven research (2026-10)" at the end of this document. Do not extend for new work.
+
 `ExperienceComponent` continues to reference `GeoEntity` when it is
 resolved. (Amended 2026-10-08: a component is one source-declared member and
 may be UNRESOLVED; see "partial source compositions" at the end of this
@@ -1411,7 +1416,9 @@ independently discovered standalone Experience.
 
 ### Nearby/planner boundary
 
-Geographic proximity never proves composite membership. Planner backfill may
+Geographic proximity never proves relevance (restated 2026-10 from "never
+proves composite membership"; relevance comes only from grounded assertions,
+see "Destination knowledge catalog and gap-driven research"). Planner backfill may
 schedule independent verified Experiences to use residual daily capacity, but
 it must not rewrite the canonical component set of a source-backed Experience.
 
@@ -1493,6 +1500,8 @@ system defects and stay outside the research-agent loop.
 
 
 ## Experience Domain V2 — exhaustive source-atom labelling amendment (2026-10-06)
+
+> **SUPERSEDED (pending cutover)** by "Destination knowledge catalog and gap-driven research (2026-10)" at the end of this document. Do not extend for new work.
 
 **Status: APPROVED (owner, 2026-10-06), gated by milestones A → B → C
 below.**
@@ -1960,6 +1969,8 @@ navigable view (one resolved member per distinct GeoEntity).
 
 ### Admission
 
+> **SUPERSEDED (pending cutover)** by "Destination knowledge catalog and gap-driven research (2026-10)" at the end of this document. Do not extend for new work.
+
 ```text
 COMPLETE = every source member resolved                  -> admitted
 PARTIAL  = >= 2 DISTINCT resolved GeoEntities
@@ -2065,6 +2076,8 @@ dedupe, provider limits). It never searches "until complete".
 
 ### SAME reconciliation (union of knowledge, not of Experiences)
 
+> **SUPERSEDED (pending cutover)** by "Destination knowledge catalog and gap-driven research (2026-10)" at the end of this document. Do not extend for new work.
+
 Owner: `source-knowledge-reconciliation.policy.ts`, applied inside the
 catalog's SAME transaction.
 
@@ -2089,3 +2102,760 @@ The SAME write nulls the vector and its index identity in the same
 transaction, and the resolver reindexes synchronously. A stale vector can
 never rank the enriched Experience. If the provider is unavailable, the
 Experience falls in the explicit "no compatible embedding" tier.
+
+## Destination knowledge catalog and gap-driven research (2026-10)
+
+**Status: TARGET CONTRACT, revision 4 (production cutover after spike 3 ACCEPT).** Revision 3 (structured admission first, enrichment optional) is the accepted core architecture; revision 4 adds the production-cutover contract and supersedes only the revision 3 statements listed in "Revision 3 statements superseded by revision 4". Revision 2 (structured world first) remains in force where not superseded below.
+Approved as design truth for new work by the OpenSpec change
+`gap-driven-destination-knowledge`
+(`openspec/changes/gap-driven-destination-knowledge/`). Production schema,
+runtime wiring and the deletion of the superseded source-extraction pipeline
+are executed by the revision 4 cutover task groups of the same change,
+authorized by the spike 3 ACCEPT verdict and run only through `/opsx:apply`.
+Until that cutover lands, the running code still implements the earlier
+sections; sections marked `SUPERSEDED (pending cutover)` must not be extended
+by new work.
+
+**Spike 1 verdict (2026-10-10): REVISE_CONTRACT.** Evidence:
+`spikes/gap-driven-destination-knowledge-2026-10-10/README.md`. The layer,
+authority, catalog-first, ledger and reusable-identity mechanics held on live
+data, but no live research claim met the grounding bar (33 proposed, 0
+authorized, 0 false accepts). The README lists the contract revisions
+required before any cutover (evidence accumulation across research
+executions, publisher signals, verifier precision, tourism-area identity,
+corridor gap dependency, gap identity by knowledge question, an explicit
+insufficient-knowledge state, and a route correspondence basis).
+
+Root cause (owner review): spike 1 still let web research discover the
+physical candidates (web prose -> LLM-proposed areas, streets and places ->
+identity resolution afterwards). Revision 2 inverts that direction.
+
+**Spike 2 verdict (2026-10-11): REVISE_CONTRACT.** Evidence:
+`spikes/structured-world-first-2026-10-10/README.md`. The structured-world-
+first direction held on live data: 130 canonical area candidates came from
+OSM/Wikidata before any web research, every evaluated question referred to an
+existing GeoEntity candidate, research created no GeoEntity and introduced no
+non-offered entity, and identity failures disappeared. Semantic sufficiency
+still blocks knowledge (40 claims, 1 authorized, 0 false accepts; 27
+insufficient-corroboration rejections), so no POI, route or corridor was
+reached. Required contract revisions: evaluation coverage vs. evidence of
+absence, suppression vs. evidence accumulation, publisher signals, verifier
+calibration and homonym-safe subject naming, tourism-closer structured
+ranking, unknown-extent relevant areas, and provider capacity for runs.
+
+Owner reinterpretation of spike 2 (2026-10-11): the blocker was not
+"semantic grounding" but that **ordinary candidate admission was incorrectly
+coupled to tourism-relevance evidence**. Revision 3 removes that coupling.
+
+**Spike 3 verdict (2026-10-11): ACCEPT.** Evidence:
+`spikes/structured-places-baseline-2026-10-11/README.md`. From an empty
+catalog, structured OSM POIs + Wikidata facts produced 2,571 admitted places,
+each composed as a single-place Experience (spike term: PLACE_VISIT), and a
+reasonable 3-day Buenos Aires Tour with zero LLM, web
+search, fetch or research calls and zero L2 assertions; a reuse run reproduced
+identities, keys, ranking and Tour with zero discovery calls. **Accepted
+hypothesis: authoritative structured POIs are sufficient to build ordinary
+single-place Experiences and a useful Tour without tourism-relevance
+research.** The admission/research architecture is closed; tourism research,
+L2 assertions, grounded LLMs and enrichment do not return to the ordinary
+single-place Experience critical path. The remaining findings are production-cutover
+defects (readiness blamed knowledge for a planner residual, capacity gaps
+re-acquired on a sufficient catalog, the travel estimator walks every leg,
+sub-features flooded the pool, stadiums are outside the vocabulary,
+category lists are mirrored, some duplicates survived); see "Production
+cutover contract (revision 4)".
+
+### Experience Domain V2 alignment (revision 4)
+
+This section uses only the Experience Domain V2 model and adds no
+schedulable-unit taxonomy (OpenSpec design C0):
+
+- `GeoEntity` (`PLACE | AREA | ROUTE`) is canonical physical reality.
+  Admission, the parent/child visit-unit classification, opening hours and
+  reusable visit-duration knowledge are evaluations/knowledge about a
+  GeoEntity — never a separate place entity or catalog.
+- `Experience` is the only reusable schedulable tourism unit. There is no
+  structural Experience kind: no PLACE_VISIT, no CORRIDOR_WALK, no
+  ExperienceKind. Those names survive only in spike evidence.
+- `ExperienceComponent` is how one GeoEntity participates in an Experience:
+  participation (at least VISIT, TRAVERSE), order and required/optional. A
+  *single-place Experience* is one required VISIT of a PLACE GeoEntity
+  ("Visit MALBA"). A composite ("San Telmo walk") is one Experience with
+  ordered components, e.g. a required TRAVERSE of the Calle Defensa ROUTE
+  bounded Chile → Humberto Primo, then VISITs of Mercado de San Telmo, Plaza
+  Dorrego and Plaza de Mayo.
+- A bounded ROUTE traversal is ExperienceComponent content (start/end
+  boundaries, direction where relevant, provider-backed boundary coordinates
+  and segment geometry or an equivalent reproducible routing constraint,
+  spatial provenance, required semantics). It never creates a GeoEntity:
+  two Experiences traversing different sections of Defensa reference the
+  same Defensa GeoEntity. A required traversal is normative: routing must
+  not replace it with a shorter parallel path; if no provider-backed
+  estimate respects it, it is an explicit feasibility failure, never a
+  distance/speed estimate. The provider mechanism for path-constrained
+  traversal timing is still open.
+- Composition defines what an Experience contains; the global planner
+  schedules each Experience as one candidate (never flattened, internal
+  composition never rewritten), checking a composite's internal timeline
+  (component order, internal travel/traversal, visit durations, internal
+  PLACE opening windows); routing is free only between unconstrained
+  components and between Experiences.
+- `Tour` / `TourExperience` are the generated snapshot (including the
+  duration actually used). Experiences keep a stable identity and are
+  updated in place; idempotent composition uses a composition signature
+  from constitutive components. No content-revision subsystem exists.
+- Sub-feature highlights derive from the GeoEntity PART_OF relationship and
+  are not copied into the parent Experience.
+
+**Persistence mapping (R4-D1, OpenSpec design C14).** No new identity
+layer. GeoEntity-keyed knowledge: `GeoEntityAdmission` (1:1;
+destination-independent outcome, canonical signals and exclusions, policy
+version, provenance), `GeoEntityRelation` (N:M; direct PART_OF with
+visit-unit classification and evidence), `GeoEntityOpeningHours` (1:1;
+KNOWN/UNKNOWN, typed versioned schedule, timezone, source, retrieval time)
+and `GeoEntityVisitDuration` (1:1; P-D2 range, status, authority, evidence,
+resolver version). Typed additions to existing models:
+`Experience.compositionSignature` (nullable unique, idempotent
+composition), ExperienceComponent `participation` (VISIT / TRAVERSE, beside
+the legacy `role` until its consumers migrate) and bounded-traversal
+columns, GeoEntityIdentity merge rule/evidence, Tour `readinessVerdict`
+(READY / PLANNER_LIMITED) with timezone and planning snapshots,
+TourExperience `endTime`, and per-component internal-timeline snapshots.
+Derived states (SUB_FEATURE_OF, PARENT_NOT_ADMITTED) and fallback durations
+are never stored; possible duplicates stay in the trace; facts are updated
+in place with version and provenance (no history tables). Persistence of L2
+assertions, the L3 ledger and research evidence memory is still to be
+mapped (enrichment / corridor products only).
+
+**Catalog-first operating model (OpenSpec design C15).** The hot path is
+`request -> catalog -> planner -> Tour`. GeoEntities and Experiences are
+living entities whose reusable facts may be missing, stale, changed upstream
+or conflicting; maintaining them is a separate asynchronous path (detect →
+deduplicated enrichment demand keyed by fact type and subject → provider
+lookup or research → evidence validation → in-place catalog update → better
+future plans). Missing or stale reusable knowledge never blocks generation,
+never triggers synchronous research and never becomes NEEDS_ACQUISITION or
+INSUFFICIENT_KNOWLEDGE: the request plans with the degraded-mode policy
+(opening hours: P-D4 PENALIZE; visit duration: the P-D2-F fallback), records
+it in its diagnostics/snapshot, and emits catalog-health signals
+(OPENING_HOURS_ENRICHMENT_REQUIRED, VISIT_DURATION_ENRICHMENT_REQUIRED,
+KNOWLEDGE_REFRESH_DUE). Freshness is a versioned maintenance policy, not a
+planning state. The duration fallback is one global versioned planner rule,
+exceptional, snapshotted as `FALLBACK_POLICY`, never persisted as knowledge,
+and its value is approved only through a calibration gate from
+evidence-backed durations. No scheduler, queue, TTL or retry constants are
+defined yet.
+
+**Routing strategy (P-D1 RESOLVED 2026-10-12, OpenSpec design C16).**
+Routing is a separate problem from catalog PLACE knowledge (GeoEntity
+catalog, Overture Places as a PLACE index/identity source — never a
+routing, geocoding-boundary or ROUTE-geometry source) and from destination
+resolution (Nominatim, whose remaining Revision 4 role is occasional,
+cacheable destination and reverse lookup; its PLACE/AREA/ROUTE resolution
+uses belong to the retiring pipeline). Measured on 2026-10-12: self-hosted
+Valhalla over Argentina OSM (12-minute build, ~1 GB data) and Geoapify both
+time the San Telmo Defensa traversal exactly by map matching, while
+endpoint-only drive/bicycle routes leave the street; a deterministic
+geometric validator separates the two. Planning needs provider-neutral leg,
+bulk-pair and constrained-traversal contracts (outcomes include
+CONSTRAINT_UNSATISFIED), optional per-day start/end anchors, and provenance
+with provider, API and traffic model; traffic is not a primary criterion.
+Decision: managed Geoapify initially (walk/drive/bicycle as enabled by
+product policy; no public transport in the first release), self-hosted
+Valhalla behind the same contracts when measured routing spend, rate limits
+or storage terms justify it (Valhalla-first if Geoapify's storage terms
+forbid persisting results — checked before production wiring); Mapbox and
+Google are not competitive for this matrix-heavy workload. A required
+traversal is accepted only by the calibrated, provider-neutral validator
+`traversal-validator-v1` (coverage ≤ 2.8 m, on-segment ≤ 4.1 m, forward
+progress, no material backtracking, no unmatched points), derived from 21
+real segments in Buenos Aires, Paris and Los Angeles with zero false
+positives; traversal geometry is built only from ways the mode may traverse
+in the required direction.
+
+### Why
+
+The source-extraction pipeline (semantic web search → LLM extraction of
+Experiences from prose → geographic validation) forced every piece of tourism
+meaning to become a source-declared Experience and re-triggered generic
+crawling for generic deficits. Its catalog contents are disposable. GeoEntity,
+Experience, Tour, the planner, routing and provenance concepts are kept.
+
+### Structured world first
+
+```text
+discovery gap -> acquisition router -> structured providers
+              -> canonical resolution -> GeoEntity candidates
+meaning gap   -> acquisition router -> [structured facts] -> evidence memory
+              -> bounded web evidence about OFFERED candidates
+              -> grounding -> L2 -> Experience composition -> Experiences
+```
+
+Physical candidates (areas, places/POIs, streets/routes), their existence,
+identity and geometry come only from structured providers and canonical
+resolvers. Web research and language models never establish that an entity
+exists, who it is or where it is. Research only establishes tourism meaning
+for candidates that already exist as GeoEntities.
+
+### Structured admission first (revision 3)
+
+A trusted structured POI/geographic provider supplies enough authority for an
+ordinary PLACE to participate in tour composition. The minimum cold-start
+happy path has no web research:
+
+```text
+request -> catalog first -> destination-scope structured PLACE_CANDIDATES
+        -> canonical identity + dedupe (strong provider identity only)
+        -> structured admission policy -> single-place Experiences
+        -> deterministic structured ranking -> provisional plan / readiness
+        -> deterministic planner -> Tour
+```
+
+Structured admission requires canonical provider identity, a name,
+coordinates, containment in the destination and sufficient structured
+evidence of independent visitability or notability (revision 4: canonical
+admission signals with a small generic exclusion policy, not membership in a
+tourism-category list; see "Production cutover contract (revision 4)"). Rejections are typed; admissions keep structured provenance. An
+admitted PLACE GeoEntity is eligible for a single-place Experience with zero
+L2 assertions. Absence,
+failure, outage, verifier failure, insufficient corroboration or staleness of
+enrichment never revokes or blocks that eligibility; only structured evidence
+or an admission-policy change can.
+
+Areas organize, cluster, rank and explain; they never gate ordinary place
+discovery.
+
+### Authority matrix (revision 3)
+
+| Product fact / decision | Established by | Sufficient alone | L2 | Blocked by missing enrichment |
+| --- | --- | --- | --- | --- |
+| Place existence, identity, category, coordinates | structured POI / geographic providers and resolvers | yes | not used | no |
+| Destination containment, area membership | provider geometry | yes | not used | no |
+| Independent visitability / notability (revision 4) | canonical structured admission signals: provider visitor/historic classification, heritage designation, visitable class + encyclopedic notability or provider prominence | yes | not used | no |
+| Ordinary single-place Experience eligibility | structured admission policy | yes | optional | no |
+| Ordinary ranking | deterministic structured signals | yes | optional boost | no |
+| Routing / walkability | geographic/routing providers, planner policy | yes | not used | no |
+| Opening hours / business state | structured POI provider when present, else unknown | yes when present | not used | no |
+| Thematic relevance | mapped structured facts + web evidence (structured never alone) | per grounding sufficiency | required for the assertion | no (only the boost is missing) |
+| Tourism walking corridor meaning | web evidence about an existing canonical ROUTE | per grounding sufficiency | required | blocks only Experiences whose required ROUTE traversal depends on it |
+| Composite Experience relationship | the justification its components declare + geometry | per component justification | required where declared | blocks only that Experience |
+| Narrative, highlights, tips, context | enrichment | per enrichment policy | enrichment | no |
+
+No research step may sit on the critical path of a decision a structured
+provider establishes; adding a research gate requires changing this matrix.
+
+### Enrichment contract (revision 3)
+
+```text
+provider-backed POI -> admitted PLACE GeoEntity -> single-place Experience -> optional enrichment
+```
+
+Enrichment (narratives, highlights, historical context, thematic assertions,
+visitor tips, recommended duration, nearby relationships, preference-match
+explanations) is reusable catalog knowledge with provenance. It may change
+ranking, personalization, presentation and semantic composition, and updates
+Experiences in place without changing their identity. Its failures are
+recorded as failures, never as negative facts, and never block ordinary use
+of an admitted place.
+
+### Catalog layers and write authorities
+
+| Layer | Contents | Only writer |
+| --- | --- | --- |
+| GeoEntities | `GeoEntity` PLACE / AREA / ROUTE from structured providers, with provider identities, structured names/aliases and geometry; AREA carries area class (ADMINISTRATIVE / NAMED_PLACE) and extent (PROVIDER_BOUNDARY / UNKNOWN) | geographic identity resolution of structured candidates |
+| L2 tourism assertions | typed claims about canonical candidates (RELEVANT_FOR, NOTABLE_WITHIN, WALKING_CORRIDOR) with canonical facet keys and evidence captures; enrichment, not a universal admission gate (revision 3) | grounding |
+| L3 research ledger | outcomes per gap key and per evaluation question (SATISFIED, INSUFFICIENT_EVIDENCE, BUDGET_EXHAUSTED, FAILED), budget used, snapshot epoch | outcome recording after grounding and readiness re-evaluation |
+| Experiences | the only schedulable units, composed from GeoEntities (via ExperienceComponents) and L2, with stable identity | Experience composition |
+
+Research never writes any layer. Grounding writes no GeoEntity: claims refer
+to offered canonical candidates. Composition writes only Experiences and
+their components.
+
+Research Evidence Memory (fetched documents, captures, pending claims keyed by
+evaluation question, unoffered mentions) is stored outside GeoEntities, L2, L3 and Experiences. Readiness,
+composition and planning never read it as knowledge; it exists so
+corroboration can accumulate across runs and live research is reduced.
+
+An L2 assertion is identified by claim type, subject (including corridor
+segment bounds) and canonical facet key; an equivalent claim from another
+source adds evidence to the existing assertion instead of creating a parallel
+one. Themes that do not map to the canonical facet vocabulary are never
+stored as facets.
+
+Tourism areas need not be administrative boundaries: a structured named place
+(for example an OSM `place=neighbourhood|quarter` record or a Wikidata item)
+is an AREA with class NAMED_PLACE. When a provider gives only a point, its
+extent stays UNKNOWN; such an area can carry relevance assertions but does not
+scope place/route discovery or containment checks. No area is ever created by
+fuzzy or lexical name matching.
+
+### Epistemic invariants
+
+1. Geometry does not imply tourism relevance. A street with no L2 assertion
+   has no tourism meaning.
+2. A language model cannot establish existence, identity, coordinates or
+   geometry of any entity.
+3. A language model cannot invent tourism claims: every L2 assertion carries
+   at least one evidence capture.
+4. An evidence capture is re-verifiable: locator (URL, or dataset + record +
+   field path), retrieval time, content fingerprint, and either a prose span
+   with offsets or structured field values. A verbatim quote is one capture
+   kind, not the only one.
+5. Provenance (who published the evidence, reproducibility, content
+   integrity) is verified separately from support (whether this evidence
+   supports this claim type for this subject). Provenance alone never
+   authorizes a claim.
+6. A source contributes only the properties it can establish. Geographic
+   providers establish existence, identity, geometry and walkability, never
+   tourism relevance. A structured fact counts as evidence only through an
+   explicit, versioned field-to-claim/facet mapping and supports only the
+   meaning the field establishes (a heritage designation may support history
+   relevance; tourism/historic tags never establish WALKING_CORRIDOR).
+7. A publisher or source classification proposed by the research agent is an
+   untrusted hint. No fixed website/domain allowlist and no government-domain
+   special case define authority; an official domain is one provenance signal.
+8. Embeddings may rank or retrieve; they never establish identity, existence
+   or truth.
+9. Provenance survives: each Experience references the justification of its
+   required components (the structured admission evaluation of a visited
+   PLACE GeoEntity, the declared L2 assertions of a justified traversal); L2 references its evidence captures; merges and parent relations
+   reference their structured evidence.
+10. Acquisition is routed deterministically per gap type; agentic research is
+    bounded and runs only for meaning gaps over offered candidates.
+11. Catalog knowledge is preferred over live research: every generation reads
+    the catalog first and plans only from a snapshot read after the last
+    knowledge write, including reusable composition writes.
+12. Structured world first: no web prose and no model output creates a
+    candidate. Structural signals (tags, encyclopedic links, proximity to
+    grounded places) may rank candidates for evaluation, never authorize.
+
+### Generation flow (revision 3)
+
+```text
+request -> preference interpretation -> catalog snapshot
+        -> readiness over eligible Experiences (provisional plan)
+             --READY--> tour composition -> planner -> Tour
+             --PLANNER_LIMITED--> Tour + planner feasibility diagnostic, no acquisition (revision 4)
+             --INSUFFICIENT_KNOWLEDGE--> explicit result with provider evidence, no empty Tour (candidate shortage only)
+             --NEEDS_ACQUISITION (core gaps)-->
+        acquisition router (versioned policy, cheapest sufficient authority)
+          core gap (PLACE_CANDIDATES, SCHEDULE_CAPACITY, planner-required facts)
+               -> structured providers -> canonical resolution -> admission -> GeoEntity + single-place Experience
+          product-semantic gap (only when the requested product depends on meaning)
+               -> structured facts -> evidence memory -> bounded agent over offered ids
+               -> grounding -> L2
+        -> Experience composition -> outcomes recorded in L3 -> fresh snapshot
+optional enrichment runs downstream, outside the generation's critical path.
+```
+
+This is an acquisition execution inside the gather/reconcile/plan discipline
+above: provisional plans are discarded when knowledge is written and the final
+plan uses the final snapshot.
+
+### Acquisition router and source classes
+
+The router maps each gap type to the source classes allowed for that
+knowledge type: GEOGRAPHIC_STRUCTURE, STRUCTURED_POI, STRUCTURED_ENTITY_FACTS,
+ROUTE_GEOMETRY, RESEARCH_MEMORY and WEB_EVIDENCE. The policy names classes and
+provider adapters, never websites, and selects the cheapest source class the
+authority matrix marks sufficient. Core gaps route only to structured
+classes; enrichment and product-semantic gaps route to structured facts
+(where mapped), evidence memory and web evidence. When every authorized
+class fails, the gap is FAILED; there is no fallback to an unauthorized
+class. Every discovery execution records its provider calls, acquired,
+resolved, admitted and rejected candidates with typed reasons; a provider
+failure is FAILED, never an empty candidate set.
+
+### Readiness gaps (revision 3)
+
+Readiness is a deterministic function of the snapshot, the interpreted request
+and a versioned readiness policy, returning READY, NEEDS_ACQUISITION or
+INSUFFICIENT_KNOWLEDGE. READY is reachable from admitted structured places
+alone: a provisional plan over eligible single-place Experiences fills the requested
+days. Gap keys are `(gap type, canonical scope id, canonical facet key)`.
+
+| Gap | Class | Emitted when |
+| --- | --- | --- |
+| PLACE_CANDIDATES (destination, then further structured scopes) | core | too few admitted places for the request |
+| SCHEDULE_CAPACITY (destination, days) | core | candidate supply is the limiting resource (revision 4); routed to structured acquisition only |
+| route geometry / practical facts | core only when the planner needs them | planning cannot proceed without them |
+| WALKING_CORRIDOR_RELEVANCE (area, walking facet) | product-semantic | a walking-corridor product is requested; never for walking transport permission alone (invariant 22); never affects single-place Experience eligibility |
+| AREA_RELEVANCE, PLACE_RELEVANCE, context, narratives, relationships, tips | enrichment | optional; never change READY |
+
+Semantic gaps never gate structured acquisition. Outcomes are recorded per
+evaluation question; a question with a recent INSUFFICIENT_EVIDENCE or
+BUDGET_EXHAUSTED outcome is not offered again within the freshness window;
+FAILED never suppresses. INSUFFICIENT_KNOWLEDGE only when candidate supply
+is the limiting resource and structured acquisition is exhausted; a
+planner-feasibility residual is PLANNER_LIMITED (revision 4).
+
+### Production cutover contract (revision 4)
+
+Durable invariants: structured providers establish ordinary POI eligibility;
+L2 is not required for an ordinary single-place Experience; enrichment is
+downstream of admission and its failure or absence never revokes a
+GeoEntity's admission or archives its Experience;
+research runs only when a product decision depends on semantic/tourism
+meaning; provider coverage, admission, identity, ranking and planner defects
+are never classified as missing semantic knowledge.
+
+**Readiness names the limiting resource.** After a provisional plan,
+readiness compares the planner's own meaningful residual capacity per day
+with the unused eligible supply (admitted, planner-projectable Experiences in
+scope, excluding sub-features represented by a parent, that the plan did not
+schedule — rejected with typed planner reasons or not offered). No new
+numeric threshold is introduced: supply is sufficient when the summed
+derived durations of unused eligible candidates cover the residual.
+
+| Outcome of the provisional plan | Limiting resource | Verdict |
+| --- | --- | --- |
+| no meaningful residual | NONE | READY |
+| residual, unused eligible supply sufficient | PLANNER_FEASIBILITY | PLANNER_LIMITED (Tour + typed planner feasibility diagnostic, no acquisition) |
+| residual, supply insufficient, structured strategies remain | CANDIDATE_SUPPLY | NEEDS_ACQUISITION (SCHEDULE_CAPACITY → structured only) |
+| residual, supply insufficient, structured strategies exhausted | CANDIDATE_SUPPLY | INSUFFICIENT_KNOWLEDGE |
+
+Planner feasibility never becomes INSUFFICIENT_KNOWLEDGE. When the planner
+schedules nothing although supply is sufficient, generation returns an
+explicit PLANNER_INFEASIBLE outcome. The planner feasibility diagnostic
+carries residual per day, unused eligible count, planner rejection reasons
+aggregated by reason, walking diagnostics, leg modes and the constraint
+snapshot. SCHEDULE_CAPACITY is emitted only for CANDIDATE_SUPPLY; residual
+time alone never triggers acquisition, so a repeated request on a sufficient
+catalog performs no rediscovery.
+
+**Shortfall classification.** Every shortfall is classified from typed
+evidence as CANDIDATE_SUPPLY, PROVIDER_COVERAGE, ADMISSION_POLICY, IDENTITY,
+RANKING, PLANNER_FEASIBILITY or SEMANTIC_KNOWLEDGE. Only CANDIDATE_SUPPLY
+routes to structured acquisition; only SEMANTIC_KNOWLEDGE of a product that
+declares a semantic dependency routes to research.
+
+**Multi-day tour planning (planning amendment, 2026-10-11).** Spike 3 made
+planning, not acquisition, the unresolved problem. The planner turns eligible,
+ranked Experiences into the best feasible multi-day itinerary and
+decides jointly which candidates are scheduled, on which day, in which order,
+at which times and with which travel mode per leg. Ranking answers "how
+desirable"; planning answers "which desirable candidates form the best
+feasible itinerary". The planner owns no discovery, identity, admission,
+research or narrative; its outcomes never modify admission or catalog
+content and are never evidence of missing tourism knowledge.
+
+```text
+eligible Experiences -> ranking (utility) ----------+
+opening-hours knowledge (catalog facts) ------------+
+visit-duration boundary ----------------------------+--> Tour optimizer
+TravelEstimateProvider (routing/directions) --------+          |
+user schedule + mobility constraints ---------------+   itinerary + typed
+                                                        diagnostics -> readiness / Tour
+```
+
+- *Hard constraints* (never weighted): per-date opening windows in
+  destination-local time — visit fully inside one window, start no later
+  than last admission, KNOWN_CLOSED never scheduled, split windows and date
+  exceptions honoured; daily start/end; user unavailable windows; visit
+  durations; travel time between consecutive activities; allowed and
+  estimable modes; continuous and daily walking limits (including
+  access/egress walking); at most one visit per candidate.
+- *Objective*: a versioned policy maximizing utility (ranking utility,
+  optional quality, diversity, spatial coherence) minus costs (travel, idle
+  time, zig-zag, mode changes, UNKNOWN-hours penalty). Days are optimized
+  jointly, not filled one at a time. Output is deterministic for identical
+  inputs, travel recordings and policy versions.
+- *Opening hours*: KNOWN_OPEN_WINDOW / KNOWN_CLOSED / UNKNOWN per date with
+  provenance. UNKNOWN is never OPEN; a versioned policy outside the
+  optimizer (ALLOW_WITH_UNCERTAINTY, PENALIZE, EXCLUDE) decides its
+  treatment and scheduled UNKNOWN visits stay marked. No web/LLM lookup on
+  the planning path.
+  Default (P-D4): PENALIZE — UNKNOWN is feasible on hours alone and never
+  overrides another hard constraint, carries the soft term
+  `openingHoursUncertaintyPenalty` (weight set by the objective policy),
+  applies per internal VISIT component of composites, keeps must-include
+  items (surfaced as uncertain), is marked OPENING_HOURS_UNKNOWN and
+  snapshotted as status UNKNOWN with the policy version, and never triggers
+  acquisition, research or INSUFFICIENT_KNOWLEDGE.
+- *Visit duration* (P-D2 resolved): reusable, evidence-backed knowledge per
+  admitted place (optional min / typical / max, status incl. CONFLICTING,
+  evidence quality, authority class, evidence items, versions). Authority
+  order: structured provider fact, official site, official tourism /
+  institutional, reliable reference, user-generated (never a single
+  anecdote), grounded synthesis of cited evidence, then an explicit
+  versioned fallback as last resort (one global rule, exceptional, calibrated,
+  never persisted); weaker never overrides stronger; an
+  uncited model duration is never authority. Resolution is lazy, bounded to
+  a shortlist likely to be planned, reuses the router → research → grounding
+  → evidence-memory primitives as a VISIT_DURATION enrichment gap, runs off
+  the generation critical path and persists for reuse; it never decides
+  existence, identity or admission. The planner consumes the projected
+  (typical) value with provenance and never infers durations; duration
+  revisions never change Experience identity. No universal duration is
+  product truth; concrete fallback values are deferred.
+- *Travel estimation*: the existing travel-estimate abstraction becomes a
+  per-mode contract (origin, destination, mode, optional departure time →
+  estimate with provider and quality, or MODE_UNAVAILABLE /
+  PROVIDER_UNAVAILABLE). Normal operation is routing-provider-backed with at
+  least walking and one non-walking urban mode; providers never choose the
+  mode, and walking is never chosen merely because it is allowed. When
+  routing is unavailable the affected feasibility decision fails explicitly
+  (P-D3): partial mode availability continues with usable modes, an
+  unevaluable required leg yields TRAVEL_ESTIMATE_UNAVAILABLE, and no valid
+  itinerary yields a travel-estimation-unavailable outcome with no Tour,
+  never acquisition or INSUFFICIENT_KNOWLEDGE. Travel times are never
+  fabricated; degraded network-free estimation is not enabled and would
+  need a separately approved, calibrated policy. This supersedes treating a conservative
+  approximate estimate as the ordinary contract ("Accepted MVP transport
+  contract" above). No routing provider is selected yet.
+- *Diagnostics*: every eligible unscheduled candidate carries typed reasons
+  (OPENING_HOURS, OPENING_HOURS_UNKNOWN_EXCLUDED, TRAVEL_TIME,
+  TRAVEL_ESTIMATE_UNAVAILABLE, DAILY_CAPACITY, WALKING_LIMIT,
+  NO_ALLOWED_TRAVEL_MODE, VISIT_DURATION, USER_TIME_WINDOW,
+  DOMINATED_BY_HIGHER_UTILITY_PLAN, OTHER_PLANNER_CONSTRAINT); input errors
+  are separate. Readiness consumes them directly; none means candidate
+  shortage. Every scheduled activity and day exposes its schedule evidence,
+  and the Tour snapshot persists it.
+- *Algorithm*: the problem is a multi-day orienteering problem with time
+  windows and multimodal arcs. The production optimizer is chosen only from
+  a recorded comparison (greedy baseline, OR-Tools Routing, CP-SAT
+  orienteering) on identical recorded multi-destination datasets, with zero
+  hard-constraint violations as a gate.
+  Comparison executed 2026-10-12 (OpenSpec design P11 results,
+  `spikes/planner-comparison-2026-10-12/`): no approach violated a hard
+  constraint; the current greedy (walk-first mode rule, rank-order
+  placement) is materially worse; CP-SAT in the evaluated formulation does
+  not scale to ~30 candidates; OR-Tools Routing gives the best Tours in
+  constrained cases and greedy best-insertion is the simplest viable
+  alternative. The choice between them waits on one gate: Routing's
+  runtime integration with the NestJS backend and a deterministic stop
+  criterion. A solver that exhausts its budget without a Tour is a planner
+  failure, never PLANNER_INFEASIBLE or a knowledge verdict.
+
+**Parent sites and visit units (R4-D2).** A PART_OF / containment
+relationship alone does not decide whether a child has its own Experience;
+the decision is about the real visit unit. A parent relationship is
+established only by an explicit provider relationship to a place-site
+candidate (site/relation membership, a "part of" property) or by
+containment plus a relationship class declared in the canonical policy —
+never to areas, districts or designations, and never from proximity, names,
+embeddings, LLM output or web research. Each relationship is classified from
+structured evidence (policy default per relationship class plus
+per-instance evidence such as separate entrance, opening hours or venue
+identity): CHILD_REQUIRES_PARENT_VISIT children (a tomb in a cemetery, an
+artwork in a museum) are never offered to the planner — SUB_FEATURE_OF and
+sub-feature knowledge of an admitted parent (derived from PART_OF), or
+PARENT_NOT_ADMITTED (context required) and never promoted when the parent is
+absent; CHILD_INDEPENDENTLY_VISITABLE children (a venue with its own entrance
+inside a park) follow ordinary admission and keep the relationship;
+insufficient or contradictory evidence yields AMBIGUOUS_PARENT_RELATIONSHIP,
+neither collapsed nor promoted. Only the direct visit parent counts: no
+recursive hierarchy traversal; deeper PART_OF/containment is kept as
+knowledge without admission, ambiguity or planner effect, and ambiguity
+arises only among plausible direct visit parents. Children stay canonical entities; admission
+is independent in both directions; no site is named in policy.
+
+**Structured visitability/notability admission.** Ordinary admission does not
+depend on an exhaustive allowlist of base POI categories: a base category
+says what a place is, not whether it deserves its own single-place Experience.
+The policy asks whether sufficient structured evidence exists. Provider
+adapters translate provider tags and taxonomies into provider-neutral
+admission signals. Decisive signals — an explicit provider visitor/attraction
+classification, a historic classification, a heritage designation — admit
+alone. Otherwise a visitable-place class (supporting only, never required to
+be exhaustive) plus an independent notability signal (identity-linked
+encyclopedic item, provider prominence) admits; anything else is rejected
+INSUFFICIENT_ADMISSION_EVIDENCE. A small generic exclusion policy remains:
+administrative/locality records, roads/routes as places, information points
+and signage, and grouped sub-features always reject; transport-service
+features, technical infrastructure and accommodation reject unless a
+decisive signal exists (a heritage-designated station or historic pharmacy is
+admitted; an ordinary stop or pharmacy is not). No place is ever named in
+policy. Categories remain positive, exclusion, compatibility,
+parent/sub-feature and ranking evidence and provider-query selectors, but
+never the admission authority alone.
+
+Structured Wikidata facts (classes under adapter-held root classes, heritage
+designation, sitelinks) are authoritative structured admission evidence about
+an identity-linked entity; they create no L2 assertion, need no research,
+web or LLM call, and never establish thematic relevance.
+
+**Single admission-policy source.** One versioned structured admission
+policy defines signal types and strengths, the admission rule, exclusion
+classes and their overridability, sub-feature pairs and the neutral
+classes/signals ranking reads. Provider mappings live only in adapters.
+Discovery selectors (for example Overpass queries) are provider acquisition
+strategy derived from the adapter mapping, broad enough to retrieve records
+that can carry a decisive signal even when their base category is normally
+non-touristic, and are never consulted by admission; an operational bound is
+recorded as a strategy limitation, not a rejection. No mirrored lists exist
+in tests or spikes.
+
+**Structured identity reconciliation.** Strong evidence (same provider id,
+one shared Wikidata identity without conflict, an OSM structural
+relationship, an explicit provider cross-link) may merge alone. Exact
+normalized name equality, geometry correspondence and compatible classes are
+supporting evidence and merge only together, with exactly one such match in
+the containing geometry and no conflicting identity. Similar names, proximity
+alone and embeddings never merge; ambiguity fails closed. Reconciliation is
+order-independent, survivor fields are canonicalized, and every merge and
+every unmerged possible duplicate records its rule, evidence and reason.
+
+**Ranking and providers.** Spike 3's structured ranking is the accepted
+baseline; its recorded issues (low-ranked markets, weak generic tags,
+duplicate-affected ordering, no OSM importance) are not fixed with research
+and wait until feasibility and identity are fixed. No new structured POI
+provider is part of the cutover; providers are activated by measured
+destination coverage, and provider insufficiency stays distinguishable from
+admission, ranking, planner and semantic failures.
+
+**Deferred to optional enrichment** (never on the single-place Experience critical path):
+narratives for weaker POIs, stronger type context for weakly tagged places,
+neighbourhood presentation, corridor experiences, grouped sub-feature
+highlights, evidence-backed visit durations (lazy VISIT_DURATION
+enrichment; the explicit fallback applies until then), historical context, thematic relevance, tips and relationships.
+
+**Cutover order:** planning track — planning input/output contract,
+opening-hours model and UNKNOWN policy, visit-duration boundary, per-mode
+routing contract and routing-unavailable behaviour, typed planner diagnostics,
+readiness limiting-resource and capacity-gap integration, planner
+algorithm-comparison spike, evidence-based optimizer selection, optimizer
+implementation, planner regression tests; independently, parent/sub-feature handling;
+structured visitability/notability admission; canonical admission policy
+and adapter signal mappings; identity reconciliation;
+production structured acquisition/admission; production Experience
+composition; production readiness/planner integration; regression and
+cutover validation; only then retirement of the superseded acquisition path.
+Acceptance (OpenSpec design C13): a cold ordinary request discovers,
+canonicalizes, reconciles with auditable evidence, admits, composes
+single-place Experiences without L2, plans with non-walking legs where allowed, produces
+a non-empty multi-day Tour, reuses the catalog without rediscovery,
+distinguishes candidate shortage from planner limitation and makes zero
+web/LLM research calls; the planning acceptance tests (OpenSpec design P13)
+also pass.
+
+### Revision 3 statements superseded by revision 4
+
+- READY / NEEDS_ACQUISITION / INSUFFICIENT_KNOWLEDGE as the only verdicts:
+  PLANNER_LIMITED added.
+- SCHEDULE_CAPACITY whenever a provisional plan leaves meaningful residual:
+  only when candidate supply is the limiting resource.
+- INSUFFICIENT_KNOWLEDGE whenever structured acquisition is exhausted and the
+  plan cannot be filled: only for candidate supply shortage.
+- Admission by membership in the backend's tourism POI classes: replaced by
+  structured visitability/notability admission with generic exclusions and
+  one canonical admission policy.
+- Dedupe by shared strong identity only: structured identity reconciliation.
+- Revision 4's initial "transit-aware travel estimation" (walk whenever the
+  leg fits the limits; approximate public transport as the ordinary
+  estimate): replaced by optimizer-owned mode choice, provider-routed
+  per-mode estimates and explicit failure when routing is unavailable.
+
+### Revision 2 statements superseded by revision 3
+
+- AREA_CANDIDATES -> AREA_RELEVANCE -> PLACE_CANDIDATES as a mandatory order:
+  destination-scope place discovery comes first and areas never gate it.
+- A place-visit Experience admitted by a RELEVANT_FOR / NOTABLE_WITHIN assertion: replaced
+  by structured admission.
+- READY only after relevance per facet, and meaning gaps on the generation's
+  critical path: replaced by READY from admitted places with optional
+  enrichment.
+- SCHEDULE_CAPACITY expanding through relevance evaluation: replaced by
+  structured acquisition first.
+
+### Research and grounding boundary
+
+Research receives offered evaluation questions (canonical candidate id, its
+structured names and aliases, facet), discovers evidence sources dynamically
+through search (no configured source list), and returns claims that cite
+offered ids. A claim about an entity that was not offered is discarded and
+kept only as an unoffered mention. Grounding authorizes a claim only through
+claim-type predicates over verified provenance, captured evidence (which must
+name the subject by one of its structured names), geometric consistency and
+semantic support. A single capture suffices only when it has independently
+verifiable provenance and explicit support; otherwise corroboration from an
+independent publisher is required, which may come from re-verified evidence
+retained across runs. A claim rejected only for insufficient corroboration
+becomes pending evidence in Research Evidence Memory under its evaluation
+question; memory never authorizes by itself. Exact production predicates are
+decided from spike
+evidence. Every rejection is typed; transient tool or resolver failures are
+failures, never evidence of absence.
+
+A WALKING_CORRIDOR applies to a canonical ROUTE that existed before corridor
+research and is bounded either by offered canonical anchors named in the
+evidence (STATED_ANCHORS, with route correspondence recorded for each anchor)
+or by clipping the route to an offered area named by the evidence
+(AREA_CLIP). Endpoints are never invented, and tourism evidence never creates
+the street identity.
+
+### Revision 1 statements superseded by revision 2
+
+- "Research discovers sources dynamically" as the way to find relevant areas,
+  places and streets: research now evaluates offered canonical candidates.
+- Grounding resolving a claim's subject from its text: subjects are offered
+  ids.
+- AREA_RELEVANCE / NOTABLE_PLACES / WALKING_CORRIDOR as gaps that both find
+  candidates and establish meaning, and WALKING_CORRIDOR scoped to the
+  destination: replaced by the discovery/meaning gap table above.
+- SCHEDULE_CAPACITY proposing "RELEVANT_FOR on areas not already known" from
+  the web: replaced by lineage over structured candidates.
+- READY when every remaining gap is a limitation: replaced by
+  INSUFFICIENT_KNOWLEDGE.
+
+### Experience composition identity
+
+```text
+composition signature = constitutive components (GeoEntity, participation,
+                        traversal bounds) (+ a canonical facet only where the
+                        justification is facet-specific)
+components            = f(GeoEntities, L2 snapshot, composition policy version)
+                        order, participation, required, traversal bounds
+eligibility           = every required component's justification holds
+```
+
+- Single-place Experience: one required VISIT of a PLACE GeoEntity; justified
+  by that GeoEntity's structured admission (revision 3/4); L2 enrichment is
+  optional and updates the Experience in place.
+- Experience with a required bounded TRAVERSE of a ROUTE (e.g. a walking
+  corridor): justified by an active WALKING_CORRIDOR assertion on that
+  segment; stops are places near the segment ordered by projection along
+  it, and optional stops are trimmable.
+- There is no Experience kind; rules attach to components, participation and
+  `GeoEntity.kind`. Signatures never contain user, scores, days,
+  neighbouring Experiences, policy version or language-model selections.
+  Content changes update the Experience in place; a justification that stops
+  holding archives it (`ExperienceStatus.ARCHIVED`).
+- Composition is deterministic and uses no language-model choice. The number
+  of Experiences is bounded by admitted places and grounded semantic
+  subjects and does not grow with the number of Tours.
+- A new participation or justification (for example an area walk) requires
+  a declared justification and composition rule before it exists.
+
+### Experience composition versus Tour composition
+
+Selecting Experiences for one request, trimming optional components,
+assigning days, ordering and travel between Experiences are request-specific
+and persist only in `Tour` / `TourExperience` / `TourExperienceComponent`.
+They never create or modify catalog Experiences. A model may rank or select
+only offered Experience ids; a selection containing an unoffered id is
+rejected whole (invariant 18). The deterministic planner consumes each
+Experience as one `PlanningExperienceCandidate`: a single-place Experience
+as a POINT footprint, a composite with its ordered component footprints
+(a required traversal as a LINE with its bounded segment geometry) and its
+internal timeline. A generation with no schedulable Experience returns an
+explicit insufficient-knowledge result instead of an empty Tour.
+
+### Superseded by this section (pending cutover)
+
+- "Component resolution does not create standalone Experiences" — the
+  requirement that standalone Experiences need source-backed acquisition
+  authority.
+- "Experience Domain V2 — exhaustive source-atom labelling amendment".
+- "Experience Domain V2 — partial source compositions …", admission of
+  source-declared members (administrative hint correction concepts survive in
+  reworked form).
+- "SAME reconciliation (union of knowledge, not of Experiences)".
+- Invariant 20's provider-trigger model for discovery entry points.
+- The hard-coded deficit-to-source routing in
+  `be/src/modules/tours/constants/acquisition-source-routing.ts` (no prose
+  section documents it; it is listed here so the cutover deletes it).
+
+"Geographic proximity never proves composite membership" is restated as
+"proximity never proves relevance": relevance comes only from L2 assertions,
+and reusable composition may combine already-relevant units by proximity.

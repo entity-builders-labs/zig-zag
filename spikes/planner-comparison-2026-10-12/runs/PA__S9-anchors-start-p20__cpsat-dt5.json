@@ -1,0 +1,294 @@
+{
+ "city": "PA",
+ "scenario": "S9-anchors-start-p20",
+ "solver": "cpsat-dt5",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  true,
+  false
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "OPTIMAL",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.743,
+ "wall_s_max": 0.743,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 0.74,
+  "solve_s": 0.721,
+  "status": "OPTIMAL",
+  "objective": 12268.0,
+  "bound": 12268.0,
+  "variables": 1383,
+  "constraints": 1286
+ },
+ "scheduled": 20,
+ "desirability": 16.418,
+ "visit_min": 1080.0,
+ "travel_min": 157.0,
+ "walk_min": 128.8,
+ "drive_legs": 8,
+ "walk_legs": 12,
+ "idle_min": 10.0,
+ "unknown_hours_scheduled": 15,
+ "objective_test_weights": 12268.2,
+ "day_spread_m": [
+  1051,
+  508,
+  765
+ ],
+ "residual_min": [
+  82,
+  391,
+  106
+ ],
+ "omitted_top": [],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:way:63178753",
+     "title": "Mus\u00e9e d'Orsay",
+     "start": 570,
+     "end": 660,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:175448742",
+     "title": "Assembl\u00e9e nationale",
+     "start": 674,
+     "end": 719,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 13.9
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:432819047",
+     "title": "Place de la Concorde",
+     "start": 732,
+     "end": 777,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 12.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:1060803",
+     "title": "Palais de l'\u00c9lys\u00e9e",
+     "start": 779,
+     "end": 824,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 1.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:226413508",
+     "title": "Arc de Triomphe",
+     "start": 828,
+     "end": 873,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:node:4533627787",
+     "title": "Champs \u00c9lys\u00e9es",
+     "start": 886,
+     "end": 931,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 12.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:1463538",
+     "title": "H\u00f4tel des Invalides",
+     "start": 936,
+     "end": 981,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:4208595",
+     "title": "Champ de Mars",
+     "start": 986,
+     "end": 1031,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:5013364",
+     "title": "Tour Eiffel",
+     "start": 1043,
+     "end": 1088,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "PA:relation:7515426",
+     "title": "Mus\u00e9e du Louvre",
+     "start": 555,
+     "end": 645,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 14.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:3300400",
+     "title": "Palais Royal",
+     "start": 655,
+     "end": 700,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:54667456",
+     "title": "Op\u00e9ra Garnier",
+     "start": 719,
+     "end": 764,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 18.9
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "PA:node:247618453",
+     "title": "Mus\u00e9e des Arts et M\u00e9tiers",
+     "start": 601,
+     "end": 691,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:55503397",
+     "title": "Centre Georges Pompidou",
+     "start": 694,
+     "end": 784,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:3344870",
+     "title": "Sainte-Chapelle",
+     "start": 787,
+     "end": 832,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:201611261",
+     "title": "Cath\u00e9drale Notre-Dame de Paris",
+     "start": 843,
+     "end": 888,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:16407465",
+     "title": "Panth\u00e9on",
+     "start": 891,
+     "end": 936,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:node:10844713782",
+     "title": "Pendule de Foucault",
+     "start": 937,
+     "end": 982,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 0.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:4433289",
+     "title": "Universit\u00e9 Paris 1 Panth\u00e9on-Sorbonne - Centre Sorbonne",
+     "start": 991,
+     "end": 1036,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:128206209",
+     "title": "Jardin du Luxembourg",
+     "start": 1050,
+     "end": 1095,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 13.0
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

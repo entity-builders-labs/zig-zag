@@ -1,0 +1,89 @@
+{
+ "city": "BA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "greedy-current-walkrule",
+ "pool": 29,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "BA:way:256715723"
+ ],
+ "pair_edges": 812,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing BA:way:256715723"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "BA:way:256715723"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0001,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "BA:way:256715723"
+  ]
+ },
+ "scheduled": 2,
+ "desirability": 1.845,
+ "visit_min": 120.0,
+ "travel_min": 23.6,
+ "walk_min": 23.6,
+ "drive_legs": 0,
+ "walk_legs": 1,
+ "idle_min": 0.4,
+ "unknown_hours_scheduled": 2,
+ "objective_test_weights": 1408.7,
+ "day_spread_m": [
+  659
+ ],
+ "residual_min": [
+  36
+ ],
+ "omitted_top": [
+  "Teatro Col\u00f3n",
+  "Edificio Kavanagh",
+  "Buque Museo Corbeta A.R.A. Uruguay",
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 60,
+     "end": 120,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 144,
+     "end": 204,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 23.6
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

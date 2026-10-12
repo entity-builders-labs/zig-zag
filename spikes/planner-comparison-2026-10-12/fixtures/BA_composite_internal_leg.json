@@ -1,0 +1,1 @@
+{"provider": "geoapify", "api": "routing", "mode": "walk", "from": {"lat": -34.6206888, "lon": -58.3714319}, "to": {"lat": -34.6190607, "lon": -58.3722354}, "time_s": 169.046, "distance_m": 191, "retrieved_at": "2026-10-12T18:44:31Z"}

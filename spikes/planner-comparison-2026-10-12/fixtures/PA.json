@@ -1,0 +1,1130 @@
+{
+ "city": "PA",
+ "timezone": "Europe/Paris",
+ "fixture_version": "pc-2026-10-12",
+ "candidates": [
+  {
+   "id": "PA:way:5013364",
+   "title": "Tour Eiffel",
+   "kind": "SINGLE",
+   "wikidata": "Q243",
+   "sitelinks": 191,
+   "desirability": 1.0,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:5013364",
+     "lat": 48.8582603,
+     "lon": 2.2945008,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "09:30-23:45; Jun 21-Sep 02: 09:00-00:45; Jul 14,Jul 15 off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:7515426",
+   "title": "Mus\u00e9e du Louvre",
+   "kind": "SINGLE",
+   "wikidata": "Q19675",
+   "sitelinks": 170,
+   "desirability": 0.978,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:7515426",
+     "lat": 48.8611474,
+     "lon": 2.3358637,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Mo,Th,Sa-Su 09:00-18:00; Tu off; We,Fr 09:00-21:00; Jan 01,May 01,Dec 25 off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:201611261",
+   "title": "Cath\u00e9drale Notre-Dame de Paris",
+   "kind": "SINGLE",
+   "wikidata": "Q2981",
+   "sitelinks": 125,
+   "desirability": 0.9199,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:201611261",
+     "lat": 48.8529371,
+     "lon": 2.3498701,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         470,
+         1140
+        ]
+       ],
+       "Tu": [
+        [
+         470,
+         1140
+        ]
+       ],
+       "We": [
+        [
+         470,
+         1140
+        ]
+       ],
+       "Th": [
+        [
+         470,
+         1320
+        ]
+       ],
+       "Fr": [
+        [
+         470,
+         1140
+        ]
+       ],
+       "Sa": [
+        [
+         495,
+         1170
+        ]
+       ],
+       "Su": [
+        [
+         495,
+         1170
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo,Tu,We,Fr 07:50-19:00; Th 07:50-22:00; Sa,Su 08:15-19:30"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:63178753",
+   "title": "Mus\u00e9e d'Orsay",
+   "kind": "SINGLE",
+   "wikidata": "Q23402",
+   "sitelinks": 122,
+   "desirability": 0.9153,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:63178753",
+     "lat": 48.8599188,
+     "lon": 2.3265259,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         570,
+         1305
+        ]
+       ],
+       "Fr": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         570,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Su 09:30-18:00; Th 09:30-21:45"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:node:4533627787",
+   "title": "Champs \u00c9lys\u00e9es",
+   "kind": "SINGLE",
+   "wikidata": "Q550",
+   "sitelinks": 95,
+   "desirability": 0.8682,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:4533627787",
+     "lat": 48.8707573,
+     "lon": 2.3053312,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:226413508",
+   "title": "Arc de Triomphe",
+   "kind": "SINGLE",
+   "wikidata": "Q64436",
+   "sitelinks": 86,
+   "desirability": 0.8494,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:226413508",
+     "lat": 48.8737782,
+     "lon": 2.2950354,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Apr 02-Jan 31: Mo-Su 10:00-22:30; Apr 01,Sep 30: Mo-Su 10:00-23:00; Oct 01,Dec 31: Mo-Su 10:00-22:30; Jan 01,May 01,May 08,Jul 14,Nov 11,Dec 25: off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:node:10844713782",
+   "title": "Pendule de Foucault",
+   "kind": "SINGLE",
+   "wikidata": "Q178841",
+   "sitelinks": 66,
+   "desirability": 0.7998,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:10844713782",
+     "lat": 48.8461929,
+     "lon": 2.3461361,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:1060803",
+   "title": "Palais de l'\u00c9lys\u00e9e",
+   "kind": "SINGLE",
+   "wikidata": "Q188190",
+   "sitelinks": 66,
+   "desirability": 0.7998,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:1060803",
+     "lat": 48.8703766,
+     "lon": 2.3166056,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:55503397",
+   "title": "Centre Georges Pompidou",
+   "kind": "SINGLE",
+   "wikidata": "Q178065",
+   "sitelinks": 63,
+   "desirability": 0.791,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:55503397",
+     "lat": 48.8605235,
+     "lon": 2.3524395,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "closed"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:54667456",
+   "title": "Op\u00e9ra Garnier",
+   "kind": "SINGLE",
+   "wikidata": "Q187840",
+   "sitelinks": 63,
+   "desirability": 0.791,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:54667456",
+     "lat": 48.8720294,
+     "lon": 2.3317281,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "10:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:432819047",
+   "title": "Place de la Concorde",
+   "kind": "SINGLE",
+   "wikidata": "Q189503",
+   "sitelinks": 62,
+   "desirability": 0.788,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:432819047",
+     "lat": 48.8654898,
+     "lon": 2.321186,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:16407465",
+   "title": "Panth\u00e9on",
+   "kind": "SINGLE",
+   "wikidata": "Q188856",
+   "sitelinks": 61,
+   "desirability": 0.785,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:16407465",
+     "lat": 48.8461887,
+     "lon": 2.3460724,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 10:00-18:00; Apr 1-Sep 30: Mo-Su 10:00-18:30; Jan 1,May 1,Dec 25: off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:175448742",
+   "title": "Assembl\u00e9e nationale",
+   "kind": "SINGLE",
+   "wikidata": "Q193582",
+   "sitelinks": 61,
+   "desirability": 0.785,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:175448742",
+     "lat": 48.8617532,
+     "lon": 2.317959,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:3344870",
+   "title": "Sainte-Chapelle",
+   "kind": "SINGLE",
+   "wikidata": "Q193193",
+   "sitelinks": 58,
+   "desirability": 0.7756,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:3344870",
+     "lat": 48.8553966,
+     "lon": 2.3450136,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Jan-Mar 09:00-17:00; Apr-Sep 09:00-19:00; Oct-Dec 09:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:1463538",
+   "title": "H\u00f4tel des Invalides",
+   "kind": "SINGLE",
+   "wikidata": "Q188977",
+   "sitelinks": 57,
+   "desirability": 0.7723,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:1463538",
+     "lat": 48.8559525,
+     "lon": 2.3125541,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:4208595",
+   "title": "Champ de Mars",
+   "kind": "SINGLE",
+   "wikidata": "Q217925",
+   "sitelinks": 57,
+   "desirability": 0.7723,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:4208595",
+     "lat": 48.856163,
+     "lon": 2.2978311,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "Tu": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "We": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "Th": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "Fr": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "Sa": [
+        [
+         0,
+         1440
+        ]
+       ],
+       "Su": [
+        [
+         0,
+         1440
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "24/7"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:4433289",
+   "title": "Universit\u00e9 Paris 1 Panth\u00e9on-Sorbonne - Centre Sorbonne",
+   "kind": "SINGLE",
+   "wikidata": "Q999763",
+   "sitelinks": 55,
+   "desirability": 0.7656,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:4433289",
+     "lat": 48.8486365,
+     "lon": 2.3436087,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:node:247618453",
+   "title": "Mus\u00e9e des Arts et M\u00e9tiers",
+   "kind": "SINGLE",
+   "wikidata": "Q1538826",
+   "sitelinks": 53,
+   "desirability": 0.7587,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:247618453",
+     "lat": 48.8660977,
+     "lon": 2.3554138,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1260
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Th 10:00-18:00; Fr 10:00-21:00; Sa-Su 10:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:128206209",
+   "title": "Jardin du Luxembourg",
+   "kind": "SINGLE",
+   "wikidata": "Q309458",
+   "sitelinks": 51,
+   "desirability": 0.7515,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:128206209",
+     "lat": 48.8467137,
+     "lon": 2.3363649,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "open \"check website https://www.senat.fr/visite/jardin/horaires.html\"; (sunset-00:30)-(sunrise-00:15) closed; Mar01-Sep30 (sunset-00:30)-07:30 closed"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:3300400",
+   "title": "Palais Royal",
+   "kind": "SINGLE",
+   "wikidata": "Q329948",
+   "sitelinks": 51,
+   "desirability": 0.7515,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:3300400",
+     "lat": 48.8635185,
+     "lon": 2.3369196,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:56185523",
+   "title": "Grand Palais",
+   "kind": "SINGLE",
+   "wikidata": "Q457318",
+   "sitelinks": 51,
+   "desirability": 0.7515,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:56185523",
+     "lat": 48.8661514,
+     "lon": 2.3122667,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Tu-Th, Sa-Su 09:30-20:00; Fr 09:30-22:30"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:2778854",
+   "title": "Petit Palais, Mus\u00e9e des beaux-arts de la Ville de Paris",
+   "kind": "SINGLE",
+   "wikidata": "Q820892",
+   "sitelinks": 48,
+   "desirability": 0.7402,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:2778854",
+     "lat": 48.8660437,
+     "lon": 2.3149694,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Su 10:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:54180046",
+   "title": "\u00c9glise de la Madeleine",
+   "kind": "SINGLE",
+   "wikidata": "Q330564",
+   "sitelinks": 47,
+   "desirability": 0.7363,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:54180046",
+     "lat": 48.870028,
+     "lon": 2.3244655,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "Tu": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "We": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "Th": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "Fr": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "Sa": [
+        [
+         570,
+         1140
+        ]
+       ],
+       "Su": [
+        [
+         570,
+         1140
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:30-19:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:53574149",
+   "title": "Pont Neuf",
+   "kind": "SINGLE",
+   "wikidata": "Q335277",
+   "sitelinks": 45,
+   "desirability": 0.7282,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:53574149",
+     "lat": 48.8565248,
+     "lon": 2.3408132,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:node:910390736",
+   "title": "Conciergerie",
+   "kind": "SINGLE",
+   "wikidata": "Q138101",
+   "sitelinks": 44,
+   "desirability": 0.724,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:910390736",
+     "lat": 48.8559492,
+     "lon": 2.3460263,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Tu": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         570,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         570,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:30-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:375076234",
+   "title": "Pyramide du Louvre",
+   "kind": "SINGLE",
+   "wikidata": "Q13397",
+   "sitelinks": 43,
+   "desirability": 0.7198,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:375076234",
+     "lat": 48.8610132,
+     "lon": 2.3358545,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:54175774",
+   "title": "Place Vend\u00f4me",
+   "kind": "SINGLE",
+   "wikidata": "Q643520",
+   "sitelinks": 42,
+   "desirability": 0.7154,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:54175774",
+     "lat": 48.8674726,
+     "lon": 2.3294385,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:227483542",
+   "title": "Arc de Triomphe du Carrousel",
+   "kind": "SINGLE",
+   "wikidata": "Q631104",
+   "sitelinks": 40,
+   "desirability": 0.7063,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:227483542",
+     "lat": 48.8617276,
+     "lon": 2.3329082,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:relation:13611998",
+   "title": "Mus\u00e9um national d'histoire naturelle",
+   "kind": "SINGLE",
+   "wikidata": "Q838691",
+   "sitelinks": 40,
+   "desirability": 0.7063,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:13611998",
+     "lat": 48.8432471,
+     "lon": 2.3595052,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "PA:way:79219308",
+   "title": "Mus\u00e9e d'Art Moderne de Paris",
+   "kind": "SINGLE",
+   "wikidata": "Q857276",
+   "sitelinks": 40,
+   "desirability": 0.7063,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:79219308",
+     "lat": 48.8643053,
+     "lon": 2.297793,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Su 10:00-18:00"
+     }
+    }
+   ]
+  }
+ ],
+ "hotel": {
+  "id": "osm:node:5003429375",
+  "name": "H\u00f4tel de Lille",
+  "lat": 48.8585295,
+  "lon": 2.3299131
+ }
+}

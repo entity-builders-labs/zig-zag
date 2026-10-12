@@ -1,0 +1,186 @@
+{
+ "city": "PA",
+ "scenario": "S5-oversupply-1day",
+ "solver": "routing-5s",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 5.001,
+ "wall_s_max": 5.001,
+ "solver_meta": {
+  "solver": "ortools-routing(gls,5s)",
+  "wall_s": 5.001,
+  "solve_s": 5.0,
+  "status": "FEASIBLE",
+  "nodes": 31,
+  "objective_cost": 14748
+ },
+ "scheduled": 10,
+ "desirability": 8.465,
+ "visit_min": 540.0,
+ "travel_min": 30.3,
+ "walk_min": 14.6,
+ "drive_legs": 5,
+ "walk_legs": 4,
+ "idle_min": 4.7,
+ "unknown_hours_scheduled": 7,
+ "objective_test_weights": 6804.5,
+ "day_spread_m": [
+  1462
+ ],
+ "residual_min": [
+  25
+ ],
+ "omitted_top": [
+  "Arc de Triomphe",
+  "Palais de l'\u00c9lys\u00e9e",
+  "Op\u00e9ra Garnier",
+  "Centre Georges Pompidou",
+  "Place de la Concorde",
+  "Assembl\u00e9e nationale",
+  "Sainte-Chapelle",
+  "H\u00f4tel des Invalides",
+  "Universit\u00e9 Paris 1 Panth\u00e9on-Sorbonne - Centre Sorbonne",
+  "Mus\u00e9e des Arts et M\u00e9tiers",
+  "Palais Royal",
+  "Jardin du Luxembourg",
+  "Grand Palais",
+  "Petit Palais, Mus\u00e9e des beaux-arts de la Ville de Paris",
+  "\u00c9glise de la Madeleine",
+  "Pont Neuf",
+  "Conciergerie",
+  "Place Vend\u00f4me",
+  "Mus\u00e9um national d'histoire naturelle",
+  "Mus\u00e9e d'Art Moderne de Paris"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:way:4208595",
+     "title": "Champ de Mars",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:5013364",
+     "title": "Tour Eiffel",
+     "start": 596,
+     "end": 641,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:node:4533627787",
+     "title": "Champs \u00c9lys\u00e9es",
+     "start": 646,
+     "end": 691,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:63178753",
+     "title": "Mus\u00e9e d'Orsay",
+     "start": 696,
+     "end": 786,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:227483542",
+     "title": "Arc de Triomphe du Carrousel",
+     "start": 788,
+     "end": 833,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 1.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:7515426",
+     "title": "Mus\u00e9e du Louvre",
+     "start": 837,
+     "end": 927,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 3.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:375076234",
+     "title": "Pyramide du Louvre",
+     "start": 927,
+     "end": 972,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 0.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:201611261",
+     "title": "Cath\u00e9drale Notre-Dame de Paris",
+     "start": 976,
+     "end": 1021,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:16407465",
+     "title": "Panth\u00e9on",
+     "start": 1024,
+     "end": 1069,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:node:10844713782",
+     "title": "Pendule de Foucault",
+     "start": 1070,
+     "end": 1115,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 0.1
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

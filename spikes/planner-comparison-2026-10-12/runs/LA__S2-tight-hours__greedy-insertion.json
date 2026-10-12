@@ -1,0 +1,211 @@
+{
+ "city": "LA",
+ "scenario": "S2-tight-hours",
+ "solver": "greedy-insertion",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.01,
+ "wall_s_max": 0.01,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0102,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 13,
+ "desirability": 9.642,
+ "visit_min": 945.0,
+ "travel_min": 81.6,
+ "walk_min": 28.3,
+ "drive_legs": 6,
+ "walk_legs": 4,
+ "idle_min": 5.4,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 7192.3,
+ "day_spread_m": [
+  3176,
+  2361,
+  3219
+ ],
+ "residual_min": [
+  13,
+  23,
+  12
+ ],
+ "omitted_top": [
+  "Santa Monica Pier",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Hollyhock House",
+  "Grammy Museum",
+  "Academy Museum of Motion Pictures"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 879,
+     "end": 924,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 929,
+     "end": 1019,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 1028,
+     "end": 1073,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.5
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 1082,
+     "end": 1127,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.4
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:relation:6317798",
+     "title": "Hammer Museum",
+     "start": 877,
+     "end": 967,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:422524239",
+     "title": "The Playboy Mansion",
+     "start": 973,
+     "end": 1018,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:386067421",
+     "title": "Museum of Tolerance",
+     "start": 1027,
+     "end": 1117,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.2
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:way:427532197",
+     "title": "The Broad Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:322957598",
+     "title": "Angels Flight",
+     "start": 880,
+     "end": 925,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:206463626",
+     "title": "Museum of Contemporary Art",
+     "start": 931,
+     "end": 1021,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 5.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 1038,
+     "end": 1128,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 16.4
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

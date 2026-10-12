@@ -1,0 +1,171 @@
+{
+  "header": {
+    "spike": "structured-world-first-2026-10-10",
+    "run": "C2",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T03:29:56.992Z",
+    "routingPolicy": "routing-spike2-1",
+    "readinessPolicy": "readiness-spike2-2",
+    "sourceCapability": "source-capability-spike2-1"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 3,
+    "thematicFacets": [
+      "theme:food"
+    ],
+    "experienceFormatFacets": [],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "A2",
+  "memoryBefore": {
+    "documents": 23,
+    "pendingQuestions": 11,
+    "pendingCaptures": 15,
+    "mentions": 48,
+    "reuseEvents": 0
+  },
+  "memoryAfter": {
+    "documents": 23,
+    "pendingQuestions": 11,
+    "pendingCaptures": 15,
+    "mentions": 48,
+    "reuseEvents": 0
+  },
+  "report": {
+    "readinessChecks": [
+      {
+        "epoch": 169,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 172,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ],
+        "limitationKeys": []
+      }
+    ],
+    "iterations": [
+      {
+        "index": 1,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "FAILED",
+              "detail": "TOOL_FAILURE"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224546",
+            "candidateName": "Retiro",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222813",
+            "candidateName": "Balvanera",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "TOOL_FAILURE",
+          "discarded": [],
+          "mentions": [],
+          "budgetUsed": {
+            "rounds": 1,
+            "searches": 0,
+            "fetches": 0
+          },
+          "failure": "llm: Gemini completion error 429: {\n  \"error\": {\n    \"code\": 429,\n    \"message\": \"You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 500, model: gemini-3.5-flash-lite\\nPlease retry in 20h27m25.547204711s.\",\n    \"status\": \"RESOURCE_EXHAUSTED\",\n    \"details\": [\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.Help\",\n        \"links\": [\n          {\n            \"description\": \"Learn more about Gemini API quotas\",\n            \"url\": \"https://ai.google.dev/gemini-api/docs/rate-limits\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.QuotaFailure\",\n        \"violations\": [\n          {\n            \"quotaMetric\": \"generativelanguage.googleapis.com/generate_content_free_tier_requests\",\n            \"quotaId\": \"GenerateRequestsPerDayPerProjectPerModel-FreeTier\",\n            \"quotaDimensions\": {\n              \"location\": \"global\",\n              \"model\": \"gemini-3.5-flash-lite\"\n            },\n            \"quotaValue\": \"500\"\n          }\n        ]\n      },\n      {\n        \"@type\": \"type.googleapis.com/google.rpc.RetryInfo\",\n        \"retryDelay\": \"73645s\"\n      }\n    ]\n  }\n}\n",
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food": "FAILED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food": "FAILED"
+        },
+        "gapOutcome": "FAILED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 1
+        }
+      }
+    ],
+    "finalVerdict": "GAPS",
+    "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+    "limitations": [],
+    "result": {
+      "status": "INSUFFICIENT_KNOWLEDGE",
+      "limitations": []
+    }
+  }
+}

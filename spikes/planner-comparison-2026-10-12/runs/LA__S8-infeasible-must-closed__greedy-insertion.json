@@ -1,0 +1,96 @@
+{
+ "city": "LA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "greedy-insertion",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "LA:node:470897671"
+ ],
+ "pair_edges": 870,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing LA:node:470897671"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "LA:node:470897671"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0005,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "LA:node:470897671"
+  ]
+ },
+ "scheduled": 3,
+ "desirability": 2.69,
+ "visit_min": 135.0,
+ "travel_min": 16.7,
+ "walk_min": 0.0,
+ "drive_legs": 2,
+ "walk_legs": 0,
+ "idle_min": 1.3,
+ "unknown_hours_scheduled": 3,
+ "objective_test_weights": 1855.0,
+ "day_spread_m": [
+  2914
+ ],
+ "residual_min": [
+  27
+ ],
+ "omitted_top": [
+  "The J. Paul Getty Museum"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 60,
+     "end": 105,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 114,
+     "end": 159,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 168,
+     "end": 213,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.4
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

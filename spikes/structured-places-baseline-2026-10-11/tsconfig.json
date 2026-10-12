@@ -1,0 +1,10 @@
+{
+  "extends": "../../be/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../../be",
+    "noEmit": true,
+    "incremental": false,
+    "types": ["node", "jest"]
+  },
+  "include": ["src/**/*.ts", "test/**/*.ts"]
+}

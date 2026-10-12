@@ -1,0 +1,155 @@
+{
+ "city": "BA",
+ "scenario": "S5-oversupply-1day",
+ "solver": "greedy-insertion",
+ "pool": 29,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 812,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.012,
+ "wall_s_max": 0.012,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0122,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 9,
+ "desirability": 8.05,
+ "visit_min": 534.6,
+ "travel_min": 39.0,
+ "walk_min": 26.4,
+ "drive_legs": 4,
+ "walk_legs": 4,
+ "idle_min": 3.4,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 6633.5,
+ "day_spread_m": [
+  1032
+ ],
+ "residual_min": [
+  23
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 603,
+     "end": 663,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 667,
+     "end": 727,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.5
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 731,
+     "end": 791,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 802,
+     "end": 862,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 865,
+     "end": 925,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 930,
+     "end": 990,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 999,
+     "end": 1053.6,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 1057,
+     "end": 1117,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

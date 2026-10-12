@@ -1,0 +1,56 @@
+{
+  "status": "COMPOSED",
+  "tour": {
+    "request": {
+      "destinationLabel": "Buenos Aires",
+      "days": 4,
+      "thematicFacets": [
+        "theme:food",
+        "theme:history"
+      ],
+      "experienceFormatFacets": [
+        "intent:walk"
+      ],
+      "mobility": {
+        "allowedTransportationModes": [
+          "walking",
+          "public_transport"
+        ],
+        "maxWalkingDistancePerDayMeters": 8000,
+        "maxContinuousWalkingDistanceMeters": 3000,
+        "travelPace": "moderate",
+        "accessibilityNeeds": []
+      }
+    },
+    "catalogEpoch": 5,
+    "experiences": [],
+    "unselected": [],
+    "planner": {
+      "solver": "GreedyDailyPlanningSolver",
+      "approximateTravel": false,
+      "iterations": 1,
+      "routing": {
+        "externalEstimateCount": 0,
+        "internalEstimateCount": 0,
+        "approximateEstimateCount": 0,
+        "fallbackCount": 0,
+        "providerCounts": {}
+      },
+      "constraints": {
+        "requestedDays": 4,
+        "planningWindow": {
+          "startMinutesFromMidnight": 540,
+          "endMinutesFromMidnight": 1200
+        },
+        "allowedTransportationModes": [
+          "walking",
+          "public_transport"
+        ],
+        "maxWalkingDistancePerDayMeters": 8000,
+        "maxContinuousWalkingDistanceMeters": 3000,
+        "travelPace": "moderate",
+        "startDates": []
+      }
+    }
+  }
+}

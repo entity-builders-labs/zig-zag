@@ -1,0 +1,217 @@
+{
+ "city": "BA",
+ "scenario": "S2-tight-hours",
+ "solver": "greedy-current-costmodes",
+ "pool": 29,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 812,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(cost)",
+  "wall_s": 0.0002,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 14,
+ "desirability": 11.917,
+ "visit_min": 834.6,
+ "travel_min": 50.9,
+ "walk_min": 0.0,
+ "drive_legs": 11,
+ "walk_legs": 0,
+ "idle_min": 5.5,
+ "unknown_hours_scheduled": 7,
+ "objective_test_weights": 9099.3,
+ "day_spread_m": [
+  2607,
+  725,
+  1723
+ ],
+ "residual_min": [
+  42,
+  42,
+  105
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda"
+ ],
+ "readiness": "PLANNER_LIMITED",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 780,
+     "end": 834.6,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 838,
+     "end": 898,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 902,
+     "end": 962,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.9
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 966,
+     "end": 1026,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.5
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:node:5405921752",
+     "title": "Museo Fotogr\u00e1fico Simik",
+     "start": 1038,
+     "end": 1098,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 11.5
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:node:694078616",
+     "title": "Club Espa\u00f1ol",
+     "start": 780,
+     "end": 840,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:204263802",
+     "title": "Museo Mitre",
+     "start": 845,
+     "end": 905,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 909,
+     "end": 969,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 974,
+     "end": 1034,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 1038,
+     "end": 1098,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.4
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 780,
+     "end": 840,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065810",
+     "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+     "start": 844,
+     "end": 904,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 909,
+     "end": 969,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:147938686",
+     "title": "Instituto Sanmartiniano",
+     "start": 975,
+     "end": 1035,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.5
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

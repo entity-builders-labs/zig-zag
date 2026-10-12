@@ -1,0 +1,175 @@
+{
+ "city": "LA",
+ "scenario": "S1-normal-p10",
+ "solver": "cpsat-dt5",
+ "pool": 10,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 90,
+ "status": "OPTIMAL",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 3,
+ "identical_repeats": true,
+ "wall_s_median": 0.058,
+ "wall_s_max": 0.065,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 0.065,
+  "solve_s": 0.057,
+  "status": "OPTIMAL",
+  "objective": 5679.0,
+  "bound": 5679.0,
+  "variables": 371,
+  "constraints": 297
+ },
+ "scheduled": 10,
+ "desirability": 7.87,
+ "visit_min": 675.0,
+ "travel_min": 66.2,
+ "walk_min": 13.3,
+ "drive_legs": 5,
+ "walk_legs": 2,
+ "idle_min": 5.8,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 5679.2,
+ "day_spread_m": [
+  0,
+  0,
+  6012
+ ],
+ "residual_min": [
+  510,
+  510,
+  33
+ ],
+ "omitted_top": [],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:206463626",
+     "title": "Museum of Contemporary Art",
+     "start": 660,
+     "end": 750,
+     "incoming": null,
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 720,
+     "end": 810,
+     "incoming": null,
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 595,
+     "end": 640,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 649,
+     "end": 694,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 699,
+     "end": 789,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 799,
+     "end": 889,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:422524239",
+     "title": "The Playboy Mansion",
+     "start": 902,
+     "end": 947,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 12.5
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 957,
+     "end": 1047,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:22728853",
+     "title": "Santa Monica Pier",
+     "start": 1062,
+     "end": 1107,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 14.3
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

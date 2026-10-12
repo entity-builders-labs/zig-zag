@@ -1,0 +1,162 @@
+{
+ "city": "BA",
+ "scenario": "S1-normal-p10",
+ "solver": "greedy-insertion",
+ "pool": 10,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 90,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 3,
+ "identical_repeats": true,
+ "wall_s_median": 0.001,
+ "wall_s_max": 0.001,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0011,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 9,
+ "desirability": 8.139,
+ "visit_min": 534.6,
+ "travel_min": 31.2,
+ "walk_min": 22.2,
+ "drive_legs": 3,
+ "walk_legs": 3,
+ "idle_min": 51.2,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 6936.2,
+ "day_spread_m": [
+  537,
+  624,
+  598
+ ],
+ "residual_min": [
+  406,
+  477,
+  300
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda"
+ ],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 611,
+     "end": 671,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 674,
+     "end": 734,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.9
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 603,
+     "end": 663,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.8
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 609,
+     "end": 663.6,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 667,
+     "end": 727,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065810",
+     "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+     "start": 780,
+     "end": 840,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.4
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

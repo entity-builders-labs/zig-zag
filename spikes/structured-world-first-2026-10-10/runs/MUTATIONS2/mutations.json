@@ -1,0 +1,46 @@
+{
+  "header": {
+    "spike": "structured-world-first-2026-10-10",
+    "run": "MUTATIONS2",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T03:32:35.798Z",
+    "routingPolicy": "routing-spike2-1",
+    "readinessPolicy": "readiness-spike2-2",
+    "sourceCapability": "source-capability-spike2-1"
+  },
+  "baseline": [],
+  "m1": {
+    "skipped": "no grounded corridor in A2: corridor mutations not exercisable",
+    "recomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "keys": []
+  },
+  "m2": {
+    "retracted": [],
+    "recomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "keys": []
+  },
+  "m3": {
+    "recomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "keys": []
+  }
+}

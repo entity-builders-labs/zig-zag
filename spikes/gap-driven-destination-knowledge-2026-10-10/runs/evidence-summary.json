@@ -1,0 +1,1176 @@
+{
+  "labeller": "Claude (spike session), hand-labelled from captured evidence text",
+  "rows": [
+    {
+      "n": 1,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Palermo Soho",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "IDENTITY_NOT_FOUND",
+      "label_truth": "identity",
+      "label_verdict": "CORRECT",
+      "label_note": "Palermo Soho is not an OSM barrio; informal area"
+    },
+    {
+      "n": 2,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "true",
+      "label_verdict": "SUPPORT_FALSE_REJECT",
+      "label_note": "\"one of BA's oldest neighbourhoods\" supports history; verifier said NONE"
+    },
+    {
+      "n": 3,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Recoleta",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit support, single unestablished publisher -> corroboration required"
+    },
+    {
+      "n": 4,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Puerto Madero",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "label_note": "waterfront restoration is weak history support"
+    },
+    {
+      "n": 5,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "City Centre (San Nicol\u00e1s & Montserrat)",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "IDENTITY_NOT_FOUND",
+      "label_truth": "identity",
+      "label_verdict": "CORRECT",
+      "label_note": "mention names two barrios"
+    },
+    {
+      "n": 6,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Retiro",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "historic palaces; single publisher"
+    },
+    {
+      "n": 7,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "La Boca",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "true",
+      "label_verdict": "SUPPORT_FALSE_REJECT",
+      "label_note": "immigrant history implies history relevance; verifier said NONE"
+    },
+    {
+      "n": 8,
+      "run": "A-attempt1-groq",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Palermo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "label_note": "19th-century parks: weak history support"
+    },
+    {
+      "n": 9,
+      "run": "A-attempt1-groq",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Florida Street",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+      "label_truth": "true-corridor",
+      "label_verdict": "CORRECT",
+      "label_note": "Florida is a pedestrian corridor but stated endpoints are directions, not both in evidence"
+    },
+    {
+      "n": 10,
+      "run": "A-attempt1-groq",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Calle Florida",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+      "label_truth": "true-corridor",
+      "label_verdict": "CORRECT",
+      "label_note": "duplicate of 9"
+    },
+    {
+      "n": 11,
+      "run": "A-attempt1-groq",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "buenosaires.gob.ar",
+        "careergappers.com"
+      ],
+      "status": "FAILED",
+      "reason": "VERIFIER_UNAVAILABLE",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "two independent captures; failed on provider rate limit (typed FAILED)"
+    },
+    {
+      "n": 12,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Palermo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit; single publisher"
+    },
+    {
+      "n": 13,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "unsupported",
+      "label_verdict": "SUPPORT_FALSE_ACCEPT",
+      "label_note": "capture does not name San Telmo; verifier gave non-NONE; corroboration rule blocked it"
+    },
+    {
+      "n": 14,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Recoleta",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit; single publisher"
+    },
+    {
+      "n": 15,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Puerto Madero",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit; single publisher"
+    },
+    {
+      "n": 16,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "page-context",
+      "label_verdict": "CORRECT",
+      "label_note": "quote lacks subject name; single publisher"
+    },
+    {
+      "n": 17,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Puerto Madero",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "page-context",
+      "label_verdict": "CORRECT",
+      "label_note": "quote lacks subject name; single publisher"
+    },
+    {
+      "n": 18,
+      "run": "A-attempt2-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Monserrat",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "page-context",
+      "label_verdict": "CORRECT",
+      "label_note": "quote lacks subject name"
+    },
+    {
+      "n": 19,
+      "run": "A-attempt2-gemini",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Suipacha",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+      "label_truth": "directions",
+      "label_verdict": "CORRECT",
+      "label_note": "route directions, not a tourist corridor"
+    },
+    {
+      "n": 20,
+      "run": "A-attempt2-gemini",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Suipacha",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+      "label_truth": "directions",
+      "label_verdict": "CORRECT",
+      "label_note": "duplicate of 19"
+    },
+    {
+      "n": 21,
+      "run": "A-attempt2-gemini",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Avenida Corrientes",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "IDENTITY_AMBIGUOUS",
+      "label_truth": "directions",
+      "label_verdict": "CORRECT",
+      "label_note": "ambiguous route (two Corrientes clusters)"
+    },
+    {
+      "n": 22,
+      "run": "A-attempt2-gemini",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "visitbue.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit; single publisher (JSON-LD org present but did not establish publisher)"
+    },
+    {
+      "n": 23,
+      "run": "A-attempt3-gemini",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit; single publisher"
+    },
+    {
+      "n": 24,
+      "run": "A-attempt3-gemini",
+      "gap": "WALKING_CORRIDOR",
+      "claimType": "WALKING_CORRIDOR",
+      "subject": "Florida Street",
+      "publishers": [
+        "solsalute.com"
+      ],
+      "status": "REJECTED",
+      "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+      "label_truth": "true-corridor",
+      "label_verdict": "CORRECT",
+      "label_note": "no bounds in evidence"
+    },
+    {
+      "n": 25,
+      "run": "A",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Palermo",
+      "publishers": [
+        "goaskalocal.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit list; single publisher"
+    },
+    {
+      "n": 26,
+      "run": "A",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "goaskalocal.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit list; single publisher"
+    },
+    {
+      "n": 27,
+      "run": "A",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Recoleta",
+      "publishers": [
+        "goaskalocal.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "explicit list; single publisher"
+    },
+    {
+      "n": 28,
+      "run": "A",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Telmo",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "oldest/emblematic; single unestablished publisher"
+    },
+    {
+      "n": 29,
+      "run": "A",
+      "gap": "AREA_RELEVANCE",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Monserrat",
+      "publishers": [
+        "esplendortango.com"
+      ],
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "label_note": "oldest areas; single publisher"
+    },
+    {
+      "n": 30,
+      "run": "A",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Montserrat",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "IDENTITY_NOT_FOUND",
+      "label_truth": "true",
+      "label_verdict": "IDENTITY_FALSE_REJECT",
+      "label_note": "Montserrat vs OSM Monserrat spelling alias"
+    },
+    {
+      "n": 31,
+      "run": "A",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "San Nicol\u00e1s",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "mis-themed",
+      "label_verdict": "CORRECT",
+      "label_note": "food evidence proposed as history"
+    },
+    {
+      "n": 32,
+      "run": "A",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Balvanera",
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "label_truth": "mis-themed",
+      "label_verdict": "CORRECT",
+      "label_note": "food evidence proposed as history"
+    },
+    {
+      "n": 33,
+      "run": "B",
+      "gap": "SCHEDULE_CAPACITY",
+      "claimType": "RELEVANT_FOR",
+      "subject": "Microcentro",
+      "publishers": [
+        "argentina-excepcion.com",
+        "lonelyplanet.com"
+      ],
+      "status": "REJECTED",
+      "reason": "IDENTITY_NOT_FOUND",
+      "label_truth": "identity",
+      "label_verdict": "CORRECT",
+      "label_note": "Microcentro is not an OSM barrio (Run B; two independent publishers)"
+    }
+  ],
+  "perRun": {
+    "A-attempt1-groq": {
+      "gapsResearched": 4,
+      "gaps": [
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "proposed": 1,
+          "discarded": {
+            "NO_CAPTURE": 1,
+            "CLAIM_TYPE_NOT_PERMITTED": 2
+          }
+        },
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "proposed": 7,
+          "discarded": {}
+        },
+        {
+          "gap": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 2
+          },
+          "proposed": 2,
+          "discarded": {}
+        },
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "FAILED",
+          "budget": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 3
+          },
+          "proposed": 1,
+          "discarded": {
+            "CLAIM_TYPE_NOT_PERMITTED": 1
+          }
+        }
+      ],
+      "groundingStatuses": {
+        "REJECTED": 10,
+        "FAILED": 1
+      },
+      "groundingReasons": {
+        "IDENTITY_NOT_FOUND": 2,
+        "EVIDENCE_DOES_NOT_SUPPORT_CLAIM": 4,
+        "INSUFFICIENT_CORROBORATION": 2,
+        "CORRIDOR_BOUNDS_UNRESOLVED": 2,
+        "VERIFIER_UNAVAILABLE": 1
+      },
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 12,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 29,
+          "replayed": 0,
+          "failed": 3
+        },
+        "serper": {
+          "live": 6,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 21,
+          "replayed": 0,
+          "failed": 0
+        }
+      },
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 4
+    },
+    "A-attempt2-gemini": {
+      "gapsResearched": 4,
+      "gaps": [
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "proposed": 4,
+          "discarded": {}
+        },
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "proposed": 3,
+          "discarded": {}
+        },
+        {
+          "gap": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 2
+          },
+          "proposed": 3,
+          "discarded": {}
+        },
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 4
+          },
+          "proposed": 1,
+          "discarded": {
+            "NO_CAPTURE": 2
+          }
+        }
+      ],
+      "groundingStatuses": {
+        "REJECTED": 11
+      },
+      "groundingReasons": {
+        "INSUFFICIENT_CORROBORATION": 7,
+        "EVIDENCE_DOES_NOT_SUPPORT_CLAIM": 1,
+        "CORRIDOR_BOUNDS_UNRESOLVED": 2,
+        "IDENTITY_AMBIGUOUS": 1
+      },
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 13,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 32,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 6,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 17,
+          "replayed": 0,
+          "failed": 2
+        }
+      },
+      "stoppedBecause": "READY",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 4
+    },
+    "A-attempt3-gemini": {
+      "gapsResearched": 4,
+      "gaps": [
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "research": "NO_EVIDENCE_FOUND",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 2
+          },
+          "proposed": 0,
+          "discarded": {}
+        },
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "proposed": 2,
+          "discarded": {}
+        },
+        {
+          "gap": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 2
+          },
+          "proposed": 1,
+          "discarded": {
+            "NO_CAPTURE": 1
+          }
+        },
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "research": "NO_EVIDENCE_FOUND",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 6,
+            "searches": 3,
+            "fetches": 1
+          },
+          "proposed": 0,
+          "discarded": {}
+        }
+      ],
+      "groundingStatuses": {
+        "REJECTED": 2
+      },
+      "groundingReasons": {
+        "INSUFFICIENT_CORROBORATION": 1,
+        "CORRIDOR_BOUNDS_UNRESOLVED": 1
+      },
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 5,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 25,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 8,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 8,
+          "replayed": 0,
+          "failed": 2
+        }
+      },
+      "stoppedBecause": "READY",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 4
+    },
+    "A": {
+      "gapsResearched": 4,
+      "gaps": [
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "proposed": 9,
+          "discarded": {}
+        },
+        {
+          "gap": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "proposed": 2,
+          "discarded": {}
+        },
+        {
+          "gap": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "research": "NO_EVIDENCE_FOUND",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "proposed": 0,
+          "discarded": {}
+        },
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 2
+          },
+          "proposed": 3,
+          "discarded": {}
+        }
+      ],
+      "groundingStatuses": {
+        "REJECTED": 8
+      },
+      "groundingReasons": {
+        "INSUFFICIENT_CORROBORATION": 5,
+        "IDENTITY_NOT_FOUND": 1,
+        "EVIDENCE_DOES_NOT_SUPPORT_CLAIM": 2
+      },
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 9,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 41,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 9,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 19,
+          "replayed": 0,
+          "failed": 0
+        }
+      },
+      "stoppedBecause": "READY",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 4
+    },
+    "B": {
+      "gapsResearched": 1,
+      "gaps": [
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:history",
+          "research": "CLAIMS_PROPOSED",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 9,
+            "searches": 3,
+            "fetches": 3
+          },
+          "proposed": 1,
+          "discarded": {}
+        }
+      ],
+      "groundingStatuses": {
+        "REJECTED": 1
+      },
+      "groundingReasons": {
+        "IDENTITY_NOT_FOUND": 1
+      },
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 2,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 9,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 3,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 4,
+          "replayed": 0,
+          "failed": 1
+        }
+      },
+      "stoppedBecause": "READY",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 5
+    },
+    "C": {
+      "gapsResearched": 1,
+      "gaps": [
+        {
+          "gap": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food",
+          "research": "NO_EVIDENCE_FOUND",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budget": {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 1
+          },
+          "proposed": 0,
+          "discarded": {
+            "CLAIM_TYPE_NOT_PERMITTED": 2
+          }
+        }
+      ],
+      "groundingStatuses": {},
+      "groundingReasons": {},
+      "assertionsAfter": 0,
+      "providerCalls": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 7,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 2,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        }
+      },
+      "stoppedBecause": "READY",
+      "tourExperiences": 0,
+      "experiencesAfter": 0,
+      "ledgerKeys": 5
+    }
+  },
+  "summary": {
+    "claimsGrounded": 33,
+    "authorized": 0,
+    "falseAccepts": 0,
+    "labelVerdicts": {
+      "CORRECT": 29,
+      "SUPPORT_FALSE_REJECT": 2,
+      "SUPPORT_FALSE_ACCEPT": 1,
+      "IDENTITY_FALSE_REJECT": 1
+    },
+    "labelTruth": {
+      "identity": 3,
+      "true": 16,
+      "weak": 2,
+      "true-corridor": 3,
+      "unsupported": 1,
+      "page-context": 3,
+      "directions": 3,
+      "mis-themed": 2
+    },
+    "trueClaimsLostToCorroborationOrPublisher": 12,
+    "researchCostPerGap": {
+      "A-attempt1-groq": [
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          }
+        ],
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          }
+        ],
+        [
+          "WALKING_CORRIDOR",
+          {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 2
+          }
+        ],
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 3
+          }
+        ]
+      ],
+      "A-attempt2-gemini": [
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          }
+        ],
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          }
+        ],
+        [
+          "WALKING_CORRIDOR",
+          {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 2
+          }
+        ],
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 4
+          }
+        ]
+      ],
+      "A-attempt3-gemini": [
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 2
+          }
+        ],
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          }
+        ],
+        [
+          "WALKING_CORRIDOR",
+          {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 2
+          }
+        ],
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 6,
+            "searches": 3,
+            "fetches": 1
+          }
+        ]
+      ],
+      "A": [
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          }
+        ],
+        [
+          "AREA_RELEVANCE",
+          {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          }
+        ],
+        [
+          "WALKING_CORRIDOR",
+          {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          }
+        ],
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 2
+          }
+        ]
+      ],
+      "B": [
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 9,
+            "searches": 3,
+            "fetches": 3
+          }
+        ]
+      ],
+      "C": [
+        [
+          "SCHEDULE_CAPACITY",
+          {
+            "rounds": 7,
+            "searches": 2,
+            "fetches": 1
+          }
+        ]
+      ]
+    }
+  }
+}

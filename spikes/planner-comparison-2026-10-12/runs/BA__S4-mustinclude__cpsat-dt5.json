@@ -1,0 +1,358 @@
+{
+ "city": "BA",
+ "scenario": "S4-mustinclude",
+ "solver": "cpsat-dt5",
+ "pool": 29,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "BA:way:265344159",
+  "BA:node:5617667887"
+ ],
+ "pair_edges": 812,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 6.272,
+ "wall_s_max": 6.272,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 6.27,
+  "solve_s": 6.237,
+  "status": "FEASIBLE",
+  "objective": 13146.0,
+  "bound": 15340.0,
+  "variables": 2379,
+  "constraints": 2170
+ },
+ "scheduled": 26,
+ "desirability": 17.983,
+ "visit_min": 1554.6,
+ "travel_min": 146.5,
+ "walk_min": 79.3,
+ "drive_legs": 12,
+ "walk_legs": 11,
+ "idle_min": 11.9,
+ "unknown_hours_scheduled": 15,
+ "objective_test_weights": 13145.0,
+ "day_spread_m": [
+  2867,
+  2927,
+  1220
+ ],
+ "residual_min": [
+  10,
+  12,
+  65
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+  "Museo Sitio de Memoria ESMA"
+ ],
+ "readiness": "PLANNER_LIMITED",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:1332861812",
+     "title": "Obelisco",
+     "start": 610,
+     "end": 670,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 673,
+     "end": 733,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:147938686",
+     "title": "Instituto Sanmartiniano",
+     "start": 739,
+     "end": 799,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:18514760",
+     "title": "Biblioteca Nacional Mariano Moreno",
+     "start": 801,
+     "end": 861,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 1.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:9937501",
+     "title": "Jard\u00edn Bot\u00e1nico Carlos Thays",
+     "start": 865,
+     "end": 925,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:4586207943",
+     "title": "Columna del Foro Romano",
+     "start": 933,
+     "end": 993,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:5405921752",
+     "title": "Museo Fotogr\u00e1fico Simik",
+     "start": 1000,
+     "end": 1060,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:53183874",
+     "title": "Espacio Memoria y Derechos Humanos",
+     "start": 1070,
+     "end": 1130,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.8
+     },
+     "uncertain_hours": false
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:node:9953027884",
+     "title": "El Zanj\u00f3n de Granados (historic ruins)",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 602,
+     "end": 656.6,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 1.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 660,
+     "end": 720,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:52563680",
+     "title": "Torre de los Ingleses",
+     "start": 726,
+     "end": 786,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 796,
+     "end": 856,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:265344159",
+     "title": "Catedral Metropolitana",
+     "start": 859,
+     "end": 919,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 2.9
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:204263802",
+     "title": "Museo Mitre",
+     "start": 926,
+     "end": 986,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 6.1
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:node:2038426439",
+     "title": "El Hipop\u00f3tamo",
+     "start": 992,
+     "end": 1052,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:5617667887",
+     "title": "Museo Criollo de los Corrales",
+     "start": 1068,
+     "end": 1128,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 15.8
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:way:183842128",
+     "title": "Cementerio de la Recoleta",
+     "start": 540,
+     "end": 600,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:868115392",
+     "title": "Casa Museo Bernardo Houssay",
+     "start": 604,
+     "end": 664,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 669,
+     "end": 729,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 740,
+     "end": 800,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:node:694078616",
+     "title": "Club Espa\u00f1ol",
+     "start": 810,
+     "end": 870,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 881,
+     "end": 941,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 946,
+     "end": 1006,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:176333994",
+     "title": "Museo Casa Rosada",
+     "start": 1015,
+     "end": 1075,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

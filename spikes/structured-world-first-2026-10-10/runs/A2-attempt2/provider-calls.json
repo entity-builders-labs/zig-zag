@@ -1,0 +1,51 @@
+{
+  "destinationResolution": {
+    "nominatim": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    }
+  },
+  "total": {
+    "nominatim": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 97,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass-raw": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "wikidata": {
+      "live": 2,
+      "replayed": 0,
+      "failed": 0
+    },
+    "llm": {
+      "live": 123,
+      "replayed": 0,
+      "failed": 1
+    },
+    "serper": {
+      "live": 32,
+      "replayed": 0,
+      "failed": 0
+    },
+    "web": {
+      "live": 53,
+      "replayed": 0,
+      "failed": 2
+    }
+  }
+}

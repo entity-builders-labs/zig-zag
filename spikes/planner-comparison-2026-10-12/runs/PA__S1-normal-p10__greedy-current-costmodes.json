@@ -1,0 +1,171 @@
+{
+ "city": "PA",
+ "scenario": "S1-normal-p10",
+ "solver": "greedy-current-costmodes",
+ "pool": 10,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 90,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 3,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(cost)",
+  "wall_s": 0.0001,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 10,
+ "desirability": 8.712,
+ "visit_min": 585.0,
+ "travel_min": 48.6,
+ "walk_min": 0.0,
+ "drive_legs": 7,
+ "walk_legs": 0,
+ "idle_min": 4.4,
+ "unknown_hours_scheduled": 7,
+ "objective_test_weights": 6340.7,
+ "day_spread_m": [
+  1606,
+  955,
+  1828
+ ],
+ "residual_min": [
+  306,
+  408,
+  448
+ ],
+ "omitted_top": [],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:node:10844713782",
+     "title": "Pendule de Foucault",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:55503397",
+     "title": "Centre Georges Pompidou",
+     "start": 593,
+     "end": 683,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:63178753",
+     "title": "Mus\u00e9e d'Orsay",
+     "start": 691,
+     "end": 781,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:5013364",
+     "title": "Tour Eiffel",
+     "start": 789,
+     "end": 834,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.8
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "PA:node:4533627787",
+     "title": "Champs \u00c9lys\u00e9es",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:7515426",
+     "title": "Mus\u00e9e du Louvre",
+     "start": 592,
+     "end": 682,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:1060803",
+     "title": "Palais de l'\u00c9lys\u00e9e",
+     "start": 687,
+     "end": 732,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 4.2
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "PA:way:201611261",
+     "title": "Cath\u00e9drale Notre-Dame de Paris",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:226413508",
+     "title": "Arc de Triomphe",
+     "start": 594,
+     "end": 639,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:54667456",
+     "title": "Op\u00e9ra Garnier",
+     "start": 647,
+     "end": 692,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.0
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,635 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.9 e847dec3",
+  "osm3s": {
+    "timestamp_osm_base": "2026-10-11T20:11:22Z",
+    "timestamp_areas_base": "2026-10-10T20:19:27Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "way",
+  "id": 18828962,
+  "nodes": [
+    194504397,
+    11646429197,
+    206114834,
+    11646429199,
+    1611090592
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Defensa",
+    "oneway": "yes",
+    "surface": "asphalt",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires"
+  }
+},
+{
+  "type": "way",
+  "id": 38536550,
+  "nodes": [
+    195890708,
+    9453285622,
+    194504396
+  ],
+  "tags": {
+    "hazard": "school_zone",
+    "highway": "residential",
+    "lit": "yes",
+    "maxspeed": "20",
+    "maxspeed:conditional": "40 @ (Mo-Fr 00:00-07:00,18:00-24:00;Sa-Su 00:00-24:00)",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "paving_stones",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires"
+  }
+},
+{
+  "type": "way",
+  "id": 47521381,
+  "nodes": [
+    194504396,
+    14211232118,
+    205501572,
+    6983955421,
+    13194895645
+  ],
+  "tags": {
+    "highway": "residential",
+    "lane_markings": "no",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 48113515,
+  "nodes": [
+    206114731,
+    12923790049,
+    12841150102,
+    11093258764,
+    4431929570,
+    11646429212,
+    195890708
+  ],
+  "tags": {
+    "highway": "secondary",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "smoothness": "intermediate",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires"
+  }
+},
+{
+  "type": "way",
+  "id": 147999135,
+  "nodes": [
+    1611090592,
+    12610059680,
+    206114827,
+    7346613288,
+    206114731
+  ],
+  "tags": {
+    "highway": "secondary",
+    "lanes": "3",
+    "name": "Defensa",
+    "oneway": "yes",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires"
+  }
+},
+{
+  "type": "way",
+  "id": 150893241,
+  "nodes": [
+    193830077,
+    14210727282,
+    14211211431,
+    243462055
+  ],
+  "tags": {
+    "highway": "living_street",
+    "lit": "yes",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 158893264,
+  "nodes": [
+    205501563,
+    14211011433,
+    205553448,
+    243462064,
+    13894729340,
+    205501549,
+    11405523949,
+    205501537,
+    243462061,
+    193830077
+  ],
+  "tags": {
+    "highway": "living_street",
+    "lit": "yes",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 452873573,
+  "nodes": [
+    205501519,
+    14214423508,
+    14214366293,
+    195890701
+  ],
+  "tags": {
+    "highway": "living_street",
+    "lane_markings": "no",
+    "lit": "yes",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 452873574,
+  "nodes": [
+    195890701,
+    14214366291,
+    14214039315,
+    194504395
+  ],
+  "tags": {
+    "cycleway:both": "no",
+    "highway": "living_street",
+    "lane_markings": "no",
+    "lit": "yes",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 473141731,
+  "nodes": [
+    243462055,
+    14211211429,
+    195866927,
+    205501519
+  ],
+  "tags": {
+    "highway": "living_street",
+    "lit": "yes",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "cobblestone",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 473173836,
+  "nodes": [
+    194504395,
+    14214039316,
+    199509232,
+    199509144
+  ],
+  "tags": {
+    "cycleway:both": "no",
+    "highway": "living_street",
+    "lit": "yes",
+    "maxspeed": "20",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 1435572237,
+  "nodes": [
+    13194895646,
+    14211011436,
+    205501563
+  ],
+  "tags": {
+    "highway": "residential",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 1435572238,
+  "nodes": [
+    13194895645,
+    13194895646
+  ],
+  "tags": {
+    "covered": "yes",
+    "highway": "residential",
+    "maxspeed": "40",
+    "motor_vehicle:conditional": "no @ (Su,PH 08:00-20:00)",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "asphalt",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "way",
+  "id": 1459168009,
+  "nodes": [
+    199509144,
+    7234412484,
+    194504394
+  ],
+  "tags": {
+    "cycleway:both": "no",
+    "highway": "living_street",
+    "lit": "yes",
+    "maxspeed": "20",
+    "name": "Defensa",
+    "oneway": "yes",
+    "sidewalk": "both",
+    "surface": "sett",
+    "wikidata": "Q5740483",
+    "wikimedia_commons": "Category:Calle Defensa, Buenos Aires",
+    "wikipedia": "es:Calle Defensa"
+  }
+},
+{
+  "type": "node",
+  "id": 194504397,
+  "lat": -34.6294214,
+  "lon": -58.3706686
+},
+{
+  "type": "node",
+  "id": 206114731,
+  "lat": -34.6266288,
+  "lon": -58.3709597
+},
+{
+  "type": "node",
+  "id": 206114827,
+  "lat": -34.6281218,
+  "lon": -58.3707885
+},
+{
+  "type": "node",
+  "id": 206114834,
+  "lat": -34.6291523,
+  "lon": -58.3706876
+},
+{
+  "type": "node",
+  "id": 1611090592,
+  "lat": -34.6288327,
+  "lon": -58.3707070
+},
+{
+  "type": "node",
+  "id": 7346613288,
+  "lat": -34.6275262,
+  "lon": -58.3708568
+},
+{
+  "type": "node",
+  "id": 11646429197,
+  "lat": -34.6292123,
+  "lon": -58.3706828
+},
+{
+  "type": "node",
+  "id": 11646429199,
+  "lat": -34.6290726,
+  "lon": -58.3706927
+},
+{
+  "type": "node",
+  "id": 12610059680,
+  "lat": -34.6284699,
+  "lon": -58.3707486
+},
+{
+  "type": "node",
+  "id": 12923790049,
+  "lat": -34.6265618,
+  "lon": -58.3709668
+},
+{
+  "type": "node",
+  "id": 194504396,
+  "lat": -34.6242271,
+  "lon": -58.3711927
+},
+{
+  "type": "node",
+  "id": 195890708,
+  "lat": -34.6253615,
+  "lon": -58.3710935
+},
+{
+  "type": "node",
+  "id": 205501549,
+  "lat": -34.6195152,
+  "lon": -58.3715225
+},
+{
+  "type": "node",
+  "id": 205501563,
+  "lat": -34.6218396,
+  "lon": -58.3713290
+},
+{
+  "type": "node",
+  "id": 205501572,
+  "lat": -34.6230353,
+  "lon": -58.3712725
+},
+{
+  "type": "node",
+  "id": 205553448,
+  "lat": -34.6206888,
+  "lon": -58.3714319
+},
+{
+  "type": "node",
+  "id": 243462064,
+  "lat": -34.6202760,
+  "lon": -58.3714565
+},
+{
+  "type": "node",
+  "id": 4431929570,
+  "lat": -34.6256137,
+  "lon": -58.3710669
+},
+{
+  "type": "node",
+  "id": 6983955421,
+  "lat": -34.6229190,
+  "lon": -58.3712799
+},
+{
+  "type": "node",
+  "id": 9453285622,
+  "lat": -34.6253006,
+  "lon": -58.3711378
+},
+{
+  "type": "node",
+  "id": 11093258764,
+  "lat": -34.6256815,
+  "lon": -58.3710597
+},
+{
+  "type": "node",
+  "id": 11646429212,
+  "lat": -34.6254315,
+  "lon": -58.3710861
+},
+{
+  "type": "node",
+  "id": 12841150102,
+  "lat": -34.6257610,
+  "lon": -58.3710513
+},
+{
+  "type": "node",
+  "id": 13194895645,
+  "lat": -34.6226757,
+  "lon": -58.3712910
+},
+{
+  "type": "node",
+  "id": 13194895646,
+  "lat": -34.6222695,
+  "lon": -58.3713094
+},
+{
+  "type": "node",
+  "id": 13894729340,
+  "lat": -34.6202388,
+  "lon": -58.3714597
+},
+{
+  "type": "node",
+  "id": 14211011433,
+  "lat": -34.6217299,
+  "lon": -58.3713403
+},
+{
+  "type": "node",
+  "id": 14211011436,
+  "lat": -34.6219738,
+  "lon": -58.3713216
+},
+{
+  "type": "node",
+  "id": 14211232118,
+  "lat": -34.6241225,
+  "lon": -58.3712089
+},
+{
+  "type": "node",
+  "id": 193830077,
+  "lat": -34.6171874,
+  "lon": -58.3716732
+},
+{
+  "type": "node",
+  "id": 195866927,
+  "lat": -34.6160069,
+  "lon": -58.3717268
+},
+{
+  "type": "node",
+  "id": 195890701,
+  "lat": -34.6136163,
+  "lon": -58.3718604
+},
+{
+  "type": "node",
+  "id": 205501519,
+  "lat": -34.6148117,
+  "lon": -58.3717810
+},
+{
+  "type": "node",
+  "id": 205501537,
+  "lat": -34.6184665,
+  "lon": -58.3716077
+},
+{
+  "type": "node",
+  "id": 243462055,
+  "lat": -34.6166515,
+  "lon": -58.3716947
+},
+{
+  "type": "node",
+  "id": 243462061,
+  "lat": -34.6178485,
+  "lon": -58.3716380
+},
+{
+  "type": "node",
+  "id": 11405523949,
+  "lat": -34.6191567,
+  "lon": -58.3715516
+},
+{
+  "type": "node",
+  "id": 14210727282,
+  "lat": -34.6171289,
+  "lon": -58.3716755
+},
+{
+  "type": "node",
+  "id": 14211211429,
+  "lat": -34.6166034,
+  "lon": -58.3716957
+},
+{
+  "type": "node",
+  "id": 14211211431,
+  "lat": -34.6167116,
+  "lon": -58.3716944
+},
+{
+  "type": "node",
+  "id": 14214366291,
+  "lat": -34.6135622,
+  "lon": -58.3718633
+},
+{
+  "type": "node",
+  "id": 14214366293,
+  "lat": -34.6136797,
+  "lon": -58.3718562
+},
+{
+  "type": "node",
+  "id": 14214423508,
+  "lat": -34.6147305,
+  "lon": -58.3717864
+},
+{
+  "type": "node",
+  "id": 194504394,
+  "lat": -34.6089429,
+  "lon": -58.3721336
+},
+{
+  "type": "node",
+  "id": 194504395,
+  "lat": -34.6124519,
+  "lon": -58.3719179
+},
+{
+  "type": "node",
+  "id": 199509144,
+  "lat": -34.6101307,
+  "lon": -58.3720408
+},
+{
+  "type": "node",
+  "id": 199509232,
+  "lat": -34.6113029,
+  "lon": -58.3719887
+},
+{
+  "type": "node",
+  "id": 7234412484,
+  "lat": -34.6090145,
+  "lon": -58.3721264
+},
+{
+  "type": "node",
+  "id": 14214039315,
+  "lat": -34.6125906,
+  "lon": -58.3719157
+},
+{
+  "type": "node",
+  "id": 14214039316,
+  "lat": -34.6122813,
+  "lon": -58.3719277
+}
+
+  ]
+}

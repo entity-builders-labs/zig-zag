@@ -1,0 +1,294 @@
+[
+ {
+  "id": "BA-00",
+  "city": "BA",
+  "street": "Defensa",
+  "bbox": [
+   -34.63,
+   -58.38,
+   -34.605,
+   -58.365
+  ],
+  "kind": "P-D1 San Telmo contract case (Chile -> Humberto I)",
+  "force": [
+   195866927,
+   205553448
+  ]
+ },
+ {
+  "id": "BA-01",
+  "city": "BA",
+  "street": "Defensa",
+  "bbox": [
+   -34.63,
+   -58.38,
+   -34.605,
+   -58.365
+  ],
+  "kind": "pedestrian/living street, short blocks"
+ },
+ {
+  "id": "BA-02",
+  "city": "BA",
+  "street": "Florida",
+  "bbox": [
+   -34.605,
+   -58.38,
+   -34.592,
+   -58.37
+  ],
+  "kind": "pedestrian street"
+ },
+ {
+  "id": "BA-03",
+  "city": "BA",
+  "street": "Avenida de Mayo",
+  "bbox": [
+   -34.612,
+   -58.39,
+   -34.605,
+   -58.37
+  ],
+  "kind": "straight avenue, parallel streets"
+ },
+ {
+  "id": "BA-04",
+  "city": "BA",
+  "street": "Caminito",
+  "bbox": [
+   -34.642,
+   -58.368,
+   -34.636,
+   -58.36
+  ],
+  "kind": "short pedestrian"
+ },
+ {
+  "id": "BA-05",
+  "city": "BA",
+  "street": "Avenida Alvear",
+  "bbox": [
+   -34.592,
+   -58.392,
+   -34.58,
+   -58.375
+  ],
+  "kind": "gently curving avenue"
+ },
+ {
+  "id": "BA-06",
+  "city": "BA",
+  "street": "Lavalle",
+  "bbox": [
+   -34.607,
+   -58.385,
+   -34.598,
+   -58.372
+  ],
+  "kind": "pedestrian street, several intersections"
+ },
+ {
+  "id": "PA-01",
+  "city": "PA",
+  "street": "Rue Montorgueil",
+  "bbox": [
+   48.86,
+   2.343,
+   48.87,
+   2.352
+  ],
+  "kind": "pedestrian street"
+ },
+ {
+  "id": "PA-02",
+  "city": "PA",
+  "street": "Rue de Rivoli",
+  "bbox": [
+   48.855,
+   2.335,
+   48.862,
+   2.355
+  ],
+  "kind": "long straight, many intersections"
+ },
+ {
+  "id": "PA-03",
+  "city": "PA",
+  "street": "Rue Mouffetard",
+  "bbox": [
+   48.838,
+   2.346,
+   48.846,
+   2.353
+  ],
+  "kind": "curving old street"
+ },
+ {
+  "id": "PA-04",
+  "city": "PA",
+  "street": "Rue des Rosiers",
+  "bbox": [
+   48.855,
+   2.355,
+   48.86,
+   2.362
+  ],
+  "kind": "short street"
+ },
+ {
+  "id": "PA-05",
+  "city": "PA",
+  "street": "Rue Lepic",
+  "bbox": [
+   48.882,
+   2.33,
+   48.89,
+   2.34
+  ],
+  "kind": "strongly curving hill street"
+ },
+ {
+  "id": "PA-06",
+  "city": "PA",
+  "street": "Coul\u00e9e verte Ren\u00e9-Dumont",
+  "bbox": [
+   48.84,
+   2.37,
+   48.852,
+   2.4
+  ],
+  "kind": "park path (elevated promenade)"
+ },
+ {
+  "id": "LA-01",
+  "city": "LA",
+  "street": "Hollywood Boulevard",
+  "bbox": [
+   34.098,
+   -118.345,
+   34.104,
+   -118.322
+  ],
+  "kind": "long straight boulevard"
+ },
+ {
+  "id": "LA-02",
+  "city": "LA",
+  "street": "3rd Street Promenade",
+  "bbox": [
+   34.012,
+   -118.5,
+   34.02,
+   -118.492
+  ],
+  "kind": "pedestrian promenade"
+ },
+ {
+  "id": "LA-03",
+  "city": "LA",
+  "street": "Ocean Front Walk",
+  "bbox": [
+   33.98,
+   -118.478,
+   33.995,
+   -118.465
+  ],
+  "kind": "beach path"
+ },
+ {
+  "id": "LA-05",
+  "city": "LA",
+  "street": "Lake Hollywood Drive",
+  "bbox": [
+   34.12,
+   -118.335,
+   34.135,
+   -118.315
+  ],
+  "kind": "curving residential"
+ },
+ {
+  "id": "LA-06",
+  "city": "LA",
+  "street": "Sunset Boulevard",
+  "bbox": [
+   34.083,
+   -118.292,
+   34.093,
+   -118.268
+  ],
+  "kind": "curving boulevard (Silver Lake)"
+ },
+ {
+  "id": "BA-07",
+  "city": "BA",
+  "street": "Per\u00fa",
+  "bbox": [
+   -34.62,
+   -58.378,
+   -34.605,
+   -58.37
+  ],
+  "kind": "straight residential, several intersections"
+ },
+ {
+  "id": "BA-08",
+  "city": "BA",
+  "street": "Reconquista",
+  "bbox": [
+   -34.605,
+   -58.378,
+   -34.596,
+   -58.368
+  ],
+  "kind": "downtown street"
+ },
+ {
+  "id": "PA-07",
+  "city": "PA",
+  "street": "Rue Saint-Antoine",
+  "bbox": [
+   48.851,
+   2.358,
+   48.856,
+   2.37
+  ],
+  "kind": "busy street"
+ },
+ {
+  "id": "PA-08",
+  "city": "PA",
+  "street": "Rue du Faubourg Saint-Antoine",
+  "bbox": [
+   48.849,
+   2.37,
+   48.854,
+   2.392
+  ],
+  "kind": "long straight street"
+ },
+ {
+  "id": "LA-07",
+  "city": "LA",
+  "street": "Abbot Kinney Boulevard",
+  "bbox": [
+   33.985,
+   -118.475,
+   33.997,
+   -118.46
+  ],
+  "kind": "diagonal boulevard"
+ },
+ {
+  "id": "LA-08",
+  "city": "LA",
+  "street": "Main Street",
+  "bbox": [
+   33.995,
+   -118.485,
+   34.006,
+   -118.476
+  ],
+  "kind": "commercial street (Santa Monica)"
+ }
+]

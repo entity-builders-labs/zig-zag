@@ -1,0 +1,174 @@
+{
+ "city": "LA",
+ "scenario": "S5-oversupply-1day",
+ "solver": "routing-5s",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 5.0,
+ "wall_s_max": 5.0,
+ "solver_meta": {
+  "solver": "ortools-routing(gls,5s)",
+  "wall_s": 5.0,
+  "solve_s": 4.999,
+  "status": "FEASIBLE",
+  "nodes": 28,
+  "objective_cost": 10825
+ },
+ "scheduled": 9,
+ "desirability": 6.378,
+ "visit_min": 540.0,
+ "travel_min": 47.5,
+ "walk_min": 16.2,
+ "drive_legs": 5,
+ "walk_legs": 3,
+ "idle_min": 3.5,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 4588.7,
+ "day_spread_m": [
+  4379
+ ],
+ "residual_min": [
+  9
+ ],
+ "omitted_top": [
+  "The J. Paul Getty Museum",
+  "Griffith Observatory",
+  "Museum of Contemporary Art",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "California Science Center",
+  "The Hollywood Museum",
+  "Japanese American National Museum",
+  "Psychiatry: An Industry of Death Museum",
+  "California African American Museum",
+  "Madame Tussaud's"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:322957598",
+     "title": "Angels Flight",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:4773740642",
+     "title": "1100 Wilshire",
+     "start": 588,
+     "end": 633,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 3.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:150968103",
+     "title": "Koreatown",
+     "start": 639,
+     "end": 684,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 690,
+     "end": 735,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.9
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 740,
+     "end": 830,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 840,
+     "end": 930,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 939,
+     "end": 984,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:3861449031",
+     "title": "Hollywood Wax Museum",
+     "start": 987,
+     "end": 1077,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.9
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 1086,
+     "end": 1131,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.1
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

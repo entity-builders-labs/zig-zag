@@ -1,0 +1,41 @@
+{
+  "destinationResolution": {
+    "nominatim": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    }
+  },
+  "total": {
+    "nominatim": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 1,
+      "replayed": 0,
+      "failed": 0
+    },
+    "llm": {
+      "live": 107,
+      "replayed": 0,
+      "failed": 1
+    },
+    "serper": {
+      "live": 20,
+      "replayed": 0,
+      "failed": 0
+    },
+    "web": {
+      "live": 44,
+      "replayed": 0,
+      "failed": 0
+    }
+  }
+}

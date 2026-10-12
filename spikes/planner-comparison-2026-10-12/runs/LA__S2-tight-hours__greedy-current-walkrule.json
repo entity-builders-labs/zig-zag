@@ -1,0 +1,150 @@
+{
+ "city": "LA",
+ "scenario": "S2-tight-hours",
+ "solver": "greedy-current-walkrule",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0002,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 6,
+ "desirability": 4.128,
+ "visit_min": 450.0,
+ "travel_min": 18.9,
+ "walk_min": 18.9,
+ "drive_legs": 0,
+ "walk_legs": 3,
+ "idle_min": 2.1,
+ "unknown_hours_scheduled": 4,
+ "objective_test_weights": 3539.0,
+ "day_spread_m": [
+  238,
+  0,
+  0
+ ],
+ "residual_min": [
+  24,
+  315,
+  270
+ ],
+ "omitted_top": [
+  "La Brea Tar Pits",
+  "Griffith Observatory",
+  "Los Angeles County Museum of Art",
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Angels Flight",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "1100 Wilshire",
+  "California Science Center",
+  "Japanese American National Museum",
+  "California African American Museum",
+  "Madame Tussaud's"
+ ],
+ "readiness": "PLANNER_LIMITED",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:node:3861449031",
+     "title": "Hollywood Wax Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 874,
+     "end": 919,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 3.1
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:423448326",
+     "title": "The Hollywood Museum",
+     "start": 925,
+     "end": 1015,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 5.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:9703886758",
+     "title": "Psychiatry: An Industry of Death Museum",
+     "start": 1026,
+     "end": 1116,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.6
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 780,
+     "end": 825,
+     "incoming": null,
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 780,
+     "end": 870,
+     "incoming": null,
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

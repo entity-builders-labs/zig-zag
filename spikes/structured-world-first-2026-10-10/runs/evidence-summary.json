@@ -1,0 +1,2104 @@
+{
+  "labeller": "Claude (spike 2 session), hand-labelled from captured evidence text",
+  "rows": [
+    {
+      "n": 1,
+      "run": "A2-attempt2",
+      "candidate": "Retiro",
+      "candidateId": "geo:osm:relation:2224546",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "gringoinbuenosaires.com",
+        "timeout.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "VERIFIER_UNDERRATED",
+      "note": "two established publishers, both IMPLICIT; no EXPLICIT -> no corroboration"
+    },
+    {
+      "n": 2,
+      "run": "A2-attempt2",
+      "candidate": "Almagro",
+      "candidateId": "geo:osm:relation:2222269",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "solsalute.com"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 3,
+      "run": "A2-attempt2",
+      "candidate": "La Boca",
+      "candidateId": "geo:osm:relation:2223879",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": "quote not about history"
+    },
+    {
+      "n": 4,
+      "run": "A2-attempt2",
+      "candidate": "Palermo",
+      "candidateId": "geo:osm:relation:2222226",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 5,
+      "run": "A2-attempt2",
+      "candidate": "Retiro",
+      "candidateId": "geo:osm:relation:2224546",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar",
+        "dazzlersanmartin.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "one explicit unestablished publisher; gov capture did not name Retiro"
+    },
+    {
+      "n": 6,
+      "run": "A2-attempt2",
+      "candidate": "Almagro",
+      "candidateId": "geo:osm:relation:2222269",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+      "basis": null,
+      "publishers": [
+        "solsalute.com"
+      ],
+      "label_truth": "no-name",
+      "label_verdict": "CORRECT",
+      "note": "quote lacks subject name"
+    },
+    {
+      "n": 7,
+      "run": "A2-attempt2",
+      "candidate": "San Nicol\u00e1s",
+      "candidateId": "geo:osm:relation:2223057",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "VERIFIER_UNDERRATED",
+      "note": "\"historic quarter in ... San Nicol\u00e1s\" judged IMPLICIT"
+    },
+    {
+      "n": 8,
+      "run": "A2-attempt2",
+      "candidate": "Barracas",
+      "candidateId": "geo:osm:relation:2223536",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 9,
+      "run": "A2-attempt2",
+      "candidate": "Liniers",
+      "candidateId": "geo:osm:relation:2222235",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "homonym",
+      "label_verdict": "SUPPORT_OVERRATED",
+      "note": "quote is about Viceroy Liniers, not the barrio; name precondition passed by the person name; blocked by corroboration"
+    },
+    {
+      "n": 10,
+      "run": "A2-attempt2",
+      "candidate": "Parque Chacabuco",
+      "candidateId": "geo:osm:relation:2222256",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar",
+        "gringoinbuenosaires.com"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 11,
+      "run": "A2-attempt2",
+      "candidate": "Nueva Pompeya",
+      "candidateId": "geo:osm:relation:2223107",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "eternautas.tur.ar"
+      ],
+      "label_truth": "contradicts",
+      "label_verdict": "SUPPORT_OVERRATED",
+      "note": "quote contrasts Nueva Pompeya with the historic south; blocked by corroboration"
+    },
+    {
+      "n": 12,
+      "run": "A2-attempt2",
+      "candidate": "Parque Chas",
+      "candidateId": "geo:osm:relation:2221316",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "travel.blog"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 13,
+      "run": "A2-attempt2",
+      "candidate": "Villa 31",
+      "candidateId": "geo:osm:node:1618113952",
+      "facet": "theme:history",
+      "status": "AUTHORIZED",
+      "reason": null,
+      "basis": "SINGLE_VERIFIED_EXPLICIT",
+      "publishers": [
+        "perfil.com"
+      ],
+      "label_truth": "true-borderline",
+      "label_verdict": "CORRECT",
+      "note": "explicit tourism article on Villa 31 history tours; contract-correct accept, borderline mainstream relevance"
+    },
+    {
+      "n": 14,
+      "run": "A2",
+      "candidate": "La Boca",
+      "candidateId": "geo:osm:relation:2223879",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+      "basis": null,
+      "publishers": [
+        "solsalute.com"
+      ],
+      "label_truth": "negative",
+      "label_verdict": "CORRECT",
+      "note": "quote truncated without the name; content is negative about food"
+    },
+    {
+      "n": 15,
+      "run": "A2",
+      "candidate": "Puerto Madero",
+      "candidateId": "geo:osm:relation:2224562",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "cheargentinatravel.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "established publisher but IMPLICIT; single publisher"
+    },
+    {
+      "n": 16,
+      "run": "A2",
+      "candidate": "Palermo",
+      "candidateId": "geo:osm:relation:2222226",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "postcardsfromtheworld.com",
+        "rebeccasinternationalkitchen.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "VERIFIER_UNDERRATED",
+      "note": "\"known for its many restaurants\" judged IMPLICIT"
+    },
+    {
+      "n": 17,
+      "run": "A2",
+      "candidate": "Recoleta",
+      "candidateId": "geo:osm:relation:2224056",
+      "facet": "theme:food",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "rebeccasinternationalkitchen.com"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": "title only"
+    },
+    {
+      "n": 18,
+      "run": "A2",
+      "candidate": "Retiro",
+      "candidateId": "geo:osm:relation:2224546",
+      "facet": "theme:food",
+      "status": "FAILED",
+      "reason": "VERIFIER_UNAVAILABLE",
+      "basis": null,
+      "publishers": [],
+      "label_truth": "n/a",
+      "label_verdict": "FAILED",
+      "note": "provider 503"
+    },
+    {
+      "n": 19,
+      "run": "A2",
+      "candidate": "La Boca",
+      "candidateId": "geo:osm:relation:2223879",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single unestablished publisher"
+    },
+    {
+      "n": 20,
+      "run": "A2",
+      "candidate": "Puerto Madero",
+      "candidateId": "geo:osm:relation:2224562",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single unestablished publisher"
+    },
+    {
+      "n": 21,
+      "run": "A2",
+      "candidate": "Recoleta",
+      "candidateId": "geo:osm:relation:2224056",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "VERIFIER_UNDERRATED",
+      "note": "\"historic quarter ... its history, monuments\" judged IMPLICIT"
+    },
+    {
+      "n": 22,
+      "run": "A2",
+      "candidate": "San Telmo",
+      "candidateId": "geo:osm:relation:2223069",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "querandi.com.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "VERIFIER_UNDERRATED_DECISIVE",
+      "note": "\"the oldest in Buenos Aires ... first stable settlement of the colonial city\" judged IMPLICIT; publisher established (querandi) so EXPLICIT would have authorized alone"
+    },
+    {
+      "n": 23,
+      "run": "A2",
+      "candidate": "Retiro",
+      "candidateId": "geo:osm:relation:2224546",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "no-name",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 24,
+      "run": "A2",
+      "candidate": "Balvanera",
+      "candidateId": "geo:osm:relation:2222813",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar",
+        "solsalute.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher with name"
+    },
+    {
+      "n": 25,
+      "run": "A2",
+      "candidate": "Monserrat",
+      "candidateId": "geo:osm:relation:2222917",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "EXPLICIT but single unestablished publisher"
+    },
+    {
+      "n": 26,
+      "run": "A2",
+      "candidate": "Caballito",
+      "candidateId": "geo:osm:relation:2221428",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 27,
+      "run": "A2",
+      "candidate": "Boedo",
+      "candidateId": "geo:osm:relation:2222296",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher"
+    },
+    {
+      "n": 28,
+      "run": "B2",
+      "candidate": "San Nicol\u00e1s",
+      "candidateId": "geo:osm:relation:2223057",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar",
+        "esplendorbuenosaires.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher naming subject"
+    },
+    {
+      "n": 29,
+      "run": "B2",
+      "candidate": "Flores",
+      "candidateId": "geo:osm:relation:2221479",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "solsalute.com"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": "title only"
+    },
+    {
+      "n": 30,
+      "run": "B2",
+      "candidate": "Villa Urquiza",
+      "candidateId": "geo:osm:relation:2222119",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "landingpadba.com"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 31,
+      "run": "B2",
+      "candidate": "N\u00fa\u00f1ez",
+      "candidateId": "geo:osm:relation:2222173",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher"
+    },
+    {
+      "n": 32,
+      "run": "B2",
+      "candidate": "Colegiales",
+      "candidateId": "geo:osm:relation:2222175",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "SUPPORT_OVERRATED",
+      "note": "flea market antiques judged IMPLICIT for history; blocked by corroboration"
+    },
+    {
+      "n": 33,
+      "run": "B2",
+      "candidate": "San Crist\u00f3bal",
+      "candidateId": "geo:osm:relation:2222826",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "gringoinbuenosaires.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher"
+    },
+    {
+      "n": 34,
+      "run": "B2",
+      "candidate": "Barracas",
+      "candidateId": "geo:osm:relation:2223536",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "landingpadba.com"
+      ],
+      "label_truth": "unsupported",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 35,
+      "run": "B2",
+      "candidate": "Villa Santa Rita",
+      "candidateId": "geo:osm:relation:2220602",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": ""
+    },
+    {
+      "n": 36,
+      "run": "B2",
+      "candidate": "Liniers",
+      "candidateId": "geo:osm:relation:2222235",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "homonym",
+      "label_verdict": "SUPPORT_OVERRATED",
+      "note": "Viceroy Liniers house again; blocked"
+    },
+    {
+      "n": 37,
+      "run": "B2",
+      "candidate": "Villa Devoto",
+      "candidateId": "geo:osm:relation:2221264",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "timeout.com"
+      ],
+      "label_truth": "weak",
+      "label_verdict": "CORRECT",
+      "note": "title only; established publisher, IMPLICIT"
+    },
+    {
+      "n": 38,
+      "run": "B2",
+      "candidate": "Chacarita",
+      "candidateId": "geo:osm:relation:2221347",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar",
+        "solsalute.com"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "single publisher"
+    },
+    {
+      "n": 39,
+      "run": "B2",
+      "candidate": "Villa Crespo",
+      "candidateId": "geo:osm:relation:2221410",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "INSUFFICIENT_CORROBORATION",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "true",
+      "label_verdict": "CORRECT",
+      "note": "EXPLICIT, single unestablished publisher"
+    },
+    {
+      "n": 40,
+      "run": "B2",
+      "candidate": "Versalles",
+      "candidateId": "geo:osm:relation:2222108",
+      "facet": "theme:history",
+      "status": "REJECTED",
+      "reason": "EVIDENCE_DOES_NOT_NAME_SUBJECT",
+      "basis": null,
+      "publishers": [
+        "buenosaires.gob.ar"
+      ],
+      "label_truth": "no-name",
+      "label_verdict": "CORRECT",
+      "note": "quote about Villa Crespo"
+    }
+  ],
+  "runs": {
+    "A2-attempt1": {
+      "iterations": [
+        "1. AREA_CANDIDATES  -> SATISFIED",
+        "2. AREA_RELEVANCE theme:food -> BUDGET_EXHAUSTED",
+        "3. AREA_RELEVANCE theme:history -> BUDGET_EXHAUSTED"
+      ],
+      "providerCallsByStage": {
+        "AREA_CANDIDATES": {
+          "overpass": 96,
+          "overpass-raw": 1,
+          "wikidata": 2
+        },
+        "AREA_RELEVANCE": {
+          "llm": 24,
+          "serper": 6,
+          "web": 7
+        }
+      },
+      "providerCallsTotal": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 97,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass-raw": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "wikidata": {
+          "live": 2,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 24,
+          "replayed": 0,
+          "failed": 0
+        },
+        "serper": {
+          "live": 6,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 7,
+          "replayed": 0,
+          "failed": 0
+        }
+      },
+      "offeredQuestions": 12,
+      "offered": [
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        }
+      ],
+      "evaluatorDiscards": {
+        "NOT_OFFERED_CANDIDATE": 27
+      },
+      "unofferedMentions": 27,
+      "assertionsAfter": 0,
+      "experiencesAfter": 0,
+      "memoryBefore": {
+        "documents": 0,
+        "pendingQuestions": 0,
+        "pendingCaptures": 0,
+        "mentions": 0,
+        "reuseEvents": 0
+      },
+      "memoryAfter": {
+        "documents": 6,
+        "pendingQuestions": 0,
+        "pendingCaptures": 0,
+        "mentions": 27,
+        "reuseEvents": 0
+      },
+      "finalVerdict": "GAPS",
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "result": "INSUFFICIENT_KNOWLEDGE"
+    },
+    "A2-attempt2": {
+      "iterations": [
+        "1. AREA_CANDIDATES  -> SATISFIED",
+        "2. AREA_RELEVANCE theme:food -> INSUFFICIENT_EVIDENCE",
+        "3. AREA_RELEVANCE theme:food -> INSUFFICIENT_EVIDENCE",
+        "4. AREA_RELEVANCE theme:food -> FAILED",
+        "5. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "6. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "7. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "8. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "9. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "10. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "11. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "12. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "13. AREA_RELEVANCE theme:history -> SATISFIED"
+      ],
+      "providerCallsByStage": {
+        "AREA_CANDIDATES": {
+          "overpass": 96,
+          "overpass-raw": 1,
+          "wikidata": 2
+        },
+        "AREA_RELEVANCE": {
+          "llm": 124,
+          "serper": 32,
+          "web": 55
+        }
+      },
+      "providerCallsTotal": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 97,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass-raw": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "wikidata": {
+          "live": 2,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 123,
+          "replayed": 0,
+          "failed": 1
+        },
+        "serper": {
+          "live": 32,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 53,
+          "replayed": 0,
+          "failed": 2
+        }
+      },
+      "offeredQuestions": 72,
+      "offered": [
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:food",
+          "candidate": "Almagro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food",
+          "candidate": "Balvanera",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:food",
+          "candidate": "Monserrat",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:food",
+          "candidate": "Caballito",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:food",
+          "candidate": "Boedo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:food",
+          "candidate": "Constituci\u00f3n",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:food",
+          "candidate": "La Paternal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223057|facet=theme:food",
+          "candidate": "San Nicol\u00e1s",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223126|facet=theme:food",
+          "candidate": "Villa Lugano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221479|facet=theme:food",
+          "candidate": "Flores",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222119|facet=theme:food",
+          "candidate": "Villa Urquiza",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:history",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:history",
+          "candidate": "Almagro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history",
+          "candidate": "Balvanera",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history",
+          "candidate": "Monserrat",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+          "candidate": "Caballito",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+          "candidate": "Boedo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:history",
+          "candidate": "Constituci\u00f3n",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:history",
+          "candidate": "La Paternal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223057|facet=theme:history",
+          "candidate": "San Nicol\u00e1s",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223126|facet=theme:history",
+          "candidate": "Villa Lugano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221479|facet=theme:history",
+          "candidate": "Flores",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222119|facet=theme:history",
+          "candidate": "Villa Urquiza",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222173|facet=theme:history",
+          "candidate": "N\u00fa\u00f1ez",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222175|facet=theme:history",
+          "candidate": "Colegiales",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222826|facet=theme:history",
+          "candidate": "San Crist\u00f3bal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223536|facet=theme:history",
+          "candidate": "Barracas",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2220602|facet=theme:history",
+          "candidate": "Villa Santa Rita",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221283|facet=theme:history",
+          "candidate": "Agronom\u00eda",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222110|facet=theme:history",
+          "candidate": "Villa Luro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222235|facet=theme:history",
+          "candidate": "Liniers",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221264|facet=theme:history",
+          "candidate": "Villa Devoto",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221347|facet=theme:history",
+          "candidate": "Chacarita",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221410|facet=theme:history",
+          "candidate": "Villa Crespo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222108|facet=theme:history",
+          "candidate": "Versalles",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222256|facet=theme:history",
+          "candidate": "Parque Chacabuco",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223088|facet=theme:history",
+          "candidate": "Parque Patricios",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221465|facet=theme:history",
+          "candidate": "Floresta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222113|facet=theme:history",
+          "candidate": "V\u00e9lez Sarsfield",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222167|facet=theme:history",
+          "candidate": "Saavedra",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222237|facet=theme:history",
+          "candidate": "Mataderos",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223107|facet=theme:history",
+          "candidate": "Nueva Pompeya",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223172|facet=theme:history",
+          "candidate": "Villa Soldati",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2220994|facet=theme:history",
+          "candidate": "Villa del Parque",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221081|facet=theme:history",
+          "candidate": "Villa General Mitre",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221316|facet=theme:history",
+          "candidate": "Parque Chas",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221396|facet=theme:history",
+          "candidate": "Villa Ort\u00fazar",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221446|facet=theme:history",
+          "candidate": "Monte Castro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222250|facet=theme:history",
+          "candidate": "Parque Avellaneda",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223176|facet=theme:history",
+          "candidate": "Villa Riachuelo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:5328270|facet=theme:history",
+          "candidate": "Coghlan",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221272|facet=theme:history",
+          "candidate": "Villa Pueyrred\u00f3n",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222105|facet=theme:history",
+          "candidate": "Villa Real",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:1618113952|facet=theme:history",
+          "candidate": "Villa 31",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:479744086|facet=theme:history",
+          "candidate": "Barrio Chino",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:1637490509|facet=theme:history",
+          "candidate": "Microcentro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:13363621268|facet=theme:history",
+          "candidate": "Once",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:2425310210|facet=theme:history",
+          "candidate": "Once",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:node:5523257202|facet=theme:history",
+          "candidate": "Barrio Norte",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-named-places"
+          ]
+        }
+      ],
+      "evaluatorDiscards": {
+        "NO_CAPTURE": 2
+      },
+      "unofferedMentions": 34,
+      "assertionsAfter": 1,
+      "experiencesAfter": 0,
+      "memoryBefore": {
+        "documents": 0,
+        "pendingQuestions": 0,
+        "pendingCaptures": 0,
+        "mentions": 0,
+        "reuseEvents": 0
+      },
+      "memoryAfter": {
+        "documents": 29,
+        "pendingQuestions": 7,
+        "pendingCaptures": 9,
+        "mentions": 34,
+        "reuseEvents": 0
+      },
+      "finalVerdict": "GAPS",
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "result": "INSUFFICIENT_KNOWLEDGE"
+    },
+    "A2": {
+      "iterations": [
+        "1. AREA_CANDIDATES  -> SATISFIED",
+        "2. AREA_RELEVANCE theme:food -> INSUFFICIENT_EVIDENCE",
+        "3. AREA_RELEVANCE theme:food -> INSUFFICIENT_EVIDENCE",
+        "4. AREA_RELEVANCE theme:food -> BUDGET_EXHAUSTED",
+        "5. AREA_RELEVANCE theme:food -> INSUFFICIENT_EVIDENCE",
+        "6. AREA_RELEVANCE theme:food -> FAILED",
+        "7. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "8. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "9. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "10. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "11. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "12. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "13. AREA_RELEVANCE theme:history -> FAILED"
+      ],
+      "providerCallsByStage": {
+        "AREA_CANDIDATES": {
+          "overpass": 96,
+          "overpass-raw": 1,
+          "wikidata": 2
+        },
+        "AREA_RELEVANCE": {
+          "llm": 136,
+          "serper": 28,
+          "web": 60
+        }
+      },
+      "providerCallsTotal": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 97,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass-raw": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "wikidata": {
+          "live": 2,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 133,
+          "replayed": 0,
+          "failed": 3
+        },
+        "serper": {
+          "live": 28,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 58,
+          "replayed": 0,
+          "failed": 2
+        }
+      },
+      "offeredQuestions": 24,
+      "offered": [
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:food",
+          "candidate": "Almagro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food",
+          "candidate": "Balvanera",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+          "candidate": "La Boca",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+          "candidate": "Puerto Madero",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history",
+          "candidate": "Palermo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+          "candidate": "Recoleta",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history",
+          "candidate": "Belgrano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+          "candidate": "San Telmo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:history",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222269|facet=theme:history",
+          "candidate": "Almagro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:history",
+          "candidate": "Balvanera",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222917|facet=theme:history",
+          "candidate": "Monserrat",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221428|facet=theme:history",
+          "candidate": "Caballito",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222296|facet=theme:history",
+          "candidate": "Boedo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:history",
+          "candidate": "Constituci\u00f3n",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:history",
+          "candidate": "La Paternal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        }
+      ],
+      "evaluatorDiscards": {
+        "NO_CAPTURE": 21
+      },
+      "unofferedMentions": 48,
+      "assertionsAfter": 0,
+      "experiencesAfter": 0,
+      "memoryBefore": {
+        "documents": 0,
+        "pendingQuestions": 0,
+        "pendingCaptures": 0,
+        "mentions": 0,
+        "reuseEvents": 0
+      },
+      "memoryAfter": {
+        "documents": 23,
+        "pendingQuestions": 11,
+        "pendingCaptures": 15,
+        "mentions": 48,
+        "reuseEvents": 0
+      },
+      "finalVerdict": "GAPS",
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "result": "INSUFFICIENT_KNOWLEDGE"
+    },
+    "B2": {
+      "iterations": [
+        "1. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "2. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "3. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "4. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "5. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "6. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "7. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "8. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "9. AREA_RELEVANCE theme:history -> INSUFFICIENT_EVIDENCE",
+        "10. AREA_RELEVANCE theme:history -> FAILED"
+      ],
+      "providerCallsByStage": {
+        "AREA_RELEVANCE": {
+          "llm": 108,
+          "serper": 20,
+          "web": 44
+        }
+      },
+      "providerCallsTotal": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 107,
+          "replayed": 0,
+          "failed": 1
+        },
+        "serper": {
+          "live": 20,
+          "replayed": 0,
+          "failed": 0
+        },
+        "web": {
+          "live": 44,
+          "replayed": 0,
+          "failed": 0
+        }
+      },
+      "offeredQuestions": 20,
+      "offered": [
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223078|facet=theme:history",
+          "candidate": "Constituci\u00f3n",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221308|facet=theme:history",
+          "candidate": "La Paternal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223057|facet=theme:history",
+          "candidate": "San Nicol\u00e1s",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223126|facet=theme:history",
+          "candidate": "Villa Lugano",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221479|facet=theme:history",
+          "candidate": "Flores",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222119|facet=theme:history",
+          "candidate": "Villa Urquiza",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222173|facet=theme:history",
+          "candidate": "N\u00fa\u00f1ez",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222175|facet=theme:history",
+          "candidate": "Colegiales",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222826|facet=theme:history",
+          "candidate": "San Crist\u00f3bal",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223536|facet=theme:history",
+          "candidate": "Barracas",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2220602|facet=theme:history",
+          "candidate": "Villa Santa Rita",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221283|facet=theme:history",
+          "candidate": "Agronom\u00eda",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222110|facet=theme:history",
+          "candidate": "Villa Luro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222235|facet=theme:history",
+          "candidate": "Liniers",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221264|facet=theme:history",
+          "candidate": "Villa Devoto",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221347|facet=theme:history",
+          "candidate": "Chacarita",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2221410|facet=theme:history",
+          "candidate": "Villa Crespo",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222108|facet=theme:history",
+          "candidate": "Versalles",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222256|facet=theme:history",
+          "candidate": "Parque Chacabuco",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223088|facet=theme:history",
+          "candidate": "Parque Patricios",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        }
+      ],
+      "evaluatorDiscards": {
+        "NO_CAPTURE": 22
+      },
+      "unofferedMentions": 50,
+      "assertionsAfter": 0,
+      "experiencesAfter": 0,
+      "memoryBefore": {
+        "documents": 23,
+        "pendingQuestions": 11,
+        "pendingCaptures": 15,
+        "mentions": 48,
+        "reuseEvents": 0
+      },
+      "memoryAfter": {
+        "documents": 45,
+        "pendingQuestions": 20,
+        "pendingCaptures": 25,
+        "mentions": 98,
+        "reuseEvents": 0
+      },
+      "finalVerdict": "GAPS",
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "result": "INSUFFICIENT_KNOWLEDGE"
+    },
+    "C2": {
+      "iterations": [
+        "1. AREA_RELEVANCE theme:food -> FAILED"
+      ],
+      "providerCallsByStage": {
+        "AREA_RELEVANCE": {
+          "llm": 1
+        }
+      },
+      "providerCallsTotal": {
+        "nominatim": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "overpass": {
+          "live": 1,
+          "replayed": 0,
+          "failed": 0
+        },
+        "llm": {
+          "live": 0,
+          "replayed": 0,
+          "failed": 1
+        }
+      },
+      "offeredQuestions": 2,
+      "offered": [
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224546|facet=theme:food",
+          "candidate": "Retiro",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        },
+        {
+          "question": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222813|facet=theme:food",
+          "candidate": "Balvanera",
+          "existedInL1": true,
+          "discoveredBy": [
+            "osm-admin-areas"
+          ]
+        }
+      ],
+      "evaluatorDiscards": {},
+      "unofferedMentions": 0,
+      "assertionsAfter": 0,
+      "experiencesAfter": 0,
+      "memoryBefore": {
+        "documents": 23,
+        "pendingQuestions": 11,
+        "pendingCaptures": 15,
+        "mentions": 48,
+        "reuseEvents": 0
+      },
+      "memoryAfter": {
+        "documents": 23,
+        "pendingQuestions": 11,
+        "pendingCaptures": 15,
+        "mentions": 48,
+        "reuseEvents": 0
+      },
+      "finalVerdict": "GAPS",
+      "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+      "result": "INSUFFICIENT_KNOWLEDGE"
+    }
+  },
+  "summary": {
+    "groundedClaims": 40,
+    "authorized": 1,
+    "falseAccepts": 0,
+    "labelVerdicts": {
+      "VERIFIER_UNDERRATED": 4,
+      "CORRECT": 30,
+      "SUPPORT_OVERRATED": 4,
+      "FAILED": 1,
+      "VERIFIER_UNDERRATED_DECISIVE": 1
+    },
+    "reasons": {
+      "INSUFFICIENT_CORROBORATION": 27,
+      "EVIDENCE_DOES_NOT_SUPPORT_CLAIM": 7,
+      "EVIDENCE_DOES_NOT_NAME_SUBJECT": 4,
+      "AUTHORIZED": 1,
+      "FAILED": 1
+    },
+    "notOfferedAttemptsAfterFix": 0,
+    "notOfferedFalsePositivesAttempt1": 27
+  }
+}

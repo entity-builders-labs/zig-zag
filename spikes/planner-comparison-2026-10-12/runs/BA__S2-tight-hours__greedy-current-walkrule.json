@@ -1,0 +1,208 @@
+{
+ "city": "BA",
+ "scenario": "S2-tight-hours",
+ "solver": "greedy-current-walkrule",
+ "pool": 29,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 812,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0005,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 13,
+ "desirability": 11.117,
+ "visit_min": 774.6,
+ "travel_min": 188.5,
+ "walk_min": 188.5,
+ "drive_legs": 0,
+ "walk_legs": 10,
+ "idle_min": 3.9,
+ "unknown_hours_scheduled": 6,
+ "objective_test_weights": 8632.0,
+ "day_spread_m": [
+  775,
+  740,
+  830
+ ],
+ "residual_min": [
+  56,
+  5,
+  52
+ ],
+ "omitted_top": [
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Instituto Sanmartiniano",
+  "Museo Fotogr\u00e1fico Simik"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "BA:relation:3228119",
+     "title": "Manzana de las Luces",
+     "start": 780,
+     "end": 840,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:204263802",
+     "title": "Museo Mitre",
+     "start": 853,
+     "end": 913,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 12.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:23633911",
+     "title": "Teatro Col\u00f3n",
+     "start": 934,
+     "end": 994,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 20.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:708071953",
+     "title": "Confiter\u00eda El Molino",
+     "start": 1024,
+     "end": 1084,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 29.9
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "BA:composite:san-telmo-walk",
+     "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+     "start": 780,
+     "end": 834.6,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:31364659",
+     "title": "Plaza Dorrego",
+     "start": 838,
+     "end": 898,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:relation:2354152",
+     "title": "Bas\u00edlica de San Francisco",
+     "start": 917,
+     "end": 977,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 18.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:176333994",
+     "title": "Museo Casa Rosada",
+     "start": 986,
+     "end": 1046,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.7
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:1386044833",
+     "title": "Palacio Barolo",
+     "start": 1075,
+     "end": 1135,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 28.9
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "BA:node:694078616",
+     "title": "Club Espa\u00f1ol",
+     "start": 780,
+     "end": 840,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "BA:way:173065810",
+     "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+     "start": 868,
+     "end": 928,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 27.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:173065616",
+     "title": "Buque Museo Corbeta A.R.A. Uruguay",
+     "start": 939,
+     "end": 999,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "BA:way:102440659",
+     "title": "Edificio Kavanagh",
+     "start": 1028,
+     "end": 1088,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 28.6
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

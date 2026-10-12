@@ -1,0 +1,126 @@
+{
+ "policy": {
+  "version": "traversal-validator-v1",
+  "calibration_dataset": "g2-2026-10-12",
+  "max_required_to_output_m": 2.8,
+  "max_output_to_required_m": 4.1,
+  "forward_progress": "> 0 (end projects after start along the required segment)",
+  "max_backtrack_m": 2.8,
+  "max_unmatched_points": 0,
+  "evidence": {
+   "coverage": {
+    "positive_max": 0.6,
+    "negative_min": 5.15
+   },
+   "on_segment": {
+    "positive_max": 3.08,
+    "negative_min": 5.23
+   },
+   "forward_ratio": {
+    "positive_min": 0.9998,
+    "negative_max_reversed": -0.4857
+   },
+   "backtrack_m": {
+    "positive_max": 0,
+    "negative_min_reversed": 143.0
+   },
+   "unmatched_points": {
+    "positive_max": 0,
+    "negative_max": 0,
+    "note": "not exercised by any negative; kept as fail-closed guard at the positive maximum"
+   }
+  }
+ },
+ "summary": {
+  "segments": 21,
+  "by_city": {
+   "BA": 9,
+   "PA": 7,
+   "LA": 5
+  },
+  "outputs": 264,
+  "labelled": 264,
+  "positives": 60,
+  "negatives": 204,
+  "excluded": 0,
+  "negatives_by_kind": {
+   "REVERSED@structural": 21,
+   "PARTIAL@structural": 21,
+   "PARALLEL@structural": 11,
+   "DETOUR@structural": 8,
+   "REVERSED@geoapify": 21,
+   "PARTIAL@geoapify": 21,
+   "PARALLEL@geoapify": 11,
+   "DETOUR@geoapify": 8,
+   "ENDPOINT@geoapify": 23,
+   "REVERSED@valhalla-3.9.1": 16,
+   "PARTIAL@valhalla-3.9.1": 16,
+   "PARALLEL@valhalla-3.9.1": 8,
+   "DETOUR@valhalla-3.9.1": 7,
+   "ENDPOINT@valhalla-3.9.1": 6,
+   "REQUIRED@geoapify": 3,
+   "REQUIRED@valhalla-3.9.1": 3
+  },
+  "positives_by_kind": {
+   "REQUIRED@geoapify": 18,
+   "ENDPOINT@geoapify": 19,
+   "REQUIRED@valhalla-3.9.1": 13,
+   "ENDPOINT@valhalla-3.9.1": 10
+  },
+  "false_positives": [],
+  "false_negatives": [],
+  "rejection_conditions": {
+   "order+backtrack": 48,
+   "coverage": 53,
+   "coverage+on_segment": 69,
+   "coverage+on_segment+backtrack": 24,
+   "coverage+on_segment+order+backtrack": 9,
+   "coverage+order+backtrack": 1
+  },
+  "per_provider": {
+   "geoapify": {
+    "positives": 37,
+    "negatives": 87,
+    "pos_req_to_out_max": 0.6,
+    "pos_out_to_req_max": 3.08,
+    "neg_req_to_out_min_nonreversed": 5.15,
+    "false_positives": 0,
+    "false_negatives": 0
+   },
+   "structural": {
+    "positives": 0,
+    "negatives": 61,
+    "pos_req_to_out_max": null,
+    "pos_out_to_req_max": null,
+    "neg_req_to_out_min_nonreversed": 45.97,
+    "false_positives": 0,
+    "false_negatives": 0
+   },
+   "valhalla-3.9.1": {
+    "positives": 23,
+    "negatives": 56,
+    "pos_req_to_out_max": 0.06,
+    "pos_out_to_req_max": 0.06,
+    "neg_req_to_out_min_nonreversed": 5.26,
+    "false_positives": 0,
+    "false_negatives": 0
+   }
+  },
+  "san_telmo": [
+   {
+    "output_id": "BA-00:geoapify:REQUIRED:walk",
+    "gt": "VALID",
+    "classified": "VALID",
+    "req_to_out": 0.22,
+    "out_to_req": 0.22
+   },
+   {
+    "output_id": "BA-00:valhalla:REQUIRED:pedestrian",
+    "gt": "VALID",
+    "classified": "VALID",
+    "req_to_out": 0.05,
+    "out_to_req": 0.05
+   }
+  ]
+ }
+}

@@ -1,0 +1,172 @@
+[
+  {
+    "dayNumber": 1,
+    "order": 1,
+    "startMinutesFromMidnight": 540,
+    "endMinutesFromMidnight": 600,
+    "placeId": "geo:osm:way:23633911",
+    "name": "Teatro Colón",
+    "admissionClass": "tourism:attraction"
+  },
+  {
+    "dayNumber": 1,
+    "order": 2,
+    "startMinutesFromMidnight": 605.6312539029034,
+    "endMinutesFromMidnight": 665.6312539029034,
+    "placeId": "geo:osm:way:1332861812",
+    "name": "Obelisco",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 6,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 1,
+    "order": 3,
+    "startMinutesFromMidnight": 677.4616259829487,
+    "endMinutesFromMidnight": 737.4616259829487,
+    "placeId": "geo:osm:way:204263802",
+    "name": "Museo Mitre",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 12,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 1,
+    "order": 4,
+    "startMinutesFromMidnight": 750.0984467260624,
+    "endMinutesFromMidnight": 810.0984467260624,
+    "placeId": "geo:osm:way:173065616",
+    "name": "Buque Museo Corbeta A.R.A. Uruguay",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 13,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 1,
+    "order": 5,
+    "startMinutesFromMidnight": 842.6856025782662,
+    "endMinutesFromMidnight": 902.6856025782662,
+    "placeId": "geo:osm:way:31364659",
+    "name": "Plaza Dorrego",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 33,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 2,
+    "order": 1,
+    "startMinutesFromMidnight": 540,
+    "endMinutesFromMidnight": 600,
+    "placeId": "geo:osm:way:1386044833",
+    "name": "Palacio Barolo",
+    "admissionClass": "tourism:attraction"
+  },
+  {
+    "dayNumber": 2,
+    "order": 2,
+    "startMinutesFromMidnight": 608.516005805886,
+    "endMinutesFromMidnight": 668.516005805886,
+    "placeId": "geo:osm:node:694078616",
+    "name": "Club Español",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 9,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 2,
+    "order": 3,
+    "startMinutesFromMidnight": 677.8682308227426,
+    "endMinutesFromMidnight": 737.8682308227426,
+    "placeId": "geo:osm:relation:3228119",
+    "name": "Manzana de las Luces",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 9,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 2,
+    "order": 4,
+    "startMinutesFromMidnight": 750.5310178568151,
+    "endMinutesFromMidnight": 810.5310178568151,
+    "placeId": "geo:osm:node:9953027884",
+    "name": "El Zanjón de Granados (historic ruins)",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 13,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 2,
+    "order": 5,
+    "startMinutesFromMidnight": 827.1132597259451,
+    "endMinutesFromMidnight": 887.1132597259451,
+    "placeId": "geo:osm:node:2038426439",
+    "name": "El Hipopótamo",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 17,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 2,
+    "order": 6,
+    "startMinutesFromMidnight": 919.7917649663134,
+    "endMinutesFromMidnight": 979.7917649663134,
+    "placeId": "geo:osm:way:173065810",
+    "name": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 33,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 3,
+    "order": 1,
+    "startMinutesFromMidnight": 540,
+    "endMinutesFromMidnight": 600,
+    "placeId": "geo:osm:way:102440659",
+    "name": "Edificio Kavanagh",
+    "admissionClass": "tourism:attraction"
+  },
+  {
+    "dayNumber": 3,
+    "order": 2,
+    "startMinutesFromMidnight": 623.3787727031125,
+    "endMinutesFromMidnight": 683.3787727031125,
+    "placeId": "geo:osm:way:265344159",
+    "name": "Catedral Metropolitana",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 23,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 3,
+    "order": 3,
+    "startMinutesFromMidnight": 689.4633099904612,
+    "endMinutesFromMidnight": 749.4633099904612,
+    "placeId": "geo:osm:way:176333994",
+    "name": "Museo Casa Rosada",
+    "admissionClass": "tourism:museum",
+    "travelFromPreviousMinutes": 6,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 3,
+    "order": 4,
+    "startMinutesFromMidnight": 754.8802862759956,
+    "endMinutesFromMidnight": 814.8802862759956,
+    "placeId": "geo:osm:relation:2354152",
+    "name": "Basílica de San Francisco",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 5,
+    "travelMode": "walking"
+  },
+  {
+    "dayNumber": 3,
+    "order": 5,
+    "startMinutesFromMidnight": 848.1619160592295,
+    "endMinutesFromMidnight": 908.1619160592295,
+    "placeId": "geo:osm:way:708071953",
+    "name": "Confitería El Molino",
+    "admissionClass": "tourism:attraction",
+    "travelFromPreviousMinutes": 33,
+    "travelMode": "walking"
+  }
+]

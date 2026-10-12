@@ -1,0 +1,92 @@
+{
+ "city": "PA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "greedy-current-walkrule",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "PA:way:54667456"
+ ],
+ "pair_edges": 870,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing PA:way:54667456"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "PA:way:54667456"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0001,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "PA:way:54667456"
+  ]
+ },
+ "scheduled": 2,
+ "desirability": 1.791,
+ "visit_min": 135.0,
+ "travel_min": 11.2,
+ "walk_min": 0.0,
+ "drive_legs": 1,
+ "walk_legs": 0,
+ "idle_min": 0.8,
+ "unknown_hours_scheduled": 2,
+ "objective_test_weights": 1266.7,
+ "day_spread_m": [
+  2123
+ ],
+ "residual_min": [
+  33
+ ],
+ "omitted_top": [
+  "Mus\u00e9e du Louvre",
+  "Cath\u00e9drale Notre-Dame de Paris",
+  "Mus\u00e9e d'Orsay",
+  "Champs \u00c9lys\u00e9es",
+  "Arc de Triomphe",
+  "Pendule de Foucault",
+  "Palais de l'\u00c9lys\u00e9e",
+  "Op\u00e9ra Garnier"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:way:5013364",
+     "title": "Tour Eiffel",
+     "start": 1080,
+     "end": 1125,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:55503397",
+     "title": "Centre Georges Pompidou",
+     "start": 1137,
+     "end": 1227,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 11.2
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

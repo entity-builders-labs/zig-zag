@@ -1,0 +1,272 @@
+[
+ {
+  "city": "BA",
+  "variant": "w8-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 27,
+  "objective_test_weights": 14208.8,
+  "solver_objective": 14210.0,
+  "bound": 15170.0,
+  "wall_s": [
+   7.864,
+   9.514
+  ],
+  "identical_repeats": false,
+  "variables": 2379,
+  "constraints": 2170,
+  "hint_objective": 13647.5
+ },
+ {
+  "city": "BA",
+  "variant": "w8-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 27,
+  "objective_test_weights": 14427.0,
+  "solver_objective": 14428.0,
+  "bound": 15169.0,
+  "wall_s": [
+   45.978,
+   54.827
+  ],
+  "identical_repeats": false,
+  "variables": 2379,
+  "constraints": 2170,
+  "hint_objective": 13647.5
+ },
+ {
+  "city": "BA",
+  "variant": "w1-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 26,
+  "objective_test_weights": 13751.5,
+  "solver_objective": 13753.0,
+  "bound": 15340.0,
+  "wall_s": [
+   8.395,
+   9.32
+  ],
+  "identical_repeats": true,
+  "variables": 2379,
+  "constraints": 2170,
+  "hint_objective": 13647.5
+ },
+ {
+  "city": "BA",
+  "variant": "w1-hint-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 26,
+  "objective_test_weights": 13805.2,
+  "solver_objective": 13805.0,
+  "bound": 15340.0,
+  "wall_s": [
+   34.868,
+   33.846
+  ],
+  "identical_repeats": true,
+  "variables": 2379,
+  "constraints": 2170,
+  "hint_objective": 13647.5
+ },
+ {
+  "city": "BA",
+  "variant": "w8-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 26,
+  "objective_test_weights": 13986.0,
+  "solver_objective": 13987.0,
+  "bound": 15168.0,
+  "wall_s": [
+   8.455,
+   11.328
+  ],
+  "identical_repeats": false,
+  "variables": 2379,
+  "constraints": 2170,
+  "hint_objective": 13647.5
+ },
+ {
+  "city": "PA",
+  "variant": "w8-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 28,
+  "objective_test_weights": 16677.2,
+  "solver_objective": 16677.0,
+  "bound": 18652.0,
+  "wall_s": [
+   8.146,
+   7.145
+  ],
+  "identical_repeats": false,
+  "variables": 2973,
+  "constraints": 2736,
+  "hint_objective": 17405.3
+ },
+ {
+  "city": "PA",
+  "variant": "w8-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 28,
+  "objective_test_weights": 16748.5,
+  "solver_objective": 16748.0,
+  "bound": 18652.0,
+  "wall_s": [
+   42.74,
+   41.918
+  ],
+  "identical_repeats": false,
+  "variables": 2973,
+  "constraints": 2736,
+  "hint_objective": 17405.3
+ },
+ {
+  "city": "PA",
+  "variant": "w1-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 28,
+  "objective_test_weights": 17407.7,
+  "solver_objective": 17407.0,
+  "bound": 18740.0,
+  "wall_s": [
+   9.845,
+   9.613
+  ],
+  "identical_repeats": true,
+  "variables": 2973,
+  "constraints": 2736,
+  "hint_objective": 17405.3
+ },
+ {
+  "city": "PA",
+  "variant": "w1-hint-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 28,
+  "objective_test_weights": 17407.7,
+  "solver_objective": 17407.0,
+  "bound": 18740.0,
+  "wall_s": [
+   38.063,
+   37.147
+  ],
+  "identical_repeats": true,
+  "variables": 2973,
+  "constraints": 2736,
+  "hint_objective": 17405.3
+ },
+ {
+  "city": "PA",
+  "variant": "w8-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 28,
+  "objective_test_weights": 17509.2,
+  "solver_objective": 17509.0,
+  "bound": 18652.0,
+  "wall_s": [
+   7.764,
+   7.187
+  ],
+  "identical_repeats": false,
+  "variables": 2973,
+  "constraints": 2736,
+  "hint_objective": 17405.3
+ },
+ {
+  "city": "LA",
+  "variant": "w8-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 21,
+  "objective_test_weights": 9747.5,
+  "solver_objective": 9748.0,
+  "bound": 12781.0,
+  "wall_s": [
+   9.645,
+   8.815
+  ],
+  "identical_repeats": false,
+  "variables": 2609,
+  "constraints": 2389,
+  "hint_objective": 9823.8
+ },
+ {
+  "city": "LA",
+  "variant": "w8-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 21,
+  "objective_test_weights": 8825.2,
+  "solver_objective": 8826.0,
+  "bound": 12757.0,
+  "wall_s": [
+   49.875,
+   43.028
+  ],
+  "identical_repeats": false,
+  "variables": 2609,
+  "constraints": 2389,
+  "hint_objective": 9823.8
+ },
+ {
+  "city": "LA",
+  "variant": "w1-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 22,
+  "objective_test_weights": 9823.8,
+  "solver_objective": 9824.0,
+  "bound": 14372.0,
+  "wall_s": [
+   5.887,
+   5.969
+  ],
+  "identical_repeats": true,
+  "variables": 2609,
+  "constraints": 2389,
+  "hint_objective": 9823.8
+ },
+ {
+  "city": "LA",
+  "variant": "w1-hint-dt30",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 22,
+  "objective_test_weights": 9823.8,
+  "solver_objective": 9824.0,
+  "bound": 14372.0,
+  "wall_s": [
+   28.491,
+   26.487
+  ],
+  "identical_repeats": true,
+  "variables": 2609,
+  "constraints": 2389,
+  "hint_objective": 9823.8
+ },
+ {
+  "city": "LA",
+  "variant": "w8-hint-dt5",
+  "status": "FEASIBLE",
+  "violations": [],
+  "scheduled": 22,
+  "objective_test_weights": 9823.8,
+  "solver_objective": 9824.0,
+  "bound": 12782.0,
+  "wall_s": [
+   7.682,
+   7.823
+  ],
+  "identical_repeats": false,
+  "variables": 2609,
+  "constraints": 2389,
+  "hint_objective": 9823.8
+ }
+]

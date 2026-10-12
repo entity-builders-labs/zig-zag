@@ -1,0 +1,102 @@
+{
+ "city": "LA",
+ "scenario": "S1-normal-pall",
+ "solver": "cpsat-dt5",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "UNKNOWN",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 3,
+ "identical_repeats": true,
+ "wall_s_median": 6.156,
+ "wall_s_max": 6.649,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 6.154,
+  "solve_s": 6.118,
+  "status": "UNKNOWN",
+  "objective": null,
+  "bound": null,
+  "variables": 2609,
+  "constraints": 2389
+ },
+ "scheduled": 0,
+ "desirability": 0.0,
+ "visit_min": 0.0,
+ "travel_min": 0.0,
+ "walk_min": 0.0,
+ "drive_legs": 0,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 0,
+ "objective_test_weights": 0.0,
+ "day_spread_m": [
+  0,
+  0,
+  0
+ ],
+ "residual_min": [
+  600,
+  600,
+  600
+ ],
+ "omitted_top": [
+  "Walk of Fame",
+  "Hollywood Sign",
+  "The J. Paul Getty Museum",
+  "La Brea Tar Pits",
+  "Griffith Observatory",
+  "Los Angeles County Museum of Art",
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Angels Flight",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art",
+  "1100 Wilshire",
+  "California Science Center",
+  "The Hollywood Museum",
+  "Japanese American National Museum",
+  "Hollywood Wax Museum",
+  "Psychiatry: An Industry of Death Museum",
+  "California African American Museum",
+  "Madame Tussaud's",
+  "Chinese American Museum",
+  "Neutra Studio and Residences (VDL Research House)"
+ ],
+ "readiness": "PLANNER_INFEASIBLE",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": []
+  },
+  {
+   "date": "2026-11-11",
+   "items": []
+  },
+  {
+   "date": "2026-11-12",
+   "items": []
+  }
+ ]
+}

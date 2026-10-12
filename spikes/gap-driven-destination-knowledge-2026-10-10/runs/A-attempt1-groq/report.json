@@ -1,0 +1,1179 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "A",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:03:16.823Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "report": {
+    "initialEpoch": 1,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 2,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      },
+      {
+        "epoch": 3,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      },
+      {
+        "epoch": 4,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ]
+      },
+      {
+        "epoch": 5,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo Soho",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "6bc63ffc530f9eb8",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/where-to-stay-in-buenos-aires-argentina/"
+                  },
+                  "retrievedAt": "2026-10-11T01:03:22.171Z",
+                  "contentFingerprint": "8bdea287ac4e03216f7bec83ee08ffb7b29f8325b630beeb46b79c67932787e7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6971,
+                    "end": 7113,
+                    "text": "By basing yourself here you’ll be next to the city’s best cafes and restaurants as well, making breakfast and dinner near your hotel a breeze."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel_blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel_blog"
+            }
+          ],
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "claim": {
+                "claimType": "RELEVANT_FOR",
+                "subjectMention": "San Telmo"
+              }
+            },
+            {
+              "reason": "CLAIM_TYPE_NOT_PERMITTED",
+              "claim": {
+                "claimType": "NOTABLE_WITHIN",
+                "subjectMention": "Don Julio"
+              }
+            },
+            {
+              "reason": "CLAIM_TYPE_NOT_PERMITTED",
+              "claim": {
+                "claimType": "NOTABLE_WITHIN",
+                "subjectMention": "El Preferido de Palermo"
+              }
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "failure": "llm: Groq error 413: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Requested 8184, please reduce your message size and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo Soho",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "6bc63ffc530f9eb8",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/where-to-stay-in-buenos-aires-argentina/"
+                  },
+                  "retrievedAt": "2026-10-11T01:03:22.171Z",
+                  "contentFingerprint": "8bdea287ac4e03216f7bec83ee08ffb7b29f8325b630beeb46b79c67932787e7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6971,
+                    "end": 7113,
+                    "text": "By basing yourself here you’ll be next to the city’s best cafes and restaurants as well, making breakfast and dinner near your hotel a breeze."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel_blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel_blog"
+            },
+            "reason": "IDENTITY_NOT_FOUND",
+            "detail": "subject: no neighbourhood named \"Palermo Soho\" within the destination"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "2997c4e4c3492fdf",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1134,
+                    "end": 1223,
+                    "text": "San Telmo is one of BA’s oldest neighbourhoods and boasts a vibrant tango and arts scene."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "832d54b987384df3",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 2406,
+                    "end": 2561,
+                    "text": "Recoleta is a wealthy residential area of great historical and architectural interest thanks to its iconic buildings evocative of Parisian ‘petits hôtels’."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d76041754ed62c90",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3786,
+                    "end": 3974,
+                    "text": "Along the canals, former industrial warehouses have been converted into elegant bars, eateries and offices in one of the most successful urban waterfront restoration projects in the world."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "City Centre (San Nicolás & Montserrat)",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "2f12050c073826ef",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4800,
+                    "end": 5081,
+                    "text": "These two neighbourhoods contain Buenos Aires’ financial, political and business centre, often referred to as \"downtown\" or \" microcentro \". Landmarks such as the ‘ obelisco ’ and the beautifully restored Teatro Colón line the busy Avenida de Julio, the widest avenue in the world."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Retiro",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "0ad2d637cbcad3c9",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5597,
+                    "end": 5757,
+                    "text": "Retiro is known principally for the enormous bus and train terminal of the same name, but it also contains high-end hotels, historic palaces and boutique shops."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "La Boca",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "28143a50aa7f3c24",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6612,
+                    "end": 6844,
+                    "text": "Rather like New York’s Lower-East Side or London’s East End, it was traditionally an area where immigrants settled - around 6 million foreign immigrants poured into Argentina between 1880 and 1930, many from Genoa in Northern Italy."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "96e150b92563805b",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 7939,
+                    "end": 8153,
+                    "text": "With nearly 350 acres of parks, lakes and wooded areas - many designed by French landscaper Charles Thays in the 19th century – Palermo’s eastern side is a peaceful retreat from the heady rush of the downtown area."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "2997c4e4c3492fdf",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1134,
+                    "end": 1223,
+                    "text": "San Telmo is one of BA’s oldest neighbourhoods and boasts a vibrant tango and arts scene."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "832d54b987384df3",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 2406,
+                    "end": 2561,
+                    "text": "Recoleta is a wealthy residential area of great historical and architectural interest thanks to its iconic buildings evocative of Parisian ‘petits hôtels’."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "d76041754ed62c90",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3786,
+                    "end": 3974,
+                    "text": "Along the canals, former industrial warehouses have been converted into elegant bars, eateries and offices in one of the most successful urban waterfront restoration projects in the world."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "City Centre (San Nicolás & Montserrat)",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "2f12050c073826ef",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4800,
+                    "end": 5081,
+                    "text": "These two neighbourhoods contain Buenos Aires’ financial, political and business centre, often referred to as \"downtown\" or \" microcentro \". Landmarks such as the ‘ obelisco ’ and the beautifully restored Teatro Colón line the busy Avenida de Julio, the widest avenue in the world."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "IDENTITY_NOT_FOUND",
+            "detail": "subject: no neighbourhood named \"City Centre (San Nicolás & Montserrat)\" within the destination"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Retiro",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "0ad2d637cbcad3c9",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5597,
+                    "end": 5757,
+                    "text": "Retiro is known principally for the enormous bus and train terminal of the same name, but it also contains high-end hotels, historic palaces and boutique shops."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "La Boca",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "28143a50aa7f3c24",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6612,
+                    "end": 6844,
+                    "text": "Rather like New York’s Lower-East Side or London’s East End, it was traditionally an area where immigrants settled - around 6 million foreign immigrants poured into Argentina between 1880 and 1930, many from Genoa in Northern Italy."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "96e150b92563805b",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:04:53.408Z",
+                  "contentFingerprint": "618da5077339fa5707f78736fc604cea18386b440d17252c46412a3bd006afe5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 7939,
+                    "end": 8153,
+                    "text": "With nearly 350 acres of parks, lakes and wooded areas - many designed by French landscaper Charles Thays in the 19th century – Palermo’s eastern side is a peaceful retreat from the heady rush of the downtown area."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "official_tourism",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "official_tourism"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Florida Street",
+              "areaMention": "Buenos Aires",
+              "fromMention": "Lavalle y Florida",
+              "toMention": "Plaza de Mayo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "40fc75c677f2e2df",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:06:27.990Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6849,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street. Take a right down Florida and walk towards Plaza de Mayo."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Calle Florida",
+              "areaMention": "Buenos Aires",
+              "fromMention": "Lavalle y Florida",
+              "toMention": "Plaza de Mayo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "40fc75c677f2e2df",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:06:27.990Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6849,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street. Take a right down Florida and walk towards Plaza de Mayo."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Florida Street",
+              "areaMention": "Buenos Aires",
+              "fromMention": "Lavalle y Florida",
+              "toMention": "Plaza de Mayo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "40fc75c677f2e2df",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:06:27.990Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6849,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street. Take a right down Florida and walk towards Plaza de Mayo."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+            "detail": "evidence states neither both endpoints nor an area"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Calle Florida",
+              "areaMention": "Buenos Aires",
+              "fromMention": "Lavalle y Florida",
+              "toMention": "Plaza de Mayo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "40fc75c677f2e2df",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:06:27.990Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6849,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street. Take a right down Florida and walk towards Plaza de Mayo."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+            "detail": "evidence states neither both endpoints nor an area"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "a6fa95f55d58e918",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://careergappers.com/san-telmo-buenos-aires/"
+                  },
+                  "retrievedAt": "2026-10-11T01:09:18.819Z",
+                  "contentFingerprint": "11d09f5244c558aeb614a288f3ba0b172fc5ca9ccf7c7c4603a4b5b4ee6d001e",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1307,
+                    "end": 1425,
+                    "text": "San Telmo is the oldest neighbourhood of Buenos Aires, full of historic charm, cobbled streets and crumbling mansions."
+                  },
+                  "registrableDomain": "careergappers.com",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                },
+                {
+                  "id": "089f903df6e17f21",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/san-telmo-market"
+                  },
+                  "retrievedAt": "2026-10-11T01:08:40.079Z",
+                  "contentFingerprint": "59b7e18121b6418098cc64cfcfc31ceb432114e124267fc16df0737f21aeead7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3334,
+                    "end": 3457,
+                    "text": "San Telmo Market was declared a national historic monument by Buenos Aires City's Secretariat for Culture in the year 2000."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            }
+          ],
+          "discarded": [
+            {
+              "reason": "CLAIM_TYPE_NOT_PERMITTED",
+              "claim": {
+                "claimType": "NOTABLE_WITHIN",
+                "subjectMention": "Mercado de San Telmo"
+              }
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 4,
+          "failure": "llm: Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1070. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+        },
+        "grounding": [
+          {
+            "status": "FAILED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "a6fa95f55d58e918",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://careergappers.com/san-telmo-buenos-aires/"
+                  },
+                  "retrievedAt": "2026-10-11T01:09:18.819Z",
+                  "contentFingerprint": "11d09f5244c558aeb614a288f3ba0b172fc5ca9ccf7c7c4603a4b5b4ee6d001e",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1307,
+                    "end": 1425,
+                    "text": "San Telmo is the oldest neighbourhood of Buenos Aires, full of historic charm, cobbled streets and crumbling mansions."
+                  },
+                  "registrableDomain": "careergappers.com",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                },
+                {
+                  "id": "089f903df6e17f21",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/san-telmo-market"
+                  },
+                  "retrievedAt": "2026-10-11T01:08:40.079Z",
+                  "contentFingerprint": "59b7e18121b6418098cc64cfcfc31ceb432114e124267fc16df0737f21aeead7",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3334,
+                    "end": 3457,
+                    "text": "San Telmo Market was declared a national historic monument by Buenos Aires City's Secretariat for Culture in the year 2000."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "VERIFIER_UNAVAILABLE",
+            "detail": "Groq error 429: {\"error\":{\"message\":\"Request too large for model `qwen/qwen3.8-27b` in organization `org_01kwpqyk3yetvbfwgdqq0b7wag` service tier `on_demand` on output tokens per minute (OTPM): Limit 1000, Requested 1070. The request's expected output tokens exceed the enforced limit; reduce max_tokens (or the request's expected output) and try again. Need more tokens? Upgrade to Dev Tier today at https://console.groq.com/settings/billing\",\"type\":\"tokens\",\"code\":\"rate_limit_exceeded\"}}\n"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "FAILED",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 3,
+            "fetches": 3
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      }
+    ],
+    "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+    "remainingGapKeys": [
+      "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+    ],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 3
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:03:17.409Z"
+        }
+      }
+    ],
+    "finalEpoch": 5,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 4,
+          "thematicFacets": [
+            "theme:food",
+            "theme:history"
+          ],
+          "experienceFormatFacets": [
+            "intent:walk"
+          ],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 5,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 4,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

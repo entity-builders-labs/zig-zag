@@ -1,0 +1,56 @@
+{
+ "pedestrian:20": {
+  "requests": 20,
+  "p50_ms": 88,
+  "sequential_total_s": 2.17,
+  "parallel8_total_s": 0.2
+ },
+ "pedestrian:30": {
+  "requests": 30,
+  "p50_ms": 41,
+  "sequential_total_s": 1.31,
+  "parallel8_total_s": 0.33
+ },
+ "pedestrian:45": {
+  "requests": 45,
+  "p50_ms": 26,
+  "sequential_total_s": 1.64,
+  "parallel8_total_s": 0.28
+ },
+ "auto:20": {
+  "requests": 20,
+  "p50_ms": 98,
+  "sequential_total_s": 1.99,
+  "parallel8_total_s": 0.64
+ },
+ "auto:30": {
+  "requests": 30,
+  "p50_ms": 29,
+  "sequential_total_s": 1.3,
+  "parallel8_total_s": 0.25
+ },
+ "auto:45": {
+  "requests": 45,
+  "p50_ms": 22,
+  "sequential_total_s": 1.54,
+  "parallel8_total_s": 0.46
+ },
+ "bicycle:20": {
+  "requests": 20,
+  "p50_ms": 18,
+  "sequential_total_s": 0.55,
+  "parallel8_total_s": 0.11
+ },
+ "bicycle:30": {
+  "requests": 30,
+  "p50_ms": 16,
+  "sequential_total_s": 0.55,
+  "parallel8_total_s": 0.11
+ },
+ "bicycle:45": {
+  "requests": 45,
+  "p50_ms": 14,
+  "sequential_total_s": 0.78,
+  "parallel8_total_s": 0.19
+ }
+}

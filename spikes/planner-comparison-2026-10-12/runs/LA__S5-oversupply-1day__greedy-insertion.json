@@ -1,0 +1,148 @@
+{
+ "city": "LA",
+ "scenario": "S5-oversupply-1day",
+ "solver": "greedy-insertion",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.005,
+ "wall_s_max": 0.005,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0055,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 8,
+ "desirability": 6.236,
+ "visit_min": 495.0,
+ "travel_min": 58.9,
+ "walk_min": 12.9,
+ "drive_legs": 5,
+ "walk_legs": 2,
+ "idle_min": 4.1,
+ "unknown_hours_scheduled": 4,
+ "objective_test_weights": 4286.7,
+ "day_spread_m": [
+  4365
+ ],
+ "residual_min": [
+  42
+ ],
+ "omitted_top": [
+  "The J. Paul Getty Museum",
+  "Museum of Contemporary Art",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:322957598",
+     "title": "Angels Flight",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:150968103",
+     "title": "Koreatown",
+     "start": 594,
+     "end": 639,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 647,
+     "end": 737,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.0
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 746,
+     "end": 791,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 796,
+     "end": 886,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 895,
+     "end": 940,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.5
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 949,
+     "end": 994,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 1008,
+     "end": 1098,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 13.4
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

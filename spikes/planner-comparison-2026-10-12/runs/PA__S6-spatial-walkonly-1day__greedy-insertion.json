@@ -1,0 +1,163 @@
+{
+ "city": "PA",
+ "scenario": "S6-spatial-walkonly-1day",
+ "solver": "greedy-insertion",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 271,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.003,
+ "wall_s_max": 0.003,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.003,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 8,
+ "desirability": 6.49,
+ "visit_min": 495.0,
+ "travel_min": 60.7,
+ "walk_min": 60.7,
+ "drive_legs": 0,
+ "walk_legs": 7,
+ "idle_min": 2.3,
+ "unknown_hours_scheduled": 5,
+ "objective_test_weights": 5384.2,
+ "day_spread_m": [
+  608
+ ],
+ "residual_min": [
+  42
+ ],
+ "omitted_top": [
+  "Tour Eiffel",
+  "Champs \u00c9lys\u00e9es",
+  "Arc de Triomphe",
+  "Pendule de Foucault",
+  "Palais de l'\u00c9lys\u00e9e",
+  "Op\u00e9ra Garnier",
+  "Centre Georges Pompidou",
+  "Place de la Concorde",
+  "Panth\u00e9on",
+  "Assembl\u00e9e nationale",
+  "H\u00f4tel des Invalides",
+  "Champ de Mars",
+  "Universit\u00e9 Paris 1 Panth\u00e9on-Sorbonne - Centre Sorbonne",
+  "Mus\u00e9e des Arts et M\u00e9tiers",
+  "Jardin du Luxembourg",
+  "Grand Palais",
+  "Petit Palais, Mus\u00e9e des beaux-arts de la Ville de Paris",
+  "\u00c9glise de la Madeleine",
+  "Pont Neuf",
+  "Place Vend\u00f4me",
+  "Mus\u00e9um national d'histoire naturelle",
+  "Mus\u00e9e d'Art Moderne de Paris"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:way:63178753",
+     "title": "Mus\u00e9e d'Orsay",
+     "start": 570,
+     "end": 660,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:way:227483542",
+     "title": "Arc de Triomphe du Carrousel",
+     "start": 673,
+     "end": 718,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 12.5
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:375076234",
+     "title": "Pyramide du Louvre",
+     "start": 722,
+     "end": 767,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 3.8
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:7515426",
+     "title": "Mus\u00e9e du Louvre",
+     "start": 767,
+     "end": 857,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 0.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:relation:3300400",
+     "title": "Palais Royal",
+     "start": 867,
+     "end": 912,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.7
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:node:910390736",
+     "title": "Conciergerie",
+     "start": 935,
+     "end": 1025,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 22.6
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:relation:3344870",
+     "title": "Sainte-Chapelle",
+     "start": 1028,
+     "end": 1073,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.5
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "PA:way:201611261",
+     "title": "Cath\u00e9drale Notre-Dame de Paris",
+     "start": 1083,
+     "end": 1128,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 9.7
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

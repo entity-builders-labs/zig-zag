@@ -1,0 +1,134 @@
+{
+ "city": "LA",
+ "scenario": "S5-oversupply-1day",
+ "solver": "greedy-current-costmodes",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(cost)",
+  "wall_s": 0.0001,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 7,
+ "desirability": 5.806,
+ "visit_min": 450.0,
+ "travel_min": 83.6,
+ "walk_min": 4.3,
+ "drive_legs": 5,
+ "walk_legs": 1,
+ "idle_min": 3.4,
+ "unknown_hours_scheduled": 4,
+ "objective_test_weights": 3277.2,
+ "day_spread_m": [
+  6899
+ ],
+ "residual_min": [
+  63
+ ],
+ "omitted_top": [
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "The Playboy Mansion"
+ ],
+ "readiness": "PLANNER_LIMITED",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 594,
+     "end": 639,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 648,
+     "end": 693,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.4
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 698,
+     "end": 788,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 805,
+     "end": 895,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 16.4
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:22728853",
+     "title": "Santa Monica Pier",
+     "start": 910,
+     "end": 955,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 14.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422130705",
+     "title": "Griffith Observatory",
+     "start": 987,
+     "end": 1077,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 31.9
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

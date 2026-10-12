@@ -1,0 +1,674 @@
+[
+ {
+  "modes": 2,
+  "pool": 10,
+  "tours": 100,
+  "elems_full": 26400,
+  "elems_knn": 26000,
+  "mapbox_full": 0,
+  "mapbox_knn": 0,
+  "google_full": 82,
+  "google_knn": 80,
+  "geo_credits_full": 24000,
+  "geo_credits_knn": 24000,
+  "geo_full": [
+   0,
+   "3,000/day plan"
+  ],
+  "geo_knn": [
+   0,
+   "3,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 10,
+  "tours": 1000,
+  "elems_full": 264000,
+  "elems_knn": 260000,
+  "mapbox_full": 328,
+  "mapbox_knn": 320,
+  "google_full": 1270,
+  "google_knn": 1250,
+  "geo_credits_full": 240000,
+  "geo_credits_knn": 240000,
+  "geo_full": [
+   59,
+   "10,000/day plan"
+  ],
+  "geo_knn": [
+   59,
+   "10,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 10,
+  "tours": 10000,
+  "elems_full": 2640000,
+  "elems_knn": 2600000,
+  "mapbox_full": 3568,
+  "mapbox_knn": 3520,
+  "google_full": 13150,
+  "google_knn": 12950,
+  "geo_credits_full": 2400000,
+  "geo_credits_knn": 2400000,
+  "geo_full": [
+   299,
+   "100,000/day plan"
+  ],
+  "geo_knn": [
+   299,
+   "100,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 10,
+  "tours": 100000,
+  "elems_full": 26400000,
+  "elems_knn": 26000000,
+  "mapbox_full": 32080,
+  "mapbox_knn": 31600,
+  "google_full": 131950,
+  "google_knn": 129950,
+  "geo_credits_full": 24000000,
+  "geo_credits_knn": 24000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 20,
+  "tours": 100,
+  "elems_full": 92400,
+  "elems_knn": 56000,
+  "mapbox_full": 0,
+  "mapbox_knn": 0,
+  "google_full": 412,
+  "google_knn": 230,
+  "geo_credits_full": 44000,
+  "geo_credits_knn": 44000,
+  "geo_full": [
+   0,
+   "3,000/day plan"
+  ],
+  "geo_knn": [
+   0,
+   "3,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 20,
+  "tours": 1000,
+  "elems_full": 924000,
+  "elems_knn": 560000,
+  "mapbox_full": 1478,
+  "mapbox_knn": 896,
+  "google_full": 4570,
+  "google_knn": 2750,
+  "geo_credits_full": 440000,
+  "geo_credits_knn": 440000,
+  "geo_full": [
+   109,
+   "25,000/day plan"
+  ],
+  "geo_knn": [
+   109,
+   "25,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 20,
+  "tours": 10000,
+  "elems_full": 9240000,
+  "elems_knn": 5600000,
+  "mapbox_full": 11488,
+  "mapbox_knn": 7120,
+  "google_full": 46150,
+  "google_knn": 27950,
+  "geo_credits_full": 4400000,
+  "geo_credits_knn": 4400000,
+  "geo_full": [
+   609,
+   "250,000/day plan"
+  ],
+  "geo_knn": [
+   609,
+   "250,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 20,
+  "tours": 100000,
+  "elems_full": 92400000,
+  "elems_knn": 56000000,
+  "mapbox_full": 111280,
+  "mapbox_knn": 67600,
+  "google_full": 461950,
+  "google_knn": 279950,
+  "geo_credits_full": 44000000,
+  "geo_credits_knn": 44000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 30,
+  "tours": 100,
+  "elems_full": 198400,
+  "elems_knn": 84000,
+  "mapbox_full": 197,
+  "mapbox_knn": 0,
+  "google_full": 942,
+  "google_knn": 370,
+  "geo_credits_full": 74600,
+  "geo_credits_knn": 64000,
+  "geo_full": [
+   0,
+   "3,000/day plan"
+  ],
+  "geo_knn": [
+   0,
+   "3,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 30,
+  "tours": 1000,
+  "elems_full": 1984000,
+  "elems_knn": 840000,
+  "mapbox_full": 2781,
+  "mapbox_knn": 1344,
+  "google_full": 9870,
+  "google_knn": 4150,
+  "geo_credits_full": 746000,
+  "geo_credits_knn": 640000,
+  "geo_full": [
+   109,
+   "25,000/day plan"
+  ],
+  "geo_knn": [
+   109,
+   "25,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 30,
+  "tours": 10000,
+  "elems_full": 19840000,
+  "elems_knn": 8400000,
+  "mapbox_full": 24208,
+  "mapbox_knn": 10480,
+  "google_full": 99150,
+  "google_knn": 41950,
+  "geo_credits_full": 7460000,
+  "geo_credits_knn": 6400000,
+  "geo_full": [
+   609,
+   "250,000/day plan"
+  ],
+  "geo_knn": [
+   609,
+   "250,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 30,
+  "tours": 100000,
+  "elems_full": 198400000,
+  "elems_knn": 84000000,
+  "mapbox_full": 238480,
+  "mapbox_knn": 101200,
+  "google_full": 991950,
+  "google_knn": 419950,
+  "geo_credits_full": 74600000,
+  "geo_credits_knn": 64000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 50,
+  "tours": 100,
+  "elems_full": 530400,
+  "elems_knn": 140000,
+  "mapbox_full": 849,
+  "mapbox_knn": 80,
+  "google_full": 2602,
+  "google_knn": 650,
+  "geo_credits_full": 208000,
+  "geo_credits_knn": 104000,
+  "geo_full": [
+   59,
+   "10,000/day plan"
+  ],
+  "geo_knn": [
+   59,
+   "10,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 50,
+  "tours": 1000,
+  "elems_full": 5304000,
+  "elems_knn": 1400000,
+  "mapbox_full": 6765,
+  "mapbox_knn": 2080,
+  "google_full": 26470,
+  "google_knn": 6950,
+  "geo_credits_full": 2080000,
+  "geo_credits_knn": 1040000,
+  "geo_full": [
+   299,
+   "100,000/day plan"
+  ],
+  "geo_knn": [
+   179,
+   "50,000/day plan"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 50,
+  "tours": 10000,
+  "elems_full": 53040000,
+  "elems_knn": 14000000,
+  "mapbox_full": 64048,
+  "mapbox_knn": 17200,
+  "google_full": 265150,
+  "google_knn": 69950,
+  "geo_credits_full": 20800000,
+  "geo_credits_knn": 10400000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 2,
+  "pool": 50,
+  "tours": 100000,
+  "elems_full": 530400000,
+  "elems_knn": 140000000,
+  "mapbox_full": 636880,
+  "mapbox_knn": 168400,
+  "google_full": 2651950,
+  "google_knn": 699950,
+  "geo_credits_full": 208000000,
+  "geo_credits_knn": 104000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 10,
+  "tours": 100,
+  "elems_full": 39600,
+  "elems_knn": 39000,
+  "mapbox_full": 0,
+  "mapbox_knn": 0,
+  "google_full": 148,
+  "google_knn": 145,
+  "geo_credits_full": 36000,
+  "geo_credits_knn": 36000,
+  "geo_full": [
+   0,
+   "3,000/day plan"
+  ],
+  "geo_knn": [
+   0,
+   "3,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 10,
+  "tours": 1000,
+  "elems_full": 396000,
+  "elems_knn": 390000,
+  "mapbox_full": 592,
+  "mapbox_knn": 580,
+  "google_full": 1930,
+  "google_knn": 1900,
+  "geo_credits_full": 360000,
+  "geo_credits_knn": 360000,
+  "geo_full": [
+   109,
+   "25,000/day plan"
+  ],
+  "geo_knn": [
+   109,
+   "25,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 10,
+  "tours": 10000,
+  "elems_full": 3960000,
+  "elems_knn": 3900000,
+  "mapbox_full": 5152,
+  "mapbox_knn": 5080,
+  "google_full": 19750,
+  "google_knn": 19450,
+  "geo_credits_full": 3600000,
+  "geo_credits_knn": 3600000,
+  "geo_full": [
+   609,
+   "250,000/day plan"
+  ],
+  "geo_knn": [
+   609,
+   "250,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 10,
+  "tours": 100000,
+  "elems_full": 39600000,
+  "elems_knn": 39000000,
+  "mapbox_full": 47920,
+  "mapbox_knn": 47200,
+  "google_full": 197950,
+  "google_knn": 194950,
+  "geo_credits_full": 36000000,
+  "geo_credits_knn": 36000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 20,
+  "tours": 100,
+  "elems_full": 138600,
+  "elems_knn": 84000,
+  "mapbox_full": 77,
+  "mapbox_knn": 0,
+  "google_full": 643,
+  "google_knn": 370,
+  "geo_credits_full": 66000,
+  "geo_credits_knn": 66000,
+  "geo_full": [
+   0,
+   "3,000/day plan"
+  ],
+  "geo_knn": [
+   0,
+   "3,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 20,
+  "tours": 1000,
+  "elems_full": 1386000,
+  "elems_knn": 840000,
+  "mapbox_full": 2063,
+  "mapbox_knn": 1344,
+  "google_full": 6880,
+  "google_knn": 4150,
+  "geo_credits_full": 660000,
+  "geo_credits_knn": 660000,
+  "geo_full": [
+   109,
+   "25,000/day plan"
+  ],
+  "geo_knn": [
+   109,
+   "25,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 20,
+  "tours": 10000,
+  "elems_full": 13860000,
+  "elems_knn": 8400000,
+  "mapbox_full": 17032,
+  "mapbox_knn": 10480,
+  "google_full": 69250,
+  "google_knn": 41950,
+  "geo_credits_full": 6600000,
+  "geo_credits_knn": 6600000,
+  "geo_full": [
+   609,
+   "250,000/day plan"
+  ],
+  "geo_knn": [
+   609,
+   "250,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 20,
+  "tours": 100000,
+  "elems_full": 138600000,
+  "elems_knn": 84000000,
+  "mapbox_full": 166720,
+  "mapbox_knn": 101200,
+  "google_full": 692950,
+  "google_knn": 419950,
+  "geo_credits_full": 66000000,
+  "geo_credits_knn": 66000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 30,
+  "tours": 100,
+  "elems_full": 297600,
+  "elems_knn": 126000,
+  "mapbox_full": 395,
+  "mapbox_knn": 52,
+  "google_full": 1438,
+  "google_knn": 580,
+  "geo_credits_full": 111900,
+  "geo_credits_knn": 96000,
+  "geo_full": [
+   59,
+   "10,000/day plan"
+  ],
+  "geo_knn": [
+   59,
+   "10,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 30,
+  "tours": 1000,
+  "elems_full": 2976000,
+  "elems_knn": 1260000,
+  "mapbox_full": 3971,
+  "mapbox_knn": 1912,
+  "google_full": 14830,
+  "google_knn": 6250,
+  "geo_credits_full": 1119000,
+  "geo_credits_knn": 960000,
+  "geo_full": [
+   179,
+   "50,000/day plan"
+  ],
+  "geo_knn": [
+   179,
+   "50,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 30,
+  "tours": 10000,
+  "elems_full": 29760000,
+  "elems_knn": 12600000,
+  "mapbox_full": 36112,
+  "mapbox_knn": 15520,
+  "google_full": 148750,
+  "google_knn": 62950,
+  "geo_credits_full": 11190000,
+  "geo_credits_knn": 9600000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 30,
+  "tours": 100000,
+  "elems_full": 297600000,
+  "elems_knn": 126000000,
+  "mapbox_full": 357520,
+  "mapbox_knn": 151600,
+  "google_full": 1487950,
+  "google_knn": 629950,
+  "geo_credits_full": 111900000,
+  "geo_credits_knn": 96000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 50,
+  "tours": 100,
+  "elems_full": 795600,
+  "elems_knn": 210000,
+  "mapbox_full": 1273,
+  "mapbox_knn": 220,
+  "google_full": 3928,
+  "google_knn": 1000,
+  "geo_credits_full": 312000,
+  "geo_credits_knn": 156000,
+  "geo_full": [
+   109,
+   "25,000/day plan"
+  ],
+  "geo_knn": [
+   59,
+   "10,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 50,
+  "tours": 1000,
+  "elems_full": 7956000,
+  "elems_knn": 2100000,
+  "mapbox_full": 9947,
+  "mapbox_knn": 2920,
+  "google_full": 39730,
+  "google_knn": 10450,
+  "geo_credits_full": 3120000,
+  "geo_credits_knn": 1560000,
+  "geo_full": [
+   609,
+   "250,000/day plan"
+  ],
+  "geo_knn": [
+   299,
+   "100,000/day plan"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 50,
+  "tours": 10000,
+  "elems_full": 79560000,
+  "elems_knn": 21000000,
+  "mapbox_full": 95872,
+  "mapbox_knn": 25600,
+  "google_full": 397750,
+  "google_knn": 104950,
+  "geo_credits_full": 31200000,
+  "geo_credits_knn": 15600000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ },
+ {
+  "modes": 3,
+  "pool": 50,
+  "tours": 100000,
+  "elems_full": 795600000,
+  "elems_knn": 210000000,
+  "mapbox_full": 955120,
+  "mapbox_knn": 252400,
+  "google_full": 3977950,
+  "google_knn": 1049950,
+  "geo_credits_full": 312000000,
+  "geo_credits_knn": 156000000,
+  "geo_full": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ],
+  "geo_knn": [
+   null,
+   "Custom (unmetered, from $860/mo, quote)"
+  ]
+ }
+]

@@ -1,0 +1,306 @@
+{
+ "city": "LA",
+ "scenario": "S1-normal-pall",
+ "solver": "cpsat-dt30",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "FEASIBLE",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 27.319,
+ "wall_s_max": 27.319,
+ "solver_meta": {
+  "solver": "cp-sat(dt=30,seed=7,workers=1)",
+  "wall_s": 27.318,
+  "solve_s": 27.273,
+  "status": "FEASIBLE",
+  "objective": 7963.0,
+  "bound": 14372.0,
+  "variables": 2609,
+  "constraints": 2389
+ },
+ "scheduled": 21,
+ "desirability": 12.932,
+ "visit_min": 1575.0,
+ "travel_min": 143.3,
+ "walk_min": 39.9,
+ "drive_legs": 10,
+ "walk_legs": 8,
+ "idle_min": 8.7,
+ "unknown_hours_scheduled": 15,
+ "objective_test_weights": 7963.8,
+ "day_spread_m": [
+  9031,
+  1647,
+  3289
+ ],
+ "residual_min": [
+  33,
+  22,
+  18
+ ],
+ "omitted_top": [
+  "The J. Paul Getty Museum",
+  "Griffith Observatory",
+  "Museum of Contemporary Art",
+  "Angels Flight",
+  "The Broad Museum",
+  "Grammy Museum",
+  "California Science Center",
+  "California African American Museum",
+  "Chinese American Museum"
+ ],
+ "readiness": "READY",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:419961190",
+     "title": "Neutra Studio and Residences (VDL Research House)",
+     "start": 540,
+     "end": 630,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:relation:6363655",
+     "title": "Japanese American National Museum",
+     "start": 639,
+     "end": 729,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:22728853",
+     "title": "Santa Monica Pier",
+     "start": 752,
+     "end": 797,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 23.0
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:relation:6317798",
+     "title": "Hammer Museum",
+     "start": 811,
+     "end": 901,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 13.2
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:407373025",
+     "title": "Natural History Museum of Los Angeles County",
+     "start": 919,
+     "end": 1009,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 17.9
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:relation:21400392",
+     "title": "Lucas Museum of Narrative Art",
+     "start": 1017,
+     "end": 1107,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 7.0
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:424105889",
+     "title": "Madame Tussaud's",
+     "start": 594,
+     "end": 684,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 8.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 687,
+     "end": 732,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.2
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:3861449031",
+     "title": "Hollywood Wax Museum",
+     "start": 735,
+     "end": 825,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.9
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:423448326",
+     "title": "The Hollywood Museum",
+     "start": 829,
+     "end": 919,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 3.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:9703886758",
+     "title": "Psychiatry: An Industry of Death Museum",
+     "start": 930,
+     "end": 1020,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 10.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:relation:6246565",
+     "title": "Hollyhock House",
+     "start": 1028,
+     "end": 1118,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.5
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:node:4773740642",
+     "title": "1100 Wilshire",
+     "start": 540,
+     "end": 585,
+     "incoming": null,
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:150968103",
+     "title": "Koreatown",
+     "start": 591,
+     "end": 636,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.6
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:node:369164732",
+     "title": "La Brea Tar Pits",
+     "start": 642,
+     "end": 687,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.9
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:358731585",
+     "title": "Los Angeles County Museum of Art",
+     "start": 692,
+     "end": 782,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 4.3
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:913293590",
+     "title": "Academy Museum of Motion Pictures",
+     "start": 789,
+     "end": 879,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 6.5
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:913343446",
+     "title": "Petersen Automotive Museum",
+     "start": 882,
+     "end": 972,
+     "incoming": {
+      "mode": "walk",
+      "minutes": 2.8
+     },
+     "uncertain_hours": false
+    },
+    {
+     "id": "LA:way:386067421",
+     "title": "Museum of Tolerance",
+     "start": 979,
+     "end": 1069,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 6.3
+     },
+     "uncertain_hours": true
+    },
+    {
+     "id": "LA:way:422524239",
+     "title": "The Playboy Mansion",
+     "start": 1077,
+     "end": 1122,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 7.3
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

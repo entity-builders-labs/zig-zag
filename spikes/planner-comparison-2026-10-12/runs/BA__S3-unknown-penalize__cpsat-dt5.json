@@ -1,0 +1,101 @@
+{
+ "city": "BA",
+ "scenario": "S3-unknown-penalize",
+ "solver": "cpsat-dt5",
+ "pool": 29,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 812,
+ "status": "UNKNOWN",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 6.468,
+ "wall_s_max": 6.468,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 6.463,
+  "solve_s": 6.433,
+  "status": "UNKNOWN",
+  "objective": null,
+  "bound": null,
+  "variables": 2379,
+  "constraints": 2170
+ },
+ "scheduled": 0,
+ "desirability": 0.0,
+ "visit_min": 0.0,
+ "travel_min": 0.0,
+ "walk_min": 0.0,
+ "drive_legs": 0,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 0,
+ "objective_test_weights": 0.0,
+ "day_spread_m": [
+  0,
+  0,
+  0
+ ],
+ "residual_min": [
+  600,
+  600,
+  600
+ ],
+ "omitted_top": [
+  "Teatro Col\u00f3n",
+  "Palacio Barolo",
+  "Edificio Kavanagh",
+  "Buque Museo Corbeta A.R.A. Uruguay",
+  "Puente Transbordador Nicol\u00e1s Avellaneda",
+  "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+  "Bas\u00edlica de San Francisco",
+  "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+  "Plaza Dorrego",
+  "Confiter\u00eda El Molino",
+  "Manzana de las Luces",
+  "Museo Mitre",
+  "Instituto Sanmartiniano",
+  "Museo Fotogr\u00e1fico Simik",
+  "Club Espa\u00f1ol",
+  "Museo Casa Rosada",
+  "Museo Sitio de Memoria ESMA",
+  "El Hipop\u00f3tamo",
+  "Biblioteca Nacional Mariano Moreno",
+  "Museo Criollo de los Corrales",
+  "Casa Museo Bernardo Houssay",
+  "Obelisco",
+  "Cementerio de la Recoleta",
+  "Jard\u00edn Bot\u00e1nico Carlos Thays",
+  "Torre de los Ingleses",
+  "Espacio Memoria y Derechos Humanos",
+  "Columna del Foro Romano",
+  "El Zanj\u00f3n de Granados (historic ruins)",
+  "Catedral Metropolitana"
+ ],
+ "readiness": "PLANNER_INFEASIBLE",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": []
+  },
+  {
+   "date": "2026-11-11",
+   "items": []
+  },
+  {
+   "date": "2026-11-12",
+   "items": []
+  }
+ ]
+}

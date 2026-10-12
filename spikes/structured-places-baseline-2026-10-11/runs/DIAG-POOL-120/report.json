@@ -1,0 +1,4247 @@
+{
+  "header": {
+    "spike": "structured-places-baseline-2026-10-11",
+    "run": "DIAG-POOL-120",
+    "mode": "replay",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T04:30:18.524Z",
+    "admissionPolicy": "admission-spike3-1",
+    "rankingPolicy": "ranking-spike3-1",
+    "readinessPolicy": "readiness-spike3-1",
+    "routingPolicy": "routing-spike3-1",
+    "compositionPolicy": "composition-spike-1"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 3,
+    "thematicFacets": [],
+    "experienceFormatFacets": [],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "catalogBefore": {
+    "places": 0,
+    "experiences": []
+  },
+  "experiencesAfter": 2571,
+  "report": {
+    "readinessChecks": [
+      {
+        "verdict": "NEEDS_ACQUISITION",
+        "admittedPlaceVisits": 0,
+        "coreGaps": [
+          "PLACE_CANDIDATES|scope=geo:osm:relation:1224652"
+        ],
+        "productSemanticGaps": [],
+        "enrichmentGaps": []
+      },
+      {
+        "verdict": "INSUFFICIENT_KNOWLEDGE",
+        "admittedPlaceVisits": 2571,
+        "evidence": "structured providers exhausted with 2571 admitted PLACE_VISITs; residual days: 1,2,3",
+        "coreGaps": [],
+        "productSemanticGaps": [],
+        "enrichmentGaps": [],
+        "residual": [
+          {
+            "dayNumber": 1,
+            "availableMinutes": 297.3143974217338,
+            "meaningful": true
+          },
+          {
+            "dayNumber": 2,
+            "availableMinutes": 220.2082350336866,
+            "meaningful": true
+          },
+          {
+            "dayNumber": 3,
+            "availableMinutes": 291.8380839407705,
+            "meaningful": true
+          }
+        ]
+      }
+    ],
+    "stages": [
+      {
+        "stage": "PLACE_CANDIDATES",
+        "route": [
+          "osm-pois-destination",
+          "wikidata-place-facts"
+        ],
+        "providerCallsDelta": {
+          "overpass": 1,
+          "wikidata": 21
+        },
+        "discovery": {
+          "status": "SUCCESS",
+          "raw": 2712,
+          "canonical": 2699,
+          "collapses": [
+            {
+              "kept": "osm:way:293947112",
+              "dropped": "osm:node:767690911",
+              "basis": "wikidata:Q1024829"
+            },
+            {
+              "kept": "osm:node:4538872748",
+              "dropped": "osm:node:12196390177",
+              "basis": "wikidata:Q111694361"
+            },
+            {
+              "kept": "osm:way:135234943",
+              "dropped": "osm:node:6049608099",
+              "basis": "wikidata:Q1269826"
+            },
+            {
+              "kept": "osm:way:205997365",
+              "dropped": "osm:way:205997366",
+              "basis": "wikidata:Q28501895"
+            },
+            {
+              "kept": "osm:way:449621610",
+              "dropped": "osm:way:449621622",
+              "basis": "wikidata:Q3149120"
+            },
+            {
+              "kept": "osm:relation:2354152",
+              "dropped": "osm:way:321205687",
+              "basis": "wikidata:Q4579815"
+            },
+            {
+              "kept": "osm:relation:17076041",
+              "dropped": "osm:way:720034722",
+              "basis": "wikidata:Q5384418"
+            },
+            {
+              "kept": "osm:way:10241456",
+              "dropped": "osm:way:20458525",
+              "basis": "wikidata:Q5719936"
+            },
+            {
+              "kept": "osm:way:10241456",
+              "dropped": "osm:way:20458526",
+              "basis": "wikidata:Q5719936"
+            },
+            {
+              "kept": "osm:way:456246525",
+              "dropped": "osm:node:6046335622",
+              "basis": "wikidata:Q5772461"
+            },
+            {
+              "kept": "osm:node:6052717164",
+              "dropped": "osm:node:6052740665",
+              "basis": "wikidata:Q5835236"
+            },
+            {
+              "kept": "osm:node:6045956890",
+              "dropped": "osm:node:6046335618",
+              "basis": "wikidata:Q5982348"
+            },
+            {
+              "kept": "osm:node:5850576502",
+              "dropped": "osm:node:6439772343",
+              "basis": "wikidata:Q64764396"
+            }
+          ],
+          "admitted": 2571,
+          "rejectedByReason": {
+            "DUPLICATE_OF": 13,
+            "EXCLUDED_CATEGORY": 128
+          },
+          "wikidataQids": 804,
+          "wikidataStatus": "SUCCESS"
+        },
+        "composition": {
+          "created": 2571,
+          "revised": 0,
+          "unchanged": 0,
+          "archived": 0
+        }
+      },
+      {
+        "stage": "PLANNER",
+        "providerCallsDelta": {}
+      }
+    ],
+    "finalVerdict": "INSUFFICIENT_KNOWLEDGE",
+    "ranking": {
+      "policyVersion": "ranking-spike3-1",
+      "ranked": 2571,
+      "selected": [
+        {
+          "placeId": "geo:osm:way:23633911",
+          "name": "Teatro Colón",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 36
+        },
+        {
+          "placeId": "geo:osm:way:1386044833",
+          "name": "Palacio Barolo",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 29
+        },
+        {
+          "placeId": "geo:osm:way:102440659",
+          "name": "Edificio Kavanagh",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 17
+        },
+        {
+          "placeId": "geo:osm:way:173065616",
+          "name": "Buque Museo Corbeta A.R.A. Uruguay",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 11
+        },
+        {
+          "placeId": "geo:osm:way:256715723",
+          "name": "Puente Transbordador Nicolás Avellaneda",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 10
+        },
+        {
+          "placeId": "geo:osm:way:173065810",
+          "name": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 9
+        },
+        {
+          "placeId": "geo:osm:relation:2354152",
+          "name": "Basílica de San Francisco",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 7
+        },
+        {
+          "placeId": "geo:osm:way:31364659",
+          "name": "Plaza Dorrego",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 7
+        },
+        {
+          "placeId": "geo:osm:way:708071953",
+          "name": "Confitería El Molino",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 7
+        },
+        {
+          "placeId": "geo:osm:relation:3228119",
+          "name": "Manzana de las Luces",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:way:204263802",
+          "name": "Museo Mitre",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:way:147938686",
+          "name": "Instituto Sanmartiniano",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 4
+        },
+        {
+          "placeId": "geo:osm:node:5405921752",
+          "name": "Museo Fotográfico Simik",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:694078616",
+          "name": "Club Español",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:way:176333994",
+          "name": "Museo Casa Rosada",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:way:219731998",
+          "name": "Museo Sitio de Memoria ESMA",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:2038426439",
+          "name": "El Hipopótamo",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:way:18514760",
+          "name": "Biblioteca Nacional Mariano Moreno",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:node:5617667887",
+          "name": "Museo Criollo de los Corrales",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:way:868115392",
+          "name": "Casa Museo Bernardo Houssay",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 2,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:way:1332861812",
+          "name": "Obelisco",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 25
+        },
+        {
+          "placeId": "geo:osm:way:183842128",
+          "name": "Cementerio de la Recoleta",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 24
+        },
+        {
+          "placeId": "geo:osm:way:9937501",
+          "name": "Jardín Botánico Carlos Thays",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 19
+        },
+        {
+          "placeId": "geo:osm:way:52563680",
+          "name": "Torre de los Ingleses",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 17
+        },
+        {
+          "placeId": "geo:osm:way:53183874",
+          "name": "Espacio Memoria y Derechos Humanos",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 3
+        },
+        {
+          "placeId": "geo:osm:node:4586207943",
+          "name": "Columna del Foro Romano",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:9953027884",
+          "name": "El Zanjón de Granados (historic ruins)",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 1,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:way:265344159",
+          "name": "Catedral Metropolitana",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 24
+        },
+        {
+          "placeId": "geo:osm:way:54041468",
+          "name": "Museo Nacional de Bellas Artes",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 23
+        },
+        {
+          "placeId": "geo:osm:node:341120136",
+          "name": "El Ateneo Grand Splendid",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 17
+        },
+        {
+          "placeId": "geo:osm:way:619353732",
+          "name": "Museo Nacional de Arte Decorativo",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 17
+        },
+        {
+          "placeId": "geo:osm:way:23621021",
+          "name": "Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 16
+        },
+        {
+          "placeId": "geo:osm:way:1224777740",
+          "name": "Planetario Galileo Galilei",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 14
+        },
+        {
+          "placeId": "geo:osm:way:227231967",
+          "name": "Museo Argentino de Ciencias Naturales Bernardino Rivadavia",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 14
+        },
+        {
+          "placeId": "geo:osm:way:144844726",
+          "name": "Caminito",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 11
+        },
+        {
+          "placeId": "geo:osm:way:415174276",
+          "name": "Museo Histórico Sarmiento",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 9
+        },
+        {
+          "placeId": "geo:osm:way:53638821",
+          "name": "Colección de Arte 'Amalia Lacroze de Fortabat'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 9
+        },
+        {
+          "placeId": "geo:osm:way:159783339",
+          "name": "Torre Espacial",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 7
+        },
+        {
+          "placeId": "geo:osm:node:6148577785",
+          "name": "Parque El Rosedal",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:node:6439769968",
+          "name": "Museo de la Deuda Externa",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:node:724265243",
+          "name": "Museo de Arte Hispanoamericano",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:node:7674547012",
+          "name": "Museo del Cine Pablo Ducrós Hicken",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:way:265133238",
+          "name": "Palais de Glace",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 6
+        },
+        {
+          "placeId": "geo:osm:way:149957156",
+          "name": "Museo de la Cárcova",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 5
+        },
+        {
+          "placeId": "geo:osm:node:1144740023",
+          "name": "Museo del Holocausto",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 4
+        },
+        {
+          "placeId": "geo:osm:way:415174274",
+          "name": "Museo Casa de Yrurtia",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 4
+        },
+        {
+          "placeId": "geo:osm:way:671184874",
+          "name": "Palacio Estrugamou",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 4
+        },
+        {
+          "placeId": "geo:osm:node:5304552618",
+          "name": "Museo de la Inmigración",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 3
+        },
+        {
+          "placeId": "geo:osm:way:298464450",
+          "name": "Museo Histórico de Buenos Aires Cornelio de Saavedra",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 3
+        },
+        {
+          "placeId": "geo:osm:node:1856412658",
+          "name": "Museo Casa de Ricardo Rojas",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:1943300045",
+          "name": "Museo de la Pasión Boquense",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:2102028542",
+          "name": "Kilómetro Cero",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:2734408325",
+          "name": "Museo de la Emigración Gallega en la Argentina",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:4455356796",
+          "name": "Museo Nacional del Hombre",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:5452358819",
+          "name": "Museo de la Mujer",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:5852946241",
+          "name": "Museo Nacional de Arte Oriental",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:6160235679",
+          "name": "Museo de Informática",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:724269086",
+          "name": "Museo de Arte Popular José Hernández",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:way:373685248",
+          "name": "Museo de Arquitectura y Diseño",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:way:686711264",
+          "name": "Museo de Esculturas Luis Perlotti",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 2
+        },
+        {
+          "placeId": "geo:osm:node:6436966180",
+          "name": "Museo de Patología",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:node:7554662687",
+          "name": "Museo Beatle",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:way:120102412",
+          "name": "Museo River Plate",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:way:476370595",
+          "name": "Casa de los Pavos Reales",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:way:695676755",
+          "name": "Museo del Automóvil",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 1
+        },
+        {
+          "placeId": "geo:osm:node:10132406017",
+          "name": "Fundación Augusto y León Ferrari",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:10171899417",
+          "name": "Buenos Aires",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:10597353305",
+          "name": "Catedral De La Dormicion De La Theotokos",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:10659954505",
+          "name": "Monasterio San SAVAS",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:10720991605",
+          "name": "Museo de Arte Escenográfico \"Botica del Ángel\"",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:10761349977",
+          "name": "Museo del Subte Centenera",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:1125366041",
+          "name": "Calvario",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:11360440269",
+          "name": "Paseo dela Infanta",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:11988893808",
+          "name": "Sky Wheel",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:11988893812",
+          "name": "Locomotora Abandonada",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:11988893857",
+          "name": "Scorpion",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:11989195458",
+          "name": "Himalaya",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12010246369",
+          "name": "Museo Borges",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12041649713",
+          "name": "Museo Barrio de Flores",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12058600028",
+          "name": "Llama Olímpica",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12381799101",
+          "name": "Maria's place",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12445983201",
+          "name": "Tango studio",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:12619049254",
+          "name": "Mural",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:1309268668",
+          "name": "Inodoro Pereyra Y Mendieta",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13391231428",
+          "name": "Complejo Barraca Peña",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13540284175",
+          "name": "Colección Histórica del Traje Argentino",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13634431755",
+          "name": "Rue des Artisans",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13695505565",
+          "name": "Museo Aduana Buenos Aires",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13738091502",
+          "name": "Museo del Mate",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:13807541147",
+          "name": "Santuario Diego Armando Maradona",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:2205018784",
+          "name": "Museo de la Psicología Experimental en Argentina 'Dr. Horacio G. Piñero'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:241936178",
+          "name": "Esquina Diego A. Maradona",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:247463216",
+          "name": "Museo Evita - Instituto Nacional Eva Perón De Investigaciones Históricas",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:3273683461",
+          "name": "Bee",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:3641685691",
+          "name": "Museo Profesor Miguel Ángel Fernández",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:4005050118",
+          "name": "Cascada Nagano",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:4177131240",
+          "name": "Museo Ana Frank",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:4516412371",
+          "name": "Museo Anconetani del Acordeón",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:4528475490",
+          "name": "Carretes",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:4552861507",
+          "name": "Plaza Palermo Viejo",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5290138422",
+          "name": "Plaza 30'000 compañeros",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5502416624",
+          "name": "Tramway Histórico de Buenos Aires",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5850576502",
+          "name": "Museo del agua y de la historia sanitaria",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5981895609",
+          "name": "Museo Casa de Batato Barea",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5981911163",
+          "name": "Museo de Marcapasos y Precursores de la Medicina Moderna",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5982028439",
+          "name": "Museo Histórico de la Honorable Cámara de Diputados",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5987682281",
+          "name": "Museo de Ciencias Naturales del Colegio San José",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:5991452317",
+          "name": "Museo de Maquetas",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6049539349",
+          "name": "Museo Barrio de Flores",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6097694643",
+          "name": "Cartel Goyeneche",
+          "admissionClass": "tourism:attraction",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6131104067",
+          "name": "Museo Histórico del Regimiento Granaderos a Caballo 'General San Martín'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6415277632",
+          "name": "Museo Interactivo de Matemática",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6415303438",
+          "name": "Museo de los Patricios de Buenos Ayres",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6415316628",
+          "name": "Museo Notario 'Roberto Mario Arata'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6415318221",
+          "name": "Museo 'Padre Coll'",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6417047450",
+          "name": "Museo Kosice",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6417104233",
+          "name": "Museo le los Niños Abasto",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6424391125",
+          "name": "Museo Itinerante de Arte Contemporáneo del Mercosur",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6426834502",
+          "name": "Museo Memorias de San Juan Evangelista",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        },
+        {
+          "placeId": "geo:osm:node:6431920279",
+          "name": "Museo de Ciencias Naturales de Especialidad Zoológica Médica",
+          "admissionClass": "tourism:museum",
+          "categorySignal": 5,
+          "heritageSignal": 0,
+          "importanceSignal": "unavailable",
+          "sitelinks": 0
+        }
+      ]
+    },
+    "plannerInput": [
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:23633911",
+        "title": "Teatro Colón",
+        "durationMinutes": 60,
+        "semanticScore": 1,
+        "point": {
+          "lng": -58.3831792,
+          "lat": -34.6010807
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:1386044833",
+        "title": "Palacio Barolo",
+        "durationMinutes": 60,
+        "semanticScore": 0.9917,
+        "point": {
+          "lng": -58.3857297,
+          "lat": -34.6096597
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:102440659",
+        "title": "Edificio Kavanagh",
+        "durationMinutes": 60,
+        "semanticScore": 0.9833,
+        "point": {
+          "lng": -58.3746831,
+          "lat": -34.5954039
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:173065616",
+        "title": "Buque Museo Corbeta A.R.A. Uruguay",
+        "durationMinutes": 60,
+        "semanticScore": 0.975,
+        "point": {
+          "lng": -58.3662214,
+          "lat": -34.6041969
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:256715723",
+        "title": "Puente Transbordador Nicolás Avellaneda",
+        "durationMinutes": 60,
+        "semanticScore": 0.9667,
+        "point": {
+          "lng": -58.356241,
+          "lat": -34.6385581
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:173065810",
+        "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+        "durationMinutes": 60,
+        "semanticScore": 0.9583,
+        "point": {
+          "lng": -58.3656563,
+          "lat": -34.6089568
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:relation:2354152",
+        "title": "Basílica de San Francisco",
+        "durationMinutes": 60,
+        "semanticScore": 0.95,
+        "point": {
+          "lng": -58.3713912,
+          "lat": -34.6107164
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:31364659",
+        "title": "Plaza Dorrego",
+        "durationMinutes": 60,
+        "semanticScore": 0.9417,
+        "point": {
+          "lng": -58.3717792,
+          "lat": -34.6204739
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:708071953",
+        "title": "Confitería El Molino",
+        "durationMinutes": 60,
+        "semanticScore": 0.9333,
+        "point": {
+          "lng": -58.39225,
+          "lat": -34.6088588
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:relation:3228119",
+        "title": "Manzana de las Luces",
+        "durationMinutes": 60,
+        "semanticScore": 0.925,
+        "point": {
+          "lng": -58.3745373,
+          "lat": -34.6105156
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:204263802",
+        "title": "Museo Mitre",
+        "durationMinutes": 60,
+        "semanticScore": 0.9167,
+        "point": {
+          "lng": -58.3741857,
+          "lat": -34.6040767
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:147938686",
+        "title": "Instituto Sanmartiniano",
+        "durationMinutes": 60,
+        "semanticScore": 0.9083,
+        "point": {
+          "lng": -58.4015808,
+          "lat": -34.5804167
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5405921752",
+        "title": "Museo Fotográfico Simik",
+        "durationMinutes": 60,
+        "semanticScore": 0.9,
+        "point": {
+          "lng": -58.4537213,
+          "lat": -34.5843296
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:694078616",
+        "title": "Club Español",
+        "durationMinutes": 60,
+        "semanticScore": 0.8917,
+        "point": {
+          "lng": -58.3804301,
+          "lat": -34.6103651
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:176333994",
+        "title": "Museo Casa Rosada",
+        "durationMinutes": 60,
+        "semanticScore": 0.8833,
+        "point": {
+          "lng": -58.3695595,
+          "lat": -34.6083444
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:219731998",
+        "title": "Museo Sitio de Memoria ESMA",
+        "durationMinutes": 60,
+        "semanticScore": 0.875,
+        "point": {
+          "lng": -58.4652768,
+          "lat": -34.536653
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:2038426439",
+        "title": "El Hipopótamo",
+        "durationMinutes": 60,
+        "semanticScore": 0.8667,
+        "point": {
+          "lng": -58.3712379,
+          "lat": -34.6252776
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:18514760",
+        "title": "Biblioteca Nacional Mariano Moreno",
+        "durationMinutes": 60,
+        "semanticScore": 0.8583,
+        "point": {
+          "lng": -58.3979664,
+          "lat": -34.5843924
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5617667887",
+        "title": "Museo Criollo de los Corrales",
+        "durationMinutes": 60,
+        "semanticScore": 0.85,
+        "point": {
+          "lng": -58.4995777,
+          "lat": -34.6626257
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:868115392",
+        "title": "Casa Museo Bernardo Houssay",
+        "durationMinutes": 60,
+        "semanticScore": 0.8417,
+        "point": {
+          "lng": -58.4055309,
+          "lat": -34.600918
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:1332861812",
+        "title": "Obelisco",
+        "durationMinutes": 60,
+        "semanticScore": 0.8333,
+        "point": {
+          "lng": -58.3816296,
+          "lat": -34.6037093
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:183842128",
+        "title": "Cementerio de la Recoleta",
+        "durationMinutes": 60,
+        "semanticScore": 0.825,
+        "point": {
+          "lng": -58.3935023,
+          "lat": -34.587653
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:9937501",
+        "title": "Jardín Botánico Carlos Thays",
+        "durationMinutes": 60,
+        "semanticScore": 0.8167,
+        "point": {
+          "lng": -58.4173375,
+          "lat": -34.582855
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:52563680",
+        "title": "Torre de los Ingleses",
+        "durationMinutes": 60,
+        "semanticScore": 0.8083,
+        "point": {
+          "lng": -58.3737396,
+          "lat": -34.5921821
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:53183874",
+        "title": "Espacio Memoria y Derechos Humanos",
+        "durationMinutes": 60,
+        "semanticScore": 0.8,
+        "point": {
+          "lng": -58.4628861,
+          "lat": -34.5384819
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4586207943",
+        "title": "Columna del Foro Romano",
+        "durationMinutes": 60,
+        "semanticScore": 0.7917,
+        "point": {
+          "lng": -58.421157,
+          "lat": -34.580876
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:9953027884",
+        "title": "El Zanjón de Granados (historic ruins)",
+        "durationMinutes": 60,
+        "semanticScore": 0.7833,
+        "point": {
+          "lng": -58.3717972,
+          "lat": -34.6166864
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:265344159",
+        "title": "Catedral Metropolitana",
+        "durationMinutes": 60,
+        "semanticScore": 0.775,
+        "point": {
+          "lng": -58.3732471,
+          "lat": -34.607476
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:54041468",
+        "title": "Museo Nacional de Bellas Artes",
+        "durationMinutes": 60,
+        "semanticScore": 0.7667,
+        "point": {
+          "lng": -58.3928845,
+          "lat": -34.5839253
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:341120136",
+        "title": "El Ateneo Grand Splendid",
+        "durationMinutes": 60,
+        "semanticScore": 0.7583,
+        "point": {
+          "lng": -58.3942623,
+          "lat": -34.5959828
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:619353732",
+        "title": "Museo Nacional de Arte Decorativo",
+        "durationMinutes": 60,
+        "semanticScore": 0.75,
+        "point": {
+          "lng": -58.4010471,
+          "lat": -34.5826341
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:23621021",
+        "title": "Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+        "durationMinutes": 60,
+        "semanticScore": 0.7417,
+        "point": {
+          "lng": -58.403425,
+          "lat": -34.5769236
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:1224777740",
+        "title": "Planetario Galileo Galilei",
+        "durationMinutes": 60,
+        "semanticScore": 0.7333,
+        "point": {
+          "lng": -58.411721,
+          "lat": -34.5696495
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:227231967",
+        "title": "Museo Argentino de Ciencias Naturales Bernardino Rivadavia",
+        "durationMinutes": 60,
+        "semanticScore": 0.725,
+        "point": {
+          "lng": -58.4375026,
+          "lat": -34.6055662
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:144844726",
+        "title": "Caminito",
+        "durationMinutes": 60,
+        "semanticScore": 0.7167,
+        "point": {
+          "lng": -58.3625488,
+          "lat": -34.6392639
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:415174276",
+        "title": "Museo Histórico Sarmiento",
+        "durationMinutes": 60,
+        "semanticScore": 0.7083,
+        "point": {
+          "lng": -58.4542256,
+          "lat": -34.5610299
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:53638821",
+        "title": "Colección de Arte 'Amalia Lacroze de Fortabat'",
+        "durationMinutes": 60,
+        "semanticScore": 0.7,
+        "point": {
+          "lng": -58.364992,
+          "lat": -34.5995425
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:159783339",
+        "title": "Torre Espacial",
+        "durationMinutes": 60,
+        "semanticScore": 0.6917,
+        "point": {
+          "lng": -58.4498156,
+          "lat": -34.6728492
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6148577785",
+        "title": "Parque El Rosedal",
+        "durationMinutes": 60,
+        "semanticScore": 0.6833,
+        "point": {
+          "lng": -58.4173191,
+          "lat": -34.5706923
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6439769968",
+        "title": "Museo de la Deuda Externa",
+        "durationMinutes": 60,
+        "semanticScore": 0.675,
+        "point": {
+          "lng": -58.398491,
+          "lat": -34.6002837
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:724265243",
+        "title": "Museo de Arte Hispanoamericano",
+        "durationMinutes": 60,
+        "semanticScore": 0.6667,
+        "point": {
+          "lng": -58.3801161,
+          "lat": -34.5907972
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:7674547012",
+        "title": "Museo del Cine Pablo Ducrós Hicken",
+        "durationMinutes": 60,
+        "semanticScore": 0.6583,
+        "point": {
+          "lng": -58.3571489,
+          "lat": -34.6296278
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:265133238",
+        "title": "Palais de Glace",
+        "durationMinutes": 60,
+        "semanticScore": 0.65,
+        "point": {
+          "lng": -58.3893753,
+          "lat": -34.5856805
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:149957156",
+        "title": "Museo de la Cárcova",
+        "durationMinutes": 60,
+        "semanticScore": 0.6417,
+        "point": {
+          "lng": -58.3564247,
+          "lat": -34.6196065
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:1144740023",
+        "title": "Museo del Holocausto",
+        "durationMinutes": 60,
+        "semanticScore": 0.6333,
+        "point": {
+          "lng": -58.3895532,
+          "lat": -34.5980366
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:415174274",
+        "title": "Museo Casa de Yrurtia",
+        "durationMinutes": 60,
+        "semanticScore": 0.625,
+        "point": {
+          "lng": -58.4555139,
+          "lat": -34.5573828
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:671184874",
+        "title": "Palacio Estrugamou",
+        "durationMinutes": 60,
+        "semanticScore": 0.6167,
+        "point": {
+          "lng": -58.378299,
+          "lat": -34.5924927
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5304552618",
+        "title": "Museo de la Inmigración",
+        "durationMinutes": 60,
+        "semanticScore": 0.6083,
+        "point": {
+          "lng": -58.3679245,
+          "lat": -34.5929041
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:298464450",
+        "title": "Museo Histórico de Buenos Aires Cornelio de Saavedra",
+        "durationMinutes": 60,
+        "semanticScore": 0.6,
+        "point": {
+          "lng": -58.5078372,
+          "lat": -34.5683099
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:1856412658",
+        "title": "Museo Casa de Ricardo Rojas",
+        "durationMinutes": 60,
+        "semanticScore": 0.5917,
+        "point": {
+          "lng": -58.4062627,
+          "lat": -34.5939504
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:1943300045",
+        "title": "Museo de la Pasión Boquense",
+        "durationMinutes": 60,
+        "semanticScore": 0.5833,
+        "point": {
+          "lng": -58.3644946,
+          "lat": -34.6364603
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:2102028542",
+        "title": "Kilómetro Cero",
+        "durationMinutes": 60,
+        "semanticScore": 0.575,
+        "point": {
+          "lng": -58.3888344,
+          "lat": -34.6095597
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:2734408325",
+        "title": "Museo de la Emigración Gallega en la Argentina",
+        "durationMinutes": 60,
+        "semanticScore": 0.5667,
+        "point": {
+          "lng": -58.3758946,
+          "lat": -34.6191682
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4455356796",
+        "title": "Museo Nacional del Hombre",
+        "durationMinutes": 60,
+        "semanticScore": 0.5583,
+        "point": {
+          "lng": -58.4463934,
+          "lat": -34.5664214
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5452358819",
+        "title": "Museo de la Mujer",
+        "durationMinutes": 60,
+        "semanticScore": 0.55,
+        "point": {
+          "lng": -58.3853485,
+          "lat": -34.6068838
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5852946241",
+        "title": "Museo Nacional de Arte Oriental",
+        "durationMinutes": 60,
+        "semanticScore": 0.5417,
+        "point": {
+          "lng": -58.3743531,
+          "lat": -34.5996894
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6160235679",
+        "title": "Museo de Informática",
+        "durationMinutes": 60,
+        "semanticScore": 0.5333,
+        "point": {
+          "lng": -58.3774819,
+          "lat": -34.5964433
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:724269086",
+        "title": "Museo de Arte Popular José Hernández",
+        "durationMinutes": 60,
+        "semanticScore": 0.525,
+        "point": {
+          "lng": -58.4049882,
+          "lat": -34.5797076
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:373685248",
+        "title": "Museo de Arquitectura y Diseño",
+        "durationMinutes": 60,
+        "semanticScore": 0.5167,
+        "point": {
+          "lng": -58.3849979,
+          "lat": -34.5864222
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:686711264",
+        "title": "Museo de Esculturas Luis Perlotti",
+        "durationMinutes": 60,
+        "semanticScore": 0.5083,
+        "point": {
+          "lng": -58.4484739,
+          "lat": -34.6151019
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6436966180",
+        "title": "Museo de Patología",
+        "durationMinutes": 60,
+        "semanticScore": 0.5,
+        "point": {
+          "lng": -58.399073,
+          "lat": -34.597556
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:7554662687",
+        "title": "Museo Beatle",
+        "durationMinutes": 60,
+        "semanticScore": 0.4917,
+        "point": {
+          "lng": -58.3899918,
+          "lat": -34.6053496
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:120102412",
+        "title": "Museo River Plate",
+        "durationMinutes": 60,
+        "semanticScore": 0.4833,
+        "point": {
+          "lng": -58.4485078,
+          "lat": -34.5463523
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:476370595",
+        "title": "Casa de los Pavos Reales",
+        "durationMinutes": 60,
+        "semanticScore": 0.475,
+        "point": {
+          "lng": -58.4121504,
+          "lat": -34.6107978
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:way:695676755",
+        "title": "Museo del Automóvil",
+        "durationMinutes": 60,
+        "semanticScore": 0.4667,
+        "point": {
+          "lng": -58.5259816,
+          "lat": -34.6206375
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10132406017",
+        "title": "Fundación Augusto y León Ferrari",
+        "durationMinutes": 60,
+        "semanticScore": 0.4583,
+        "point": {
+          "lng": -58.3990059,
+          "lat": -34.6188891
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10171899417",
+        "title": "Buenos Aires",
+        "durationMinutes": 60,
+        "semanticScore": 0.45,
+        "point": {
+          "lng": -58.3540984,
+          "lat": -34.6086995
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10597353305",
+        "title": "Catedral De La Dormicion De La Theotokos",
+        "durationMinutes": 60,
+        "semanticScore": 0.4417,
+        "point": {
+          "lng": -58.4292045,
+          "lat": -34.5961562
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10659954505",
+        "title": "Monasterio San SAVAS",
+        "durationMinutes": 60,
+        "semanticScore": 0.4333,
+        "point": {
+          "lng": -58.3735468,
+          "lat": -34.6275633
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10720991605",
+        "title": "Museo de Arte Escenográfico \"Botica del Ángel\"",
+        "durationMinutes": 60,
+        "semanticScore": 0.425,
+        "point": {
+          "lng": -58.3875913,
+          "lat": -34.614929
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:10761349977",
+        "title": "Museo del Subte Centenera",
+        "durationMinutes": 60,
+        "semanticScore": 0.4167,
+        "point": {
+          "lng": -58.439988,
+          "lat": -34.6285907
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:1125366041",
+        "title": "Calvario",
+        "durationMinutes": 60,
+        "semanticScore": 0.4083,
+        "point": {
+          "lng": -58.432637,
+          "lat": -34.5471454
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:11360440269",
+        "title": "Paseo dela Infanta",
+        "durationMinutes": 60,
+        "semanticScore": 0.4,
+        "point": {
+          "lng": -58.4222794,
+          "lat": -34.5706721
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893808",
+        "title": "Sky Wheel",
+        "durationMinutes": 60,
+        "semanticScore": 0.3917,
+        "point": {
+          "lng": -58.453337,
+          "lat": -34.6741523
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893812",
+        "title": "Locomotora Abandonada",
+        "durationMinutes": 60,
+        "semanticScore": 0.3833,
+        "point": {
+          "lng": -58.4546836,
+          "lat": -34.671266
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893857",
+        "title": "Scorpion",
+        "durationMinutes": 60,
+        "semanticScore": 0.375,
+        "point": {
+          "lng": -58.4486506,
+          "lat": -34.670684
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:11989195458",
+        "title": "Himalaya",
+        "durationMinutes": 60,
+        "semanticScore": 0.3667,
+        "point": {
+          "lng": -58.4507096,
+          "lat": -34.668978
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12010246369",
+        "title": "Museo Borges",
+        "durationMinutes": 60,
+        "semanticScore": 0.3583,
+        "point": {
+          "lng": -58.4029658,
+          "lat": -34.5912443
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12041649713",
+        "title": "Museo Barrio de Flores",
+        "durationMinutes": 60,
+        "semanticScore": 0.35,
+        "point": {
+          "lng": -58.4594572,
+          "lat": -34.629143
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12058600028",
+        "title": "Llama Olímpica",
+        "durationMinutes": 60,
+        "semanticScore": 0.3417,
+        "point": {
+          "lng": -58.4429943,
+          "lat": -34.6745438
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12381799101",
+        "title": "Maria's place",
+        "durationMinutes": 60,
+        "semanticScore": 0.3333,
+        "point": {
+          "lng": -58.4146719,
+          "lat": -34.6082286
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12445983201",
+        "title": "Tango studio",
+        "durationMinutes": 60,
+        "semanticScore": 0.325,
+        "point": {
+          "lng": -58.417901,
+          "lat": -34.5996963
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:12619049254",
+        "title": "Mural",
+        "durationMinutes": 60,
+        "semanticScore": 0.3167,
+        "point": {
+          "lng": -58.3969589,
+          "lat": -34.6430602
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:1309268668",
+        "title": "Inodoro Pereyra Y Mendieta",
+        "durationMinutes": 60,
+        "semanticScore": 0.3083,
+        "point": {
+          "lng": -58.3603754,
+          "lat": -34.6103717
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13391231428",
+        "title": "Complejo Barraca Peña",
+        "durationMinutes": 60,
+        "semanticScore": 0.3,
+        "point": {
+          "lng": -58.3623239,
+          "lat": -34.6477507
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13540284175",
+        "title": "Colección Histórica del Traje Argentino",
+        "durationMinutes": 60,
+        "semanticScore": 0.2917,
+        "point": {
+          "lng": -58.3778249,
+          "lat": -34.6163576
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13634431755",
+        "title": "Rue des Artisans",
+        "durationMinutes": 60,
+        "semanticScore": 0.2833,
+        "point": {
+          "lng": -58.3849854,
+          "lat": -34.5943748
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13695505565",
+        "title": "Museo Aduana Buenos Aires",
+        "durationMinutes": 60,
+        "semanticScore": 0.275,
+        "point": {
+          "lng": -58.36762,
+          "lat": -34.6117647
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13738091502",
+        "title": "Museo del Mate",
+        "durationMinutes": 60,
+        "semanticScore": 0.2667,
+        "point": {
+          "lng": -58.3785336,
+          "lat": -34.6086979
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:13807541147",
+        "title": "Santuario Diego Armando Maradona",
+        "durationMinutes": 60,
+        "semanticScore": 0.2583,
+        "point": {
+          "lng": -58.4722243,
+          "lat": -34.6057667
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:2205018784",
+        "title": "Museo de la Psicología Experimental en Argentina 'Dr. Horacio G. Piñero'",
+        "durationMinutes": 60,
+        "semanticScore": 0.25,
+        "point": {
+          "lng": -58.4087291,
+          "lat": -34.6197274
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:241936178",
+        "title": "Esquina Diego A. Maradona",
+        "durationMinutes": 60,
+        "semanticScore": 0.2417,
+        "point": {
+          "lng": -58.5182247,
+          "lat": -34.6008201
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:247463216",
+        "title": "Museo Evita - Instituto Nacional Eva Perón De Investigaciones Históricas",
+        "durationMinutes": 60,
+        "semanticScore": 0.2333,
+        "point": {
+          "lng": -58.4147393,
+          "lat": -34.5807452
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:3273683461",
+        "title": "Bee",
+        "durationMinutes": 60,
+        "semanticScore": 0.225,
+        "point": {
+          "lng": -58.3704884,
+          "lat": -34.6129131
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:3641685691",
+        "title": "Museo Profesor Miguel Ángel Fernández",
+        "durationMinutes": 60,
+        "semanticScore": 0.2167,
+        "point": {
+          "lng": -58.4401302,
+          "lat": -34.5718301
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4005050118",
+        "title": "Cascada Nagano",
+        "durationMinutes": 60,
+        "semanticScore": 0.2083,
+        "point": {
+          "lng": -58.4090748,
+          "lat": -34.5749032
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4177131240",
+        "title": "Museo Ana Frank",
+        "durationMinutes": 60,
+        "semanticScore": 0.2,
+        "point": {
+          "lng": -58.4707076,
+          "lat": -34.5629374
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4516412371",
+        "title": "Museo Anconetani del Acordeón",
+        "durationMinutes": 60,
+        "semanticScore": 0.1917,
+        "point": {
+          "lng": -58.4514746,
+          "lat": -34.5865588
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4528475490",
+        "title": "Carretes",
+        "durationMinutes": 60,
+        "semanticScore": 0.1833,
+        "point": {
+          "lng": -58.429801,
+          "lat": -34.5886289
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:4552861507",
+        "title": "Plaza Palermo Viejo",
+        "durationMinutes": 60,
+        "semanticScore": 0.175,
+        "point": {
+          "lng": -58.4247135,
+          "lat": -34.5890371
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5290138422",
+        "title": "Plaza 30'000 compañeros",
+        "durationMinutes": 60,
+        "semanticScore": 0.1667,
+        "point": {
+          "lng": -58.3684553,
+          "lat": -34.6224616
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5502416624",
+        "title": "Tramway Histórico de Buenos Aires",
+        "durationMinutes": 60,
+        "semanticScore": 0.1583,
+        "point": {
+          "lng": -58.4432454,
+          "lat": -34.627941
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5850576502",
+        "title": "Museo del agua y de la historia sanitaria",
+        "durationMinutes": 60,
+        "semanticScore": 0.15,
+        "point": {
+          "lng": -58.3945971,
+          "lat": -34.6004835
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5981895609",
+        "title": "Museo Casa de Batato Barea",
+        "durationMinutes": 60,
+        "semanticScore": 0.1417,
+        "point": {
+          "lng": -58.4085608,
+          "lat": -34.601084
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5981911163",
+        "title": "Museo de Marcapasos y Precursores de la Medicina Moderna",
+        "durationMinutes": 60,
+        "semanticScore": 0.1333,
+        "point": {
+          "lng": -58.4054196,
+          "lat": -34.6166971
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5982028439",
+        "title": "Museo Histórico de la Honorable Cámara de Diputados",
+        "durationMinutes": 60,
+        "semanticScore": 0.125,
+        "point": {
+          "lng": -58.3958898,
+          "lat": -34.6080568
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5987682281",
+        "title": "Museo de Ciencias Naturales del Colegio San José",
+        "durationMinutes": 60,
+        "semanticScore": 0.1167,
+        "point": {
+          "lng": -58.4009224,
+          "lat": -34.6080001
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:5991452317",
+        "title": "Museo de Maquetas",
+        "durationMinutes": 60,
+        "semanticScore": 0.1083,
+        "point": {
+          "lng": -58.4441177,
+          "lat": -34.5414994
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6049539349",
+        "title": "Museo Barrio de Flores",
+        "durationMinutes": 60,
+        "semanticScore": 0.1,
+        "point": {
+          "lng": -58.455834,
+          "lat": -34.6279263
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6097694643",
+        "title": "Cartel Goyeneche",
+        "durationMinutes": 60,
+        "semanticScore": 0.0917,
+        "point": {
+          "lng": -58.495369,
+          "lat": -34.5555205
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6131104067",
+        "title": "Museo Histórico del Regimiento Granaderos a Caballo 'General San Martín'",
+        "durationMinutes": 60,
+        "semanticScore": 0.0833,
+        "point": {
+          "lng": -58.4350299,
+          "lat": -34.5720472
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6415277632",
+        "title": "Museo Interactivo de Matemática",
+        "durationMinutes": 60,
+        "semanticScore": 0.075,
+        "point": {
+          "lng": -58.4396097,
+          "lat": -34.5445375
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6415303438",
+        "title": "Museo de los Patricios de Buenos Ayres",
+        "durationMinutes": 60,
+        "semanticScore": 0.0667,
+        "point": {
+          "lng": -58.4265713,
+          "lat": -34.5763986
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6415316628",
+        "title": "Museo Notario 'Roberto Mario Arata'",
+        "durationMinutes": 60,
+        "semanticScore": 0.0583,
+        "point": {
+          "lng": -58.3903123,
+          "lat": -34.5895768
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6415318221",
+        "title": "Museo 'Padre Coll'",
+        "durationMinutes": 60,
+        "semanticScore": 0.05,
+        "point": {
+          "lng": -58.3969473,
+          "lat": -34.594154
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6417047450",
+        "title": "Museo Kosice",
+        "durationMinutes": 60,
+        "semanticScore": 0.0417,
+        "point": {
+          "lng": -58.4307486,
+          "lat": -34.6010134
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6417104233",
+        "title": "Museo le los Niños Abasto",
+        "durationMinutes": 60,
+        "semanticScore": 0.0333,
+        "point": {
+          "lng": -58.4108828,
+          "lat": -34.6037931
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6424391125",
+        "title": "Museo Itinerante de Arte Contemporáneo del Mercosur",
+        "durationMinutes": 60,
+        "semanticScore": 0.025,
+        "point": {
+          "lng": -58.4012011,
+          "lat": -34.6361684
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6426834502",
+        "title": "Museo Memorias de San Juan Evangelista",
+        "durationMinutes": 60,
+        "semanticScore": 0.0167,
+        "point": {
+          "lng": -58.3595035,
+          "lat": -34.6366625
+        }
+      },
+      {
+        "experienceId": "PLACE_VISIT|place=geo:osm:node:6431920279",
+        "title": "Museo de Ciencias Naturales de Especialidad Zoológica Médica",
+        "durationMinutes": 60,
+        "semanticScore": 0.0083,
+        "point": {
+          "lng": -58.390107,
+          "lat": -34.6413146
+        }
+      }
+    ],
+    "l2AssertionsAtTour": 0,
+    "placeVisitsWithZeroL2": 2571,
+    "plannerOutput": {
+      "days": 3,
+      "selected": 16,
+      "unselected": [
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:256715723",
+          "reasons": [
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 7174.313860073164,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5106.945807457559,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5106.945807457559
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:147938686",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11623.807681456172,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4724.90364672321,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4724.90364672321
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5405921752",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 16784.38008210952,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 9885.476047376556,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 9885.476047376556
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:219731998",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 21478.04805024203,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 14579.144015509066,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 14579.144015509066
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:18514760",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10911.910777047364,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4013.0067423144,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4013.0067423144
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5617667887",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 24047.04577984364,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 17148.14174511068,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 17148.14174511068
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:868115392",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10656.31460940188,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3757.4105746689165,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3757.4105746689165
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:183842128",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10503.337335946278,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2717.155395209914,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2717.155395209914
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:9937501",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12996.041672142157,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5209.859731405793,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5209.859731405793
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:52563680",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9698.758161213578,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1912.5762204772152,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1912.5762204772152
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:53183874",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 21293.498994611615,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 13507.317053875251,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 13507.317053875251
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4586207943",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13532.386086974377,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5746.204146238014,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5746.204146238014
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:54041468",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10944.093284383705,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3157.911343647342,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3157.911343647342
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:341120136",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9658.841304042118,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1872.659363305754,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1872.659363305754
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:619353732",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11609.804881966425,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3823.6229412300613,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3823.6229412300613
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:23621021",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12446.574287280228,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4660.392346543864,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4660.392346543864
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:1224777740",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13874.242464019506,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6088.060523283142,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6088.060523283142
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:227231967",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 14439.397324197227,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6653.215383460863,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6653.215383460863
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:144844726",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13404.61314809855,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5618.431207362187,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5618.431207362187
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:415174276",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 18402.618095196136,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 10616.43615445977,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 10616.43615445977
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:53638821",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9855.408651299105,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2069.226710562741,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2069.226710562741
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:159783339",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 20656.78584953229,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 12870.603908795927,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 12870.603908795927
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6148577785",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 14175.075214412343,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6388.89327367598,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6388.89327367598
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6439769968",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9852.6310917663,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2066.4491510299363,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2066.4491510299363
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:724265243",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9661.338204294365,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1875.1562635580012,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1875.1562635580012
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:7674547012",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12531.556892727876,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4745.374951991513,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4745.374951991513
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:265133238",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10550.492201494988,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2764.310260758625,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2764.310260758625
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:149957156",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11564.092902207118,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3777.910961470755,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3777.910961470755
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:1144740023",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9035.693470098835,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1249.511529362471,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1249.511529362471
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:415174274",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 18839.146064160865,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 11052.964123424503,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 11052.964123424503
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:671184874",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9455.310564338706,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1669.1286236023416,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1669.1286236023416
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5304552618",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10044.281239520305,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2258.099298783942,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2258.099298783942
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:298464450",
+          "reasons": [
+            "DAILY_TIME_CAPACITY_EXCEEDED",
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 23653.554043867734,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 15867.37210313137,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 15867.37210313137
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:1856412658",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11039.0515212491,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3252.8695805127354,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3252.8695805127354
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:1943300045",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12940.6146850705,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5154.432744334136,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5154.432744334136
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:2102028542",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8990.345478403417,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1204.1635376670522,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1204.1635376670522
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:2734408325",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10122.660183659582,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2336.4782429232177,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2336.4782429232177
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4455356796",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 17191.38387556459,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 9405.201934828225,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 9405.201934828225
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5452358819",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8423.64388335465,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 637.4619426182863,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 637.4619426182863
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5852946241",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8828.900653604263,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1042.7187128678997,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1042.7187128678997
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6160235679",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8946.676339885747,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1160.4943991493844,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1160.4943991493844
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:724269086",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12231.863018427191,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4445.681077690828,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4445.681077690828
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:373685248",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10317.030467823446,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2530.848527087082,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2530.848527087082
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:686711264",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 15907.61770147535,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 8121.435760738987,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 8121.435760738987
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6436966180",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10044.273850044361,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2258.091909307997,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2258.091909307997
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:7554662687",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8808.985737512976,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1022.8037967766115,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1022.8037967766115
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:120102412",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 19279.8918533631,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 11493.709912626737,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 11493.709912626737
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:476370595",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11559.2492055457,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3773.0672648093364,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3773.0672648093364
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:way:695676755",
+          "reasons": [
+            "DAILY_TIME_CAPACITY_EXCEEDED",
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 25133.158370755948,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 17346.976430019586,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 17346.976430019586
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10132406017",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10800.903099904961,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3014.7211591685964,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3014.7211591685964
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10171899417",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11140.283597104375,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3354.1016563680123,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3354.1016563680123
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10597353305",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13551.320302883894,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5765.138362147532,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5765.138362147532
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10659954505",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11365.921833438613,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3579.7398927022505,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3579.7398927022505
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10720991605",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9556.343171783346,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1770.1612310469827,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1770.1612310469827
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:10761349977",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 15605.081126033514,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 7818.899185297151,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 7818.899185297151
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:1125366041",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 17970.11588969951,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 10183.933948963146,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 10183.933948963146
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:11360440269",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 14583.874622782218,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6797.692682045854,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6797.692682045854
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893808",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 21068.504418472545,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 13282.322477736181,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 13282.322477736181
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893812",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 20857.41328914892,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 13071.231348412555,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 13071.231348412555
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:11988893857",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 20326.826959310994,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 12540.645018574629,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 12540.645018574629
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:11989195458",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 20296.933371953157,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 12510.751431216793,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 12510.751431216793
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12010246369",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10899.420522525646,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3113.2385817892823,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3113.2385817892823
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12041649713",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 17748.08517462787,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 9961.90323389151,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 9961.90323389151
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12058600028",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 20360.27953713538,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 12574.097596399017,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 12574.097596399017
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12381799101",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11771.418060797843,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3985.23612006148,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3985.23612006148
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12445983201",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12140.736022698515,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 4354.554081962152,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 4354.554081962152
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:12619049254",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13759.614528772,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5973.432588035635,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5973.432588035635
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:1309268668",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10492.1289204095,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2705.9469796731355,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2705.9469796731355
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13391231428",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 14554.028754625848,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6767.846813889484,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6767.846813889484
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13540284175",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9669.736723383365,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1883.5547826470004,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1883.5547826470004
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13634431755",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9193.357642794412,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1407.1757020580474,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1407.1757020580474
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13695505565",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9819.444470230059,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2033.262529493695,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2033.262529493695
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13738091502",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 8595.934660716262,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 809.7527199798983,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 809.7527199798983
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:13807541147",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 18569.275150313253,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 10783.09320957689,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 10783.09320957689
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:2205018784",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11755.542592879056,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3969.3606521426914,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3969.3606521426914
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:241936178",
+          "reasons": [
+            "DAILY_TIME_CAPACITY_EXCEEDED",
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 24044.16635457169,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 16257.984413835327,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 16257.984413835327
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:247463216",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 12938.164232475247,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5151.982291738883,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5151.982291738883
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:3273683461",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9664.23795988242,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1878.0560191460556,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1878.0560191460556
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:3641685691",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 16135.027738680594,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 8348.84579794423,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 8348.84579794423
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4005050118",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13078.263112451019,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5292.081171714654,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5292.081171714654
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4177131240",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 19915.59784220135,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 12129.415901464987,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 12129.415901464987
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4516412371",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 16459.208139892515,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 8673.02619915615,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 8673.02619915615
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4528475490",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13918.748859049909,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6132.566918313546,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6132.566918313546
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:4552861507",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13334.233566474333,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5548.0516257379695,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5548.0516257379695
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5290138422",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10917.388048858107,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3131.2061081217435,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3131.2061081217435
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5502416624",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 15910.200514317232,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 8124.018573580869,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 8124.018573580869
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5850576502",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9398.031839709101,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1611.849898972738,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1611.849898972738
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5981895609",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11012.950311002336,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3226.768370265972,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3226.768370265972
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5981911163",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11182.601504204784,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3396.41956346842,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3396.41956346842
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5982028439",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 9595.49157503502,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 1809.3096342986557,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 1809.3096342986557
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5987682281",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10163.938396418213,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2377.756455681848,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2377.756455681848
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:5991452317",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 19456.12924516457,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 11669.947304428208,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 11669.947304428208
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6049539349",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 17282.636039453173,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 9496.454098716811,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 9496.454098716811
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6097694643",
+          "reasons": [
+            "DAILY_TIME_CAPACITY_EXCEEDED",
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 23010.156027672936,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 15223.974086936572,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 15223.974086936572
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6131104067",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 15617.666588829794,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 7831.484648093429,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 7831.484648093429
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6415277632",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED",
+            "DAILY_TIME_CAPACITY_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 18776.468569706478,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 10990.286628970112,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 10990.286628970112
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6415303438",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 14433.587728737086,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 6647.405788000723,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 6647.405788000723
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6415316628",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10075.48052759941,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2289.2985868630462,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2289.2985868630462
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6415318221",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 10073.067650741816,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 2286.8857100054524,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 2286.8857100054524
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6417047450",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13643.524461453511,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5857.342520717149,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5857.342520717149
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6417104233",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 11266.801113379646,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 3480.619172643283,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 3480.619172643283
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6424391125",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13024.126090963522,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5237.944150227158,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5237.944150227158
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6426834502",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13228.494003469408,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5442.312062733044,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5442.312062733044
+          }
+        },
+        {
+          "experienceId": "PLACE_VISIT|place=geo:osm:node:6431920279",
+          "reasons": [
+            "MAX_WALKING_PER_DAY_EXCEEDED",
+            "MAX_CONTINUOUS_WALKING_EXCEEDED"
+          ],
+          "walkingDiagnostics": {
+            "dailyWalkingMeters": 13314.901727947123,
+            "dailyWalkingLimitMeters": 8000,
+            "longestContinuousWalkingMeters": 5528.719787210759,
+            "continuousWalkingLimitMeters": 3000,
+            "internalWalkingContributionMeters": 0,
+            "incomingTravelWalkingContributionMeters": 5528.719787210759
+          }
+        }
+      ],
+      "metadata": {
+        "solver": "GreedyDailyPlanningSolver",
+        "approximateTravel": true,
+        "iterations": 1,
+        "routing": {
+          "externalEstimateCount": 13,
+          "internalEstimateCount": 0,
+          "approximateEstimateCount": 13,
+          "fallbackCount": 13,
+          "providerCounts": {
+            "approximate": 13
+          }
+        },
+        "constraints": {
+          "requestedDays": 3,
+          "planningWindow": {
+            "startMinutesFromMidnight": 540,
+            "endMinutesFromMidnight": 1200
+          },
+          "allowedTransportationModes": [
+            "walking",
+            "public_transport"
+          ],
+          "maxWalkingDistancePerDayMeters": 8000,
+          "maxContinuousWalkingDistanceMeters": 3000,
+          "travelPace": "moderate",
+          "startDates": []
+        }
+      }
+    },
+    "tour": [
+      {
+        "dayNumber": 1,
+        "order": 1,
+        "startMinutesFromMidnight": 540,
+        "endMinutesFromMidnight": 600,
+        "placeId": "geo:osm:way:23633911",
+        "name": "Teatro Colón",
+        "admissionClass": "tourism:attraction"
+      },
+      {
+        "dayNumber": 1,
+        "order": 2,
+        "startMinutesFromMidnight": 605.6312539029034,
+        "endMinutesFromMidnight": 665.6312539029034,
+        "placeId": "geo:osm:way:1332861812",
+        "name": "Obelisco",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 6,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 1,
+        "order": 3,
+        "startMinutesFromMidnight": 677.4616259829487,
+        "endMinutesFromMidnight": 737.4616259829487,
+        "placeId": "geo:osm:way:204263802",
+        "name": "Museo Mitre",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 12,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 1,
+        "order": 4,
+        "startMinutesFromMidnight": 750.0984467260624,
+        "endMinutesFromMidnight": 810.0984467260624,
+        "placeId": "geo:osm:way:173065616",
+        "name": "Buque Museo Corbeta A.R.A. Uruguay",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 13,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 1,
+        "order": 5,
+        "startMinutesFromMidnight": 842.6856025782662,
+        "endMinutesFromMidnight": 902.6856025782662,
+        "placeId": "geo:osm:way:31364659",
+        "name": "Plaza Dorrego",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 33,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 2,
+        "order": 1,
+        "startMinutesFromMidnight": 540,
+        "endMinutesFromMidnight": 600,
+        "placeId": "geo:osm:way:1386044833",
+        "name": "Palacio Barolo",
+        "admissionClass": "tourism:attraction"
+      },
+      {
+        "dayNumber": 2,
+        "order": 2,
+        "startMinutesFromMidnight": 608.516005805886,
+        "endMinutesFromMidnight": 668.516005805886,
+        "placeId": "geo:osm:node:694078616",
+        "name": "Club Español",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 9,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 2,
+        "order": 3,
+        "startMinutesFromMidnight": 677.8682308227426,
+        "endMinutesFromMidnight": 737.8682308227426,
+        "placeId": "geo:osm:relation:3228119",
+        "name": "Manzana de las Luces",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 9,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 2,
+        "order": 4,
+        "startMinutesFromMidnight": 750.5310178568151,
+        "endMinutesFromMidnight": 810.5310178568151,
+        "placeId": "geo:osm:node:9953027884",
+        "name": "El Zanjón de Granados (historic ruins)",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 13,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 2,
+        "order": 5,
+        "startMinutesFromMidnight": 827.1132597259451,
+        "endMinutesFromMidnight": 887.1132597259451,
+        "placeId": "geo:osm:node:2038426439",
+        "name": "El Hipopótamo",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 17,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 2,
+        "order": 6,
+        "startMinutesFromMidnight": 919.7917649663134,
+        "endMinutesFromMidnight": 979.7917649663134,
+        "placeId": "geo:osm:way:173065810",
+        "name": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 33,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 3,
+        "order": 1,
+        "startMinutesFromMidnight": 540,
+        "endMinutesFromMidnight": 600,
+        "placeId": "geo:osm:way:102440659",
+        "name": "Edificio Kavanagh",
+        "admissionClass": "tourism:attraction"
+      },
+      {
+        "dayNumber": 3,
+        "order": 2,
+        "startMinutesFromMidnight": 623.3787727031125,
+        "endMinutesFromMidnight": 683.3787727031125,
+        "placeId": "geo:osm:way:265344159",
+        "name": "Catedral Metropolitana",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 23,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 3,
+        "order": 3,
+        "startMinutesFromMidnight": 689.4633099904612,
+        "endMinutesFromMidnight": 749.4633099904612,
+        "placeId": "geo:osm:way:176333994",
+        "name": "Museo Casa Rosada",
+        "admissionClass": "tourism:museum",
+        "travelFromPreviousMinutes": 6,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 3,
+        "order": 4,
+        "startMinutesFromMidnight": 754.8802862759956,
+        "endMinutesFromMidnight": 814.8802862759956,
+        "placeId": "geo:osm:relation:2354152",
+        "name": "Basílica de San Francisco",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 5,
+        "travelMode": "walking"
+      },
+      {
+        "dayNumber": 3,
+        "order": 5,
+        "startMinutesFromMidnight": 848.1619160592295,
+        "endMinutesFromMidnight": 908.1619160592295,
+        "placeId": "geo:osm:way:708071953",
+        "name": "Confitería El Molino",
+        "admissionClass": "tourism:attraction",
+        "travelFromPreviousMinutes": 33,
+        "travelMode": "walking"
+      }
+    ],
+    "result": "TOUR"
+  }
+}

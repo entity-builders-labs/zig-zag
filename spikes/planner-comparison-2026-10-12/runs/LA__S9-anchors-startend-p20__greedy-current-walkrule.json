@@ -1,0 +1,103 @@
+{
+ "city": "LA",
+ "scenario": "S9-anchors-startend-p20",
+ "solver": "greedy-current-walkrule",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  true,
+  true
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "HEURISTIC",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.0,
+ "wall_s_max": 0.0,
+ "solver_meta": {
+  "solver": "greedy-current(walk_whenever_allowed)",
+  "wall_s": 0.0001,
+  "status": "HEURISTIC",
+  "must_conflicts": []
+ },
+ "scheduled": 3,
+ "desirability": 2.726,
+ "visit_min": 180.0,
+ "travel_min": 78.6,
+ "walk_min": 0.0,
+ "drive_legs": 6,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 2,
+ "objective_test_weights": 355.0,
+ "day_spread_m": [
+  0,
+  0,
+  0
+ ],
+ "residual_min": [
+  555,
+  555,
+  510
+ ],
+ "omitted_top": [],
+ "readiness": "CANDIDATE_SUPPLY_LIMITED (would request acquisition)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "LA:way:385648322",
+     "title": "Walk of Fame",
+     "start": 550,
+     "end": 595,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 9.4
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-11",
+   "items": [
+    {
+     "id": "LA:node:3204926589",
+     "title": "Hollywood Sign",
+     "start": 553,
+     "end": 598,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 12.8
+     },
+     "uncertain_hours": true
+    }
+   ]
+  },
+  {
+   "date": "2026-11-12",
+   "items": [
+    {
+     "id": "LA:node:4745189816",
+     "title": "The J. Paul Getty Museum",
+     "start": 600,
+     "end": 690,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 16.9
+     },
+     "uncertain_hours": false
+    }
+   ]
+  }
+ ]
+}

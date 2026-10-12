@@ -1,0 +1,92 @@
+{
+ "city": "LA",
+ "scenario": "S1-normal-p20",
+ "solver": "cpsat-dt1",
+ "pool": 20,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 380,
+ "status": "UNKNOWN",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 3,
+ "identical_repeats": true,
+ "wall_s_median": 1.199,
+ "wall_s_max": 1.211,
+ "solver_meta": {
+  "solver": "cp-sat(dt=1,seed=7,workers=1)",
+  "wall_s": 1.199,
+  "solve_s": 1.182,
+  "status": "UNKNOWN",
+  "objective": null,
+  "bound": null,
+  "variables": 1259,
+  "constraints": 1111
+ },
+ "scheduled": 0,
+ "desirability": 0.0,
+ "visit_min": 0.0,
+ "travel_min": 0.0,
+ "walk_min": 0.0,
+ "drive_legs": 0,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 0,
+ "objective_test_weights": 0.0,
+ "day_spread_m": [
+  0,
+  0,
+  0
+ ],
+ "residual_min": [
+  600,
+  600,
+  600
+ ],
+ "omitted_top": [
+  "Walk of Fame",
+  "Hollywood Sign",
+  "The J. Paul Getty Museum",
+  "La Brea Tar Pits",
+  "Griffith Observatory",
+  "Los Angeles County Museum of Art",
+  "Museum of Contemporary Art",
+  "Petersen Automotive Museum",
+  "Santa Monica Pier",
+  "The Playboy Mansion",
+  "Hammer Museum",
+  "Natural History Museum of Los Angeles County",
+  "Koreatown",
+  "Angels Flight",
+  "Hollyhock House",
+  "The Broad Museum",
+  "Grammy Museum",
+  "Museum of Tolerance",
+  "Academy Museum of Motion Pictures",
+  "Lucas Museum of Narrative Art"
+ ],
+ "readiness": "PLANNER_INFEASIBLE",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": []
+  },
+  {
+   "date": "2026-11-11",
+   "items": []
+  },
+  {
+   "date": "2026-11-12",
+   "items": []
+  }
+ ]
+}

@@ -1,0 +1,1343 @@
+{
+ "city": "LA",
+ "timezone": "America/Los_Angeles",
+ "fixture_version": "pc-2026-10-12",
+ "candidates": [
+  {
+   "id": "LA:way:385648322",
+   "title": "Walk of Fame",
+   "kind": "SINGLE",
+   "wikidata": "Q71719",
+   "sitelinks": 76,
+   "desirability": 1.0,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:385648322",
+     "lat": 34.1016763,
+     "lon": -118.3402721,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:3204926589",
+   "title": "Hollywood Sign",
+   "kind": "SINGLE",
+   "wikidata": "Q180376",
+   "sitelinks": 43,
+   "desirability": 0.8712,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:3204926589",
+     "lat": 34.1340991,
+     "lon": -118.321652,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:4745189816",
+   "title": "The J. Paul Getty Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q731126",
+   "sitelinks": 40,
+   "desirability": 0.8549,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:4745189816",
+     "lat": 34.0770168,
+     "lon": -118.47401,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         600,
+         1050
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1050
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1050
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1050
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1050
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Fr,Su 10:00-17:30; Sa 10:00-20:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:369164732",
+   "title": "La Brea Tar Pits",
+   "kind": "SINGLE",
+   "wikidata": "Q1147168",
+   "sitelinks": 34,
+   "desirability": 0.8185,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:369164732",
+     "lat": 34.0632232,
+     "lon": -118.3563873,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:422130705",
+   "title": "Griffith Observatory",
+   "kind": "SINGLE",
+   "wikidata": "Q575901",
+   "sitelinks": 33,
+   "desirability": 0.8118,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:422130705",
+     "lat": 34.1182134,
+     "lon": -118.3003722,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         720,
+         1320
+        ]
+       ],
+       "We": [
+        [
+         720,
+         1320
+        ]
+       ],
+       "Th": [
+        [
+         720,
+         1320
+        ]
+       ],
+       "Fr": [
+        [
+         720,
+         1320
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1320
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1320
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Fr 12:00-22:00; Sa-Su 10:00-22:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:358731585",
+   "title": "Los Angeles County Museum of Art",
+   "kind": "SINGLE",
+   "wikidata": "Q1641836",
+   "sitelinks": 31,
+   "desirability": 0.7979,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:358731585",
+     "lat": 34.0636938,
+     "lon": -118.3588316,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Tu": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "We": [],
+       "Th": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         660,
+         1200
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1140
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Tu,Th 11:00-18:00; We off; Fr 11:00-20:00; Sa-Su 10:00-19:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:206463626",
+   "title": "Museum of Contemporary Art",
+   "kind": "SINGLE",
+   "wikidata": "Q1134646",
+   "sitelinks": 22,
+   "desirability": 0.7218,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:206463626",
+     "lat": 34.0532901,
+     "lon": -118.2505295,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         660,
+         1200
+        ]
+       ],
+       "Fr": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         660,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo off; Tu-We,Fr 11:00-17:00; Th 11:00-20:00; Sa-Su 11:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:913343446",
+   "title": "Petersen Automotive Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q2358105",
+   "sitelinks": 19,
+   "desirability": 0.6897,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:913343446",
+     "lat": 34.0623507,
+     "lon": -118.3611893,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "10:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:422524239",
+   "title": "The Playboy Mansion",
+   "kind": "SINGLE",
+   "wikidata": "Q1783719",
+   "sitelinks": 16,
+   "desirability": 0.6522,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:422524239",
+     "lat": 34.0764742,
+     "lon": -118.4296733,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:22728853",
+   "title": "Santa Monica Pier",
+   "kind": "SINGLE",
+   "wikidata": "Q595439",
+   "sitelinks": 16,
+   "desirability": 0.6522,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:22728853",
+     "lat": 34.0089236,
+     "lon": -118.4978907,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:407373025",
+   "title": "Natural History Museum of Los Angeles County",
+   "kind": "SINGLE",
+   "wikidata": "Q2502709",
+   "sitelinks": 15,
+   "desirability": 0.6383,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:407373025",
+     "lat": 34.0170844,
+     "lon": -118.2888227,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "Tu": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         570,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         570,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:30-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:relation:6317798",
+   "title": "Hammer Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q677561",
+   "sitelinks": 15,
+   "desirability": 0.6383,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:6317798",
+     "lat": 34.0594631,
+     "lon": -118.4437347,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         660,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         660,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Su 11:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:322957598",
+   "title": "Angels Flight",
+   "kind": "SINGLE",
+   "wikidata": "Q1069719",
+   "sitelinks": 14,
+   "desirability": 0.6234,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:322957598",
+     "lat": 34.051389,
+     "lon": -118.2502721,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "Tu": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "We": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "Th": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "Fr": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "Sa": [
+        [
+         405,
+         1320
+        ]
+       ],
+       "Su": [
+        [
+         405,
+         1320
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "06:45-22:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:150968103",
+   "title": "Koreatown",
+   "kind": "SINGLE",
+   "wikidata": "Q872664",
+   "sitelinks": 14,
+   "desirability": 0.6234,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:150968103",
+     "lat": 34.0617936,
+     "lon": -118.305447,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:relation:6246565",
+   "title": "Hollyhock House",
+   "kind": "SINGLE",
+   "wikidata": "Q2144588",
+   "sitelinks": 13,
+   "desirability": 0.6075,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:6246565",
+     "lat": 34.1000128,
+     "lon": -118.2943686,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:427532197",
+   "title": "The Broad Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q17060100",
+   "sitelinks": 12,
+   "desirability": 0.5905,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:427532197",
+     "lat": 34.0544575,
+     "lon": -118.2505946,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         660,
+         1200
+        ]
+       ],
+       "Fr": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo off; Tu-We,Fr 11:00-17:00; Th 11:00-20:00; Sa-Su 10:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:386067421",
+   "title": "Museum of Tolerance",
+   "kind": "SINGLE",
+   "wikidata": "Q318594",
+   "sitelinks": 11,
+   "desirability": 0.5721,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:386067421",
+     "lat": 34.0537224,
+     "lon": -118.401718,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:913293590",
+   "title": "Academy Museum of Motion Pictures",
+   "kind": "SINGLE",
+   "wikidata": "Q6941059",
+   "sitelinks": 11,
+   "desirability": 0.5721,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:913293590",
+     "lat": 34.0636022,
+     "lon": -118.3608216,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Tu": [],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo,We-Su 10:00-18:00; Tu off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:470897671",
+   "title": "Grammy Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q7737452",
+   "sitelinks": 11,
+   "desirability": 0.5721,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:470897671",
+     "lat": 34.0446975,
+     "lon": -118.2646054,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Tu": [],
+       "We": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         660,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Su": [
+        [
+         660,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 11:00-17:00; Tu off; Sa 10:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:relation:21400392",
+   "title": "Lucas Museum of Narrative Art",
+   "kind": "SINGLE",
+   "wikidata": "Q20711578",
+   "sitelinks": 10,
+   "desirability": 0.552,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:21400392",
+     "lat": 34.0157672,
+     "lon": -118.2907569,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:407373715",
+   "title": "California Science Center",
+   "kind": "SINGLE",
+   "wikidata": "Q1067376",
+   "sitelinks": 8,
+   "desirability": 0.5058,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:407373715",
+     "lat": 34.0159714,
+     "lon": -118.2864729,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "10:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:423448326",
+   "title": "The Hollywood Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q20714427",
+   "sitelinks": 8,
+   "desirability": 0.5058,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:423448326",
+     "lat": 34.101077,
+     "lon": -118.3383269,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:4773740642",
+   "title": "1100 Wilshire",
+   "kind": "SINGLE",
+   "wikidata": "Q4547239",
+   "sitelinks": 8,
+   "desirability": 0.5058,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:4773740642",
+     "lat": 34.0522355,
+     "lon": -118.2636642,
+     "duration_min": 45,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=attraction",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:relation:6363655",
+   "title": "Japanese American National Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q1590419",
+   "sitelinks": 7,
+   "desirability": 0.4787,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:6363655",
+     "lat": 34.0496306,
+     "lon": -118.2386107,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Tu-We 11:00-17:00, Th 11:00-20:00; Fr-Su 11:00-17:00, Mo off"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:407373012",
+   "title": "California African American Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q5020212",
+   "sitelinks": 6,
+   "desirability": 0.448,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:407373012",
+     "lat": 34.0159444,
+     "lon": -118.2836227,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         660,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Tu-Sa 10:00-17:00; Su 11:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:3861449031",
+   "title": "Hollywood Wax Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q5883025",
+   "sitelinks": 6,
+   "desirability": 0.448,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:3861449031",
+     "lat": 34.10173,
+     "lon": -118.3381249,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1440
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1440
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:00-24:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:424105889",
+   "title": "Madame Tussaud's",
+   "kind": "SINGLE",
+   "wikidata": "Q6726337",
+   "sitelinks": 6,
+   "desirability": 0.448,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:424105889",
+     "lat": 34.1019411,
+     "lon": -118.3414286,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:9703886758",
+   "title": "Psychiatry: An Industry of Death Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q7256248",
+   "sitelinks": 6,
+   "desirability": 0.448,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:9703886758",
+     "lat": 34.0978074,
+     "lon": -118.3339175,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:way:419961190",
+   "title": "Neutra Studio and Residences (VDL Research House)",
+   "kind": "SINGLE",
+   "wikidata": "Q1693486",
+   "sitelinks": 5,
+   "desirability": 0.4125,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:419961190",
+     "lat": 34.0984408,
+     "lon": -118.2603974,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "LA:node:2406454289",
+   "title": "Chinese American Museum",
+   "kind": "SINGLE",
+   "wikidata": "Q5100379",
+   "sitelinks": 5,
+   "desirability": 0.4125,
+   "desirability_source": "log(1+wikidata sitelinks) normalized per city",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:2406454289",
+     "lat": 34.0557136,
+     "lon": -118.2392117,
+     "duration_min": 90,
+     "duration_source": "FIXTURE_CLASS_RULE:tourism=museum",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [],
+       "We": [],
+       "Th": [],
+       "Fr": [
+        [
+         600,
+         900
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         900
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         900
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Fr-Su 10:00-15:00"
+     }
+    }
+   ]
+  }
+ ],
+ "hotel": {
+  "id": "osm:relation:6372273",
+  "name": "Dunes Inn",
+  "lat": 34.06146,
+  "lon": -118.3219524
+ }
+}

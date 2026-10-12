@@ -1,0 +1,1140 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "A",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:13:27.528Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "report": {
+    "initialEpoch": 1,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 2,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      },
+      {
+        "epoch": 3,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      },
+      {
+        "epoch": 4,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ]
+      },
+      {
+        "epoch": 5,
+        "verdict": "READY",
+        "gapKeys": [],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "a0a524594b053408",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5369,
+                    "end": 5706,
+                    "text": "Palermo (mainly the areas known as Palermo Hollywood, Palermo Soho and Las Cañitas) are perhaps the trendiest gastronomic centres and the places to find a wide variety, while you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera) and in the cobbled streets of San Telmo."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "a0a524594b053408",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5369,
+                    "end": 5706,
+                    "text": "Palermo (mainly the areas known as Palermo Hollywood, Palermo Soho and Las Cañitas) are perhaps the trendiest gastronomic centres and the places to find a wide variety, while you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera) and in the cobbled streets of San Telmo."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "129459040cb35cc5",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5707,
+                    "end": 5854,
+                    "text": "Many of the most upmarket contemporary options can be found in the aristrocratic Recoleta neighbourhood and the regenerated docks of Puerto Madero."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "129459040cb35cc5",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5707,
+                    "end": 5854,
+                    "text": "Many of the most upmarket contemporary options can be found in the aristrocratic Recoleta neighbourhood and the regenerated docks of Puerto Madero."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 1
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Palermo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "a0a524594b053408",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5369,
+                    "end": 5706,
+                    "text": "Palermo (mainly the areas known as Palermo Hollywood, Palermo Soho and Las Cañitas) are perhaps the trendiest gastronomic centres and the places to find a wide variety, while you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera) and in the cobbled streets of San Telmo."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "a0a524594b053408",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5369,
+                    "end": 5706,
+                    "text": "Palermo (mainly the areas known as Palermo Hollywood, Palermo Soho and Las Cañitas) are perhaps the trendiest gastronomic centres and the places to find a wide variety, while you'll find the more traditional cafes and eateries in the central neighbourhoods (Montserrat, San Nicolás and Balvanera) and in the cobbled streets of San Telmo."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Recoleta",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "129459040cb35cc5",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5707,
+                    "end": 5854,
+                    "text": "Many of the most upmarket contemporary options can be found in the aristrocratic Recoleta neighbourhood and the regenerated docks of Puerto Madero."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "food"
+              ],
+              "captures": [
+                {
+                  "id": "129459040cb35cc5",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/article/what-where-and-when-eat?page=3"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:34.101Z",
+                  "contentFingerprint": "174374ed0d737e16b2ae24c88f4aeca2274a82e7ed58907edc08d08cbbbca9d6",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 5707,
+                    "end": 5854,
+                    "text": "Many of the most upmarket contemporary options can be found in the aristrocratic Recoleta neighbourhood and the regenerated docks of Puerto Madero."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ]
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:food:INSUFFICIENT_CORROBORATION"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "383df26b5d1a17d8",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 970,
+                    "end": 1066,
+                    "text": "Just some of the highlights on the cobbled streets of this bohemian and nostalgic neighbourhood."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8c6661d74a9437ff",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1282,
+                    "end": 1349,
+                    "text": "History and style in the city's regenerated portside neighbourhood."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Monserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "27e917ab8e9ba829",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1393,
+                    "end": 1448,
+                    "text": "Explore the splendour of Buenos Aires' historic centre."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "383df26b5d1a17d8",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 970,
+                    "end": 1066,
+                    "text": "Just some of the highlights on the cobbled streets of this bohemian and nostalgic neighbourhood."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Puerto Madero",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8c6661d74a9437ff",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1282,
+                    "end": 1349,
+                    "text": "History and style in the city's regenerated portside neighbourhood."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "Monserrat",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "27e917ab8e9ba829",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://turismo.buenosaires.gob.ar/en/agrupador-noticias/emblematic-neighbourhoods"
+                  },
+                  "retrievedAt": "2026-10-11T01:13:45.872Z",
+                  "contentFingerprint": "5ed29703dd3a75f4982676f3e18ee81a9ff313664fd4cb342ba610705006b223",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 1393,
+                    "end": 1448,
+                    "text": "Explore the splendour of Buenos Aires' historic centre."
+                  },
+                  "registrableDomain": "buenosaires.gob.ar",
+                  "proposedAuthorityClass": "Official Tourism Site",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Site"
+            },
+            "reason": "EVIDENCE_DOES_NOT_SUPPORT_CLAIM",
+            "detail": "theme:history:EVIDENCE_DOES_NOT_SUPPORT_CLAIM"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Suipacha",
+              "areaMention": "San Nicolás",
+              "fromMention": "Avenida Corrientes",
+              "toMention": "Confitería La Ideal",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8b021418ff4b601f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4908,
+                    "end": 4987,
+                    "text": "Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Suipacha",
+              "areaMention": "San Nicolás",
+              "fromMention": "Avenida Corrientes",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8b021418ff4b601f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4908,
+                    "end": 4987,
+                    "text": "Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blogger",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blogger"
+            },
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Avenida Corrientes",
+              "fromMention": "The Obelisco",
+              "toMention": "Suipacha",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "e09c50799fb4316e",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4846,
+                    "end": 4987,
+                    "text": "From the Obelisco, walk to Confitería La Ideal for breakfast. Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "Travel Blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Travel Blog"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Suipacha",
+              "areaMention": "San Nicolás",
+              "fromMention": "Avenida Corrientes",
+              "toMention": "Confitería La Ideal",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8b021418ff4b601f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4908,
+                    "end": 4987,
+                    "text": "Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+            "detail": "evidence states neither both endpoints nor an area"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Suipacha",
+              "areaMention": "San Nicolás",
+              "fromMention": "Avenida Corrientes",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "8b021418ff4b601f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4908,
+                    "end": 4987,
+                    "text": "Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blogger",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blogger"
+            },
+            "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+            "detail": "evidence states neither both endpoints nor an area"
+          },
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Avenida Corrientes",
+              "fromMention": "The Obelisco",
+              "toMention": "Suipacha",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "e09c50799fb4316e",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:14:45.447Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 4846,
+                    "end": 4987,
+                    "text": "From the Obelisco, walk to Confitería La Ideal for breakfast. Head one block down Corrientes , take a right onto Suipacha and there you are …"
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "Travel Blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Travel Blog"
+            },
+            "reason": "IDENTITY_AMBIGUOUS",
+            "detail": "route: STRUCTURED_ROUTE: AMBIGUOUS/MULTIPLE_COMPATIBLE_CLUSTERS, 2 compatible cluster(s)"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "293054735ce24963",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://visitbue.com/en/san-telmo/"
+                  },
+                  "retrievedAt": "2026-10-11T01:15:06.219Z",
+                  "contentFingerprint": "0b2e5c1ed138e4e725ddb5fd3dd979022146538bd1632a08bd8463220dc41cf5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3059,
+                    "end": 3215,
+                    "text": "San Telmo is also known for its bars, restaurants and tanguerías, which add a touch of passion and nostalgia to this neighborhood full of history and charm."
+                  },
+                  "registrableDomain": "visitbue.com",
+                  "proposedAuthorityClass": "Official Tourism Website of Buenos Aires",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website of Buenos Aires"
+            }
+          ],
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "claim": {
+                "claimType": "RELEVANT_FOR",
+                "subjectMention": "Parque Patricios"
+              }
+            },
+            {
+              "reason": "NO_CAPTURE",
+              "claim": {
+                "claimType": "RELEVANT_FOR",
+                "subjectMention": "San Telmo"
+              }
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 4
+          },
+          "snapshotEpoch": 4
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "293054735ce24963",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://visitbue.com/en/san-telmo/"
+                  },
+                  "retrievedAt": "2026-10-11T01:15:06.219Z",
+                  "contentFingerprint": "0b2e5c1ed138e4e725ddb5fd3dd979022146538bd1632a08bd8463220dc41cf5",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 3059,
+                    "end": 3215,
+                    "text": "San Telmo is also known for its bars, restaurants and tanguerías, which add a touch of passion and nostalgia to this neighborhood full of history and charm."
+                  },
+                  "registrableDomain": "visitbue.com",
+                  "proposedAuthorityClass": "Official Tourism Website of Buenos Aires",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Official Tourism Website of Buenos Aires"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 4
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      }
+    ],
+    "stoppedBecause": "READY",
+    "remainingGapKeys": [],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 1
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 4
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:13:28.419Z"
+        }
+      }
+    ],
+    "finalEpoch": 5,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 4,
+          "thematicFacets": [
+            "theme:food",
+            "theme:history"
+          ],
+          "experienceFormatFacets": [
+            "intent:walk"
+          ],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 5,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 4,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

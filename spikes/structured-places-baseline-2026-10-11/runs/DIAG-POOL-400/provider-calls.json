@@ -1,0 +1,31 @@
+{
+  "destinationResolution": {
+    "nominatim": {
+      "live": 0,
+      "replayed": 1,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 0,
+      "replayed": 1,
+      "failed": 0
+    }
+  },
+  "total": {
+    "nominatim": {
+      "live": 0,
+      "replayed": 1,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 0,
+      "replayed": 2,
+      "failed": 0
+    },
+    "wikidata": {
+      "live": 0,
+      "replayed": 21,
+      "failed": 0
+    }
+  }
+}

@@ -1,0 +1,3336 @@
+{
+  "geo:osm:relation:2220602": {
+    "kind": "AREA",
+    "names": [
+      "Villa Santa Rita"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026695",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 13
+    },
+    "geoEntityId": "geo:osm:relation:2220602"
+  },
+  "geo:osm:relation:2220994": {
+    "kind": "AREA",
+    "names": [
+      "Villa del Parque"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q771260",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2220994"
+  },
+  "geo:osm:relation:2221081": {
+    "kind": "AREA",
+    "names": [
+      "Villa General Mitre",
+      "Villa Gral. Mitre"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026651",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2221081"
+  },
+  "geo:osm:relation:2221264": {
+    "kind": "AREA",
+    "names": [
+      "Villa Devoto",
+      "Devoto"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q386011",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2221264"
+  },
+  "geo:osm:relation:2221272": {
+    "kind": "AREA",
+    "names": [
+      "Villa Pueyrredón",
+      "Notable Neighbors",
+      "Villa Pueyrredon"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026681",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 9
+    },
+    "geoEntityId": "geo:osm:relation:2221272"
+  },
+  "geo:osm:relation:2221283": {
+    "kind": "AREA",
+    "names": [
+      "Agronomía",
+      "Agronomia",
+      "Agronomia (Buenos Aires)",
+      "Agronomia Buenos Aires",
+      "Agronomía (Buenos Aires)"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q397422",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 13
+    },
+    "geoEntityId": "geo:osm:relation:2221283"
+  },
+  "geo:osm:relation:2221308": {
+    "kind": "AREA",
+    "names": [
+      "La Paternal",
+      "Barrio La Paternal",
+      "La Paternal, Buenos Aires",
+      "Paternal"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1799004",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 15
+    },
+    "geoEntityId": "geo:osm:relation:2221308"
+  },
+  "geo:osm:relation:2221316": {
+    "kind": "AREA",
+    "names": [
+      "Parque Chas"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2053967",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2221316"
+  },
+  "geo:osm:relation:2221347": {
+    "kind": "AREA",
+    "names": [
+      "Chacarita",
+      "Chacarita, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q547713",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2221347"
+  },
+  "geo:osm:relation:2221396": {
+    "kind": "AREA",
+    "names": [
+      "Villa Ortúzar",
+      "Villa Ortuzar"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026701",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2221396"
+  },
+  "geo:osm:relation:2221410": {
+    "kind": "AREA",
+    "names": [
+      "Villa Crespo"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1670884",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2221410"
+  },
+  "geo:osm:relation:2221428": {
+    "kind": "AREA",
+    "names": [
+      "Caballito",
+      "Caballito, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q536312",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 18
+    },
+    "geoEntityId": "geo:osm:relation:2221428"
+  },
+  "geo:osm:relation:2221446": {
+    "kind": "AREA",
+    "names": [
+      "Monte Castro",
+      "Barrio de Monte Castro"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1945789",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2221446"
+  },
+  "geo:osm:relation:2221465": {
+    "kind": "AREA",
+    "names": [
+      "Floresta",
+      "Floresta, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1429543",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2221465"
+  },
+  "geo:osm:relation:2221479": {
+    "kind": "AREA",
+    "names": [
+      "Flores",
+      "Flores (Buenos Aires)",
+      "Flores, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q643907",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2221479"
+  },
+  "geo:osm:relation:2222105": {
+    "kind": "AREA",
+    "names": [
+      "Villa Real",
+      "Villa Real, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q641438",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 9
+    },
+    "geoEntityId": "geo:osm:relation:2222105"
+  },
+  "geo:osm:relation:2222108": {
+    "kind": "AREA",
+    "names": [
+      "Versalles",
+      "Versalles, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q655117",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2222108"
+  },
+  "geo:osm:relation:2222110": {
+    "kind": "AREA",
+    "names": [
+      "Villa Luro"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q772760",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 13
+    },
+    "geoEntityId": "geo:osm:relation:2222110"
+  },
+  "geo:osm:relation:2222113": {
+    "kind": "AREA",
+    "names": [
+      "Vélez Sarsfield",
+      "Velez Sarsfield",
+      "Vélez Sársfield"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q643942",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2222113"
+  },
+  "geo:osm:relation:2222119": {
+    "kind": "AREA",
+    "names": [
+      "Villa Urquiza",
+      "Urquiza",
+      "Villa de las Catalinas",
+      "Villurca"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026691",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2222119"
+  },
+  "geo:osm:relation:2222167": {
+    "kind": "AREA",
+    "names": [
+      "Saavedra",
+      "Saavedra (Buenos Aires)",
+      "Saavedra, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q655297",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2222167"
+  },
+  "geo:osm:relation:2222173": {
+    "kind": "AREA",
+    "names": [
+      "Núñez",
+      "Núñez, Buenos Aires",
+      "barrio de Nuñez"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2007015",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2222173"
+  },
+  "geo:osm:relation:2222175": {
+    "kind": "AREA",
+    "names": [
+      "Colegiales"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1108064",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2222175"
+  },
+  "geo:osm:relation:2222180": {
+    "kind": "AREA",
+    "names": [
+      "Belgrano",
+      "Barrio de Belgrano",
+      "Belgrano, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q815569",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 23
+    },
+    "geoEntityId": "geo:osm:relation:2222180"
+  },
+  "geo:osm:relation:2222226": {
+    "kind": "AREA",
+    "names": [
+      "Palermo",
+      "Barrio de Palermo",
+      "Palermo (Buenos Aires)",
+      "Palermo, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1018128",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 26
+    },
+    "geoEntityId": "geo:osm:relation:2222226"
+  },
+  "geo:osm:relation:2222235": {
+    "kind": "AREA",
+    "names": [
+      "Liniers",
+      "Barrio de Liniers"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1826778",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 13
+    },
+    "geoEntityId": "geo:osm:relation:2222235"
+  },
+  "geo:osm:relation:2222237": {
+    "kind": "AREA",
+    "names": [
+      "Mataderos"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1301660",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2222237"
+  },
+  "geo:osm:relation:2222250": {
+    "kind": "AREA",
+    "names": [
+      "Parque Avellaneda"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q597824",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2222250"
+  },
+  "geo:osm:relation:2222256": {
+    "kind": "AREA",
+    "names": [
+      "Parque Chacabuco"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1118308",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2222256"
+  },
+  "geo:osm:relation:2222269": {
+    "kind": "AREA",
+    "names": [
+      "Almagro",
+      "Almagro (Buenos Aires)",
+      "Almagro, Buenos Aires",
+      "barrio de Almagro"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2064433",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 19
+    },
+    "geoEntityId": "geo:osm:relation:2222269"
+  },
+  "geo:osm:relation:2222296": {
+    "kind": "AREA",
+    "names": [
+      "Boedo"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q890147",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 18
+    },
+    "geoEntityId": "geo:osm:relation:2222296"
+  },
+  "geo:osm:relation:2222813": {
+    "kind": "AREA",
+    "names": [
+      "Balvanera",
+      "Balvanera, Buenos Aires",
+      "Balvanera, Buenos Aires, Argentina",
+      "Barrio de Balvanera"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q805848",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 19
+    },
+    "geoEntityId": "geo:osm:relation:2222813"
+  },
+  "geo:osm:relation:2222826": {
+    "kind": "AREA",
+    "names": [
+      "San Cristóbal",
+      "San Cristóbal (Buenos Aires)",
+      "San Cristóbal, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2064416",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2222826"
+  },
+  "geo:osm:relation:2222917": {
+    "kind": "AREA",
+    "names": [
+      "Monserrat",
+      "Barrio de Monserrat",
+      "Monserrat, Buenos Aires",
+      "Montserrat"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1027282",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 19
+    },
+    "geoEntityId": "geo:osm:relation:2222917"
+  },
+  "geo:osm:relation:2223057": {
+    "kind": "AREA",
+    "names": [
+      "San Nicolás",
+      "San Nicolas, Buenos Aires",
+      "San Nicolás, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2006239",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 15
+    },
+    "geoEntityId": "geo:osm:relation:2223057"
+  },
+  "geo:osm:relation:2223069": {
+    "kind": "AREA",
+    "names": [
+      "San Telmo",
+      "Barrio de San Telmo",
+      "El Alto de San Pedro",
+      "San Telmo, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026688",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 21
+    },
+    "geoEntityId": "geo:osm:relation:2223069"
+  },
+  "geo:osm:relation:2223078": {
+    "kind": "AREA",
+    "names": [
+      "Constitución",
+      "Constitucion"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1405193",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 18
+    },
+    "geoEntityId": "geo:osm:relation:2223078"
+  },
+  "geo:osm:relation:2223088": {
+    "kind": "AREA",
+    "names": [
+      "Parque Patricios",
+      "La Quema"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2054024",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 12
+    },
+    "geoEntityId": "geo:osm:relation:2223088"
+  },
+  "geo:osm:relation:2223107": {
+    "kind": "AREA",
+    "names": [
+      "Nueva Pompeya",
+      "Barrio de Pompeya",
+      "Pompeya"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q2004385",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2223107"
+  },
+  "geo:osm:relation:2223126": {
+    "kind": "AREA",
+    "names": [
+      "Villa Lugano",
+      "Lugano"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q731094",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 15
+    },
+    "geoEntityId": "geo:osm:relation:2223126"
+  },
+  "geo:osm:relation:2223172": {
+    "kind": "AREA",
+    "names": [
+      "Villa Soldati",
+      "Soldati"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1686228",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 11
+    },
+    "geoEntityId": "geo:osm:relation:2223172"
+  },
+  "geo:osm:relation:2223176": {
+    "kind": "AREA",
+    "names": [
+      "Villa Riachuelo"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1026678",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:2223176"
+  },
+  "geo:osm:relation:2223536": {
+    "kind": "AREA",
+    "names": [
+      "Barracas",
+      "Barrio de Barracas"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q680964",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 14
+    },
+    "geoEntityId": "geo:osm:relation:2223536"
+  },
+  "geo:osm:relation:2223879": {
+    "kind": "AREA",
+    "names": [
+      "La Boca",
+      "La Boca, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q690649",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 36
+    },
+    "geoEntityId": "geo:osm:relation:2223879"
+  },
+  "geo:osm:relation:2224056": {
+    "kind": "AREA",
+    "names": [
+      "Recoleta",
+      "Barrio de Recoleta",
+      "Comuna 2",
+      "Recoleta, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1010253",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 24
+    },
+    "geoEntityId": "geo:osm:relation:2224056"
+  },
+  "geo:osm:relation:2224546": {
+    "kind": "AREA",
+    "names": [
+      "Retiro",
+      "Retiro (Buenos Aires)",
+      "Retiro, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q516411",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 20
+    },
+    "geoEntityId": "geo:osm:relation:2224546"
+  },
+  "geo:osm:relation:2224562": {
+    "kind": "AREA",
+    "names": [
+      "Puerto Madero"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q781553",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 27
+    },
+    "geoEntityId": "geo:osm:relation:2224562"
+  },
+  "geo:osm:relation:5328270": {
+    "kind": "AREA",
+    "names": [
+      "Coghlan",
+      "Coghlan neighborhood",
+      "Coghlan, Buenos Aires"
+    ],
+    "areaClass": "ADMINISTRATIVE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-admin-areas"
+      ]
+    },
+    "wikidataQid": "Q1106974",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 10
+    },
+    "geoEntityId": "geo:osm:relation:5328270"
+  },
+  "geo:osm:node:479744086": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Chino",
+      "Barrio chino (Buenos Aires)",
+      "Chinatown (Buenos Aires)",
+      "Chinatown, Buenos Aires",
+      "barrio chino de Buenos Aires"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222180"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q2328190",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 7
+    },
+    "geoEntityId": "geo:osm:node:479744086"
+  },
+  "geo:osm:node:1310853712": {
+    "kind": "AREA",
+    "names": [
+      "Las Cañitas"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5970313",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:1310853712"
+  },
+  "geo:osm:node:1618113952": {
+    "kind": "AREA",
+    "names": [
+      "Villa 31",
+      "Barrio Padre Carlos Mugica",
+      "Barrio 31",
+      "Barrio Carlos Mugica",
+      "Barrio Mugica",
+      "Villa de Retiro"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q1132383",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 8
+    },
+    "geoEntityId": "geo:osm:node:1618113952"
+  },
+  "geo:osm:node:1620577930": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Savio",
+      "Barrio General de División Manuel Nicolás Savio",
+      "Conjunto Urbano Lugano I y II",
+      "Barrio General Savio",
+      "Barrio General de Division Manuel Nicolas Savio",
+      "Barrio Gral. Savio",
+      "General Manuel Nicolás Savio Neighborhood",
+      "General Savio Neighborhood",
+      "Lugano 1 y 2"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720466",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:1620577930"
+  },
+  "geo:osm:node:1637490509": {
+    "kind": "AREA",
+    "names": [
+      "Microcentro",
+      "Buenos Aires Central Business District",
+      "Buenos Aires/Microcentro",
+      "City portena",
+      "City porteña",
+      "La City",
+      "La City portena",
+      "La City porteña",
+      "Microcentro porteno",
+      "Microcentro porteño"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2223057"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q4985514",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 4
+    },
+    "geoEntityId": "geo:osm:node:1637490509"
+  },
+  "geo:osm:node:1710124754": {
+    "kind": "AREA",
+    "names": [
+      "Villa 1-11-14 Barrio Padre Ricciardelli",
+      "Barrio Padre Rodolfo Ricciardelli",
+      "Villa 1-11-14"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6161997",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:1710124754"
+  },
+  "geo:osm:node:2154318976": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Rivadavia I"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:2154318976"
+  },
+  "geo:osm:node:2425303892": {
+    "kind": "AREA",
+    "names": [
+      "Abasto",
+      "Barrio del Abasto"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222813"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q16488122",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:2425303892"
+  },
+  "geo:osm:node:2425306209": {
+    "kind": "AREA",
+    "names": [
+      "Bajo Flores"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:2425306209"
+  },
+  "geo:osm:node:2425310210": {
+    "kind": "AREA",
+    "names": [
+      "Once"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222813"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6050750",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 3
+    },
+    "geoEntityId": "geo:osm:node:2425310210"
+  },
+  "geo:osm:node:2667485376": {
+    "kind": "AREA",
+    "names": [
+      "Villa 21 -24 / Zavaleta",
+      "Villa 21-24"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6161999",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:2667485376"
+  },
+  "geo:osm:node:3023753678": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Parque Cornelio Saavedra",
+      "Barrio Sarmiento",
+      "Barrio Cornelio Saavedra",
+      "Barrio Juan Perón",
+      "Barrio Parque Saavedra",
+      "Barrio Residencial Cornelio Saavedra",
+      "Barrio Saavedra"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222167"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720820",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:3023753678"
+  },
+  "geo:osm:node:3049625933": {
+    "kind": "AREA",
+    "names": [
+      "Barrio River",
+      "Barrio Parque General Belgrano",
+      "Barrio River (Buenos Aires)"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222180"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720825",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:3049625933"
+  },
+  "geo:osm:node:3520887607": {
+    "kind": "AREA",
+    "names": [
+      "Bajo Belgrano"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222180"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:3520887607"
+  },
+  "geo:osm:node:3520890188": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Albarellos"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2221272"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720193",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:3520890188"
+  },
+  "geo:osm:node:4308292130": {
+    "kind": "AREA",
+    "names": [
+      "Palermo Soho",
+      "Palermo Viejo"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q2886949",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:4308292130"
+  },
+  "geo:osm:node:4936051999": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Parque",
+      "Palermo Chico"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6058869",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:4936051999"
+  },
+  "geo:osm:node:4936147321": {
+    "kind": "AREA",
+    "names": [
+      "Belgrano R",
+      "Belgrano R (Buenos Aires)"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222180"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5725073",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:4936147321"
+  },
+  "geo:osm:node:4973904314": {
+    "kind": "AREA",
+    "names": [
+      "La Isla",
+      "La Isla (Buenos Aires)",
+      "The Island"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224056"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5963895",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:4973904314"
+  },
+  "geo:osm:node:5523257202": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Norte",
+      "Barrio Norte (Buenos Aires)",
+      "Barrio Norte, Buenos Aires"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224056"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q4863739",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 3
+    },
+    "geoEntityId": "geo:osm:node:5523257202"
+  },
+  "geo:osm:node:5849865702": {
+    "kind": "AREA",
+    "names": [
+      "Palermo Norte"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:5849865702"
+  },
+  "geo:osm:node:5849865703": {
+    "kind": "AREA",
+    "names": [
+      "Palermo Botánico"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6058865",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:node:5849865703"
+  },
+  "geo:osm:node:5849865704": {
+    "kind": "AREA",
+    "names": [
+      "Palermo Pacífico",
+      "Pacífico"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q11697296",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:5849865704"
+  },
+  "geo:osm:node:5849865705": {
+    "kind": "AREA",
+    "names": [
+      "Alto Palermo"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:5849865705"
+  },
+  "geo:osm:node:6099747372": {
+    "kind": "AREA",
+    "names": [
+      "La Containera"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:6099747372"
+  },
+  "geo:osm:node:7317613501": {
+    "kind": "AREA",
+    "names": [
+      "Barrio YPF"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:7317613501"
+  },
+  "geo:osm:node:8086648014": {
+    "kind": "AREA",
+    "names": [
+      "Isla Demarchi"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2223879"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:node:8086648014"
+  },
+  "geo:osm:node:10563587863": {
+    "kind": "AREA",
+    "names": [
+      "Palermo Hollywood",
+      "Palermo Bagdad",
+      "Palermo Hollywood (Buenos Aires)"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222226"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q9054795",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:node:10563587863"
+  },
+  "geo:osm:node:11781964072": {
+    "kind": "AREA",
+    "names": [
+      "Los Perales",
+      "Barrio Manuel Dorrego",
+      "Barrio Coronel Dorrego"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222237"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720631",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:node:11781964072"
+  },
+  "geo:osm:node:13204111853": {
+    "kind": "AREA",
+    "names": [
+      "Rodrigo Bueno"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224562"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:13204111853"
+  },
+  "geo:osm:node:13333815779": {
+    "kind": "AREA",
+    "names": [
+      "Catalinas Norte"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:13333815779"
+  },
+  "geo:osm:node:13363621268": {
+    "kind": "AREA",
+    "names": [
+      "Once"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222813"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6050750",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 3
+    },
+    "geoEntityId": "geo:osm:node:13363621268"
+  },
+  "geo:osm:node:13363621269": {
+    "kind": "AREA",
+    "names": [
+      "Barrrio Estación Buenos Aires"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:13363621269"
+  },
+  "geo:osm:node:13588745211": {
+    "kind": "AREA",
+    "names": [
+      "Naón"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2222237"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:13588745211"
+  },
+  "geo:osm:node:13755786076": {
+    "kind": "AREA",
+    "names": [
+      "Villa Ferrocarril"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "UNKNOWN",
+    "parentAreaIds": [
+      "geo:osm:relation:2221428"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:node:13755786076"
+  },
+  "geo:osm:way:23651039": {
+    "kind": "AREA",
+    "names": [
+      "Villa 31 bis"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q118178185",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [],
+      "sitelinks": 0
+    },
+    "geoEntityId": "geo:osm:way:23651039"
+  },
+  "geo:osm:way:149009732": {
+    "kind": "AREA",
+    "names": [
+      "Barrio General de División Manuel Nicolás Savio"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:149009732"
+  },
+  "geo:osm:way:149693906": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Soldati"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223172"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:149693906"
+  },
+  "geo:osm:way:149763335": {
+    "kind": "AREA",
+    "names": [
+      "Villa 26 - Asentamiento Agustín Magaldi"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:149763335"
+  },
+  "geo:osm:way:205344125": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Ramón Carrillo"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223172"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205344125"
+  },
+  "geo:osm:way:205360649": {
+    "kind": "AREA",
+    "names": [
+      "Barrio FONAVI"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205360649"
+  },
+  "geo:osm:way:205360910": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Mariano Castex",
+      "Conjunto San Pedrito"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:205360910"
+  },
+  "geo:osm:way:205362557": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Balbastro"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q6393774",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:way:205362557"
+  },
+  "geo:osm:way:205456680": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Rivadavia I y II"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:205456680"
+  },
+  "geo:osm:way:205476342": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Illia",
+      "Barrio Presidente Illia I"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205476342"
+  },
+  "geo:osm:way:205476375": {
+    "kind": "AREA",
+    "names": [
+      "Sector Riestra"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205476375"
+  },
+  "geo:osm:way:205476470": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Juan XXIII"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2222256"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205476470"
+  },
+  "geo:osm:way:205507596": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Alvear"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2222250"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:205507596"
+  },
+  "geo:osm:way:298257464": {
+    "kind": "AREA",
+    "names": [
+      "Villa La Carbonilla"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221308"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:298257464"
+  },
+  "geo:osm:way:329365872": {
+    "kind": "AREA",
+    "names": [
+      "Colonia Obrera"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223107"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:329365872"
+  },
+  "geo:osm:way:370229235": {
+    "kind": "AREA",
+    "names": [
+      "Villa 21-24",
+      "Zavaleta"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:370229235"
+  },
+  "geo:osm:way:373090950": {
+    "kind": "AREA",
+    "names": [
+      "Los Piletones"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223172"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:373090950"
+  },
+  "geo:osm:way:424636843": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Güemes"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2224546"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:424636843"
+  },
+  "geo:osm:way:446758778": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Mitre",
+      "Barrio Mitre (Buenos Aires)"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2222167"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720655",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:way:446758778"
+  },
+  "geo:osm:way:474527786": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Nágera",
+      "Barrio Juan José Nágera"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:474527786"
+  },
+  "geo:osm:way:492679065": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Samoré"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:492679065"
+  },
+  "geo:osm:way:492679066": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Copello"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:492679066"
+  },
+  "geo:osm:way:519186316": {
+    "kind": "AREA",
+    "names": [
+      "Villa Fraga - Playón de Chacarita",
+      "Villa Fraga"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221347"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:519186316"
+  },
+  "geo:osm:way:620756879": {
+    "kind": "AREA",
+    "names": [
+      "Barrio General José de San Martín",
+      "Barrio Grafa"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221272"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ]
+    },
+    "geoEntityId": "geo:osm:way:620756879"
+  },
+  "geo:osm:way:653250878": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Dársena F"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2224056"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:653250878"
+  },
+  "geo:osm:way:700569079": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Fraga-Playón de Chacarita"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221347"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:700569079"
+  },
+  "geo:osm:way:722773886": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Alfredo Palacios",
+      "Barrio Catalinas Sur"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223879"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q5720198",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [
+        "wikipedia"
+      ],
+      "sitelinks": 2
+    },
+    "geoEntityId": "geo:osm:way:722773886"
+  },
+  "geo:osm:way:763919066": {
+    "kind": "AREA",
+    "names": [
+      "Asentamiento El Triángulo"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223879"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:763919066"
+  },
+  "geo:osm:way:804107557": {
+    "kind": "AREA",
+    "names": [
+      "Atos. Bermejo 1 y 2 y María Auxiliadora"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:804107557"
+  },
+  "geo:osm:way:837594663": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Polideportivo"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:837594663"
+  },
+  "geo:osm:way:837594664": {
+    "kind": "AREA",
+    "names": [
+      "Sector Bonorino"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:837594664"
+  },
+  "geo:osm:way:911575169": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Estación Buenos Aires"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:911575169"
+  },
+  "geo:osm:way:912548402": {
+    "kind": "AREA",
+    "names": [
+      "Villa 13 bis"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:912548402"
+  },
+  "geo:osm:way:912563514": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Rivadavia II"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:912563514"
+  },
+  "geo:osm:way:912893483": {
+    "kind": "AREA",
+    "names": [
+      "Asentamiento El Campito"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223107"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:912893483"
+  },
+  "geo:osm:way:945663097": {
+    "kind": "AREA",
+    "names": [
+      "Ribera Iguazú",
+      "Mundo Grúa"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223107"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:945663097"
+  },
+  "geo:osm:way:948326524": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Lacarra"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223172"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:948326524"
+  },
+  "geo:osm:way:1001239866": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Coreano",
+      "Koreatown"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221479"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:1001239866"
+  },
+  "geo:osm:way:1097864831": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Alvarado"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223536"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:1097864831"
+  },
+  "geo:osm:way:1188684732": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Papa Francisco"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:1188684732"
+  },
+  "geo:osm:way:1442402971": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Estación Sáenz"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223107"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:1442402971"
+  },
+  "geo:osm:way:1509491808": {
+    "kind": "AREA",
+    "names": [
+      "Casas de Boyacá"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2221081"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:way:1509491808"
+  },
+  "geo:osm:relation:12320573": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Hogar Obrero"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2220994"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:relation:12320573"
+  },
+  "geo:osm:relation:12602898": {
+    "kind": "AREA",
+    "names": [
+      "Cildañez",
+      "Barrio Cildáñez",
+      "Barrio Villa Cildáñez",
+      "Villa 6",
+      "Villa Cildáñez"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2222250"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "wikidataQid": "Q128790757",
+    "facts": [],
+    "prominence": {
+      "tagSignals": [],
+      "sitelinks": 1
+    },
+    "geoEntityId": "geo:osm:relation:12602898"
+  },
+  "geo:osm:relation:12720433": {
+    "kind": "AREA",
+    "names": [
+      "Asentamiento Lamadrid",
+      "Lamadrid",
+      "El Triángulo",
+      "Suárez y Pedro de Mendoza"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223879"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:relation:12720433"
+  },
+  "geo:osm:relation:12742959": {
+    "kind": "AREA",
+    "names": [
+      "Barrio Espora"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223107"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:relation:12742959"
+  },
+  "geo:osm:relation:15592159": {
+    "kind": "AREA",
+    "names": [
+      "Villa 20"
+    ],
+    "areaClass": "NAMED_PLACE",
+    "extent": "PROVIDER_BOUNDARY",
+    "parentAreaIds": [
+      "geo:osm:relation:2223126"
+    ],
+    "discoveredBy": {
+      "kind": "AREA",
+      "scopeId": "geo:osm:relation:1224652",
+      "strategies": [
+        "osm-named-places"
+      ]
+    },
+    "facts": [],
+    "prominence": {
+      "tagSignals": []
+    },
+    "geoEntityId": "geo:osm:relation:15592159"
+  }
+}

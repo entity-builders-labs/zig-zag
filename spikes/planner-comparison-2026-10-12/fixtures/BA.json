@@ -1,0 +1,1231 @@
+{
+ "city": "BA",
+ "timezone": "America/Argentina/Buenos_Aires",
+ "fixture_version": "pc-2026-10-12",
+ "candidates": [
+  {
+   "id": "BA:way:23633911",
+   "title": "Teatro Col\u00f3n",
+   "kind": "SINGLE",
+   "desirability": 1,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:23633911",
+     "lat": -34.6010807,
+     "lon": -58.3831792,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Sa 09:00-20:00; Su 09:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:1386044833",
+   "title": "Palacio Barolo",
+   "kind": "SINGLE",
+   "desirability": 0.9778,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:1386044833",
+     "lat": -34.6096597,
+     "lon": -58.3857297,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:102440659",
+   "title": "Edificio Kavanagh",
+   "kind": "SINGLE",
+   "desirability": 0.9556,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:102440659",
+     "lat": -34.5954039,
+     "lon": -58.3746831,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:173065616",
+   "title": "Buque Museo Corbeta A.R.A. Uruguay",
+   "kind": "SINGLE",
+   "desirability": 0.9333,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:173065616",
+     "lat": -34.6041969,
+     "lon": -58.3662214,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1140
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 10:00-19:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:256715723",
+   "title": "Puente Transbordador Nicol\u00e1s Avellaneda",
+   "kind": "SINGLE",
+   "desirability": 0.9111,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:256715723",
+     "lat": -34.6385581,
+     "lon": -58.356241,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [],
+       "We": [],
+       "Th": [],
+       "Fr": [
+        [
+         600,
+         960
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         960
+        ]
+       ],
+       "Su": []
+      },
+      "source": "osm:opening_hours",
+      "raw": "Fr-Sa 10:00-16:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:173065810",
+   "title": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+   "kind": "SINGLE",
+   "desirability": 0.8889,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:173065810",
+     "lat": -34.6089568,
+     "lon": -58.3656563,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [],
+       "We": [],
+       "Th": [
+        [
+         780,
+         1140
+        ]
+       ],
+       "Fr": [
+        [
+         780,
+         1140
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1140
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1140
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Th-Fr 13:00-19:00; Sa-Su 10:00-19:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:relation:2354152",
+   "title": "Bas\u00edlica de San Francisco",
+   "kind": "SINGLE",
+   "desirability": 0.8667,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:2354152",
+     "lat": -34.6107164,
+     "lon": -58.3713912,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:31364659",
+   "title": "Plaza Dorrego",
+   "kind": "SINGLE",
+   "desirability": 0.8444,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:31364659",
+     "lat": -34.6204739,
+     "lon": -58.3717792,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:708071953",
+   "title": "Confiter\u00eda El Molino",
+   "kind": "SINGLE",
+   "desirability": 0.8222,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:708071953",
+     "lat": -34.6088588,
+     "lon": -58.39225,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:relation:3228119",
+   "title": "Manzana de las Luces",
+   "kind": "SINGLE",
+   "desirability": 0.8,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:relation:3228119",
+     "lat": -34.6105156,
+     "lon": -58.3745373,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1200
+        ]
+       ],
+       "Sa": [
+        [
+         840,
+         1200
+        ]
+       ],
+       "Su": [
+        [
+         840,
+         1200
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Fr 10:00-20:00; Sa-Su 14:00-20:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:204263802",
+   "title": "Museo Mitre",
+   "kind": "SINGLE",
+   "desirability": 0.7778,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:204263802",
+     "lat": -34.6040767,
+     "lon": -58.3741857,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         780,
+         1050
+        ]
+       ],
+       "Tu": [
+        [
+         780,
+         1050
+        ]
+       ],
+       "We": [
+        [
+         780,
+         1050
+        ]
+       ],
+       "Th": [
+        [
+         780,
+         1050
+        ]
+       ],
+       "Fr": [
+        [
+         780,
+         1050
+        ]
+       ],
+       "Sa": [],
+       "Su": []
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Fr 13:00-17:30"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:147938686",
+   "title": "Instituto Sanmartiniano",
+   "kind": "SINGLE",
+   "desirability": 0.7556,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:147938686",
+     "lat": -34.5804167,
+     "lon": -58.4015808,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:5405921752",
+   "title": "Museo Fotogr\u00e1fico Simik",
+   "kind": "SINGLE",
+   "desirability": 0.7333,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:5405921752",
+     "lat": -34.5843296,
+     "lon": -58.4537213,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1425
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1425
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:00-23:45"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:694078616",
+   "title": "Club Espa\u00f1ol",
+   "kind": "SINGLE",
+   "desirability": 0.7111,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:694078616",
+     "lat": -34.6103651,
+     "lon": -58.3804301,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:176333994",
+   "title": "Museo Casa Rosada",
+   "kind": "SINGLE",
+   "desirability": 0.6889,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:176333994",
+     "lat": -34.6083444,
+     "lon": -58.3695595,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Tu": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "We": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Th": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1080
+        ]
+       ],
+       "Sa": [],
+       "Su": [
+        [
+         840,
+         1080
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Fr 10:00-18:00; Su 14:00-18:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:219731998",
+   "title": "Museo Sitio de Memoria ESMA",
+   "kind": "SINGLE",
+   "desirability": 0.6667,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:219731998",
+     "lat": -34.536653,
+     "lon": -58.4652768,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [],
+       "Tu": [],
+       "We": [],
+       "Th": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Fr": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Sa": [
+        [
+         600,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         600,
+         1020
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Th-Su 10:00-17:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:2038426439",
+   "title": "El Hipop\u00f3tamo",
+   "kind": "SINGLE",
+   "desirability": 0.6444,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:2038426439",
+     "lat": -34.6252776,
+     "lon": -58.3712379,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:18514760",
+   "title": "Biblioteca Nacional Mariano Moreno",
+   "kind": "SINGLE",
+   "desirability": 0.6222,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:18514760",
+     "lat": -34.5843924,
+     "lon": -58.3979664,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1260
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1260
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1260
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1260
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1260
+        ]
+       ],
+       "Sa": [
+        [
+         720,
+         1140
+        ]
+       ],
+       "Su": [
+        [
+         720,
+         1140
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Fr 09:00-21:00; Sa-Su 12:00-19:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:5617667887",
+   "title": "Museo Criollo de los Corrales",
+   "kind": "SINGLE",
+   "desirability": 0.6,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:5617667887",
+     "lat": -34.6626257,
+     "lon": -58.4995777,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Mo-Sa 10:00-17:00 \"call for info\""
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:868115392",
+   "title": "Casa Museo Bernardo Houssay",
+   "kind": "SINGLE",
+   "desirability": 0.5778,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:868115392",
+     "lat": -34.600918,
+     "lon": -58.4055309,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:1332861812",
+   "title": "Obelisco",
+   "kind": "SINGLE",
+   "desirability": 0.5556,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:1332861812",
+     "lat": -34.6037093,
+     "lon": -58.3816296,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:183842128",
+   "title": "Cementerio de la Recoleta",
+   "kind": "SINGLE",
+   "desirability": 0.5333,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:183842128",
+     "lat": -34.587653,
+     "lon": -58.3935023,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "Tu": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "We": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "Th": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "Fr": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "Sa": [
+        [
+         420,
+         1050
+        ]
+       ],
+       "Su": [
+        [
+         420,
+         1050
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 07:00-17:30"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:9937501",
+   "title": "Jard\u00edn Bot\u00e1nico Carlos Thays",
+   "kind": "SINGLE",
+   "desirability": 0.5111,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:9937501",
+     "lat": -34.582855,
+     "lon": -58.4173375,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": "osm:opening_hours",
+      "raw": "Tu-Fr 08:00-17:45; Sa,Su,PH 09:30-17:45"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:52563680",
+   "title": "Torre de los Ingleses",
+   "kind": "SINGLE",
+   "desirability": 0.4889,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:52563680",
+     "lat": -34.5921821,
+     "lon": -58.3737396,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:53183874",
+   "title": "Espacio Memoria y Derechos Humanos",
+   "kind": "SINGLE",
+   "desirability": 0.4667,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:53183874",
+     "lat": -34.5384819,
+     "lon": -58.4628861,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1320
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1320
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:00-22:00"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:4586207943",
+   "title": "Columna del Foro Romano",
+   "kind": "SINGLE",
+   "desirability": 0.4444,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:4586207943",
+     "lat": -34.580876,
+     "lon": -58.421157,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:node:9953027884",
+   "title": "El Zanj\u00f3n de Granados (historic ruins)",
+   "kind": "SINGLE",
+   "desirability": 0.4222,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:node:9953027884",
+     "lat": -34.6166864,
+     "lon": -58.3717972,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "UNKNOWN",
+      "weekly": null,
+      "source": null,
+      "raw": null
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:way:265344159",
+   "title": "Catedral Metropolitana",
+   "kind": "SINGLE",
+   "desirability": 0.4,
+   "desirability_source": "spike3 ranking-spike3-1 semanticScore",
+   "components": [
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:265344159",
+     "lat": -34.607476,
+     "lon": -58.3732471,
+     "duration_min": 60,
+     "duration_source": "spike3 FALLBACK_POLICY 60",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         450,
+         1110
+        ]
+       ],
+       "Tu": [
+        [
+         450,
+         1110
+        ]
+       ],
+       "We": [
+        [
+         450,
+         1110
+        ]
+       ],
+       "Th": [
+        [
+         450,
+         1110
+        ]
+       ],
+       "Fr": [
+        [
+         450,
+         1110
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1020
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1110
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Fr 07:30-18:30; Sa 09:00-17:00; Su 09:00-18:30"
+     }
+    }
+   ]
+  },
+  {
+   "id": "BA:composite:san-telmo-walk",
+   "title": "San Telmo walk (Defensa Chile\u2192Humberto I, Mercado de San Telmo)",
+   "kind": "COMPOSITE",
+   "desirability": 0.85,
+   "desirability_source": "FIXTURE (composite not ranked by spike 3)",
+   "components": [
+    {
+     "participation": "TRAVERSE",
+     "geo": "osm:route:Defensa",
+     "from": {
+      "lat": -34.6160069,
+      "lon": -58.3717268
+     },
+     "to": {
+      "lat": -34.6206888,
+      "lon": -58.3714319
+     },
+     "traverse_min": 6.75,
+     "traverse_source": "geoapify mapmatching walk (G2 BA-00)",
+     "segment_osm_ways": [
+      473141731,
+      150893241,
+      158893264
+     ]
+    },
+    {
+     "participation": "VISIT",
+     "geo": "osm:way:158893271",
+     "lat": -34.6190607,
+     "lon": -58.3722354,
+     "duration_min": 45,
+     "duration_source": "FIXTURE",
+     "hours": {
+      "status": "KNOWN",
+      "weekly": {
+       "Mo": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Tu": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "We": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Th": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Fr": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Sa": [
+        [
+         540,
+         1200
+        ]
+       ],
+       "Su": [
+        [
+         540,
+         1200
+        ]
+       ]
+      },
+      "source": "osm:opening_hours",
+      "raw": "Mo-Su 09:00-20:00"
+     }
+    }
+   ]
+  }
+ ],
+ "hotel": {
+  "id": "osm:node:1108412254",
+  "name": "Orleans",
+  "lat": -34.60124,
+  "lon": -58.3929992
+ }
+}

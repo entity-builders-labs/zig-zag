@@ -1,0 +1,68 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "MUTATIONS",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:21:04.276Z"
+  },
+  "baseline": [],
+  "m1": {
+    "place": "RESOLVED",
+    "placeWasAlreadyRelevant": false,
+    "recomposition": {
+      "created": [
+        "PLACE_VISIT|place=geo:osm:way:31364659"
+      ],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "keys": [
+      "PLACE_VISIT|place=geo:osm:way:31364659#rev1:ACTIVE"
+    ]
+  },
+  "m2": {
+    "retracted": [],
+    "recomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [
+        "PLACE_VISIT|place=geo:osm:way:31364659"
+      ],
+      "archived": []
+    },
+    "keys": [
+      "PLACE_VISIT|place=geo:osm:way:31364659#rev1:ACTIVE"
+    ]
+  },
+  "m3": {
+    "recomposition": {
+      "created": [],
+      "revised": [
+        "PLACE_VISIT|place=geo:osm:way:31364659"
+      ],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "keys": [
+      "PLACE_VISIT|place=geo:osm:way:31364659#rev2:ACTIVE"
+    ]
+  },
+  "providerCalls": {
+    "nominatim": {
+      "live": 2,
+      "replayed": 0,
+      "failed": 0
+    },
+    "overpass": {
+      "live": 4,
+      "replayed": 0,
+      "failed": 0
+    }
+  }
+}

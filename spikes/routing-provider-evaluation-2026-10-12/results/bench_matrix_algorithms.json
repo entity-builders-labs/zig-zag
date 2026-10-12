@@ -1,0 +1,98 @@
+{
+ "pedestrian:10:bidir=False": [
+  989,
+  "costmatrix"
+ ],
+ "pedestrian:10:bidir=True": [
+  832,
+  "costmatrix"
+ ],
+ "pedestrian:20:bidir=False": [
+  3530,
+  "costmatrix"
+ ],
+ "pedestrian:20:bidir=True": [
+  4053,
+  "costmatrix"
+ ],
+ "pedestrian:30:bidir=False": [
+  4306,
+  "costmatrix"
+ ],
+ "pedestrian:30:bidir=True": [
+  5690,
+  "costmatrix"
+ ],
+ "pedestrian:45:bidir=False": [
+  8376,
+  "costmatrix"
+ ],
+ "pedestrian:45:bidir=True": [
+  10405,
+  "costmatrix"
+ ],
+ "auto:10:bidir=False": [
+  1441,
+  "costmatrix"
+ ],
+ "auto:10:bidir=True": [
+  645,
+  "costmatrix"
+ ],
+ "auto:20:bidir=False": [
+  2020,
+  "costmatrix"
+ ],
+ "auto:20:bidir=True": [
+  2582,
+  "costmatrix"
+ ],
+ "auto:30:bidir=False": [
+  2947,
+  "costmatrix"
+ ],
+ "auto:30:bidir=True": [
+  3177,
+  "costmatrix"
+ ],
+ "auto:45:bidir=False": [
+  4348,
+  "costmatrix"
+ ],
+ "auto:45:bidir=True": [
+  3959,
+  "costmatrix"
+ ],
+ "bicycle:10:bidir=False": [
+  459,
+  "costmatrix"
+ ],
+ "bicycle:10:bidir=True": [
+  389,
+  "costmatrix"
+ ],
+ "bicycle:20:bidir=False": [
+  2166,
+  "costmatrix"
+ ],
+ "bicycle:20:bidir=True": [
+  1981,
+  "costmatrix"
+ ],
+ "bicycle:30:bidir=False": [
+  2488,
+  "costmatrix"
+ ],
+ "bicycle:30:bidir=True": [
+  2692,
+  "costmatrix"
+ ],
+ "bicycle:45:bidir=False": [
+  4857,
+  "costmatrix"
+ ],
+ "bicycle:45:bidir=True": [
+  4643,
+  "costmatrix"
+ ]
+}

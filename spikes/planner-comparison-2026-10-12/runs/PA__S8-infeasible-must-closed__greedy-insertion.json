@@ -1,0 +1,85 @@
+{
+ "city": "PA",
+ "scenario": "S8-infeasible-must-closed",
+ "solver": "greedy-insertion",
+ "pool": 30,
+ "days": 1,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [
+  "PA:way:54667456"
+ ],
+ "pair_edges": 870,
+ "status": "MUST_CONFLICT",
+ "violations": [
+  "mustInclude missing PA:way:54667456"
+ ],
+ "valid": true,
+ "must_conflicts": [
+  "PA:way:54667456"
+ ],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 0.001,
+ "wall_s_max": 0.001,
+ "solver_meta": {
+  "solver": "greedy-insertion",
+  "wall_s": 0.0005,
+  "status": "MUST_CONFLICT",
+  "must_conflicts": [
+   "PA:way:54667456"
+  ]
+ },
+ "scheduled": 2,
+ "desirability": 1.898,
+ "visit_min": 135.0,
+ "travel_min": 5.7,
+ "walk_min": 0.0,
+ "drive_legs": 1,
+ "walk_legs": 0,
+ "idle_min": 0.3,
+ "unknown_hours_scheduled": 1,
+ "objective_test_weights": 1583.3,
+ "day_spread_m": [
+  686
+ ],
+ "residual_min": [
+  39
+ ],
+ "omitted_top": [
+  "Tour Eiffel"
+ ],
+ "readiness": "PLANNER_INFEASIBLE (explicit)",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": [
+    {
+     "id": "PA:way:201611261",
+     "title": "Cath\u00e9drale Notre-Dame de Paris",
+     "start": 1080,
+     "end": 1125,
+     "incoming": null,
+     "uncertain_hours": false
+    },
+    {
+     "id": "PA:relation:7515426",
+     "title": "Mus\u00e9e du Louvre",
+     "start": 1131,
+     "end": 1221,
+     "incoming": {
+      "mode": "drive",
+      "minutes": 5.7
+     },
+     "uncertain_hours": true
+    }
+   ]
+  }
+ ]
+}

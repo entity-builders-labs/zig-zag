@@ -1,0 +1,593 @@
+{
+  "header": {
+    "spike": "gap-driven-destination-knowledge-2026-10-10",
+    "run": "A",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T01:16:03.713Z"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "report": {
+    "initialEpoch": 1,
+    "initialRecomposition": {
+      "created": [],
+      "revised": [],
+      "reactivated": [],
+      "unchanged": [],
+      "archived": []
+    },
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 2,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food"
+        ]
+      },
+      {
+        "epoch": 3,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ]
+      },
+      {
+        "epoch": 4,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk"
+        ]
+      },
+      {
+        "epoch": 5,
+        "verdict": "READY",
+        "gapKeys": [],
+        "limitationKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history"
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "NO_EVIDENCE_FOUND",
+          "claims": [],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 1
+        },
+        "grounding": [],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "756829855394ed6f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/buenos-aires-neighborhoods/"
+                  },
+                  "retrievedAt": "2026-10-11T01:16:16.390Z",
+                  "contentFingerprint": "d4a1f7adc6f6f12e8757d706ea7ffc24efa32ad979bfd4c536d50928cddcf9da",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6139,
+                    "end": 6208,
+                    "text": "San Telmo is the oldest in the city, dating back to the 17th century."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "Travel Guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Travel Guide"
+            },
+            {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "756829855394ed6f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/buenos-aires-neighborhoods/"
+                  },
+                  "retrievedAt": "2026-10-11T01:16:16.390Z",
+                  "contentFingerprint": "d4a1f7adc6f6f12e8757d706ea7ffc24efa32ad979bfd4c536d50928cddcf9da",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6139,
+                    "end": 6208,
+                    "text": "San Telmo is the oldest in the city, dating back to the 17th century."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "Travel Blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Travel Blog"
+            }
+          ],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "RELEVANT_FOR",
+              "subjectMention": "San Telmo",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "756829855394ed6f",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/buenos-aires-neighborhoods/"
+                  },
+                  "retrievedAt": "2026-10-11T01:16:16.390Z",
+                  "contentFingerprint": "d4a1f7adc6f6f12e8757d706ea7ffc24efa32ad979bfd4c536d50928cddcf9da",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6139,
+                    "end": 6208,
+                    "text": "San Telmo is the oldest in the city, dating back to the 17th century."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "Travel Guide",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "Travel Guide"
+            },
+            "reason": "INSUFFICIENT_CORROBORATION",
+            "detail": "theme:history:INSUFFICIENT_CORROBORATION"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "kind": "CLAIMS_PROPOSED",
+          "claims": [
+            {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Florida Street",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "0651a69a1faf01f9",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:16:33.121Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6791,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            }
+          ],
+          "discarded": [
+            {
+              "reason": "NO_CAPTURE",
+              "claim": {
+                "claimType": "WALKING_CORRIDOR",
+                "subjectMention": "Caminito"
+              }
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3
+        },
+        "grounding": [
+          {
+            "status": "REJECTED",
+            "claim": {
+              "claimType": "WALKING_CORRIDOR",
+              "subjectMention": "Florida Street",
+              "proposedThemes": [
+                "history"
+              ],
+              "captures": [
+                {
+                  "id": "0651a69a1faf01f9",
+                  "locator": {
+                    "kind": "URL",
+                    "url": "https://solsalute.com/blog/one-day-in-buenos-aires-walking-tour/"
+                  },
+                  "retrievedAt": "2026-10-11T01:16:33.121Z",
+                  "contentFingerprint": "df33e1b8c5fc3cc78870df33eaa8606bd74eb975de63d3b307f294273d89b733",
+                  "capture": {
+                    "kind": "PROSE_SPAN",
+                    "start": 6669,
+                    "end": 6791,
+                    "text": "From Le Caravelle, walk one block down Lavalle to reach the city’s most important pedestrian thoroughfare: Florida Street."
+                  },
+                  "registrableDomain": "solsalute.com",
+                  "proposedAuthorityClass": "travel blog",
+                  "provenanceSignals": [],
+                  "supportVerdicts": []
+                }
+              ],
+              "proposedAuthorityClass": "travel blog"
+            },
+            "reason": "CORRIDOR_BOUNDS_UNRESOLVED",
+            "detail": "evidence states neither both endpoints nor an area"
+          }
+        ],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "research": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "kind": "NO_EVIDENCE_FOUND",
+          "claims": [],
+          "discarded": [],
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 3,
+            "fetches": 1
+          },
+          "snapshotEpoch": 4
+        },
+        "grounding": [],
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 3,
+            "fetches": 1
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      }
+    ],
+    "stoppedBecause": "READY",
+    "remainingGapKeys": [],
+    "limitations": [
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 4,
+            "searches": 1,
+            "fetches": 2
+          },
+          "snapshotEpoch": 1,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 8,
+            "searches": 2,
+            "fetches": 3
+          },
+          "snapshotEpoch": 2,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "type": "WALKING_CORRIDOR",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "intent:walk",
+          "threshold": 1,
+          "observed": 0,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "WALKING_CORRIDOR|scope=geo:osm:relation:1224652|facet=intent:walk",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 2,
+            "fetches": 2
+          },
+          "snapshotEpoch": 3,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      },
+      {
+        "gap": {
+          "key": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "type": "SCHEDULE_CAPACITY",
+          "scopeGeoEntityId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food+theme:history",
+          "threshold": 0,
+          "observed": 4,
+          "knownAreaIds": [],
+          "relevantAreaIds": []
+        },
+        "ledger": {
+          "gapKey": "SCHEDULE_CAPACITY|scope=geo:osm:relation:1224652|facet=theme:food+theme:history",
+          "outcome": "INSUFFICIENT_EVIDENCE",
+          "budgetUsed": {
+            "rounds": 6,
+            "searches": 3,
+            "fetches": 1
+          },
+          "snapshotEpoch": 4,
+          "at": "2026-10-11T01:16:04.288Z"
+        }
+      }
+    ],
+    "finalEpoch": 5,
+    "tour": {
+      "status": "COMPOSED",
+      "tour": {
+        "request": {
+          "destinationLabel": "Buenos Aires",
+          "days": 4,
+          "thematicFacets": [
+            "theme:food",
+            "theme:history"
+          ],
+          "experienceFormatFacets": [
+            "intent:walk"
+          ],
+          "mobility": {
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "accessibilityNeeds": []
+          }
+        },
+        "catalogEpoch": 5,
+        "experiences": [],
+        "unselected": [],
+        "planner": {
+          "solver": "GreedyDailyPlanningSolver",
+          "approximateTravel": false,
+          "iterations": 1,
+          "routing": {
+            "externalEstimateCount": 0,
+            "internalEstimateCount": 0,
+            "approximateEstimateCount": 0,
+            "fallbackCount": 0,
+            "providerCounts": {}
+          },
+          "constraints": {
+            "requestedDays": 4,
+            "planningWindow": {
+              "startMinutesFromMidnight": 540,
+              "endMinutesFromMidnight": 1200
+            },
+            "allowedTransportationModes": [
+              "walking",
+              "public_transport"
+            ],
+            "maxWalkingDistancePerDayMeters": 8000,
+            "maxContinuousWalkingDistanceMeters": 3000,
+            "travelPace": "moderate",
+            "startDates": []
+          }
+        }
+      }
+    }
+  }
+}

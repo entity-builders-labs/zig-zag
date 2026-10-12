@@ -1,0 +1,867 @@
+{
+  "header": {
+    "spike": "structured-world-first-2026-10-10",
+    "run": "A2",
+    "mode": "record",
+    "branch": "feat/synthetic-tours-openspec",
+    "commit": "5e8b49f0",
+    "startedAt": "2026-10-11T02:59:09.291Z",
+    "routingPolicy": "routing-spike2-1",
+    "readinessPolicy": "readiness-spike2-1",
+    "sourceCapability": "source-capability-spike2-1"
+  },
+  "request": {
+    "destinationLabel": "Buenos Aires",
+    "days": 4,
+    "thematicFacets": [
+      "theme:food",
+      "theme:history"
+    ],
+    "experienceFormatFacets": [
+      "intent:walk"
+    ],
+    "mobility": {
+      "allowedTransportationModes": [
+        "walking",
+        "public_transport"
+      ],
+      "maxWalkingDistancePerDayMeters": 8000,
+      "maxContinuousWalkingDistanceMeters": 3000,
+      "travelPace": "moderate",
+      "accessibilityNeeds": []
+    }
+  },
+  "input": "EMPTY",
+  "memoryBefore": {
+    "documents": 0,
+    "pendingQuestions": 0,
+    "pendingCaptures": 0,
+    "mentions": 0,
+    "reuseEvents": 0
+  },
+  "memoryAfter": {
+    "documents": 6,
+    "pendingQuestions": 0,
+    "pendingCaptures": 0,
+    "mentions": 27,
+    "reuseEvents": 0
+  },
+  "report": {
+    "readinessChecks": [
+      {
+        "epoch": 1,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_CANDIDATES|scope=geo:osm:relation:1224652"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 133,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 140,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      },
+      {
+        "epoch": 147,
+        "verdict": "GAPS",
+        "gapKeys": [
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history"
+        ],
+        "limitationKeys": []
+      }
+    ],
+    "iterations": [
+      {
+        "index": 1,
+        "gap": {
+          "key": "AREA_CANDIDATES|scope=geo:osm:relation:1224652",
+          "type": "AREA_CANDIDATES",
+          "kind": "DISCOVERY",
+          "scopeId": "geo:osm:relation:1224652"
+        },
+        "route": {
+          "gapKey": "AREA_CANDIDATES|scope=geo:osm:relation:1224652",
+          "gapType": "AREA_CANDIDATES",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "osm-admin-areas",
+            "osm-named-places",
+            "wikidata-area-facts"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "osm-admin-areas",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "osm-named-places",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "wikidata-area-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "SUCCESS"
+            }
+          ]
+        },
+        "discovery": {
+          "kind": "AREA",
+          "scopeId": "geo:osm:relation:1224652",
+          "status": "SUCCESS",
+          "acquired": 130,
+          "candidateIds": [
+            "geo:osm:node:10563587863",
+            "geo:osm:node:11781964072",
+            "geo:osm:node:1310853712",
+            "geo:osm:node:13204111853",
+            "geo:osm:node:13333815779",
+            "geo:osm:node:13363621268",
+            "geo:osm:node:13363621269",
+            "geo:osm:node:13588745211",
+            "geo:osm:node:13755786076",
+            "geo:osm:node:1618113952",
+            "geo:osm:node:1620577930",
+            "geo:osm:node:1637490509",
+            "geo:osm:node:1710124754",
+            "geo:osm:node:2154318976",
+            "geo:osm:node:2425303892",
+            "geo:osm:node:2425306209",
+            "geo:osm:node:2425310210",
+            "geo:osm:node:2667485376",
+            "geo:osm:node:3023753678",
+            "geo:osm:node:3049625933",
+            "geo:osm:node:3520887607",
+            "geo:osm:node:3520890188",
+            "geo:osm:node:4308292130",
+            "geo:osm:node:479744086",
+            "geo:osm:node:4936051999",
+            "geo:osm:node:4936147321",
+            "geo:osm:node:4973904314",
+            "geo:osm:node:5523257202",
+            "geo:osm:node:5849865702",
+            "geo:osm:node:5849865703",
+            "geo:osm:node:5849865704",
+            "geo:osm:node:5849865705",
+            "geo:osm:node:6099747372",
+            "geo:osm:node:7317613501",
+            "geo:osm:node:8086648014",
+            "geo:osm:relation:12320573",
+            "geo:osm:relation:12602898",
+            "geo:osm:relation:12720433",
+            "geo:osm:relation:12742959",
+            "geo:osm:relation:15592159",
+            "geo:osm:relation:2220602",
+            "geo:osm:relation:2220994",
+            "geo:osm:relation:2221081",
+            "geo:osm:relation:2221264",
+            "geo:osm:relation:2221272",
+            "geo:osm:relation:2221283",
+            "geo:osm:relation:2221308",
+            "geo:osm:relation:2221316",
+            "geo:osm:relation:2221347",
+            "geo:osm:relation:2221396",
+            "geo:osm:relation:2221410",
+            "geo:osm:relation:2221428",
+            "geo:osm:relation:2221446",
+            "geo:osm:relation:2221465",
+            "geo:osm:relation:2221479",
+            "geo:osm:relation:2222105",
+            "geo:osm:relation:2222108",
+            "geo:osm:relation:2222110",
+            "geo:osm:relation:2222113",
+            "geo:osm:relation:2222119",
+            "geo:osm:relation:2222167",
+            "geo:osm:relation:2222173",
+            "geo:osm:relation:2222175",
+            "geo:osm:relation:2222180",
+            "geo:osm:relation:2222226",
+            "geo:osm:relation:2222235",
+            "geo:osm:relation:2222237",
+            "geo:osm:relation:2222250",
+            "geo:osm:relation:2222256",
+            "geo:osm:relation:2222269",
+            "geo:osm:relation:2222296",
+            "geo:osm:relation:2222813",
+            "geo:osm:relation:2222826",
+            "geo:osm:relation:2222917",
+            "geo:osm:relation:2223057",
+            "geo:osm:relation:2223069",
+            "geo:osm:relation:2223078",
+            "geo:osm:relation:2223088",
+            "geo:osm:relation:2223107",
+            "geo:osm:relation:2223126",
+            "geo:osm:relation:2223172",
+            "geo:osm:relation:2223176",
+            "geo:osm:relation:2223536",
+            "geo:osm:relation:2223879",
+            "geo:osm:relation:2224056",
+            "geo:osm:relation:2224546",
+            "geo:osm:relation:2224562",
+            "geo:osm:relation:5328270",
+            "geo:osm:way:1001239866",
+            "geo:osm:way:1097864831",
+            "geo:osm:way:1188684732",
+            "geo:osm:way:1442402971",
+            "geo:osm:way:149009732",
+            "geo:osm:way:149693906",
+            "geo:osm:way:149763335",
+            "geo:osm:way:1509491808",
+            "geo:osm:way:205344125",
+            "geo:osm:way:205360649",
+            "geo:osm:way:205360910",
+            "geo:osm:way:205362557",
+            "geo:osm:way:205456680",
+            "geo:osm:way:205476342",
+            "geo:osm:way:205476375",
+            "geo:osm:way:205476470",
+            "geo:osm:way:205507596",
+            "geo:osm:way:23651039",
+            "geo:osm:way:298257464",
+            "geo:osm:way:329365872",
+            "geo:osm:way:370229235",
+            "geo:osm:way:373090950",
+            "geo:osm:way:424636843",
+            "geo:osm:way:446758778",
+            "geo:osm:way:474527786",
+            "geo:osm:way:492679065",
+            "geo:osm:way:492679066",
+            "geo:osm:way:519186316",
+            "geo:osm:way:620756879",
+            "geo:osm:way:653250878",
+            "geo:osm:way:700569079",
+            "geo:osm:way:722773886",
+            "geo:osm:way:763919066",
+            "geo:osm:way:804107557",
+            "geo:osm:way:837594663",
+            "geo:osm:way:837594664",
+            "geo:osm:way:911575169",
+            "geo:osm:way:912548402",
+            "geo:osm:way:912563514",
+            "geo:osm:way:912893483",
+            "geo:osm:way:945663097",
+            "geo:osm:way:948326524"
+          ],
+          "excluded": [],
+          "runs": [
+            {
+              "strategyId": "osm-admin-areas",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "osm-named-places",
+              "sourceClass": "GEOGRAPHIC_STRUCTURE",
+              "outcome": "SUCCESS"
+            },
+            {
+              "strategyId": "wikidata-area-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "SUCCESS"
+            }
+          ]
+        },
+        "gapOutcome": "SATISFIED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "overpass": 96,
+          "overpass-raw": 1,
+          "wikidata": 2
+        }
+      },
+      {
+        "index": 2,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:food"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "EMPTY",
+              "detail": "BUDGET_EXHAUSTED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223879",
+            "candidateName": "La Boca",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224562",
+            "candidateName": "Puerto Madero",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222226",
+            "candidateName": "Palermo",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224056",
+            "candidateName": "Recoleta",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222180",
+            "candidateName": "Belgrano",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223069",
+            "candidateName": "San Telmo",
+            "facetKey": "theme:food",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+          "kind": "BUDGET_EXHAUSTED",
+          "discarded": [
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor no"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor yes"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor yes"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 0"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 0"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor 0"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "no",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "yes",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "yes",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q3",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q3",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q3",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "0",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "0",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "0",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:food",
+              "context": "anchor for q3",
+              "at": "2026-10-11T02:59:10.851Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 3
+          },
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:food": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:food": "BUDGET_EXHAUSTED"
+        },
+        "gapOutcome": "BUDGET_EXHAUSTED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 12,
+          "serper": 3,
+          "web": 3
+        }
+      },
+      {
+        "index": 3,
+        "gap": {
+          "key": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "type": "AREA_RELEVANCE",
+          "kind": "MEANING",
+          "scopeId": "geo:osm:relation:1224652",
+          "facetKey": "theme:history"
+        },
+        "route": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "gapType": "AREA_RELEVANCE",
+          "policyVersion": "routing-spike2-1",
+          "selected": [
+            "structured-relevance-facts",
+            "research-memory",
+            "web-evidence"
+          ],
+          "unavailable": [],
+          "runs": [
+            {
+              "strategyId": "structured-relevance-facts",
+              "sourceClass": "STRUCTURED_ENTITY_FACTS",
+              "outcome": "EMPTY",
+              "detail": "0 mapped capture(s)"
+            },
+            {
+              "strategyId": "research-memory",
+              "sourceClass": "RESEARCH_MEMORY",
+              "outcome": "EMPTY",
+              "detail": "0 retained capture(s)"
+            },
+            {
+              "strategyId": "web-evidence",
+              "sourceClass": "WEB_EVIDENCE",
+              "outcome": "EMPTY",
+              "detail": "BUDGET_EXHAUSTED"
+            }
+          ]
+        },
+        "offered": [
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223879",
+            "candidateName": "La Boca",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224562",
+            "candidateName": "Puerto Madero",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222226",
+            "candidateName": "Palermo",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2224056",
+            "candidateName": "Recoleta",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2222180",
+            "candidateName": "Belgrano",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          },
+          {
+            "questionKey": "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history",
+            "claimType": "RELEVANT_FOR",
+            "candidateId": "geo:osm:relation:2223069",
+            "candidateName": "San Telmo",
+            "facetKey": "theme:history",
+            "candidateExistedInL1BeforeResearch": true,
+            "candidateDiscoveredBy": [
+              "osm-admin-areas"
+            ]
+          }
+        ],
+        "structuredCaptures": 0,
+        "memoryCapturesRetrieved": 0,
+        "evaluator": {
+          "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+          "kind": "BUDGET_EXHAUSTED",
+          "discarded": [
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor sources"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor sources"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor sources"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor a1"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor yes"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor yes"
+            },
+            {
+              "reason": "NOT_OFFERED_CANDIDATE",
+              "detail": "anchor yes"
+            }
+          ],
+          "mentions": [
+            {
+              "name": "sources",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "sources",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "sources",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q6",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q6",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q6",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "a1",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q6",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "yes",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q1",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "yes",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q2",
+              "at": "2026-10-11T02:59:10.851Z"
+            },
+            {
+              "name": "yes",
+              "gapKey": "AREA_RELEVANCE|scope=geo:osm:relation:1224652|facet=theme:history",
+              "context": "anchor for q6",
+              "at": "2026-10-11T02:59:10.851Z"
+            }
+          ],
+          "budgetUsed": {
+            "rounds": 12,
+            "searches": 3,
+            "fetches": 4
+          },
+          "answers": 0
+        },
+        "grounding": [],
+        "questionOutcomes": {
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223879|facet=theme:history": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224562|facet=theme:history": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222226|facet=theme:history": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2224056|facet=theme:history": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2222180|facet=theme:history": "BUDGET_EXHAUSTED",
+          "Q|RELEVANT_FOR|candidate=geo:osm:relation:2223069|facet=theme:history": "BUDGET_EXHAUSTED"
+        },
+        "gapOutcome": "BUDGET_EXHAUSTED",
+        "recomposition": {
+          "created": [],
+          "revised": [],
+          "reactivated": [],
+          "unchanged": [],
+          "archived": []
+        },
+        "providerCallsDelta": {
+          "llm": 12,
+          "serper": 3,
+          "web": 4
+        }
+      }
+    ],
+    "finalVerdict": "GAPS",
+    "stoppedBecause": "ONLY_ATTEMPTED_GAPS_REMAIN",
+    "limitations": [],
+    "result": {
+      "status": "INSUFFICIENT_KNOWLEDGE",
+      "limitations": []
+    }
+  }
+}

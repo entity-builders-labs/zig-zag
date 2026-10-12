@@ -1,0 +1,102 @@
+{
+ "city": "PA",
+ "scenario": "S3-unknown-penalize",
+ "solver": "cpsat-dt5",
+ "pool": 30,
+ "days": 3,
+ "modes": [
+  "walk",
+  "drive"
+ ],
+ "anchors": [
+  false,
+  false
+ ],
+ "must": [],
+ "pair_edges": 870,
+ "status": "UNKNOWN",
+ "violations": [],
+ "valid": true,
+ "must_conflicts": [],
+ "repeats": 1,
+ "identical_repeats": true,
+ "wall_s_median": 6.646,
+ "wall_s_max": 6.646,
+ "solver_meta": {
+  "solver": "cp-sat(dt=5,seed=7,workers=1)",
+  "wall_s": 6.645,
+  "solve_s": 6.609,
+  "status": "UNKNOWN",
+  "objective": null,
+  "bound": null,
+  "variables": 2973,
+  "constraints": 2736
+ },
+ "scheduled": 0,
+ "desirability": 0.0,
+ "visit_min": 0.0,
+ "travel_min": 0.0,
+ "walk_min": 0.0,
+ "drive_legs": 0,
+ "walk_legs": 0,
+ "idle_min": 0.0,
+ "unknown_hours_scheduled": 0,
+ "objective_test_weights": 0.0,
+ "day_spread_m": [
+  0,
+  0,
+  0
+ ],
+ "residual_min": [
+  600,
+  600,
+  600
+ ],
+ "omitted_top": [
+  "Tour Eiffel",
+  "Mus\u00e9e du Louvre",
+  "Cath\u00e9drale Notre-Dame de Paris",
+  "Mus\u00e9e d'Orsay",
+  "Champs \u00c9lys\u00e9es",
+  "Arc de Triomphe",
+  "Pendule de Foucault",
+  "Palais de l'\u00c9lys\u00e9e",
+  "Op\u00e9ra Garnier",
+  "Centre Georges Pompidou",
+  "Place de la Concorde",
+  "Panth\u00e9on",
+  "Assembl\u00e9e nationale",
+  "Sainte-Chapelle",
+  "H\u00f4tel des Invalides",
+  "Champ de Mars",
+  "Universit\u00e9 Paris 1 Panth\u00e9on-Sorbonne - Centre Sorbonne",
+  "Mus\u00e9e des Arts et M\u00e9tiers",
+  "Palais Royal",
+  "Jardin du Luxembourg",
+  "Grand Palais",
+  "Petit Palais, Mus\u00e9e des beaux-arts de la Ville de Paris",
+  "\u00c9glise de la Madeleine",
+  "Pont Neuf",
+  "Conciergerie",
+  "Pyramide du Louvre",
+  "Place Vend\u00f4me",
+  "Mus\u00e9um national d'histoire naturelle",
+  "Arc de Triomphe du Carrousel",
+  "Mus\u00e9e d'Art Moderne de Paris"
+ ],
+ "readiness": "PLANNER_INFEASIBLE",
+ "itinerary": [
+  {
+   "date": "2026-11-10",
+   "items": []
+  },
+  {
+   "date": "2026-11-11",
+   "items": []
+  },
+  {
+   "date": "2026-11-12",
+   "items": []
+  }
+ ]
+}
