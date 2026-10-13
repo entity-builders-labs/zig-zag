@@ -1,0 +1,162 @@
+[
+ {
+  "case": "BA-G5-full",
+  "policy": "T1000",
+  "hogs": 20,
+  "distinctPlans": 1,
+  "idle": [
+   {
+    "objective": 5728,
+    "solveMs": 1000.62,
+    "solutions": 524
+   },
+   {
+    "objective": 5728,
+    "solveMs": 1000.03,
+    "solutions": 524
+   },
+   {
+    "objective": 5728,
+    "solveMs": 1000.41,
+    "solutions": 524
+   }
+  ],
+  "loaded": [
+   {
+    "objective": 5728,
+    "solveMs": 1000.17,
+    "solutions": 509
+   },
+   {
+    "objective": 5728,
+    "solveMs": 1000.04,
+    "solutions": 513
+   },
+   {
+    "objective": 5728,
+    "solveMs": 1000.71,
+    "solutions": 487
+   }
+  ]
+ },
+ {
+  "case": "BA-G5-full",
+  "policy": "SL1000",
+  "hogs": 20,
+  "distinctPlans": 1,
+  "idle": [
+   {
+    "objective": 5728,
+    "solveMs": 2005.33,
+    "solutions": 1000
+   },
+   {
+    "objective": 5728,
+    "solveMs": 2102.78,
+    "solutions": 1000
+   },
+   {
+    "objective": 5728,
+    "solveMs": 2198.44,
+    "solutions": 1000
+   }
+  ],
+  "loaded": [
+   {
+    "objective": 5728,
+    "solveMs": 2121.57,
+    "solutions": 1000
+   },
+   {
+    "objective": 5728,
+    "solveMs": 2116.6,
+    "solutions": 1000
+   },
+   {
+    "objective": 5728,
+    "solveMs": 2098.06,
+    "solutions": 1000
+   }
+  ]
+ },
+ {
+  "case": "LA-S1-normal-pall",
+  "policy": "T1000",
+  "hogs": 20,
+  "distinctPlans": 1,
+  "idle": [
+   {
+    "objective": 6490,
+    "solveMs": 1000.55,
+    "solutions": 484
+   },
+   {
+    "objective": 6490,
+    "solveMs": 1000.7,
+    "solutions": 454
+   },
+   {
+    "objective": 6490,
+    "solveMs": 1000.11,
+    "solutions": 454
+   }
+  ],
+  "loaded": [
+   {
+    "objective": 6490,
+    "solveMs": 1000.46,
+    "solutions": 454
+   },
+   {
+    "objective": 6490,
+    "solveMs": 999.25,
+    "solutions": 454
+   },
+   {
+    "objective": 6490,
+    "solveMs": 1000.35,
+    "solutions": 454
+   }
+  ]
+ },
+ {
+  "case": "LA-S1-normal-pall",
+  "policy": "SL1000",
+  "hogs": 20,
+  "distinctPlans": 1,
+  "idle": [
+   {
+    "objective": 6394,
+    "solveMs": 2144.13,
+    "solutions": 1000
+   },
+   {
+    "objective": 6394,
+    "solveMs": 2131.63,
+    "solutions": 1000
+   },
+   {
+    "objective": 6394,
+    "solveMs": 2114.15,
+    "solutions": 1000
+   }
+  ],
+  "loaded": [
+   {
+    "objective": 6394,
+    "solveMs": 2256.54,
+    "solutions": 1000
+   },
+   {
+    "objective": 6394,
+    "solveMs": 2233.9,
+    "solutions": 1000
+   },
+   {
+    "objective": 6394,
+    "solveMs": 2205.9,
+    "solutions": 1000
+   }
+  ]
+ }
+]

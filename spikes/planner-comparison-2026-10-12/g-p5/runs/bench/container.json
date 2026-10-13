@@ -1,0 +1,322 @@
+{
+ "rows": [
+  {
+   "cpus": "2",
+   "healthyMs": 1308,
+   "case": "BA-G5-full",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 3198,
+     "solveMs": 3138.83,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 5728
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 3330,
+     "solveMs": 3289.28,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 5728
+    }
+   ]
+  },
+  {
+   "cpus": "2",
+   "healthyMs": 1308,
+   "case": "BA-G5-full",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1028,
+     "solveMs": 1000.53,
+     "solutions": 357,
+     "stopReason": "TIME_CAP",
+     "objective": 5728
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1020,
+     "solveMs": 1000.1,
+     "solutions": 374,
+     "stopReason": "TIME_CAP",
+     "objective": 5728
+    }
+   ]
+  },
+  {
+   "cpus": "2",
+   "healthyMs": 1308,
+   "case": "LA-S1-normal-pall",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 3385,
+     "solveMs": 3368.41,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 6394
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 3343,
+     "solveMs": 3321.05,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 6394
+    }
+   ]
+  },
+  {
+   "cpus": "2",
+   "healthyMs": 1308,
+   "case": "LA-S1-normal-pall",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1057,
+     "solveMs": 1001.71,
+     "solutions": 297,
+     "stopReason": "TIME_CAP",
+     "objective": 6504
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1024,
+     "solveMs": 1001.59,
+     "solutions": 324,
+     "stopReason": "TIME_CAP",
+     "objective": 6504
+    }
+   ]
+  },
+  {
+   "cpus": "2",
+   "memUsage": "40.59MiB / 512MiB"
+  },
+  {
+   "cpus": "0.5",
+   "healthyMs": 1811,
+   "case": "BA-G5-full",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 7485,
+     "solveMs": 7406.93,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 5728
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 7776,
+     "solveMs": 7624.68,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 5728
+    }
+   ]
+  },
+  {
+   "cpus": "0.5",
+   "healthyMs": 1811,
+   "case": "BA-G5-full",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1024,
+     "solveMs": 1001.1,
+     "solutions": 181,
+     "stopReason": "TIME_CAP",
+     "objective": 5851
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1072,
+     "solveMs": 1052.42,
+     "solutions": 188,
+     "stopReason": "TIME_CAP",
+     "objective": 5851
+    }
+   ]
+  },
+  {
+   "cpus": "0.5",
+   "healthyMs": 1811,
+   "case": "LA-S1-normal-pall",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 7697,
+     "solveMs": 7679.05,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 6394
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 7013,
+     "solveMs": 6983.06,
+     "solutions": 1000,
+     "stopReason": "SOLUTION_LIMIT",
+     "objective": 6394
+    }
+   ]
+  },
+  {
+   "cpus": "0.5",
+   "healthyMs": 1811,
+   "case": "LA-S1-normal-pall",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1095,
+     "solveMs": 1000.71,
+     "solutions": 170,
+     "stopReason": "TIME_CAP",
+     "objective": 6572
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1024,
+     "solveMs": 999.8,
+     "solutions": 169,
+     "stopReason": "TIME_CAP",
+     "objective": 6572
+    }
+   ]
+  },
+  {
+   "cpus": "0.5",
+   "memUsage": "50.7MiB / 512MiB"
+  },
+  {
+   "cpus": "0.2",
+   "healthyMs": 2930,
+   "case": "BA-G5-full",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 10780,
+     "solveMs": 10294.97,
+     "solutions": 386,
+     "stopReason": "TIME_CAP",
+     "objective": 5728
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 10393,
+     "solveMs": 10006.78,
+     "solutions": 437,
+     "stopReason": "TIME_CAP",
+     "objective": 5728
+    }
+   ]
+  },
+  {
+   "cpus": "0.2",
+   "healthyMs": 2930,
+   "case": "BA-G5-full",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1197,
+     "solveMs": 1085.06,
+     "solutions": 37,
+     "stopReason": "TIME_CAP",
+     "objective": 5851
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1197,
+     "solveMs": 1000.57,
+     "solutions": 25,
+     "stopReason": "TIME_CAP",
+     "objective": 5851
+    }
+   ]
+  },
+  {
+   "cpus": "0.2",
+   "healthyMs": 2930,
+   "case": "LA-S1-normal-pall",
+   "policy": "routing-gls-sl1000-v1",
+   "distinctPlans": 2,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 10303,
+     "solveMs": 10006.69,
+     "solutions": 426,
+     "stopReason": "TIME_CAP",
+     "objective": 6355
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 10713,
+     "solveMs": 10101.4,
+     "solutions": 371,
+     "stopReason": "TIME_CAP",
+     "objective": 6490
+    }
+   ]
+  },
+  {
+   "cpus": "0.2",
+   "healthyMs": 2930,
+   "case": "LA-S1-normal-pall",
+   "policy": "test-only-wallclock-1000ms",
+   "distinctPlans": 1,
+   "trials": [
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1287,
+     "solveMs": 1001.35,
+     "solutions": 65,
+     "stopReason": "TIME_CAP",
+     "objective": 6846
+    },
+    {
+     "outcome": "PLANNED",
+     "totalMs": 1096,
+     "solveMs": 999.96,
+     "solutions": 49,
+     "stopReason": "TIME_CAP",
+     "objective": 6846
+    }
+   ]
+  },
+  {
+   "cpus": "0.2",
+   "memUsage": "58.39MiB / 512MiB"
+  }
+ ],
+ "distinctPlansAcrossQuotas": {
+  "BA-G5-full routing-gls-sl1000-v1": 1,
+  "BA-G5-full test-only-wallclock-1000ms": 2,
+  "LA-S1-normal-pall routing-gls-sl1000-v1": 2,
+  "LA-S1-normal-pall test-only-wallclock-1000ms": 3
+ }
+}

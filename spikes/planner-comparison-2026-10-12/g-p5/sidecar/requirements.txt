@@ -1,0 +1,2 @@
+# Pinned planner runtime (G-P5). Production would add --require-hashes (pip-compile --generate-hashes).
+ortools==9.15.6755

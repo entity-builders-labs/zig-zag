@@ -224,11 +224,19 @@ For a multi-day request the planner SHALL assign candidates to days as part of o
 - **THEN** the planner returns the split with the higher total utility
 
 ### Requirement: Deterministic planning
-For identical planning inputs, identical travel-estimate recordings and identical policy versions, the planner SHALL return an identical itinerary and identical diagnostics. Any search budget SHALL be deterministic (not wall-clock dependent), and any randomness SHALL use a recorded fixed seed.
+For identical planning inputs, identical travel-estimate recordings and identical policy and optimizer versions, the planner SHALL return an identical itinerary and identical diagnostics. Any search budget SHALL be deterministic (not wall-clock dependent), and any randomness SHALL use a recorded fixed seed. A wall-clock limit MAY exist only as an operational safety guard; when it ends the search, the plan SHALL record that it is not reproducible.
 
 #### Scenario: Replay
 - **WHEN** a recorded planning input is planned twice with the same recordings and policies
 - **THEN** both outputs are byte-identical
+
+#### Scenario: Slower host
+- **WHEN** the same planning input is planned on a slower or more loaded machine and the safety guard does not fire
+- **THEN** the itinerary is identical to the one produced on the faster machine
+
+#### Scenario: Safety guard fires
+- **WHEN** the operational time guard ends the search before the deterministic budget is reached
+- **THEN** the returned itinerary still satisfies every hard constraint and the plan records that it is not reproducible
 
 ### Requirement: Scheduled activity output
 For each scheduled activity the planner output SHALL contain the canonical Experience identity, day, planned start, planned end, visit duration with provenance, the applied opening window or UNKNOWN with provenance, the incoming travel leg with its mode, duration, distance where available and routing provider, and the constraints that bound the visit.
@@ -238,7 +246,7 @@ For each scheduled activity the planner output SHALL contain the canonical Exper
 - **THEN** its output shows the opening window it fits, its duration provenance and the incoming leg's mode and estimate provenance
 
 ### Requirement: Day and plan output
-For each day the planner output SHALL contain used time, remaining time with the planner's meaningful-residual judgement, total travel time, total walking where available and that day's diagnostics. The plan SHALL record the policy versions, the routing provider(s) used, unavailable estimates per mode and the constraint snapshot it evaluated.
+For each day the planner output SHALL contain used time, remaining time with the planner's meaningful-residual judgement, total travel time, total walking where available and that day's diagnostics. The plan SHALL record the policy versions, the optimizer identity (optimizer, optimizer version, optimizer policy version) and whether the plan is reproducible, the routing provider(s) used, unavailable estimates per mode and the constraint snapshot it evaluated.
 
 #### Scenario: Day summary
 - **WHEN** a planned day is inspected
@@ -266,12 +274,45 @@ Invalid planner input (duplicate identity, invalid footprint, invalid composite)
 - **WHEN** the same Experience identity is offered twice
 - **THEN** it is reported as an input error and not as a feasibility rejection
 
-### Requirement: Planner budget exhaustion is explicit
-When the optimizer exhausts its search budget without producing any itinerary although the request may be feasible, generation SHALL report a planner failure distinct from PLANNER_INFEASIBLE and from every knowledge verdict, and SHALL persist no Tour; PLANNER_INFEASIBLE SHALL be reserved for proven or explicit constraint conflicts.
+### Requirement: Optimizer failure is explicit
+When the optimizer cannot produce a usable itinerary for any reason other than a proven or explicit constraint conflict, generation SHALL report OPTIMIZER_FAILED with a typed reason, distinct from PLANNER_INFEASIBLE, NEEDS_ACQUISITION and every knowledge verdict, and SHALL persist no Tour. PLANNER_INFEASIBLE SHALL be reserved for proven or explicit constraint conflicts.
 
 #### Scenario: Solver returns no solution in time
 - **WHEN** the optimizer stops at its budget with no itinerary for a 30-candidate request
-- **THEN** generation reports a planner budget failure, not PLANNER_INFEASIBLE and not INSUFFICIENT_KNOWLEDGE
+- **THEN** generation reports OPTIMIZER_FAILED, not PLANNER_INFEASIBLE and not INSUFFICIENT_KNOWLEDGE
+
+#### Scenario: Optimizer unavailable
+- **WHEN** the optimizer runtime is unreachable, crashes during the request, rejects the request or exceeds the request deadline
+- **THEN** generation reports OPTIMIZER_FAILED with the typed reason, requests no acquisition and persists no Tour
+
+#### Scenario: Malformed optimizer result
+- **WHEN** the optimizer returns a result that does not satisfy the result contract
+- **THEN** generation reports OPTIMIZER_FAILED, never a Tour
+
+### Requirement: Optimizer results are validated
+Every itinerary returned by the optimizer SHALL be validated against the hard constraints of the planning input before it is used; an itinerary that fails validation SHALL be treated as an optimizer failure.
+
+#### Scenario: Optimizer returns an invalid itinerary
+- **WHEN** the optimizer returns an itinerary with a visit outside its feasible window or a leg without a matching travel estimate
+- **THEN** the itinerary is discarded and generation reports OPTIMIZER_FAILED, never a Tour
+
+### Requirement: Provider-neutral optimizer boundary
+The planner SHALL invoke the optimizer through a provider-neutral contract that carries the whole normalized planning problem of one request in one bounded call and returns a feasible plan, an explicit infeasibility or an explicit optimizer failure. No optimizer-specific structure SHALL cross into the Tour domain.
+
+#### Scenario: Replacing the optimizer
+- **WHEN** the production optimizer is replaced by another implementation of the contract
+- **THEN** no Tour-domain code, planning input preparation or snapshot structure changes
+
+#### Scenario: One call per plan
+- **WHEN** a 30-candidate, 3-day request is planned
+- **THEN** the optimizer receives one request containing every candidate, feasible start window, travel estimate and limit, and is never called per candidate or per travel edge
+
+### Requirement: Single reachable optimizer
+Exactly one optimizer SHALL be reachable for new requests; a request whose optimizer call fails SHALL NOT be re-planned by a different optimizer.
+
+#### Scenario: No silent failover
+- **WHEN** the optimizer reports OPTIMIZER_FAILED
+- **THEN** generation reports that failure and no other optimizer produces a Tour for the request
 
 ### Requirement: Planner algorithm selected by evidence
 The production optimizer SHALL be selected only after a recorded comparison of at least the current greedy planner, an established routing-with-time-windows approach and, where materially different and practical, a constraint-programming orienteering formulation, run on identical recorded inputs from several destinations. The selection SHALL be recorded with the evidence; correctness of hard constraints SHALL be a gate, not a weighted metric.

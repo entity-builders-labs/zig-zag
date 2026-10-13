@@ -1,0 +1,96 @@
+[
+ {
+  "test": "baseline planned",
+  "outcome": "PLANNED",
+  "generation": "TOUR_PLANNED",
+  "elapsedMs": 2083,
+  "pass": true
+ },
+ {
+  "test": "proven must-include conflict (closed all trip)",
+  "outcome": "INFEASIBLE",
+  "generation": "PLANNER_INFEASIBLE",
+  "elapsedMs": 4,
+  "pass": true
+ },
+ {
+  "test": "safety cap (1 ms) fires",
+  "outcome": "PLANNED",
+  "reason": "TIME_CAP plan, reproducible=false",
+  "generation": "TOUR_PLANNED",
+  "elapsedMs": 16,
+  "pass": true
+ },
+ {
+  "test": "malformed response body",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "MALFORMED_RESPONSE",
+  "detail": "invalid JSON",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 1976,
+  "pass": true
+ },
+ {
+  "test": "plan violating hard constraints",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "INVALID_RESULT",
+  "detail": "BA:way:23633911: start -56 outside feasible windows; BA:way:23633911: starts before arrival (-56 < 544)",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 1983,
+  "pass": true
+ },
+ {
+  "test": "contract violation rejected",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "REQUEST_REJECTED",
+  "detail": "contractVersion must be planning-problem-v1",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 2,
+  "pass": true
+ },
+ {
+  "test": "unknown optimizer policy rejected",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "REQUEST_REJECTED",
+  "detail": "unknown optimizerPolicyVersion no-such-policy",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 3,
+  "pass": true
+ },
+ {
+  "test": "sidecar slower than deadline",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "TIMEOUT",
+  "detail": "TimeoutError",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 3005,
+  "pass": true
+ },
+ {
+  "test": "sidecar crash mid-request",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "TRANSPORT_ERROR",
+  "detail": "UND_ERR_SOCKET",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 15,
+  "pass": true
+ },
+ {
+  "test": "sidecar down",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "UNAVAILABLE",
+  "detail": "ECONNREFUSED",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 4,
+  "pass": true
+ },
+ {
+  "test": "stdio worker killed mid-solve",
+  "outcome": "OPTIMIZER_FAILED",
+  "reason": "WORKER_EXITED",
+  "detail": "WORKER_EXITED:null",
+  "generation": "OPTIMIZER_FAILED",
+  "elapsedMs": 305,
+  "pass": true
+ }
+]

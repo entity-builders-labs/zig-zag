@@ -1,0 +1,10 @@
+# Local development (G-P5 spike): `docker compose -f compose.planner.yml up -d planner`
+# NestJS then uses PLANNER_URL=http://127.0.0.1:8090. In the repo docker-compose.yml this would be one more
+# service on app-network (backend -> http://planner:8090), with no host port needed in production.
+services:
+  planner:
+    build: .
+    image: zigzag-planner:g-p5
+    ports:
+      - "127.0.0.1:8090:8090"
+    restart: unless-stopped

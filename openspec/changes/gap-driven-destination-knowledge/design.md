@@ -832,13 +832,75 @@ hard-constraint checker.
   exhausts its budget without a Tour is a planner failure, not
   infeasibility.
 
+#### G-P5 results (executed 2026-10-12)
+
+Evidence: `spikes/planner-comparison-2026-10-12/g-p5/` (README, sidecar
+and client prototype, raw runs). Same P11 fixtures and TEST-ONLY objective;
+OR-Tools 9.15.6755.
+
+- Integration options: no official or production-credible Node.js binding
+  for Routing (abandoned `node_or_tools` on OR-Tools v5.1, 0.x or months-old
+  single-maintainer ports) — rejected. OR-Tools ships manylinux wheels only,
+  so it cannot live in the `node:22-alpine` backend image. A Python sidecar
+  over HTTP/JSON is selected; a stdio child process saves ~1 ms of IPC but
+  couples runtimes in one image; spawn-per-request adds 117-151 ms.
+- Boundary: one bounded request per plan (`planning-problem-v1`, ~16 KB for
+  30 candidates: per-day feasible start windows, service minutes, utility,
+  uncertainty count, must-include, optional anchors, per-mode travel seconds,
+  limits, objective terms, `optimizerPolicyVersion`) and one result
+  (`planning-result-v1`, ~3.5 KB). Node and Python builders emit identical
+  requests. Model = P11 Routing with must-include as a dominant-penalty
+  optional node (a solution always exists; proven conflicts are reported
+  before solving) and matrix-registered transit costs.
+- Stopping: wall-clock stops are not reproducible (1 s: 3/39 scenarios
+  changed plan on repeat; plans change with the CPU quota); the
+  improvement-rate limit never stopped GLS. Solution limits are
+  reproducible (39/39); SL1000 is the smallest tested limit with no scenario
+  > 1 % below the recorded 5 s runs (mean +0.10 %, worst -0.67 %).
+- Latency (laptop, warm, 30-candidate 3-day incl. composite, must-include,
+  start+end anchors): total median/p95/max 2085/2306/2356 ms; solve 2070
+  median; everything else ~13 ms (IPC 1.7 ms, model build 6 ms, validation
+  0.06 ms). Cold sidecar process ready in 0.18-0.24 s with no first-request
+  penalty; container 1.3 s at 2 vCPU, 41-58 MiB, 115 MB image. Container
+  SL1000: 3.2-3.4 s at 2 vCPU, 7-7.8 s at 0.5 vCPU (same plan), safety cap at
+  0.2 vCPU. Tour generation is already a background job.
+- Quality vs greedy best-insertion (35 planned scenarios): > 1 % better in
+  23, within ±1 % in 11, worse in 1 (-3.7 %, 10-candidate pool); +16
+  scheduled Experiences over 15 scenarios.
+- Failures (11/11 tested): proven must-include conflict → INFEASIBLE;
+  unavailable, crash, timeout, malformed, constraint-violating result,
+  rejected request, worker exit, no solution within budget →
+  OPTIMIZER_FAILED with a typed reason; never PLANNER_INFEASIBLE or a
+  knowledge verdict. A client timeout does not cancel the sidecar's solve,
+  so the client deadline must exceed the safety cap.
+
 #### P12. Optimizer selection and implementation
 
-The owner selects the production optimizer from P11 evidence (P-D5) and the
-decision is recorded here. The selected optimizer replaces the greedy solver
+P-D5 is resolved: OR-Tools Routing (G-P5). It replaces the greedy solver
 behind `DAILY_PLANNING_SOLVER`; no dual planner remains reachable after
-cutover. Runtime integration (in-process library vs sidecar) is part of the
-decision.
+cutover, and there is no per-request failover to another optimizer.
+
+```text
+DailyPlanningSolver (DAILY_PLANNING_SOLVER)   domain: feasible windows, utilities, diagnostics
+  └─ PlanningOptimizer.plan(problem)            provider-neutral port, one bounded request
+       └─ OR-Tools Routing sidecar adapter       transport, deadline, outcome mapping, validation
+            └─ planner sidecar (Python)           RoutingModel, dimensions, search parameters
+```
+
+- The domain prepares the normalized problem; no RoutingModel, index
+  manager, dimension or solver parameter crosses the port. Replacing the
+  optimizer is a new adapter, not a Tour-domain change.
+- Outcomes: PLANNED (validated against every hard constraint by the domain
+  before use), INFEASIBLE (proven/explicit conflicts only) or
+  OPTIMIZER_FAILED (typed reason; no Tour persisted).
+- Stop policy `routing-gls-sl1000-v1`: count-based; the wall-clock cap is a
+  safety guard and a capped plan is recorded as non-reproducible.
+- Identity recorded in the planning context: `optimizer =
+  OR_TOOLS_ROUTING`, `optimizerVersion` (pinned), `optimizerPolicyVersion`,
+  adapter/formulation version.
+- Topology: sidecar container in the backend deployment unit (same host,
+  release and rollback, private network, health-gated, restart policy); no
+  independent planner service. The host provides sustained CPU for planning.
 
 #### P13. Planning acceptance
 
@@ -1454,8 +1516,8 @@ and OUTSIDE_DESTINATION is relative to the request's destination and is
 evaluated at scope-query time, never stored. Children that are not their own
 visit unit are expressed by `GeoEntityRelation`, not by an exclusion value.
 
-NEEDS_ACQUISITION, INSUFFICIENT_KNOWLEDGE, PLANNER_INFEASIBLE and
-TRAVEL_ESTIMATION_UNAVAILABLE produce no Tour; they live only in the
+NEEDS_ACQUISITION, INSUFFICIENT_KNOWLEDGE, PLANNER_INFEASIBLE,
+OPTIMIZER_FAILED and TRAVEL_ESTIMATION_UNAVAILABLE produce no Tour; they live only in the
 generation result/trace and are not Tour states.
 
 #### Json boundaries
@@ -1756,8 +1818,9 @@ TRAVEL_ESTIMATE_UNAVAILABLE (P-D3).
   (sources, targets, mode, optional departure time → per-pair outcomes) so
   the optimizer never issues N² leg calls; adapters own chunking, vendor
   limits, credits and batching. The optimizer requests a shape (full or
-  sparse nearest-neighbour), never a vendor concept; which shape is used is
-  part of P-D5.
+  sparse nearest-neighbour), never a vendor concept. P-D5 (G-P5) uses the
+  full matrix per mode (~31 points, one ~16 KB optimizer request); a
+  sparse shape is an optimization to adopt only when pool sizes require it.
 - **Optional day anchors:** today `DailyPlanningInput` has no start/end
   location (only window, dates and destination), so only Experience →
   Experience legs are estimated. Anchors become optional per day
@@ -2022,17 +2085,25 @@ Valhalla-first behind the same contracts.
   only); no acquisition, research or readiness change; snapshotted as
   `openingHoursStatus = UNKNOWN` plus policy version. No request-level
   strict mode in this change. Contract: design P3.
-- **P-D5. Production optimizer — EVALUATED 2026-10-12 (P11 results),
-  OPEN with one bounded gate.** Evidence: replace the current greedy; do not
-  use CP-SAT (this formulation) in production; OR-Tools Routing gives the
-  best Tours in the constrained cases at a 1-5 s budget, greedy
-  best-insertion is the simplest viable alternative (in-process, ~30 ms,
-  deterministic, 7-14 % behind in constrained cases). Gate G-P5 (task
-  32.0): Routing runtime integration for the NestJS backend (official
-  binding unavailable → Python sidecar or native binding), a deterministic
-  stop criterion reproducing identical plans on the P11 fixtures, and the
-  measured end-to-end latency for a 30-candidate 3-day request accepted by
-  the owner. Pass → Routing; fail → greedy best-insertion. No hybrid.
+- **P-D5. RESOLVED (owner, gate G-P5, 2026-10-12): production optimizer =
+  OR-Tools Routing** behind the provider-neutral `PlanningOptimizer`
+  contract (P12), executed in a colocated Python sidecar (OR-Tools
+  9.15.6755 pinned) in the backend deployment unit and stopped by the
+  count-based policy `routing-gls-sl1000-v1` (solution limit 1000 as the
+  quality control; 10 s wall-clock cap as an operational safety guard that
+  marks a plan non-reproducible when it fires). Evidence: P11 results and
+  G-P5 results (`spikes/planner-comparison-2026-10-12/g-p5/`): 0
+  hard-constraint violations; identical plans on 39/39 scenarios, across CPU
+  quotas ≥ 0.5 vCPU and across amd64/arm64; +0.10 % vs the recorded 5 s
+  Routing runs; +3.8 % mean and up to +13.5 % vs greedy best-insertion in
+  constrained cases; warm end-to-end 2.1-2.6 s of which ~13 ms is not the
+  solve; failures typed and tested. Retired: the current greedy and the
+  CP-SAT formulation. Greedy best-insertion stays spike reference code only:
+  no runtime choice between optimizers and no failover from Routing to
+  greedy for a request. Operational requirement: sustained CPU for planning
+  on the production host (~2-3.5 vCPU-s per Tour; a burstable host at its
+  credit baseline reaches the safety cap). The objective weights stay
+  TEST-ONLY (P-D7).
 - **P-D6. RESOLVED (owner, 2026-10-11): spike datasets and routing
   recordings.** Three datasets: Buenos Aires (real spike 3 S3-A structured
   candidates, end-to-end baseline), Paris (dense fixture) and Los Angeles

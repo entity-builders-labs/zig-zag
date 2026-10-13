@@ -1,0 +1,207 @@
+{
+ "T1000": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "36/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": -0.0,
+  "vsRouting5sMinPct": -0.67,
+  "vsBestRecordedRoutingMeanPct": -0.06,
+  "vsGreedyInsertionMeanPct": 3.67,
+  "vsGreedyInsertionConstrainedMeanPct": 5.91,
+  "worseThanRouting5sBy1pct": [],
+  "solveMs30pool": {
+   "median": 1000,
+   "max": 1001
+  }
+ },
+ "T5000": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": 0.92,
+  "vsRouting5sMinPct": -0.54,
+  "vsBestRecordedRoutingMeanPct": 0.86,
+  "vsGreedyInsertionMeanPct": 4.63,
+  "vsGreedyInsertionConstrainedMeanPct": 6.68,
+  "worseThanRouting5sBy1pct": [],
+  "solveMs30pool": {
+   "median": 5001,
+   "max": 5003
+  }
+ },
+ "GD": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": -2.19,
+  "vsRouting5sMinPct": -8.69,
+  "vsBestRecordedRoutingMeanPct": -2.25,
+  "vsGreedyInsertionMeanPct": 1.37,
+  "vsGreedyInsertionConstrainedMeanPct": 2.93,
+  "worseThanRouting5sBy1pct": [
+   "BA S1-normal-p20 -2.0%",
+   "BA S1-normal-pall -3.7%",
+   "BA S3-unknown-penalize -3.7%",
+   "BA S3b-unknown-weight0 -1.3%",
+   "BA S5-oversupply-1day -3.0%",
+   "BA S6-spatial-walkonly-1day -1.8%",
+   "BA S9-anchors-none-p20 -2.0%",
+   "BA S9-anchors-startend-p20 -3.5%",
+   "PA S5-oversupply-1day -8.7%",
+   "PA S6-spatial-walkonly-1day -7.7%",
+   "PA S9-anchors-start-p20 -1.4%",
+   "PA S9-anchors-startend-p20 -1.8%",
+   "PA S4-mustinclude -3.0%",
+   "LA S1-normal-p20 -1.8%",
+   "LA S1-normal-pall -4.8%",
+   "LA S2-tight-hours -5.4%",
+   "LA S3-unknown-penalize -4.8%",
+   "LA S3b-unknown-weight0 -2.8%",
+   "LA S5-oversupply-1day -5.6%",
+   "LA S9-anchors-none-p20 -1.8%"
+  ],
+  "solveMs30pool": {
+   "median": 16,
+   "max": 29
+  }
+ },
+ "SL100": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": -1.53,
+  "vsRouting5sMinPct": -8.5,
+  "vsBestRecordedRoutingMeanPct": -1.58,
+  "vsGreedyInsertionMeanPct": 2.06,
+  "vsGreedyInsertionConstrainedMeanPct": 3.8,
+  "worseThanRouting5sBy1pct": [
+   "BA S1-normal-p20 -1.3%",
+   "BA S1-normal-pall -2.8%",
+   "BA S3-unknown-penalize -2.8%",
+   "BA S6-spatial-walkonly-1day -1.8%",
+   "BA S9-anchors-none-p20 -1.3%",
+   "BA S9-anchors-startend-p20 -2.8%",
+   "PA S5-oversupply-1day -8.5%",
+   "PA S6-spatial-walkonly-1day -5.7%",
+   "LA S1-normal-p20 -1.8%",
+   "LA S1-normal-pall -4.2%",
+   "LA S2-tight-hours -5.4%",
+   "LA S3-unknown-penalize -4.2%",
+   "LA S3b-unknown-weight0 -2.3%",
+   "LA S5-oversupply-1day -2.8%",
+   "LA S9-anchors-none-p20 -1.8%"
+  ],
+  "solveMs30pool": {
+   "median": 195,
+   "max": 298
+  }
+ },
+ "SL250": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": -0.74,
+  "vsRouting5sMinPct": -3.02,
+  "vsBestRecordedRoutingMeanPct": -0.79,
+  "vsGreedyInsertionMeanPct": 2.89,
+  "vsGreedyInsertionConstrainedMeanPct": 5.23,
+  "worseThanRouting5sBy1pct": [
+   "BA S1-normal-p20 -1.3%",
+   "BA S1-normal-pall -2.8%",
+   "BA S3-unknown-penalize -2.8%",
+   "BA S6-spatial-walkonly-1day -1.8%",
+   "BA S9-anchors-none-p20 -1.3%",
+   "PA S6-spatial-walkonly-1day -3.0%",
+   "LA S1-normal-p20 -1.8%",
+   "LA S1-normal-pall -1.1%",
+   "LA S3-unknown-penalize -1.1%",
+   "LA S5-oversupply-1day -2.8%",
+   "LA S9-anchors-none-p20 -1.8%"
+  ],
+  "solveMs30pool": {
+   "median": 510,
+   "max": 761
+  }
+ },
+ "SL500": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": -0.26,
+  "vsRouting5sMinPct": -3.02,
+  "vsBestRecordedRoutingMeanPct": -0.32,
+  "vsGreedyInsertionMeanPct": 3.4,
+  "vsGreedyInsertionConstrainedMeanPct": 5.64,
+  "worseThanRouting5sBy1pct": [
+   "BA S1-normal-p20 -1.3%",
+   "BA S9-anchors-none-p20 -1.3%",
+   "PA S6-spatial-walkonly-1day -3.0%"
+  ],
+  "solveMs30pool": {
+   "median": 1131,
+   "max": 1514
+  }
+ },
+ "SL1000": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": 0.1,
+  "vsRouting5sMinPct": -0.67,
+  "vsBestRecordedRoutingMeanPct": 0.04,
+  "vsGreedyInsertionMeanPct": 3.77,
+  "vsGreedyInsertionConstrainedMeanPct": 5.95,
+  "worseThanRouting5sBy1pct": [],
+  "solveMs30pool": {
+   "median": 2262,
+   "max": 2831
+  }
+ },
+ "SL2000": {
+  "runs": 39,
+  "planned": 35,
+  "explicitInfeasible": 4,
+  "failed": 0,
+  "violations": 0,
+  "identicalRepeats": "39/39",
+  "capHit": 0,
+  "vsRouting5sMeanPct": 0.27,
+  "vsRouting5sMinPct": -0.54,
+  "vsBestRecordedRoutingMeanPct": 0.21,
+  "vsGreedyInsertionMeanPct": 3.95,
+  "vsGreedyInsertionConstrainedMeanPct": 6.11,
+  "worseThanRouting5sBy1pct": [],
+  "solveMs30pool": {
+   "median": 4503,
+   "max": 5843
+  }
+ }
+}

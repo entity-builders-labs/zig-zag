@@ -2622,10 +2622,20 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   placement) is materially worse; CP-SAT in the evaluated formulation does
   not scale to ~30 candidates; OR-Tools Routing gives the best Tours in
   constrained cases and greedy best-insertion is the simplest viable
-  alternative. The choice between them waits on one gate: Routing's
-  runtime integration with the NestJS backend and a deterministic stop
-  criterion. A solver that exhausts its budget without a Tour is a planner
-  failure, never PLANNER_INFEASIBLE or a knowledge verdict.
+  alternative. Gate G-P5 (2026-10-12, `spikes/planner-comparison-2026-10-12/g-p5/`)
+  resolved P-D5: the production optimizer is **OR-Tools Routing**, behind a
+  provider-neutral `PlanningOptimizer` contract below `DAILY_PLANNING_SOLVER`
+  (the whole normalized problem in one bounded request; no OR-Tools structure
+  in the Tour domain), executed in a colocated Python sidecar in the backend
+  deployment unit (no credible Node.js binding exists), stopped by a
+  count-based solution limit so plans are reproducible across machines (a
+  wall-clock cap is only a safety guard and marks a plan non-reproducible).
+  The current greedy and CP-SAT are retired; there is no failover between
+  optimizers. Every returned plan is validated against the hard constraints.
+  Optimizer budget exhaustion, unavailability, timeouts, crashes and invalid
+  results are OPTIMIZER_FAILED, never PLANNER_INFEASIBLE or a knowledge
+  verdict; PLANNER_INFEASIBLE is reserved for proven constraint conflicts.
+  Planning needs sustained CPU on the host (~2-3.5 vCPU-s per Tour).
 
 **Parent sites and visit units (R4-D2).** A PART_OF / containment
 relationship alone does not decide whether a child has its own Experience;

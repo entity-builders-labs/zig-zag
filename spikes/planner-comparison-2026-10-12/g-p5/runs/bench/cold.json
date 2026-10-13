@@ -1,0 +1,92 @@
+[
+ {
+  "mode": "http-sidecar-process",
+  "rep": 0,
+  "readyMs": 241,
+  "firstRequestMs": 1964,
+  "firstSolveMs": 1943.6,
+  "firstModelBuildMs": 11.02,
+  "secondRequestMs": 1986,
+  "secondSolveMs": 1974.14,
+  "samePlan": true
+ },
+ {
+  "mode": "http-sidecar-process",
+  "rep": 1,
+  "readyMs": 176,
+  "firstRequestMs": 2021,
+  "firstSolveMs": 1997.14,
+  "firstModelBuildMs": 8.91,
+  "secondRequestMs": 2084,
+  "secondSolveMs": 2070.48,
+  "samePlan": true
+ },
+ {
+  "mode": "http-sidecar-process",
+  "rep": 2,
+  "readyMs": 204,
+  "firstRequestMs": 2057,
+  "firstSolveMs": 2040.55,
+  "firstModelBuildMs": 9.54,
+  "secondRequestMs": 2005,
+  "secondSolveMs": 1991.81,
+  "samePlan": true
+ },
+ {
+  "mode": "http-sidecar-process",
+  "rep": 3,
+  "readyMs": 181,
+  "firstRequestMs": 2093,
+  "firstSolveMs": 2077.12,
+  "firstModelBuildMs": 8.93,
+  "secondRequestMs": 2258,
+  "secondSolveMs": 2244.72,
+  "samePlan": true
+ },
+ {
+  "mode": "http-sidecar-process",
+  "rep": 4,
+  "readyMs": 221,
+  "firstRequestMs": 2122,
+  "firstSolveMs": 2103.05,
+  "firstModelBuildMs": 9.48,
+  "secondRequestMs": 2068,
+  "secondSolveMs": 2054.89,
+  "samePlan": true
+ },
+ {
+  "mode": "spawn-per-request",
+  "rep": 0,
+  "readyMs": 134,
+  "perRequestTotalMs": 2148,
+  "solveMs": 1999.91
+ },
+ {
+  "mode": "spawn-per-request",
+  "rep": 1,
+  "readyMs": 151,
+  "perRequestTotalMs": 2411,
+  "solveMs": 2245.64
+ },
+ {
+  "mode": "spawn-per-request",
+  "rep": 2,
+  "readyMs": 124,
+  "perRequestTotalMs": 2156,
+  "solveMs": 2018.05
+ },
+ {
+  "mode": "spawn-per-request",
+  "rep": 3,
+  "readyMs": 117,
+  "perRequestTotalMs": 2155,
+  "solveMs": 2024.66
+ },
+ {
+  "mode": "spawn-per-request",
+  "rep": 4,
+  "readyMs": 128,
+  "perRequestTotalMs": 2112,
+  "solveMs": 1971.37
+ }
+]

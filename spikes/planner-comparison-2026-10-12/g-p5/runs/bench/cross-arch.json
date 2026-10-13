@@ -1,0 +1,77 @@
+{
+ "note": "linux/amd64 emulated on Apple silicon vs native linux/arm64, both --cpus=2, same image recipe",
+ "rows": [
+  {
+   "case": "BA-G5-full",
+   "amd64": {
+    "outcome": "PLANNED",
+    "objective": 5728,
+    "solveMs": 3588.64,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "arm64": {
+    "outcome": "PLANNED",
+    "objective": 5728,
+    "solveMs": 3222.83,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "identicalPlan": true
+  },
+  {
+   "case": "BA-S1-normal-pall",
+   "amd64": {
+    "outcome": "PLANNED",
+    "objective": 3683,
+    "solveMs": 3760.85,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "arm64": {
+    "outcome": "PLANNED",
+    "objective": 3683,
+    "solveMs": 3200.72,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "identicalPlan": true
+  },
+  {
+   "case": "PA-S1-normal-pall",
+   "amd64": {
+    "outcome": "PLANNED",
+    "objective": 4088,
+    "solveMs": 4528.59,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "arm64": {
+    "outcome": "PLANNED",
+    "objective": 4088,
+    "solveMs": 4077.84,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "identicalPlan": true
+  },
+  {
+   "case": "LA-S1-normal-pall",
+   "amd64": {
+    "outcome": "PLANNED",
+    "objective": 6394,
+    "solveMs": 3602.1,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "arm64": {
+    "outcome": "PLANNED",
+    "objective": 6394,
+    "solveMs": 3376.95,
+    "stop": "SOLUTION_LIMIT",
+    "solutions": 1000
+   },
+   "identicalPlan": true
+  }
+ ]
+}

@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=synthetic-tours-openspec; status=ACTIVE; branch=feat/synthetic-tours-openspec; integration=main; base=16f41e89eb238431b339dfccc22473f791ed4908; plan=docs/superpowers/plans/2026-10-09-openspec-documentation-governance-cutover.md -->
 
-Updated: 2026-10-11  
+Updated: 2026-10-12  
 Branch: `feat/synthetic-tours-openspec`  
 Repository: `entity-builders-labs/zig-zag`
 
@@ -25,6 +25,10 @@ Repository: `entity-builders-labs/zig-zag`
   places composed as single-place Experiences and a 3-day Buenos Aires Tour from OSM + Wikidata with zero
   LLM/web/research calls and zero L2; reuse run identical with zero discovery
   calls.
+- Planner: P11 comparison + gate G-P5 (`spikes/planner-comparison-2026-10-12/`,
+  `g-p5/`) resolved P-D5 = OR-Tools Routing in a colocated Python sidecar
+  behind a provider-neutral `PlanningOptimizer`, count-based stop
+  `routing-gls-sl1000-v1` (2026-10-12).
 
 ## Current checkpoint
 
@@ -45,30 +49,39 @@ amendment (2026-10-11); no production code yet.**
   Experience, ExperienceComponent, GeoEntityIdentity and the Tour snapshot;
   schema implemented by task 39.0.
 - tasks.md groups 24-43: planning track 25-34, admission/identity track
-  35-38, wiring 39-41, validation 42, retirement 43 (24.1, 24.3-24.10, 31.1-31.2 done).
+  35-38, wiring 39-41, validation 42, retirement 43 (24.1, 24.3-24.10, 31.1-31.2,
+  32.0-32.1 done; 33.2 added for the planner sidecar runtime).
+- G-P5 recorded in design (P-D5 RESOLVED, "G-P5 results", P12),
+  `tour-planning` spec (OPTIMIZER_FAILED, provider-neutral optimizer
+  boundary, reproducibility/safety guard, optimizer identity in the plan),
+  tasks 30.2/33/41.1/43.1 and the canonical planning paragraph.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
 1. Owner resolves the remaining decisions in design.md (task 24.2), each
-   before the group that needs it: P-D5 optimizer — evaluated 2026-10-12,
-   gate G-P5 (Routing runtime integration + deterministic stop, task 32.0);
-   P-D7 objective v1 (33, P11 findings recorded), the G1 Geoapify storage-terms check (task 28.6, before
+   before the group that needs it: P-D7 objective v1 (33; P11 findings and
+   the G-P5 note on re-checking the SL1000 retention after calibration
+   recorded), the G1 Geoapify storage-terms check (task 28.6, before
    41; Valhalla-first if persistence is not permitted), and the P-D2-F
    calibration gate approving `fallback-v1` (task 40.2, before 41).
    Resolved: P-D2, R4-D4, P-D3, P-D6, R4-D2 (2026-10-11); R4-D1, P-D4
    (default PENALIZE), P-D2-F (global calibrated fallback; catalog-first
    maintenance, design C15), P-D1 (Geoapify initially, Valhalla scale-up;
-   G2 closed with `traversal-validator-v1`, design C16) (2026-10-12).
+   G2 closed with `traversal-validator-v1`, design C16), P-D5 (OR-Tools
+   Routing, gate G-P5) (2026-10-12).
 2. Then `/opsx:apply gap-driven-destination-knowledge` starting at group 25
    (planning input/output contract); groups 35-38 may run in parallel on a
    separate sub-branch.
 
 ## Open findings / blockers
 
-- P11 evidence: `spikes/planner-comparison-2026-10-12/`. Current greedy must
-  be replaced; CP-SAT (this formulation) excluded; Routing vs greedy
-  best-insertion decided by gate G-P5.
+- P11 / G-P5 evidence: `spikes/planner-comparison-2026-10-12/` and `g-p5/`.
+  P-D5 resolved (OR-Tools Routing). Operational requirement for task 33.2 /
+  41: sustained CPU for planning (~2-3.5 vCPU-s per Tour); the current
+  `t3.micro` standard-credit baseline reaches the 10 s safety cap and loses
+  reproducibility. A client timeout does not cancel a sidecar solve, so the
+  client deadline must exceed the safety cap.
 - P-D1 evidence: `spikes/routing-provider-evaluation-2026-10-12/`. Mapbox
   traversal not executed (no token; not economically competitive). Public
   transport has no matrix-capable provider except Google.
