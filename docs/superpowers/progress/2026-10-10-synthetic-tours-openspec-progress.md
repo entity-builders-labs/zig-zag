@@ -35,6 +35,25 @@ Repository: `entity-builders-labs/zig-zag`
   secondary; travel burden / mode friction / UNKNOWN-hours uncertainty as
   soft costs); coefficients OPEN behind gate G-P7-U (task 33.0). The
   experimental `p-d7/` spike is non-production evidence.
+- G-P7-U part A (owner, 2026-10-14): RESOLVED. Part B: OPEN. P-D7: OPEN.
+  - **Provenance.** A deterministic validator, not the LLM, derives
+    `DIRECT` (a wizard pick, or an excerpt that maps through the versioned
+    vocabulary or its aliases) or `INFERRED`.
+  - **Order.** `DIRECT` → `INFERRED` → soft anchor → semantic → generic
+    quality → id.
+    - `DIRECT` is weighed by stated importance; confidence never discounts
+      it, and the channel is neutral.
+    - `INFERRED` is weighed by importance × confidence.
+    - UNKNOWN takes the tier-median position for ordering only; the
+      assessment stays `UNKNOWN`.
+    - Dedupe is by provenance, then weight.
+  - **Boundary and authority.** The planner boundary is structured, and
+    the duplicate scoring authority is removed.
+  - **Evidence.** 46/46 scenario checks and 19/19 provenance cases on the
+    live vocabulary, in `spikes/planner-comparison-2026-10-12/g-p7-u-a/`.
+  - **Open gap POLARITY-1 (task 25.6).** Polarity must be established
+    before `DIRECT` evidence participates.
+  - Implementation is tasks 25.2, 25.4 and 25.6.
 
 ## Current checkpoint
 
@@ -63,7 +82,18 @@ amendment (2026-10-11); no production code yet.**
   boundary, accessibility need vs preference, allowed modes hard), tasks
   24.2/25.2/25.3/33.0/33.1/41.1 and the
   canonical planning paragraph; the experimental objective numbers stay in
-  the spike only. Not committed (awaiting owner review).
+  the spike only. Committed in 609a829e.
+- G-P7-U part A resolution (2026-10-14, committed as the
+  `docs(planning): resolve preference utility encoding` checkpoint):
+  - spike `g-p7-u-a/`;
+  - design (defects 1-8 confirmed, provenance audit, structured planner
+    boundary, gate status);
+  - `tour-planning` preference-utility requirement scenarios;
+  - tasks 24.2/25.2/25.3/33.0, plus new 25.4 (PROVENANCE-1) and 25.5
+    (soft avoidances / constraints) and 25.6 (POLARITY-1);
+  - the owner's provenance rule recorded (design "Facet provenance",
+    precedence, gate A RESOLVED), the scenarios rerun with provenance, and
+    the live-vocabulary provenance characterization.
 - G-P5 recorded in design (P-D5 RESOLVED, "G-P5 results", P12),
   `tour-planning` spec (OPTIMIZER_FAILED, provider-neutral optimizer
   boundary, reproducibility/safety guard, optimizer identity in the plan),
@@ -73,10 +103,10 @@ amendment (2026-10-11); no production code yet.**
 ## Next authorized action
 
 1. Owner resolves the remaining decisions in design.md (task 24.2), each
-   before the group that needs it: owner review of the P-D7 reframing
-   (uncommitted), then gate G-P7-U (task 33.0: part A preference-utility
-   encoding before 33.1 completes; part B preference-vs-travel / friction /
-   uncertainty calibration before 41), the G1 Geoapify
+   before the group that needs it:
+   - gate G-P7-U part B (task 33.0) (preference-vs-travel / friction / uncertainty
+     calibration) before 41;
+   - the G1 Geoapify
    storage-terms check (task 28.6, before
    41; Valhalla-first if persistence is not permitted), and the P-D2-F
    calibration gate approving `fallback-v1` (task 40.2, before 41).
@@ -97,16 +127,32 @@ amendment (2026-10-11); no production code yet.**
   `t3.micro` standard-credit baseline reaches the 10 s safety cap and loses
   reproducibility. A client timeout does not cancel a sidecar solve, so the
   client deadline must exceed the safety cap.
-- P-D7 code findings (fix in task 25.2): the planner's additive
-  `plannerRelevanceScore` lets semantic similarity outweigh explicit facet
-  matches (composition is explicit-first); missing embeddings are coerced
-  to 0 in composition and the planner normalizer (canonical: neutral);
-  dead `rankCandidatesByRelevance` / `evaluateExperiencePreferences`; soft
-  avoidances and soft constraints have no live consumer; accessibility is
-  not split into need (hard eligibility) vs preference (soft) and an
-  explicit accessibility need is enforced nowhere (defect, task 25.3).
-  The canonical preference-utility derivation boundary's owner is decided
-  in task 25.2 (composition is a consumer, not presumed owner).
+- P-D7 code findings, confirmed on the live code by the G-P7-U.A
+  characterization (design defects 1-8; fix in tasks 25.2-25.5):
+  - **Duplicate scoring authority.** The additive `plannerRelevanceScore`
+    lets semantic similarity, and quality, outweigh explicit evidence.
+  - **Missing embedding = 0.** Composition and the normalizer coerce it to
+    0; in the live `composeSet` this pushes an equal-evidence,
+    best-quality candidate into the reservoir.
+  - **Dead paths:** `rankCandidatesByRelevance` and
+    `evaluateExperiencePreferences`.
+  - **Unused soft fields.** Soft avoidances and constraints have no
+    consumer.
+  - **Accessibility.** Need and preference are merged and unenforced, the
+    fallback files "wheelchair" as a preference, and no canonical
+    accessibility fact exists.
+  - **Minor.** `groundingStrength` is a no-op and `qualityBonus` is
+    mislabelled.
+  - **Soft anchors** are applied last (the spec says "strong").
+  - **Provenance.** `PreferenceSpec` cannot distinguish direct from
+    inferred facets (PROVENANCE-1). The rule is now decided, and its
+    implementation is task 25.4.
+  - **Interpreter evidence.** The evidence-support check is a substring
+    match ("arte" from "martes"). The fallback duplicates the vocabulary
+    aliases in its own substring-matched keyword table. The facet
+    vocabulary has no version (task 25.4).
+  - **Polarity (POLARITY-1, task 25.6).** No deterministic check keeps a
+    negated mention out of positive facets.
 - Solver finding for P-D5 follow-up (not reopened): single-start GLS at
   SL1000 is > 1 % below the best known plan in 13/28 P-D7 scenarios (max
   8.7 %); larger budgets barely help; same pattern under the P11 weights.

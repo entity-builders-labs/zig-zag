@@ -1,0 +1,148 @@
+{
+ "plannerScoring": {
+  "semanticWeight": 1,
+  "qualityWeight": 0.5
+ },
+ "planner A1 wizard": [
+  {
+   "id": "A",
+   "plannerRelevanceScore": 2.95
+  },
+  {
+   "id": "B",
+   "plannerRelevanceScore": 2.48
+  },
+  {
+   "id": "C",
+   "plannerRelevanceScore": 1.49
+  }
+ ],
+ "planner A2 free text 0.42": [
+  {
+   "id": "B",
+   "plannerRelevanceScore": 1.9
+  },
+  {
+   "id": "A",
+   "plannerRelevanceScore": 1.79
+  },
+  {
+   "id": "C",
+   "plannerRelevanceScore": 1.49
+  }
+ ],
+ "planner B2 semantic vs quality": [
+  {
+   "id": "B",
+   "plannerRelevanceScore": 1.92
+  },
+  {
+   "id": "A",
+   "plannerRelevanceScore": 1.8
+  }
+ ],
+ "planner C1 unknown embedding": [
+  {
+   "id": "K1",
+   "plannerRelevanceScore": 3.02
+  },
+  {
+   "id": "K2",
+   "plannerRelevanceScore": 2.83
+  },
+  {
+   "id": "K3",
+   "plannerRelevanceScore": 2.66
+  },
+  {
+   "id": "U",
+   "plannerRelevanceScore": 2.45
+  }
+ ],
+ "planner C2 unknown vs weaker explicit": [
+  {
+   "id": "K",
+   "plannerRelevanceScore": 2.44
+  },
+  {
+   "id": "U",
+   "plannerRelevanceScore": 2.31
+  }
+ ],
+ "planner E1 wizard vs 4 weak inferred": [
+  {
+   "id": "B",
+   "plannerRelevanceScore": 2.45
+  },
+  {
+   "id": "A",
+   "plannerRelevanceScore": 1.9
+  }
+ ],
+ "composeSet A2 free text 0.42": {
+  "selected": [
+   "B",
+   "A",
+   "C"
+  ],
+  "reservoir": [],
+  "reservedForFacets": {
+   "A": [
+    "theme:architecture"
+   ],
+   "B": [
+    "theme:history"
+   ]
+  },
+  "remainderFill": [
+   "C"
+  ],
+  "portfolioTarget": 3
+ },
+ "composeSet C1 unknown embedding (service maps missing to 0)": {
+  "selected": [
+   "K1",
+   "K2",
+   "K3"
+  ],
+  "reservoir": [
+   "U"
+  ],
+  "reservedForFacets": {
+   "K1": [
+    "theme:food"
+   ]
+  },
+  "remainderFill": [
+   "K2",
+   "K3"
+  ],
+  "portfolioTarget": 3
+ },
+ "composeSet E1 wizard vs 4 weak inferred": {
+  "selected": [
+   "A",
+   "B",
+   "Z1"
+  ],
+  "reservoir": [
+   "Z2",
+   "Z3"
+  ],
+  "reservedForFacets": {
+   "A": [
+    "theme:history"
+   ],
+   "B": [
+    "theme:street_art"
+   ]
+  },
+  "remainderFill": [
+   "Z1"
+  ],
+  "portfolioTarget": 3
+ },
+ "hardExclusionChurch": [
+  "religion"
+ ]
+}

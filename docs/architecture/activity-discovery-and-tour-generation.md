@@ -2643,12 +2643,35 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   baseline policy for every destination, no destination-specific weights.
   Preference utility is derived once, upstream of the optimizer, at
   exactly one canonical derivation boundary consumed by composition,
-  ranking and planning (owner chosen by the implementation): explicit facet
-  affinity is authoritative,
-  semantic (embedding) affinity only refines among equally matched
-  candidates and is UNKNOWN — neutral, never zero — when no compatible
-  embedding exists, and quality is secondary. OR-Tools receives only the
-  typed, policy-versioned utility; it never performs semantic retrieval.
+  ranking and planning (owner chosen by the implementation). No consumer
+  recombines the signals; the planner keeps no scoring formula of its own.
+  The signals are:
+  - **Explicit preference evidence** is authoritative. Its authority
+    follows the provenance of the preference, not the UI channel that
+    captured it. A deterministic validator, never the LLM, classifies each
+    facet:
+    - `DIRECT`: a wizard pick, or a free-text excerpt that maps to the key
+      through the versioned facet vocabulary or its explicit aliases;
+    - `INFERRED`: anything else.
+
+    `DIRECT` evidence outranks any amount of `INFERRED` evidence.
+    Interpreter confidence is never provenance and never discounts
+    `DIRECT` evidence; it weighs only `INFERRED` evidence. Polarity is
+    established before a facet counts as evidence.
+  - **A soft venue anchor** is a separate typed signal, never a facet match.
+    It follows facet evidence and precedes semantic refinement.
+  - **Semantic (embedding) affinity** only refines among candidates with
+    equal explicit evidence. It is UNKNOWN — neutral, never zero, never a
+    lower tier — when no compatible embedding exists. For ordering only,
+    UNKNOWN occupies the median position of its known peers; no
+    similarity is imputed or stored. Embeddings never
+    retrieve candidates.
+  - **Quality** is generic and secondary.
+
+  The planner boundary is structured: a typed breakdown plus the policy
+  version. OR-Tools receives only the per-candidate prize that the
+  versioned objective policy projects from it; it never performs semantic
+  retrieval.
   An explicit accessibility need is a hard eligibility constraint while an
   accessibility preference is soft. Hard exclusions, accessibility needs,
   must-include feasibility

@@ -904,7 +904,30 @@ provider metadata.
   primitive; `isStrongFacetMatch` adds real geography, quality ≥ 3.0/5 (null
   quality is never a strong match), not-known-thin classification;
   `preferenceWeightForExperience` = Σ weights of strongly matched facets
-  (deduplicated).
+  (deduplicated). Strong matches require known quality, so every
+  Experience with non-zero facet affinity has known quality.
+- Provenance (G-P7-U.A audit):
+  - Wizard picks are direct user evidence by construction.
+  - Every accepted interpreter facet carries verbatim excerpts, validated
+    against the user's text. Nothing records whether the key is the user's
+    own concept (direct) or a mapping the interpreter derived (inferred).
+  - `RequestedFacet` keeps only `weight` (importance × confidence) and the
+    UI `source`. It drops the excerpts and the strength/confidence split.
+  - The evidence-support check is a substring match: "arte" is accepted
+    from "martes".
+  - The deterministic fallback keeps its own keyword table, which
+    duplicates `DIMENSION_KEY_SYNONYMS`. It triggers on substrings and
+    records the trigger word, not a user span, as evidence.
+  - The facet vocabulary (`INITIAL_DIMENSION_VOCABULARY`,
+    `DIMENSION_KEY_SYNONYMS`) carries no version.
+  - Dedupe keeps the highest-weight facet per key, regardless of where it
+    came from.
+- The candidate pool is the verified catalog window plus resolved anchor
+  ids. Embeddings never retrieve candidates (the similarity query is
+  restricted to the pool's ids), so an Experience without an embedding
+  still reaches composition and planning.
+- Resolved soft venue anchors are live (`softAnchorBoost`). `composeSet`
+  applies them as the last ordering key; the planner ignores them.
 - Embeddings: the indexer embeds the Experience semantic document v3 (name,
   description, duration, price, themes, intents, traits with dimension:key,
   resolved components' role/kind/name/address) with model/version identity;
@@ -925,30 +948,68 @@ provider metadata.
   `plannerRelevanceScore = 1·semanticScore + preferenceWeight +
   0.5·qualityScore/5`.
 
-**Defects and duplicate authorities found (to fix in groups 25/33, not
-preserved).**
+**Defects and duplicate authorities (to fix in groups 25/33, not
+preserved).** Confirmed on the live code by the G-P7-U.A characterization
+(2026-10-14, `spikes/planner-comparison-2026-10-12/g-p7-u-a/`); none was
+disproven.
 
-1. Two combination policies: composition is explicit-first
-   (lexicographic), while `plannerRelevanceScore` is an additive sum in
-   which a semantic difference can outweigh a stronger explicit facet
-   match — contradicting the preference-first rule that semantic
-   similarity only refines among already-matched candidates.
-2. Missing-embedding semantics are inconsistent: the canonical rule is
-   neutral/unknown (§12.2a); composition and the planner normalizer map a
-   missing or unavailable similarity to `0` (the lowest similarity), and
-   the dead `rankCandidatesByRelevance` used a separate lower tier.
-3. Dead preference paths: `rankCandidatesByRelevance`
-   (`candidate-ranking.util.ts`) and `evaluateExperiencePreferences` (legacy
-   evaluator with magic 0.45 / 0.8 penalties) have no live callers; only
-   `findHardExclusionMatches` in that file is live.
-4. Soft avoidances (`exclusions.themes/traits`) and `softConstraints`
-   are built into `PreferenceSpec` but have no live consumer. Accessibility
-   is currently collapsed into `softConstraints.accessibility` without
-   distinguishing a preference from a need, and nothing enforces it: an
-   explicit accessibility need/requirement is not enforced anywhere
-   (defect; task 25.3).
-5. The composition trace's `qualityBonus` carries the raw 0..5
-   `qualityScore` (mislabelled), and `totalScore` is a placeholder.
+1. **Duplicate scoring authority — must be removed.** Composition orders
+   explicit-first (lexicographic). The planner recombines the signals in
+   `plannerRelevanceScore = 1·semanticScore + preferenceWeight +
+   0.5·quality/5`, which is used by the greedy sort, placement scoring,
+   must-anchor placement, ordering and the generation's solution
+   comparison. The sum is not monotone in explicit evidence:
+   - with free-text facet weights (0.42 each), one facet at similarity 0.98
+     outranks two facets at 0.60 (1.90 vs 1.79);
+   - quality also outranks a semantic difference (1.92 vs 1.80).
+2. **Missing embedding coerced to 0.** The canonical rule is neutral /
+   unknown (§12.2a), but two places map a missing or unavailable similarity
+   to `0`, the lowest similarity:
+   - the composition service: `scores.get(id) ?? 0`;
+   - the planner normalizer: `semanticSimilarity ?? 0`.
+
+   In the live `composeSet`, an Experience with equal facet evidence and
+   the best quality is pushed out of the initial portfolio into the
+   reservoir only because its embedding is missing. The dead
+   `rankCandidatesByRelevance` used a separate lower tier.
+3. **Dead preference paths.** `rankCandidatesByRelevance`
+   (`candidate-ranking.util.ts`) and `evaluateExperiencePreferences` (the
+   legacy evaluator with magic 0.45 / 0.8 penalties) are imported only by
+   tests. In that file only `findHardExclusionMatches` is live.
+4. **Soft avoidances and soft constraints: a gap.** `exclusions.themes` /
+   `exclusions.traits` and the dietary / budget / group `softConstraints`
+   are built into `PreferenceSpec` but:
+   - have no live consumer;
+   - carry no weight or confidence;
+   - have no structural matcher.
+
+   The interpreter fallback writes "avoid churches" into both
+   `excludedThemes` and `hardExclusions`. The only live soft-to-hard rule is
+   vegan → hard `non-vegan food`. They stay outside preference utility
+   until either a structural negative-evidence signal is defined or the
+   fields are deleted (early-stage deletion rule; task 25.5). No penalty is
+   invented.
+5. **Accessibility.**
+   - The wizard's `mobility.accessibilityNeeds` and the interpreter's
+     `accessibilityPreferences` are merged into one
+     `softConstraints.accessibility` list that nothing consumes, so a stated
+     need is not enforced anywhere.
+   - The interpreter fallback files "silla de ruedas / wheelchair", a need,
+     as a preference.
+   - The schema has no canonical accessibility fact, so every Experience's
+     accessibility is UNKNOWN today. Enforcing a need therefore requires
+     that fact first, and until it exists a request carrying a need must end
+     explicitly rather than silently plan without it (task 25.3).
+6. **Mislabelled trace.** The composition trace's `qualityBonus` carries the
+   raw 0..5 `qualityScore`, and `totalScore` is a placeholder.
+7. **No-op key.** `groundingStrength` is constant within every facet
+   reservation, so it never orders anything.
+8. **Soft-anchor precedence is inconsistent.** The spec asks for a "strong
+   inclusion tilt / strong boost" (§4 D3, §12.3) without a position; the
+   accepted plan (2026-09-11, task C2) and the code apply it last. No live
+   test exercises a soft anchor, and none exercises the plan's case
+   "weighted two-low-priority facets do not automatically beat one
+   high-priority facet".
 
 **Resolved structure.**
 
@@ -971,30 +1032,122 @@ preserved).**
   Which component owns that boundary (a dedicated preference-utility owner
   or an existing service) is decided by the implementation task (25.2)
   after inspecting the current layering; composition is a consumer, not
-  presumed to be the owner. The breakdown:
-  - `explicitFacetAffinity` — Σ weights of strongly matched requested
-    facets (the existing `preferenceWeightForExperience`; wizard selections
-    weigh 1.0, interpreted free text importance × confidence); soft
-    avoidances, if retained, enter here as negative explicit evidence from
-    the same structural matcher, never from embeddings;
-  - `semanticAffinity` — cosine similarity of `semanticQuery` to the
-    Experience document, or UNKNOWN (no compatible embedding, empty query,
-    provider unavailable); UNKNOWN is neutral, never 0, never a lower tier,
-    and never blocks participation;
-  - `quality` — canonical qualityScore (0..5) or UNKNOWN, secondary.
-- *Precedence*: explicit facet affinity is authoritative. The combined
-  utility must be monotone in it: an Experience with strictly greater
-  explicit facet affinity is never valued below one with less explicit
-  affinity because of semantic or quality signals. Semantic affinity
-  refines among candidates of equal explicit affinity; quality is
-  secondary to both and cannot let globally popular places displace better
-  preference matches. When no facet is requested, semantic affinity leads
-  and quality follows.
-- *What OR-Tools receives*: per candidate one scalar prize — the request's
-  preference utility under a versioned preference-utility policy — plus the
-  P-D4 uncertainty facts (uncertain / total VISIT components), durations,
-  feasible windows, travel and limits (G-P5 contract). The breakdown travels
-  with the plan for explanation, not into the solver.
+  presumed to be the owner. The G-P7-U.A analysis recommends a dedicated
+  derivation step that runs once per composition snapshot, after hard
+  eligibility and before composition:
+  - it reuses `isStrongFacetMatch` as the only facet-truth primitive;
+  - it owns the single semantic-similarity batch, which moves out of the
+    composition service.
+
+  The final owner is still chosen by task 25.2. The typed breakdown it
+  produces:
+  - *explicit facet evidence*: the strongly matched requested facets with
+    their canonical weights, separated by **provenance**, `DIRECT` or
+    `INFERRED` (the rule is below). Soft avoidances stay outside it until
+    defined (defect 4);
+  - *soft venue-anchor affinity*: a separate typed signal. It is never
+    merged into facet affinity, never a theme, never forced;
+  - *semantic affinity*: `KNOWN{similarity}` from `semanticQuery` against
+    the Experience document, or `UNKNOWN{reason}` (no compatible embedding,
+    empty query, provider unavailable). UNKNOWN is neutral: never 0, never
+    a lower tier, and it never blocks participation.
+    - For deterministic ordering only, an UNKNOWN candidate occupies the
+      median position of the known similarities in the same higher-priority
+      tier. The key is skipped when no peer is known.
+    - This is an ordering projection, not semantic evidence. The assessment
+      stays `UNKNOWN`, and the median is never stored or reported as its
+      similarity.
+    - Its request-relative rank may change with the cohort;
+  - *generic quality*: canonical qualityScore (0..5) or UNKNOWN, labelled
+    generic, not preference. UNKNOWN uses the same ordering projection.
+- *Facet provenance* (owner rule, 2026-10-14; closes PROVENANCE-1). A
+  deterministic provenance validator owns the classification; the LLM
+  interpreter does not.
+  - A wizard-selected facet is `DIRECT` by construction.
+  - A free-text facet is `DIRECT` only when its quoted user-text excerpt
+    maps deterministically to the same canonical key, through the
+    versioned facet vocabulary or its explicit aliases/synonyms. Matching
+    is token-bounded, with accents and case normalized. There is no
+    stemming and no fuzzy matching. The excerpt itself must occur
+    token-bounded in the user text.
+  - Otherwise the facet is `INFERRED`. That covers any semantic inference,
+    generalization, entity knowledge, ontology relation, embedding
+    similarity, external knowledge or LLM interpretation beyond that
+    mapping. Facets of the open `trait` dimension are therefore always
+    `INFERRED`.
+  - An `INFERRED` facet is still valid; it is never rejected for not being
+    `DIRECT`.
+  - Confidence stays confidence in the interpretation, never provenance.
+    Embeddings never certify `DIRECT`. The mapping stays narrow: the
+    ontology is not grown to make more facets `DIRECT`.
+  - Each facet records the provenance, the excerpt that decided it and the
+    vocabulary version.
+  - Dedupe keeps one facet per (dimension, key): the highest provenance
+    class wins, then the highest weight. An `INFERRED` duplicate never
+    displaces a `DIRECT` one and never lends it weight.
+  - Provenance is lexical. Polarity is not provenance, and confidence is not
+    a proxy for polarity: "no me interesa la arquitectura" must never become
+    a positive architecture facet, not even a weaker one. Polarity must be
+    established before `DIRECT` evidence participates in preference utility
+    (gap POLARITY-1, task 25.6).
+  - Examples on the live vocabulary:
+    - "me encanta la arquitectura" → architecture: `DIRECT`.
+    - "quiero arte moderno" → art: `DIRECT` via the alias `arte`. No
+      `modern_art` key exists.
+    - "los edificios de Gaudí" → architecture: `INFERRED`.
+    - "quiero conocer la ESMA" → history: `INFERRED`; intent visit:
+      `DIRECT` via the alias `conocer`.
+- *Precedence* (owner, 2026-10-14). Lexicographic, with no exchange rate
+  between levels:
+  1. `DIRECT` facet evidence: the Σ of the stated **importance** of matched
+     `DIRECT` facets. Interpreter confidence never reduces a facet once
+     deterministic validation has established `DIRECT`. Importance is the
+     existing strength mapping (strong / medium / weak), kept separate from
+     confidence; a wizard pick has importance 1.0.
+  2. `INFERRED` facet evidence: the Σ of importance × confidence over
+     matched `INFERRED` facets, where interpretation confidence stays
+     meaningful. It is never added to `DIRECT`.
+  3. Soft venue-anchor affinity.
+  4. Semantic refinement.
+  5. Generic quality.
+  6. Stable Experience id.
+
+  Constraints on the order:
+  - The capture channel is not an authority tier. A wizard pick and a
+    `DIRECT` free-text facet have the same authority. Within `DIRECT`,
+    neither the channel nor interpreter confidence changes the order.
+  - The ordering must be monotone in explicit evidence: an Experience with
+    strictly stronger explicit evidence is never valued below one with
+    weaker evidence because of anchor, semantic or quality signals.
+  - Soft anchors follow facet evidence: no product or spec source places
+    them above facet coverage. They precede semantic refinement by owner
+    direction, which resolves defect 8 in favour of the spec's "strong".
+  - When no facet is requested, semantic affinity leads and quality
+    follows. With no embeddings at all, the order stays deterministic:
+    explicit evidence → anchor → quality → stable id.
+  - The precedence orders candidates within one request. It is not a
+    scalar prize (see below).
+- *What crosses the planner boundary*:
+  - **Structured, not a scalar.** The planning candidate carries:
+    - the typed breakdown;
+    - the preference-utility policy version;
+    - a within-request preference rank.
+
+    These replace the untyped `semanticScore` / `preferenceWeight`. No
+    consumer recombines them.
+  - **Optimizer input.** The optimizer request carries no preference
+    structure, embeddings, text, facets or provider metadata. It receives a
+    per-candidate prize projected from the breakdown by the versioned
+    objective policy (G-P7-U part B, a domain policy), plus:
+    - the P-D4 uncertainty facts (uncertain / total VISIT components);
+    - durations, feasible windows, travel and limits (G-P5 contract).
+
+    The adapter only performs integer conversion.
+  - **Why no scalar yet.** A per-candidate order does not determine the
+    additive routing objective: order-preserving prize maps disagree on
+    whether one higher-ranked visit outweighs two lower-ranked ones
+    (G-P7-U.A spike). The cardinal projection is therefore a part-B
+    decision.
 - *Objective*: `TourUtility = PreferenceSatisfaction − TravelBurden −
   ModeFriction − PlanningUncertainty` over hard-feasible itineraries.
   TravelBurden uses provider-backed travel durations (factual) for the
@@ -1048,6 +1201,55 @@ utility is represented for one request.
    churches; family-friendly; food and markets) against independently
    specified expected preference hierarchies, reusing the accepted
    Preference-First fixtures and characterization tests.
+
+*Status (owner, 2026-10-14): A RESOLVED; B OPEN; P-D7 OPEN.* The owner
+decided the facet-provenance rule (PROVENANCE-1). The owner then confirmed
+A with two adjustments:
+
+1. UNKNOWN takes the median only as an ordering projection.
+2. Confidence never discounts `DIRECT` evidence.
+
+Evidence is in `spikes/planner-comparison-2026-10-12/g-p7-u-a/`:
+
+- **Scenario set.** 27 scenarios and 46 checks, including mixed-source
+  (DIRECT / INFERRED / wizard), confidence and soft-anchor cases.
+- **Live-code characterization** (`runs/current_code.json`).
+- **The provenance rule on the live vocabulary** (`runs/provenance.json`):
+  19 cases, the owner's examples among them, all classified as the rule
+  states.
+
+Decision:
+- The facet-provenance rule and the precedence above (`DIRECT` → `INFERRED`
+  → soft anchor → semantic → quality → id). It is the only evaluated
+  encoding that passes all 46 checks.
+- `DIRECT` evidence is weighed by stated importance only. A wizard pick and
+  a `DIRECT` free-text facet have the same authority. Confidence orders
+  `INFERRED` evidence only.
+- UNKNOWN semantic similarity or quality occupies the tier-median position
+  of known peers, for ordering only; the assessment stays `UNKNOWN`. Zero, a
+  lower tier, a fixed 0.5, skipping it for the whole tier, and a pairwise
+  skip all fail; the pairwise skip is not even transitive.
+- Dedupe by provenance class, then weight. The live max-weight dedupe lets
+  a strong `INFERRED` duplicate displace the `DIRECT` statement.
+- The structured planner boundary, with no scalar in A.
+- Within one request, normalizing by requested weight never changes the
+  order.
+
+Rejected:
+- a UI-channel tier, by the owner;
+- Σ weight across provenance classes;
+- LLM-asserted provenance;
+- embedding similarity or stemming to certify `DIRECT`;
+- confidence as a provenance or polarity proxy;
+- confidence discounting `DIRECT` evidence;
+- storing or reporting an imputed similarity for UNKNOWN.
+
+Open gap: POLARITY-1 (task 25.6). Polarity must be established before
+`DIRECT` facet evidence participates.
+
+Implementation follows in tasks 25.2, 25.4 and 25.6.
+
+A borrows no number from B.
 
 **B. Preference-vs-travel / friction / uncertainty calibration** — how
 much Tour-level cost a stronger preference match is worth.
@@ -2317,17 +2519,27 @@ Valhalla-first behind the same contracts.
   hard-feasible itineraries, then account for travel burden, optional mode
   friction and opening-hours uncertainty as soft costs (section "P-D7
   preference-first objective"). Preference utility is derived once, upstream
-  of the optimizer, from explicit facet affinity (authoritative), semantic
-  affinity (within-tier refinement; unknown when no compatible embedding,
-  never zero) and secondary quality; OR-Tools receives only the typed,
-  policy-versioned utility. Allowed modes, hard exclusions and every other
+  of the optimizer, at one canonical boundary:
+  - explicit preference evidence is authoritative, ordered by provenance
+    rather than UI channel: `DIRECT` (a wizard pick, or free text whose
+    excerpt maps to the key through the versioned vocabulary or its
+    aliases) before `INFERRED`, decided by a deterministic validator;
+  - soft venue-anchor affinity is a separate typed signal;
+  - semantic affinity refines within a tier and is UNKNOWN, never zero,
+    when no compatible embedding exists;
+  - generic quality is secondary.
+
+  The planner boundary is structured: a typed breakdown plus its policy
+  version. OR-Tools receives only the prize that the versioned objective
+  policy projects from it. The planner's duplicate recombination
+  (`plannerRelevanceScore`) is removed. Gate G-P7-U part A (encoding) is
+  RESOLVED (owner, 2026-10-14); part B is OPEN, so P-D7 remains OPEN. Allowed modes, hard exclusions and every other
   hard constraint stay outside the objective; TRANSIT stays feature-gated in
   v1 and is never substituted. Not production policy: the experimental
   coefficients of `spikes/planner-comparison-2026-10-12/p-d7/` (K = 120,
   +10 per DRIVE leg, 10 % UNKNOWN discount) were fitted on generic
-  desirability and are rejected as product semantics. Open (G-P7-U, one
-  bounded gate, task 33.0): the preference-utility encoding and the
-  production coefficients for preference vs travel, mode friction
+  desirability and are rejected as product semantics. Open (G-P7-U part B,
+  task 33.0): the production coefficients for preference vs travel, mode friction
   (DRIVE, BICYCLE), and UNKNOWN-hours cost, from preference evidence.
   Structure is needed by groups 25/33; coefficients before group 41.
 - **Q1. Admissible categories: the backend's existing tourism POI classes.**

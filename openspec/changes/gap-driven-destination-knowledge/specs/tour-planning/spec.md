@@ -225,15 +225,39 @@ The objective SHALL maximize the request's preference utility over hard-feasible
 - **THEN** the leg's planned duration and estimate remain the provider-backed travel time
 
 ### Requirement: Preference utility is derived upstream of the optimizer
-Each candidate's preference utility SHALL be derived once, before optimization, at exactly one canonical derivation boundary from explicit facet affinity, semantic affinity and secondary quality under a versioned preference-utility policy, and SHALL reach the planner with its breakdown; consumers SHALL NOT recompute it. The optimizer SHALL receive only the typed utility, never embeddings, text, facets or provider metadata.
+Each candidate's preference utility SHALL be derived once, before optimization, at exactly one canonical derivation boundary, as a typed breakdown (explicit preference evidence with provenance, soft venue-anchor affinity, semantic affinity, generic quality) under a versioned preference-utility policy. No consumer SHALL recombine or recompute it. The optimizer SHALL receive only the prize the versioned objective policy projects from it, never embeddings, text, facets or provider metadata.
 
 #### Scenario: Explicit facets outrank semantic similarity
 - **WHEN** Experience A strongly matches more of the requested facets than Experience B and B has higher semantic similarity
 - **THEN** A's preference utility is not lower than B's
 
+#### Scenario: Quality does not override semantic refinement
+- **WHEN** Experiences A and B have equal explicit preference evidence, A has higher semantic similarity and B has higher generic quality
+- **THEN** A ranks above B
+
 #### Scenario: Missing embedding is unknown, not zero
 - **WHEN** an otherwise eligible Experience has no compatible embedding
-- **THEN** its semantic affinity is UNKNOWN and neutral, it still participates, and it is not ranked as if its similarity were zero
+- **THEN** its semantic affinity is UNKNOWN, it still participates, and it is ranked neither as if its similarity were zero nor below every peer with known similarity and equal explicit evidence
+
+#### Scenario: Ordering position is not semantic evidence
+- **WHEN** an Experience with UNKNOWN semantic affinity is ordered among peers with known similarity
+- **THEN** its assessment, trace and planning candidate report UNKNOWN, and no imputed similarity value is stored or reported
+
+#### Scenario: Known peers keep their order
+- **WHEN** an Experience with UNKNOWN semantic affinity joins candidates of equal explicit evidence
+- **THEN** the relative order of the candidates with known similarity is unchanged
+
+#### Scenario: Single scoring authority
+- **WHEN** the planner orders or values candidates
+- **THEN** it consumes the derived breakdown and its order and does not combine semantic, facet and quality signals itself
+
+#### Scenario: Channel is not authority
+- **WHEN** one preference is stated directly in the request's free text and another is selected in the wizard
+- **THEN** neither outranks the other merely because of the channel through which it was captured
+
+#### Scenario: Soft venue anchor is a separate signal
+- **WHEN** an Experience is a resolved soft venue anchor of the request
+- **THEN** its anchor affinity is a separate typed signal, it never counts as a facet match and the Experience is never forced into the plan
 
 #### Scenario: Accessibility need versus preference
 - **WHEN** the request states an explicit accessibility need and an Experience is known not to meet it or its accessibility is UNKNOWN
@@ -242,6 +266,40 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 #### Scenario: Hard exclusion never reaches the optimizer
 - **WHEN** an Experience matches a hard exclusion of the request
 - **THEN** it is not offered to the optimizer and no objective weight can bring it back
+
+### Requirement: Preference evidence precedence
+Within one request, eligible candidates SHALL be ordered lexicographically by DIRECT facet evidence, then INFERRED facet evidence, then soft venue-anchor affinity, then semantic affinity, then generic quality. No exchange rate SHALL let a lower level outweigh a higher one, and the capture channel SHALL NOT be a level.
+
+#### Scenario: Direct evidence outranks inferred evidence
+- **WHEN** Experience A matches a DIRECT facet and Experience B matches only INFERRED facets with a larger total weight, a higher interpretation confidence or higher semantic similarity
+- **THEN** A ranks above B
+
+#### Scenario: Confidence does not discount direct evidence
+- **WHEN** a wizard-selected facet and a DIRECT free-text facet of the same stated importance are matched by two Experiences, and the interpreter's confidence in the free-text facet is below 1
+- **THEN** both facets carry the same authority and the order between the two Experiences is decided by the lower levels, not by confidence or channel
+
+#### Scenario: Soft venue anchor follows facet evidence and precedes semantic refinement
+- **WHEN** a resolved soft venue anchor has equal facet evidence with another Experience that has higher semantic similarity, and less facet evidence than a third Experience
+- **THEN** the anchor ranks above the second Experience and below the third
+
+### Requirement: Facet provenance is derived deterministically
+Each requested facet SHALL carry a provenance of DIRECT or INFERRED, derived by a deterministic validator and never asserted by the interpreter. A wizard selection SHALL be DIRECT. A free-text facet SHALL be DIRECT only when its quoted user-text excerpt maps to the same canonical key through the versioned facet vocabulary or its explicit aliases, and SHALL otherwise be INFERRED.
+
+#### Scenario: Direct statement maps through the vocabulary
+- **WHEN** the free text says "me encanta la arquitectura" and the interpreter proposes the architecture theme with that excerpt
+- **THEN** the validator classifies the facet as DIRECT, because the excerpt contains an alias of that key in the versioned vocabulary
+
+#### Scenario: Inference is not a direct statement
+- **WHEN** the free text says "quiero ver los edificios de Gaudí" and the interpreter proposes the architecture theme
+- **THEN** the validator classifies the facet as INFERRED, the facet is kept, and no confidence value or embedding similarity changes that classification
+
+#### Scenario: Negated mention is not positive evidence
+- **WHEN** the free text says "no me interesa la arquitectura"
+- **THEN** no positive architecture facet participates in preference utility at any weight, whatever its provenance or confidence
+
+#### Scenario: Duplicate facet keeps its direct provenance
+- **WHEN** the same facet key is requested both as DIRECT and as INFERRED evidence
+- **THEN** the requested facet is DIRECT and carries the DIRECT member's weight, whatever the INFERRED member's weight
 
 ### Requirement: Allowed travel modes are a hard boundary
 Only the request's allowed travel modes that the release supports and a routing provider serves SHALL be offered to the optimizer. No objective weight SHALL make another mode usable, and an unavailable mode SHALL NOT be substituted by another mode.

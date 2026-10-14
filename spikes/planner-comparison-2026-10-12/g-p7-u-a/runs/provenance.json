@@ -1,0 +1,196 @@
+{
+ "referenceRule": [
+  {
+   "id": "P1",
+   "note": "owner example",
+   "facet": "theme:architecture",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:arquitectura",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P2a",
+   "note": "owner example; no modern_art key exists in the vocabulary",
+   "facet": "theme:modern_art",
+   "provenance": "NOT_IN_VOCABULARY",
+   "reason": "canonicalizeFacetKey -> undefined",
+   "expected": "NOT_IN_VOCABULARY",
+   "pass": true
+  },
+  {
+   "id": "P2b",
+   "note": "nearest canonical key: theme art via alias \"arte\"",
+   "facet": "theme:art",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:arte",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P2c",
+   "note": "alias \"moderno\" -> local_character contemporary is in the table, so DIRECT (alias review item)",
+   "facet": "local_character:contemporary",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:moderno",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P3",
+   "note": "owner example",
+   "facet": "theme:architecture",
+   "provenance": "INFERRED",
+   "reason": "NO_VOCABULARY_TERM_IN_EXCERPT",
+   "expected": "INFERRED",
+   "pass": true
+  },
+  {
+   "id": "P4a",
+   "note": "owner example",
+   "facet": "theme:history",
+   "provenance": "INFERRED",
+   "reason": "NO_VOCABULARY_TERM_IN_EXCERPT",
+   "expected": "INFERRED",
+   "pass": true
+  },
+  {
+   "id": "P4b",
+   "note": "same sentence, intent visit via alias \"conocer\"",
+   "facet": "intent:visit",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:conocer",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P5",
+   "note": "excerpt \"arte\" only occurs inside \"martes\"",
+   "facet": "theme:art",
+   "provenance": "INFERRED",
+   "reason": "EXCERPT_NOT_TOKEN_BOUNDED_IN_USER_TEXT",
+   "expected": "INFERRED",
+   "pass": true
+  },
+  {
+   "id": "P6",
+   "note": "case and accents normalize",
+   "facet": "theme:history",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:historico",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P7",
+   "note": "multi-word alias",
+   "facet": "theme:nightlife",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:vida nocturna",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P8",
+   "note": "no stemming: inflection without an explicit alias",
+   "facet": "theme:architecture",
+   "provenance": "INFERRED",
+   "reason": "NO_VOCABULARY_TERM_IN_EXCERPT",
+   "expected": "INFERRED",
+   "pass": true
+  },
+  {
+   "id": "P9a",
+   "note": "dimension-scoped alias \"playa\" (theme beach)",
+   "facet": "theme:beach",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:playa",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P9b",
+   "note": "dimension-scoped alias \"playa\" (nature_type coast)",
+   "facet": "nature_type:coast",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:playa",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P10",
+   "note": "open dimension (trait) has no vocabulary to certify against",
+   "facet": "trait:tranquilo",
+   "provenance": "INFERRED",
+   "reason": "OPEN_DIMENSION_NO_VOCABULARY",
+   "expected": "INFERRED",
+   "pass": true
+  },
+  {
+   "id": "P11",
+   "note": "wizard selection",
+   "facet": "theme:history",
+   "provenance": "DIRECT",
+   "reason": "WIZARD_SELECTION",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P12",
+   "note": "negation: provenance is lexical, polarity is not checked (residual)",
+   "facet": "theme:architecture",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:arquitectura",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P13",
+   "note": "English text matches the canonical key itself",
+   "facet": "theme:architecture",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:architecture",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P14",
+   "note": "snake key and spaced text",
+   "facet": "intent:day_trip",
+   "provenance": "DIRECT",
+   "reason": "VOCABULARY_TERM:day trip",
+   "expected": "DIRECT",
+   "pass": true
+  },
+  {
+   "id": "P15",
+   "note": "excerpt names a different key",
+   "facet": "theme:history",
+   "provenance": "INFERRED",
+   "reason": "NO_VOCABULARY_TERM_IN_EXCERPT",
+   "expected": "INFERRED",
+   "pass": true
+  }
+ ],
+ "vocabularyVersionExports": [],
+ "llmPathFacetFields": [
+  "confidence",
+  "dimension",
+  "evidence",
+  "importance",
+  "key",
+  "source"
+ ],
+ "llmPathDirectVsInferredIdenticalExceptEvidence": true,
+ "llmPathSubstringEvidenceAccepted": [
+  "theme:art"
+ ],
+ "fallbackSubstringTrigger": [
+  {
+   "facet": "theme:art",
+   "evidence": [
+    "arte"
+   ]
+  }
+ ]
+}

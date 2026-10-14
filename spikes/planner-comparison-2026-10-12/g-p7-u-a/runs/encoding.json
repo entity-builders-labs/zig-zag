@@ -1,0 +1,8668 @@
+{
+ "policies": [
+  "current_planner_additive",
+  "current_composition_remainder",
+  "E1_sum+median+median",
+  "E2_tier+zero+zero",
+  "E2_tier+lower_tier+median",
+  "E2_tier+const_half+median",
+  "E2_tier+tier_skip+median",
+  "E0_count+median+median",
+  "E2_tier+median+median",
+  "P_prov+zero+zero",
+  "P_prov+tier_skip+median",
+  "P_prov_live_dedupe+median+median",
+  "P_prov_confidence_in_direct+median+median",
+  "P_prov+median+median"
+ ],
+ "scenarios": [
+  {
+   "id": "A1",
+   "title": "explicit beats semantic \u2014 architecture + history (wizard)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "A2",
+   "title": "explicit beats semantic \u2014 \"historia y arquitectura\" (free text DIRECT, medium, confidence 0.6)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B1",
+   "title": "semantic refines equal explicit affinity \u2014 modern art",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "B2",
+   "title": "semantic refines before quality (small semantic gap, large quality gap) \u2014 modern art",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "C1",
+   "title": "missing embedding is neutral \u2014 food and markets",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K2",
+      "K1",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K2",
+      "K1",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "C2",
+   "title": "missing embedding never outranks stronger explicit evidence \u2014 food and markets",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "K",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "U",
+      "K"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "U",
+        "K"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "C3",
+   "title": "missing embedding is neutral on a low-range cosine model \u2014 food and markets",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "U",
+      "K1",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K2",
+      "K1",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "K1",
+      "K2",
+      "K3",
+      "U"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "U",
+      "K2",
+      "K1",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "K1",
+      "U",
+      "K2",
+      "K3"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "K1",
+        "K2"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "K2",
+        "K3"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "U",
+        "['K1', 'K2', 'K3']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "stable_known",
+        "U"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "D1",
+   "title": "quality is tertiary \u2014 family-friendly + \"parques\" (no semantic query)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "A",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "E1d",
+   "title": "wizard pick vs four weak DIRECT free-text facets \u2014 same class, weighted coverage decides (4 x 0.30 > 1.0)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "E1i",
+   "title": "wizard pick vs four weak INFERRED free-text facets (\"algo bohemio\") \u2014 DIRECT outranks any INFERRED sum",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "E2d",
+   "title": "wizard pick vs \"me encanta la arquitectura y el arte\" (two confident DIRECT facets) \u2014 1.9 > 1.0",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "B",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "E2i",
+   "title": "wizard pick vs \"los edificios de Gaud\u00ed y el MALBA\" (two confident INFERRED facets)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "E3",
+   "title": "stated importance, not count \u2014 strong museums + medium markets (1.7) vs three weak DIRECT facets (1.5)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K1",
+   "title": "confidence is not provenance \u2014 weak low-confidence DIRECT vs strong high-confidence INFERRED",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K2",
+   "title": "same key DIRECT (weak) and INFERRED (strong) \u2014 DIRECT survives dedupe (\"algo de historia\" + \"la ESMA\")",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K3a",
+   "title": "channel neutrality \u2014 wizard history vs certain DIRECT free-text architecture (confidence 1.0): semantic decides",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K3b",
+   "title": "channel neutrality \u2014 K3a with the channels swapped gives the same order",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K4",
+   "title": "confidence never discounts DIRECT \u2014 wizard history vs strong DIRECT free-text architecture at confidence 0.6: same authority, semantic decides",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "X",
+      "Y"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "K5",
+   "title": "confidence still matters within INFERRED \u2014 strong INFERRED at 0.9 vs strong INFERRED at 0.5",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "B",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "J1",
+   "title": "soft anchor never outranks DIRECT evidence",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "J2",
+   "title": "soft anchor never outranks INFERRED evidence",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "S"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "J3",
+   "title": "soft anchor outranks semantic similarity and quality at equal facet evidence",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": false
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "S",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "S",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "S",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "S",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "S",
+      "A"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "S",
+        "A"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "F1",
+   "title": "hard exclusion \u2014 local neighbourhoods avoiding churches",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "N"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "CH"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "G1",
+   "title": "accessibility NEED (wheelchair) \u2014 UNKNOWN fails eligibility",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        "absent",
+        "Y"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "absent",
+        "Z"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "G2",
+   "title": "accessibility PREFERENCE \u2014 every candidate stays eligible",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "Y",
+      "X"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "Y",
+        "X"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "H1",
+   "title": "no embeddings at all (provider unavailable) \u2014 architecture + history",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "A",
+      "B",
+      "C",
+      "D"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "A",
+        "B"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "B",
+        "C"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        ">",
+        "C",
+        "D"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  },
+  {
+   "id": "I1",
+   "title": "no explicit facets \u2014 \"quiet green spaces with views\" (semantic leads, quality follows)",
+   "byPolicy": {
+    "current_planner_additive": {
+     "ranked": [
+      "P",
+      "Q",
+      "R",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "current_composition_remainder": {
+     "ranked": [
+      "P",
+      "Q",
+      "R",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E1_sum+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+zero+zero": {
+     "ranked": [
+      "P",
+      "Q",
+      "R",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+lower_tier+median": {
+     "ranked": [
+      "P",
+      "Q",
+      "R",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+const_half+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+tier_skip+median": {
+     "ranked": [
+      "Q",
+      "R",
+      "S",
+      "P"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E0_count+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "E2_tier+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+zero+zero": {
+     "ranked": [
+      "P",
+      "Q",
+      "R",
+      "S"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+tier_skip+median": {
+     "ranked": [
+      "Q",
+      "R",
+      "S",
+      "P"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": false
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_live_dedupe+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov_confidence_in_direct+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    },
+    "P_prov+median+median": {
+     "ranked": [
+      "P",
+      "R",
+      "S",
+      "Q"
+     ],
+     "checks": [
+      {
+       "expect": [
+        ">",
+        "P",
+        "Q"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_last",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      },
+      {
+       "expect": [
+        "not_first",
+        "R",
+        "['P', 'Q']"
+       ],
+       "pass": true
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "summary": {
+  "current_planner_additive": {
+   "pass": 35,
+   "total": 46,
+   "failed": [
+    "A2:> A B",
+    "B2:> A B",
+    "C1:not_last U",
+    "C2:> U K",
+    "C3:not_last U",
+    "E1i:> A B",
+    "E2i:> A B",
+    "K1:> A B",
+    "K4:> Y X",
+    "J3:> S A",
+    "I1:not_last R"
+   ]
+  },
+  "current_composition_remainder": {
+   "pass": 38,
+   "total": 46,
+   "failed": [
+    "C1:not_last U",
+    "C3:not_last U",
+    "E1i:> A B",
+    "E2i:> A B",
+    "K1:> A B",
+    "K4:> Y X",
+    "J3:> S A",
+    "I1:not_last R"
+   ]
+  },
+  "E1_sum+median+median": {
+   "pass": 41,
+   "total": 46,
+   "failed": [
+    "E1i:> A B",
+    "E2i:> A B",
+    "K1:> A B",
+    "K4:> Y X",
+    "J3:> S A"
+   ]
+  },
+  "E2_tier+zero+zero": {
+   "pass": 37,
+   "total": 46,
+   "failed": [
+    "C1:not_last U",
+    "C3:not_last U",
+    "E1d:> B A",
+    "E2d:> B A",
+    "K1:> A B",
+    "K3a:> Y X",
+    "K4:> Y X",
+    "J3:> S A",
+    "I1:not_last R"
+   ]
+  },
+  "E2_tier+lower_tier+median": {
+   "pass": 37,
+   "total": 46,
+   "failed": [
+    "C1:not_last U",
+    "C3:not_last U",
+    "E1d:> B A",
+    "E2d:> B A",
+    "K1:> A B",
+    "K3a:> Y X",
+    "K4:> Y X",
+    "J3:> S A",
+    "I1:not_last R"
+   ]
+  },
+  "E2_tier+const_half+median": {
+   "pass": 39,
+   "total": 46,
+   "failed": [
+    "C3:not_first U",
+    "E1d:> B A",
+    "E2d:> B A",
+    "K1:> A B",
+    "K3a:> Y X",
+    "K4:> Y X",
+    "J3:> S A"
+   ]
+  },
+  "E2_tier+tier_skip+median": {
+   "pass": 33,
+   "total": 46,
+   "failed": [
+    "C1:> K1 K2",
+    "C1:not_first U",
+    "C1:stable_known U",
+    "C3:> K1 K2",
+    "C3:not_first U",
+    "C3:stable_known U",
+    "E1d:> B A",
+    "E2d:> B A",
+    "K1:> A B",
+    "K3a:> Y X",
+    "K4:> Y X",
+    "J3:> S A",
+    "I1:> P Q"
+   ]
+  },
+  "E0_count+median+median": {
+   "pass": 40,
+   "total": 46,
+   "failed": [
+    "E1i:> A B",
+    "E2i:> A B",
+    "E3:> A B",
+    "K1:> A B",
+    "K5:> A B",
+    "J3:> S A"
+   ]
+  },
+  "E2_tier+median+median": {
+   "pass": 40,
+   "total": 46,
+   "failed": [
+    "E1d:> B A",
+    "E2d:> B A",
+    "K1:> A B",
+    "K3a:> Y X",
+    "K4:> Y X",
+    "J3:> S A"
+   ]
+  },
+  "P_prov+zero+zero": {
+   "pass": 43,
+   "total": 46,
+   "failed": [
+    "C1:not_last U",
+    "C3:not_last U",
+    "I1:not_last R"
+   ]
+  },
+  "P_prov+tier_skip+median": {
+   "pass": 39,
+   "total": 46,
+   "failed": [
+    "C1:> K1 K2",
+    "C1:not_first U",
+    "C1:stable_known U",
+    "C3:> K1 K2",
+    "C3:not_first U",
+    "C3:stable_known U",
+    "I1:> P Q"
+   ]
+  },
+  "P_prov_live_dedupe+median+median": {
+   "pass": 45,
+   "total": 46,
+   "failed": [
+    "K2:> A B"
+   ]
+  },
+  "P_prov_confidence_in_direct+median+median": {
+   "pass": 45,
+   "total": 46,
+   "failed": [
+    "K4:> Y X"
+   ]
+  },
+  "P_prov+median+median": {
+   "pass": 46,
+   "total": 46,
+   "failed": []
+  }
+ },
+ "pairwiseSkipTransitivity": {
+  "candidates": "A(sim UNKNOWN, q3.0) B(sim .90, q2.0) C(sim .20, q4.0), equal explicit affinity",
+  "cycles": [
+   [
+    "A",
+    "B",
+    "C"
+   ],
+   [
+    "B",
+    "C",
+    "A"
+   ],
+   [
+    "C",
+    "A",
+    "B"
+   ]
+  ],
+  "transitive": false
+ },
+ "crossRequestNormalization": {
+  "one_strong_wizard_facet": {
+   "possibleWeight": "1",
+   "sameOrder": true,
+   "maxMatchedFraction": "1"
+  },
+  "five_weak_free_text_facets": {
+   "possibleWeight": "5/4",
+   "sameOrder": true,
+   "maxMatchedFraction": "1"
+  }
+ },
+ "scalarization": {
+  "prize = rank": {
+   "perCandidateOrderPreserved": true,
+   "oneHigher": 2,
+   "twoLower": 2,
+   "setPreferred": "tie"
+  },
+  "prize = rank^2": {
+   "perCandidateOrderPreserved": true,
+   "oneHigher": 4,
+   "twoLower": 2,
+   "setPreferred": "one higher-tier"
+  },
+  "prize = rank + 1": {
+   "perCandidateOrderPreserved": true,
+   "oneHigher": 3,
+   "twoLower": 4,
+   "setPreferred": "two lower-tier"
+  },
+  "mixedRadixNote": "base > n (pool size) is lossless per candidate and lexicographic over sets; it also makes every preference digit dominate travel, which is the preference-vs-travel exchange rate that part B must decide, not A."
+ },
+ "unknownIsProjectionOnly": {
+  "ranked": [
+   "K1",
+   "U",
+   "K2",
+   "K3"
+  ],
+  "assessment": {
+   "K1": {
+    "semanticAffinity": {
+     "KNOWN": 0.62
+    }
+   },
+   "K2": {
+    "semanticAffinity": {
+     "KNOWN": 0.41
+    }
+   },
+   "K3": {
+    "semanticAffinity": {
+     "KNOWN": 0.3
+    }
+   },
+   "U": {
+    "semanticAffinity": "UNKNOWN"
+   }
+  },
+  "unknownReportedAsValue": false
+ }
+}
