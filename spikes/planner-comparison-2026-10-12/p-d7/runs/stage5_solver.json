@@ -1,0 +1,5648 @@
+{
+ "meta": {
+  "policy": "routing-gls-sl1000-v1",
+  "scale": 10,
+  "workers": 6,
+  "wall_s": 150.3,
+  "params": [
+   {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   }
+  ],
+  "profiles": [
+   "A",
+   "B"
+  ],
+  "scenarios": [
+   "S1-normal-pall",
+   "S2-tight-hours",
+   "S5-oversupply-1day",
+   "S9-anchors-startend-p20",
+   "S4-mustinclude"
+  ]
+ },
+ "rows": [
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 13.628,
+   "walkMin": 146.8,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 15,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:way:1332861812",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:52563680",
+    "BA:way:176333994",
+    "BA:relation:2354152",
+    "BA:relation:3228119",
+    "BA:way:265344159",
+    "BA:way:204263802",
+    "BA:way:173065616",
+    "BA:way:173065810",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439"
+   ],
+   "perDayTravel": [
+    70.5,
+    40.2,
+    36.0
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 146.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    6854.31
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8215,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 18.939,
+   "walkMin": 95.167,
+   "driveMin": 53.267,
+   "driveLegs": 12,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:265344159",
+    "BA:way:204263802",
+    "BA:way:1332861812",
+    "BA:way:173065616",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:52563680"
+   ],
+   "perDayTravel": [
+    48.9,
+    46.5,
+    53.0
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 148.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    6463.42
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3332,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.317,
+   "walkMin": 156.75,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 8,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:way:1332861812",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:23633911",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    55.3,
+    50.6,
+    50.8
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 156.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7225.43
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9777,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.606,
+   "walkMin": 47.65,
+   "driveMin": 27.833,
+   "driveLegs": 6,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "BA:way:204263802",
+    "BA:way:102440659",
+    "BA:way:23633911",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:way:173065616",
+    "BA:way:147938686",
+    "BA:node:5405921752",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    19.8,
+    21.6,
+    34.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 75.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    4750.02
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9165,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.028,
+   "walkMin": 91.383,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    91.4
+   ],
+   "attractiveOmitted": [
+    "BA:way:1386044833",
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:1386044833"
+   ],
+   "travelMin": 91.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    574.59
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 13161,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 8.006,
+   "walkMin": 27.883,
+   "driveMin": 13.217,
+   "driveLegs": 4,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "BA:way:1386044833",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    41.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 41.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    487.82
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12001,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.067,
+   "walkMin": 153.117,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 10,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    27.2,
+    0.0,
+    125.9
+   ],
+   "attractiveOmitted": [
+    "BA:way:102440659",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:102440659"
+   ],
+   "travelMin": 153.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2188.38
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10678,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 19,
+   "sumU": 15.139,
+   "walkMin": 67.5,
+   "driveMin": 95.383,
+   "driveLegs": 14,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:18514760",
+    "BA:node:5405921752",
+    "BA:way:147938686",
+    "BA:way:219731998",
+    "BA:node:5617667887",
+    "BA:way:204263802",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    57.8,
+    23.5,
+    81.6
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 162.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3639.99
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3027,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.317,
+   "walkMin": 160.433,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:node:5617667887",
+    "BA:way:23633911",
+    "BA:way:1332861812",
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:265344159",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:way:102440659"
+   ],
+   "perDayTravel": [
+    0.0,
+    87.9,
+    72.5
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 160.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    5358.31
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8686,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 19.05,
+   "walkMin": 81.767,
+   "driveMin": 69.417,
+   "driveLegs": 13,
+   "walkLegs": 11,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:1332861812",
+    "BA:way:204263802",
+    "BA:way:173065616",
+    "BA:node:5617667887",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:265344159",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    49.5,
+    46.5,
+    55.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 151.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    6054.33
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3340,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 26,
+   "sumU": 20.579,
+   "walkMin": 265.133,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 23,
+   "shortHopDrive": 0,
+   "unknownVisits": 18,
+   "selected": [
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:way:128206209",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:relation:13611998",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:relation:2778854",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    88.4,
+    80.9,
+    95.8
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 265.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7330.09
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6063,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.194,
+   "walkMin": 85.767,
+   "driveMin": 38.583,
+   "driveLegs": 13,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:way:5013364",
+    "PA:way:4208595",
+    "PA:relation:1463538",
+    "PA:way:63178753",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:relation:3300400",
+    "PA:way:79219308",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:56185523",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:175448742"
+   ],
+   "perDayTravel": [
+    50.9,
+    37.6,
+    35.9
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 124.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    6170.41
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4117,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.713,
+   "walkMin": 138.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 11,
+   "selected": [
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:4208595",
+    "PA:way:5013364"
+   ],
+   "perDayTravel": [
+    34.8,
+    26.0,
+    77.5
+   ],
+   "attractiveOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "travelMin": 138.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    5871.94
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12383,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 14.686,
+   "walkMin": 50.517,
+   "driveMin": 24.683,
+   "driveLegs": 7,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:way:5013364",
+    "PA:way:63178753",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    21.7,
+    27.0,
+    26.5
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 75.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    4976.66
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 11399,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 7.401,
+   "walkMin": 101.883,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 6,
+   "selected": [
+    "PA:way:5013364",
+    "PA:way:4208595",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:432819047",
+    "PA:way:54180046"
+   ],
+   "perDayTravel": [
+    101.9
+   ],
+   "attractiveOmitted": [
+    "PA:node:10844713782",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:16407465",
+    "PA:way:201611261",
+    "PA:way:226413508",
+    "PA:way:54667456",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:10844713782",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "travelMin": 101.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    627.22
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 19130,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 8.608,
+   "walkMin": 10.783,
+   "driveMin": 20.067,
+   "driveLegs": 6,
+   "walkLegs": 3,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:63178753",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782"
+   ],
+   "perDayTravel": [
+    30.8
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [
+    "PA:relation:1060803",
+    "PA:way:55503397"
+   ],
+   "travelMin": 30.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    555.06
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 17693,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.324,
+   "walkMin": 272.467,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 17,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:way:54667456",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:relation:7515426",
+    "PA:relation:3300400",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:128206209"
+   ],
+   "perDayTravel": [
+    147.6,
+    0.0,
+    124.9
+   ],
+   "attractiveOmitted": [
+    "PA:way:5013364",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:5013364"
+   ],
+   "travelMin": 272.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3138.86
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 7330,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 16.418,
+   "walkMin": 38.983,
+   "driveMin": 66.5,
+   "driveLegs": 17,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 15,
+   "selected": [
+    "PA:relation:7515426",
+    "PA:way:54667456",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:128206209",
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:relation:1060803",
+    "PA:way:432819047",
+    "PA:relation:3300400",
+    "PA:way:4433289",
+    "PA:way:63178753"
+   ],
+   "perDayTravel": [
+    52.3,
+    0.0,
+    53.2
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 105.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2617.08
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 2753,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 26,
+   "sumU": 20.579,
+   "walkMin": 265.133,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 23,
+   "shortHopDrive": 0,
+   "unknownVisits": 18,
+   "selected": [
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:way:128206209",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:relation:13611998",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:relation:2778854",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    88.4,
+    80.9,
+    95.8
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 265.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    6528.99
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6063,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.185,
+   "walkMin": 63.05,
+   "driveMin": 56.867,
+   "driveLegs": 15,
+   "walkLegs": 10,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:relation:1463538",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:way:53574149",
+    "PA:way:128206209",
+    "PA:relation:13611998",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:226413508",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:79219308",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:node:247618453",
+    "PA:way:55503397"
+   ],
+   "perDayTravel": [
+    41.0,
+    37.4,
+    41.6
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 119.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    5933.88
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4284,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 5.849,
+   "walkMin": 36.567,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:way:407373715",
+    "LA:way:407373012",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    17.2,
+    19.4,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 36.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2965.09
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 14276,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 22,
+   "sumU": 14.712,
+   "walkMin": 25.6,
+   "driveMin": 97.483,
+   "driveLegs": 13,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:386067421",
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:422130705",
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598"
+   ],
+   "perDayTravel": [
+    55.3,
+    45.4,
+    22.4
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 123.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    5078.14
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6262,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 4.953,
+   "walkMin": 23.25,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:relation:21400392",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    14.5,
+    8.7,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 23.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3062.44
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15166,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 14,
+   "sumU": 10.199,
+   "walkMin": 12.85,
+   "driveMin": 74.417,
+   "driveLegs": 9,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 6,
+   "selected": [
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:way:913343446",
+    "LA:node:150968103",
+    "LA:way:322957598",
+    "LA:node:4773740642",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:422130705"
+   ],
+   "perDayTravel": [
+    27.6,
+    22.4,
+    37.3
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [
+    "LA:way:22728853"
+   ],
+   "travelMin": 87.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    4378.95
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10646,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 5,
+   "sumU": 2.85,
+   "walkMin": 19.35,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758"
+   ],
+   "perDayTravel": [
+    19.4
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4745189816",
+    "LA:node:4773740642",
+    "LA:relation:21400392",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:relation:6363655",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:407373012",
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 19.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    323.93
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 16263,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 6.41,
+   "walkMin": 12.183,
+   "driveMin": 35.417,
+   "driveLegs": 5,
+   "walkLegs": 3,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:4773740642",
+    "LA:node:150968103",
+    "LA:way:358731585",
+    "LA:node:369164732"
+   ],
+   "perDayTravel": [
+    47.6
+   ],
+   "attractiveOmitted": [
+    "LA:node:4745189816",
+    "LA:way:422130705"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 47.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    517.41
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12946,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 1,
+   "sumU": 0.623,
+   "walkMin": 45.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 1,
+   "selected": [
+    "LA:node:150968103"
+   ],
+   "perDayTravel": [
+    0.0,
+    0.0,
+    45.3
+   ],
+   "attractiveOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:385648322",
+    "LA:way:407373025",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:385648322"
+   ],
+   "travelMin": 45.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    611.62
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15650,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 13.86,
+   "walkMin": 25.567,
+   "driveMin": 168.5,
+   "driveLegs": 18,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:way:422130705",
+    "LA:relation:6246565",
+    "LA:relation:21400392",
+    "LA:way:407373025",
+    "LA:node:470897671",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:150968103",
+    "LA:node:369164732",
+    "LA:way:358731585",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:386067421",
+    "LA:way:422524239"
+   ],
+   "perDayTravel": [
+    99.9,
+    42.2,
+    52.0
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 194.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3203.49
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3740,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 2000,
+    "name": "SL2000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 13.628,
+   "walkMin": 131.533,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 15,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "BA:way:1332861812",
+    "BA:way:23633911",
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:52563680",
+    "BA:way:102440659",
+    "BA:way:204263802",
+    "BA:way:265344159",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616"
+   ],
+   "perDayTravel": [
+    9.2,
+    58.1,
+    64.3
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 131.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    12700.45
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8063,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 18.939,
+   "walkMin": 95.167,
+   "driveMin": 53.267,
+   "driveLegs": 12,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:265344159",
+    "BA:way:204263802",
+    "BA:way:1332861812",
+    "BA:way:173065616",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:52563680"
+   ],
+   "perDayTravel": [
+    48.9,
+    46.5,
+    53.0
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 148.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    12095.67
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3332,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.317,
+   "walkMin": 156.75,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 8,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:way:1332861812",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:23633911",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    55.3,
+    50.6,
+    50.8
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 156.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    13034.39
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9777,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.606,
+   "walkMin": 47.65,
+   "driveMin": 27.833,
+   "driveLegs": 6,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "BA:way:204263802",
+    "BA:way:102440659",
+    "BA:way:23633911",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:way:173065616",
+    "BA:way:147938686",
+    "BA:node:5405921752",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    19.8,
+    21.6,
+    34.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 75.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    9012.38
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9165,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.028,
+   "walkMin": 91.383,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    91.4
+   ],
+   "attractiveOmitted": [
+    "BA:way:1386044833",
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:1386044833"
+   ],
+   "travelMin": 91.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1396.69
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 13161,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 8.006,
+   "walkMin": 27.883,
+   "driveMin": 13.217,
+   "driveLegs": 4,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "BA:way:1386044833",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    41.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 41.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1116.39
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12001,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.067,
+   "walkMin": 153.117,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 10,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    27.2,
+    0.0,
+    125.9
+   ],
+   "attractiveOmitted": [
+    "BA:way:102440659",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:102440659"
+   ],
+   "travelMin": 153.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    4518.71
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10678,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 19,
+   "sumU": 15.139,
+   "walkMin": 67.5,
+   "driveMin": 95.383,
+   "driveLegs": 14,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:18514760",
+    "BA:node:5405921752",
+    "BA:way:147938686",
+    "BA:way:219731998",
+    "BA:node:5617667887",
+    "BA:way:204263802",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    57.8,
+    23.5,
+    81.6
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 162.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7170.53
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3027,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.317,
+   "walkMin": 160.433,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:node:5617667887",
+    "BA:way:23633911",
+    "BA:way:1332861812",
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:265344159",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:way:102440659"
+   ],
+   "perDayTravel": [
+    0.0,
+    87.9,
+    72.5
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 160.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    12217.78
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8686,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 19.05,
+   "walkMin": 81.767,
+   "driveMin": 69.417,
+   "driveLegs": 13,
+   "walkLegs": 11,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:1332861812",
+    "BA:way:204263802",
+    "BA:way:173065616",
+    "BA:node:5617667887",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:265344159",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    49.5,
+    46.5,
+    55.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 151.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    12905.53
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3340,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 26,
+   "sumU": 20.645,
+   "walkMin": 261.667,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 23,
+   "shortHopDrive": 0,
+   "unknownVisits": 18,
+   "selected": [
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:4433289",
+    "PA:way:201611261",
+    "PA:relation:3344870",
+    "PA:node:910390736",
+    "PA:way:53574149",
+    "PA:way:63178753",
+    "PA:relation:1463538",
+    "PA:way:56185523",
+    "PA:relation:1060803",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:175448742",
+    "PA:way:432819047",
+    "PA:relation:2778854",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    89.2,
+    71.9,
+    100.6
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 261.7,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    17554.48
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 5956,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.194,
+   "walkMin": 85.767,
+   "driveMin": 38.583,
+   "driveLegs": 13,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:way:5013364",
+    "PA:way:4208595",
+    "PA:relation:1463538",
+    "PA:way:63178753",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:relation:3300400",
+    "PA:way:79219308",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:56185523",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:175448742"
+   ],
+   "perDayTravel": [
+    50.9,
+    37.6,
+    35.9
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 124.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    16027.21
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4117,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.713,
+   "walkMin": 138.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 11,
+   "selected": [
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:4208595",
+    "PA:way:5013364"
+   ],
+   "perDayTravel": [
+    34.8,
+    26.0,
+    77.5
+   ],
+   "attractiveOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "travelMin": 138.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    15340.45
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12383,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 14.686,
+   "walkMin": 50.517,
+   "driveMin": 24.683,
+   "driveLegs": 7,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:way:5013364",
+    "PA:way:63178753",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    21.7,
+    27.0,
+    26.5
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 75.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    12653.74
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 11399,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 7.519,
+   "walkMin": 111.783,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 6,
+   "selected": [
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:4433289",
+    "PA:way:201611261",
+    "PA:relation:3344870",
+    "PA:way:63178753",
+    "PA:way:175448742",
+    "PA:way:4208595",
+    "PA:way:5013364"
+   ],
+   "perDayTravel": [
+    111.8
+   ],
+   "attractiveOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:relation:7515426",
+    "PA:way:226413508",
+    "PA:way:432819047",
+    "PA:way:54667456",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:relation:7515426",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "travelMin": 111.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1482.14
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 19079,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 8.608,
+   "walkMin": 10.783,
+   "driveMin": 20.067,
+   "driveLegs": 6,
+   "walkLegs": 3,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:63178753",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782"
+   ],
+   "perDayTravel": [
+    30.8
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [
+    "PA:relation:1060803",
+    "PA:way:55503397"
+   ],
+   "travelMin": 30.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1369.69
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 17693,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.324,
+   "walkMin": 272.467,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 17,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:way:54667456",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:relation:7515426",
+    "PA:relation:3300400",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:128206209"
+   ],
+   "perDayTravel": [
+    147.6,
+    0.0,
+    124.9
+   ],
+   "attractiveOmitted": [
+    "PA:way:5013364",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:5013364"
+   ],
+   "travelMin": 272.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    8245.54
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 7330,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 16.418,
+   "walkMin": 38.983,
+   "driveMin": 66.5,
+   "driveLegs": 17,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 15,
+   "selected": [
+    "PA:relation:7515426",
+    "PA:way:54667456",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:128206209",
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:relation:1060803",
+    "PA:way:432819047",
+    "PA:relation:3300400",
+    "PA:way:4433289",
+    "PA:way:63178753"
+   ],
+   "perDayTravel": [
+    52.3,
+    0.0,
+    53.2
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 105.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    8057.51
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 2753,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 26,
+   "sumU": 20.579,
+   "walkMin": 265.133,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 23,
+   "shortHopDrive": 0,
+   "unknownVisits": 18,
+   "selected": [
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:way:128206209",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:relation:13611998",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:relation:2778854",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    88.4,
+    80.9,
+    95.8
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 265.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    17386.93
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6063,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.172,
+   "walkMin": 61.5,
+   "driveMin": 57.067,
+   "driveLegs": 15,
+   "walkLegs": 10,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:relation:13611998",
+    "PA:way:128206209",
+    "PA:way:63178753",
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:54180046",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:node:247618453",
+    "PA:way:55503397"
+   ],
+   "perDayTravel": [
+    41.5,
+    37.4,
+    39.7
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 118.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    16039.1
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4283,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 5.849,
+   "walkMin": 36.567,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:way:407373715",
+    "LA:way:407373012",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    17.2,
+    19.4,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 36.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7698.98
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 14276,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 22,
+   "sumU": 14.712,
+   "walkMin": 25.6,
+   "driveMin": 97.483,
+   "driveLegs": 13,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:386067421",
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:422130705",
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598"
+   ],
+   "perDayTravel": [
+    55.3,
+    45.4,
+    22.4
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 123.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    14959.91
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6262,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 4.953,
+   "walkMin": 23.25,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:relation:21400392",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    14.5,
+    8.7,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 23.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7036.46
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15166,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 14,
+   "sumU": 10.199,
+   "walkMin": 12.85,
+   "driveMin": 67.117,
+   "driveLegs": 9,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 6,
+   "selected": [
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:way:913343446",
+    "LA:node:150968103",
+    "LA:way:322957598",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:way:422130705",
+    "LA:node:4773740642",
+    "LA:way:427532197",
+    "LA:way:206463626"
+   ],
+   "perDayTravel": [
+    27.6,
+    34.0,
+    18.3
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [
+    "LA:way:22728853"
+   ],
+   "travelMin": 80.0,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    11966.69
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10573,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 5,
+   "sumU": 2.85,
+   "walkMin": 19.35,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758"
+   ],
+   "perDayTravel": [
+    19.4
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4745189816",
+    "LA:node:4773740642",
+    "LA:relation:21400392",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:relation:6363655",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:407373012",
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 19.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    590.46
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 16263,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 6.553,
+   "walkMin": 9.0,
+   "driveMin": 40.35,
+   "driveLegs": 6,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:369164732",
+    "LA:way:358731585",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:4773740642",
+    "LA:node:150968103"
+   ],
+   "perDayTravel": [
+    49.4
+   ],
+   "attractiveOmitted": [
+    "LA:node:4745189816",
+    "LA:way:422130705"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 49.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1220.79
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12892,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 1,
+   "sumU": 0.623,
+   "walkMin": 45.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 1,
+   "selected": [
+    "LA:node:150968103"
+   ],
+   "perDayTravel": [
+    0.0,
+    0.0,
+    45.3
+   ],
+   "attractiveOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:385648322",
+    "LA:way:407373025",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:385648322"
+   ],
+   "travelMin": 45.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2326.36
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15650,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 13.86,
+   "walkMin": 25.567,
+   "driveMin": 168.5,
+   "driveLegs": 18,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:way:422130705",
+    "LA:relation:6246565",
+    "LA:relation:21400392",
+    "LA:way:407373025",
+    "LA:node:470897671",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:150968103",
+    "LA:node:369164732",
+    "LA:way:358731585",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:386067421",
+    "LA:way:422524239"
+   ],
+   "perDayTravel": [
+    99.9,
+    42.2,
+    52.0
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 194.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    10696.8
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3740,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 5000,
+    "name": "SL5000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 13.628,
+   "walkMin": 131.533,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 15,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "BA:way:1332861812",
+    "BA:way:23633911",
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:way:52563680",
+    "BA:way:102440659",
+    "BA:way:204263802",
+    "BA:way:265344159",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616"
+   ],
+   "perDayTravel": [
+    9.2,
+    58.1,
+    64.3
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 131.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    25399.56
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8063,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 18.939,
+   "walkMin": 95.167,
+   "driveMin": 53.267,
+   "driveLegs": 12,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:265344159",
+    "BA:way:204263802",
+    "BA:way:1332861812",
+    "BA:way:173065616",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:52563680"
+   ],
+   "perDayTravel": [
+    48.9,
+    46.5,
+    53.0
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 148.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    24306.12
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3332,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.317,
+   "walkMin": 128.567,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 8,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:way:1332861812",
+    "BA:way:23633911",
+    "BA:way:176333994",
+    "BA:relation:2354152",
+    "BA:relation:3228119",
+    "BA:way:204263802",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:173065810",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439"
+   ],
+   "perDayTravel": [
+    41.0,
+    42.4,
+    45.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 128.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    24920.87
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9496,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.606,
+   "walkMin": 47.65,
+   "driveMin": 27.833,
+   "driveLegs": 6,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "BA:way:204263802",
+    "BA:way:102440659",
+    "BA:way:23633911",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:way:173065616",
+    "BA:way:147938686",
+    "BA:node:5405921752",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    19.8,
+    21.6,
+    34.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 75.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    18028.64
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 9165,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.028,
+   "walkMin": 91.383,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    91.4
+   ],
+   "attractiveOmitted": [
+    "BA:way:1386044833",
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:1386044833"
+   ],
+   "travelMin": 91.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3083.36
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 13161,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 8.006,
+   "walkMin": 27.883,
+   "driveMin": 13.217,
+   "driveLegs": 4,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "BA:way:1386044833",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659"
+   ],
+   "perDayTravel": [
+    41.1
+   ],
+   "attractiveOmitted": [
+    "BA:way:173065810",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 41.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2187.33
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12001,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 7.067,
+   "walkMin": 153.117,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 10,
+   "shortHopDrive": 0,
+   "unknownVisits": 3,
+   "selected": [
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:204263802",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    27.2,
+    0.0,
+    125.9
+   ],
+   "attractiveOmitted": [
+    "BA:way:102440659",
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [
+    "BA:way:102440659"
+   ],
+   "travelMin": 153.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    7705.22
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10678,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 19,
+   "sumU": 15.139,
+   "walkMin": 67.5,
+   "driveMin": 88.583,
+   "driveLegs": 14,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:way:102440659",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:18514760",
+    "BA:way:147938686",
+    "BA:node:5405921752",
+    "BA:way:219731998",
+    "BA:node:5617667887",
+    "BA:way:204263802",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616",
+    "BA:way:23633911"
+   ],
+   "perDayTravel": [
+    57.8,
+    11.1,
+    87.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 156.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    13582.07
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 2959,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.183,
+   "walkMin": 144.8,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "BA:node:5617667887",
+    "BA:way:708071953",
+    "BA:way:1386044833",
+    "BA:node:694078616",
+    "BA:relation:3228119",
+    "BA:way:265344159",
+    "BA:way:204263802",
+    "BA:way:102440659",
+    "BA:way:23633911",
+    "BA:node:2038426439",
+    "BA:way:31364659",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810",
+    "BA:way:173065616"
+   ],
+   "perDayTravel": [
+    0.0,
+    80.6,
+    64.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 144.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    21779.77
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 8673,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "BA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 19.05,
+   "walkMin": 81.767,
+   "driveMin": 69.417,
+   "driveLegs": 13,
+   "walkLegs": 11,
+   "shortHopDrive": 0,
+   "unknownVisits": 14,
+   "selected": [
+    "BA:node:5405921752",
+    "BA:way:9937501",
+    "BA:node:4586207943",
+    "BA:way:147938686",
+    "BA:way:183842128",
+    "BA:way:1332861812",
+    "BA:way:204263802",
+    "BA:way:173065616",
+    "BA:node:5617667887",
+    "BA:node:9953027884",
+    "BA:composite:san-telmo-walk",
+    "BA:way:31364659",
+    "BA:node:2038426439",
+    "BA:node:694078616",
+    "BA:way:1386044833",
+    "BA:way:708071953",
+    "BA:way:868115392",
+    "BA:way:18514760",
+    "BA:way:53183874",
+    "BA:way:219731998",
+    "BA:way:23633911",
+    "BA:way:102440659",
+    "BA:way:265344159",
+    "BA:relation:3228119",
+    "BA:relation:2354152",
+    "BA:way:176333994",
+    "BA:way:173065810"
+   ],
+   "perDayTravel": [
+    49.5,
+    46.5,
+    55.2
+   ],
+   "attractiveOmitted": [
+    "BA:way:256715723"
+   ],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 151.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    22516.11
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3340,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 29
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 21.187,
+   "walkMin": 284.133,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 24,
+   "shortHopDrive": 0,
+   "unknownVisits": 20,
+   "selected": [
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:relation:13611998",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:128206209",
+    "PA:relation:1463538",
+    "PA:way:175448742",
+    "PA:way:432819047",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:56185523",
+    "PA:relation:2778854",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    100.0,
+    86.9,
+    97.2
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397",
+    "PA:way:63178753"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 284.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    34523.46
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 5704,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.194,
+   "walkMin": 86.0,
+   "driveMin": 34.917,
+   "driveLegs": 13,
+   "walkLegs": 12,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:way:63178753",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:relation:3300400",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:way:79219308",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:56185523",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047"
+   ],
+   "perDayTravel": [
+    41.6,
+    37.8,
+    41.5
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 120.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    29392.27
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4082,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 17,
+   "sumU": 13.713,
+   "walkMin": 138.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 14,
+   "shortHopDrive": 0,
+   "unknownVisits": 11,
+   "selected": [
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:63178753",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:relation:3300400",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:4208595",
+    "PA:way:5013364"
+   ],
+   "perDayTravel": [
+    34.8,
+    26.0,
+    77.5
+   ],
+   "attractiveOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:55503397"
+   ],
+   "travelMin": 138.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    25650.32
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12383,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 18,
+   "sumU": 14.773,
+   "walkMin": 57.8,
+   "driveMin": 24.117,
+   "driveLegs": 7,
+   "walkLegs": 8,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:way:63178753",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:54667456",
+    "PA:way:54180046",
+    "PA:way:175448742",
+    "PA:way:432819047",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508"
+   ],
+   "perDayTravel": [
+    16.0,
+    31.1,
+    34.8
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 81.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    22709.18
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 11375,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 7.93,
+   "walkMin": 71.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 9,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:227483542",
+    "PA:relation:3300400",
+    "PA:way:53574149",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465"
+   ],
+   "perDayTravel": [
+    71.3
+   ],
+   "attractiveOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:175448742",
+    "PA:way:226413508",
+    "PA:way:432819047",
+    "PA:way:5013364",
+    "PA:way:54667456",
+    "PA:way:55503397",
+    "PA:way:63178753"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:node:4533627787",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:way:5013364",
+    "PA:way:55503397"
+   ],
+   "travelMin": 71.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2673.09
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 18433,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 8.608,
+   "walkMin": 10.783,
+   "driveMin": 20.067,
+   "driveLegs": 6,
+   "walkLegs": 3,
+   "shortHopDrive": 0,
+   "unknownVisits": 7,
+   "selected": [
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:63178753",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782"
+   ],
+   "perDayTravel": [
+    30.8
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [
+    "PA:relation:1060803",
+    "PA:way:55503397"
+   ],
+   "travelMin": 30.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2693.16
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 17693,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 15,
+   "sumU": 12.324,
+   "walkMin": 272.467,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 17,
+   "shortHopDrive": 0,
+   "unknownVisits": 12,
+   "selected": [
+    "PA:way:54667456",
+    "PA:relation:1060803",
+    "PA:way:226413508",
+    "PA:node:4533627787",
+    "PA:way:432819047",
+    "PA:way:175448742",
+    "PA:way:63178753",
+    "PA:relation:7515426",
+    "PA:relation:3300400",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:128206209"
+   ],
+   "perDayTravel": [
+    147.6,
+    0.0,
+    124.9
+   ],
+   "attractiveOmitted": [
+    "PA:way:5013364",
+    "PA:way:55503397"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:5013364"
+   ],
+   "travelMin": 272.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    15917.14
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 7330,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 16.418,
+   "walkMin": 38.983,
+   "driveMin": 66.5,
+   "driveLegs": 17,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 15,
+   "selected": [
+    "PA:relation:7515426",
+    "PA:way:54667456",
+    "PA:node:247618453",
+    "PA:way:55503397",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:way:128206209",
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:relation:1060803",
+    "PA:way:432819047",
+    "PA:relation:3300400",
+    "PA:way:4433289",
+    "PA:way:63178753"
+   ],
+   "perDayTravel": [
+    52.3,
+    0.0,
+    53.2
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 105.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    16607.88
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 2753,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 20
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 27,
+   "sumU": 21.187,
+   "walkMin": 272.483,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 24,
+   "shortHopDrive": 0,
+   "unknownVisits": 20,
+   "selected": [
+    "PA:way:53574149",
+    "PA:node:910390736",
+    "PA:relation:3344870",
+    "PA:way:201611261",
+    "PA:way:4433289",
+    "PA:way:128206209",
+    "PA:way:16407465",
+    "PA:node:10844713782",
+    "PA:relation:13611998",
+    "PA:relation:1463538",
+    "PA:way:175448742",
+    "PA:way:432819047",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:relation:3300400",
+    "PA:way:227483542",
+    "PA:relation:7515426",
+    "PA:way:375076234",
+    "PA:way:56185523",
+    "PA:relation:2778854",
+    "PA:relation:1060803",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:way:79219308",
+    "PA:way:5013364",
+    "PA:way:4208595"
+   ],
+   "perDayTravel": [
+    88.4,
+    86.9,
+    97.2
+   ],
+   "attractiveOmitted": [
+    "PA:way:55503397",
+    "PA:way:63178753"
+   ],
+   "attractiveUnknownOmitted": [
+    "PA:way:55503397"
+   ],
+   "travelMin": 272.5,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    33367.86
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 5588,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "PA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 28,
+   "sumU": 22.149,
+   "walkMin": 100.733,
+   "driveMin": 44.033,
+   "driveLegs": 12,
+   "walkLegs": 13,
+   "shortHopDrive": 0,
+   "unknownVisits": 19,
+   "selected": [
+    "PA:way:4208595",
+    "PA:way:5013364",
+    "PA:way:63178753",
+    "PA:way:375076234",
+    "PA:relation:7515426",
+    "PA:way:54180046",
+    "PA:way:54667456",
+    "PA:way:54175774",
+    "PA:node:4533627787",
+    "PA:way:226413508",
+    "PA:relation:13611998",
+    "PA:node:10844713782",
+    "PA:way:16407465",
+    "PA:way:4433289",
+    "PA:way:201611261",
+    "PA:relation:3344870",
+    "PA:node:910390736",
+    "PA:way:53574149",
+    "PA:way:175448742",
+    "PA:relation:1463538",
+    "PA:relation:1060803",
+    "PA:relation:2778854",
+    "PA:way:432819047",
+    "PA:way:79219308",
+    "PA:way:227483542",
+    "PA:relation:3300400",
+    "PA:node:247618453",
+    "PA:way:55503397"
+   ],
+   "perDayTravel": [
+    48.9,
+    54.1,
+    41.8
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 144.8,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    29732.47
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 4272,
+   "conflicts": null,
+   "poolUnknown": 21,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 10,
+   "sumU": 5.849,
+   "walkMin": 36.567,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 7,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:way:407373715",
+    "LA:way:407373012",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    17.2,
+    19.4,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 36.6,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    18118.5
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 14276,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 22,
+   "sumU": 14.712,
+   "walkMin": 25.6,
+   "driveMin": 97.483,
+   "driveLegs": 13,
+   "walkLegs": 6,
+   "shortHopDrive": 0,
+   "unknownVisits": 10,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:386067421",
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:422130705",
+    "LA:way:407373025",
+    "LA:relation:21400392",
+    "LA:node:470897671",
+    "LA:node:4773740642",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598"
+   ],
+   "perDayTravel": [
+    55.3,
+    45.4,
+    22.4
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 123.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    28184.79
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 6262,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 8,
+   "sumU": 4.953,
+   "walkMin": 23.25,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:relation:21400392",
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:4745189816"
+   ],
+   "perDayTravel": [
+    14.5,
+    8.7,
+    0.0
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 23.2,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    16920.32
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15166,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 14,
+   "sumU": 10.327,
+   "walkMin": 12.017,
+   "driveMin": 85.85,
+   "driveLegs": 8,
+   "walkLegs": 3,
+   "shortHopDrive": 0,
+   "unknownVisits": 6,
+   "selected": [
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:150968103",
+    "LA:way:358731585",
+    "LA:node:369164732",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:422524239",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:way:422130705",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:22728853"
+   ],
+   "perDayTravel": [
+    25.4,
+    34.0,
+    38.5
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 97.9,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    20988.0
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 10518,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 5,
+   "sumU": 2.85,
+   "walkMin": 19.35,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 4,
+   "shortHopDrive": 0,
+   "unknownVisits": 4,
+   "selected": [
+    "LA:way:424105889",
+    "LA:way:385648322",
+    "LA:node:3861449031",
+    "LA:way:423448326",
+    "LA:node:9703886758"
+   ],
+   "perDayTravel": [
+    19.4
+   ],
+   "attractiveOmitted": [
+    "LA:node:150968103",
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:470897671",
+    "LA:node:4745189816",
+    "LA:node:4773740642",
+    "LA:relation:21400392",
+    "LA:relation:6246565",
+    "LA:relation:6317798",
+    "LA:relation:6363655",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:386067421",
+    "LA:way:407373012",
+    "LA:way:407373025",
+    "LA:way:407373715",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:427532197",
+    "LA:way:913293590",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 19.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    1291.94
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 16263,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 9,
+   "sumU": 6.553,
+   "walkMin": 9.0,
+   "driveMin": 40.35,
+   "driveLegs": 6,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 5,
+   "selected": [
+    "LA:node:3204926589",
+    "LA:way:385648322",
+    "LA:node:369164732",
+    "LA:way:358731585",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:4773740642",
+    "LA:node:150968103"
+   ],
+   "perDayTravel": [
+    49.4
+   ],
+   "attractiveOmitted": [
+    "LA:node:4745189816",
+    "LA:way:422130705"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:way:22728853",
+    "LA:way:422524239"
+   ],
+   "travelMin": 49.4,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    2680.48
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 12892,
+   "conflicts": null,
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 1,
+   "sumU": 0.623,
+   "walkMin": 45.317,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 2,
+   "shortHopDrive": 0,
+   "unknownVisits": 1,
+   "selected": [
+    "LA:node:150968103"
+   ],
+   "perDayTravel": [
+    0.0,
+    0.0,
+    45.3
+   ],
+   "attractiveOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:206463626",
+    "LA:way:22728853",
+    "LA:way:322957598",
+    "LA:way:358731585",
+    "LA:way:385648322",
+    "LA:way:407373025",
+    "LA:way:422130705",
+    "LA:way:422524239",
+    "LA:way:913343446"
+   ],
+   "attractiveUnknownOmitted": [
+    "LA:node:3204926589",
+    "LA:node:369164732",
+    "LA:way:385648322"
+   ],
+   "travelMin": 45.3,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    3187.68
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 15650,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "PLANNED",
+   "scheduled": 20,
+   "sumU": 13.86,
+   "walkMin": 25.567,
+   "driveMin": 168.5,
+   "driveLegs": 18,
+   "walkLegs": 5,
+   "shortHopDrive": 0,
+   "unknownVisits": 9,
+   "selected": [
+    "LA:way:22728853",
+    "LA:node:4745189816",
+    "LA:relation:6317798",
+    "LA:way:385648322",
+    "LA:node:3204926589",
+    "LA:way:422130705",
+    "LA:relation:6246565",
+    "LA:relation:21400392",
+    "LA:way:407373025",
+    "LA:node:470897671",
+    "LA:way:427532197",
+    "LA:way:206463626",
+    "LA:way:322957598",
+    "LA:node:150968103",
+    "LA:node:369164732",
+    "LA:way:358731585",
+    "LA:way:913293590",
+    "LA:way:913343446",
+    "LA:way:386067421",
+    "LA:way:422524239"
+   ],
+   "perDayTravel": [
+    99.9,
+    42.2,
+    52.0
+   ],
+   "attractiveOmitted": [],
+   "attractiveUnknownOmitted": [],
+   "travelMin": 194.1,
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    15841.26
+   ],
+   "stopReason": "SOLUTION_LIMIT",
+   "objective": 3740,
+   "conflicts": null,
+   "poolUnknown": 9,
+   "poolN": 20
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "A",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  },
+  {
+   "city": "LA",
+   "scenario": "S4-mustinclude",
+   "profile": "B",
+   "params": {
+    "K": 120,
+    "cd": 1,
+    "A": 10,
+    "rho": 0.1,
+    "solutionLimit": 10000,
+    "name": "SL10000"
+   },
+   "status": "INFEASIBLE",
+   "scheduled": 0,
+   "sumU": 0.0,
+   "walkMin": 0.0,
+   "driveMin": 0.0,
+   "driveLegs": 0,
+   "walkLegs": 0,
+   "shortHopDrive": 0,
+   "unknownVisits": 0,
+   "selected": [],
+   "perDayTravel": [],
+   "violations": [],
+   "identicalRepeats": true,
+   "solveMs": [
+    null
+   ],
+   "stopReason": null,
+   "objective": null,
+   "conflicts": [
+    {
+     "experienceId": "LA:node:2406454289",
+     "reason": "MUST_INCLUDE_NO_FEASIBLE_START_WINDOW",
+     "proven": true
+    }
+   ],
+   "poolUnknown": 15,
+   "poolN": 30
+  }
+ ]
+}

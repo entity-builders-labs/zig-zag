@@ -2636,6 +2636,30 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   results are OPTIMIZER_FAILED, never PLANNER_INFEASIBLE or a knowledge
   verdict; PLANNER_INFEASIBLE is reserved for proven constraint conflicts.
   Planning needs sustained CPU on the host (~2-3.5 vCPU-s per Tour).
+- *Objective (P-D7, structure resolved 2026-10-14)*: preference-first. The
+  planner maximizes the request's preference satisfaction over
+  hard-feasible itineraries, then accounts for travel burden, optional
+  vehicle mode friction and opening-hours uncertainty as soft costs — one
+  baseline policy for every destination, no destination-specific weights.
+  Preference utility is derived once, upstream of the optimizer, at
+  exactly one canonical derivation boundary consumed by composition,
+  ranking and planning (owner chosen by the implementation): explicit facet
+  affinity is authoritative,
+  semantic (embedding) affinity only refines among equally matched
+  candidates and is UNKNOWN — neutral, never zero — when no compatible
+  embedding exists, and quality is secondary. OR-Tools receives only the
+  typed, policy-versioned utility; it never performs semantic retrieval.
+  An explicit accessibility need is a hard eligibility constraint while an
+  accessibility preference is soft. Hard exclusions, accessibility needs,
+  must-include feasibility
+  and allowed travel modes are hard constraints, never weights; a mode the
+  release does not support (public transport in v1) is never substituted.
+  Mode friction is a product preference, never added to travel estimates.
+  Production coefficients are calibrated from preference evidence (gate
+  G-P7-U: A preference-utility encoding, B preference-vs-travel /
+  friction / uncertainty calibration); the experimental P-D7 spike
+  coefficients are not production
+  policy.
 
 **Parent sites and visit units (R4-D2).** A PART_OF / containment
 relationship alone does not decide whether a child has its own Experience;

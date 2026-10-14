@@ -1,0 +1,1157 @@
+[
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 0,
+  "walkableArcs": 211,
+  "shortHopRate": 0.97,
+  "driveShareAll": 1.0,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.8
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 1.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 2,
+  "walkableArcs": 211,
+  "shortHopRate": 0.84,
+  "driveShareAll": 0.98,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 1.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 5,
+  "walkableArcs": 211,
+  "shortHopRate": 0.41,
+  "driveShareAll": 0.91,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.48
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.97
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 10,
+  "walkableArcs": 211,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.73,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.37
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.98
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 15,
+  "walkableArcs": 211,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.51,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.27
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 20,
+  "walkableArcs": 211,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.26,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.0
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 0.17
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 0.96
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-C",
+  "cd": 2,
+  "A": 0,
+  "walkableArcs": 211,
+  "shortHopRate": 0.75,
+  "driveShareAll": 0.96,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.2
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.85
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.97
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-C",
+  "cd": 3,
+  "A": 0,
+  "walkableArcs": 211,
+  "shortHopRate": 0.44,
+  "driveShareAll": 0.87,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.52
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.79
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.96
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-C",
+  "cd": 4,
+  "A": 0,
+  "walkableArcs": 211,
+  "shortHopRate": 0.31,
+  "driveShareAll": 0.73,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.37
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.58
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.67
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 0.96
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 0.96
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "S-C",
+  "cd": 6,
+  "A": 0,
+  "walkableArcs": 211,
+  "shortHopRate": 0.19,
+  "driveShareAll": 0.4,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.22
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.29
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.33
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 0.42
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 0.67
+   }
+  }
+ },
+ {
+  "city": "BA",
+  "structure": "P11",
+  "cd": 2,
+  "A": 10,
+  "walkableArcs": 211,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.59,
+  "bands": {
+   "0-5": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 27,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 38,
+    "driveShare": 0.05
+   },
+   "15-20": {
+    "arcs": 45,
+    "driveShare": 0.6
+   },
+   "20-25": {
+    "arcs": 48,
+    "driveShare": 0.98
+   },
+   "25-30": {
+    "arcs": 48,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 0,
+  "walkableArcs": 271,
+  "shortHopRate": 0.86,
+  "driveShareAll": 0.99,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.88
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.95
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 2,
+  "walkableArcs": 271,
+  "shortHopRate": 0.72,
+  "driveShareAll": 0.97,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.38
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.95
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 5,
+  "walkableArcs": 271,
+  "shortHopRate": 0.59,
+  "driveShareAll": 0.96,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.89
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 10,
+  "walkableArcs": 271,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.82,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.61
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.98
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 15,
+  "walkableArcs": 271,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.59,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.28
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.98
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 20,
+  "walkableArcs": 271,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.31,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.0
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.14
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 0.93
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-C",
+  "cd": 2,
+  "A": 0,
+  "walkableArcs": 271,
+  "shortHopRate": 0.79,
+  "driveShareAll": 0.98,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.62
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.95
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-C",
+  "cd": 3,
+  "A": 0,
+  "walkableArcs": 271,
+  "shortHopRate": 0.69,
+  "driveShareAll": 0.93,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.5
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.84
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.92
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.89
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.98
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 0.99
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-C",
+  "cd": 4,
+  "A": 0,
+  "walkableArcs": 271,
+  "shortHopRate": 0.59,
+  "driveShareAll": 0.82,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.5
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.68
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.76
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.74
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.91
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 0.93
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "S-C",
+  "cd": 6,
+  "A": 0,
+  "walkableArcs": 271,
+  "shortHopRate": 0.55,
+  "driveShareAll": 0.42,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.5
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.63
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.41
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.35
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.35
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 0.48
+   }
+  }
+ },
+ {
+  "city": "PA",
+  "structure": "P11",
+  "cd": 2,
+  "A": 10,
+  "walkableArcs": 271,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.68,
+  "bands": {
+   "0-5": {
+    "arcs": 8,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 19,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 49,
+    "driveShare": 0.24
+   },
+   "15-20": {
+    "arcs": 46,
+    "driveShare": 0.65
+   },
+   "20-25": {
+    "arcs": 65,
+    "driveShare": 0.95
+   },
+   "25-30": {
+    "arcs": 82,
+    "driveShare": 0.96
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 0,
+  "walkableArcs": 75,
+  "shortHopRate": 1.0,
+  "driveShareAll": 1.0,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 1.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 2,
+  "walkableArcs": 75,
+  "shortHopRate": 0.92,
+  "driveShareAll": 0.96,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.77
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 1.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 5,
+  "walkableArcs": 75,
+  "shortHopRate": 0.47,
+  "driveShareAll": 0.75,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.74
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 10,
+  "walkableArcs": 75,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.41,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.38
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 15,
+  "walkableArcs": 75,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.32,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 0.6
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-A",
+  "cd": 1,
+  "A": 20,
+  "walkableArcs": 75,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.2,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 0.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 0.62
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-C",
+  "cd": 2,
+  "A": 0,
+  "walkableArcs": 75,
+  "shortHopRate": 0.89,
+  "driveShareAll": 0.95,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.85
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.91
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-C",
+  "cd": 3,
+  "A": 0,
+  "walkableArcs": 75,
+  "shortHopRate": 0.86,
+  "driveShareAll": 0.93,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.77
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.91
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 1.0
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-C",
+  "cd": 4,
+  "A": 0,
+  "walkableArcs": 75,
+  "shortHopRate": 0.75,
+  "driveShareAll": 0.85,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.77
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.74
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.85
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "S-C",
+  "cd": 6,
+  "A": 0,
+  "walkableArcs": 75,
+  "shortHopRate": 0.44,
+  "driveShareAll": 0.68,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.46
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.43
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.69
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ },
+ {
+  "city": "LA",
+  "structure": "P11",
+  "cd": 2,
+  "A": 10,
+  "walkableArcs": 75,
+  "shortHopRate": 0.0,
+  "driveShareAll": 0.37,
+  "bands": {
+   "0-5": {
+    "arcs": 13,
+    "driveShare": 0.0
+   },
+   "5-10": {
+    "arcs": 23,
+    "driveShare": 0.0
+   },
+   "10-15": {
+    "arcs": 13,
+    "driveShare": 0.15
+   },
+   "15-20": {
+    "arcs": 5,
+    "driveShare": 1.0
+   },
+   "20-25": {
+    "arcs": 16,
+    "driveShare": 1.0
+   },
+   "25-30": {
+    "arcs": 5,
+    "driveShare": 1.0
+   }
+  }
+ }
+]

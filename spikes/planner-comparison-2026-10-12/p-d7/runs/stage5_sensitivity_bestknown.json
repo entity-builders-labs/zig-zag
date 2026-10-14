@@ -1,0 +1,180 @@
+[
+ {
+  "policy": "final",
+  "unknown": 270,
+  "unknownRatio": 1.0,
+  "newlyDropped": [],
+  "worstRetention": 1.0,
+  "worstCase": "BA S1-normal-pall A",
+  "nonPathological": true
+ },
+ {
+  "policy": "Kx0.5",
+  "unknown": 276,
+  "unknownRatio": 1.022,
+  "newlyDropped": [
+   "BA S5-oversupply-1day A",
+   "PA S5-oversupply-1day B",
+   "LA S1-normal-pall B"
+  ],
+  "worstRetention": 0.0,
+  "worstCase": "LA S9-anchors-startend-p20 A",
+  "nonPathological": false
+ },
+ {
+  "policy": "Kx0.75",
+  "unknown": 275,
+  "unknownRatio": 1.019,
+  "newlyDropped": [
+   "BA S5-oversupply-1day A"
+  ],
+  "worstRetention": 0.9873,
+  "worstCase": "BA S5-oversupply-1day A",
+  "nonPathological": false
+ },
+ {
+  "policy": "Kx1.5",
+  "unknown": 268,
+  "unknownRatio": 0.993,
+  "newlyDropped": [
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9979,
+  "worstCase": "PA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "Kx2",
+  "unknown": 267,
+  "unknownRatio": 0.989,
+  "newlyDropped": [
+   "PA S5-oversupply-1day A",
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9979,
+  "worstCase": "PA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "Ax0.5",
+  "unknown": 268,
+  "unknownRatio": 0.993,
+  "newlyDropped": [
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9918,
+  "worstCase": "BA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "Ax0.75",
+  "unknown": 267,
+  "unknownRatio": 0.989,
+  "newlyDropped": [
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9918,
+  "worstCase": "BA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "Ax1.5",
+  "unknown": 270,
+  "unknownRatio": 1.0,
+  "newlyDropped": [
+   "PA S4-mustinclude B"
+  ],
+  "worstRetention": 0.9918,
+  "worstCase": "BA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "Ax2",
+  "unknown": 271,
+  "unknownRatio": 1.004,
+  "newlyDropped": [
+   "PA S4-mustinclude B"
+  ],
+  "worstRetention": 0.9508,
+  "worstCase": "LA S5-oversupply-1day B",
+  "nonPathological": false
+ },
+ {
+  "policy": "cdx0.5",
+  "unknown": 269,
+  "unknownRatio": 0.996,
+  "newlyDropped": [],
+  "worstRetention": 0.9979,
+  "worstCase": "PA S1-normal-pall B",
+  "nonPathological": true
+ },
+ {
+  "policy": "cdx0.75",
+  "unknown": 270,
+  "unknownRatio": 1.0,
+  "newlyDropped": [],
+  "worstRetention": 1.0,
+  "worstCase": "BA S1-normal-pall A",
+  "nonPathological": true
+ },
+ {
+  "policy": "cdx1.5",
+  "unknown": 270,
+  "unknownRatio": 1.0,
+  "newlyDropped": [],
+  "worstRetention": 0.9918,
+  "worstCase": "BA S1-normal-pall B",
+  "nonPathological": true
+ },
+ {
+  "policy": "cdx2",
+  "unknown": 270,
+  "unknownRatio": 1.0,
+  "newlyDropped": [],
+  "worstRetention": 0.9604,
+  "worstCase": "BA S9-anchors-startend-p20 B",
+  "nonPathological": true
+ },
+ {
+  "policy": "rhox0.5",
+  "unknown": 277,
+  "unknownRatio": 1.026,
+  "newlyDropped": [
+   "BA S5-oversupply-1day A"
+  ],
+  "worstRetention": 0.9873,
+  "worstCase": "BA S5-oversupply-1day A",
+  "nonPathological": false
+ },
+ {
+  "policy": "rhox0.75",
+  "unknown": 272,
+  "unknownRatio": 1.007,
+  "newlyDropped": [],
+  "worstRetention": 1.0,
+  "worstCase": "BA S1-normal-pall A",
+  "nonPathological": true
+ },
+ {
+  "policy": "rhox1.5",
+  "unknown": 267,
+  "unknownRatio": 0.989,
+  "newlyDropped": [
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9918,
+  "worstCase": "BA S1-normal-pall B",
+  "nonPathological": false
+ },
+ {
+  "policy": "rhox2",
+  "unknown": 265,
+  "unknownRatio": 0.981,
+  "newlyDropped": [
+   "PA S5-oversupply-1day B"
+  ],
+  "worstRetention": 0.9859,
+  "worstCase": "BA S2-tight-hours B",
+  "nonPathological": false
+ }
+]

@@ -1,0 +1,93 @@
+{
+ "A7": {
+  "violations": 0,
+  "retMean": 99.85,
+  "retWorst": 95.52,
+  "worstCase": "PA S2-tight-hours B",
+  "travelRatio": 0.79,
+  "scheduled": 266,
+  "driveLegs": 194,
+  "shortHops": 11,
+  "unknown": 159,
+  "attrUnknownOmitted": 4,
+  "identical": "14/14"
+ },
+ "A8": {
+  "violations": 0,
+  "retMean": 100.4,
+  "retWorst": 99.04,
+  "worstCase": "LA S2-tight-hours B",
+  "travelRatio": 0.913,
+  "scheduled": 267,
+  "driveLegs": 178,
+  "shortHops": 2,
+  "unknown": 160,
+  "attrUnknownOmitted": 4,
+  "identical": "14/14"
+ },
+ "A9": {
+  "violations": 0,
+  "retMean": 100.1,
+  "retWorst": 98.71,
+  "worstCase": "LA S2-tight-hours B",
+  "travelRatio": 0.975,
+  "scheduled": 267,
+  "driveLegs": 167,
+  "shortHops": 0,
+  "unknown": 164,
+  "attrUnknownOmitted": 4,
+  "identical": "14/14"
+ },
+ "A10": {
+  "violations": 0,
+  "retMean": 100.0,
+  "retWorst": 100.0,
+  "worstCase": "BA S1-normal-pall B",
+  "travelRatio": 1.0,
+  "scheduled": 267,
+  "driveLegs": 158,
+  "shortHops": 0,
+  "unknown": 163,
+  "attrUnknownOmitted": 4,
+  "identical": "14/14"
+ },
+ "A11": {
+  "violations": 0,
+  "retMean": 99.9,
+  "retWorst": 96.41,
+  "worstCase": "LA S1-normal-pall B",
+  "travelRatio": 1.051,
+  "scheduled": 266,
+  "driveLegs": 151,
+  "shortHops": 0,
+  "unknown": 162,
+  "attrUnknownOmitted": 3,
+  "identical": "14/14"
+ },
+ "A12": {
+  "violations": 0,
+  "retMean": 98.87,
+  "retWorst": 92.92,
+  "worstCase": "LA S5-oversupply-1day B",
+  "travelRatio": 1.167,
+  "scheduled": 264,
+  "driveLegs": 134,
+  "shortHops": 0,
+  "unknown": 159,
+  "attrUnknownOmitted": 6,
+  "identical": "14/14"
+ },
+ "A13": {
+  "violations": 0,
+  "retMean": 99.08,
+  "retWorst": 92.92,
+  "worstCase": "LA S5-oversupply-1day B",
+  "travelRatio": 1.307,
+  "scheduled": 265,
+  "driveLegs": 124,
+  "shortHops": 0,
+  "unknown": 158,
+  "attrUnknownOmitted": 6,
+  "identical": "14/14"
+ }
+}

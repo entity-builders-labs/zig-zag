@@ -1,0 +1,200 @@
+[
+ {
+  "policy": "rho0.05",
+  "sameSelection": 17,
+  "objectiveDriven": 8,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    92.5
+   ],
+   [
+    "BA S2-tight-hours B",
+    1.1
+   ],
+   [
+    "LA S2-tight-hours B",
+    19.0
+   ]
+  ]
+ },
+ {
+  "policy": "rho0.1",
+  "sameSelection": 8,
+  "objectiveDriven": 12,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    76.8
+   ],
+   [
+    "PA S1-normal-pall A",
+    12.0
+   ],
+   [
+    "PA S1-normal-pall B",
+    2.7
+   ],
+   [
+    "PA S2-tight-hours A",
+    48.8
+   ],
+   [
+    "PA S2-tight-hours B",
+    46.0
+   ],
+   [
+    "PA S4-mustinclude A",
+    1.7
+   ],
+   [
+    "LA S1-normal-pall B",
+    11.8
+   ],
+   [
+    "LA S2-tight-hours B",
+    21.9
+   ]
+  ]
+ },
+ {
+  "policy": "rho0.2",
+  "sameSelection": 8,
+  "objectiveDriven": 12,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    84.2
+   ],
+   [
+    "PA S1-normal-pall A",
+    11.4
+   ],
+   [
+    "PA S2-tight-hours A",
+    24.2
+   ],
+   [
+    "PA S2-tight-hours B",
+    59.5
+   ],
+   [
+    "PA S5-oversupply-1day A",
+    1.3
+   ],
+   [
+    "PA S4-mustinclude A",
+    3.6
+   ],
+   [
+    "LA S2-tight-hours B",
+    11.6
+   ],
+   [
+    "LA S5-oversupply-1day A",
+    162.4
+   ]
+  ]
+ },
+ {
+  "policy": "P5",
+  "sameSelection": 16,
+  "objectiveDriven": 8,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    62.3
+   ],
+   [
+    "BA S2-tight-hours B",
+    0.0
+   ],
+   [
+    "PA S1-normal-pall B",
+    3.8
+   ],
+   [
+    "LA S2-tight-hours B",
+    19.8
+   ]
+  ]
+ },
+ {
+  "policy": "P10",
+  "sameSelection": 8,
+  "objectiveDriven": 12,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    62.3
+   ],
+   [
+    "PA S1-normal-pall A",
+    12.5
+   ],
+   [
+    "PA S1-normal-pall B",
+    0.4
+   ],
+   [
+    "PA S2-tight-hours A",
+    49.1
+   ],
+   [
+    "PA S2-tight-hours B",
+    40.7
+   ],
+   [
+    "PA S4-mustinclude A",
+    2.1
+   ],
+   [
+    "LA S1-normal-pall B",
+    7.9
+   ],
+   [
+    "LA S2-tight-hours B",
+    18.4
+   ]
+  ]
+ },
+ {
+  "policy": "P20",
+  "sameSelection": 7,
+  "objectiveDriven": 13,
+  "searchArtifacts": [
+   [
+    "BA S1-normal-pall A",
+    72.5
+   ],
+   [
+    "BA S2-tight-hours A",
+    9.2
+   ],
+   [
+    "PA S1-normal-pall A",
+    12.5
+   ],
+   [
+    "PA S2-tight-hours A",
+    19.1
+   ],
+   [
+    "PA S2-tight-hours B",
+    47.7
+   ],
+   [
+    "PA S4-mustinclude A",
+    5.3
+   ],
+   [
+    "LA S2-tight-hours B",
+    9.8
+   ],
+   [
+    "LA S5-oversupply-1day A",
+    140.0
+   ]
+  ]
+ }
+]

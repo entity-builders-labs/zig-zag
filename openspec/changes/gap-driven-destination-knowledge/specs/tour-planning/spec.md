@@ -195,12 +195,12 @@ The planner SHALL respect the user's allowed travel modes, maximum continuous wa
 For each leg the planner SHALL choose among the allowed modes for which a travel estimate exists, as part of the itinerary optimization, and SHALL NOT choose walking merely because walking is allowed. A non-walking mode SHALL be able to make geographically separated candidates feasible.
 
 #### Scenario: Faster non-walking leg chosen
-- **WHEN** walking and public transport are allowed, a leg is 50 minutes on foot and 15 minutes by public transport, and the walking leg would prevent scheduling another visit
-- **THEN** the leg uses public transport
+- **WHEN** walking and driving are allowed, a leg is 50 minutes on foot and 15 minutes by car, and the walking leg would prevent scheduling another visit
+- **THEN** the leg uses driving
 
 #### Scenario: Separated candidates become feasible
-- **WHEN** two high-utility candidates are too far apart to walk within the walking limits and public transport is allowed with a feasible estimate
-- **THEN** both can be scheduled on the same day connected by a public-transport leg
+- **WHEN** two high-utility candidates are too far apart to walk within the walking limits and driving is allowed with a feasible estimate
+- **THEN** both can be scheduled on the same day connected by a driving leg
 
 ### Requirement: Hard constraints are never traded for utility
 The planner SHALL maximize itinerary utility only over itineraries that satisfy every hard constraint: opening hours and closed days, day windows, user unavailable windows, visit durations, travel times, allowed modes, walking limits, at most one visit per candidate and request-declared inclusion constraints. No hard constraint SHALL be converted into an objective weight.
@@ -210,11 +210,49 @@ The planner SHALL maximize itinerary utility only over itineraries that satisfy 
 - **THEN** the candidate is not scheduled past closing regardless of its utility
 
 ### Requirement: Versioned planner objective
-Utility terms MAY include ranking utility, quality/notability, diversity and spatial coherence; cost terms MAY include travel time, idle time, geographic zig-zag, mode changes and UNKNOWN-hours penalties. The enabled terms and their weights SHALL be a versioned planner policy recorded with the plan.
+The objective SHALL maximize the request's preference utility over hard-feasible itineraries minus soft costs for travel burden, optional vehicle mode friction and UNKNOWN-hours uncertainty. Further terms SHALL be enabled only on measured evidence. One baseline policy SHALL apply to every destination, without destination-specific weights. The enabled terms and their weights SHALL be a versioned planner policy recorded with the plan.
 
 #### Scenario: Objective change is versioned
 - **WHEN** the weight of the travel-time cost changes
 - **THEN** plans produced afterwards record a new objective policy version
+
+#### Scenario: Same policy across destinations
+- **WHEN** Tours are planned for a dense and a dispersed destination
+- **THEN** both use the same objective policy version and weights
+
+#### Scenario: Mode friction is not travel time
+- **WHEN** the objective charges a per-leg friction cost for a vehicle mode
+- **THEN** the leg's planned duration and estimate remain the provider-backed travel time
+
+### Requirement: Preference utility is derived upstream of the optimizer
+Each candidate's preference utility SHALL be derived once, before optimization, at exactly one canonical derivation boundary from explicit facet affinity, semantic affinity and secondary quality under a versioned preference-utility policy, and SHALL reach the planner with its breakdown; consumers SHALL NOT recompute it. The optimizer SHALL receive only the typed utility, never embeddings, text, facets or provider metadata.
+
+#### Scenario: Explicit facets outrank semantic similarity
+- **WHEN** Experience A strongly matches more of the requested facets than Experience B and B has higher semantic similarity
+- **THEN** A's preference utility is not lower than B's
+
+#### Scenario: Missing embedding is unknown, not zero
+- **WHEN** an otherwise eligible Experience has no compatible embedding
+- **THEN** its semantic affinity is UNKNOWN and neutral, it still participates, and it is not ranked as if its similarity were zero
+
+#### Scenario: Accessibility need versus preference
+- **WHEN** the request states an explicit accessibility need and an Experience is known not to meet it or its accessibility is UNKNOWN
+- **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility
+
+#### Scenario: Hard exclusion never reaches the optimizer
+- **WHEN** an Experience matches a hard exclusion of the request
+- **THEN** it is not offered to the optimizer and no objective weight can bring it back
+
+### Requirement: Allowed travel modes are a hard boundary
+Only the request's allowed travel modes that the release supports and a routing provider serves SHALL be offered to the optimizer. No objective weight SHALL make another mode usable, and an unavailable mode SHALL NOT be substituted by another mode.
+
+#### Scenario: Walking only
+- **WHEN** the request allows only walking
+- **THEN** no planned leg uses another mode
+
+#### Scenario: Only a feature-gated mode requested
+- **WHEN** the request allows only public transport and the release has no public-transport estimates
+- **THEN** generation ends with TRAVEL_ESTIMATION_UNAVAILABLE recording MODE_UNAVAILABLE for public transport, no other mode is substituted and no Tour is persisted
 
 ### Requirement: Days are optimized jointly
 For a multi-day request the planner SHALL assign candidates to days as part of one optimization across all days, not by filling day 1 to capacity before considering day 2.

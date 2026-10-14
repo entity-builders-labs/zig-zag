@@ -1,0 +1,134 @@
+[
+ {
+  "city": "BA",
+  "must": "BA:node:9953027884",
+  "uMust": 0.422,
+  "rho": 0.1,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "BA",
+  "must": "BA:node:9953027884",
+  "uMust": 0.422,
+  "rho": 0.1,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "BA",
+  "must": "BA:node:9953027884",
+  "uMust": 0.422,
+  "rho": 0.8,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "BA",
+  "must": "BA:node:9953027884",
+  "uMust": 0.422,
+  "rho": 0.8,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "PA",
+  "must": "PA:relation:13611998",
+  "uMust": 0.706,
+  "rho": 0.1,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "PA",
+  "must": "PA:relation:13611998",
+  "uMust": 0.706,
+  "rho": 0.1,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "PA",
+  "must": "PA:relation:13611998",
+  "uMust": 0.706,
+  "rho": 0.8,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "PA",
+  "must": "PA:relation:13611998",
+  "uMust": 0.706,
+  "rho": 0.8,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "LA",
+  "must": "LA:way:419961190",
+  "uMust": 0.412,
+  "rho": 0.1,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "LA",
+  "must": "LA:way:419961190",
+  "uMust": 0.412,
+  "rho": 0.1,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "LA",
+  "must": "LA:way:419961190",
+  "uMust": 0.412,
+  "rho": 0.8,
+  "profile": "A",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ },
+ {
+  "city": "LA",
+  "must": "LA:way:419961190",
+  "uMust": 0.412,
+  "rho": 0.8,
+  "profile": "B",
+  "status": "PLANNED",
+  "scheduled": true,
+  "violations": [],
+  "pass": true
+ }
+]

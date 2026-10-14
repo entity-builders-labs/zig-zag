@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=synthetic-tours-openspec; status=ACTIVE; branch=feat/synthetic-tours-openspec; integration=main; base=16f41e89eb238431b339dfccc22473f791ed4908; plan=docs/superpowers/plans/2026-10-09-openspec-documentation-governance-cutover.md -->
 
-Updated: 2026-10-12  
+Updated: 2026-10-14  
 Branch: `feat/synthetic-tours-openspec`  
 Repository: `entity-builders-labs/zig-zag`
 
@@ -29,6 +29,12 @@ Repository: `entity-builders-labs/zig-zag`
   `g-p5/`) resolved P-D5 = OR-Tools Routing in a colocated Python sidecar
   behind a provider-neutral `PlanningOptimizer`, count-based stop
   `routing-gls-sl1000-v1` (2026-10-12).
+- P-D7 (2026-10-14): structure resolved — preference-first objective
+  (preference utility derived upstream; explicit facets authoritative,
+  semantic affinity within tier and UNKNOWN when missing, quality
+  secondary; travel burden / mode friction / UNKNOWN-hours uncertainty as
+  soft costs); coefficients OPEN behind gate G-P7-U (task 33.0). The
+  experimental `p-d7/` spike is non-production evidence.
 
 ## Current checkpoint
 
@@ -50,7 +56,14 @@ amendment (2026-10-11); no production code yet.**
   schema implemented by task 39.0.
 - tasks.md groups 24-43: planning track 25-34, admission/identity track
   35-38, wiring 39-41, validation 42, retirement 43 (24.1, 24.3-24.10, 31.1-31.2,
-  32.0-32.1 done; 33.2 added for the planner sidecar runtime).
+  32.0-32.1 done; 33.2 added for the planner sidecar runtime; 24.11 done,
+  25.2 and 33.0 (G-P7-U) added).
+- P-D7 reframed (2026-10-14) in design ("P-D7 preference-first
+  objective"), `tour-planning` spec (objective, preference-utility
+  boundary, accessibility need vs preference, allowed modes hard), tasks
+  24.2/25.2/25.3/33.0/33.1/41.1 and the
+  canonical planning paragraph; the experimental objective numbers stay in
+  the spike only. Not committed (awaiting owner review).
 - G-P5 recorded in design (P-D5 RESOLVED, "G-P5 results", P12),
   `tour-planning` spec (OPTIMIZER_FAILED, provider-neutral optimizer
   boundary, reproducibility/safety guard, optimizer identity in the plan),
@@ -60,9 +73,11 @@ amendment (2026-10-11); no production code yet.**
 ## Next authorized action
 
 1. Owner resolves the remaining decisions in design.md (task 24.2), each
-   before the group that needs it: P-D7 objective v1 (33; P11 findings and
-   the G-P5 note on re-checking the SL1000 retention after calibration
-   recorded), the G1 Geoapify storage-terms check (task 28.6, before
+   before the group that needs it: owner review of the P-D7 reframing
+   (uncommitted), then gate G-P7-U (task 33.0: part A preference-utility
+   encoding before 33.1 completes; part B preference-vs-travel / friction /
+   uncertainty calibration before 41), the G1 Geoapify
+   storage-terms check (task 28.6, before
    41; Valhalla-first if persistence is not permitted), and the P-D2-F
    calibration gate approving `fallback-v1` (task 40.2, before 41).
    Resolved: P-D2, R4-D4, P-D3, P-D6, R4-D2 (2026-10-11); R4-D1, P-D4
@@ -82,6 +97,19 @@ amendment (2026-10-11); no production code yet.**
   `t3.micro` standard-credit baseline reaches the 10 s safety cap and loses
   reproducibility. A client timeout does not cancel a sidecar solve, so the
   client deadline must exceed the safety cap.
+- P-D7 code findings (fix in task 25.2): the planner's additive
+  `plannerRelevanceScore` lets semantic similarity outweigh explicit facet
+  matches (composition is explicit-first); missing embeddings are coerced
+  to 0 in composition and the planner normalizer (canonical: neutral);
+  dead `rankCandidatesByRelevance` / `evaluateExperiencePreferences`; soft
+  avoidances and soft constraints have no live consumer; accessibility is
+  not split into need (hard eligibility) vs preference (soft) and an
+  explicit accessibility need is enforced nowhere (defect, task 25.3).
+  The canonical preference-utility derivation boundary's owner is decided
+  in task 25.2 (composition is a consumer, not presumed owner).
+- Solver finding for P-D5 follow-up (not reopened): single-start GLS at
+  SL1000 is > 1 % below the best known plan in 13/28 P-D7 scenarios (max
+  8.7 %); larger budgets barely help; same pattern under the P11 weights.
 - P-D1 evidence: `spikes/routing-provider-evaluation-2026-10-12/`. Mapbox
   traversal not executed (no token; not economically competitive). Public
   transport has no matrix-capable provider except Google.

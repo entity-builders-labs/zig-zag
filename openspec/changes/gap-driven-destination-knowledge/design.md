@@ -673,7 +673,8 @@ continuous and daily walking limits, at most one visit per candidate,
 request-declared inclusion constraints (reported if infeasible, never
 silently dropped).
 
-Objective: maximize total utility (ranking utility; optional
+Objective (P-D7: preference-first; see "P-D7 preference-first objective"):
+maximize total utility (the request's preference utility; optional
 quality/notability, diversity and spatial-coherence terms) minus costs
 (travel time, idle time, geographic zig-zag, mode changes,
 `openingHoursUncertaintyPenalty` under the default PENALIZE policy (P-D4), optional day-imbalance cost). Terms and weights form a
@@ -873,6 +874,201 @@ OR-Tools 9.15.6755.
   OPTIMIZER_FAILED with a typed reason; never PLANNER_INFEASIBLE or a
   knowledge verdict. A client timeout does not cancel the sidecar's solve,
   so the client deadline must exceed the safety cap.
+
+#### P-D7 preference-first objective (2026-10-14)
+
+The question P-D7 answers: how does the planner maximize satisfaction of
+THIS request's preferences while accounting for travel burden and planning
+uncertainty? Two stages stay separate: Stage 1 (candidate relevance:
+eligibility, explicit facets, semantic matching, quality) and Stage 2
+(itinerary optimization by OR-Tools over typed utility, durations, opening
+hours, travel, allowed modes, must-include, uncertainty). OR-Tools never
+performs semantic retrieval and never sees embeddings, text, facets or
+provider metadata.
+
+**Current implementation (code, 2026-10-14).**
+
+- Request → `PreferenceInterpreterService` (LLM) → `NormalizedPreferenceIntent`
+  → `buildPreferenceSpec`: `facets` (wizard themes/intents at weight 1.0;
+  free-text facets weight = importance × confidence), `exclusions.hard`
+  (plus `non-vegan food` for vegan requests), `exclusions.themes/traits`
+  (soft avoidances), `softConstraints` (dietary, accessibility, budget,
+  group), `semanticQuery` (= the interpreter's `positiveSemanticQuery`,
+  positive interests only, ≤ 500 chars), `explorationStyle` (meta-
+  preference, never a facet).
+- Hard exclusions: `findHardExclusionMatches` — structural lexical match with
+  aliases over the Experience's own evidence (name, description, themes,
+  traits, intents, required components) — removes candidates before
+  composition (`matchesHardExclusion`). Never embedding-based.
+- Explicit facets: `candidateMatchesPreferenceFacet` is the one matching
+  primitive; `isStrongFacetMatch` adds real geography, quality ≥ 3.0/5 (null
+  quality is never a strong match), not-known-thin classification;
+  `preferenceWeightForExperience` = Σ weights of strongly matched facets
+  (deduplicated).
+- Embeddings: the indexer embeds the Experience semantic document v3 (name,
+  description, duration, price, themes, intents, traits with dimension:key,
+  resolved components' role/kind/name/address) with model/version identity;
+  at composition one query embedding of `semanticQuery` is compared by
+  pgvector cosine (1 − distance) to compatible indexed Experiences only;
+  incompatible / missing embeddings are absent from the result; provider
+  failure → `unavailable`.
+- Composition (`composeSet`): eligibility (no hard exclusion, real
+  components) → must venues → one reserved strongest match per requested
+  facet (order: grounding, semantic, quality, exploration tilt, soft anchor,
+  id) → remainder fill by Σ matched facet weight, then semantic, quality,
+  tilt → ranked reservoir. Explicit facet coverage is lexicographically
+  first; semantic similarity refines within it (preference-first design
+  §12.2a).
+- Planner boundary (`PlanningCandidateNormalizerService`): each candidate
+  carries `preferenceWeight`, raw `qualityScore` (0..5) and
+  `semanticScore = semanticSimilarity ?? 0`; the greedy planner orders by
+  `plannerRelevanceScore = 1·semanticScore + preferenceWeight +
+  0.5·qualityScore/5`.
+
+**Defects and duplicate authorities found (to fix in groups 25/33, not
+preserved).**
+
+1. Two combination policies: composition is explicit-first
+   (lexicographic), while `plannerRelevanceScore` is an additive sum in
+   which a semantic difference can outweigh a stronger explicit facet
+   match — contradicting the preference-first rule that semantic
+   similarity only refines among already-matched candidates.
+2. Missing-embedding semantics are inconsistent: the canonical rule is
+   neutral/unknown (§12.2a); composition and the planner normalizer map a
+   missing or unavailable similarity to `0` (the lowest similarity), and
+   the dead `rankCandidatesByRelevance` used a separate lower tier.
+3. Dead preference paths: `rankCandidatesByRelevance`
+   (`candidate-ranking.util.ts`) and `evaluateExperiencePreferences` (legacy
+   evaluator with magic 0.45 / 0.8 penalties) have no live callers; only
+   `findHardExclusionMatches` in that file is live.
+4. Soft avoidances (`exclusions.themes/traits`) and `softConstraints`
+   are built into `PreferenceSpec` but have no live consumer. Accessibility
+   is currently collapsed into `softConstraints.accessibility` without
+   distinguishing a preference from a need, and nothing enforces it: an
+   explicit accessibility need/requirement is not enforced anywhere
+   (defect; task 25.3).
+5. The composition trace's `qualityBonus` carries the raw 0..5
+   `qualityScore` (mislabelled), and `totalScore` is a placeholder.
+
+**Resolved structure.**
+
+- *Hard preferences* (hard exclusions, explicit accessibility
+  needs/requirements, allowed travel modes, must-include feasibility)
+  decide eligibility/feasibility; a hard-excluded Experience never reaches
+  the optimizer; none becomes an objective weight.
+- *Accessibility* is not generically soft. A preference for accessibility
+  (e.g. "accessible places preferred") is a soft preference and contributes
+  to preference utility through the structural matcher. An explicit
+  accessibility need or requirement (e.g. wheelchair access required) is a
+  hard eligibility constraint enforced from canonical accessibility facts
+  before optimization; UNKNOWN accessibility is not evidence of
+  accessibility. The request contract must carry the distinction (task
+  25.3).
+- *Preference utility* has exactly one canonical derivation boundary. It is
+  derived once, consumed by composition, ranking and planning as each needs
+  it, and never recomputed differently by a consumer; it crosses into the
+  planning candidate as a typed, explainable breakdown — no opaque score.
+  Which component owns that boundary (a dedicated preference-utility owner
+  or an existing service) is decided by the implementation task (25.2)
+  after inspecting the current layering; composition is a consumer, not
+  presumed to be the owner. The breakdown:
+  - `explicitFacetAffinity` — Σ weights of strongly matched requested
+    facets (the existing `preferenceWeightForExperience`; wizard selections
+    weigh 1.0, interpreted free text importance × confidence); soft
+    avoidances, if retained, enter here as negative explicit evidence from
+    the same structural matcher, never from embeddings;
+  - `semanticAffinity` — cosine similarity of `semanticQuery` to the
+    Experience document, or UNKNOWN (no compatible embedding, empty query,
+    provider unavailable); UNKNOWN is neutral, never 0, never a lower tier,
+    and never blocks participation;
+  - `quality` — canonical qualityScore (0..5) or UNKNOWN, secondary.
+- *Precedence*: explicit facet affinity is authoritative. The combined
+  utility must be monotone in it: an Experience with strictly greater
+  explicit facet affinity is never valued below one with less explicit
+  affinity because of semantic or quality signals. Semantic affinity
+  refines among candidates of equal explicit affinity; quality is
+  secondary to both and cannot let globally popular places displace better
+  preference matches. When no facet is requested, semantic affinity leads
+  and quality follows.
+- *What OR-Tools receives*: per candidate one scalar prize — the request's
+  preference utility under a versioned preference-utility policy — plus the
+  P-D4 uncertainty facts (uncertain / total VISIT components), durations,
+  feasible windows, travel and limits (G-P5 contract). The breakdown travels
+  with the plan for explanation, not into the solver.
+- *Objective*: `TourUtility = PreferenceSatisfaction − TravelBurden −
+  ModeFriction − PlanningUncertainty` over hard-feasible itineraries.
+  TravelBurden uses provider-backed travel durations (factual) for the
+  modes the request allows; how much a travel minute costs per mode is
+  product policy. ModeFriction is an optional per-leg product-preference
+  cost for vehicle modes (pick-up, parking, access friction) — never added
+  to a travel estimate and never presented as routing truth.
+  PlanningUncertainty is the PENALIZE cost of P-D4 (UNKNOWN stays feasible;
+  known-compatible hours are preferred over otherwise-equivalent UNKNOWN
+  hours; must-include UNKNOWN stays included). No idle, day-balance,
+  count, clustering or diversity term without a measured problem; no
+  destination-specific weights; one baseline policy for every destination.
+  The only travel preference in the baseline is allowedTravelModes, which
+  is hard.
+- *Modes*: allowed modes come from the request and are hard; the objective
+  ranks only allowed, release-supported, provider-served modes. TRANSIT is
+  feature-gated in v1 (no matrix-capable provider, P-D1): WALK + TRANSIT
+  plans with WALK and records TRANSIT MODE_UNAVAILABLE; TRANSIT-only ends
+  with TRAVEL_ESTIMATION_UNAVAILABLE (MODE_UNAVAILABLE), no substitute mode,
+  no Tour. BICYCLE is a confirmed first-release mode (G0) calibrated in
+  G-P7-U.
+
+**Experimental evidence (`spikes/planner-comparison-2026-10-12/p-d7/`,
+non-production).** 1,567 validated runs on BA / Paris / LA with a generic
+desirability signal support the structure only: one objective shape
+behaves across dense and dispersed cities; travel burden matters (too
+little travel weight refuses worthwhile visits, too much adds travel for
+nothing); minutes-only vehicle cost yields pervasive car hops, so a per-leg
+mode-friction concept is needed; an absolute UNKNOWN-hours cost has a
+suppression boundary (an Experience worth less than the cost is never
+chosen) that a cost relative to the Experience's utility avoids; allowed
+modes held as hard constraints (0 forbidden-mode legs); the extra terms
+were unnecessary. Its coefficients (K = 120, +10 per DRIVE leg, 10 %
+discount) are rejected as product semantics. Solver finding (for P-D5,
+not changed here): single-start GLS at SL1000 is > 1 % below the best
+known plan in 13/28 scenarios (max 8.7 %); 2× - 10× larger budgets barely
+help, and the same holds under the P11 weights — a multi-start /
+first-solution question, not a budget one.
+
+**Gate G-P7-U — preference-utility calibration (one bounded gate, task
+33.0), in two separate parts.** Part A must not borrow its numbers from
+part B, and part B must not tune part A to fit travel behaviour.
+
+**A. Preference-utility encoding** — how one Experience's preference
+utility is represented for one request.
+1. Encoding of the preference-utility policy satisfying the precedence
+   rule (explicit authoritative and monotone; semantic within-tier with a
+   neutral UNKNOWN representation; quality secondary), validated on curated
+   preference scenarios built from the product vocabulary (for example
+   architecture and history; modern art; local neighbourhoods avoiding
+   churches; family-friendly; food and markets) against independently
+   specified expected preference hierarchies, reusing the accepted
+   Preference-First fixtures and characterization tests.
+
+**B. Preference-vs-travel / friction / uncertainty calibration** — how
+much Tour-level cost a stronger preference match is worth.
+2. Production coefficients — preference utility vs travel burden ("how
+   much additional travel is a stronger preference match worth"), per-mode
+   travel cost (WALK, DRIVE, BICYCLE from one recorded bicycle matrix per
+   fixture city), mode friction, and the UNKNOWN-hours cost — from
+   preference evidence: pairwise judgments of Tours for the same request
+   (Tour A vs Tour B) on the recorded BA / Paris / LA fixtures, never from
+   labels created to justify prior numbers. Semantic relevance and
+   willingness to travel are calibrated separately.
+3. Reuse the P-D7 spike machinery (recorded travel, SL1000, independent
+   validation, best-known cross-evaluation) for stability, sensitivity and
+   cross-city checks.
+P-D7 is fully resolved only when all are answered with evidence: what
+represents preference satisfaction; how explicit facets participate; how
+embeddings participate; how explicit evidence outranks semantic inference;
+missing-embedding behaviour; whether quality stays secondary; the typed
+signal reaching OR-Tools; preference vs travel; whether mode friction
+exists and its value; UNKNOWN-hours pricing; allowed modes hard; one
+baseline across destinations; coefficients from preference evidence.
 
 #### P12. Optimizer selection and implementation
 
@@ -2115,17 +2311,25 @@ Valhalla-first behind the same contracts.
   integration is that experimental source and does not become P-D1.
   Candidate counts are fixed in the pre-registered protocol (task 31.1).
   Contract: design P11.
-- **P-D7. Objective policy v1 (still OPEN).** Which utility and cost terms
-  are enabled initially and their weights, including the weight and
-  functional form of `openingHoursUncertaintyPenalty` (P-D4). P11 findings
-  (spike README "For P-D7"): desirability dominates; per-mode travel cost
-  and per-drive-leg overhead set the walk/drive mix; the uncertainty
-  penalty must stay bounded relative to the desirability scale (an UNKNOWN
-  item whose value is below the penalty is never selected); idle and day
-  balance needed no term with real optimizers; a weighted sum with hard
-  constraints kept separate showed no pathology (lexicographic ordering not
-  needed). Calibrate across dense and dispersed cities. Required before
-  group 33.
+- **P-D7. Planner objective — STRUCTURE RESOLVED (owner, 2026-10-14);
+  coefficients OPEN behind gate G-P7-U.** Resolved: the objective is
+  preference-first — maximize the request's preference satisfaction over
+  hard-feasible itineraries, then account for travel burden, optional mode
+  friction and opening-hours uncertainty as soft costs (section "P-D7
+  preference-first objective"). Preference utility is derived once, upstream
+  of the optimizer, from explicit facet affinity (authoritative), semantic
+  affinity (within-tier refinement; unknown when no compatible embedding,
+  never zero) and secondary quality; OR-Tools receives only the typed,
+  policy-versioned utility. Allowed modes, hard exclusions and every other
+  hard constraint stay outside the objective; TRANSIT stays feature-gated in
+  v1 and is never substituted. Not production policy: the experimental
+  coefficients of `spikes/planner-comparison-2026-10-12/p-d7/` (K = 120,
+  +10 per DRIVE leg, 10 % UNKNOWN discount) were fitted on generic
+  desirability and are rejected as product semantics. Open (G-P7-U, one
+  bounded gate, task 33.0): the preference-utility encoding and the
+  production coefficients for preference vs travel, mode friction
+  (DRIVE, BICYCLE), and UNKNOWN-hours cost, from preference evidence.
+  Structure is needed by groups 25/33; coefficients before group 41.
 - **Q1. Admissible categories: the backend's existing tourism POI classes.**
   The admission vocabulary is the tag classes the backend already treats as
   ordinary tourism POIs (`buildPoisWithinAreaQuery`: `tourism` except lodging

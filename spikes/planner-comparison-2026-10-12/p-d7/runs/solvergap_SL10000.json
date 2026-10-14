@@ -1,0 +1,198 @@
+[
+ {
+  "case": "PA S9-anchors-startend-p20 A",
+  "own": 1090.0,
+  "bestKnown": 1185.3,
+  "gap": 95.3,
+  "gapPct": 8.04
+ },
+ {
+  "case": "PA S5-oversupply-1day B",
+  "own": 870.1,
+  "bestKnown": 913.1,
+  "gap": 43.0,
+  "gapPct": 4.71
+ },
+ {
+  "case": "BA S4-mustinclude A",
+  "own": 1355.1,
+  "bestKnown": 1418.8,
+  "gap": 63.7,
+  "gapPct": 4.49
+ },
+ {
+  "case": "BA S1-normal-pall A",
+  "own": 1416.3,
+  "bestKnown": 1475.4,
+  "gap": 59.1,
+  "gapPct": 4.0
+ },
+ {
+  "case": "PA S2-tight-hours B",
+  "own": 1501.9,
+  "bestKnown": 1563.7,
+  "gap": 61.9,
+  "gapPct": 3.96
+ },
+ {
+  "case": "PA S2-tight-hours A",
+  "own": 1401.0,
+  "bestKnown": 1449.9,
+  "gap": 48.8,
+  "gapPct": 3.37
+ },
+ {
+  "case": "LA S5-oversupply-1day B",
+  "own": 631.1,
+  "bestKnown": 642.3,
+  "gap": 11.2,
+  "gapPct": 1.74
+ },
+ {
+  "case": "PA S1-normal-pall A",
+  "own": 2068.8,
+  "bestKnown": 2099.3,
+  "gap": 30.6,
+  "gapPct": 1.46
+ },
+ {
+  "case": "LA S2-tight-hours B",
+  "own": 1006.0,
+  "bestKnown": 1016.4,
+  "gap": 10.4,
+  "gapPct": 1.02
+ },
+ {
+  "case": "PA S9-anchors-startend-p20 B",
+  "own": 1547.5,
+  "bestKnown": 1559.5,
+  "gap": 11.9,
+  "gapPct": 0.76
+ },
+ {
+  "case": "LA S1-normal-pall B",
+  "own": 1431.3,
+  "bestKnown": 1435.8,
+  "gap": 4.5,
+  "gapPct": 0.32
+ },
+ {
+  "case": "LA S9-anchors-startend-p20 B",
+  "own": 1212.9,
+  "bestKnown": 1216.8,
+  "gap": 3.8,
+  "gapPct": 0.32
+ },
+ {
+  "case": "BA S2-tight-hours B",
+  "own": 1306.0,
+  "bestKnown": 1308.8,
+  "gap": 2.8,
+  "gapPct": 0.22
+ },
+ {
+  "case": "PA S4-mustinclude B",
+  "own": 2212.1,
+  "bestKnown": 2216.7,
+  "gap": 4.6,
+  "gapPct": 0.21
+ },
+ {
+  "case": "BA S2-tight-hours A",
+  "own": 1272.9,
+  "bestKnown": 1273.9,
+  "gap": 1.0,
+  "gapPct": 0.08
+ },
+ {
+  "case": "BA S4-mustinclude B",
+  "own": 1888.5,
+  "bestKnown": 1890.1,
+  "gap": 1.5,
+  "gapPct": 0.08
+ },
+ {
+  "case": "BA S1-normal-pall B",
+  "own": 1889.3,
+  "bestKnown": 1889.7,
+  "gap": 0.4,
+  "gapPct": 0.02
+ },
+ {
+  "case": "BA S5-oversupply-1day A",
+  "own": 720.0,
+  "bestKnown": 720.0,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "BA S5-oversupply-1day B",
+  "own": 835.8,
+  "bestKnown": 835.8,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "BA S9-anchors-startend-p20 A",
+  "own": 662.9,
+  "bestKnown": 662.9,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "BA S9-anchors-startend-p20 B",
+  "own": 1434.5,
+  "bestKnown": 1434.5,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "PA S1-normal-pall B",
+  "own": 2230.8,
+  "bestKnown": 2230.8,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "PA S5-oversupply-1day A",
+  "own": 796.1,
+  "bestKnown": 796.1,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "PA S4-mustinclude A",
+  "own": 2080.4,
+  "bestKnown": 2080.4,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "LA S1-normal-pall A",
+  "own": 629.8,
+  "bestKnown": 629.8,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "LA S2-tight-hours A",
+  "own": 541.0,
+  "bestKnown": 541.0,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "LA S5-oversupply-1day A",
+  "own": 293.8,
+  "bestKnown": 293.8,
+  "gap": 0.0,
+  "gapPct": 0.0
+ },
+ {
+  "case": "LA S9-anchors-startend-p20 A",
+  "own": 22.0,
+  "bestKnown": 22.0,
+  "gap": 0.0,
+  "gapPct": 0.0
+ }
+]

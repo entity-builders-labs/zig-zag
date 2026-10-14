@@ -1,0 +1,202 @@
+{
+ "isolation": [
+  {
+   "city": "BA",
+   "id": "BA:way:256715723",
+   "title": "Puente Transbordador Nicol\u00e1s Avellaneda",
+   "u": 0.911,
+   "medianDriveToOthersMin": 10.6,
+   "selected_K30_A": false,
+   "selected_K30_B": false,
+   "selected_K120_A": false,
+   "selected_K120_B": false,
+   "selected_K960_A": false,
+   "selected_K960_B": false
+  },
+  {
+   "city": "BA",
+   "id": "BA:way:23633911",
+   "title": "Teatro Col\u00f3n",
+   "u": 1.0,
+   "medianDriveToOthersMin": 5.2,
+   "selected_K30_A": true,
+   "selected_K30_B": true,
+   "selected_K120_A": true,
+   "selected_K120_B": true,
+   "selected_K960_A": true,
+   "selected_K960_B": true
+  },
+  {
+   "city": "PA",
+   "id": "PA:node:10844713782",
+   "title": "Pendule de Foucault",
+   "u": 0.8,
+   "medianDriveToOthersMin": 8.2,
+   "selected_K30_A": true,
+   "selected_K30_B": true,
+   "selected_K120_A": true,
+   "selected_K120_B": true,
+   "selected_K960_A": true,
+   "selected_K960_B": true
+  },
+  {
+   "city": "PA",
+   "id": "PA:way:54667456",
+   "title": "Op\u00e9ra Garnier",
+   "u": 0.791,
+   "medianDriveToOthersMin": 7.9,
+   "selected_K30_A": true,
+   "selected_K30_B": true,
+   "selected_K120_A": true,
+   "selected_K120_B": true,
+   "selected_K960_A": true,
+   "selected_K960_B": true
+  },
+  {
+   "city": "LA",
+   "id": "LA:way:22728853",
+   "title": "Santa Monica Pier",
+   "u": 0.652,
+   "medianDriveToOthersMin": 22.1,
+   "selected_K30_A": false,
+   "selected_K30_B": false,
+   "selected_K120_A": false,
+   "selected_K120_B": true,
+   "selected_K960_A": false,
+   "selected_K960_B": true
+  },
+  {
+   "city": "LA",
+   "id": "LA:node:4745189816",
+   "title": "The J. Paul Getty Museum",
+   "u": 0.855,
+   "medianDriveToOthersMin": 21.7,
+   "selected_K30_A": false,
+   "selected_K30_B": true,
+   "selected_K120_A": false,
+   "selected_K120_B": true,
+   "selected_K960_A": false,
+   "selected_K960_B": true
+  }
+ ],
+ "refusal": [
+  {
+   "case": "LA S9-anchors-startend-p20 A",
+   "K30": [
+    0,
+    0.0,
+    0.0
+   ],
+   "K120": [
+    1,
+    0.623,
+    45.3
+   ]
+  },
+  {
+   "case": "LA S9-anchors-startend-p20 B",
+   "K30": [
+    12,
+    8.519,
+    76.4
+   ],
+   "K120": [
+    20,
+    13.86,
+    194.1
+   ]
+  }
+ ],
+ "excess": [
+  {
+   "case": "BA S1-normal-pall A",
+   "K120": [
+    19,
+    14.65,
+    191.9,
+    0
+   ],
+   "K960": [
+    19,
+    14.65,
+    206.9,
+    0
+   ]
+  },
+  {
+   "case": "BA S1-normal-pall B",
+   "K120": [
+    27,
+    19.139,
+    140.4,
+    17
+   ],
+   "K960": [
+    27,
+    19.117,
+    157.5,
+    16
+   ]
+  },
+  {
+   "case": "PA S5-oversupply-1day A",
+   "K120": [
+    9,
+    7.416,
+    95.0,
+    0
+   ],
+   "K960": [
+    9,
+    7.36,
+    134.8,
+    0
+   ]
+  },
+  {
+   "case": "LA S1-normal-pall B",
+   "K120": [
+    22,
+    14.643,
+    127.3,
+    13
+   ],
+   "K960": [
+    21,
+    14.366,
+    165.8,
+    14
+   ]
+  },
+  {
+   "case": "LA S2-tight-hours B",
+   "K120": [
+    14,
+    10.346,
+    92.5,
+    8
+   ],
+   "K960": [
+    14,
+    10.261,
+    109.0,
+    10
+   ]
+  },
+  {
+   "case": "LA S5-oversupply-1day B",
+   "K120": [
+    9,
+    6.614,
+    56.4,
+    6
+   ],
+   "K960": [
+    8,
+    6.459,
+    73.2,
+    6
+   ]
+  }
+ ]
+}

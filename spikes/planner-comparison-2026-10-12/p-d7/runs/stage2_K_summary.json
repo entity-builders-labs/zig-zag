@@ -1,0 +1,93 @@
+{
+ "K15": {
+  "violations": 0,
+  "retMean": 59.73,
+  "retWorst": 0.0,
+  "worstCase": "BA S9-anchors-startend-p20 A",
+  "travelRatio": 0.454,
+  "scheduled": 265,
+  "driveLegs": 31,
+  "shortHops": 0,
+  "unknown": 173,
+  "attrUnknownOmitted": 67,
+  "identical": "28/28"
+ },
+ "K30": {
+  "violations": 0,
+  "retMean": 91.88,
+  "retWorst": 0.0,
+  "worstCase": "LA S9-anchors-startend-p20 A",
+  "travelRatio": 0.817,
+  "scheduled": 432,
+  "driveLegs": 113,
+  "shortHops": 0,
+  "unknown": 273,
+  "attrUnknownOmitted": 38,
+  "identical": "28/28"
+ },
+ "K60": {
+  "violations": 0,
+  "retMean": 96.53,
+  "retWorst": 0.0,
+  "worstCase": "LA S9-anchors-startend-p20 A",
+  "travelRatio": 0.88,
+  "scheduled": 451,
+  "driveLegs": 147,
+  "shortHops": 0,
+  "unknown": 284,
+  "attrUnknownOmitted": 33,
+  "identical": "28/28"
+ },
+ "K120": {
+  "violations": 0,
+  "retMean": 100.93,
+  "retWorst": 99.08,
+  "worstCase": "PA S5-oversupply-1day B",
+  "travelRatio": 0.96,
+  "scheduled": 452,
+  "driveLegs": 158,
+  "shortHops": 0,
+  "unknown": 284,
+  "attrUnknownOmitted": 27,
+  "identical": "28/28"
+ },
+ "K240": {
+  "violations": 0,
+  "retMean": 100.22,
+  "retWorst": 99.79,
+  "worstCase": "PA S2-tight-hours B",
+  "travelRatio": 0.966,
+  "scheduled": 448,
+  "driveLegs": 165,
+  "shortHops": 0,
+  "unknown": 277,
+  "attrUnknownOmitted": 24,
+  "identical": "28/28"
+ },
+ "K480": {
+  "violations": 0,
+  "retMean": 100.05,
+  "retWorst": 99.74,
+  "worstCase": "PA S5-oversupply-1day A",
+  "travelRatio": 0.983,
+  "scheduled": 447,
+  "driveLegs": 172,
+  "shortHops": 0,
+  "unknown": 278,
+  "attrUnknownOmitted": 24,
+  "identical": "28/28"
+ },
+ "K960": {
+  "violations": 0,
+  "retMean": 100.0,
+  "retWorst": 100.0,
+  "worstCase": "BA S1-normal-pall A",
+  "travelRatio": 1.0,
+  "scheduled": 447,
+  "driveLegs": 177,
+  "shortHops": 0,
+  "unknown": 277,
+  "attrUnknownOmitted": 24,
+  "identical": "28/28"
+ }
+}
