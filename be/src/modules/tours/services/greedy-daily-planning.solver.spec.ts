@@ -4,12 +4,15 @@ import {
   PlanningExperienceCandidate,
   TravelEstimateProvider,
 } from '../interfaces/daily-planning.interface';
-import {
-  TransportationMode,
-  TravelPace,
-} from '../interfaces/tour-generation.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibility-validator.service';
+import {
+  legacyCompositeCandidate,
+  mobilityFixture,
+  planningInputFixture,
+  singleVisitCandidate,
+} from '../fixtures/planning-input.fixture';
 
 function realishTravelEstimateProvider(): TravelEstimateProvider {
   return {
@@ -43,7 +46,6 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
-  compositeDefaultDurationMinutes: 90,
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
@@ -59,24 +61,10 @@ const policy: DailyPlanningPolicy = {
 };
 
 function baseInput(
-  overrides: Partial<DailyPlanningInput> = {},
+  overrides: Partial<DailyPlanningInput> & { requestedDays?: number } = {},
 ): DailyPlanningInput {
-  return {
-    destination: {} as any,
-    requestedDays: 2,
-    candidates: [],
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
-      maxWalkingDistancePerDayMeters: 10000,
-      maxContinuousWalkingDistanceMeters: 3000,
-      travelPace: TravelPace.MODERATE,
-      accessibilityNeeds: [],
-    },
-    travelPace: TravelPace.MODERATE,
-    planningWindow: policy.window,
-    startDates: [],
-    ...overrides,
-  };
+  const { requestedDays, ...rest } = overrides;
+  return planningInputFixture({ dayCount: requestedDays ?? 2, ...rest });
 }
 
 function candidate(
@@ -88,20 +76,13 @@ function candidate(
       (sum, character) => sum + character.charCodeAt(0),
       0,
     ) % 10;
-  const footprint = {
-    type: 'POINT' as const,
-    centroid: { lat: 0, lng: stableOffset * 0.0001 },
-  };
-  return {
+  return singleVisitCandidate({
     experienceId: id,
-    title: id,
     durationMinutes: 60,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
-    componentFootprints: [],
+    lat: 0,
+    lng: stableOffset * 0.0001,
     semanticScore,
-  };
+  });
 }
 
 describe('GreedyDailyPlanningSolver', () => {
@@ -154,14 +135,15 @@ describe('GreedyDailyPlanningSolver', () => {
   it('routes all internal component legs with the request mobility modes before placement', async () => {
     const provider = realishTravelEstimateProvider();
     const solver = new GreedyDailyPlanningSolver(provider, policy);
-    const composite: PlanningExperienceCandidate = {
-      ...candidate('composite'),
-      componentFootprints: [
+    const composite = legacyCompositeCandidate({
+      experienceId: 'composite',
+      semanticScore: 0.5,
+      footprints: [
         { type: 'POINT', centroid: { lat: 0, lng: 0 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.001 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.002 } },
       ],
-    };
+    });
 
     const solution = await solver.solve(
       baseInput({ requestedDays: 1, candidates: [composite] }),
@@ -169,8 +151,8 @@ describe('GreedyDailyPlanningSolver', () => {
 
     expect(provider.estimate).toHaveBeenCalledTimes(2);
     expect(provider.estimate).toHaveBeenCalledWith(
-      composite.componentFootprints![0],
-      composite.componentFootprints![1],
+      composite.components[0].footprint,
+      composite.components[1].footprint,
       [TransportationMode.WALKING],
     );
     expect(solution.metadata.approximateTravel).toBe(true);
@@ -184,26 +166,24 @@ describe('GreedyDailyPlanningSolver', () => {
   it('rejects a composite when one internal walking leg exceeds the continuous walking limit, with actual-vs-limit diagnostics', async () => {
     const provider = realishTravelEstimateProvider();
     const solver = new GreedyDailyPlanningSolver(provider, policy);
-    const composite: PlanningExperienceCandidate = {
-      ...candidate('too-much-internal-walking', 0.9),
-      componentFootprints: [
+    const composite = legacyCompositeCandidate({
+      experienceId: 'too-much-internal-walking',
+      semanticScore: 0.9,
+      footprints: [
         { type: 'POINT', centroid: { lat: 0, lng: 0 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.01 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.0105 } },
       ],
-    };
+    });
 
     const solution = await solver.solve(
       baseInput({
         requestedDays: 1,
         candidates: [composite],
-        mobility: {
-          allowedTransportationModes: [TransportationMode.WALKING],
+        mobility: mobilityFixture({
           maxWalkingDistancePerDayMeters: 10000,
           maxContinuousWalkingDistanceMeters: 600,
-          travelPace: TravelPace.MODERATE,
-          accessibilityNeeds: [],
-        },
+        }),
       }),
     );
 
@@ -252,22 +232,20 @@ describe('GreedyDailyPlanningSolver', () => {
       [0, 0.0492],
       [0, 0.0494],
     ];
-    const composite: PlanningExperienceCandidate = {
-      ...candidate('rw2-walk', 0.9),
-      componentFootprints: stops.map(([lat, lng]) => ({
+    const composite = legacyCompositeCandidate({
+      experienceId: 'rw2-walk',
+      semanticScore: 0.9,
+      footprints: stops.map(([lat, lng]) => ({
         type: 'POINT' as const,
         centroid: { lat, lng },
       })),
-    };
+    });
 
     // 1. Exact RW2 mobility constraints → walking hard-rejection.
-    const rw2Limits = {
-      allowedTransportationModes: [TransportationMode.WALKING],
+    const rw2Limits = mobilityFixture({
       maxWalkingDistancePerDayMeters: 5000,
       maxContinuousWalkingDistanceMeters: 3000,
-      travelPace: TravelPace.MODERATE,
-      accessibilityNeeds: [] as string[],
-    };
+    });
     const rejected = await solver.solve(
       baseInput({
         requestedDays: 1,
@@ -296,13 +274,10 @@ describe('GreedyDailyPlanningSolver', () => {
 
     // 2. Non-binding walking limits (DTO upper bound, not a recommendation) →
     // the same candidate becomes feasible; no other constraint rejects it.
-    const nonBindingLimits = {
-      allowedTransportationModes: [TransportationMode.WALKING],
+    const nonBindingLimits = mobilityFixture({
       maxWalkingDistancePerDayMeters: 50000,
       maxContinuousWalkingDistanceMeters: 20000,
-      travelPace: TravelPace.MODERATE,
-      accessibilityNeeds: [] as string[],
-    };
+    });
     const feasible = await solver.solve(
       baseInput({
         requestedDays: 1,
@@ -339,7 +314,7 @@ describe('GreedyDailyPlanningSolver', () => {
     expect(first).toEqual(second);
   });
 
-  it('never expands a duplicate experienceId in the input into two planned instances', async () => {
+  it('reports a duplicate experienceId as an input error and plans it once', async () => {
     const solver = new GreedyDailyPlanningSolver(
       realishTravelEstimateProvider(),
       policy,
@@ -353,9 +328,14 @@ describe('GreedyDailyPlanningSolver', () => {
       0,
     );
     expect(totalScheduled).toBe(1);
-    expect(
-      solution.unselected.some((item) => item.experienceId === 'dup'),
-    ).toBe(true);
+    expect(solution.inputErrors).toEqual([
+      expect.objectContaining({
+        scope: 'CANDIDATE',
+        experienceId: 'dup',
+        code: 'DUPLICATE_EXPERIENCE',
+      }),
+    ]);
+    expect(solution.unselected).toEqual([]);
   });
 });
 
@@ -370,17 +350,13 @@ describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService 
     lng: number,
     semanticScore: number,
   ): PlanningExperienceCandidate {
-    const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng } };
-    return {
+    return singleVisitCandidate({
       experienceId: id,
-      title: id,
       durationMinutes: 60,
-      spatialFootprint: footprint,
-      startFootprint: footprint,
-      endFootprint: footprint,
-      componentFootprints: [],
+      lat: 0,
+      lng,
       semanticScore,
-    };
+    });
   }
 
   async function solveAndValidate(

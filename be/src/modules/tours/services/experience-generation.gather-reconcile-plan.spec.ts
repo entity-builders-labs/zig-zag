@@ -4,6 +4,7 @@ import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
+import { planningDaysFixture } from '../fixtures/planning-input.fixture';
 
 /**
  * Characterization of the GATHER → FREEZE → PLAN seams of one generation:
@@ -102,12 +103,13 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
       findVerifiedByIds: jest.fn(),
     };
     normalizer = {
-      normalizeExperiences: jest.fn(async (experiences: any[]) =>
-        experiences.map((experience) => ({
+      normalizeExperiences: jest.fn((experiences: any[]) => ({
+        candidates: experiences.map((experience) => ({
           experienceId: experience.id,
           source: experience,
         })),
-      ),
+        ineligible: [] as unknown[],
+      })),
     };
     // Schedules every candidate and saturates the day (no residual).
     solver = {
@@ -116,6 +118,7 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
           {
             dayNumber: 1,
             utilizationMinutes: 660,
+            residual: { dayNumber: 1, availableMinutes: 0, meaningful: false },
             experiences: input.candidates.map((candidate: any) => ({
               experienceId: candidate.experienceId,
               startMinutesFromMidnight: 540,
@@ -178,7 +181,7 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
   const plan = (selection: any) =>
     (service as any).planFromSelection(
       selection,
-      { requestedDays: 1 },
+      { days: planningDaysFixture(1) },
       preferenceSpec,
     );
 

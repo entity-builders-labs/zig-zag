@@ -1,3 +1,6 @@
+import { PlanningMobilityConstraints } from '../../src/modules/tours/interfaces/daily-planning.interface';
+import { GREEDY_PLANNING_POLICY_VERSIONS } from '../../src/modules/tours/constants/planning-policy-versions';
+import { buildPlanningDays } from '../../src/modules/tours/utils/planning-days.util';
 import {
   rankCandidatesByRelevance,
   RankableCandidate,
@@ -6,10 +9,8 @@ import {
 import { filterOverlappingExperienceCandidates } from '../../src/modules/tours/utils/candidate-overlap-filter.util';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
-import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
 import {
-  MobilityPreferences,
   TransportationMode,
   TravelPace,
 } from '../../src/modules/tours/interfaces/tour-generation.interface';
@@ -222,15 +223,14 @@ function buildCatalog(): Row[] {
   return rows;
 }
 
-const GENEROUS_MOBILITY: MobilityPreferences = {
+const GENEROUS_MOBILITY: PlanningMobilityConstraints = {
   allowedTransportationModes: [
     TransportationMode.WALKING,
     TransportationMode.PUBLIC_TRANSPORT,
   ],
   maxWalkingDistancePerDayMeters: 30000,
   maxContinuousWalkingDistanceMeters: 8000,
-  travelPace: TravelPace.MODERATE,
-  accessibilityNeeds: [],
+  cycling: null,
 };
 
 async function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
@@ -287,37 +287,44 @@ async function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
   const survivors = window
     .map((w: any) => w.candidate.original as Row)
     .filter((row) => keptIds.has(row.id));
-  const normalizer = new PlanningCandidateNormalizerService(
-    dailyPlanningPolicyConfig(),
-  );
-  const normalized = await normalizer.normalizeExperiences(
+  const days = buildPlanningDays({
+    requestedDays: 3,
+    startDates: ['2026-09-07T00:00:00.000Z'],
+    window: {
+      startMinutesFromMidnight: 9 * 60,
+      endMinutesFromMidnight: 20 * 60,
+    },
+  });
+  const normalizer = new PlanningCandidateNormalizerService();
+  const normalized = normalizer.normalizeExperiences(
     survivors.map((row) => ({
       id: row.id,
       canonicalName: row.canonicalName,
-      description: row.description,
       durationMinutes: row.durationMinutes,
       latitude: row.components[0].geoEntity.latitude,
       longitude: row.components[0].geoEntity.longitude,
-      components: row.components,
+      // Resolved catalog members always carry their GeoEntity id and role.
+      components: row.components.map((component, order) => ({
+        ...component,
+        geoEntityId: `geo-${component.geoEntity.name}`,
+        role: 'venue',
+        order,
+      })),
     })),
     breakdownById,
-  );
+    { days },
+  ).candidates;
   const greedyOrderIds = sortCandidatesDeterministically(normalized).map(
     (n) => n.experienceId,
   );
 
   const { solver } = createGreedySolver();
   const solution = await solver.solve({
-    destination: { scale: 'point', attemptedQueries: ['Rosario, Argentina'] },
-    requestedDays: 3,
+    days,
     candidates: normalized,
     mobility: GENEROUS_MOBILITY,
     travelPace: TravelPace.MODERATE,
-    planningWindow: {
-      startMinutesFromMidnight: 9 * 60,
-      endMinutesFromMidnight: 20 * 60,
-    },
-    startDates: ['2026-09-07T00:00:00.000Z'],
+    policies: GREEDY_PLANNING_POLICY_VERSIONS,
   });
   const selectedIds = solution.days.flatMap((d) =>
     d.experiences.map((e) => e.experienceId),

@@ -1,16 +1,20 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
+import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
 import {
   DailyPlanningInput,
   DailyPlanningSolution,
   DailyPlanningSolver,
   PlannedDay,
+  PlannedLegSummary,
   PlanningExperienceCandidate,
   TRAVEL_ESTIMATE_PROVIDER,
+  TravelEstimate,
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { sortCandidatesDeterministically } from '../utils/daily-planning-candidate-sort.util';
 import {
   PlacementContext,
@@ -19,6 +23,74 @@ import {
 import { runBoundedLocalImprovement } from '../utils/daily-planning-local-improvement.util';
 import { orderAndScheduleDayWithRepair } from '../utils/daily-planning-ordering.util';
 import { partitionMustIncludeCandidates } from '../utils/must-anchor-placement.util';
+import { collapsedVisitFacts } from '../utils/planning-candidate-facts.util';
+import {
+  InvalidPlanningInputError,
+  validatePlanningInput,
+} from '../utils/planning-input-validation.util';
+
+/**
+ * Valid planning input this solver cannot plan without breaking a hard
+ * constraint or misreporting its policy. Raised before planning, never
+ * silently ignored; the OR-Tools optimizer (task 33.1) replaces this solver.
+ */
+export class UnsupportedPlanningInputError extends Error {
+  constructor(detail: string) {
+    super(`GreedyDailyPlanningSolver cannot plan this input: ${detail}`);
+    this.name = 'UnsupportedPlanningInputError';
+  }
+}
+
+function assertSupportedByGreedy(
+  input: DailyPlanningInput,
+  candidates: PlanningExperienceCandidate[],
+): void {
+  const policies = input.policies;
+  const supported = GREEDY_PLANNING_POLICY_VERSIONS;
+  if (
+    policies.objectivePolicyVersion !== supported.objectivePolicyVersion ||
+    policies.unknownOpeningHours.mode !== supported.unknownOpeningHours.mode ||
+    policies.unknownOpeningHours.version !==
+      supported.unknownOpeningHours.version
+  ) {
+    throw new UnsupportedPlanningInputError(
+      `objective ${policies.objectivePolicyVersion} / UNKNOWN-hours ${policies.unknownOpeningHours.mode}@${policies.unknownOpeningHours.version}`,
+    );
+  }
+  if (
+    input.days.some(
+      (day) =>
+        day.startAnchor || day.endAnchor || day.unavailableWindows.length > 0,
+    )
+  ) {
+    throw new UnsupportedPlanningInputError(
+      'day anchors and user unavailable windows',
+    );
+  }
+  const composite = candidates.find(
+    (candidate) => !collapsedVisitFacts(candidate),
+  );
+  if (composite) {
+    throw new UnsupportedPlanningInputError(
+      `composite internal timeline of Experience ${composite.experienceId}`,
+    );
+  }
+}
+
+function summarizeLegs(estimates: TravelEstimate[]): PlannedLegSummary {
+  const byMode: Partial<Record<TransportationMode, number>> = {};
+  for (const estimate of estimates) {
+    byMode[estimate.mode] = (byMode[estimate.mode] ?? 0) + 1;
+  }
+  const approximate = estimates.filter(
+    (estimate) => estimate.approximate,
+  ).length;
+  return {
+    byMode,
+    providerBacked: estimates.length - approximate,
+    approximate,
+  };
+}
 
 @Injectable()
 export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
@@ -30,8 +102,14 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
   ) {}
 
   async solve(input: DailyPlanningInput): Promise<DailyPlanningSolution> {
+    const validation = validatePlanningInput(input);
+    if (validation.requestErrors.length > 0) {
+      throw new InvalidPlanningInputError(validation.requestErrors);
+    }
+    assertSupportedByGreedy(input, validation.validCandidates);
+
     const routedCandidates = await Promise.all(
-      input.candidates.map((candidate) =>
+      validation.validCandidates.map((candidate) =>
         this.withInternalRouting(
           candidate,
           input.mobility.allowedTransportationModes,
@@ -46,14 +124,12 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     const context: PlacementContext = {
       policy: this.policy,
       mobility: input.mobility,
-      planningWindow: input.planningWindow,
+      days: input.days,
       travelEstimateProvider: this.travelEstimateProvider,
-      startDates: input.startDates,
     };
 
     const { days, unselected } = await placeCandidates(
       [...partitioned.must, ...partitioned.regular],
-      input.requestedDays,
       context,
     );
     const { iterations } = await runBoundedLocalImprovement(days, context);
@@ -66,10 +142,9 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         acc.assigned,
         {
           travelEstimateProvider: this.travelEstimateProvider,
-          planningWindow: input.planningWindow,
+          days: input.days,
           mobility: input.mobility,
           policy: this.policy,
-          startDates: input.startDates,
         },
       );
       plannedDays.push(repaired.day);
@@ -84,9 +159,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     const externalEstimates = plannedDays.flatMap((day) =>
       day.experiences
         .map((experience) => experience.travelFromPrevious)
-        .filter(
-          (estimate): estimate is NonNullable<typeof estimate> => !!estimate,
-        ),
+        .filter((estimate): estimate is TravelEstimate => !!estimate),
     );
     const internalEstimateCount = routedCandidates.reduce(
       (sum, candidate) =>
@@ -124,9 +197,11 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     return {
       days: plannedDays,
       unselected: [...unselected, ...routedRepairUnselected],
+      inputErrors: validation.candidateErrors,
       score,
       metadata: {
         solver: 'GreedyDailyPlanningSolver',
+        policies: input.policies,
         approximateTravel: approximateEstimateCount > 0,
         iterations,
         routing: {
@@ -136,9 +211,9 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
           fallbackCount,
           providerCounts,
         },
+        legs: summarizeLegs(externalEstimates),
         constraints: {
-          requestedDays: input.requestedDays,
-          planningWindow: input.planningWindow,
+          days: input.days.map((day) => ({ ...day })),
           allowedTransportationModes: [
             ...input.mobility.allowedTransportationModes,
           ],
@@ -146,8 +221,8 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
             input.mobility.maxWalkingDistancePerDayMeters,
           maxContinuousWalkingDistanceMeters:
             input.mobility.maxContinuousWalkingDistanceMeters,
+          cycling: input.mobility.cycling,
           travelPace: input.travelPace,
-          startDates: [...input.startDates],
         },
       },
     };
@@ -159,7 +234,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
   ): Promise<PlanningExperienceCandidate> {
     if (
       candidate.mobility?.internalTravelMinutes !== undefined ||
-      (candidate.componentFootprints?.length ?? 0) < 2
+      candidate.components.length < 2
     ) {
       return candidate;
     }
@@ -168,9 +243,13 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
     let internalWalkingMinutes = 0;
     let internalWalkingDistanceMeters = 0;
     let maxInternalContinuousWalkingDistanceMeters = 0;
+    let internalCyclingMinutes = 0;
+    let maxInternalContinuousCyclingMinutes = 0;
     let routingFallbackCount = 0;
     const routingProviderCounts: Record<string, number> = {};
-    const footprints = candidate.componentFootprints!;
+    const footprints = candidate.components.map(
+      (component) => component.footprint,
+    );
 
     for (let index = 1; index < footprints.length; index++) {
       const estimate = await this.travelEstimateProvider.estimate(
@@ -185,6 +264,13 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         maxInternalContinuousWalkingDistanceMeters,
         estimate.walkingDistanceMeters,
       );
+      if (estimate.mode === TransportationMode.CYCLING) {
+        internalCyclingMinutes += estimate.durationMinutes;
+        maxInternalContinuousCyclingMinutes = Math.max(
+          maxInternalContinuousCyclingMinutes,
+          estimate.durationMinutes,
+        );
+      }
       const provider = estimate.provider ?? 'unknown';
       routingProviderCounts[provider] =
         (routingProviderCounts[provider] ?? 0) + 1;
@@ -201,6 +287,8 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         internalWalkingMinutes,
         internalWalkingDistanceMeters,
         maxInternalContinuousWalkingDistanceMeters,
+        internalCyclingMinutes,
+        maxInternalContinuousCyclingMinutes,
         routingProviderCounts,
         routingFallbackCount,
       },

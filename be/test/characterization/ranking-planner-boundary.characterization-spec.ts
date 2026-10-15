@@ -1,3 +1,4 @@
+import { planningDaysFixture } from '../../src/modules/tours/fixtures/planning-input.fixture';
 import { CandidateScoreBreakdown } from '../../src/modules/tours/utils/candidate-ranking.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
 import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
@@ -32,7 +33,13 @@ function experience(id: string, themes: string[], qualityScore: number) {
     longitude: -58.38,
     themes,
     qualityScore,
-    components: [{ geoEntity: { latitude: -34.6, longitude: -58.38 } }],
+    components: [
+      {
+        geoEntityId: `geo-${id}`,
+        role: 'venue',
+        geoEntity: { latitude: -34.6, longitude: -58.38 },
+      },
+    ],
   };
 }
 
@@ -51,10 +58,8 @@ describe('CHAR-5 ranking/planner boundary', () => {
       ]),
     );
 
-    const normalizer = new PlanningCandidateNormalizerService(
-      dailyPlanningPolicyConfig(),
-    );
-    const normalized = await normalizer.normalizeExperiences(
+    const normalizer = new PlanningCandidateNormalizerService();
+    const normalized = normalizer.normalizeExperiences(
       [a, b],
       new Map<string, CandidateScoreBreakdown>([
         [
@@ -78,8 +83,8 @@ describe('CHAR-5 ranking/planner boundary', () => {
           },
         ],
       ]),
-      { preferenceWeightById: weights },
-    );
+      { days: planningDaysFixture(1), preferenceWeightById: weights },
+    ).candidates;
 
     expect(
       sortCandidatesDeterministically(normalized).map((c) => c.experienceId),
@@ -94,10 +99,8 @@ describe('CHAR-5 ranking/planner boundary', () => {
 
   it('does not let an ordinal rankingScore override typed planner signals', async () => {
     const candidate = experience('typed', ['history'], 4);
-    const normalizer = new PlanningCandidateNormalizerService(
-      dailyPlanningPolicyConfig(),
-    );
-    const [normalized] = await normalizer.normalizeExperiences(
+    const normalizer = new PlanningCandidateNormalizerService();
+    const [normalized] = normalizer.normalizeExperiences(
       [candidate],
       new Map([
         [
@@ -111,8 +114,11 @@ describe('CHAR-5 ranking/planner boundary', () => {
           } as CandidateScoreBreakdown,
         ],
       ]),
-      { preferenceWeightById: new Map([['typed', 1]]) },
-    );
+      {
+        days: planningDaysFixture(1),
+        preferenceWeightById: new Map([['typed', 1]]),
+      },
+    ).candidates;
     expect('rankingScore' in normalized).toBe(false);
     expect(normalized.preferenceWeight).toBe(1);
     expect(

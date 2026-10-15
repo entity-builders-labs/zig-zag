@@ -1,61 +1,54 @@
 import {
-  DailyPlanningWindow,
+  PlanningDay,
   PlanningExperienceCandidate,
+  PlanningMobilityConstraints,
   PlanningRejectionReason,
   PlanningWalkingDiagnostics,
   TravelEstimateProvider,
   UnselectedPlanningCandidate,
 } from '../interfaces/daily-planning.interface';
-import { MobilityPreferences } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
-import { isOpenDuring } from './normalized-opening-hours.util';
+import { evaluateVisitOpeningHours } from './normalized-opening-hours.util';
 import { plannerRelevanceScore } from './daily-planning-candidate-sort.util';
 import {
+  evaluateCyclingFeasibility,
   evaluateWalkingFeasibility,
   internalWalkingMeters,
 } from './daily-planning-walking-feasibility.util';
-
-const candidateIdentity = (candidate: PlanningExperienceCandidate): string =>
-  candidate.experienceId;
+import {
+  requireCollapsedVisitFacts,
+  visitOpeningHoursOnDay,
+} from './planning-candidate-facts.util';
 
 export interface DayAccumulator {
   dayNumber: number;
   assigned: PlanningExperienceCandidate[];
   totalExperienceMinutes: number;
   totalWalkingMeters: number;
+  totalCyclingMinutes: number;
 }
 
 export interface PlacementContext {
   policy: DailyPlanningPolicy;
-  mobility: MobilityPreferences;
-  planningWindow: DailyPlanningWindow;
+  mobility: PlanningMobilityConstraints;
+  /** The request's planning days; `days[n - 1]` is day `n`. */
+  days: PlanningDay[];
   travelEstimateProvider: TravelEstimateProvider;
-  /** ISO date strings — empty means no confirmed base date, so weekday-
-   * specific opening-hours checks are skipped rather than guessed. */
-  startDates: string[];
 }
 
-export function resolveWeekday(
-  startDates: string[],
+export function planningDay(
+  days: PlanningDay[],
   dayNumber: number,
-): number | undefined {
-  if (startDates.length === 0) return undefined;
-  const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(startDates[0]);
-  if (!match) return undefined;
-  const [, yearStr, monthStr, dayStr] = match;
-  const year = Number(yearStr);
-  const month = Number(monthStr);
-  const day = Number(dayStr);
-  const target = new Date(year, month - 1, day + (dayNumber - 1));
-  if (Number.isNaN(target.getTime())) return undefined;
-  return target.getDay();
+): PlanningDay {
+  return days[dayNumber - 1];
 }
 
 export function candidateExperienceMinutes(
   candidate: PlanningExperienceCandidate,
 ): number {
   return (
-    candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
+    requireCollapsedVisitFacts(candidate).duration.minutes +
+    (candidate.mobility?.internalTravelMinutes ?? 0)
   );
 }
 
@@ -69,13 +62,7 @@ export async function checkHardConstraints(
   walkingDiagnostics?: PlanningWalkingDiagnostics;
 }> {
   const reasons: PlanningRejectionReason[] = [];
-
-  if (
-    !Number.isFinite(candidate.spatialFootprint.centroid.lat) ||
-    !Number.isFinite(candidate.spatialFootprint.centroid.lng)
-  ) {
-    return { feasible: false, reasons: ['INVALID_SPATIAL_FOOTPRINT'] };
-  }
+  const day = planningDay(context.days, acc.dayNumber);
 
   const previous = acc.assigned[acc.assigned.length - 1];
   const travel = previous
@@ -94,8 +81,7 @@ export async function checkHardConstraints(
   }
 
   const dayWindowMinutes =
-    context.planningWindow.endMinutesFromMidnight -
-    context.planningWindow.startMinutesFromMidnight;
+    day.window.endMinutesFromMidnight - day.window.startMinutesFromMidnight;
   const projectedExperienceMinutes =
     acc.totalExperienceMinutes +
     candidateExperienceMinutes(candidate) +
@@ -114,27 +100,34 @@ export async function checkHardConstraints(
   reasons.push(...walking.reasons);
   const walkingDiagnostics = walking.diagnostics;
 
-  if (candidate.openingHours) {
-    const weekday = resolveWeekday(context.startDates, acc.dayNumber);
-    if (weekday !== undefined) {
-      const proposedStart =
-        context.planningWindow.startMinutesFromMidnight +
-        acc.totalExperienceMinutes;
-      // Must match what the scheduler actually books (durationMinutes +
-      // internal travel) — using durationMinutes alone here validates a
-      // shorter window than the one that ends up scheduled.
-      const proposedEnd = proposedStart + candidateExperienceMinutes(candidate);
-      if (
-        !isOpenDuring(
-          candidate.openingHours,
-          weekday,
-          proposedStart,
-          proposedEnd,
-        )
-      ) {
-        reasons.push('OPENING_HOURS_INCOMPATIBLE');
-      }
-    }
+  if (
+    evaluateCyclingFeasibility(
+      candidate,
+      travel,
+      acc.totalCyclingMinutes,
+      context.mobility.cycling,
+    ).violated
+  ) {
+    reasons.push('CYCLING_LIMIT');
+  }
+
+  const proposedStart =
+    day.window.startMinutesFromMidnight + acc.totalExperienceMinutes;
+  // Must match what the scheduler actually books (visit duration + internal
+  // travel) — using the visit duration alone here validates a shorter window
+  // than the one that ends up scheduled.
+  const proposedEnd = proposedStart + candidateExperienceMinutes(candidate);
+  if (
+    !evaluateVisitOpeningHours(
+      visitOpeningHoursOnDay(
+        requireCollapsedVisitFacts(candidate),
+        acc.dayNumber,
+      ),
+      proposedStart,
+      proposedEnd,
+    )
+  ) {
+    reasons.push('OPENING_HOURS_INCOMPATIBLE');
   }
 
   return {
@@ -160,36 +153,31 @@ export function scoreCandidateForDay(
   return relevance + dayBalanceBonus;
 }
 
+/**
+ * Places validated candidates (distinct identities, valid footprints and
+ * single-visit facts: `validatePlanningInput` runs first).
+ */
 export async function placeCandidates(
   sortedCandidates: PlanningExperienceCandidate[],
-  requestedDays: number,
   context: PlacementContext,
 ): Promise<{
   days: Map<number, DayAccumulator>;
   unselected: UnselectedPlanningCandidate[];
 }> {
   const days = new Map<number, DayAccumulator>();
-  for (let d = 1; d <= requestedDays; d++) {
-    days.set(d, {
-      dayNumber: d,
+  for (const day of context.days) {
+    days.set(day.dayNumber, {
+      dayNumber: day.dayNumber,
       assigned: [],
       totalExperienceMinutes: 0,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     });
   }
 
-  const placedIds = new Set<string>();
   const unselected: UnselectedPlanningCandidate[] = [];
 
   for (const candidate of sortedCandidates) {
-    if (placedIds.has(candidateIdentity(candidate))) {
-      unselected.push({
-        experienceId: candidate.experienceId,
-        reasons: ['DUPLICATE_EXPERIENCE'],
-      });
-      continue;
-    }
-
     let bestDay: number | null = null;
     let bestScore = -Infinity;
     const dayFailureReasons = new Set<PlanningRejectionReason>();
@@ -242,7 +230,12 @@ export async function placeCandidates(
     acc.totalWalkingMeters +=
       internalWalkingMeters(candidate, context.policy) +
       (travel?.walkingDistanceMeters ?? 0);
-    placedIds.add(candidateIdentity(candidate));
+    acc.totalCyclingMinutes = evaluateCyclingFeasibility(
+      candidate,
+      travel,
+      acc.totalCyclingMinutes,
+      context.mobility.cycling,
+    ).projectedDayCyclingMinutes;
   }
 
   return { days, unselected };

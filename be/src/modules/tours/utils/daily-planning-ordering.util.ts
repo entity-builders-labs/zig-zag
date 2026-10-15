@@ -1,8 +1,11 @@
 import {
-  DailyPlanningWindow,
+  AppliedOpeningHours,
   PlannedExperience,
   PlannedDay,
+  PlanningBindingConstraint,
+  PlanningDay,
   PlanningExperienceCandidate,
+  PlanningMobilityConstraints,
   PlanningRejectionReason,
   TravelEstimate,
   TravelEstimateProvider,
@@ -10,33 +13,35 @@ import {
 } from '../interfaces/daily-planning.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { sortCandidatesDeterministically } from './daily-planning-candidate-sort.util';
-import { resolveWeekday } from './daily-planning-placement.util';
 import {
+  candidateExperienceMinutes,
+  planningDay,
+} from './daily-planning-placement.util';
+import {
+  evaluateCyclingFeasibility,
   evaluateWalkingFeasibility,
-  WalkingLimits,
 } from './daily-planning-walking-feasibility.util';
-import { isOpenDuring } from './normalized-opening-hours.util';
+import { evaluateVisitOpeningHours } from './normalized-opening-hours.util';
+import {
+  requireCollapsedVisitFacts,
+  visitOpeningHoursOnDay,
+} from './planning-candidate-facts.util';
 import { footprintDistanceMeters } from './spatial-footprint.util';
+import { dayResidualCapacity } from './daily-planning-convergence.util';
 
 export interface OrderingContext {
   travelEstimateProvider: TravelEstimateProvider;
-  planningWindow: DailyPlanningWindow;
-  /** The same walking limits placement enforced: every leg routed ordering
+  /** The request's planning days; `days[n - 1]` is day `n`. */
+  days: PlanningDay[];
+  /** The same mobility limits placement enforced: every leg routed ordering
    * creates is re-checked against them, never trusted from placement. */
-  mobility: WalkingLimits;
+  mobility: PlanningMobilityConstraints;
   policy: DailyPlanningPolicy;
-  startDates: string[];
 }
 
 export interface OrderedDayWithRepair {
   day: PlannedDay;
   unselected: UnselectedPlanningCandidate[];
-}
-
-function occupiedMinutes(candidate: PlanningExperienceCandidate): number {
-  return (
-    candidate.durationMinutes + (candidate.mobility?.internalTravelMinutes ?? 0)
-  );
 }
 
 interface RoutedChoice {
@@ -46,6 +51,8 @@ interface RoutedChoice {
   endMinutes: number;
   distanceMeters: number;
   projectedDayWalkingMeters: number;
+  projectedDayCyclingMinutes: number;
+  openingHours: AppliedOpeningHours;
 }
 
 type RoutedPick =
@@ -70,19 +77,33 @@ function isScheduleAttemptFailure(
   return attempt.ok === false;
 }
 
-function isCandidateOpen(
-  candidate: PlanningExperienceCandidate,
-  weekday: number | undefined,
+/** The constraints a planned visit touches exactly (schedule evidence). */
+export function bindingConstraintsOf(
+  day: PlanningDay,
   startMinutes: number,
   endMinutes: number,
-): boolean {
-  if (weekday === undefined || !candidate.openingHours) return true;
-  return isOpenDuring(
-    candidate.openingHours,
-    weekday,
-    startMinutes,
-    endMinutes,
-  );
+  openingHours: AppliedOpeningHours,
+): PlanningBindingConstraint[] {
+  const binding: PlanningBindingConstraint[] = [];
+  if (startMinutes === day.window.startMinutesFromMidnight) {
+    binding.push('DAY_WINDOW_START');
+  }
+  if (endMinutes === day.window.endMinutesFromMidnight) {
+    binding.push('DAY_WINDOW_END');
+  }
+  if (openingHours.status === 'WINDOW') {
+    const { window } = openingHours;
+    if (startMinutes === window.startMinutesFromMidnight) {
+      binding.push('OPENING_WINDOW_START');
+    }
+    if (endMinutes === window.endMinutesFromMidnight) {
+      binding.push('OPENING_WINDOW_END');
+    }
+    if (startMinutes === window.lastAdmissionMinutesFromMidnight) {
+      binding.push('LAST_ADMISSION');
+    }
+  }
+  return binding;
 }
 
 /**
@@ -96,9 +117,10 @@ function isCandidateOpen(
 async function pickNextRouted(
   previous: PlanningExperienceCandidate | null,
   remaining: PlanningExperienceCandidate[],
-  weekday: number | undefined,
+  day: PlanningDay,
   cursorMinutes: number,
   dayWalkingMeters: number,
+  dayCyclingMinutes: number,
   context: OrderingContext,
 ): Promise<RoutedPick> {
   const choices: RoutedChoice[] = [];
@@ -113,12 +135,20 @@ async function pickNextRouted(
         )
       : undefined;
     const startMinutes = cursorMinutes + (travel?.durationMinutes ?? 0);
-    const endMinutes = startMinutes + occupiedMinutes(candidate);
-    if (endMinutes > context.planningWindow.endMinutesFromMidnight) {
+    const endMinutes = startMinutes + candidateExperienceMinutes(candidate);
+    if (endMinutes > day.window.endMinutesFromMidnight) {
       rejections.add('DAILY_TIME_CAPACITY_EXCEEDED');
       continue;
     }
-    if (!isCandidateOpen(candidate, weekday, startMinutes, endMinutes)) {
+    const openingHours = evaluateVisitOpeningHours(
+      visitOpeningHoursOnDay(
+        requireCollapsedVisitFacts(candidate),
+        day.dayNumber,
+      ),
+      startMinutes,
+      endMinutes,
+    );
+    if (!openingHours) {
       rejections.add('OPENING_HOURS_INCOMPATIBLE');
       continue;
     }
@@ -131,6 +161,16 @@ async function pickNextRouted(
     );
     if (walking.reasons.length > 0) {
       walking.reasons.forEach((reason) => rejections.add(reason));
+      continue;
+    }
+    const cycling = evaluateCyclingFeasibility(
+      candidate,
+      travel,
+      dayCyclingMinutes,
+      context.mobility.cycling,
+    );
+    if (cycling.violated) {
+      rejections.add('CYCLING_LIMIT');
       continue;
     }
 
@@ -150,6 +190,8 @@ async function pickNextRouted(
           )
         : 0,
       projectedDayWalkingMeters: walking.projectedDayWalkingMeters,
+      projectedDayCyclingMinutes: cycling.projectedDayCyclingMinutes,
+      openingHours,
     });
   }
 
@@ -157,6 +199,7 @@ async function pickNextRouted(
     const precedence: PlanningRejectionReason[] = [
       'MAX_CONTINUOUS_WALKING_EXCEEDED',
       'MAX_WALKING_PER_DAY_EXCEEDED',
+      'CYCLING_LIMIT',
       'OPENING_HOURS_INCOMPATIBLE',
     ];
     return {
@@ -184,21 +227,23 @@ async function tryScheduleDay(
   context: OrderingContext,
 ): Promise<ScheduleAttempt> {
   const remaining = sortCandidatesDeterministically(candidates);
-  const weekday = resolveWeekday(context.startDates, dayNumber);
+  const day = planningDay(context.days, dayNumber);
   const scheduled: PlannedExperience[] = [];
-  let cursorMinutes = context.planningWindow.startMinutesFromMidnight;
+  let cursorMinutes = day.window.startMinutesFromMidnight;
   let totalTravelMinutes = 0;
   let totalWalkingMinutes = 0;
   let dayWalkingMeters = 0;
+  let dayCyclingMinutes = 0;
   let previous: PlanningExperienceCandidate | null = null;
 
   while (remaining.length > 0) {
     const pick = await pickNextRouted(
       previous,
       remaining,
-      weekday,
+      day,
       cursorMinutes,
       dayWalkingMeters,
+      dayCyclingMinutes,
       context,
     );
     if ('reason' in pick) return { ok: false, reason: pick.reason };
@@ -209,6 +254,8 @@ async function tryScheduleDay(
       startMinutes: start,
       endMinutes: end,
       projectedDayWalkingMeters,
+      projectedDayCyclingMinutes,
+      openingHours,
     } = pick.choice;
     remaining.splice(remaining.indexOf(next), 1);
 
@@ -221,34 +268,78 @@ async function tryScheduleDay(
       experienceId: next.experienceId,
       startMinutesFromMidnight: start,
       endMinutesFromMidnight: end,
-      travelFromPrevious: travel,
+      travelFromPrevious: travel ?? null,
+      duration: requireCollapsedVisitFacts(next).duration,
+      openingHours,
+      bindingConstraints: bindingConstraintsOf(day, start, end, openingHours),
     });
     totalWalkingMinutes += next.mobility?.internalWalkingMinutes ?? 0;
     dayWalkingMeters = projectedDayWalkingMeters;
+    dayCyclingMinutes = projectedDayCyclingMinutes;
     cursorMinutes = end;
     previous = next;
   }
 
   return {
     ok: true,
-    day: {
-      dayNumber,
+    day: plannedDay(day, context, {
       experiences: scheduled,
-      // Must include internal travel, same as occupiedMinutes() above and
-      // every `end` timestamp already scheduled — otherwise this total
-      // silently disagrees with its own day's schedule (a shorter number
-      // next to `end` timestamps that already account for it).
+      // Must include internal travel, same as candidateExperienceMinutes()
+      // above and every `end` timestamp already scheduled — otherwise this
+      // total silently disagrees with its own day's schedule (a shorter
+      // number next to `end` timestamps that already account for it).
       totalExperienceMinutes: candidates.reduce(
-        (sum, candidate) => sum + occupiedMinutes(candidate),
+        (sum, candidate) => sum + candidateExperienceMinutes(candidate),
         0,
       ),
       totalTravelMinutes,
       totalWalkingMinutes,
-      utilizationMinutes:
-        cursorMinutes - context.planningWindow.startMinutesFromMidnight,
-    },
+      utilizationMinutes: cursorMinutes - day.window.startMinutesFromMidnight,
+    }),
   };
 }
+
+function plannedDay(
+  day: PlanningDay,
+  context: OrderingContext,
+  schedule: Pick<
+    PlannedDay,
+    | 'experiences'
+    | 'totalExperienceMinutes'
+    | 'totalTravelMinutes'
+    | 'totalWalkingMinutes'
+    | 'utilizationMinutes'
+  >,
+): PlannedDay {
+  return {
+    dayNumber: day.dayNumber,
+    date: day.date,
+    ...schedule,
+    residual: dayResidualCapacity(
+      day,
+      schedule.utilizationMinutes,
+      context.policy.backfill.minimumUsefulResidualMinutes,
+    ),
+    // The greedy solver plans no anchor legs; it refuses anchored days
+    // before planning.
+    firstLastMileTravel: 'EXCLUDED_NO_ANCHOR',
+  };
+}
+
+const EMPTY_SCHEDULE: Pick<
+  PlannedDay,
+  | 'experiences'
+  | 'totalExperienceMinutes'
+  | 'totalTravelMinutes'
+  | 'totalWalkingMinutes'
+  | 'utilizationMinutes'
+> = {
+  experiences: [],
+  totalExperienceMinutes: 0,
+  totalTravelMinutes: 0,
+  totalWalkingMinutes: 0,
+  utilizationMinutes: 0,
+};
 
 /**
  * Routes and schedules a day. If real routing/reordering makes the initially
@@ -265,14 +356,9 @@ export async function orderAndScheduleDayWithRepair(
 ): Promise<OrderedDayWithRepair> {
   if (candidates.length === 0) {
     return {
-      day: {
-        dayNumber,
-        experiences: [],
-        totalExperienceMinutes: 0,
-        totalTravelMinutes: 0,
-        totalWalkingMinutes: 0,
-        utilizationMinutes: 0,
-      },
+      day: plannedDay(planningDay(context.days, dayNumber), context, {
+        ...EMPTY_SCHEDULE,
+      }),
       unselected: [],
     };
   }
@@ -304,14 +390,9 @@ export async function orderAndScheduleDayWithRepair(
   }
 
   return {
-    day: {
-      dayNumber,
-      experiences: [],
-      totalExperienceMinutes: 0,
-      totalTravelMinutes: 0,
-      totalWalkingMinutes: 0,
-      utilizationMinutes: 0,
-    },
+    day: plannedDay(planningDay(context.days, dayNumber), context, {
+      ...EMPTY_SCHEDULE,
+    }),
     unselected,
   };
 }

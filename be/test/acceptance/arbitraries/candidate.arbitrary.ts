@@ -3,7 +3,7 @@ import {
   PlanningExperienceCandidate,
   NormalizedOpeningHours,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
-import { withPointFootprints } from '../builders/point-footprints.util';
+import { toPointCandidate } from '../builders/point-footprints.util';
 
 export const arbitraryOpeningHours = (): fc.Arbitrary<NormalizedOpeningHours> =>
   fc.constant({ status: 'unknown' as const });
@@ -17,9 +17,6 @@ export const arbitraryCandidate = (
       durationMinutes: fc.integer({ min: 30, max: 180 }),
       semanticScore: fc.double({ min: 0.1, max: 1, noNaN: true }),
       qualityScore: fc.double({ min: 0.1, max: 1, noNaN: true }),
-      themes: fc.array(fc.constantFrom('nature', 'culture', 'food'), {
-        maxLength: 3,
-      }),
       spatialFootprint: fc.record({
         type: fc.constant<'POINT'>('POINT'),
         centroid: fc.record({
@@ -29,7 +26,7 @@ export const arbitraryCandidate = (
       }),
       openingHours: arbitraryOpeningHours(),
     })
-    .map(withPointFootprints);
+    .map(toPointCandidate);
 export const arbitraryCandidatePool = (
   minCount = 5,
   maxCount = 30,

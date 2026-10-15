@@ -1,7 +1,14 @@
 import {
+  AppliedOpeningHours,
+  LEGACY_EXPERIENCE_OPENING_HOURS,
   NormalizedOpeningHours,
+  NormalizedOpeningHoursKnown,
   NormalizedOpeningHoursRange,
+  PlanningDay,
+  PlanningDayOpeningHours,
+  PlanningOpeningWindow,
 } from '../interfaces/daily-planning.interface';
+import { weekdayOfPlanningDate } from './planning-days.util';
 
 const WEEKDAY_NAMES: Record<string, number> = {
   sunday: 0,
@@ -154,22 +161,81 @@ export function parseOpeningHours(
   return { status: 'known', rangesByWeekday };
 }
 
-/** Unknown status, and a missing weekday key, both mean "no data" and are
- * never treated as closed — matches this domain's existing
- * unknown-availability policy. Only an explicitly empty range array (a real
- * parsed "Closed") rejects. */
-export function isOpenDuring(
-  hours: NormalizedOpeningHours,
-  weekday: number,
+/**
+ * Transitional projection of the legacy weekly `Experience.openingHours` into
+ * per-day planning knowledge, labelled `LEGACY_EXPERIENCE_OPENING_HOURS`
+ * (removed at group 41). It keeps the legacy reading exactly: a weekday with
+ * ranges is open in those ranges, an explicitly empty weekday ("Closed") is
+ * closed, and a missing weekday, an unknown or malformed record, or an
+ * undated day are UNKNOWN. It never tightens the legacy data (the P3 rule
+ * that a known pattern without a weekday window means closed belongs to the
+ * GeoEntity knowledge of task 26.1).
+ */
+export function legacyOpeningHoursByDay(
+  persisted: unknown,
+  days: PlanningDay[],
+): PlanningDayOpeningHours[] {
+  const provenance = {
+    source: LEGACY_EXPERIENCE_OPENING_HOURS,
+    evidenceBacked: false,
+  } as const;
+  const known = isKnownLegacyOpeningHours(persisted) ? persisted : null;
+  return days.map((day): PlanningDayOpeningHours => {
+    const weekday = weekdayOfPlanningDate(day.date);
+    const ranges =
+      known && weekday !== null ? known.rangesByWeekday[weekday] : undefined;
+    if (!Array.isArray(ranges)) return { status: 'UNKNOWN', provenance };
+    if (ranges.length === 0) return { status: 'KNOWN_CLOSED', provenance };
+    return {
+      status: 'KNOWN_OPEN_WINDOW',
+      windows: ranges.map(
+        (range): PlanningOpeningWindow => ({
+          startMinutesFromMidnight: range.startMinutesFromMidnight,
+          endMinutesFromMidnight: range.endMinutesFromMidnight,
+          lastAdmissionMinutesFromMidnight: null,
+        }),
+      ),
+      provenance,
+    };
+  });
+}
+
+function isKnownLegacyOpeningHours(
+  value: unknown,
+): value is NormalizedOpeningHoursKnown {
+  return (
+    !!value &&
+    typeof value === 'object' &&
+    (value as { status?: unknown }).status === 'known' &&
+    !!(value as { rangesByWeekday?: unknown }).rangesByWeekday &&
+    typeof (value as { rangesByWeekday?: unknown }).rangesByWeekday === 'object'
+  );
+}
+
+/**
+ * Single opening-hours check for one visit interval on one day. A known
+ * window must contain the whole visit and, when known, the visit must start
+ * no later than the last admission; KNOWN_CLOSED never admits a visit.
+ * UNKNOWN admits the visit and is reported as UNKNOWN: that is the
+ * ALLOW_WITH_UNCERTAINTY behaviour of the greedy solver until task 26.2.
+ */
+export function evaluateVisitOpeningHours(
+  knowledge: PlanningDayOpeningHours,
   startMinutesFromMidnight: number,
   endMinutesFromMidnight: number,
-): boolean {
-  if (hours.status === 'unknown') return true;
-  const ranges = hours.rangesByWeekday[weekday];
-  if (ranges === undefined) return true;
-  return ranges.some(
-    (r) =>
-      startMinutesFromMidnight >= r.startMinutesFromMidnight &&
-      endMinutesFromMidnight <= r.endMinutesFromMidnight,
+): AppliedOpeningHours | null {
+  if (knowledge.status === 'UNKNOWN') {
+    return { status: 'UNKNOWN', provenance: knowledge.provenance };
+  }
+  if (knowledge.status === 'KNOWN_CLOSED') return null;
+  const window = knowledge.windows.find(
+    (candidate) =>
+      startMinutesFromMidnight >= candidate.startMinutesFromMidnight &&
+      endMinutesFromMidnight <= candidate.endMinutesFromMidnight &&
+      (candidate.lastAdmissionMinutesFromMidnight === null ||
+        startMinutesFromMidnight <= candidate.lastAdmissionMinutesFromMidnight),
   );
+  return window
+    ? { status: 'WINDOW', window, provenance: knowledge.provenance }
+    : null;
 }

@@ -11,22 +11,34 @@ import {
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+import {
+  alignUnknownHours,
+  legacyHoursByDay,
+  mobilityFixture,
+  planningDaysFixture,
+  singleVisitCandidate,
+  withVisitFacts,
+} from '../fixtures/planning-input.fixture';
 
 function candidate(
-  overrides: Partial<PlanningExperienceCandidate> = {},
+  overrides: Partial<PlanningExperienceCandidate> & {
+    durationMinutes?: number;
+  } = {},
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
+  const { durationMinutes, ...rest } = overrides;
   return {
-    experienceId: overrides.experienceId ?? 'a1',
-    title: 'Test',
-    durationMinutes: 60,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
-    semanticScore: 0.5,
-    ...overrides,
+    ...singleVisitCandidate({
+      experienceId: overrides.experienceId ?? 'a1',
+      title: 'Test',
+      durationMinutes: durationMinutes ?? 60,
+      semanticScore: 0.5,
+    }),
+    ...rest,
   };
 }
+
+/** A real Monday, so day 1 resolves to weekday 1. */
+const MONDAY = '2026-09-07';
 
 function fakeTravelEstimateProvider(
   overrides: Partial<
@@ -59,7 +71,6 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
-  compositeDefaultDurationMinutes: 90,
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
@@ -79,16 +90,9 @@ function baseContext(
 ): PlacementContext {
   return {
     policy,
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
-      maxWalkingDistancePerDayMeters: 10000,
-      maxContinuousWalkingDistanceMeters: 3000,
-      travelPace: 'moderate' as any,
-      accessibilityNeeds: [],
-    },
-    planningWindow: policy.window,
+    mobility: mobilityFixture(),
+    days: planningDaysFixture(1, { window: policy.window }),
     travelEstimateProvider: fakeTravelEstimateProvider(),
-    startDates: [],
     ...overrides,
   };
 }
@@ -99,6 +103,7 @@ function emptyDay(dayNumber: number): DayAccumulator {
     assigned: [],
     totalExperienceMinutes: 0,
     totalWalkingMeters: 0,
+    totalCyclingMinutes: 0,
   };
 }
 
@@ -118,6 +123,7 @@ describe('checkHardConstraints', () => {
       assigned: [],
       totalExperienceMinutes: 650,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     };
     const result = await checkHardConstraints(
       candidate({ durationMinutes: 60 }),
@@ -130,13 +136,7 @@ describe('checkHardConstraints', () => {
 
   it('rejects when the day already has an assigned activity and the leg exceeds max continuous walking', async () => {
     const context = baseContext({
-      mobility: {
-        allowedTransportationModes: [TransportationMode.WALKING],
-        maxWalkingDistancePerDayMeters: 10000,
-        maxContinuousWalkingDistanceMeters: 500,
-        travelPace: 'moderate' as any,
-        accessibilityNeeds: [],
-      },
+      mobility: mobilityFixture({ maxContinuousWalkingDistanceMeters: 500 }),
       travelEstimateProvider: fakeTravelEstimateProvider({
         walkingDistanceMeters: 800,
       }),
@@ -146,6 +146,7 @@ describe('checkHardConstraints', () => {
       assigned: [candidate({ experienceId: 'prev' })],
       totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     };
     const result = await checkHardConstraints(
       candidate({ experienceId: 'next' }),
@@ -183,6 +184,7 @@ describe('checkHardConstraints', () => {
       assigned: [previous],
       totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     };
 
     await checkHardConstraints(
@@ -201,21 +203,36 @@ describe('checkHardConstraints', () => {
   it('rejects a candidate whose duration fits alone but pushes past closing once internal travel is included', async () => {
     // Regression guard for CP8-2: the hard-constraint check must use the
     // same duration formula the scheduler actually books
-    // (durationMinutes + internalTravelMinutes), not durationMinutes alone.
-    const context = baseContext({ startDates: ['2026-09-07'] }); // a real Monday
+    // (visit duration + internalTravelMinutes), not the visit duration alone.
+    const days = planningDaysFixture(1, {
+      startDate: MONDAY,
+      window: policy.window,
+    });
     const result = await checkHardConstraints(
-      candidate({
-        durationMinutes: 50,
-        mobility: { internalTravelMinutes: 20 },
-        openingHours: {
-          status: 'known',
-          rangesByWeekday: {
-            1: [{ startMinutesFromMidnight: 540, endMinutesFromMidnight: 600 }],
-          }, // 9:00-10:00 Monday only — 60 min window
+      withVisitFacts(
+        candidate({
+          durationMinutes: 50,
+          mobility: { internalTravelMinutes: 20 },
+        }),
+        {
+          openingHoursByDay: legacyHoursByDay(
+            {
+              status: 'known',
+              rangesByWeekday: {
+                1: [
+                  {
+                    startMinutesFromMidnight: 540,
+                    endMinutesFromMidnight: 600,
+                  },
+                ],
+              }, // 9:00-10:00 Monday only — 60 min window
+            },
+            days,
+          ),
         },
-      }),
+      ),
       emptyDay(1), // day starts at window start, 9:00
-      context,
+      baseContext({ days }),
     );
     // durationMinutes alone (50) fits inside the 60-minute window; +20 min
     // internal travel (70 total) does not.
@@ -225,13 +242,7 @@ describe('checkHardConstraints', () => {
 
   it('rejects when total daily walking would exceed the limit', async () => {
     const context = baseContext({
-      mobility: {
-        allowedTransportationModes: [TransportationMode.WALKING],
-        maxWalkingDistancePerDayMeters: 500,
-        maxContinuousWalkingDistanceMeters: 3000,
-        travelPace: 'moderate' as any,
-        accessibilityNeeds: [],
-      },
+      mobility: mobilityFixture({ maxWalkingDistancePerDayMeters: 500 }),
       travelEstimateProvider: fakeTravelEstimateProvider({
         walkingDistanceMeters: 800,
       }),
@@ -241,6 +252,7 @@ describe('checkHardConstraints', () => {
       assigned: [candidate({ experienceId: 'prev' })],
       totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     };
     const result = await checkHardConstraints(
       candidate({ experienceId: 'next' }),
@@ -252,99 +264,50 @@ describe('checkHardConstraints', () => {
   });
 
   it('rejects a candidate outside its known opening hours when a base date exists', async () => {
-    const context = baseContext({ startDates: ['2026-09-07'] }); // a real Monday
+    const days = planningDaysFixture(1, {
+      startDate: MONDAY,
+      window: policy.window,
+    });
     const result = await checkHardConstraints(
-      candidate({
-        openingHours: {
-          status: 'known',
-          rangesByWeekday: {
-            1: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 660 }],
-          }, // 10:00-11:00 Monday only
-        },
+      withVisitFacts(candidate(), {
+        openingHoursByDay: legacyHoursByDay(
+          {
+            status: 'known',
+            rangesByWeekday: {
+              1: [
+                { startMinutesFromMidnight: 600, endMinutesFromMidnight: 660 },
+              ],
+            }, // 10:00-11:00 Monday only
+          },
+          days,
+        ),
       }),
       emptyDay(1), // day starts at window start, 9:00 — before the 10:00 opening
-      context,
+      baseContext({ days }),
     );
     expect(result.feasible).toBe(false);
     expect(result.reasons).toContain('OPENING_HOURS_INCOMPATIBLE');
   });
 
-  it('rejects a candidate with a NaN centroid as INVALID_SPATIAL_FOOTPRINT instead of crashing', async () => {
-    const result = await checkHardConstraints(
-      candidate({
-        spatialFootprint: {
-          type: 'POINT',
-          centroid: { lat: NaN, lng: 0 },
-        },
-      }),
-      emptyDay(1),
-      baseContext(),
-    );
-    expect(result.feasible).toBe(false);
-    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
-  });
-
-  it('rejects a candidate with a null centroid coordinate as INVALID_SPATIAL_FOOTPRINT', async () => {
-    // `Activity.latitude`/`longitude` are Prisma `Float?`, so a missing value
-    // really arrives as `null` at runtime even though the TS type says
-    // `number`. Cast accordingly — a `null` that slipped through would be
-    // coerced to 0 by the Haversine math and planned at Null Island.
-    const result = await checkHardConstraints(
-      candidate({
-        spatialFootprint: {
-          type: 'POINT',
-          centroid: { lat: null as unknown as number, lng: 0 },
-        },
-      }),
-      emptyDay(1),
-      baseContext(),
-    );
-    expect(result.feasible).toBe(false);
-    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
-  });
-
-  it('rejects a candidate with a null centroid longitude as INVALID_SPATIAL_FOOTPRINT', async () => {
-    const result = await checkHardConstraints(
-      candidate({
-        spatialFootprint: {
-          type: 'POINT',
-          centroid: { lat: 0, lng: null as unknown as number },
-        },
-      }),
-      emptyDay(1),
-      baseContext(),
-    );
-    expect(result.feasible).toBe(false);
-    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
-  });
-
-  it('rejects a candidate with an undefined centroid coordinate as INVALID_SPATIAL_FOOTPRINT instead of crashing', async () => {
-    const result = await checkHardConstraints(
-      candidate({
-        spatialFootprint: {
-          type: 'POINT',
-          centroid: { lat: 0, lng: undefined as unknown as number },
-        },
-      }),
-      emptyDay(1),
-      baseContext(),
-    );
-    expect(result.feasible).toBe(false);
-    expect(result.reasons).toEqual(['INVALID_SPATIAL_FOOTPRINT']);
-  });
-
   it('does not hard-reject on opening hours when no base date exists (unknown weekday policy)', async () => {
+    // Without a date the legacy weekly hours resolve to UNKNOWN for the day.
+    const days = planningDaysFixture(1, { window: policy.window });
     const result = await checkHardConstraints(
-      candidate({
-        openingHours: {
-          status: 'known',
-          rangesByWeekday: {
-            1: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 660 }],
+      withVisitFacts(candidate(), {
+        openingHoursByDay: legacyHoursByDay(
+          {
+            status: 'known',
+            rangesByWeekday: {
+              1: [
+                { startMinutesFromMidnight: 600, endMinutesFromMidnight: 660 },
+              ],
+            },
           },
-        },
+          days,
+        ),
       }),
       emptyDay(1),
-      baseContext({ startDates: [] }),
+      baseContext({ days }),
     );
     expect(result.reasons).not.toContain('OPENING_HOURS_INCOMPATIBLE');
   });
@@ -371,6 +334,7 @@ describe('scoreCandidateForDay', () => {
       assigned: [candidate({ experienceId: 'existing' })],
       totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
+      totalCyclingMinutes: 0,
     };
     const sameFamily = scoreCandidateForDay(
       candidate({ experienceId: 'same' }),
@@ -389,9 +353,10 @@ describe('scoreCandidateForDay', () => {
 describe('placeCandidates', () => {
   it('places every hard-feasible candidate somewhere across the requested days', async () => {
     const { days, unselected } = await placeCandidates(
-      [candidate({ experienceId: 'a' }), candidate({ experienceId: 'b' })],
-      2,
-      baseContext(),
+      [candidate({ experienceId: 'a' }), candidate({ experienceId: 'b' })].map(
+        (item) => alignUnknownHours(item, 2),
+      ),
+      baseContext({ days: planningDaysFixture(2, { window: policy.window }) }),
     );
     const totalAssigned = Array.from(days.values()).reduce(
       (sum, d) => sum + d.assigned.length,
@@ -401,23 +366,77 @@ describe('placeCandidates', () => {
     expect(unselected).toHaveLength(0);
   });
 
-  it('marks a duplicate experienceId as unselected with DUPLICATE_EXPERIENCE', async () => {
-    const { unselected } = await placeCandidates(
-      [candidate({ experienceId: 'dup' }), candidate({ experienceId: 'dup' })],
-      1,
-      baseContext(),
-    );
-    expect(unselected).toEqual([
-      { experienceId: 'dup', reasons: ['DUPLICATE_EXPERIENCE'] },
-    ]);
-  });
-
-  it('rejects with NO_FEASIBLE_DAY when requestedDays is 0', async () => {
+  it('rejects with NO_FEASIBLE_DAY when there is no planning day', async () => {
     const { unselected } = await placeCandidates(
       [candidate()],
-      0,
-      baseContext(),
+      baseContext({ days: [] }),
     );
     expect(unselected[0].reasons).toContain('NO_FEASIBLE_DAY');
+  });
+});
+
+describe('checkHardConstraints cycling limit (owner D3)', () => {
+  const cyclingContext = (
+    limits: {
+      maxContinuousCyclingMinutes: number;
+      maxDailyCyclingMinutes: number | null;
+    },
+    legMinutes: number,
+  ) =>
+    baseContext({
+      mobility: mobilityFixture({
+        allowedTransportationModes: [TransportationMode.CYCLING],
+        cycling: { ...limits, source: { kind: 'USER_STATED' } },
+      }),
+      travelEstimateProvider: fakeTravelEstimateProvider({
+        mode: TransportationMode.CYCLING,
+        durationMinutes: legMinutes,
+        walkingDistanceMeters: 0,
+        walkingMinutes: 0,
+      }),
+    });
+  const dayWithPrevious = (totalCyclingMinutes = 0): DayAccumulator => ({
+    dayNumber: 1,
+    assigned: [candidate({ experienceId: 'prev' })],
+    totalExperienceMinutes: 60,
+    totalWalkingMeters: 0,
+    totalCyclingMinutes,
+  });
+
+  it('rejects a bicycle leg longer than the continuous cycling limit', async () => {
+    const result = await checkHardConstraints(
+      candidate({ experienceId: 'next', preferenceWeight: 100 }),
+      dayWithPrevious(),
+      cyclingContext(
+        { maxContinuousCyclingMinutes: 30, maxDailyCyclingMinutes: null },
+        59,
+      ),
+    );
+    expect(result.feasible).toBe(false);
+    expect(result.reasons).toContain('CYCLING_LIMIT');
+  });
+
+  it('accepts a bicycle leg within the continuous limit', async () => {
+    const result = await checkHardConstraints(
+      candidate({ experienceId: 'next' }),
+      dayWithPrevious(),
+      cyclingContext(
+        { maxContinuousCyclingMinutes: 30, maxDailyCyclingMinutes: null },
+        20,
+      ),
+    );
+    expect(result.reasons).not.toContain('CYCLING_LIMIT');
+  });
+
+  it('rejects when the day total would exceed the daily cycling limit', async () => {
+    const result = await checkHardConstraints(
+      candidate({ experienceId: 'next' }),
+      dayWithPrevious(50),
+      cyclingContext(
+        { maxContinuousCyclingMinutes: 30, maxDailyCyclingMinutes: 60 },
+        20,
+      ),
+    );
+    expect(result.reasons).toContain('CYCLING_LIMIT');
   });
 });

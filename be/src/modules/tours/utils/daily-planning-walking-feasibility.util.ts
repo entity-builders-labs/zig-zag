@@ -1,12 +1,11 @@
 import {
   PlanningExperienceCandidate,
+  PlanningMobilityConstraints,
   PlanningWalkingDiagnostics,
+  ResolvedCyclingLimits,
   TravelEstimate,
 } from '../interfaces/daily-planning.interface';
-import {
-  MobilityPreferences,
-  TransportationMode,
-} from '../interfaces/tour-generation.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 
 export type WalkingRejectionReason =
@@ -14,7 +13,7 @@ export type WalkingRejectionReason =
   | 'MAX_CONTINUOUS_WALKING_EXCEEDED';
 
 export type WalkingLimits = Pick<
-  MobilityPreferences,
+  PlanningMobilityConstraints,
   | 'allowedTransportationModes'
   | 'maxWalkingDistancePerDayMeters'
   | 'maxContinuousWalkingDistanceMeters'
@@ -120,5 +119,48 @@ export function evaluateWalkingFeasibility(
       internalWalkingContributionMeters: candidateInternalWalkingMeters,
       incomingTravelWalkingContributionMeters: legWalkingMeters,
     },
+  };
+}
+
+export interface CyclingFeasibility {
+  violated: boolean;
+  /** Day bicycle minutes (external legs + internal legs) had the candidate
+   * been appended after `dayCyclingMinutesBefore`. */
+  projectedDayCyclingMinutes: number;
+}
+
+/**
+ * Single cycling-feasibility authority (owner D3): every bicycle leg stays
+ * within the continuous limit and, when one is set, the day's bicycle total
+ * stays within the daily limit. Measured on the routing provider's bicycle
+ * durations. Input validation guarantees resolved limits whenever cycling is
+ * allowed, so without limits no bicycle leg can be planned and nothing is
+ * checked here.
+ */
+export function evaluateCyclingFeasibility(
+  candidate: PlanningExperienceCandidate,
+  inboundTravel: TravelEstimate | null | undefined,
+  dayCyclingMinutesBefore: number,
+  limits: ResolvedCyclingLimits | null,
+): CyclingFeasibility {
+  const legMinutes =
+    inboundTravel?.mode === TransportationMode.CYCLING
+      ? inboundTravel.durationMinutes
+      : 0;
+  const projectedDayCyclingMinutes =
+    dayCyclingMinutesBefore +
+    legMinutes +
+    (candidate.mobility?.internalCyclingMinutes ?? 0);
+  if (!limits) return { violated: false, projectedDayCyclingMinutes };
+  const longestLeg = Math.max(
+    legMinutes,
+    candidate.mobility?.maxInternalContinuousCyclingMinutes ?? 0,
+  );
+  return {
+    violated:
+      longestLeg > limits.maxContinuousCyclingMinutes ||
+      (limits.maxDailyCyclingMinutes !== null &&
+        projectedDayCyclingMinutes > limits.maxDailyCyclingMinutes),
+    projectedDayCyclingMinutes,
   };
 }

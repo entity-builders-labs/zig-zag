@@ -2,45 +2,34 @@ import {
   DailyPlanningInput,
   PlanningExperienceCandidate,
   DailyPlanningWindow,
+  PlanningMobilityConstraints,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
 import {
-  MobilityPreferences,
   TravelPace,
   TransportationMode,
 } from 'src/modules/tours/interfaces/tour-generation.interface';
-import { DestinationResolution } from 'src/modules/tours/services/destination-resolution.service';
+import { GREEDY_PLANNING_POLICY_VERSIONS } from 'src/modules/tours/constants/planning-policy-versions';
+import { buildPlanningDays } from 'src/modules/tours/utils/planning-days.util';
+import { resolveForDays } from './point-footprints.util';
 
 export class TourInputBuilder {
-  private input: DailyPlanningInput;
-
-  constructor() {
-    const defaultDest: DestinationResolution = {
-      scale: 'point',
-      attemptedQueries: ['Buenos Aires, Argentina'],
-    };
-
-    this.input = {
-      destination: defaultDest,
-      requestedDays: 3,
-      candidates: [],
-      mobility: {
-        allowedTransportationModes: [
-          TransportationMode.WALKING,
-          TransportationMode.PUBLIC_TRANSPORT,
-        ],
-        maxWalkingDistancePerDayMeters: 6000,
-        maxContinuousWalkingDistanceMeters: 1500,
-        travelPace: TravelPace.MODERATE,
-        accessibilityNeeds: [],
-      },
-      travelPace: TravelPace.MODERATE,
-      planningWindow: {
-        startMinutesFromMidnight: 9 * 60, // 09:00
-        endMinutesFromMidnight: 20 * 60, // 20:00
-      },
-      startDates: ['2026-09-07T00:00:00.000Z'], // Monday
-    };
-  }
+  private requestedDays = 3;
+  private startDates: string[] = ['2026-09-07T00:00:00.000Z']; // Monday
+  private planningWindow: DailyPlanningWindow = {
+    startMinutesFromMidnight: 9 * 60, // 09:00
+    endMinutesFromMidnight: 20 * 60, // 20:00
+  };
+  private candidates: PlanningExperienceCandidate[] = [];
+  private mobility: PlanningMobilityConstraints = {
+    allowedTransportationModes: [
+      TransportationMode.WALKING,
+      TransportationMode.PUBLIC_TRANSPORT,
+    ],
+    maxWalkingDistancePerDayMeters: 6000,
+    maxContinuousWalkingDistanceMeters: 1500,
+    cycling: null,
+  };
+  private travelPace = TravelPace.MODERATE;
 
   static aTourInput(): TourInputBuilder {
     return new TourInputBuilder();
@@ -51,27 +40,22 @@ export class TourInputBuilder {
   }
 
   withRequestedDays(days: number): this {
-    this.input.requestedDays = days;
-    return this;
-  }
-
-  withDestination(dest: DestinationResolution): this {
-    this.input.destination = dest;
+    this.requestedDays = days;
     return this;
   }
 
   withCandidates(candidates: PlanningExperienceCandidate[]): this {
-    this.input.candidates = candidates;
+    this.candidates = candidates;
     return this;
   }
 
   addCandidates(...candidates: PlanningExperienceCandidate[]): this {
-    this.input.candidates.push(...candidates);
+    this.candidates.push(...candidates);
     return this;
   }
 
-  withMobility(mobility: Partial<MobilityPreferences>): this {
-    this.input.mobility = {
+  withMobility(mobility: Partial<PlanningMobilityConstraints>): this {
+    this.mobility = {
       allowedTransportationModes: mobility.allowedTransportationModes ?? [
         TransportationMode.WALKING,
       ],
@@ -79,14 +63,13 @@ export class TourInputBuilder {
         mobility.maxWalkingDistancePerDayMeters ?? 6000,
       maxContinuousWalkingDistanceMeters:
         mobility.maxContinuousWalkingDistanceMeters ?? 1500,
-      travelPace: mobility.travelPace ?? TravelPace.MODERATE,
-      accessibilityNeeds: mobility.accessibilityNeeds ?? [],
+      cycling: mobility.cycling ?? null,
     };
     return this;
   }
 
   withTravelPace(pace: TravelPace): this {
-    this.input.travelPace = pace;
+    this.travelPace = pace;
     return this;
   }
 
@@ -95,26 +78,37 @@ export class TourInputBuilder {
     end?: number,
   ): this {
     if (typeof windowOrStart === 'number' && typeof end === 'number') {
-      this.input.planningWindow = {
+      this.planningWindow = {
         startMinutesFromMidnight: windowOrStart,
         endMinutesFromMidnight: end,
       };
     } else if (typeof windowOrStart === 'object') {
-      this.input.planningWindow = windowOrStart;
+      this.planningWindow = windowOrStart;
     }
     return this;
   }
 
   withStartDates(datesOrFirst: string[] | string, ...rest: string[]): this {
-    if (Array.isArray(datesOrFirst)) {
-      this.input.startDates = datesOrFirst;
-    } else {
-      this.input.startDates = [datesOrFirst, ...rest];
-    }
+    this.startDates = Array.isArray(datesOrFirst)
+      ? datesOrFirst
+      : [datesOrFirst, ...rest];
     return this;
   }
 
   build(): DailyPlanningInput {
-    return { ...this.input };
+    const days = buildPlanningDays({
+      requestedDays: this.requestedDays,
+      startDates: this.startDates,
+      window: this.planningWindow,
+    });
+    return {
+      days,
+      candidates: this.candidates.map((candidate) =>
+        resolveForDays(candidate, days),
+      ),
+      mobility: { ...this.mobility },
+      travelPace: this.travelPace,
+      policies: GREEDY_PLANNING_POLICY_VERSIONS,
+    };
   }
 }

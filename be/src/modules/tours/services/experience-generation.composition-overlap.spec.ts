@@ -9,6 +9,8 @@ function experience(id: string, qualityScore: number) {
     canonicalName: id,
     themes: ['history'],
     qualityScore,
+    // Planning-ready: composition only offers Experiences with a duration.
+    durationMinutes: 60,
     components: [
       {
         geoEntity: {

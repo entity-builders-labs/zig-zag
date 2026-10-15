@@ -2,69 +2,123 @@ import { TourPlanningFeasibilityValidatorService } from './tour-planning-feasibi
 import {
   DailyPlanningInput,
   DailyPlanningSolution,
+  PlannedDay,
+  PlannedExperience,
+  TravelEstimate,
 } from '../interfaces/daily-planning.interface';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
 import {
-  TransportationMode,
-  TravelPace,
-} from '../interfaces/tour-generation.interface';
+  LEGACY_DURATION_PROVENANCE,
+  LEGACY_HOURS_PROVENANCE,
+  mobilityFixture,
+  planningInputFixture,
+  singleVisitCandidate,
+} from '../fixtures/planning-input.fixture';
 
 function baseInput(
-  overrides: Partial<DailyPlanningInput> = {},
+  overrides: Partial<DailyPlanningInput> & { requestedDays?: number } = {},
 ): DailyPlanningInput {
-  return {
-    destination: {} as any,
-    requestedDays: 1,
+  const { requestedDays, ...rest } = overrides;
+  return planningInputFixture({
+    dayCount: requestedDays ?? 1,
     candidates: [
-      {
-        experienceId: 'a',
-        title: 'a',
-        durationMinutes: 60,
-        spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-        startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-        endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-        semanticScore: 0.5,
-      },
+      singleVisitCandidate({ experienceId: 'a', semanticScore: 0.5 }),
     ],
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
-      maxWalkingDistancePerDayMeters: 10000,
-      maxContinuousWalkingDistanceMeters: 3000,
-      travelPace: TravelPace.MODERATE,
-      accessibilityNeeds: [],
-    },
-    travelPace: TravelPace.MODERATE,
-    planningWindow: {
-      startMinutesFromMidnight: 540,
-      endMinutesFromMidnight: 1200,
-    },
-    startDates: [],
-    ...overrides,
+    ...rest,
+  });
+}
+
+function planned(
+  experienceId: string,
+  start: number,
+  end: number,
+  travelFromPrevious: TravelEstimate | null = null,
+): PlannedExperience {
+  return {
+    experienceId,
+    startMinutesFromMidnight: start,
+    endMinutesFromMidnight: end,
+    travelFromPrevious,
+    duration: { minutes: end - start, provenance: LEGACY_DURATION_PROVENANCE },
+    openingHours: { status: 'UNKNOWN', provenance: LEGACY_HOURS_PROVENANCE },
+    bindingConstraints: [],
+  };
+}
+
+function plannedDay(
+  dayNumber: number,
+  experiences: PlannedExperience[],
+): PlannedDay {
+  return {
+    dayNumber,
+    date: null,
+    experiences,
+    totalExperienceMinutes: 60,
+    totalTravelMinutes: 0,
+    totalWalkingMinutes: 0,
+    utilizationMinutes: 60,
+    residual: { dayNumber, availableMinutes: 600, meaningful: true },
+    firstLastMileTravel: 'EXCLUDED_NO_ANCHOR',
   };
 }
 
 function validSolution(): DailyPlanningSolution {
+  const input = baseInput();
   return {
-    days: [
-      {
-        dayNumber: 1,
-        experiences: [
-          {
-            experienceId: 'a',
-            startMinutesFromMidnight: 540,
-            endMinutesFromMidnight: 600,
-          },
-        ],
-        totalExperienceMinutes: 60,
-        totalTravelMinutes: 0,
-        totalWalkingMinutes: 0,
-        utilizationMinutes: 60,
-      },
-    ],
+    days: [plannedDay(1, [planned('a', 540, 600)])],
     unselected: [],
+    inputErrors: [],
     score: 1,
-    metadata: { solver: 'test', approximateTravel: true },
+    metadata: {
+      solver: 'test',
+      policies: GREEDY_PLANNING_POLICY_VERSIONS,
+      approximateTravel: true,
+      routing: {
+        externalEstimateCount: 0,
+        internalEstimateCount: 0,
+        approximateEstimateCount: 0,
+        fallbackCount: 0,
+        providerCounts: {},
+      },
+      legs: { byMode: {}, providerBacked: 0, approximate: 0 },
+      constraints: {
+        days: input.days,
+        allowedTransportationModes: input.mobility.allowedTransportationModes,
+        maxWalkingDistancePerDayMeters:
+          input.mobility.maxWalkingDistancePerDayMeters,
+        maxContinuousWalkingDistanceMeters:
+          input.mobility.maxContinuousWalkingDistanceMeters,
+        cycling: null,
+        travelPace: input.travelPace,
+      },
+    },
   };
 }
+
+const leg = (
+  mode: TransportationMode,
+  durationMinutes: number,
+  walkingDistanceMeters: number,
+): TravelEstimate => ({
+  mode,
+  durationMinutes,
+  distanceMeters: walkingDistanceMeters || 2000,
+  walkingMinutes: walkingDistanceMeters ? durationMinutes : 0,
+  walkingDistanceMeters,
+  approximate: true,
+});
+
+const withSecondCandidate = (
+  overrides: Partial<DailyPlanningInput> = {},
+): DailyPlanningInput =>
+  baseInput({
+    candidates: [
+      singleVisitCandidate({ experienceId: 'a', semanticScore: 0.5 }),
+      singleVisitCandidate({ experienceId: 'a2', semanticScore: 0.5 }),
+    ],
+    ...overrides,
+  });
 
 describe('TourPlanningFeasibilityValidatorService', () => {
   const validator = new TourPlanningFeasibilityValidatorService();
@@ -87,20 +141,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects a duplicate activity across days', () => {
     const solution = validSolution();
-    solution.days.push({
-      dayNumber: 2,
-      experiences: [
-        {
-          experienceId: 'a',
-          startMinutesFromMidnight: 540,
-          endMinutesFromMidnight: 600,
-        },
-      ],
-      totalExperienceMinutes: 60,
-      totalTravelMinutes: 0,
-      totalWalkingMinutes: 0,
-      utilizationMinutes: 60,
-    });
+    solution.days.push(plannedDay(2, [planned('a', 540, 600)]));
     const result = validator.validate(
       solution,
       baseInput({ requestedDays: 2 }),
@@ -112,26 +153,8 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects an activity scheduled out of chronological order', () => {
     const solution = validSolution();
-    solution.days[0].experiences.push({
-      experienceId: 'a2',
-      startMinutesFromMidnight: 500,
-      endMinutesFromMidnight: 560,
-    });
-    const input = baseInput({
-      candidates: [
-        ...baseInput().candidates,
-        {
-          experienceId: 'a2',
-          title: 'a2',
-          durationMinutes: 60,
-          spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          semanticScore: 0.5,
-        },
-      ],
-    });
-    const result = validator.validate(solution, input);
+    solution.days[0].experiences.push(planned('a2', 500, 560));
+    const result = validator.validate(solution, withSecondCandidate());
     expect(
       result.issues.some(
         (issue) => issue.code === 'CHRONOLOGICAL_ORDER_VIOLATION',
@@ -170,34 +193,10 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects a travel leg using a disallowed transportation mode', () => {
     const solution = validSolution();
-    solution.days[0].experiences.push({
-      experienceId: 'a2',
-      startMinutesFromMidnight: 610,
-      endMinutesFromMidnight: 670,
-      travelFromPrevious: {
-        mode: TransportationMode.DRIVING,
-        durationMinutes: 10,
-        distanceMeters: 2000,
-        walkingMinutes: 0,
-        walkingDistanceMeters: 0,
-        approximate: true,
-      },
-    });
-    const input = baseInput({
-      candidates: [
-        ...baseInput().candidates,
-        {
-          experienceId: 'a2',
-          title: 'a2',
-          durationMinutes: 60,
-          spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          semanticScore: 0.5,
-        },
-      ],
-    });
-    const result = validator.validate(solution, input);
+    solution.days[0].experiences.push(
+      planned('a2', 610, 670, leg(TransportationMode.DRIVING, 10, 0)),
+    );
+    const result = validator.validate(solution, withSecondCandidate());
     expect(
       result.issues.some((issue) => issue.code === 'DISALLOWED_TRAVEL_MODE'),
     ).toBe(true);
@@ -205,34 +204,10 @@ describe('TourPlanningFeasibilityValidatorService', () => {
 
   it('rejects a single leg that exceeds the max continuous walking distance', () => {
     const solution = validSolution();
-    solution.days[0].experiences.push({
-      experienceId: 'a2',
-      startMinutesFromMidnight: 610,
-      endMinutesFromMidnight: 670,
-      travelFromPrevious: {
-        mode: TransportationMode.WALKING,
-        durationMinutes: 40,
-        distanceMeters: 5000,
-        walkingMinutes: 40,
-        walkingDistanceMeters: 5000,
-        approximate: true,
-      },
-    });
-    const input = baseInput({
-      candidates: [
-        ...baseInput().candidates,
-        {
-          experienceId: 'a2',
-          title: 'a2',
-          durationMinutes: 60,
-          spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          semanticScore: 0.5,
-        },
-      ],
-    });
-    const result = validator.validate(solution, input);
+    solution.days[0].experiences.push(
+      planned('a2', 610, 670, leg(TransportationMode.WALKING, 40, 5000)),
+    );
+    const result = validator.validate(solution, withSecondCandidate());
     expect(
       result.issues.some(
         (issue) => issue.code === 'MAX_CONTINUOUS_WALKING_EXCEEDED',
@@ -243,16 +218,11 @@ describe('TourPlanningFeasibilityValidatorService', () => {
   it('rejects a day whose cumulative walking distance exceeds the daily maximum', () => {
     const input = baseInput({
       candidates: [
-        {
+        singleVisitCandidate({
           experienceId: 'a',
-          title: 'a',
-          durationMinutes: 60,
-          spatialFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          startFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
-          endFootprint: { type: 'POINT', centroid: { lat: 0, lng: 0 } },
           semanticScore: 0.5,
           mobility: { internalWalkingDistanceMeters: 15000 },
-        },
+        }),
       ],
     });
     const result = validator.validate(validSolution(), input);
@@ -261,5 +231,49 @@ describe('TourPlanningFeasibilityValidatorService', () => {
         (issue) => issue.code === 'MAX_WALKING_PER_DAY_EXCEEDED',
       ),
     ).toBe(true);
+  });
+
+  it('rejects a bicycle leg longer than the resolved continuous cycling limit', () => {
+    const solution = validSolution();
+    solution.days[0].experiences.push(
+      planned('a2', 660, 720, leg(TransportationMode.CYCLING, 59, 0)),
+    );
+    const input = withSecondCandidate({
+      mobility: mobilityFixture({
+        allowedTransportationModes: [TransportationMode.CYCLING],
+        cycling: {
+          maxContinuousCyclingMinutes: 45,
+          maxDailyCyclingMinutes: null,
+          source: { kind: 'USER_STATED' },
+        },
+      }),
+    });
+    const result = validator.validate(solution, input);
+    expect(result.issues.map((issue) => issue.code)).toEqual(['CYCLING_LIMIT']);
+  });
+
+  it('accepts a bicycle leg within the resolved cycling limits', () => {
+    const solution = validSolution();
+    solution.days[0].experiences.push(
+      planned('a2', 640, 700, leg(TransportationMode.CYCLING, 40, 0)),
+    );
+    const input = withSecondCandidate({
+      mobility: mobilityFixture({
+        allowedTransportationModes: [TransportationMode.CYCLING],
+        cycling: {
+          maxContinuousCyclingMinutes: 45,
+          maxDailyCyclingMinutes: 60,
+          source: {
+            kind: 'MOBILITY_PROFILE',
+            profileName: 'test-profile',
+            profileVersion: 'v1',
+          },
+        },
+      }),
+    });
+    expect(validator.validate(solution, input)).toEqual({
+      valid: true,
+      issues: [],
+    });
   });
 });

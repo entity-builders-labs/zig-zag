@@ -2223,9 +2223,10 @@ columns, GeoEntityIdentity merge rule/evidence, Tour `readinessVerdict`
 TourExperience `endTime`, and per-component internal-timeline snapshots.
 Derived states (SUB_FEATURE_OF, PARENT_NOT_ADMITTED) and fallback durations
 are never stored; possible duplicates stay in the trace; facts are updated
-in place with version and provenance (no history tables). Persistence of L2
-assertions, the L3 ledger and research evidence memory is still to be
-mapped (enrichment / corridor products only).
+in place with version and provenance (no history tables). L2 assertions,
+research evidence, the L3 ledger and enrichment demand/attempts form one
+planning-evidence persistence model (OpenSpec design C14; see "Catalog
+layers and write authorities" below).
 
 **Catalog-first operating model (OpenSpec design C15).** The hot path is
 `request -> catalog -> planner -> Tour`. GeoEntities and Experiences are
@@ -2570,7 +2571,9 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   destination-local time — visit fully inside one window, start no later
   than last admission, KNOWN_CLOSED never scheduled, split windows and date
   exceptions honoured; daily start/end; user unavailable windows; visit
-  durations; travel time between consecutive activities; allowed and
+  durations (a catalogued Experience without usable duration knowledge is
+  not planning-ready: it stays in the catalog and is never given a default
+  duration); travel time between consecutive activities; allowed and
   estimable modes; continuous and daily walking limits (including
   access/egress walking); a hard cycling limit on bicycle travel when
   cycling is allowed (resolved by the input adapter before planning from

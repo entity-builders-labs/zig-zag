@@ -1,4 +1,9 @@
 import { ownedAuthorization } from '../fixtures/geographic-authorization.fixture';
+import {
+  mobilityFixture,
+  planningDaysFixture,
+  singleVisitCandidate,
+} from '../fixtures/planning-input.fixture';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import { CompositeGeographicValidationService } from './composite-geographic-validation.service';
 import { GeoJsonGeometry } from '@integrations/osm/utils/osm-geometry.util';
@@ -3490,14 +3495,16 @@ describe('Regression tests for forensic geographic trace evidence', () => {
 
       // 2. Planner evaluates walking feasibility and rejects with canonical MAX_WALKING_PER_DAY_EXCEEDED
       const plannerCandidate: PlanningExperienceCandidate = {
-        experienceId: 'exp-long-walk',
-        title: 'Across Buenos Aires Epic Walk',
-        durationMinutes: 90,
-        semanticScore: 1,
-        spatialFootprint: {
-          type: 'POINT',
-          centroid: { lat: -34.56, lng: -58.45 },
-        },
+        ...singleVisitCandidate({
+          experienceId: 'exp-long-walk',
+          title: 'Across Buenos Aires Epic Walk',
+          durationMinutes: 90,
+          semanticScore: 1,
+          footprint: {
+            type: 'POINT',
+            centroid: { lat: -34.56, lng: -58.45 },
+          },
+        }),
         startFootprint: {
           type: 'POINT',
           centroid: { lat: -34.6379, lng: -58.3632 },
@@ -3516,6 +3523,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
         assigned: [] as PlanningExperienceCandidate[],
         totalExperienceMinutes: 0,
         totalWalkingMeters: 0,
+        totalCyclingMinutes: 0,
       };
 
       const planningContext = {
@@ -3535,7 +3543,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
             carUrbanSpeedKmh: 25,
           },
           internalWalking: { unknownFallbackMinutes: 20 },
-          compositeDefaultDurationMinutes: 90,
           scoring: {
             semanticWeight: 1,
             qualityWeight: 0.5,
@@ -3552,17 +3559,16 @@ describe('Regression tests for forensic geographic trace evidence', () => {
             endMinutesFromMidnight: 1200,
           },
         },
-        mobility: {
-          allowedTransportationModes: [TransportationMode.WALKING],
+        mobility: mobilityFixture({
           maxWalkingDistancePerDayMeters: 8000, // 8km limit
           maxContinuousWalkingDistanceMeters: 5000,
-          travelPace: 'moderate' as any,
-          accessibilityNeeds: [] as string[],
-        },
-        planningWindow: {
-          startMinutesFromMidnight: 540,
-          endMinutesFromMidnight: 1200,
-        },
+        }),
+        days: planningDaysFixture(1, {
+          window: {
+            startMinutesFromMidnight: 540,
+            endMinutesFromMidnight: 1200,
+          },
+        }),
         travelEstimateProvider: {
           estimate: jest.fn().mockResolvedValue({
             durationMinutes: 15,
@@ -3570,7 +3576,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
             mode: TransportationMode.WALKING,
           }),
         },
-        startDates: [] as string[],
       };
 
       const plannerResult = await checkHardConstraints(

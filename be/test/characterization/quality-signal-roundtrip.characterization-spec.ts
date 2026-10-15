@@ -1,3 +1,4 @@
+import { planningDaysFixture } from 'src/modules/tours/fixtures/planning-input.fixture';
 import {
   qualityBonus,
   rankCandidatesByRelevance,
@@ -76,15 +77,12 @@ describe('CHAR-6 quality signal round-trip', () => {
     const breakdown = ranked[0].scoreBreakdown;
     expect(breakdown.qualityBonus).toBeCloseTo(0.188, 3);
 
-    const normalizer = new PlanningCandidateNormalizerService(
-      dailyPlanningPolicyConfig(),
-    );
-    const [normalized] = await normalizer.normalizeExperiences(
+    const normalizer = new PlanningCandidateNormalizerService();
+    const [normalized] = normalizer.normalizeExperiences(
       [
         {
           id: 'q',
           canonicalName: 'Rated Landmark',
-          description: '',
           durationMinutes: 90,
           latitude: -34.6,
           longitude: -58.38,
@@ -93,7 +91,8 @@ describe('CHAR-6 quality signal round-trip', () => {
         },
       ],
       new Map<string, CandidateScoreBreakdown>([['q', breakdown]]),
-    );
+      { days: planningDaysFixture(1) },
+    ).candidates;
     expect(normalized.qualityScore).toBe(4.7);
 
     const policy = dailyPlanningPolicyConfig();
@@ -143,14 +142,11 @@ describe('CHAR-6 quality signal round-trip', () => {
     const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>(
       ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
     );
-    const normalizer = new PlanningCandidateNormalizerService(
-      dailyPlanningPolicyConfig(),
-    );
-    const normalized = await normalizer.normalizeExperiences(
+    const normalizer = new PlanningCandidateNormalizerService();
+    const normalized = normalizer.normalizeExperiences(
       ['quality', 'no-quality'].map((id) => ({
         id,
         canonicalName: 'Rated Landmark',
-        description: '',
         durationMinutes: 90,
         latitude: -34.6,
         longitude: -58.38,
@@ -158,7 +154,8 @@ describe('CHAR-6 quality signal round-trip', () => {
         components: [] as any[],
       })),
       scoreBreakdownById,
-    );
+      { days: planningDaysFixture(1) },
+    ).candidates;
     const candidateWithQuality = normalized.find(
       (candidate) => candidate.experienceId === 'quality',
     )!;

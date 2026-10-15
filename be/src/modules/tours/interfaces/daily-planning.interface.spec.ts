@@ -1,11 +1,41 @@
 import {
+  AppliedOpeningHours,
   DAILY_PLANNING_SOLVER,
-  TRAVEL_ESTIMATE_PROVIDER,
-  TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+  DailyPlanningInput,
   DailyPlanningSolution,
-  PlanningExperienceCandidate,
   NormalizedOpeningHours,
+  PlannedDay,
+  PlannedExperience,
+  PlannedLegSummary,
+  PlannerConstraintSnapshot,
+  PlannerResidualCapacity,
+  PlanningComponent,
+  PlanningDay,
+  PlanningDuration,
+  PlanningExperienceCandidate,
+  PlanningMobilityConstraints,
+  PlanningPolicyVersions,
+  PlanningVisitFacts,
+  ResolvedCyclingLimits,
+  TOUR_PLANNING_FEASIBILITY_VALIDATOR,
+  TRAVEL_ESTIMATE_PROVIDER,
 } from './daily-planning.interface';
+import { singleVisitCandidate } from '../fixtures/planning-input.fixture';
+
+/** Keys of `T` declared optional (`?`). */
+type OptionalKeys<T> = {
+  [K in keyof T]-?: Record<string, never> extends Pick<T, K> ? K : never;
+}[keyof T];
+
+/**
+ * Compiles only when `Actual` is exactly `Expected`; `tsc --noEmit` and
+ * ts-jest both type-check this file, so a regression fails the build.
+ */
+type AssertExactly<Actual, Expected> = [Actual] extends [Expected]
+  ? [Expected] extends [Actual]
+    ? true
+    : never
+  : never;
 
 describe('daily-planning.interface', () => {
   it('exposes string DI tokens', () => {
@@ -16,32 +46,90 @@ describe('daily-planning.interface', () => {
     );
   });
 
-  it('constructs a valid PlanningExperienceCandidate literal', () => {
-    const footprint = { type: 'POINT' as const, centroid: { lat: 1, lng: 2 } };
-    const candidate: PlanningExperienceCandidate = {
+  it('constructs a valid single-place PlanningExperienceCandidate', () => {
+    const candidate: PlanningExperienceCandidate = singleVisitCandidate({
       experienceId: 'e1',
-      title: 'Test',
       durationMinutes: 60,
-      spatialFootprint: footprint,
-      startFootprint: footprint,
-      endFootprint: footprint,
-      semanticScore: 0.5,
-    };
-    expect(candidate.durationMinutes).toBe(60);
+    });
+    expect(candidate.components[0].visit?.duration.minutes).toBe(60);
   });
 
-  it('constructs a valid unknown NormalizedOpeningHours', () => {
+  it('keeps the legacy persisted opening-hours shape for the projection only', () => {
     const hours: NormalizedOpeningHours = { status: 'unknown' };
     expect(hours.status).toBe('unknown');
   });
 
-  it('constructs a valid empty DailyPlanningSolution', () => {
-    const solution: DailyPlanningSolution = {
-      days: [],
-      unselected: [],
-      score: 0,
-      metadata: { solver: 'test', approximateTravel: true },
-    };
-    expect(solution.days).toHaveLength(0);
+  it('requires every output field the tour-planning spec requires (type-level)', () => {
+    // Scheduled activity output: identity, times, incoming leg, duration
+    // with provenance, applied opening hours with provenance, binding
+    // constraints — none optional.
+    const plannedExperience: AssertExactly<
+      OptionalKeys<PlannedExperience>,
+      never
+    > = true;
+    const appliedHours: AssertExactly<
+      OptionalKeys<AppliedOpeningHours>,
+      never
+    > = true;
+    const duration: AssertExactly<OptionalKeys<PlanningDuration>, never> = true;
+    // Day output: used, remaining (with the meaningful judgement), travel,
+    // walking, first/last-mile record.
+    const plannedDay: AssertExactly<OptionalKeys<PlannedDay>, never> = true;
+    const residual: AssertExactly<
+      OptionalKeys<PlannerResidualCapacity>,
+      never
+    > = true;
+    // Plan output: input errors, policy versions, estimate quality, legs per
+    // mode/quality and the constraint snapshot are required; only
+    // solver-specific diagnostics stay optional.
+    const solution: AssertExactly<
+      OptionalKeys<DailyPlanningSolution>,
+      never
+    > = true;
+    const metadata: AssertExactly<
+      OptionalKeys<DailyPlanningSolution['metadata']>,
+      'iterations' | 'convergence' | 'capacityDeficits'
+    > = true;
+    const legs: AssertExactly<OptionalKeys<PlannedLegSummary>, never> = true;
+    const snapshot: AssertExactly<
+      OptionalKeys<PlannerConstraintSnapshot>,
+      never
+    > = true;
+    expect([
+      plannedExperience,
+      appliedHours,
+      duration,
+      plannedDay,
+      residual,
+      solution,
+      metadata,
+      legs,
+      snapshot,
+    ]).toEqual(Array(9).fill(true));
+  });
+
+  it('requires the planning input the tour-planning spec requires (type-level)', () => {
+    const input: AssertExactly<OptionalKeys<DailyPlanningInput>, never> = true;
+    const day: AssertExactly<OptionalKeys<PlanningDay>, never> = true;
+    const mobility: AssertExactly<
+      OptionalKeys<PlanningMobilityConstraints>,
+      never
+    > = true;
+    const cycling: AssertExactly<
+      OptionalKeys<ResolvedCyclingLimits>,
+      never
+    > = true;
+    const policies: AssertExactly<
+      OptionalKeys<PlanningPolicyVersions>,
+      never
+    > = true;
+    const component: AssertExactly<
+      OptionalKeys<PlanningComponent>,
+      never
+    > = true;
+    const facts: AssertExactly<OptionalKeys<PlanningVisitFacts>, never> = true;
+    expect([input, day, mobility, cycling, policies, component, facts]).toEqual(
+      Array(7).fill(true),
+    );
   });
 });

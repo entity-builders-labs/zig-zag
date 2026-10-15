@@ -96,17 +96,33 @@ function componentFootprint(
   return undefined;
 }
 
-export function buildOrderedComponentFootprints(
-  components: ComponentLike[] = [],
-): SpatialFootprint[] {
+/** Components in Experience order, each with its footprint; components
+ * without usable geography are left out. */
+export function buildOrderedComponentsWithFootprints<C extends ComponentLike>(
+  components: C[] = [],
+): Array<{ component: C; footprint: SpatialFootprint }> {
   return [...components]
     .sort(
       (left, right) =>
         (left.order ?? Number.MAX_SAFE_INTEGER) -
         (right.order ?? Number.MAX_SAFE_INTEGER),
     )
-    .map(componentFootprint)
-    .filter((footprint): footprint is SpatialFootprint => !!footprint);
+    .map((component) => ({
+      component,
+      footprint: componentFootprint(component),
+    }))
+    .filter(
+      (entry): entry is { component: C; footprint: SpatialFootprint } =>
+        !!entry.footprint,
+    );
+}
+
+export function buildOrderedComponentFootprints(
+  components: ComponentLike[] = [],
+): SpatialFootprint[] {
+  return buildOrderedComponentsWithFootprints(components).map(
+    (entry) => entry.footprint,
+  );
 }
 
 /**

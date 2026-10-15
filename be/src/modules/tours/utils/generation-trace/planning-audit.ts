@@ -211,9 +211,12 @@ export function recordDailyPlanningStep(
   recorder: GenerationTraceRecorder,
   input: {
     planningSolution: DailyPlanningSolution;
+    /** Catalogued Experiences left out of planning (not planning-ready). */
+    planningIneligible?: Array<{ experienceId: string; reason: string }>;
   },
 ): TraceStepV5 {
   const { planningSolution } = input;
+  const planningIneligible = input.planningIneligible ?? [];
   const selectedCount = planningSolution.days.reduce(
     (sum, day) => sum + day.experiences.length,
     0,
@@ -246,15 +249,22 @@ export function recordDailyPlanningStep(
       iterations: planningSolution.metadata.iterations,
       score: planningSolution.score,
       routing: planningSolution.metadata.routing,
+      legs: planningSolution.metadata.legs,
+      policies: planningSolution.metadata.policies,
       days: planningSolution.days.map((d) => ({
         dayNumber: d.dayNumber,
+        date: d.date,
         experienceCount: d.experiences.length,
         totalExperienceMinutes: d.totalExperienceMinutes,
         totalTravelMinutes: d.totalTravelMinutes,
         totalWalkingMinutes: d.totalWalkingMinutes,
         utilizationMinutes: d.utilizationMinutes,
+        residual: d.residual,
+        firstLastMileTravel: d.firstLastMileTravel,
       })),
       unselectedCount: planningSolution.unselected.length,
+      inputErrorCount: planningSolution.inputErrors.length,
+      planningIneligibleCount: planningIneligible.length,
     },
     rules: [
       {
@@ -298,9 +308,38 @@ export function recordDailyPlanningStep(
             order: order + 1,
             startMinutes: experience.startMinutesFromMidnight,
             endMinutes: experience.endMinutesFromMidnight,
+            // Schedule evidence; LEGACY_* provenance is visible and never
+            // evidence-backed.
+            duration: experience.duration,
+            openingHours: experience.openingHours,
+            bindingConstraints: experience.bindingConstraints,
           },
         })),
       ),
+      ...planningSolution.inputErrors.map((error) => ({
+        subject: {
+          kind: error.scope === 'CANDIDATE' ? 'experience' : 'request',
+          id: error.scope === 'CANDIDATE' ? error.experienceId : 'request',
+        },
+        decision: {
+          status: 'FAIL' as const,
+          outcome: 'INPUT_ERROR',
+          reason: error.detail,
+          reasonCodes: [error.code],
+        },
+        facts: { code: error.code },
+      })),
+      ...planningIneligible.map((item) => ({
+        subject: { kind: 'experience', id: item.experienceId },
+        decision: {
+          status: 'SKIPPED' as const,
+          outcome: 'NOT_PLANNING_READY',
+          reason:
+            'Experience catalogada sin el conocimiento requerido para planificar.',
+          reasonCodes: [item.reason],
+        },
+        facts: { reason: item.reason },
+      })),
       ...planningSolution.unselected.map((candidate) => ({
         subject: { kind: 'experience', id: candidate.experienceId },
         decision: {

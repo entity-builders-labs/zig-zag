@@ -3,6 +3,7 @@ import {
   selectDailyAnchors,
 } from './daily-planning-candidate-sort.util';
 import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
+import { singleVisitCandidate } from '../fixtures/planning-input.fixture';
 
 function candidate(
   id: string,
@@ -10,18 +11,13 @@ function candidate(
   qualityScore?: number,
   preferenceWeight?: number,
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat: 0, lng: 0 } };
-  return {
+  return singleVisitCandidate({
     experienceId: id,
-    title: id,
     durationMinutes: 60,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
     semanticScore,
     qualityScore,
     preferenceWeight,
-  };
+  });
 }
 
 describe('sortCandidatesDeterministically', () => {

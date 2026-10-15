@@ -9,6 +9,15 @@ import {
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+import {
+  LEGACY_DURATION_PROVENANCE,
+  LEGACY_HOURS_PROVENANCE,
+  legacyHoursByDay,
+  mobilityFixture,
+  planningDaysFixture,
+  singleVisitCandidate,
+  withVisitFacts,
+} from '../fixtures/planning-input.fixture';
 
 function candidate(
   id: string,
@@ -17,17 +26,18 @@ function candidate(
   durationMinutes = 60,
   semanticScore = 0.5,
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
-  return {
+  return singleVisitCandidate({
     experienceId: id,
-    title: id,
+    lat,
+    lng,
     durationMinutes,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
     semanticScore,
-  };
+  });
 }
+
+/** A real Monday, so day 1 resolves to weekday 1. */
+const MONDAY = '2026-09-07';
+const mondayDays = () => planningDaysFixture(1, { startDate: MONDAY });
 
 function realTravelEstimateProvider(): TravelEstimateProvider {
   return {
@@ -61,7 +71,6 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
-  compositeDefaultDurationMinutes: 90,
   scoring: { semanticWeight: 1, qualityWeight: 0.5, dayBalanceWeight: 0.25 },
   localImprovement: { maxIterations: 20 },
   backfill: {
@@ -76,17 +85,12 @@ const policy: DailyPlanningPolicy = {
 function context(): OrderingContext {
   return {
     travelEstimateProvider: realTravelEstimateProvider(),
-    planningWindow: {
-      startMinutesFromMidnight: 540,
-      endMinutesFromMidnight: 1200,
-    },
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
+    days: planningDaysFixture(1),
+    mobility: mobilityFixture({
       maxWalkingDistancePerDayMeters: Number.POSITIVE_INFINITY,
       maxContinuousWalkingDistanceMeters: Number.POSITIVE_INFINITY,
-    },
+    }),
     policy,
-    startDates: [],
   };
 }
 
@@ -96,27 +100,34 @@ function walkingContext(
 ): OrderingContext {
   return {
     ...context(),
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
+    mobility: mobilityFixture({
       maxContinuousWalkingDistanceMeters,
       maxWalkingDistancePerDayMeters,
-    },
+    }),
   };
 }
 
 /** 1 degree of longitude on the equator is 111 km in the test provider. */
 const METERS_PER_DEGREE = 111000;
 
-function mondayHours(
+/** Legacy weekly hours open on Mondays only, resolved for `days`. */
+function withMondayHours(
+  item: PlanningExperienceCandidate,
   startMinutesFromMidnight: number,
   endMinutesFromMidnight: number,
-): PlanningExperienceCandidate['openingHours'] {
-  return {
-    status: 'known',
-    rangesByWeekday: {
-      1: [{ startMinutesFromMidnight, endMinutesFromMidnight }],
-    },
-  };
+  days = mondayDays(),
+): PlanningExperienceCandidate {
+  return withVisitFacts(item, {
+    openingHoursByDay: legacyHoursByDay(
+      {
+        status: 'known',
+        rangesByWeekday: {
+          1: [{ startMinutesFromMidnight, endMinutesFromMidnight }],
+        },
+      },
+      days,
+    ),
+  });
 }
 
 describe('orderAndScheduleDay', () => {
@@ -130,7 +141,7 @@ describe('orderAndScheduleDay', () => {
     const day = await orderAndScheduleDay(1, [candidate('a', 0, 0)], context());
     expect(day.experiences[0].startMinutesFromMidnight).toBe(540);
     expect(day.experiences[0].endMinutesFromMidnight).toBe(600);
-    expect(day.experiences[0].travelFromPrevious).toBeUndefined();
+    expect(day.experiences[0].travelFromPrevious).toBeNull();
   });
 
   it('preserves merit for the first stop, then orders feasible stops by geography', async () => {
@@ -164,8 +175,11 @@ describe('orderAndScheduleDay', () => {
   });
 
   it('uses routed arrival time, not the pre-travel cursor, when evaluating opening hours', async () => {
-    const nearClosed = candidate('near-closed', 0, 0.001);
-    nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
+    const nearClosed = withMondayHours(
+      candidate('near-closed', 0, 0.001),
+      11 * 60,
+      18 * 60,
+    );
 
     const day = await orderAndScheduleDay(
       1,
@@ -174,7 +188,7 @@ describe('orderAndScheduleDay', () => {
         candidate('far-open', 0, 0.05),
         candidate('start', 0, 0, 60, 0.9),
       ],
-      { ...context(), startDates: ['2026-09-07'] },
+      { ...context(), days: mondayDays() },
     );
 
     expect(day.experiences.map((item) => item.experienceId)).toEqual([
@@ -192,13 +206,12 @@ describe('orderAndScheduleDay', () => {
   });
 
   it('still orders by geography when every known-hours candidate is feasible', async () => {
-    const near = candidate('near', 0, 0.001);
-    near.openingHours = mondayHours(9 * 60, 18 * 60);
+    const near = withMondayHours(candidate('near', 0, 0.001), 9 * 60, 18 * 60);
 
     const day = await orderAndScheduleDay(
       1,
       [near, candidate('far', 0, 0.01), candidate('start', 0, 0, 60, 0.9)],
-      { ...context(), startDates: ['2026-09-07'] },
+      { ...context(), days: mondayDays() },
     );
 
     expect(day.experiences.map((item) => item.experienceId)).toEqual([
@@ -209,8 +222,13 @@ describe('orderAndScheduleDay', () => {
   });
 
   it('does not enforce weekday-specific hours when no base date resolves a weekday', async () => {
-    const nearClosed = candidate('near-closed', 0, 0.001);
-    nearClosed.openingHours = mondayHours(11 * 60, 18 * 60);
+    // Undated days resolve the legacy weekly hours to UNKNOWN.
+    const nearClosed = withMondayHours(
+      candidate('near-closed', 0, 0.001),
+      11 * 60,
+      18 * 60,
+      planningDaysFixture(1),
+    );
 
     const day = await orderAndScheduleDay(
       1,
@@ -230,13 +248,16 @@ describe('orderAndScheduleDay', () => {
   });
 
   it('repairs a post-routing opening-hours conflict without aborting the whole day', async () => {
-    const closed = candidate('closed', 0, 0.001, 60, 0.2);
-    closed.openingHours = mondayHours(7 * 60, 8 * 60);
+    const closed = withMondayHours(
+      candidate('closed', 0, 0.001, 60, 0.2),
+      7 * 60,
+      8 * 60,
+    );
     const start = candidate('start', 0, 0, 60, 0.9);
 
     const repaired = await orderAndScheduleDayWithRepair(1, [start, closed], {
       ...context(),
-      startDates: ['2026-09-07'],
+      days: mondayDays(),
     });
 
     expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
@@ -255,10 +276,9 @@ describe('orderAndScheduleDay', () => {
     const ordinary = candidate('ordinary', 0, 0.001, 60, 0.9);
     const repaired = await orderAndScheduleDayWithRepair(1, [must, ordinary], {
       ...context(),
-      planningWindow: {
-        startMinutesFromMidnight: 540,
-        endMinutesFromMidnight: 630,
-      },
+      days: planningDaysFixture(1, {
+        window: { startMinutesFromMidnight: 540, endMinutesFromMidnight: 630 },
+      }),
     });
 
     expect(repaired.day.experiences.map((item) => item.experienceId)).toEqual([
@@ -459,5 +479,81 @@ describe('orderAndScheduleDayWithRepair walking feasibility', () => {
     expect(repaired.unselected).toEqual([
       { experienceId: 'second', reasons: ['MAX_WALKING_PER_DAY_EXCEEDED'] },
     ]);
+  });
+});
+
+describe('orderAndScheduleDay schedule evidence (task 25.1)', () => {
+  it('records the duration used with its provenance for each scheduled visit', async () => {
+    const day = await orderAndScheduleDay(
+      1,
+      [candidate('a', 0, 0, 75)],
+      context(),
+    );
+    expect(day.experiences[0].duration).toEqual({
+      minutes: 75,
+      provenance: LEGACY_DURATION_PROVENANCE,
+    });
+    expect(day.experiences[0].duration.provenance.evidenceBacked).toBe(false);
+  });
+
+  it('records the opening window applied, or UNKNOWN, with provenance', async () => {
+    const days = mondayDays();
+    const day = await orderAndScheduleDay(
+      1,
+      [
+        withMondayHours(
+          candidate('known', 0, 0, 60, 0.9),
+          9 * 60,
+          18 * 60,
+          days,
+        ),
+        candidate('unknown', 0, 0.001),
+      ],
+      { ...context(), days },
+    );
+    const byId = new Map(
+      day.experiences.map((item) => [item.experienceId, item]),
+    );
+    expect(byId.get('known')!.openingHours).toEqual({
+      status: 'WINDOW',
+      window: {
+        startMinutesFromMidnight: 540,
+        endMinutesFromMidnight: 1080,
+        lastAdmissionMinutesFromMidnight: null,
+      },
+      provenance: LEGACY_HOURS_PROVENANCE,
+    });
+    expect(byId.get('unknown')!.openingHours).toEqual({
+      status: 'UNKNOWN',
+      provenance: LEGACY_HOURS_PROVENANCE,
+    });
+  });
+
+  it('reports the constraints a visit touches exactly', async () => {
+    const days = mondayDays();
+    const day = await orderAndScheduleDay(
+      1,
+      [withMondayHours(candidate('a', 0, 0, 60), 9 * 60, 10 * 60, days)],
+      { ...context(), days },
+    );
+    expect(day.experiences[0].bindingConstraints).toEqual([
+      'DAY_WINDOW_START',
+      'OPENING_WINDOW_START',
+      'OPENING_WINDOW_END',
+    ]);
+  });
+
+  it('reports the remaining time with the meaningful-residual judgement and the first/last-mile exclusion', async () => {
+    const day = await orderAndScheduleDay(
+      1,
+      [candidate('a', 0, 0, 60)],
+      context(),
+    );
+    expect(day.residual).toEqual({
+      dayNumber: 1,
+      availableMinutes: 660 - 60,
+      meaningful: true,
+    });
+    expect(day.firstLastMileTravel).toBe('EXCLUDED_NO_ANCHOR');
   });
 });

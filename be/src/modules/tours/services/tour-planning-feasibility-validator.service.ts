@@ -6,8 +6,12 @@ import {
   PlanningFeasibilityResult,
   TourPlanningFeasibilityValidator,
 } from '../interfaces/daily-planning.interface';
-import { resolveWeekday } from '../utils/daily-planning-placement.util';
-import { isOpenDuring } from '../utils/normalized-opening-hours.util';
+import { TransportationMode } from '../interfaces/tour-generation.interface';
+import { evaluateVisitOpeningHours } from '../utils/normalized-opening-hours.util';
+import {
+  collapsedVisitFacts,
+  visitOpeningHoursOnDay,
+} from '../utils/planning-candidate-facts.util';
 
 @Injectable()
 export class TourPlanningFeasibilityValidatorService
@@ -19,19 +23,28 @@ export class TourPlanningFeasibilityValidatorService
   ): PlanningFeasibilityResult {
     const issues: PlanningFeasibilityIssue[] = [];
 
-    if (solution.days.length !== input.requestedDays) {
+    if (solution.days.length !== input.days.length) {
       issues.push({
         code: 'DAY_COUNT_MISMATCH',
-        message: `Expected ${input.requestedDays} days, got ${solution.days.length}.`,
+        message: `Expected ${input.days.length} days, got ${solution.days.length}.`,
       });
     }
+    const cycling = input.mobility.cycling;
 
     const seenExperienceIds = new Set<string>();
 
     for (const day of solution.days) {
-      let cursor = input.planningWindow.startMinutesFromMidnight;
+      if (day.dayNumber < 1 || day.dayNumber > input.days.length) {
+        issues.push({
+          code: 'INVALID_DAY_NUMBER',
+          message: `Day number ${day.dayNumber} is outside the requested range.`,
+        });
+        continue;
+      }
+      const planningDay = input.days[day.dayNumber - 1];
+      let cursor = planningDay.window.startMinutesFromMidnight;
       let dayWalkingMeters = 0;
-      const weekday = resolveWeekday(input.startDates, day.dayNumber);
+      let dayCyclingMinutes = 0;
 
       for (const experience of day.experiences) {
         const experienceId = experience.experienceId;
@@ -62,12 +75,15 @@ export class TourPlanningFeasibilityValidatorService
           continue;
         }
 
-        if (
-          weekday !== undefined &&
-          candidate.openingHours &&
-          !isOpenDuring(
-            candidate.openingHours,
-            weekday,
+        const facts = collapsedVisitFacts(candidate);
+        if (!facts) {
+          issues.push({
+            code: 'UNCHECKABLE_COMPOSITE_TIMELINE',
+            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} has no single-visit facts to check its schedule against.`,
+          });
+        } else if (
+          !evaluateVisitOpeningHours(
+            visitOpeningHoursOnDay(facts, day.dayNumber),
             experience.startMinutesFromMidnight,
             experience.endMinutesFromMidnight,
           )
@@ -100,6 +116,32 @@ export class TourPlanningFeasibilityValidatorService
               message: `Day ${day.dayNumber}: the leg into Experience ${experience.experienceId} exceeds the continuous walking limit.`,
             });
           }
+          if (
+            experience.travelFromPrevious.mode === TransportationMode.CYCLING
+          ) {
+            dayCyclingMinutes += experience.travelFromPrevious.durationMinutes;
+            if (
+              !cycling ||
+              experience.travelFromPrevious.durationMinutes >
+                cycling.maxContinuousCyclingMinutes
+            ) {
+              issues.push({
+                code: 'CYCLING_LIMIT',
+                message: `Day ${day.dayNumber}: the bicycle leg into Experience ${experience.experienceId} exceeds the cycling limit.`,
+              });
+            }
+          }
+        }
+        dayCyclingMinutes += candidate.mobility?.internalCyclingMinutes ?? 0;
+        if (
+          cycling &&
+          (candidate.mobility?.maxInternalContinuousCyclingMinutes ?? 0) >
+            cycling.maxContinuousCyclingMinutes
+        ) {
+          issues.push({
+            code: 'CYCLING_LIMIT',
+            message: `Day ${day.dayNumber}: Experience ${experience.experienceId} contains an internal bicycle leg that exceeds the cycling limit.`,
+          });
         }
 
         const internalWalkingDistanceMeters =
@@ -119,7 +161,16 @@ export class TourPlanningFeasibilityValidatorService
         }
       }
 
-      if (cursor > input.planningWindow.endMinutesFromMidnight) {
+      if (
+        cycling?.maxDailyCyclingMinutes != null &&
+        dayCyclingMinutes > cycling.maxDailyCyclingMinutes
+      ) {
+        issues.push({
+          code: 'CYCLING_LIMIT',
+          message: `Day ${day.dayNumber} exceeds the daily cycling limit.`,
+        });
+      }
+      if (cursor > planningDay.window.endMinutesFromMidnight) {
         issues.push({
           code: 'DAILY_TIME_CAPACITY_EXCEEDED',
           message: `Day ${day.dayNumber} runs past the planning window.`,
@@ -129,12 +180,6 @@ export class TourPlanningFeasibilityValidatorService
         issues.push({
           code: 'MAX_WALKING_PER_DAY_EXCEEDED',
           message: `Day ${day.dayNumber} exceeds the daily walking limit.`,
-        });
-      }
-      if (day.dayNumber < 1 || day.dayNumber > input.requestedDays) {
-        issues.push({
-          code: 'INVALID_DAY_NUMBER',
-          message: `Day number ${day.dayNumber} is outside the requested range.`,
         });
       }
     }

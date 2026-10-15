@@ -17,7 +17,7 @@ export class TourInvariantsAsserter {
     solution: DailyPlanningSolution,
     input: DailyPlanningInput,
   ): void {
-    expect(solution.days).toHaveLength(input.requestedDays);
+    expect(solution.days).toHaveLength(input.days.length);
     const candidateMap = new Map<string, PlanningExperienceCandidate>(
       input.candidates.map((c) => [c.experienceId!, c]),
     );
@@ -34,7 +34,7 @@ export class TourInvariantsAsserter {
         input.mobility.maxContinuousWalkingDistanceMeters,
       );
       assertNoRogueModes(day, input.mobility.allowedTransportationModes);
-      assertOpeningHoursComplied(day, candidateMap, input.startDates[0]);
+      assertOpeningHoursComplied(day, candidateMap);
       assertGeographicallyReasonable(day, candidateMap);
       for (const experience of day.experiences) {
         expect(candidateMap.has(experience.experienceId)).toBe(true);
@@ -42,7 +42,14 @@ export class TourInvariantsAsserter {
       }
     }
     expect(new Set(selected).size).toBe(selected.length);
-    const unselected = new Set(solution.unselected.map((c) => c.experienceId));
+    // Every offered candidate is scheduled, unselected with a typed reason,
+    // or rejected as invalid input.
+    const unselected = new Set([
+      ...solution.unselected.map((c) => c.experienceId),
+      ...solution.inputErrors.flatMap((error) =>
+        error.scope === 'CANDIDATE' ? [error.experienceId] : [],
+      ),
+    ]);
     for (const candidate of input.candidates) {
       if (!selected.includes(candidate.experienceId!))
         expect(unselected.has(candidate.experienceId!)).toBe(true);

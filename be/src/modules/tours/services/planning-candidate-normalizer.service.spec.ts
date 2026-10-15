@@ -1,160 +1,219 @@
-import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
+import {
+  PlanningCandidateNormalizerService,
+  PlanningProjectableExperience,
+  partitionPlanningReady,
+} from './planning-candidate-normalizer.service';
+import { collapsedVisitFacts } from '../utils/planning-candidate-facts.util';
+import {
+  LEGACY_DURATION_PROVENANCE,
+  LEGACY_HOURS_PROVENANCE,
+  planningDaysFixture,
+} from '../fixtures/planning-input.fixture';
+
+/** Two days starting on a Monday (2026-09-07), so day 1 is weekday 1. */
+const DAYS = planningDaysFixture(2, { startDate: '2026-09-07' });
+
+const venue = (
+  geoEntityId: string,
+  latitude: number,
+  longitude: number,
+  extra: Record<string, unknown> = {},
+) => ({
+  geoEntityId,
+  role: 'venue',
+  required: true,
+  geoEntity: { latitude, longitude },
+  ...extra,
+});
 
 describe('PlanningCandidateNormalizerService', () => {
-  let service: PlanningCandidateNormalizerService;
+  const service = new PlanningCandidateNormalizerService();
+  const normalize = (
+    experiences: PlanningProjectableExperience[],
+    context: Partial<
+      Parameters<PlanningCandidateNormalizerService['normalizeExperiences']>[2]
+    > = {},
+    scores = new Map(),
+  ) =>
+    service.normalizeExperiences(experiences, scores, {
+      days: DAYS,
+      ...context,
+    });
 
-  beforeEach(() => {
-    service = new PlanningCandidateNormalizerService({
-      compositeDefaultDurationMinutes: 90,
-    } as any);
-  });
-
-  it('carries persisted Experience duration in planning minutes exactly once', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
+  describe('planning readiness (catalogued != planning-ready)', () => {
+    it('excludes an Experience without a usable duration instead of defaulting one', () => {
+      const result = normalize([
         {
-          id: 'e1',
+          id: 'no-duration',
+          canonicalName: 'Circuito',
+          components: [venue('g', 1, 2)],
+        },
+        {
+          id: 'zero',
+          canonicalName: 'Cero',
+          durationMinutes: 0,
+          components: [venue('g0', 1, 2)],
+        },
+        {
+          id: 'ok',
           canonicalName: 'Museo',
-          latitude: 1,
-          longitude: 2,
-          durationMinutes: 150,
+          durationMinutes: 90,
+          components: [venue('g1', 1, 2)],
         },
-      ],
-      new Map(),
-    );
-    expect(candidate.durationMinutes).toBe(150);
-  });
+      ]);
+      expect(
+        result.candidates.map((candidate) => candidate.experienceId),
+      ).toEqual(['ok']);
+      expect(result.ineligible).toEqual([
+        { experienceId: 'no-duration', reason: 'MISSING_REQUIRED_DURATION' },
+        { experienceId: 'zero', reason: 'MISSING_REQUIRED_DURATION' },
+      ]);
+    });
 
-  it('uses canonical identity and component coordinate fallback', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'e2',
-          canonicalName: 'Paseo',
-          latitude: null,
-          longitude: null,
-          durationMinutes: 75,
-          components: [{ geoEntity: { latitude: -34.6, longitude: -58.4 } }],
-        },
-      ],
-      new Map(),
-    );
-    expect(candidate.experienceId).toBe('e2');
-    expect(candidate.durationMinutes).toBe(75);
-    expect(candidate.spatialFootprint.centroid).toEqual({
-      lat: -34.6,
-      lng: -58.4,
+    it('partitions the same way for composition as for projection', () => {
+      const { ready, ineligible } = partitionPlanningReady([
+        { id: 'a', durationMinutes: 45 },
+        { id: 'b', durationMinutes: null },
+      ]);
+      expect(ready.map((item) => item.id)).toEqual(['a']);
+      expect(ineligible).toEqual([
+        { experienceId: 'b', reason: 'MISSING_REQUIRED_DURATION' },
+      ]);
     });
   });
 
-  it('uses all required component points for a multi-component Experience', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
+  it('labels the legacy duration as transitional, non-evidence provenance', () => {
+    const [candidate] = normalize([
+      {
+        id: 'e1',
+        canonicalName: 'Museo',
+        durationMinutes: 150,
+        components: [venue('g1', 1, 2)],
+      },
+    ]).candidates;
+    expect(collapsedVisitFacts(candidate)!.duration).toEqual({
+      minutes: 150,
+      provenance: LEGACY_DURATION_PROVENANCE,
+    });
+    expect(LEGACY_DURATION_PROVENANCE.evidenceBacked).toBe(false);
+  });
+
+  it('collapses a single-place Experience to its one VISIT component’s duration and availability', () => {
+    const [candidate] = normalize([
+      {
+        id: 'poi',
+        canonicalName: 'Museo',
+        latitude: -34.6,
+        longitude: -58.4,
+        durationMinutes: 75,
+        openingHours: {
+          status: 'known',
+          rangesByWeekday: {
+            1: [
+              { startMinutesFromMidnight: 600, endMinutesFromMidnight: 1080 },
+            ],
+            2: [],
+          },
+        },
+        components: [venue('g-poi', -34.6, -58.4, { order: 1 })],
+      },
+    ]).candidates;
+
+    expect(candidate.components).toHaveLength(1);
+    const [component] = candidate.components;
+    expect(component.participation).toBe('VISIT');
+    expect(candidate.legacyExperienceFacts).toBeNull();
+    expect(collapsedVisitFacts(candidate)).toBe(component.visit);
+    expect(component.visit).toEqual({
+      duration: { minutes: 75, provenance: LEGACY_DURATION_PROVENANCE },
+      openingHoursByDay: [
         {
-          id: 'multi',
-          canonicalName: 'Historic walk',
-          latitude: -34.6,
-          longitude: -58.4,
-          components: [
+          status: 'KNOWN_OPEN_WINDOW',
+          windows: [
             {
-              order: 1,
-              required: true,
-              geoEntity: { latitude: -34.6, longitude: -58.4 },
-            },
-            {
-              order: 2,
-              required: true,
-              geoEntity: { latitude: -34.62, longitude: -58.42 },
+              startMinutesFromMidnight: 600,
+              endMinutesFromMidnight: 1080,
+              lastAdmissionMinutesFromMidnight: null,
             },
           ],
+          provenance: LEGACY_HOURS_PROVENANCE,
         },
+        { status: 'KNOWN_CLOSED', provenance: LEGACY_HOURS_PROVENANCE },
       ],
-      new Map(),
-    );
-
-    expect(candidate.spatialFootprint.type).toBe('AREA');
-    expect(candidate.spatialFootprint.centroid).toEqual({
-      lat: -34.61,
-      lng: -58.41,
     });
+    expect(candidate.startFootprint).toEqual(candidate.spatialFootprint);
+    expect(candidate.endFootprint).toEqual(candidate.spatialFootprint);
+  });
+
+  it('keeps legacy reading of hours: a missing weekday and an undated day are UNKNOWN', () => {
+    const experience: PlanningProjectableExperience = {
+      id: 'poi',
+      durationMinutes: 60,
+      openingHours: {
+        status: 'known',
+        rangesByWeekday: {
+          3: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 700 }],
+        },
+      },
+      components: [venue('g', 1, 2)],
+    };
+    const dated = normalize([experience]).candidates[0];
     expect(
-      candidate.spatialFootprint.type === 'AREA'
-        ? candidate.spatialFootprint.bounds
-        : undefined,
-    ).toEqual({
-      north: -34.6,
-      south: -34.62,
-      east: -58.4,
-      west: -58.42,
-    });
-  });
+      collapsedVisitFacts(dated)!.openingHoursByDay.map((day) => day.status),
+    ).toEqual(['UNKNOWN', 'UNKNOWN']);
 
-  // Stage 4: every persisted component is a member of the admitted source
-  // composition; a legacy `required:false` row no longer hides a component
-  // from the planner's footprint.
-  it('preserves ordered footprints for every persisted component, whatever `required` says', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'composite',
-          canonicalName: 'Three-stop walk',
-          components: [
-            {
-              order: 2,
-              required: true,
-              geoEntity: { latitude: -34.601, longitude: -58.401 },
-            },
-            {
-              order: 1,
-              required: true,
-              geoEntity: { latitude: -34.6, longitude: -58.4 },
-            },
-            {
-              order: 3,
-              required: false,
-              geoEntity: { latitude: -35, longitude: -59 },
-            },
-          ],
-        },
-      ],
-      new Map(),
-    );
-
-    expect(candidate.componentFootprints).toEqual([
-      { type: 'POINT', centroid: { lat: -34.6, lng: -58.4 } },
-      { type: 'POINT', centroid: { lat: -34.601, lng: -58.401 } },
-      { type: 'POINT', centroid: { lat: -35, lng: -59 } },
+    const undated = service.normalizeExperiences([experience], new Map(), {
+      days: planningDaysFixture(1),
+    }).candidates[0];
+    expect(collapsedVisitFacts(undated)!.openingHoursByDay).toEqual([
+      { status: 'UNKNOWN', provenance: LEGACY_HOURS_PROVENANCE },
     ]);
   });
 
-  it('derives startFootprint/endFootprint from the first/last component of a multi-component Experience', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'walk',
-          canonicalName: 'Three-stop walk',
-          components: [
-            {
-              order: 2,
-              required: true,
-              geoEntity: { latitude: -34.601, longitude: -58.401 },
-            },
-            {
-              order: 1,
-              required: true,
-              geoEntity: { latitude: -34.6, longitude: -58.4 },
-            },
-            {
-              order: 3,
-              required: true,
-              geoEntity: { latitude: -34.603, longitude: -58.403 },
-            },
-          ],
-        },
-      ],
-      new Map(),
-    );
+  it('projects a composite as one candidate whose components keep their order', () => {
+    const [candidate] = normalize([
+      {
+        id: 'walk',
+        canonicalName: 'Three-stop walk',
+        durationMinutes: 120,
+        components: [
+          venue('g2', -34.601, -58.401, { order: 2 }),
+          {
+            geoEntityId: 'g-route',
+            role: 'route',
+            order: 1,
+            geoEntity: { latitude: -34.6, longitude: -58.4 },
+          },
+          {
+            geoEntityId: 'g-area',
+            role: 'area',
+            order: 3,
+            geoEntity: { latitude: -34.603, longitude: -58.403 },
+          },
+          { geoEntityId: null, role: 'venue', order: 4, geoEntity: null },
+        ],
+      },
+    ]).candidates;
 
+    expect(
+      candidate.components.map((component) => [
+        component.order,
+        component.geoEntityId,
+        component.participation,
+      ]),
+    ).toEqual([
+      [0, 'g-route', 'TRAVERSE'],
+      [1, 'g2', 'VISIT'],
+      [2, 'g-area', null],
+    ]);
+    // A legacy composite holds its facts only for the whole Experience.
+    expect(
+      candidate.components.every((component) => component.visit === null),
+    ).toBe(true);
+    expect(candidate.legacyExperienceFacts!.duration).toEqual({
+      minutes: 120,
+      provenance: LEGACY_DURATION_PROVENANCE,
+    });
     expect(candidate.startFootprint).toEqual({
       type: 'POINT',
       centroid: { lat: -34.6, lng: -58.4 },
@@ -163,136 +222,93 @@ describe('PlanningCandidateNormalizerService', () => {
       type: 'POINT',
       centroid: { lat: -34.603, lng: -58.403 },
     });
-    // Regression guard: start/end must NOT both collapse to the generic
-    // (centroid) spatialFootprint for a real multi-stop Experience.
-    expect(candidate.startFootprint).not.toEqual(candidate.spatialFootprint);
-    expect(candidate.endFootprint).not.toEqual(candidate.spatialFootprint);
   });
 
-  it('collapses startFootprint/endFootprint to spatialFootprint for a single-component (or component-less) Experience', async () => {
-    const [singleComponent] = await service.normalizeExperiences(
-      [
-        {
-          id: 'poi',
-          canonicalName: 'Museo',
-          latitude: -34.6,
-          longitude: -58.4,
-          components: [
-            {
-              order: 1,
-              required: true,
-              geoEntity: { latitude: -34.6, longitude: -58.4 },
-            },
-          ],
-        },
-      ],
-      new Map(),
-    );
-    expect(singleComponent.startFootprint).toEqual(
-      singleComponent.spatialFootprint,
-    );
-    expect(singleComponent.endFootprint).toEqual(
-      singleComponent.spatialFootprint,
-    );
+  it('uses all component points for a multi-component Experience footprint', () => {
+    const [candidate] = normalize([
+      {
+        id: 'multi',
+        canonicalName: 'Historic walk',
+        latitude: -34.6,
+        longitude: -58.4,
+        durationMinutes: 60,
+        components: [
+          venue('g1', -34.6, -58.4, { order: 1 }),
+          venue('g2', -34.62, -58.42, { order: 2 }),
+        ],
+      },
+    ]).candidates;
 
-    const [noComponents] = await service.normalizeExperiences(
-      [{ id: 'poi2', canonicalName: 'Plaza', latitude: 1, longitude: 2 }],
-      new Map(),
-    );
-    expect(noComponents.startFootprint).toEqual(noComponents.spatialFootprint);
-    expect(noComponents.endFootprint).toEqual(noComponents.spatialFootprint);
+    expect(candidate.spatialFootprint.type).toBe('AREA');
+    expect(candidate.spatialFootprint.centroid).toEqual({
+      lat: -34.61,
+      lng: -58.41,
+    });
   });
 
-  it('preserves canonical ROUTE geometry as a LINE planning footprint', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'route',
-          canonicalName: 'Wine route',
-          components: [
-            {
-              required: true,
-              role: 'route',
-              geoEntity: {
-                geometry: {
-                  type: 'LineString',
-                  coordinates: [
-                    [-68.85, -32.9],
-                    [-68.8, -32.95],
-                    [-68.75, -33.0],
-                  ],
-                },
+  it('preserves canonical ROUTE geometry as a LINE planning footprint', () => {
+    const [candidate] = normalize([
+      {
+        id: 'route',
+        canonicalName: 'Wine route',
+        durationMinutes: 240,
+        components: [
+          {
+            geoEntityId: 'g-route',
+            required: true,
+            role: 'route',
+            geoEntity: {
+              geometry: {
+                type: 'LineString',
+                coordinates: [
+                  [-68.85, -32.9],
+                  [-68.8, -32.95],
+                  [-68.75, -33.0],
+                ],
               },
             },
-          ],
-        },
-      ],
-      new Map(),
-    );
+          },
+        ],
+      },
+    ]).candidates;
 
     expect(candidate.spatialFootprint.type).toBe('LINE');
     if (candidate.spatialFootprint.type !== 'LINE') {
       throw new Error('Expected LINE footprint');
     }
     expect(candidate.spatialFootprint.geometry).toHaveLength(3);
-    expect(candidate.spatialFootprint.centroid.lat).toBeCloseTo(-32.95);
-    expect(candidate.spatialFootprint.centroid.lng).toBeCloseTo(-68.8);
+    // A route-only Experience is not a single VISIT: its facts stay at the
+    // Experience level.
+    expect(candidate.legacyExperienceFacts).not.toBeNull();
   });
 
-  it('uses the configured default when an Experience has no duration', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [{ id: 'e3', canonicalName: 'Circuito', latitude: 1, longitude: 2 }],
-      new Map(),
-    );
-    expect(candidate.durationMinutes).toBe(90);
-  });
-
-  it('preserves an explicit composite duration over the default', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'e4',
-          canonicalName: 'Ruta',
-          latitude: 1,
-          longitude: 2,
-          durationMinutes: 120,
-        },
-      ],
-      new Map(),
-    );
-    expect(candidate.durationMinutes).toBe(120);
-  });
-
-  it('carries raw canonical Experience quality into the planner contract', async () => {
-    const [candidate] = await service.normalizeExperiences(
+  it('carries raw canonical Experience quality into the planner contract', () => {
+    const [candidate] = normalize(
       [
         {
           id: 'e5',
           canonicalName: 'Comida',
-          latitude: 1,
-          longitude: 2,
+          durationMinutes: 60,
           qualityScore: 4.7,
+          components: [venue('g5', 1, 2)],
         },
       ],
+      {},
       new Map([['e5', { semanticSimilarity: 0.8, qualityBonus: 0.4 } as any]]),
-    );
+    ).candidates;
     expect(candidate.semanticScore).toBe(0.8);
     expect(candidate.qualityScore).toBe(4.7);
   });
 
-  it('carries preference weight and only resolved MUST venue IDs', async () => {
-    const [must, soft, ordinary] = await service.normalizeExperiences(
-      [
-        { id: 'must', canonicalName: 'Must', latitude: 1, longitude: 2 },
-        { id: 'soft', canonicalName: 'Soft', latitude: 1, longitude: 2 },
-        {
-          id: 'ordinary',
-          canonicalName: 'Ordinary',
-          latitude: 1,
-          longitude: 2,
-        },
-      ],
-      new Map(),
+  it('carries preference weight and only resolved MUST venue IDs', () => {
+    const experience = (id: string) => ({
+      id,
+      canonicalName: id,
+      durationMinutes: 60,
+      components: [venue(`g-${id}`, 1, 2)],
+    });
+    const [must, soft, ordinary] = normalize(
+      [experience('must'), experience('soft'), experience('ordinary')],
       {
         preferenceWeightById: new Map([
           ['must', 1.7],
@@ -300,81 +316,50 @@ describe('PlanningCandidateNormalizerService', () => {
         ]),
         mustIncludeExperienceIds: new Set(['must']),
       },
-    );
+    ).candidates;
 
     expect(must.preferenceWeight).toBe(1.7);
     expect(must.mustInclude).toBe(true);
-    expect(soft).toMatchObject({ preferenceWeight: 0.4 });
-    expect(soft.mustInclude).toBeUndefined();
-    expect(ordinary.mustInclude).toBeUndefined();
+    expect(soft).toMatchObject({ preferenceWeight: 0.4, mustInclude: false });
+    expect(ordinary.mustInclude).toBe(false);
+    expect(ordinary.preferenceWeight).toBeUndefined();
   });
 
-  it('keeps absent contract inputs neutral for direct planner callers', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [{ id: 'direct', canonicalName: 'Direct', latitude: 1, longitude: 2 }],
-      new Map(),
-    );
-    expect(candidate.preferenceWeight).toBeUndefined();
-    expect(candidate.mustInclude).toBeUndefined();
-  });
-
-  it('does not expose legacy structural format fields', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'e6',
-          canonicalName: 'Experiencia',
-          latitude: 1,
-          longitude: 2,
+  it('preserves acquisition-provided internal mobility without deriving it from duration', () => {
+    const [candidate] = normalize([
+      {
+        id: 'e7',
+        canonicalName: 'Caminata',
+        durationMinutes: 180,
+        mobility: {
+          internalWalkingMinutes: 5,
+          internalWalkingDistanceMeters: 300,
         },
-      ],
-      new Map(),
-    );
-    expect(candidate.experienceId).toBe('e6');
-    expect('formats' in candidate).toBe(false);
-    expect('kind' in candidate).toBe(false);
-  });
-
-  it('preserves acquisition-provided internal mobility without deriving it from duration', async () => {
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'e7',
-          canonicalName: 'Caminata',
-          latitude: 1,
-          longitude: 2,
-          durationMinutes: 180,
-          mobility: {
-            internalWalkingMinutes: 5,
-            internalWalkingDistanceMeters: 300,
-          },
-        },
-      ],
-      new Map(),
-    );
+        components: [venue('g7', 1, 2)],
+      },
+    ]).candidates;
     expect(candidate.mobility).toEqual({
       internalWalkingMinutes: 5,
       internalWalkingDistanceMeters: 300,
+      maxInternalContinuousWalkingDistanceMeters: undefined,
       internalTravelMinutes: undefined,
       routingProviderCounts: undefined,
       routingFallbackCount: undefined,
     });
   });
 
-  it('passes through normalized opening hours from the verified catalog', async () => {
-    const openingHours = { status: 'unknown' as const };
-    const [candidate] = await service.normalizeExperiences(
-      [
-        {
-          id: 'e8',
-          canonicalName: 'Parque',
-          latitude: 1,
-          longitude: 2,
-          openingHours,
-        },
-      ],
-      new Map(),
-    );
-    expect(candidate.openingHours).toEqual(openingHours);
+  it('does not expose legacy structural format fields', () => {
+    const [candidate] = normalize([
+      {
+        id: 'e6',
+        canonicalName: 'Experiencia',
+        durationMinutes: 60,
+        components: [venue('g6', 1, 2)],
+      },
+    ]).candidates;
+    expect('formats' in candidate).toBe(false);
+    expect('kind' in candidate).toBe(false);
+    expect('durationMinutes' in candidate).toBe(false);
+    expect('openingHours' in candidate).toBe(false);
   });
 });

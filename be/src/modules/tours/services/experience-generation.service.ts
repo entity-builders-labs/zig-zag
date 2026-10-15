@@ -49,7 +49,13 @@ import {
   UnmetRequestedFormatIssue,
 } from '../interfaces/tour-completeness.interface';
 import { FinalExperienceResolutionResponse } from '../interfaces/experience-resolution.interface';
-import { PlanningCandidateNormalizerService } from './planning-candidate-normalizer.service';
+import {
+  PlanningCandidateNormalizerService,
+  PlanningIneligibleExperience,
+  partitionPlanningReady,
+} from './planning-candidate-normalizer.service';
+import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
+import { buildPlanningDays } from '../utils/planning-days.util';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
@@ -89,7 +95,6 @@ import { VenueAnchorResolutionService } from './venue-anchor-resolution.service'
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
 import { plannerRelevanceScore } from '../utils/daily-planning-candidate-sort.util';
-import { plannerResidualCapacity } from '../utils/daily-planning-convergence.util';
 import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
 import {
   FacetRetrievalScope,
@@ -145,6 +150,8 @@ interface CandidateSelection {
   preferenceWeightById: Map<string, number>;
   mustIncludeExperienceIds: Set<string>;
   compositionOrderScoreById: Map<string, number>;
+  /** Catalogued Experiences left out of planning (not planning-ready). */
+  planningIneligible: PlanningIneligibleExperience[];
 }
 
 type PromotionStopReason =
@@ -468,8 +475,11 @@ export class ExperienceGenerationService {
     resolvedVenueSoftIds: string[] = [],
     resolvedVenueMustAnchorNames: string[] = [],
   ): Promise<CandidateSelection> {
+    // A catalogued Experience is composed for planning only when it is
+    // planning-ready; the others stay catalogued and are traced.
+    const readiness = partitionPlanningReady(experiences);
     const composition = await this.experienceComposition.compose({
-      experiences,
+      experiences: readiness.ready,
       preferenceSpec,
       resolvedVenueMustIds,
       resolvedVenueSoftIds,
@@ -529,6 +539,7 @@ export class ExperienceGenerationService {
       preferenceWeightById: composition.preferenceWeightById,
       mustIncludeExperienceIds: new Set(resolvedVenueMustIds),
       compositionOrderScoreById,
+      planningIneligible: readiness.ineligible,
     };
   }
 
@@ -715,16 +726,19 @@ export class ExperienceGenerationService {
       )
       .filter((experience): experience is any => Boolean(experience));
     const mustIncludeIds = selection.mustIncludeExperienceIds;
+    // The selection holds only planning-ready Experiences, so the
+    // projection excludes nothing more here.
     const normalizePlanningPool = (experiences: any[]) =>
       this.planningCandidateNormalizer.normalizeExperiences(
         experiences,
         selection.scoreBreakdownById,
         {
+          days: planningBase.days,
           preferenceWeightById: selection.preferenceWeightById,
           mustIncludeExperienceIds: mustIncludeIds,
         },
-      );
-    const planningCandidates = await normalizePlanningPool(initialPool);
+      ).candidates;
+    const planningCandidates = normalizePlanningPool(initialPool);
     const planningInput: DailyPlanningInput = {
       ...planningBase,
       candidates: planningCandidates,
@@ -761,11 +775,7 @@ export class ExperienceGenerationService {
         .flatMap((day) => day.experiences)
         .filter((planned) => mustIncludeIds.has(planned.experienceId)).length;
     const meaningfulResidualCapacity = (solution: DailyPlanningSolution) =>
-      plannerResidualCapacity(
-        solution,
-        this.dailyPlanningPolicy.window,
-        this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
-      ).some((residual) => residual.meaningful);
+      solution.days.some((day) => day.residual.meaningful);
 
     let planningSolution = await this.dailyPlanningSolver.solve(planningInput);
     let admittedPlanningCandidates = [...planningCandidates];
@@ -785,7 +795,7 @@ export class ExperienceGenerationService {
         break;
       }
       promotionAttempts++;
-      const promotedCandidates = await normalizePlanningPool([
+      const promotedCandidates = normalizePlanningPool([
         ...initialPool,
         ...admittedPlanningCandidates
           .filter((candidate) => !initialIds.has(candidate.experienceId))
@@ -830,16 +840,10 @@ export class ExperienceGenerationService {
     ) {
       promotionStopReason = 'RESERVOIR_EXHAUSTED';
     }
-    planningSolution.metadata.residualCapacity = plannerResidualCapacity(
-      planningSolution,
-      this.dailyPlanningPolicy.window,
-      this.dailyPlanningPolicy.backfill.minimumUsefulResidualMinutes,
-    );
-    const residuals = planningSolution.metadata.residualCapacity;
-    const meaningfulResidual = residuals?.find(
-      (residual) => residual.meaningful,
-    );
-    if (residuals && promotionAttempts >= reservoirPool.length) {
+    const meaningfulResidual = planningSolution.days
+      .map((day) => day.residual)
+      .find((residual) => residual.meaningful);
+    if (promotionAttempts >= reservoirPool.length) {
       planningSolution.metadata.capacityDeficits = meaningfulResidual
         ? [
             {
@@ -1379,12 +1383,25 @@ export class ExperienceGenerationService {
       );
 
       const planningBase: Omit<DailyPlanningInput, 'candidates'> = {
-        destination: destinationResolution,
-        requestedDays: request.days,
-        mobility: request.mobility,
+        days: buildPlanningDays({
+          requestedDays: request.days,
+          startDates: request.startDates,
+          window: this.dailyPlanningPolicy.window,
+        }),
+        mobility: {
+          allowedTransportationModes:
+            request.mobility.allowedTransportationModes,
+          maxWalkingDistancePerDayMeters:
+            request.mobility.maxWalkingDistancePerDayMeters,
+          maxContinuousWalkingDistanceMeters:
+            request.mobility.maxContinuousWalkingDistanceMeters,
+          // No input adapter resolves a cycling limit yet (owner D3): a
+          // request that allows cycling is invalid planning input and fails
+          // explicitly instead of planning without its hard limit.
+          cycling: null,
+        },
         travelPace: request.mobility.travelPace,
-        planningWindow: this.dailyPlanningPolicy.window,
-        startDates: request.startDates,
+        policies: GREEDY_PLANNING_POLICY_VERSIONS,
       };
 
       // ── GATHER: planner capacity ──
@@ -1558,7 +1575,10 @@ export class ExperienceGenerationService {
         );
       }
 
-      recordDailyPlanningStep(traceRecorder, { planningSolution });
+      recordDailyPlanningStep(traceRecorder, {
+        planningSolution,
+        planningIneligible: plan.selection.planningIneligible,
+      });
       recordFinalSelectionStep(traceRecorder, {
         acquisitionEpoch,
         selectedIds: plan.selection.initialExperiences.map(
@@ -1596,8 +1616,7 @@ export class ExperienceGenerationService {
         'NO_ALLOWED_TRAVEL_MODE',
         'OPENING_HOURS_INCOMPATIBLE',
         'NO_FEASIBLE_DAY',
-        'INVALID_SPATIAL_FOOTPRINT',
-        'INVALID_COMPOSITE',
+        'CYCLING_LIMIT',
       ]);
       const infeasiblyUnselected = planningSolution.unselected.filter(
         (unselected) =>

@@ -26,11 +26,11 @@ describe('PBT-05: Opening Hours Compliance [Invariant 5]', () => {
 
           const solution = await solver.solve(input);
           const candidateMap = new Map(
-            candidates.map((c) => [c.experienceId, c]),
+            input.candidates.map((c) => [c.experienceId, c]),
           );
 
           for (const day of solution.days) {
-            assertOpeningHoursComplied(day, candidateMap, input.startDates[0]);
+            assertOpeningHoursComplied(day, candidateMap);
           }
 
           TourInvariantsAsserter.assertAll12Invariants(solution, input);

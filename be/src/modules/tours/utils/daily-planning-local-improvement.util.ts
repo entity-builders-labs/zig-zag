@@ -84,10 +84,13 @@ function transferCandidateTotals(
 ): void {
   const minutes = candidateExperienceMinutes(candidate);
   const walkingMeters = internalWalkingMeters(candidate, context.policy);
+  const cyclingMinutes = candidate.mobility?.internalCyclingMinutes ?? 0;
   from.totalExperienceMinutes -= minutes;
   to.totalExperienceMinutes += minutes;
   from.totalWalkingMeters -= walkingMeters;
   to.totalWalkingMeters += walkingMeters;
+  from.totalCyclingMinutes -= cyclingMinutes;
+  to.totalCyclingMinutes += cyclingMinutes;
 }
 
 /** Move: relocate one Experience from a day with meaningfully more assigned

@@ -2,7 +2,7 @@ import {
   PlannedDay,
   PlanningExperienceCandidate,
 } from 'src/modules/tours/interfaces/daily-planning.interface';
-import { resolveWeekday } from 'src/modules/tours/utils/daily-planning-placement.util';
+import { collapsedVisitFacts } from 'src/modules/tours/utils/planning-candidate-facts.util';
 
 /**
  * Calculates geodesic haversine distance between two coordinates in meters.
@@ -100,30 +100,33 @@ export function assertNoRogueModes(
 
 /**
  * Asserts that scheduled activities comply with opening hours when known.
- * An activity explicitly closed on a weekday (ranges = []) must NEVER be scheduled on that weekday.
+ * An activity known closed on a planning day must NEVER be scheduled on it,
+ * and a known window must contain the whole visit.
  */
 export function assertOpeningHoursComplied(
   day: PlannedDay,
   candidatesMap: Map<string, PlanningExperienceCandidate>,
-  startDateIso?: string,
 ): void {
   for (const act of day.experiences) {
     const candidate = candidatesMap.get(act.experienceId);
-    if (!candidate || !candidate.openingHours) {
-      continue;
+    const facts = candidate ? collapsedVisitFacts(candidate) : null;
+    if (!facts) continue;
+
+    const knowledge = facts.openingHoursByDay[day.dayNumber - 1];
+    if (knowledge.status === 'KNOWN_CLOSED') {
+      // Hard constraint: explicitly closed that day
+      throw new Error(
+        `Experience ${act.experienceId} scheduled on Day ${day.dayNumber} (${day.date}) but is known closed that day`,
+      );
     }
-
-    if (candidate.openingHours.status === 'known' && startDateIso) {
-      const weekday = resolveWeekday([startDateIso], day.dayNumber);
-      if (weekday === undefined) continue;
-
-      const ranges = candidate.openingHours.rangesByWeekday[weekday];
-      if (ranges && ranges.length === 0) {
-        // Hard constraint: explicitly closed that day
-        throw new Error(
-          `Experience ${act.experienceId} scheduled on Day ${day.dayNumber} (${startDateIso}) but is explicitly closed on weekday ${weekday}`,
-        );
-      }
+    if (knowledge.status === 'KNOWN_OPEN_WINDOW') {
+      expect(
+        knowledge.windows.some(
+          (window) =>
+            act.startMinutesFromMidnight >= window.startMinutesFromMidnight &&
+            act.endMinutesFromMidnight <= window.endMinutesFromMidnight,
+        ),
+      ).toBe(true);
     }
   }
 }

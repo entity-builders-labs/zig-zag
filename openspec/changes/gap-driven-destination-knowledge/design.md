@@ -395,6 +395,45 @@ per mode and per quality. The Tour snapshot persists this evidence
 (tour-composition); the existing `TourActivity.travelTimeToNext` /
 `distanceToNext` / mode transition is the minimum and is extended per R4-D1.
 
+*Implemented contract (task 25.1, 2026-10-15).* `daily-planning.interface.ts`
+carries the contract above, replacing the earlier types:
+- **Candidate:** ordered `components` (VISIT / TRAVERSE / null for a legacy
+  area member), VISIT facts (`duration` with provenance and
+  `openingHoursByDay`, one entry per planning day), an optional bounded
+  `requiredTraversal`, footprints and `mustInclude`. A single-place
+  Experience's facts sit on its one VISIT component.
+- **Request:** `days` (date, `timezone` RESOLVED / UNRESOLVED, window,
+  anchors, unavailable windows), mobility constraints with the resolved
+  cycling limit (P7) and the policy versions in force.
+- **Output:** per visit `duration`, applied `openingHours` (window or
+  UNKNOWN) and `bindingConstraints`; per day `residual` (the
+  meaningful-residual judgement) and the first/last-mile record; per plan
+  `inputErrors`, `policies`, `legs` (by mode, by estimate quality) and the
+  constraint snapshot.
+- **Cycling limit representation:** `maxContinuousCyclingMinutes`
+  (required) and `maxDailyCyclingMinutes` (optional), measured on provider
+  bicycle durations, with a surface-neutral `source` (`USER_STATED` or a
+  named, versioned `MOBILITY_PROFILE`).
+- **Planning readiness:** a catalogued Experience without a usable
+  duration is not planning-ready. It is left out of composition and the
+  planner with the typed reason `MISSING_REQUIRED_DURATION`, keeps its
+  identity, and becomes planning-ready again once duration knowledge is
+  enriched (C15 demand wiring, task 41.0). No default duration exists; the
+  former 90-minute planner default is deleted, and `fallback-v1` (task 40.2)
+  is a separate, future evidence-backed policy.
+- **Transitional provenance (removed by group 41):** until GeoEntity
+  knowledge is wired, durations and opening hours come from the legacy
+  Experience fields and carry `LEGACY_EXPERIENCE_DURATION` /
+  `LEGACY_EXPERIENCE_OPENING_HOURS` with `evidenceBacked: false`. They are
+  visible in the plan and the trace, are not authority classes, are never
+  persisted as knowledge, and no feature may depend on them semantically.
+  Legacy weekly hours keep their legacy reading (a missing weekday or an
+  undated day is UNKNOWN); the P3 closed-weekday rule applies to GeoEntity
+  knowledge (task 26.1). Legacy composites hold their facts only for the
+  whole Experience (`legacyExperienceFacts`).
+- **Destination timezone:** no task yet resolves it; the planning input
+  carries it explicitly UNRESOLVED (open finding).
+
 #### P3. Opening-hours model and UNKNOWN policy
 
 Knowledge per candidate and calendar date (destination-local time):
@@ -547,7 +586,7 @@ enriching it never changes any Experience's identity, updates the knowledge
 in place (keeping provenance and resolver version), and may change future
 plans. The stored value keeps provenance and
 policy/version sufficient to explain its derivation. Storage mapping onto
-the Prisma models follows R4-D1 (unresolved).
+the Prisma models follows R4-D1 (resolved, C14: `GeoEntityVisitDuration`).
 
 **Fallback (P-D2-F RESOLVED).** Evidence-backed duration is the normal
 planner input; the fallback is exceptional degraded planner behavior so the

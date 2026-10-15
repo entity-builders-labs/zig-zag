@@ -10,22 +10,25 @@ import {
 } from '../interfaces/daily-planning.interface';
 import { TransportationMode } from '../interfaces/tour-generation.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
+import {
+  legacyHoursByDay,
+  mobilityFixture,
+  planningDaysFixture,
+  singleVisitCandidate,
+  unknownHoursByDay,
+} from '../fixtures/planning-input.fixture';
+
+/** Local improvement moves candidates between the two planning days. */
+const DAY_COUNT = 2;
+/** A Monday, so day 1 resolves to weekday 1. */
+const MONDAY = '2026-06-01';
 
 function candidate(
   id: string,
   lat: number,
   lng: number,
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
-  return {
-    experienceId: id,
-    title: id,
-    durationMinutes: 60,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
-    semanticScore: 0.5,
-  };
+  return candidateWithOptions(id, lat, lng, {});
 }
 
 function candidateWithOptions(
@@ -34,17 +37,19 @@ function candidateWithOptions(
   lng: number,
   opts: { durationMinutes?: number; openingHours?: NormalizedOpeningHours },
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
-  return {
+  return singleVisitCandidate({
     experienceId: id,
-    title: id,
+    lat,
+    lng,
     durationMinutes: opts.durationMinutes ?? 60,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
     semanticScore: 0.5,
-    openingHours: opts.openingHours,
-  };
+    openingHoursByDay: opts.openingHours
+      ? legacyHoursByDay(
+          opts.openingHours,
+          planningDaysFixture(DAY_COUNT, { startDate: MONDAY }),
+        )
+      : unknownHoursByDay(DAY_COUNT),
+  });
 }
 
 function candidateWithMobility(
@@ -57,15 +62,10 @@ function candidateWithMobility(
     internalWalkingDistanceMeters?: number;
   },
 ): PlanningExperienceCandidate {
-  const footprint = { type: 'POINT' as const, centroid: { lat, lng } };
   return {
-    experienceId: id,
-    title: id,
-    durationMinutes: opts.durationMinutes,
-    spatialFootprint: footprint,
-    startFootprint: footprint,
-    endFootprint: footprint,
-    semanticScore: 0.5,
+    ...candidateWithOptions(id, lat, lng, {
+      durationMinutes: opts.durationMinutes,
+    }),
     mobility: {
       internalTravelMinutes: opts.internalTravelMinutes,
       internalWalkingDistanceMeters: opts.internalWalkingDistanceMeters,
@@ -99,7 +99,6 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
-  compositeDefaultDurationMinutes: 90,
   scoring: {
     semanticWeight: 1,
     qualityWeight: 0.5,
@@ -117,16 +116,9 @@ const policy: DailyPlanningPolicy = {
 function context(): PlacementContext {
   return {
     policy,
-    mobility: {
-      allowedTransportationModes: [TransportationMode.WALKING],
-      maxWalkingDistancePerDayMeters: 10000,
-      maxContinuousWalkingDistanceMeters: 3000,
-      travelPace: 'moderate' as any,
-      accessibilityNeeds: [],
-    },
-    planningWindow: policy.window,
+    mobility: mobilityFixture(),
+    days: planningDaysFixture(DAY_COUNT, { window: policy.window }),
     travelEstimateProvider: stubTravelEstimateProvider(),
-    startDates: [],
   };
 }
 
@@ -141,6 +133,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [must, candidate('ordinary', 0, 0.001)],
           totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -150,6 +143,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [],
           totalExperienceMinutes: 0,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -177,6 +171,7 @@ describe('runBoundedLocalImprovement', () => {
           ],
           totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -186,6 +181,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [],
           totalExperienceMinutes: 0,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -207,6 +203,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('a1', 0, 0), candidate('far-from-a', 10, 10)],
           totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -219,6 +216,7 @@ describe('runBoundedLocalImprovement', () => {
           ],
           totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -241,6 +239,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('a', 0, 0)],
           totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -250,6 +249,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('b', 1, 1)],
           totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -276,6 +276,7 @@ describe('runBoundedLocalImprovement', () => {
           ],
           totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -290,6 +291,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('seed-far', 10, 10)],
           totalExperienceMinutes: 60,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -325,6 +327,7 @@ describe('runBoundedLocalImprovement', () => {
           ],
           totalExperienceMinutes: 330,
           totalWalkingMeters: 500,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -334,6 +337,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [],
           totalExperienceMinutes: 0,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -376,6 +380,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [a, far], // 60 + 180
           totalExperienceMinutes: 240,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -385,6 +390,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [b, near], // 60 + (120 + 30 internal travel)
           totalExperienceMinutes: 210,
           totalWalkingMeters: 400,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
@@ -451,6 +457,7 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('a1', 0, 0), farFromA],
           totalExperienceMinutes: 180,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
       [
@@ -460,13 +467,17 @@ describe('runBoundedLocalImprovement', () => {
           assigned: [candidate('b1', 10, 10.001), nearButClosedUntilEleven],
           totalExperienceMinutes: 120,
           totalWalkingMeters: 0,
+          totalCyclingMinutes: 0,
         },
       ],
     ]);
 
     const regressionContext: PlacementContext = {
       ...context(),
-      startDates: ['2026-06-01'], // a Monday, so day 1 resolves to weekday 1
+      days: planningDaysFixture(DAY_COUNT, {
+        startDate: MONDAY,
+        window: policy.window,
+      }),
     };
 
     const { days: improved } = await runBoundedLocalImprovement(

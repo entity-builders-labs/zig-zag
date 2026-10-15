@@ -146,12 +146,16 @@ amendment (2026-10-11); no production code yet.**
   - tasks 24.2, 25.1, 28.6 (closed), new 28.7, 29.1, 33.0 (closed), 40.2,
     41.0 and 41.1;
   - the canonical planning and routing paragraphs.
+- `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
+  task 25.1 (planning input/output contract) implemented, uncommitted until
+  owner review (design P2 "Implemented contract").
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted 2026-10-14 / 2026-10-15 gate analysis and
-   decisions, then authorizes the commit. The only remaining pre-41 gate
+1. Owner reviews the uncommitted task 25.1 implementation and authorizes
+   its commit; then `/opsx:apply` continues with task 25.2 (preference-
+   utility boundary). The only remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
    sample that meets the sufficiency rule, compute p75, pass the
    leave-one-destination-out check, then approve `fallback-v1`.
@@ -218,12 +222,20 @@ amendment (2026-10-11); no production code yet.**
   experimental and does not decide P-D1. The 2026-10-14 bicycle recording
   read the key from the main checkout's `.env` for that one call; the key
   is not stored anywhere.
-- The cycling limit (owner D3) does not exist in the request contract
-  yet. Task 25.1 adds a resolved cycling limit to the PlanningRequest
-  whenever BICYCLE is allowed (representation and unit decided there).
-  Input adapters resolve it before planning; the planner never knows the
-  interaction surface. No universal default: unresolved means invalid
-  planning input (planned rides reach 59 min without a limit).
+- Cycling limit (owner D3): the planning contract carries it since task
+  25.1, but no input adapter resolves one yet, so live requests that allow
+  cycling fail with UNRESOLVED_CYCLING_LIMIT until an adapter or a named
+  mobility profile supplies it.
+- No task resolves the destination timezone (41.1 only persists
+  `Tour.timezone`); the planning input carries it explicitly UNRESOLVED.
+- Planning readiness (task 25.1): most spike catalogs have no Experience
+  durations (e.g. pf_final 0/20, rw4_final_rerun 1/20 planning-ready), so
+  they plan little or nothing until duration knowledge is enriched; local
+  `zigzag` 8/8 ready. Missing enrichment, not a planner failure.
+- Pre-existing, outside 25.1: `test/characterization/shared-component-
+  identity` CHAR-7 expects AMBIGUOUS for one shared component out of two,
+  the dedupe now returns NEW (stale since the dedupe commits).
+- The characterization DB suites need `DATABASE_URL` at `zigzag_test`.
 - Decide which existing `zig-zag-track-*` skills remain unchanged, which need
   OpenSpec awareness, and which become redundant after cutover.
 - Decide how active OpenSpec change identity and `tasks.md` replace the
