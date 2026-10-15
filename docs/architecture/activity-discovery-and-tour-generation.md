@@ -2263,9 +2263,16 @@ with provider, API and traffic model; traffic is not a primary criterion.
 Decision: managed Geoapify initially (walk/drive/bicycle as enabled by
 product policy; no public transport in the first release), self-hosted
 Valhalla behind the same contracts when measured routing spend, rate limits
-or storage terms justify it (Valhalla-first if Geoapify's storage terms
-forbid persisting results — checked before production wiring); Mapbox and
-Google are not competitive for this matrix-heavy workload. A required
+or storage terms justify it (Geoapify confirmed on 2026-10-15 that its
+results may be cached, stored and redistributed without retention
+restrictions, so the Valhalla-first alternative is not needed); Mapbox and
+Google are not competitive for this matrix-heavy workload. Routing results
+are OpenStreetMap-derived: wherever legs, routes or travel times are shown,
+the app shows an OpenStreetMap attribution (and the provider's where its
+plan or API requires it). Persisted estimates keep the provider's
+attribution metadata. Each mode's estimates come from that mode's own
+routing results: bicycle legs are recorded as bicycle, never derived from
+walking or driving. A required
 traversal is accepted only by the calibrated, provider-neutral validator
 `traversal-validator-v1` (coverage ≤ 2.8 m, on-segment ≤ 4.1 m, forward
 progress, no material backtracking, no unmatched points), derived from 21
@@ -2375,6 +2382,17 @@ Research Evidence Memory (fetched documents, captures, pending claims keyed by
 evaluation question, unoffered mentions) is stored outside GeoEntities, L2, L3 and Experiences. Readiness,
 composition and planning never read it as knowledge; it exists so
 corroboration can accumulate across runs and live research is reduced.
+
+L2 assertions, research evidence, the L3 ledger and enrichment demand and
+attempts form one durable planning-evidence persistence model in the
+existing database. They are four distinct record types, each with its own
+write authority, linked by stable ids, and they share one provenance
+envelope (subject, cause, sources, policy version, time, idempotency key).
+Assertions keep append-only revisions, so a change of belief stays
+reconstructable; ledger entries and enrichment attempts are append-only.
+This durable domain state is not the generation trace: the trace is
+generic operational observability for one execution, and may reference
+these records by id but never acts as their system of record.
 
 An L2 assertion is identified by claim type, subject (including corridor
 segment bounds) and canonical facet key; an equivalent claim from another
@@ -2554,7 +2572,11 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   exceptions honoured; daily start/end; user unavailable windows; visit
   durations; travel time between consecutive activities; allowed and
   estimable modes; continuous and daily walking limits (including
-  access/egress walking); at most one visit per candidate.
+  access/egress walking); a hard cycling limit on bicycle travel when
+  cycling is allowed (resolved by the input adapter before planning from
+  any input surface, which the planner never sees; recorded with the plan;
+  no universal default); at most one
+  visit per candidate.
 - *Objective*: a versioned policy maximizing utility (ranking utility,
   optional quality, diversity, spatial coherence) minus costs (travel, idle
   time, zig-zag, mode changes, UNKNOWN-hours penalty). Days are optimized
@@ -2587,7 +2609,9 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   existence, identity or admission. The planner consumes the projected
   (typical) value with provenance and never infers durations; duration
   revisions never change Experience identity. No universal duration is
-  product truth; concrete fallback values are deferred.
+  product truth; the fallback is calibrated as the 75th percentile of
+  evidence-backed typical durations once a sufficient, destination-robust
+  sample exists, and its value is not chosen yet.
 - *Travel estimation*: the existing travel-estimate abstraction becomes a
   per-mode contract (origin, destination, mode, optional departure time →
   estimate with provider and quality, or MODE_UNAVAILABLE /
@@ -2680,9 +2704,19 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   Mode friction is a product preference, never added to travel estimates.
   Production coefficients are calibrated from preference evidence (gate
   G-P7-U: A preference-utility encoding, B preference-vs-travel /
-  friction / uncertainty calibration); the experimental P-D7 spike
-  coefficients are not production
-  policy.
+  friction / uncertainty calibration, both resolved); the experimental
+  P-D7 spike coefficients are not production policy. The initial
+  production policy is a versioned, evidence-backed starting point drawn
+  from owner-accepted pairwise Tour judgments, not a universal optimum: a
+  driving or cycling minute costs the same as a walking minute, and each
+  vehicle mode adds its own per-leg friction. A change to a judgment or a
+  coefficient is a new policy version. Because OR-Tools Routing optimizes per-Experience prizes,
+  Tour-level preference satisfaction is the sum of those prizes. Whether
+  several lower-ranked Experiences outweigh one higher-ranked Experience is
+  therefore a ratio of prizes, set by owner-confirmed pairwise Tour
+  judgments, never by fitting to fixtures. Two rules hold regardless:
+  - an equal-cost swap never contradicts the candidate preference order;
+  - the UNKNOWN-hours cost alone never erases an Experience.
 
 **Parent sites and visit units (R4-D2).** A PART_OF / containment
 relationship alone does not decide whether a child has its own Experience;

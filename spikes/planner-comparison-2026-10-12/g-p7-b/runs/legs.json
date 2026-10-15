@@ -1,0 +1,567 @@
+{
+ "point": {
+  "cd": 1.0,
+  "Ad": 11.0,
+  "cb": 0.6,
+  "Ab": 6.0
+ },
+ "cities": {
+  "BA": {
+   "pairs": 930,
+   "unavailable": {
+    "walk": 0,
+    "drive": 0,
+    "bicycle": 0
+   },
+   "zeroTimePairs": 0,
+   "minutes": {
+    "walk": {
+     "p10": 16.9,
+     "median": 56.8,
+     "p90": 210.3
+    },
+    "drive": {
+     "p10": 3.0,
+     "median": 6.5,
+     "p90": 15.4
+    },
+    "bicycle": {
+     "p10": 5.5,
+     "median": 16.7,
+     "p90": 56.9
+    }
+   },
+   "bicycleOverWalk": {
+    "p10": 0.2,
+    "median": 0.276,
+    "p90": 0.4
+   },
+   "bicycleOverDrive": {
+    "p10": 1.6,
+    "median": 2.6,
+    "p90": 3.8
+   },
+   "bicycleSlowerThanWalk": 3,
+   "bicycleFasterThanDrive": 25,
+   "bicycleDistanceDiffersFromWalk": 861,
+   "representative": {
+    "veryShort": {
+     "from": "BA:node:9953027884",
+     "to": "BA:composite:san-telmo-walk#end",
+     "minutes": {
+      "walk": 6.1,
+      "drive": 1.5,
+      "bicycle": 3.5
+     },
+     "meters": {
+      "walk": 377,
+      "drive": 967,
+      "bicycle": 885
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "shortUrban": {
+     "from": "BA:composite:san-telmo-walk#end",
+     "to": "BA:node:2038426439",
+     "minutes": {
+      "walk": 12.0,
+      "drive": 1.8,
+      "bicycle": 3.4
+     },
+     "meters": {
+      "walk": 725,
+      "drive": 851,
+      "bicycle": 851
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "mediumUrban": {
+     "from": "BA:way:183842128",
+     "to": "BA:way:147938686",
+     "minutes": {
+      "walk": 30.0,
+      "drive": 2.8,
+      "bicycle": 7.7
+     },
+     "meters": {
+      "walk": 1926,
+      "drive": 2184,
+      "bicycle": 2045
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "longCrossCity": {
+     "from": "BA:way:219731998",
+     "to": "BA:way:256715723",
+     "minutes": {
+      "walk": 281.5,
+      "drive": 20.3,
+      "bicycle": 79.6
+     },
+     "meters": {
+      "walk": 17943,
+      "drive": 21664,
+      "bicycle": 21580
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "drive",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "bicycleFasterThanDrive": {
+     "from": "BA:node:9953027884",
+     "to": "BA:composite:san-telmo-walk#start",
+     "minutes": {
+      "walk": 1.1,
+      "drive": 2.8,
+      "bicycle": 0.2
+     },
+     "meters": {
+      "walk": 76,
+      "drive": 1809,
+      "bicycle": 76
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "walkStillSensible": {
+     "from": "BA:way:31364659",
+     "to": "BA:composite:san-telmo-walk#end",
+     "minutes": {
+      "walk": 2.6,
+      "drive": 1.5,
+      "bicycle": 2.8
+     },
+     "meters": {
+      "walk": 177,
+      "drive": 727,
+      "bicycle": 727
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    }
+   },
+   "modeChoiceShares": {
+    "WALK+BICYCLE": {
+     "walk": 0.022,
+     "bicycle": 0.978
+    },
+    "WALK+DRIVE+BICYCLE": {
+     "walk": 0.022,
+     "drive": 0.41,
+     "bicycle": 0.569
+    },
+    "WALK+DRIVE": {
+     "walk": 0.076,
+     "drive": 0.924
+    },
+    "BICYCLE": {
+     "bicycle": 1.0
+    }
+   },
+   "walkBandBicycleShare": {
+    "0-5": 0.0,
+    "5-10": 0.48,
+    "10-15": 1.0,
+    "15-20": 1.0,
+    "20-30": 1.0
+   }
+  },
+  "PA": {
+   "pairs": 930,
+   "unavailable": {
+    "walk": 60,
+    "drive": 0,
+    "bicycle": 0
+   },
+   "zeroTimePairs": 6,
+   "minutes": {
+    "walk": {
+     "p10": 16.1,
+     "median": 37.5,
+     "p90": 68.0
+    },
+    "drive": {
+     "p10": 2.9,
+     "median": 6.1,
+     "p90": 10.4
+    },
+    "bicycle": {
+     "p10": 4.3,
+     "median": 9.9,
+     "p90": 17.9
+    }
+   },
+   "bicycleOverWalk": {
+    "p10": 0.2,
+    "median": 0.258,
+    "p90": 0.3
+   },
+   "bicycleOverDrive": {
+    "p10": 1.1,
+    "median": 1.67,
+    "p90": 2.2
+   },
+   "bicycleSlowerThanWalk": 0,
+   "bicycleFasterThanDrive": 37,
+   "bicycleDistanceDiffersFromWalk": 754,
+   "representative": {
+    "veryShort": {
+     "from": "PA:relation:3300400",
+     "to": "PA:way:227483542",
+     "minutes": {
+      "walk": 6.4,
+      "drive": 0.5,
+      "bicycle": 3.0
+     },
+     "meters": {
+      "walk": 427,
+      "drive": 178,
+      "bicycle": 728
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "shortUrban": {
+     "from": "PA:way:54180046",
+     "to": "PA:way:54667456",
+     "minutes": {
+      "walk": 12.0,
+      "drive": 3.4,
+      "bicycle": 3.7
+     },
+     "meters": {
+      "walk": 706,
+      "drive": 1111,
+      "bicycle": 827
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "mediumUrban": {
+     "from": "PA:relation:3344870",
+     "to": "PA:relation:7515426",
+     "minutes": {
+      "walk": 30.1,
+      "drive": 5.8,
+      "bicycle": 5.4
+     },
+     "meters": {
+      "walk": 1927,
+      "drive": 2667,
+      "bicycle": 1569
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "longCrossCity": {
+     "from": "PA:relation:13611998",
+     "to": "PA:way:226413508",
+     "minutes": {
+      "walk": 100.2,
+      "drive": 13.3,
+      "bicycle": 24.8
+     },
+     "meters": {
+      "walk": 6557,
+      "drive": 6971,
+      "bicycle": 6834
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "bicycleFasterThanDrive": {
+     "from": "PA:way:375076234",
+     "to": "PA:relation:3300400",
+     "minutes": {
+      "walk": 9.7,
+      "drive": 9.8,
+      "bicycle": 2.4
+     },
+     "meters": {
+      "walk": 647,
+      "drive": 4479,
+      "bicycle": 391
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "walkStillSensible": {
+     "from": "PA:relation:7515426",
+     "to": "PA:way:227483542",
+     "minutes": {
+      "walk": 3.6,
+      "drive": 0.3,
+      "bicycle": 3.2
+     },
+     "meters": {
+      "walk": 249,
+      "drive": 141,
+      "bicycle": 737
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    }
+   },
+   "modeChoiceShares": {
+    "WALK+BICYCLE": {
+     "walk": 0.016,
+     "bicycle": 0.984
+    },
+    "WALK+DRIVE+BICYCLE": {
+     "walk": 0.016,
+     "bicycle": 0.984
+    },
+    "WALK+DRIVE": {
+     "walk": 0.072,
+     "drive": 0.928
+    },
+    "BICYCLE": {
+     "bicycle": 1.0
+    }
+   },
+   "walkBandBicycleShare": {
+    "0-5": 0.0,
+    "5-10": 0.89,
+    "10-15": 0.98,
+    "15-20": 1.0,
+    "20-30": 1.0
+   }
+  },
+  "LA": {
+   "pairs": 930,
+   "unavailable": {
+    "walk": 0,
+    "drive": 0,
+    "bicycle": 0
+   },
+   "zeroTimePairs": 0,
+   "minutes": {
+    "walk": {
+     "p10": 52.7,
+     "median": 159.2,
+     "p90": 284.2
+    },
+    "drive": {
+     "p10": 5.6,
+     "median": 13.1,
+     "p90": 21.8
+    },
+    "bicycle": {
+     "p10": 13.7,
+     "median": 39.9,
+     "p90": 70.8
+    }
+   },
+   "bicycleOverWalk": {
+    "p10": 0.2,
+    "median": 0.25,
+    "p90": 0.3
+   },
+   "bicycleOverDrive": {
+    "p10": 2.1,
+    "median": 2.78,
+    "p90": 3.8
+   },
+   "bicycleSlowerThanWalk": 0,
+   "bicycleFasterThanDrive": 2,
+   "bicycleDistanceDiffersFromWalk": 845,
+   "representative": {
+    "veryShort": {
+     "from": "LA:way:407373715",
+     "to": "LA:relation:21400392",
+     "minutes": {
+      "walk": 6.0,
+      "drive": 3.9,
+      "bicycle": 4.3
+     },
+     "meters": {
+      "walk": 406,
+      "drive": 2156,
+      "bicycle": 1227
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "shortUrban": {
+     "from": "LA:node:3861449031",
+     "to": "LA:node:9703886758",
+     "minutes": {
+      "walk": 11.6,
+      "drive": 1.4,
+      "bicycle": 2.6
+     },
+     "meters": {
+      "walk": 808,
+      "drive": 891,
+      "bicycle": 804
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "mediumUrban": {
+     "from": "LA:node:470897671",
+     "to": "LA:way:322957598",
+     "minutes": {
+      "walk": 30.2,
+      "drive": 3.4,
+      "bicycle": 7.1
+     },
+     "meters": {
+      "walk": 1941,
+      "drive": 1984,
+      "bicycle": 1982
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "longCrossCity": {
+     "from": "LA:way:22728853",
+     "to": "LA:node:3204926589",
+     "minutes": {
+      "walk": 443.2,
+      "drive": 30.0,
+      "bicycle": 96.7
+     },
+     "meters": {
+      "walk": 26627,
+      "drive": 30108,
+      "bicycle": 25317
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "drive",
+      "WALK+DRIVE": "drive",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "bicycleFasterThanDrive": {
+     "from": "LA:way:206463626",
+     "to": "LA:way:427532197",
+     "minutes": {
+      "walk": 10.1,
+      "drive": 1.6,
+      "bicycle": 0.5
+     },
+     "meters": {
+      "walk": 667,
+      "drive": 1033,
+      "bicycle": 121
+     },
+     "choice": {
+      "WALK+BICYCLE": "bicycle",
+      "WALK+DRIVE+BICYCLE": "bicycle",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    },
+    "walkStillSensible": {
+     "from": "LA:way:407373012",
+     "to": "LA:way:407373715",
+     "minutes": {
+      "walk": 4.0,
+      "drive": 2.8,
+      "bicycle": 2.4
+     },
+     "meters": {
+      "walk": 272,
+      "drive": 648,
+      "bicycle": 562
+     },
+     "choice": {
+      "WALK+BICYCLE": "walk",
+      "WALK+DRIVE+BICYCLE": "walk",
+      "WALK+DRIVE": "walk",
+      "BICYCLE": "bicycle"
+     }
+    }
+   },
+   "modeChoiceShares": {
+    "WALK+BICYCLE": {
+     "walk": 0.027,
+     "bicycle": 0.973
+    },
+    "WALK+DRIVE+BICYCLE": {
+     "walk": 0.027,
+     "drive": 0.741,
+     "bicycle": 0.232
+    },
+    "WALK+DRIVE": {
+     "walk": 0.051,
+     "drive": 0.949
+    },
+    "BICYCLE": {
+     "bicycle": 1.0
+    }
+   },
+   "walkBandBicycleShare": {
+    "0-5": 0.0,
+    "5-10": 0.48,
+    "10-15": 1.0,
+    "15-20": 1.0,
+    "20-30": 1.0
+   }
+  }
+ }
+}

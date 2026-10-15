@@ -65,6 +65,10 @@ Estimating a required bounded traversal SHALL take the mode and the stored segme
 - **WHEN** a drive traversal of a street segment closed to cars is requested and the provider's match leaves the segment
 - **THEN** the outcome is CONSTRAINT_UNSATISFIED for drive
 
+#### Scenario: Bicycle validity is evaluated for bicycle
+- **WHEN** a required traversal accepted on foot is requested for bicycle and the provider's bicycle output leaves the segment
+- **THEN** the outcome is CONSTRAINT_UNSATISFIED for bicycle, and the walking result is not reused as a bicycle estimate
+
 ### Requirement: Deterministic traversal validation
 Compliance of a provider output with a required segment SHALL be decided by a versioned, deterministic geometric validator using coverage of the segment by the output, the fraction of the output on the segment, a symmetric distance bound, no backtracking and, where available, unmatched provider points. Language models, street-name strings and manual inspection SHALL NOT decide it.
 
@@ -96,6 +100,17 @@ Every estimate SHALL record the provider, the provider API used (for example rou
 #### Scenario: Same path, different APIs
 - **WHEN** a provider's map-matching and routing APIs return different durations for the same 521 m walk
 - **THEN** each estimate records which API produced it, and the plan records which one it used
+
+### Requirement: Routing data attribution and provider terms
+Legs, routes and travel times shown to users SHALL carry the routing data's required attribution (OpenStreetMap, plus the routing provider's attribution where its plan or API requires it). Persisted estimates, cached pair costs and recordings SHALL keep the provider's attribution metadata when the provider returns it. Persisting or caching a provider's results in production SHALL require a recorded verification of that provider's terms.
+
+#### Scenario: Tour itinerary shows data attribution
+- **WHEN** a Tour's legs or map computed from OpenStreetMap-based routing are displayed on web, iOS or Android
+- **THEN** an OpenStreetMap attribution with a path to its licence is visible, and the provider's attribution is shown where required
+
+#### Scenario: Unverified storage terms
+- **WHEN** a provider's terms for persisting its results have not been verified
+- **THEN** production wiring does not persist or cache that provider's results
 
 ### Requirement: Degraded estimation requires a separate approved policy
 Degraded or network-free travel estimation SHALL NOT be enabled in production. It MAY be introduced only by a separately approved, evidence-calibrated policy that defines its calibration, uncertainty bounds where possible, policy/version provenance, conditions of use and the marking of degraded plans.

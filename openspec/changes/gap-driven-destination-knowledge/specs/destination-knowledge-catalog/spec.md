@@ -38,7 +38,7 @@ An AREA GeoEntity SHALL record its area class (ADMINISTRATIVE or NAMED_PLACE) an
 - **THEN** it is an AREA with class NAMED_PLACE and extent UNKNOWN, related to the administrative area containing its point
 
 ### Requirement: Evidence memory is outside the canonical layers
-Research evidence memory SHALL be stored apart from GeoEntities, L2, L3 and Experiences and SHALL NOT be read by readiness, composition or planning as knowledge.
+Research evidence memory SHALL be stored as its own record type, apart from GeoEntities, L2, L3 and Experiences (it may share their durable persistence and be referenced from them by stable id), and SHALL NOT be read by readiness, composition or planning as knowledge.
 
 #### Scenario: Readiness with pending evidence
 - **WHEN** evidence memory holds pending claims for a destination

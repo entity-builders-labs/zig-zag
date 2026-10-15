@@ -63,11 +63,19 @@ The planning input SHALL contain, for each candidate, its canonical Experience i
 - **THEN** the input is rejected as invalid rather than defaulted
 
 ### Requirement: Typed planning input per request
-The planning input SHALL contain the number of days, each day's calendar date and destination-local timezone, daily start and end times, optional user unavailable windows, allowed travel modes, maximum continuous walking, maximum daily walking and the versioned planner policies in force (objective, UNKNOWN opening-hours policy).
+The planning input SHALL contain the number of days, each day's calendar date and destination-local timezone, daily start and end times, optional user unavailable windows, allowed travel modes, maximum continuous walking, maximum daily walking, a resolved cycling limit when BICYCLE is allowed (with surface-neutral provenance such as a named mobility profile and its version) and the versioned planner policies in force (objective, UNKNOWN opening-hours policy).
 
 #### Scenario: Policies recorded
 - **WHEN** a plan is produced
 - **THEN** the objective and UNKNOWN opening-hours policy versions used are part of the recorded input
+
+#### Scenario: Cycling limit is explicit and traceable
+- **WHEN** BICYCLE is allowed and the planning input carries no resolved cycling limit
+- **THEN** it is invalid planning input and no universal default limit is applied; when a resolved limit is present, the plan records it with its surface-neutral provenance
+
+#### Scenario: Planner is independent of the input surface
+- **WHEN** the same resolved cycling limit reaches the planner from explicit user input, conversational intent, a contextual UI action or a named mobility profile
+- **THEN** planning behaves identically, and the planning input does not identify the interaction surface that produced the value
 
 ### Requirement: Opening hours are hard feasibility constraints
 For every scheduled visit whose opening-hours knowledge for the planned date is KNOWN_OPEN_WINDOW, the complete visit interval SHALL lie inside one applicable opening window, and when a last-admission time is known the visit SHALL start no later than it. A candidate whose knowledge for the planned date is KNOWN_CLOSED SHALL never be scheduled on that date.
@@ -127,6 +135,10 @@ Under PENALIZE, UNKNOWN hours SHALL create no opening-hours hard constraint, so 
 #### Scenario: Only unknown-hours candidates
 - **WHEN** the remaining feasible candidates all have UNKNOWN hours
 - **THEN** they are scheduled and each scheduled visit is marked OPENING_HOURS_UNKNOWN
+
+#### Scenario: Uncertainty cost never erases an Experience by itself
+- **WHEN** an UNKNOWN-hours Experience of any positive preference utility fits the plan without displacing another Experience or adding travel
+- **THEN** the uncertainty cost alone does not make leaving it out the better plan
 
 ### Requirement: UNKNOWN hours inside composites and must-include items
 The UNKNOWN-hours policy SHALL apply per internal VISIT component of a composite; the Experience SHALL expose the set of its uncertain components rather than one candidate-level flag. A must-include Experience or component with UNKNOWN hours SHALL NOT be removed or given invented hours and SHALL be scheduled under the policy with its uncertainty surfaced.
@@ -191,6 +203,13 @@ The planner SHALL respect the user's allowed travel modes, maximum continuous wa
 - **WHEN** only walking is allowed and a candidate is beyond the walking limits from every feasible predecessor
 - **THEN** the candidate is rejected with WALKING_LIMIT, and readiness treats it as unused eligible supply
 
+### Requirement: Cycling limit is a hard constraint
+When BICYCLE is allowed, the planner SHALL enforce the planning input's resolved cycling limit on BICYCLE travel, measured on provider-backed bicycle estimates. Input adapters SHALL resolve the limit before planning; its representation and unit are part of the planning-input contract. The limit SHALL be a feasibility constraint, never an objective weight, and SHALL NOT be reported as missing candidate knowledge.
+
+#### Scenario: Ride beyond the cycling limit
+- **WHEN** only BICYCLE is allowed and every feasible BICYCLE leg to a candidate exceeds the resolved cycling limit
+- **THEN** the candidate is rejected with CYCLING_LIMIT regardless of its preference utility, and readiness treats it as unused eligible supply
+
 ### Requirement: Travel mode is a planner decision, not a default
 For each leg the planner SHALL choose among the allowed modes for which a travel estimate exists, as part of the itinerary optimization, and SHALL NOT choose walking merely because walking is allowed. A non-walking mode SHALL be able to make geographically separated candidates feasible.
 
@@ -203,7 +222,7 @@ For each leg the planner SHALL choose among the allowed modes for which a travel
 - **THEN** both can be scheduled on the same day connected by a driving leg
 
 ### Requirement: Hard constraints are never traded for utility
-The planner SHALL maximize itinerary utility only over itineraries that satisfy every hard constraint: opening hours and closed days, day windows, user unavailable windows, visit durations, travel times, allowed modes, walking limits, at most one visit per candidate and request-declared inclusion constraints. No hard constraint SHALL be converted into an objective weight.
+The planner SHALL maximize itinerary utility only over itineraries that satisfy every hard constraint: opening hours and closed days, day windows, user unavailable windows, visit durations, travel times, allowed modes, walking limits, the cycling limit, at most one visit per candidate and request-declared inclusion constraints. No hard constraint SHALL be converted into an objective weight.
 
 #### Scenario: High utility cannot buy a constraint violation
 - **WHEN** scheduling a candidate past its closing time would raise total utility
@@ -246,6 +265,10 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 #### Scenario: Known peers keep their order
 - **WHEN** an Experience with UNKNOWN semantic affinity joins candidates of equal explicit evidence
 - **THEN** the relative order of the candidates with known similarity is unchanged
+
+#### Scenario: Order-preserving prize repair adds no signal
+- **WHEN** the objective policy's projection gives two candidates equal or near-equal prizes although the derived breakdown orders them
+- **THEN** a deterministic repair restores that order only, adds no preference signal, never reverses materially different satisfaction, and the generation trace records the pre-repair prize and the order it preserved
 
 #### Scenario: Single scoring authority
 - **WHEN** the planner orders or values candidates
@@ -349,7 +372,7 @@ For each day the planner output SHALL contain used time, remaining time with the
 - **THEN** its used and remaining time, travel time and walking total are present without recomputation
 
 ### Requirement: Typed rejection diagnostics for every eligible unscheduled candidate
-Every eligible candidate offered to the planner and not scheduled SHALL carry one or more typed reasons from: OPENING_HOURS, OPENING_HOURS_UNKNOWN_EXCLUDED, TRAVEL_TIME, TRAVEL_ESTIMATE_UNAVAILABLE, REQUIRED_TRAVERSAL_UNSATISFIED, DAILY_CAPACITY, WALKING_LIMIT, NO_ALLOWED_TRAVEL_MODE, VISIT_DURATION, USER_TIME_WINDOW, DOMINATED_BY_HIGHER_UTILITY_PLAN or OTHER_PLANNER_CONSTRAINT, with the evaluated evidence where applicable.
+Every eligible candidate offered to the planner and not scheduled SHALL carry one or more typed reasons from: OPENING_HOURS, OPENING_HOURS_UNKNOWN_EXCLUDED, TRAVEL_TIME, TRAVEL_ESTIMATE_UNAVAILABLE, REQUIRED_TRAVERSAL_UNSATISFIED, DAILY_CAPACITY, WALKING_LIMIT, CYCLING_LIMIT, NO_ALLOWED_TRAVEL_MODE, VISIT_DURATION, USER_TIME_WINDOW, DOMINATED_BY_HIGHER_UTILITY_PLAN or OTHER_PLANNER_CONSTRAINT, with the evaluated evidence where applicable.
 
 #### Scenario: Feasible but displaced
 - **WHEN** a feasible candidate is not scheduled because a higher-utility itinerary uses its time

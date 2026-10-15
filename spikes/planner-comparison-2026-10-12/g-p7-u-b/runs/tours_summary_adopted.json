@@ -1,0 +1,2206 @@
+{
+ "runs": 732,
+ "safety": {
+  "planned": 732,
+  "notPlanned": {},
+  "violations": 0,
+  "forbiddenModeLegs": 0,
+  "nonIdenticalRepeats": 0,
+  "stopReasons": {
+   "SOLUTION_LIMIT": 732
+  },
+  "solveMs": {
+   "median": 1899.0,
+   "max": 5109.0
+  },
+  "compositeWithoutWalkScheduled": 0
+ },
+ "checkPointByProfileCity": {
+  "A_WALK": {
+   "BA": {
+    "scheduled": 43,
+    "DIRECT": 25,
+    "INFERRED": 15,
+    "NONE": 3,
+    "directShareOfScheduled": 0.58,
+    "travelMin": 448.1,
+    "minutes": {
+     "WALK": 448.1,
+     "DRIVE": 0.0,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 37,
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 23
+   },
+   "LA": {
+    "scheduled": 18,
+    "DIRECT": 9,
+    "INFERRED": 4,
+    "NONE": 5,
+    "directShareOfScheduled": 0.5,
+    "travelMin": 102.9,
+    "minutes": {
+     "WALK": 102.9,
+     "DRIVE": 0.0,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 11,
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 4
+   },
+   "PA": {
+    "scheduled": 42,
+    "DIRECT": 27,
+    "INFERRED": 4,
+    "NONE": 11,
+    "directShareOfScheduled": 0.64,
+    "travelMin": 515.7,
+    "minutes": {
+     "WALK": 515.7,
+     "DRIVE": 0.0,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 36,
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 32
+   }
+  },
+  "B_WALK_DRIVE": {
+   "BA": {
+    "scheduled": 58,
+    "DIRECT": 39,
+    "INFERRED": 17,
+    "NONE": 2,
+    "directShareOfScheduled": 0.67,
+    "travelMin": 340.3,
+    "minutes": {
+     "WALK": 168.9,
+     "DRIVE": 171.3,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 20,
+     "DRIVE": 34,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 29
+   },
+   "LA": {
+    "scheduled": 47,
+    "DIRECT": 34,
+    "INFERRED": 8,
+    "NONE": 5,
+    "directShareOfScheduled": 0.72,
+    "travelMin": 382.0,
+    "minutes": {
+     "WALK": 81.8,
+     "DRIVE": 300.1,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 13,
+     "DRIVE": 29,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 24
+   },
+   "PA": {
+    "scheduled": 50,
+    "DIRECT": 33,
+    "INFERRED": 8,
+    "NONE": 9,
+    "directShareOfScheduled": 0.66,
+    "travelMin": 200.3,
+    "minutes": {
+     "WALK": 60.0,
+     "DRIVE": 140.3,
+     "BICYCLE": 0.0
+    },
+    "legs": {
+     "WALK": 13,
+     "DRIVE": 32,
+     "BICYCLE": 0
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 0
+    },
+    "unknownVisits": 36
+   }
+  },
+  "D_WALK_BICYCLE": {
+   "BA": {
+    "scheduled": 58,
+    "DIRECT": 38,
+    "INFERRED": 17,
+    "NONE": 3,
+    "directShareOfScheduled": 0.66,
+    "travelMin": 474.2,
+    "minutes": {
+     "WALK": 21.0,
+     "DRIVE": 0.0,
+     "BICYCLE": 453.2
+    },
+    "legs": {
+     "WALK": 5,
+     "DRIVE": 0,
+     "BICYCLE": 48
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 7
+    },
+    "unknownVisits": 30
+   },
+   "LA": {
+    "scheduled": 41,
+    "DIRECT": 29,
+    "INFERRED": 6,
+    "NONE": 6,
+    "directShareOfScheduled": 0.71,
+    "travelMin": 555.0,
+    "minutes": {
+     "WALK": 23.5,
+     "DRIVE": 0.0,
+     "BICYCLE": 531.5
+    },
+    "legs": {
+     "WALK": 6,
+     "DRIVE": 0,
+     "BICYCLE": 29
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 2
+    },
+    "unknownVisits": 20
+   },
+   "PA": {
+    "scheduled": 63,
+    "DIRECT": 33,
+    "INFERRED": 14,
+    "NONE": 16,
+    "directShareOfScheduled": 0.52,
+    "travelMin": 286.3,
+    "minutes": {
+     "WALK": 27.8,
+     "DRIVE": 0.0,
+     "BICYCLE": 258.5
+    },
+    "legs": {
+     "WALK": 9,
+     "DRIVE": 0,
+     "BICYCLE": 49
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 1
+    },
+    "unknownVisits": 45
+   }
+  },
+  "E_WALK_DRIVE_BICYCLE": {
+   "BA": {
+    "scheduled": 62,
+    "DIRECT": 39,
+    "INFERRED": 17,
+    "NONE": 6,
+    "directShareOfScheduled": 0.63,
+    "travelMin": 301.9,
+    "minutes": {
+     "WALK": 20.1,
+     "DRIVE": 121.7,
+     "BICYCLE": 160.0
+    },
+    "legs": {
+     "WALK": 5,
+     "DRIVE": 16,
+     "BICYCLE": 36
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 6
+    },
+    "unknownVisits": 30
+   },
+   "LA": {
+    "scheduled": 46,
+    "DIRECT": 34,
+    "INFERRED": 8,
+    "NONE": 4,
+    "directShareOfScheduled": 0.74,
+    "travelMin": 346.3,
+    "minutes": {
+     "WALK": 20.7,
+     "DRIVE": 289.7,
+     "BICYCLE": 36.0
+    },
+    "legs": {
+     "WALK": 5,
+     "DRIVE": 25,
+     "BICYCLE": 11
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 4
+    },
+    "unknownVisits": 25
+   },
+   "PA": {
+    "scheduled": 64,
+    "DIRECT": 32,
+    "INFERRED": 15,
+    "NONE": 17,
+    "directShareOfScheduled": 0.5,
+    "travelMin": 287.4,
+    "minutes": {
+     "WALK": 28.1,
+     "DRIVE": 0.0,
+     "BICYCLE": 259.3
+    },
+    "legs": {
+     "WALK": 9,
+     "DRIVE": 0,
+     "BICYCLE": 50
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 1
+    },
+    "unknownVisits": 45
+   }
+  },
+  "F_BICYCLE": {
+   "BA": {
+    "scheduled": 57,
+    "DIRECT": 38,
+    "INFERRED": 17,
+    "NONE": 2,
+    "directShareOfScheduled": 0.67,
+    "travelMin": 470.0,
+    "minutes": {
+     "WALK": 0.0,
+     "DRIVE": 0.0,
+     "BICYCLE": 470.0
+    },
+    "legs": {
+     "WALK": 0,
+     "DRIVE": 0,
+     "BICYCLE": 52
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 13
+    },
+    "unknownVisits": 30
+   },
+   "LA": {
+    "scheduled": 39,
+    "DIRECT": 29,
+    "INFERRED": 7,
+    "NONE": 3,
+    "directShareOfScheduled": 0.74,
+    "travelMin": 557.9,
+    "minutes": {
+     "WALK": 0.0,
+     "DRIVE": 0.0,
+     "BICYCLE": 557.9
+    },
+    "legs": {
+     "WALK": 0,
+     "DRIVE": 0,
+     "BICYCLE": 33
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 6
+    },
+    "unknownVisits": 19
+   },
+   "PA": {
+    "scheduled": 60,
+    "DIRECT": 33,
+    "INFERRED": 14,
+    "NONE": 13,
+    "directShareOfScheduled": 0.55,
+    "travelMin": 278.4,
+    "minutes": {
+     "WALK": 0.0,
+     "DRIVE": 0.0,
+     "BICYCLE": 278.4
+    },
+    "legs": {
+     "WALK": 0,
+     "DRIVE": 0,
+     "BICYCLE": 55
+    },
+    "shortHops": {
+     "DRIVE": 0,
+     "BICYCLE": 6
+    },
+    "unknownVisits": 42
+   }
+  }
+ },
+ "checkPointDetail": [
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "scheduled": 17,
+   "DIRECT": 8,
+   "INFERRED": 7,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 137.9,
+   "legs": {
+    "WALK": 14,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 9,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 20,
+   "DIRECT": 11,
+   "INFERRED": 8,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 103.1,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 9,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 10,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 20,
+   "DIRECT": 11,
+   "INFERRED": 8,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 103.5,
+   "legs": {
+    "WALK": 3,
+    "DRIVE": 0,
+    "BICYCLE": 14
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 3
+   },
+   "unknownVisits": 10,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 23,
+   "DIRECT": 11,
+   "INFERRED": 8,
+   "NONE": 4,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 90.0,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 3,
+    "BICYCLE": 15
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 4
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "scheduled": 21,
+   "DIRECT": 11,
+   "INFERRED": 8,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 126.4,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 18
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "scheduled": 11,
+   "DIRECT": 7,
+   "INFERRED": 3,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 78.9,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 6,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 15,
+   "DIRECT": 11,
+   "INFERRED": 4,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 72.2,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 8,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 14,
+   "DIRECT": 11,
+   "INFERRED": 3,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 147.8,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 11
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 15,
+   "DIRECT": 11,
+   "INFERRED": 4,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 68.4,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 4,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 2
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "scheduled": 14,
+   "DIRECT": 11,
+   "INFERRED": 3,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 136.5,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 11
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "scheduled": 8,
+   "DIRECT": 6,
+   "INFERRED": 2,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 99.4,
+   "legs": {
+    "WALK": 7,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 5,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 9,
+   "DIRECT": 9,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 47.9,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 6,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 4,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 8,
+   "INFERRED": 1,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 49.6,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 8
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 5,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 9,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 39.6,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 4,
+    "BICYCLE": 4
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 4,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 8,
+   "INFERRED": 1,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 10,
+    "NONE": 8
+   },
+   "travelMin": 49.6,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 8
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 5,
+   "poolUnknown": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "scheduled": 7,
+   "DIRECT": 4,
+   "INFERRED": 3,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 8,
+    "INFERRED": 6,
+    "NONE": 6
+   },
+   "travelMin": 131.9,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 3,
+   "poolUnknown": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 14,
+   "DIRECT": 8,
+   "INFERRED": 5,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 8,
+    "INFERRED": 6,
+    "NONE": 6
+   },
+   "travelMin": 117.1,
+   "legs": {
+    "WALK": 6,
+    "DRIVE": 11,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 15,
+   "DIRECT": 8,
+   "INFERRED": 5,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 8,
+    "INFERRED": 6,
+    "NONE": 6
+   },
+   "travelMin": 173.3,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 15
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 2
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 15,
+   "DIRECT": 8,
+   "INFERRED": 5,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 8,
+    "INFERRED": 6,
+    "NONE": 6
+   },
+   "travelMin": 103.9,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 5,
+    "BICYCLE": 10
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "scheduled": 13,
+   "DIRECT": 8,
+   "INFERRED": 5,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 8,
+    "INFERRED": 6,
+    "NONE": 6
+   },
+   "travelMin": 157.5,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 15
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 4
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 9
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "scheduled": 15,
+   "DIRECT": 9,
+   "INFERRED": 2,
+   "NONE": 4,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 155.1,
+   "legs": {
+    "WALK": 12,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 12,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 15,
+   "DIRECT": 9,
+   "INFERRED": 3,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 49.4,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 8,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 21,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 7,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 72.0,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 0,
+    "BICYCLE": 14
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 15,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 22,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 8,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 75.3,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 0,
+    "BICYCLE": 15
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 16,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "scheduled": 20,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 6,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 72.7,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 17
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 2
+   },
+   "unknownVisits": 15,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "scheduled": 11,
+   "DIRECT": 8,
+   "INFERRED": 1,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 119.2,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 9,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 15,
+   "DIRECT": 9,
+   "INFERRED": 3,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 49.2,
+   "legs": {
+    "WALK": 5,
+    "DRIVE": 7,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 17,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 67.5,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 12
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 12,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 17,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 71.8,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 12
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 12,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "scheduled": 16,
+   "DIRECT": 9,
+   "INFERRED": 5,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 67.9,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 13
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 10,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "scheduled": 9,
+   "DIRECT": 6,
+   "INFERRED": 1,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 108.0,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 9,
+   "DIRECT": 9,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 37.3,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 7,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 9,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 55.1,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 8,
+   "INFERRED": 1,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 48.6,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 6,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 9,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 9,
+    "INFERRED": 5,
+    "NONE": 16
+   },
+   "travelMin": 51.7,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 8
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 21
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "scheduled": 7,
+   "DIRECT": 4,
+   "INFERRED": 0,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 6,
+    "INFERRED": 4,
+    "NONE": 10
+   },
+   "travelMin": 133.4,
+   "legs": {
+    "WALK": 8,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 4,
+   "poolUnknown": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 11,
+   "DIRECT": 6,
+   "INFERRED": 2,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 6,
+    "INFERRED": 4,
+    "NONE": 10
+   },
+   "travelMin": 64.4,
+   "legs": {
+    "WALK": 3,
+    "DRIVE": 10,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 16,
+   "DIRECT": 6,
+   "INFERRED": 4,
+   "NONE": 6,
+   "available": {
+    "DIRECT": 6,
+    "INFERRED": 4,
+    "NONE": 10
+   },
+   "travelMin": 91.7,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 16
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 16,
+   "DIRECT": 6,
+   "INFERRED": 4,
+   "NONE": 6,
+   "available": {
+    "DIRECT": 6,
+    "INFERRED": 4,
+    "NONE": 10
+   },
+   "travelMin": 91.7,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 16
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 11,
+   "poolUnknown": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "scheduled": 15,
+   "DIRECT": 6,
+   "INFERRED": 4,
+   "NONE": 5,
+   "available": {
+    "DIRECT": 6,
+    "INFERRED": 4,
+    "NONE": 10
+   },
+   "travelMin": 86.1,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 17
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 2
+   },
+   "unknownVisits": 10,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "scheduled": 8,
+   "DIRECT": 4,
+   "INFERRED": 2,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 48.2,
+   "legs": {
+    "WALK": 5,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 2,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 16,
+   "DIRECT": 10,
+   "INFERRED": 3,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 107.1,
+   "legs": {
+    "WALK": 6,
+    "DRIVE": 7,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 17,
+   "DIRECT": 10,
+   "INFERRED": 3,
+   "NONE": 4,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 176.9,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 0,
+    "BICYCLE": 10
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 16,
+   "DIRECT": 10,
+   "INFERRED": 3,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 93.9,
+   "legs": {
+    "WALK": 4,
+    "DRIVE": 6,
+    "BICYCLE": 3
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "scheduled": 15,
+   "DIRECT": 10,
+   "INFERRED": 3,
+   "NONE": 2,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 179.1,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 12
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 3
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "scheduled": 9,
+   "DIRECT": 4,
+   "INFERRED": 2,
+   "NONE": 3,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 54.7,
+   "legs": {
+    "WALK": 6,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 2,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 13,
+   "DIRECT": 10,
+   "INFERRED": 2,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 88.0,
+   "legs": {
+    "WALK": 3,
+    "DRIVE": 7,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 7,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 12,
+   "DIRECT": 9,
+   "INFERRED": 2,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 127.3,
+   "legs": {
+    "WALK": 2,
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 6,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 13,
+   "DIRECT": 10,
+   "INFERRED": 2,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 85.2,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 6,
+    "BICYCLE": 3
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 8,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "scheduled": 12,
+   "DIRECT": 9,
+   "INFERRED": 2,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 122.2,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 9
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 2
+   },
+   "unknownVisits": 6,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "scheduled": 1,
+   "DIRECT": 1,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 0.0,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 0,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 8,
+   "DIRECT": 7,
+   "INFERRED": 1,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 53.8,
+   "legs": {
+    "WALK": 1,
+    "DRIVE": 6,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 5,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 6,
+   "DIRECT": 6,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 116.7,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 5
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 3,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 8,
+   "DIRECT": 7,
+   "INFERRED": 1,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 52.4,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 5,
+    "BICYCLE": 2
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 5,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "scheduled": 6,
+   "DIRECT": 6,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 11,
+    "INFERRED": 4,
+    "NONE": 15
+   },
+   "travelMin": 116.7,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 5
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 3,
+   "poolUnknown": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "scheduled": 0,
+   "DIRECT": 0,
+   "INFERRED": 0,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 7,
+    "INFERRED": 3,
+    "NONE": 10
+   },
+   "travelMin": 0.0,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 0,
+   "poolUnknown": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "scheduled": 10,
+   "DIRECT": 7,
+   "INFERRED": 2,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 7,
+    "INFERRED": 3,
+    "NONE": 10
+   },
+   "travelMin": 133.1,
+   "legs": {
+    "WALK": 3,
+    "DRIVE": 9,
+    "BICYCLE": 0
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 0
+   },
+   "unknownVisits": 4,
+   "poolUnknown": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "scheduled": 6,
+   "DIRECT": 4,
+   "INFERRED": 1,
+   "NONE": 1,
+   "available": {
+    "DIRECT": 7,
+    "INFERRED": 3,
+    "NONE": 10
+   },
+   "travelMin": 134.1,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 3,
+   "poolUnknown": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "scheduled": 9,
+   "DIRECT": 7,
+   "INFERRED": 2,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 7,
+    "INFERRED": 3,
+    "NONE": 10
+   },
+   "travelMin": 114.8,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 8,
+    "BICYCLE": 3
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 4,
+   "poolUnknown": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "scheduled": 6,
+   "DIRECT": 4,
+   "INFERRED": 2,
+   "NONE": 0,
+   "available": {
+    "DIRECT": 7,
+    "INFERRED": 3,
+    "NONE": 10
+   },
+   "travelMin": 139.9,
+   "legs": {
+    "WALK": 0,
+    "DRIVE": 0,
+    "BICYCLE": 7
+   },
+   "shortHops": {
+    "DRIVE": 0,
+    "BICYCLE": 1
+   },
+   "unknownVisits": 2,
+   "poolUnknown": 9
+  }
+ ],
+ "perturbation": {
+  "Abx0.75": {
+   "runs": 36,
+   "sumDirectImportanceRetention": {
+    "mean": 0.989,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.908,
+    "worst": 0.625
+   },
+   "travelRatio": {
+    "mean": 1.031,
+    "max": 1.351
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "Abx1.33": {
+   "runs": 36,
+   "sumDirectImportanceRetention": {
+    "mean": 0.995,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.918,
+    "worst": 0.625
+   },
+   "travelRatio": {
+    "mean": 0.976,
+    "max": 1.12
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "Adx0.75": {
+   "runs": 24,
+   "sumDirectImportanceRetention": {
+    "mean": 1.0,
+    "worst": 1.0
+   },
+   "selectionJaccard": {
+    "mean": 0.953,
+    "worst": 0.727
+   },
+   "travelRatio": {
+    "mean": 0.935,
+    "max": 1.083
+   },
+   "directDelta": {
+    "min": 0,
+    "max": 0
+   }
+  },
+  "Adx1.33": {
+   "runs": 24,
+   "sumDirectImportanceRetention": {
+    "mean": 1.003,
+    "worst": 0.972
+   },
+   "selectionJaccard": {
+    "mean": 0.93,
+    "worst": 0.636
+   },
+   "travelRatio": {
+    "mean": 1.089,
+    "max": 1.437
+   },
+   "directDelta": {
+    "min": 0,
+    "max": 1
+   }
+  },
+  "Kx0.75": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.985,
+    "worst": 0.811
+   },
+   "selectionJaccard": {
+    "mean": 0.875,
+    "worst": 0.5
+   },
+   "travelRatio": {
+    "mean": 0.893,
+    "max": 1.289
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 1
+   }
+  },
+  "Kx1.33": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 1.017,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.853,
+    "worst": 0.0
+   },
+   "travelRatio": {
+    "mean": 1.125,
+    "max": 2.301
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 3
+   }
+  },
+  "bx0.75": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.998,
+    "worst": 0.924
+   },
+   "selectionJaccard": {
+    "mean": 0.916,
+    "worst": 0.5
+   },
+   "travelRatio": {
+    "mean": 0.977,
+    "max": 1.164
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "bx1.33": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.993,
+    "worst": 0.841
+   },
+   "selectionJaccard": {
+    "mean": 0.917,
+    "worst": 0.556
+   },
+   "travelRatio": {
+    "mean": 1.013,
+    "max": 1.499
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 1
+   }
+  },
+  "cbx0.75": {
+   "runs": 36,
+   "sumDirectImportanceRetention": {
+    "mean": 1.012,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.896,
+    "worst": 0.444
+   },
+   "travelRatio": {
+    "mean": 1.116,
+    "max": 1.84
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 2
+   }
+  },
+  "cbx1.33": {
+   "runs": 36,
+   "sumDirectImportanceRetention": {
+    "mean": 0.974,
+    "worst": 0.841
+   },
+   "selectionJaccard": {
+    "mean": 0.881,
+    "worst": 0.625
+   },
+   "travelRatio": {
+    "mean": 0.914,
+    "max": 1.431
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "gx0.75": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.995,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.923,
+    "worst": 0.556
+   },
+   "travelRatio": {
+    "mean": 0.977,
+    "max": 1.158
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "gx1.33": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.994,
+    "worst": 0.91
+   },
+   "selectionJaccard": {
+    "mean": 0.903,
+    "worst": 0.625
+   },
+   "travelRatio": {
+    "mean": 1.011,
+    "max": 1.275
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 1
+   }
+  },
+  "rhox0.75": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.995,
+    "worst": 0.872
+   },
+   "selectionJaccard": {
+    "mean": 0.951,
+    "worst": 0.625
+   },
+   "travelRatio": {
+    "mean": 1.002,
+    "max": 1.314
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  },
+  "rhox1.33": {
+   "runs": 60,
+   "sumDirectImportanceRetention": {
+    "mean": 0.997,
+    "worst": 0.924
+   },
+   "selectionJaccard": {
+    "mean": 0.952,
+    "worst": 0.714
+   },
+   "travelRatio": {
+    "mean": 1.002,
+    "max": 1.176
+   },
+   "directDelta": {
+    "min": -1,
+    "max": 0
+   }
+  }
+ },
+ "solverNote": "perturbed runs are solved under their own objective; selection differences mix objective effects with single-start GLS search noise (P-D5 finding)"
+}

@@ -1,0 +1,429 @@
+{
+ "meta": {
+  "fallbacks": [
+   30,
+   45,
+   60,
+   75,
+   90,
+   120
+  ],
+  "scenarios": [
+   "S1-normal-pall",
+   "S5-oversupply-1day"
+  ],
+  "modes": [
+   "walk",
+   "drive"
+  ],
+  "objective": {
+   "K": 100.0,
+   "b": 0.2,
+   "g": 0.12,
+   "cd": 1.0,
+   "Ad": 11.0,
+   "cb": 0.6,
+   "Ab": 6.0,
+   "rho": 0.15
+  },
+  "note": "structural analysis only; no fallback value is chosen"
+ },
+ "rows": [
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 22,
+   "violations": [],
+   "underestimateTolerance": 0.119,
+   "toleranceMinutesPerVisit": 3.6,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 21,
+   "violations": [],
+   "underestimateTolerance": 0.049,
+   "toleranceMinutesPerVisit": 2.2,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 20,
+   "violations": [],
+   "underestimateTolerance": 0.017,
+   "toleranceMinutesPerVisit": 1.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 20,
+   "violations": [],
+   "underestimateTolerance": 0.04,
+   "toleranceMinutesPerVisit": 3.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 18,
+   "violations": [],
+   "underestimateTolerance": 0.015,
+   "toleranceMinutesPerVisit": 1.4,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 12,
+   "violations": [],
+   "underestimateTolerance": 0.067,
+   "toleranceMinutesPerVisit": 8.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.024,
+   "toleranceMinutesPerVisit": 0.7,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 12,
+   "violations": [],
+   "underestimateTolerance": 0.002,
+   "toleranceMinutesPerVisit": 0.1,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 9,
+   "violations": [],
+   "underestimateTolerance": 0.014,
+   "toleranceMinutesPerVisit": 0.9,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 7,
+   "violations": [],
+   "underestimateTolerance": 0.048,
+   "toleranceMinutesPerVisit": 3.6,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 6,
+   "violations": [],
+   "underestimateTolerance": 0.022,
+   "toleranceMinutesPerVisit": 2.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 4,
+   "violations": [],
+   "underestimateTolerance": 0.219,
+   "toleranceMinutesPerVisit": 26.3,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.852,
+   "toleranceMinutesPerVisit": 25.6,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.844,
+   "toleranceMinutesPerVisit": 38.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.029,
+   "toleranceMinutesPerVisit": 1.7,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.08,
+   "toleranceMinutesPerVisit": 6.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.075,
+   "toleranceMinutesPerVisit": 6.8,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 12,
+   "violations": [],
+   "underestimateTolerance": 0.092,
+   "toleranceMinutesPerVisit": 11.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.06,
+   "toleranceMinutesPerVisit": 1.8,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 12,
+   "violations": [],
+   "underestimateTolerance": 0.024,
+   "toleranceMinutesPerVisit": 1.1,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 9,
+   "violations": [],
+   "underestimateTolerance": 0.033,
+   "toleranceMinutesPerVisit": 2.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 7,
+   "violations": [],
+   "underestimateTolerance": 0.078,
+   "toleranceMinutesPerVisit": 5.8,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 6,
+   "violations": [],
+   "underestimateTolerance": 0.019,
+   "toleranceMinutesPerVisit": 1.7,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 4,
+   "violations": [],
+   "underestimateTolerance": 0.214,
+   "toleranceMinutesPerVisit": 25.7,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.54,
+   "toleranceMinutesPerVisit": 16.2,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.015,
+   "toleranceMinutesPerVisit": 0.7,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.175,
+   "toleranceMinutesPerVisit": 10.5,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.15,
+   "toleranceMinutesPerVisit": 11.2,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 16,
+   "violations": [],
+   "underestimateTolerance": 0.022,
+   "toleranceMinutesPerVisit": 2.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 12,
+   "violations": [],
+   "underestimateTolerance": 0.044,
+   "toleranceMinutesPerVisit": 5.3,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 30,
+   "status": "PLANNED",
+   "scheduled": 15,
+   "violations": [],
+   "underestimateTolerance": 0.04,
+   "toleranceMinutesPerVisit": 1.2,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 45,
+   "status": "PLANNED",
+   "scheduled": 11,
+   "violations": [],
+   "underestimateTolerance": 0.011,
+   "toleranceMinutesPerVisit": 0.5,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 60,
+   "status": "PLANNED",
+   "scheduled": 8,
+   "violations": [],
+   "underestimateTolerance": 0.005,
+   "toleranceMinutesPerVisit": 0.3,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 75,
+   "status": "PLANNED",
+   "scheduled": 7,
+   "violations": [],
+   "underestimateTolerance": 0.053,
+   "toleranceMinutesPerVisit": 4.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 90,
+   "status": "PLANNED",
+   "scheduled": 6,
+   "violations": [],
+   "underestimateTolerance": 0.033,
+   "toleranceMinutesPerVisit": 3.0,
+   "stopReason": "SOLUTION_LIMIT"
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "fallbackMinutes": 120,
+   "status": "PLANNED",
+   "scheduled": 4,
+   "violations": [],
+   "underestimateTolerance": 0.058,
+   "toleranceMinutesPerVisit": 7.0,
+   "stopReason": "SOLUTION_LIMIT"
+  }
+ ]
+}

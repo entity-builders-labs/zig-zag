@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=synthetic-tours-openspec; status=ACTIVE; branch=feat/synthetic-tours-openspec; integration=main; base=16f41e89eb238431b339dfccc22473f791ed4908; plan=docs/superpowers/plans/2026-10-09-openspec-documentation-governance-cutover.md -->
 
-Updated: 2026-10-14  
+Updated: 2026-10-15\
 Branch: `feat/synthetic-tours-openspec`  
 Repository: `entity-builders-labs/zig-zag`
 
@@ -33,9 +33,10 @@ Repository: `entity-builders-labs/zig-zag`
   (preference utility derived upstream; explicit facets authoritative,
   semantic affinity within tier and UNKNOWN when missing, quality
   secondary; travel burden / mode friction / UNKNOWN-hours uncertainty as
-  soft costs); coefficients OPEN behind gate G-P7-U (task 33.0). The
-  experimental `p-d7/` spike is non-production evidence.
-- G-P7-U part A (owner, 2026-10-14): RESOLVED. Part B: OPEN. P-D7: OPEN.
+  soft costs); coefficients resolved by gate G-P7-U (task 33.0) on
+  2026-10-15. The experimental `p-d7/` spike is non-production evidence.
+- G-P7-U part A (owner, 2026-10-14): RESOLVED. Part B (owner,
+  2026-10-15): RESOLVED. P-D7: RESOLVED.
   - **Provenance.** A deterministic validator, not the LLM, derives
     `DIRECT` (a wizard pick, or an excerpt that maps through the versioned
     vocabulary or its aliases) or `INFERRED`.
@@ -54,6 +55,38 @@ Repository: `entity-builders-labs/zig-zag`
   - **Open gap POLARITY-1 (task 25.6).** Polarity must be established
     before `DIRECT` evidence participates.
   - Implementation is tasks 25.2, 25.4 and 25.6.
+- Pre-/apply gates analysed 2026-10-14 and decided by the owner
+  2026-10-15 (uncommitted, awaiting owner review):
+  - **G-P7-U.B: RESOLVED; P-D7: RESOLVED** (`g-p7-u-b/`).
+    - The 25 PROPOSED judgments are accepted as the initial versioned
+      set. D1 and D2: a drive or cycling minute equals a walking minute,
+      with separate per-leg friction. D3: a hard request cycling limit
+      with no universal default. D4: the order-preserving repair, limited
+      to projection ties.
+    - Adopted `preference-objective-v1` (EVIDENCE_BACKED_INITIAL_POLICY):
+      K 100, β 0.20, γ 0.12, A_DRIVE 11, A_BICYCLE 4.5, ρ 0.15.
+    - Rerun at that policy: all 32 judgments hold. B-O4 is the tightest
+      (margin 0.098), so a bicycle cost/friction change reruns B-O4, the
+      full judgment suite and the Tour/cross-evaluation set (provenance,
+      not a gate);
+      732/732 planned, 0 violations; SL1000 gap 17/60 > 1 %, max 6.9 %.
+  - **G-P7-B: CLOSED** (`g-p7-b/`). Factual side resolved 2026-10-14;
+    cost c_BICYCLE 1 / A_BICYCLE 4.5; long rides bounded by the D3 limit.
+  - **40.2: OPEN (numeric value only).** Statistic p75 and the
+    sufficiency rule (≥ 30 observations, ≥ 8 per destination, ≥ 2 source
+    types, no destination > 50 %, leave-one-destination-out) decided; the
+    evidence-backed sample is 0 until 27.3 runs (`p-d2-f-40-2/`).
+  - **41.0 persistence prerequisite: RESOLVED.** One planning-evidence
+    persistence model (L2 assertions, research evidence, L3 ledger,
+    enrichment demand/attempts) in the existing database, separate from
+    the generation trace (design C14).
+  - **G1 / 28.6: CLOSED 2026-10-15, GO_WITH_REQUIREMENTS.** Geoapify
+    explicitly confirmed (relayed by the owner) that its API results may
+    be cached, stored and redistributed without retention restrictions;
+    this supersedes the 2026-10-14 NEEDS_VENDOR_CONFIRMATION desk review
+    (`routing-provider-evaluation-2026-10-12/g1/`). Attribution,
+    provenance, plan sizing and no exposure of internal matrices/cache
+    are implementation work in task 28.7, not gates.
 
 ## Current checkpoint
 
@@ -98,23 +131,38 @@ amendment (2026-10-11); no production code yet.**
   `tour-planning` spec (OPTIMIZER_FAILED, provider-neutral optimizer
   boundary, reproducibility/safety guard, optimizer identity in the plan),
   tasks 30.2/33/41.1/43.1 and the canonical planning paragraph.
+- Pre-/apply gate analysis and owner decisions (2026-10-14 / 2026-10-15,
+  uncommitted until owner review):
+  - spikes `g-p7-u-b/`, `g-p7-b/` (recorded bicycle matrices),
+    `p-d2-f-40-2/` and `routing-provider-evaluation-2026-10-12/g1/`;
+  - design (part B resolution and `preference-objective-v1`, BICYCLE,
+    P7 cycling limit, P10 CYCLING_LIMIT, P4 fallback p75 and sufficiency,
+    C14 planning-evidence persistence, C16 G1 closure, decision list);
+  - specs: `tour-planning` (an UNKNOWN Experience is never erased by the
+    cost alone; cycling limit; order-preserving repair),
+    `planning-travel-estimation` (bicycle traversal validity; routing data
+    attribution and provider terms) and `destination-knowledge-catalog`
+    (evidence memory is its own record type in shared persistence);
+  - tasks 24.2, 25.1, 28.6 (closed), new 28.7, 29.1, 33.0 (closed), 40.2,
+    41.0 and 41.1;
+  - the canonical planning and routing paragraphs.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner resolves the remaining decisions in design.md (task 24.2), each
-   before the group that needs it:
-   - gate G-P7-U part B (task 33.0) (preference-vs-travel / friction / uncertainty
-     calibration) before 41;
-   - the G1 Geoapify
-   storage-terms check (task 28.6, before
-   41; Valhalla-first if persistence is not permitted), and the P-D2-F
-   calibration gate approving `fallback-v1` (task 40.2, before 41).
+1. Owner reviews the uncommitted 2026-10-14 / 2026-10-15 gate analysis and
+   decisions, then authorizes the commit. The only remaining pre-41 gate
+   is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
+   sample that meets the sufficiency rule, compute p75, pass the
+   leave-one-destination-out check, then approve `fallback-v1`.
    Resolved: P-D2, R4-D4, P-D3, P-D6, R4-D2 (2026-10-11); R4-D1, P-D4
    (default PENALIZE), P-D2-F (global calibrated fallback; catalog-first
    maintenance, design C15), P-D1 (Geoapify initially, Valhalla scale-up;
    G2 closed with `traversal-validator-v1`, design C16), P-D5 (OR-Tools
-   Routing, gate G-P5) (2026-10-12).
+   Routing, gate G-P5) (2026-10-12); G1 (task 28.6, GO_WITH_REQUIREMENTS
+   on Geoapify's vendor confirmation), G-P7-U part B / P-D7
+   (`preference-objective-v1`), G-P7-B, the 40.2 statistic and
+   sufficiency rule, and the 41.0 persistence prerequisite (2026-10-15).
 2. Then `/opsx:apply gap-driven-destination-knowledge` starting at group 25
    (planning input/output contract); groups 35-38 may run in parallel on a
    separate sub-branch.
@@ -159,15 +207,23 @@ amendment (2026-10-11); no production code yet.**
 - P-D1 evidence: `spikes/routing-provider-evaluation-2026-10-12/`. Mapbox
   traversal not executed (no token; not economically competitive). Public
   transport has no matrix-capable provider except Google.
-- Open after R4-D1: persistence of L2 assertions, L3 ledger and research
-  evidence memory (prerequisite of task 41.0 and corridor products, not of
-  the single-place path); area-scope participation (task 43 audit).
+- Open after R4-D1: area-scope participation (task 43 audit). The L2 /
+  L3 / research-evidence / enrichment persistence was resolved on
+  2026-10-15 (design C14).
 - Open: provider-backed mechanism for path-constrained timing of a required
   bounded ROUTE traversal (design C0); needed before TRAVERSE-bearing
   Experiences are planned in production, not for the single-place cutover.
 - Task 31.1 (P-D6 routing recordings) needs a Geoapify API key configured in
   this worktree's environment (none is present here); recording source is
-  experimental and does not decide P-D1.
+  experimental and does not decide P-D1. The 2026-10-14 bicycle recording
+  read the key from the main checkout's `.env` for that one call; the key
+  is not stored anywhere.
+- The cycling limit (owner D3) does not exist in the request contract
+  yet. Task 25.1 adds a resolved cycling limit to the PlanningRequest
+  whenever BICYCLE is allowed (representation and unit decided there).
+  Input adapters resolve it before planning; the planner never knows the
+  interaction surface. No universal default: unresolved means invalid
+  planning input (planned rides reach 59 min without a limit).
 - Decide which existing `zig-zag-track-*` skills remain unchanged, which need
   OpenSpec awareness, and which become redundant after cutover.
 - Decide how active OpenSpec change identity and `tasks.md` replace the

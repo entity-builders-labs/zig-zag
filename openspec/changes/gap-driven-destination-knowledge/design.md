@@ -573,10 +573,40 @@ for catalog maintenance.
   calibration gate (task 40.2) must approve the value before production
   wiring (group 41): it computes, from evidence-backed typical durations in
   the task 27.3 probe sample and any RESOLVED catalog records across the
-  P-D6 destinations, the median typical duration with sample size, source
-  mix and spread, and the owner approves or rejects that value as
+  P-D6 destinations, the 75th percentile (p75) of typical duration (owner,
+  2026-10-15) with sample size, source mix and spread, and the owner
+  approves or rejects that value as
   `fallback-v1`. Any later change is a new version from new calibration
   evidence. No universal 60 minutes is product truth.
+- *Calibration status (2026-10-14, task 40.2; evidence
+  `spikes/planner-comparison-2026-10-12/p-d2-f-40-2/`): numeric value OPEN.*
+  - **The evidence-backed sample is empty.** There are no duration-knowledge
+    records yet (task 39.0), and the task 27.3 probe has not run. Every
+    duration in the planner fixtures and spikes is a fallback value, a
+    fixture class rule or an assumption, so none can be used.
+  - **Structural loss analysis** (OR-Tools, BA / Paris / LA, F = 30-120 min):
+    - The optimizer packs days whatever F is. The same plan breaks once
+      visits run more than about 0-10 % longer than planned (e\*), except
+      where opening hours rather than the day bind.
+    - Overestimation costs utilization almost proportionally: a saturated
+      day drops from 15-16 to 4 Experiences as F goes from 30 to 120.
+    - So the safety bias comes from the statistic, not from slack. A median
+      underestimates about half of the places it is used for.
+  - **Owner decisions (2026-10-15):**
+    - the statistic is p75: the optimizer leaves effectively no slack, so a
+      median systematically exposes plans to underestimation;
+    - sufficiency: at least 30 evidence-backed observations, at least 8 per
+      P-D6 destination, at least 2 source types (authority classes), no
+      destination above 50 % of the sample;
+    - robustness: the leave-one-destination-out check must pass (the global
+      p75 stays within the leave-one-destination-out range) before the value
+      is approved.
+  - **Still OPEN: the numeric value only**, pending task 27.3 evidence that
+    meets the sufficiency rule and the robustness check. No value is
+    invented.
+  - **Already defined for `fallback-v1`:** the rule `GLOBAL_DEFAULT`, which
+    applies per VISIT component only (never TRAVERSE time, never composite
+    internal travel), and the snapshot provenance.
 
 #### P5. Travel estimation / directions contract
 
@@ -651,8 +681,19 @@ PLACE component reached inside a valid opening window; the planner never
 reorders or drops required components and never bypasses a required
 traversal. Walking: maximum continuous walking per leg segment and
 daily walking budget, counting walking portions of non-walking legs
-(access/egress); allowed modes only. Walking limits shape mode choice and
-feasibility, never candidate-knowledge diagnostics.
+(access/egress); allowed modes only. Cycling (owner D3, 2026-10-15): when
+BICYCLE is allowed, the PlanningRequest contains a resolved cycling limit
+that bounds BICYCLE travel, measured on provider-backed bicycle estimates.
+The value may originate from explicit user input, conversational intent, a
+contextual UI action, a named/versioned mobility profile or a future input
+adapter; the adapter resolves it before planning. The planner never knows
+which surface (wizard, chat, UI action, API) produced it; the plan records
+the resolved limit with surface-neutral provenance (for example a profile
+name and version). No universal default exists: BICYCLE allowed with an
+unresolved cycling limit is invalid planning input. Task 25.1 decides the
+representation and unit; it is not assumed to be a single scalar. Walking and cycling limits shape mode
+choice and feasibility, are never objective weights, and never produce
+candidate-knowledge diagnostics.
 
 #### P8. Optimization model (algorithm-independent)
 
@@ -669,7 +710,8 @@ Hard constraints (never weighted): opening windows/closed days/last
 admission (P3; EXCLUDE policy where configured), day window, user unavailable
 windows, duration, travel-time consistency
 (`start_j >= end_i + travel(i, j, mode_ij)`), allowed and estimable modes,
-continuous and daily walking limits, at most one visit per candidate,
+continuous and daily walking limits, the cycling limit (P7), at most one
+visit per candidate,
 request-declared inclusion constraints (reported if infeasible, never
 silently dropped).
 
@@ -699,7 +741,7 @@ Every eligible candidate offered to the planner and not scheduled carries
 typed reasons: OPENING_HOURS, OPENING_HOURS_UNKNOWN_EXCLUDED, TRAVEL_TIME,
 TRAVEL_ESTIMATE_UNAVAILABLE, REQUIRED_TRAVERSAL_UNSATISFIED (a required
 traversal's estimate is CONSTRAINT_UNSATISFIED for every allowed mode), DAILY_CAPACITY, WALKING_LIMIT,
-NO_ALLOWED_TRAVEL_MODE, VISIT_DURATION, USER_TIME_WINDOW,
+CYCLING_LIMIT (new; BICYCLE legs beyond the cycling limit, P7), NO_ALLOWED_TRAVEL_MODE, VISIT_DURATION, USER_TIME_WINDOW,
 DOMINATED_BY_HIGHER_UTILITY_PLAN, OTHER_PLANNER_CONSTRAINT, with evidence
 (windows, legs and modes evaluated, walking figures). Mapping from the current
 `PlanningRejectionReason`: DAILY_TIME_CAPACITY_EXCEEDED → DAILY_CAPACITY;
@@ -1169,6 +1211,19 @@ disproven.
   with TRAVEL_ESTIMATION_UNAVAILABLE (MODE_UNAVAILABLE), no substitute mode,
   no Tour. BICYCLE is a confirmed first-release mode (G0) calibrated in
   G-P7-U.
+  - *G-P7-B (2026-10-14), factual side resolved.* Recorded Geoapify
+    `mode=bicycle` matrices exist for BA / Paris / LA, using the P11 points
+    (`spikes/planner-comparison-2026-10-12/g-p7-b/`).
+    - Bicycle is independent of the other modes: 0 unavailable pairs where
+      walking has 60; bicycle ÷ walk 0.20-0.40; some pairs slower than
+      walking and some faster than driving.
+    - BICYCLE legs appear only when allowed.
+    - A required walking traversal is never bicycle-timed: G2 rejects the
+      bicycle outputs for Defensa.
+  - *G-P7-B CLOSED (2026-10-15).* The bicycle cost is c_BICYCLE = 1 with
+    per-leg friction A_BICYCLE = 4.5 in `preference-objective-v1` (owner D2).
+    The resolved hard cycling limit (owner D3) bounds BICYCLE travel;
+    it is a feasibility constraint, never an objective weight.
 
 **Experimental evidence (`spikes/planner-comparison-2026-10-12/p-d7/`,
 non-production).** 1,567 validated runs on BA / Paris / LA with a generic
@@ -1202,7 +1257,8 @@ utility is represented for one request.
    specified expected preference hierarchies, reusing the accepted
    Preference-First fixtures and characterization tests.
 
-*Status (owner, 2026-10-14): A RESOLVED; B OPEN; P-D7 OPEN.* The owner
+*Status: A RESOLVED (owner, 2026-10-14); B RESOLVED (owner, 2026-10-15);
+P-D7 RESOLVED (2026-10-15).* The owner
 decided the facet-provenance rule (PROVENANCE-1). The owner then confirmed
 A with two adjustments:
 
@@ -1264,6 +1320,140 @@ much Tour-level cost a stronger preference match is worth.
 3. Reuse the P-D7 spike machinery (recorded travel, SL1000, independent
    validation, best-known cross-evaluation) for stability, sensitivity and
    cross-city checks.
+
+*Status B: RESOLVED (owner, 2026-10-15). P-D7 RESOLVED.* The analysis of
+2026-10-14 is below; the owner decisions and the adopted policy follow it.
+Evidence is in `spikes/planner-comparison-2026-10-12/g-p7-u-b/` (judgments,
+regions, 732 OR-Tools runs at the proposed check point and 732 at the
+adopted policy) and, for BICYCLE, in `g-p7-b/`.
+
+Method:
+- 32 pairwise Tour judgments, each stated before any parameter is examined.
+  7 are DERIVED from accepted rules and 25 are PROPOSED, which needs owner
+  confirmation.
+- Each judgment becomes an inequality. Feasible regions come from grid
+  enumeration; nothing is fitted to fixtures.
+
+Findings that do not depend on the owner's answers:
+- **Prize.** One cardinal prize per Experience is required. Routing has no
+  lexicographic objective, and mixed-radix prizes would make one `DIRECT`
+  match outweigh any number of others and any amount of travel. Tour
+  satisfaction is the sum of the prizes.
+- **Projection.** The smallest faithful projection builds the prize from
+  A's stated quantities:
+  `p = K · (D + β·I + γ·r) / max over the request`, where:
+  - D = Σ `DIRECT` importance;
+  - I = Σ `INFERRED` importance × confidence;
+  - r = the within-request refinement position (anchor → semantic →
+    quality).
+- **Order-preserving repair.** Confidence is continuous, so the projection
+  needs a deterministic step that raises prizes at near-ties. Equal-cost
+  swaps then always follow A's order. Owner constraints (D4): the repair
+  only preserves A's deterministic order at ties and near-ties created by
+  the projection; it adds no preference signal, never overturns materially
+  different satisfaction, is deterministic, and is explainable in the
+  generation trace (each repaired prize records its pre-repair value and
+  the A ordering it preserves).
+- **Many lower vs one higher.** Whether several lower-ranked Experiences
+  outweigh one higher-ranked one is a prize ratio, not a rule.
+- **Mode friction is required.** Minutes alone cannot rank one long drive
+  above two short drive legs. Friction is a per-leg product term; it is
+  never added to a travel estimate.
+- **UNKNOWN hours.** The cost is relative, ρ·f·p with 0 < ρ < 1, so it alone
+  never erases an Experience.
+- **Accepted semantics alone leave every coefficient effectively
+  unbounded.** The DERIVED-only regions span 20× to 170×.
+
+Under the 25 PROPOSED judgments (accepted by the owner on 2026-10-15 as the
+initial judgment set):
+
+| parameter | region |
+|---|---|
+| K, tme for the request's best Experience (1 walking minute = 1) | 61-144 |
+| β | 0.10-0.30 |
+| γ | 0.076-0.21 |
+| A_DRIVE (c_DRIVE = 1) | 8.6-14.8 |
+| ρ (at K = 100) | 0.054-0.27 |
+| A_BICYCLE (c_BICYCLE ≤ 1.36) | 2.0-12.7 |
+| A_BICYCLE if c_BICYCLE = 1 | 3.2-5.9 (narrow) |
+
+The 2026-10-14 check point K 100 / β 0.2 / γ 0.12 / c_DRIVE 1 / A_DRIVE 11 /
+c_BICYCLE 0.6 / A_BICYCLE 6 / ρ 0.15 satisfies all 32 judgments. Perturbing
+each parameter ×0.75 / ×1.33 flips only P-O7 (semantic swap at +5 min, the
+knife-edge judgment). In 732 runs across BA / Paris / LA and five mode
+profiles there were:
+- 0 hard-constraint violations and 0 forbidden-mode legs;
+- identical repeats and SOLUTION_LIMIT stops on every run, with a 1.9 s
+  median solve time;
+- no city-specific value.
+
+The SL1000 search gap against best-known plans (18/60 problems > 1 %, max
+7.2 %, mostly start+end anchors) matches the recorded P-D5 finding and is
+not a material worsening.
+
+Owner decisions (2026-10-15), recorded in the spike README's decision
+table:
+- the 25 PROPOSED judgments are accepted as the initial, versioned
+  product-policy judgment set (a baseline that may be revised, not a
+  universal truth);
+- D1: 1 DRIVE minute = 1 WALK minute (c_DRIVE = 1); DRIVE friction stays a
+  separate per-leg term;
+- D2: 1 BICYCLE minute = 1 WALK minute (c_BICYCLE = 1); BICYCLE friction
+  stays a separate per-leg term;
+- D3: when BICYCLE is allowed the PlanningRequest contains a resolved hard
+  cycling limit, resolved by the input adapter (surface-neutral), a
+  feasibility constraint and never an objective weight (P7); no universal
+  numeric default is invented;
+- D4: the order-preserving repair, with the constraints above.
+
+**Adopted objective policy `preference-objective-v1`
+(EVIDENCE_BACKED_INITIAL_POLICY, not a universal optimum):**
+
+| term | value |
+|---|---|
+| K (tme for the request's best Experience) | 100 |
+| β (INFERRED vs DIRECT) | 0.20 |
+| γ (refinement) | 0.12 |
+| c_WALK / A_WALK | 1 / 0 (the unit) |
+| c_DRIVE / A_DRIVE | 1 / 11 |
+| c_BICYCLE / A_BICYCLE | 1 / 4.5 |
+| ρ (UNKNOWN hours) | 0.15 |
+
+Validation at the adopted policy (`runs/judgments.json` → `adoptedPoint`,
+`runs/tours_adopted.json`, `runs/tours_summary_adopted.json`,
+`runs/crosseval_adopted.json`):
+- all 32 judgments hold. The narrowest margin is B-O4 (bicycle 10 vs
+  drive 5) at 0.098, then P-O7 at 0.18. A_BICYCLE 4.5 lies inside the
+  c_BICYCLE = 1 region 3.2-5.9;
+- one-at-a-time ×0.75 / ×1.33 perturbation flips P-O7 (K×0.75, γ×0.75)
+  and B-O4 (A_DRIVE×0.75, c_BICYCLE×1.33). These are the narrow judgments
+  the owner accepted with D2; any change is a new policy version;
+- 732 OR-Tools runs: 732 PLANNED, 0 hard-constraint violations, 0
+  forbidden-mode legs, identical repeats, every stop SOLUTION_LIMIT,
+  median solve 1.9 s, max 5.1 s; the San Telmo composite is never
+  scheduled without WALK;
+- one policy across BA / Paris / LA: `DIRECT` share of scheduled
+  Experiences 0.50-0.74; Paris uses no DRIVE leg in WALK+DRIVE+BICYCLE,
+  LA uses 25 DRIVE and 11 BICYCLE legs;
+- SL1000 gap against best-known plans: 17/60 problems > 1 %, max 6.9 %,
+  mean 0.93 % — the recorded P-D5 pattern, not a material worsening;
+- no cycling limit was applied in the runs (none is defined without a
+  request). The longest planned single rides are 59 min (BA), 46 min (LA)
+  and 11 min (Paris); under D3 a request's limit makes longer rides
+  infeasible.
+
+Bicycle sensitivity (calibration provenance, not a gate): B-O4 (a 10-min
+bicycle leg preferred to a 5-min drive) is the tightest accepted judgment,
+margin 0.098, so the bicycle terms of `preference-objective-v1`
+(c_BICYCLE 1.0, A_BICYCLE 4.5) are sensitivity-bound by it. Any future
+objective-policy version that changes bicycle cost or friction reruns B-O4,
+the complete accepted judgment suite and the Tour / cross-evaluation
+regression set before publication.
+
+Recalibration: changing a coefficient, a judgment or the judgment set
+requires rerunning the spike scripts and records a new objective policy
+version (spec `tour-planning`, "Versioned planner objective").
+
 P-D7 is fully resolved only when all are answered with evidence: what
 represents preference satisfaction; how explicit facets participate; how
 embeddings participate; how explicit evidence outranks semantic inference;
@@ -1745,7 +1935,7 @@ primary key, so they cannot become a second identity.
 | Internal composite snapshot | `TourExperienceComponent` (`order`, `role`, `required`, `name`, coords, `geometry`) | all | `participation?`, `plannedStart?`, `plannedEnd?`, `planningEvidence Json?`; `geometry` holds the bounded segment for TRAVERSE | per-component times/windows are the internal timeline |
 | Merge diagnostics | `GeoEntityIdentity` rows | rows = merged identities, GeoEntity = survivor | `linkRule?`, `linkPolicyVersion?`, `linkEvidence Json?` | the merge decision is the identity attachment |
 | Possible duplicates | none | — | **not persisted**; reconciliation/generation trace only | creates no canonical fact; reproducible from recorded provider inputs |
-| L2 assertions, L3 ledger, evidence memory | none | — | not mapped by R4-D1 | enrichment/semantic storage; mapped before group 41.0 and corridor products (open) |
+| L2 assertions, L3 ledger, evidence memory, enrichment demand/attempts | none | — | one planning-evidence persistence model (C14 "Planning-evidence persistence", RESOLVED 2026-10-15); tables written in task 41.0 | enrichment/semantic storage; not on the ordinary single-place path |
 
 #### Proposed Prisma shape (pseudo-Prisma; schema is edited only by `/opsx:apply`)
 
@@ -1986,7 +2176,7 @@ membership policies, resolution facts) are migrated (task 43).
 | Admission signals | stored minimally with the fact (`evidence` items referencing provider identity + field), policy version, timestamp |
 | PART_OF | stored with the relation (`evidenceSource`, `evidence`), classification version |
 | Opening hours | stored with the fact (`source`, `sourceRecordRef`, `sourceRaw`, `parserVersion`, `retrievedAt`) |
-| Visit duration | stored with the fact (authority class, evidence items, resolver version); grounded research captures live in research evidence memory once mapped |
+| Visit duration | stored with the fact (authority class, evidence items, resolver version); research-derived evidence items reference research evidence records by id (C14, "Planning-evidence persistence") |
 | Bounded traversal | stored with the component (`traversalGeometrySource`, `traversalResolvedAt`) |
 | Experience justification | derived through components → GeoEntity admission/relations; `ExperienceEvidence` stays for source-extracted Experiences |
 | Verified hints | unchanged (`GeoEntityVerifiedHintAssertion`) |
@@ -2027,11 +2217,109 @@ Composite internal feasibility
   TourExperienceComponent.planningEvidence.
 ```
 
-**Remaining open after R4-D1:** persistence of L2 assertions, the L3
-ledger and research evidence memory (needed before group 41.0 and any
-corridor product; not on the ordinary single-place path); the area-scope
-participation question (task 43 audit); P-D1, P-D5, P-D7 and
-the constrained-routing mechanism.
+**Remaining open after R4-D1:** the area-scope participation question
+(task 43 audit). Resolved since: P-D1, P-D5 and P-D7 (decision list), and
+the persistence of L2 assertions, the L3 ledger, research evidence memory
+and enrichment demand/attempts (owner, 2026-10-15; below).
+
+#### Planning-evidence persistence (task 41.0 prerequisite — RESOLVED, owner 2026-10-15)
+
+One durable planning-evidence persistence model with four logically
+distinct record types. They are not four unrelated storage systems: they
+share one persistence technology, one provenance envelope and stable-id
+references between them. Each keeps its own write authority (spec
+`destination-knowledge-catalog`).
+
+| record type | meaning | written by | mutability |
+|---|---|---|---|
+| L2 assertion | a durable claim the system currently believes (e.g. RELEVANT_FOR, NOTABLE_WITHIN, WALKING_CORRIDOR) | grounding only | current head plus append-only revisions |
+| research evidence | source-backed evidence that supports or refutes assertions (document snapshots, captures, pending claims, unoffered mentions) | research / evidence retrieval | append-only; a re-verification appends a new record |
+| L3 ledger entry | a durable record of a domain decision, transition or selected action (gap and evaluation-question outcomes, demand transitions, typed-fact updates) | outcome recording and the maintenance path | append-only |
+| enrichment demand / attempt | a missing or stale knowledge gap, and each attempt to fill it | demand: generation and catalog-health detection; attempt: the maintenance path | demand: one open record per key with signal counters; attempts append-only |
+
+Relationships (stable ids, no duplicated evidence payloads):
+- an L2 assertion revision references the research evidence that supports
+  or refutes it (link role SUPPORTS / REFUTES);
+- an L3 ledger entry may reference the assertion revisions and evidence
+  its decision used;
+- an enrichment demand records the gap, keyed by `(fact type, canonical
+  subject id)` (C15);
+- an enrichment attempt references its demand and either the evidence it
+  produced or a typed failure (INSUFFICIENT_EVIDENCE, BUDGET_EXHAUSTED,
+  FAILED);
+- a successful enrichment updates canonical knowledge only through its
+  authority: grounding creates or revises L2 assertions; typed facts
+  (visit duration, opening hours) are updated in their C14 tables. Either
+  way an L3 entry links the attempt, the evidence and the resulting
+  record.
+
+Provenance envelope on every record, answering what / why / from which
+evidence / for which subject and run / under which policy / when:
+- stable id and record type;
+- subject (kind + canonical id: GeoEntity, Experience, destination or
+  area) and, where applicable, the evaluation-question or gap key;
+- cause: the generation request, maintenance run or attempt id that
+  produced it;
+- source references (evidence ids, provider identity and retrieval time;
+  never an inline copy of another record's payload);
+- policy key and version, plus producer component and version;
+- created-at time;
+- an idempotency key, unique per record type, so a retried write never
+  duplicates a record.
+
+History semantics:
+- nothing destructively overwrites historical truth;
+- an L2 assertion has a head (current belief) and append-only revisions.
+  Each revision keeps its belief and status (ACTIVE, RETRACTED, SUPERSEDED,
+  CONFLICTING), its evidence links, its cause and its policy version, so
+  the previous belief, the new belief, the evidence for the change and its
+  time and version can be reconstructed. This follows the precedent of
+  `GeoEntityVerifiedHintAssertion` (append plus revocation, never delete);
+- C14 typed facts keep R4-D1's in-place update with no history table. The
+  L3 entry recording each update keeps the previous and new values (typed,
+  bounded), the evidence ids and the policy versions, so their history is
+  reconstructable from the ledger;
+- L3 entries and enrichment attempts are append-only. Demand state changes
+  (PENDING → IN_PROGRESS → SATISFIED / BACKOFF / ABANDONED) are recorded as
+  L3 transitions; the demand row keeps only its current state and its
+  signal counters (first and last signal, count).
+
+Read rules (unchanged layer semantics):
+- readiness, composition and planning read GeoEntities, L2, Experiences,
+  C14 facts and the ledger. They never read research evidence as
+  knowledge; only grounding consumes evidence (spec
+  `research-evidence-memory`);
+- freshness and backoff checks (R9, C15) read the ledger and the demand by
+  key.
+
+Boundary with the generation trace:
+- this model is durable domain state needed by later planning and research
+  work. The generation trace is generic, business-agnostic operational
+  observability for one execution;
+- the trace may record references (`assertionId`, `evidenceId`,
+  `ledgerEntryId`, `enrichmentDemandId`, `enrichmentAttemptId`,
+  `policyVersion`). It is never the system of record for L2, L3, evidence
+  or enrichment state, and no decision reads the trace. Planner
+  diagnostics in the Tour snapshot are likewise explanation, not this
+  state.
+
+Storage: the existing canonical persistence (PostgreSQL through Prisma)
+satisfies every requirement:
+- durable storage;
+- indexed lookup by subject, key, request, run and attempt;
+- provenance links as foreign keys;
+- version history as revision rows;
+- idempotent writes through unique idempotency keys;
+- bounded retrieval with keyset pagination per subject or key.
+
+Fields that participate in decisions (keys, statuses, outcomes, policy
+versions, subject ids) are typed columns. Bounded JSON is allowed only for
+non-decision payloads (for example a capture excerpt). No separate database
+is introduced. A separate physical store is escalated only if an existing
+requirement proves it necessary (for example the deferred FTS/vector
+retrieval over evidence memory, R8, which pgvector in the same database may
+already cover). No retention TTL is fixed here (C15 freshness policy). The
+concrete Prisma models are written by `/opsx:apply` in task 41.0.
 
 ### C15. Catalog-first operating model and asynchronous knowledge maintenance
 
@@ -2082,8 +2370,8 @@ ledger semantics: on detection, the maintenance path checks whether demand
 for that key is already pending or was attempted recently (per a versioned
 freshness/backoff policy) and records new demand only if due. Repeated
 requests that meet the same gap add at most a signal, never a new research
-run. The concrete store for demand, attempts and outcomes belongs to the
-later L2/L3/research-store design.
+run. Demand, attempts and outcomes are stored in the planning-evidence
+persistence model (C14, "Planning-evidence persistence").
 
 **Request diagnostics vs catalog-health signals.**
 
@@ -2273,9 +2561,10 @@ first-release requirements.
   measured monthly comparison of routing spend against Valhalla's
   infrastructure + operations cost, not a fixed threshold. Switching is an
   adapter/configuration change.
-- **Valhalla-first alternative:** if G1 shows Geoapify results cannot be
-  stored in Tour snapshots / catalog traversal timings, start with
-  Valhalla (functionally proven here; no storage restriction).
+- **Valhalla-first alternative (not triggered):** it applied only if G1
+  showed Geoapify results could not be stored in Tour snapshots / catalog
+  traversal timings. G1 CLOSED on 2026-10-15 with storage permitted, so
+  production starts with Geoapify; Valhalla remains the scale-up path.
 
 #### G2 — traversal-validator calibration (CLOSED 2026-10-12)
 
@@ -2329,7 +2618,7 @@ CONSTRAINT_UNSATISFIED is the correct outcome.
 - **G0 (product):** confirm the first-release mode set walk / drive /
   bicycle with public transport MODE_UNAVAILABLE (no matrix-capable transit
   except Google).
-- **G1 (terms):** verify from Geoapify's legal terms whether routing,
+- **G1 (terms, CLOSED 2026-10-15):** verify from Geoapify's legal terms whether routing,
   matrix and map-matching results may be persisted (Tour snapshot legs,
   ExperienceComponent traversal timing, recorded test fixtures, cross-request
   pair caching). Decides Geoapify-first vs Valhalla-first.
@@ -2344,10 +2633,47 @@ CONSTRAINT_UNSATISFIED is the correct outcome.
 
 Gate status: G0 confirmed by the owner (first release walk / drive /
 bicycle as enabled by product policy; no public transport); G2 CLOSED
-(above); G1 is carried as a pre-wiring compliance check (task 28.6, before
-group 41): if Geoapify's terms forbid persisting results in Tour
-snapshots, traversal timings or test recordings, the resolved fallback is
-Valhalla-first behind the same contracts.
+(above); G1 CLOSED (2026-10-15, task 28.6): GO_WITH_REQUIREMENTS, so
+Geoapify is the initial production provider and Valhalla-first is not
+triggered.
+
+*G1 — CLOSED 2026-10-15: GO_WITH_REQUIREMENTS.* The dated source record
+is `spikes/routing-provider-evaluation-2026-10-12/g1/` (not legal
+advice).
+
+Authoritative evidence: Geoapify's explicit vendor confirmation, relayed
+by the owner and recorded 2026-10-15. Geoapify API results may be cached,
+stored and redistributed without retention restrictions; the confirmation
+names geocoding data, Places API results and static-map outputs as
+examples. This resolves the material term of G1 (persisting results in
+Tour snapshot legs, ExperienceComponent traversal timings, recorded
+fixtures and a cross-request pair cache).
+
+History: the 2026-10-14 desk review classified G1 as
+NEEDS_VENDOR_CONFIRMATION, because the storage permission then appeared
+only in Geoapify's FAQ, while the Terms and Conditions (v5, 2024-02-02)
+and the Routing, Route Matrix and Map Matching pages were silent. The
+vendor confirmation above supersedes that classification. Facts from the
+review that still hold:
+- **Attribution.** OpenStreetMap attribution is always mandatory.
+  Geoapify attribution is mandatory on the Free plan. Per-API attribution
+  is returned in the result object.
+- **Commercial use** is allowed, including the Free plan in production
+  within its limits (3,000 credits/day, 5 req/s). A 31-point matrix costs
+  310 credits. Splitting requests across accounts is forbidden.
+- **ODbL.** Tours shown to users are Produced Works that need OSM
+  attribution. An internal pair cache is not Public Use.
+
+Requirements (implementation and compliance, task 28.7; not architecture
+gates):
+- show all required OpenStreetMap / provider attribution in the app;
+- keep the provider's attribution metadata with stored results where the
+  provider returns it;
+- size the production Geoapify plan from measured credits per Tour;
+- document the cache, storage and redistribution rights with the vendor
+  confirmation;
+- do not expose internal matrices or the pair cache unless the product
+  intentionally requires it.
 
 ### Superseded by revision 4
 
@@ -2381,7 +2707,11 @@ Valhalla-first behind the same contracts.
   `endTime`, TourExperienceComponent internal-timeline fields). Derived
   states (SUB_FEATURE_OF, PARENT_NOT_ADMITTED) and fallback durations are
   not stored; possible duplicates stay in the trace; no history tables.
-  Contract: design C14.
+  Contract: design C14. Follow-up resolved (owner, 2026-10-15): L2
+  assertions, research evidence, the L3 ledger and enrichment
+  demand/attempts form one planning-evidence persistence model in the
+  existing database (C14, "Planning-evidence persistence"), separate from
+  the generation trace; the task 41.0 prerequisite is met.
 - **R4-D2. RESOLVED (owner, 2026-10-11): visit-unit distinction for
   children.** PART_OF / containment alone does not decide independent
   schedulable-Experience status. Each established relationship is classified from
@@ -2444,7 +2774,11 @@ Valhalla-first behind the same contracts.
   first-release criterion (predicted traffic may be revisited for drive).
   Nominatim is outside P-D1 (destination / reverse resolution; old-pipeline
   uses retire); Overture is a PLACE source, not routing. G1 (storage terms)
-  is verified before group 41, with Valhalla-first as the fallback.
+  is CLOSED (2026-10-15, C16): GO_WITH_REQUIREMENTS on Geoapify's explicit
+  vendor confirmation that results may be cached, stored and redistributed
+  without retention restrictions; Valhalla-first is not triggered.
+  Attribution, provenance, plan sizing and no exposure of internal
+  matrices/cache are implementation requirements (task 28.7).
   Contract: design C16.
 - **P-D2. RESOLVED (owner, 2026-10-11): evidence-backed visit-duration
   resolution.** No single arbitrary fallback constant. Duration is reusable
@@ -2466,6 +2800,9 @@ Valhalla-first behind the same contracts.
   emits deduplicated asynchronous enrichment demand (C15). The numeric value
   is not chosen: the calibration gate (task 40.2) must approve `fallback-v1`
   from evidence-backed durations before group 41. Contract: design P4, C15.
+  40.2 status (2026-10-15): statistic p75 and the sufficiency/robustness
+  rule decided by the owner (P4); numeric value OPEN — the evidence-backed
+  sample is empty until task 27.3 runs.
 - **P-D3. RESOLVED (owner, 2026-10-11): routing unavailable fails
   explicitly; no fabricated travel times.** Provider-backed estimates only;
   partial mode availability continues with usable modes; an unevaluable
@@ -2513,8 +2850,8 @@ Valhalla-first behind the same contracts.
   integration is that experimental source and does not become P-D1.
   Candidate counts are fixed in the pre-registered protocol (task 31.1).
   Contract: design P11.
-- **P-D7. Planner objective — STRUCTURE RESOLVED (owner, 2026-10-14);
-  coefficients OPEN behind gate G-P7-U.** Resolved: the objective is
+- **P-D7. Planner objective — RESOLVED (structure owner 2026-10-14;
+  coefficients owner 2026-10-15, gate G-P7-U CLOSED).** Resolved: the objective is
   preference-first — maximize the request's preference satisfaction over
   hard-feasible itineraries, then account for travel burden, optional mode
   friction and opening-hours uncertainty as soft costs (section "P-D7
@@ -2533,15 +2870,27 @@ Valhalla-first behind the same contracts.
   version. OR-Tools receives only the prize that the versioned objective
   policy projects from it. The planner's duplicate recombination
   (`plannerRelevanceScore`) is removed. Gate G-P7-U part A (encoding) is
-  RESOLVED (owner, 2026-10-14); part B is OPEN, so P-D7 remains OPEN. Allowed modes, hard exclusions and every other
+  RESOLVED (owner, 2026-10-14); part B is RESOLVED (owner, 2026-10-15), so
+  P-D7 is RESOLVED. Allowed modes, hard exclusions and every other
   hard constraint stay outside the objective; TRANSIT stays feature-gated in
   v1 and is never substituted. Not production policy: the experimental
   coefficients of `spikes/planner-comparison-2026-10-12/p-d7/` (K = 120,
   +10 per DRIVE leg, 10 % UNKNOWN discount) were fitted on generic
-  desirability and are rejected as product semantics. Open (G-P7-U part B,
-  task 33.0): the production coefficients for preference vs travel, mode friction
-  (DRIVE, BICYCLE), and UNKNOWN-hours cost, from preference evidence.
-  Structure is needed by groups 25/33; coefficients before group 41.
+  desirability and are rejected as product semantics. Production
+  coefficients (G-P7-U part B, task 33.0): objective policy
+  `preference-objective-v1`, EVIDENCE_BACKED_INITIAL_POLICY — K 100, β 0.20,
+  γ 0.12, c_DRIVE 1 / A_DRIVE 11, c_BICYCLE 1 / A_BICYCLE 4.5, ρ 0.15 — inside
+  the region set by the 32 judgments (25 PROPOSED accepted as the initial
+  versioned judgment set) and owner answers D1-D4; a hard request cycling
+  limit (D3, P7). Recalibration records a new policy version.
+  Part B analysis (2026-10-14, spike `g-p7-u-b/`):
+  - **Structure established by evidence.** An additive per-Experience prize
+    projected from A's stated quantities, with an order-preserving repair;
+    per-leg vehicle friction required; a relative UNKNOWN-hours cost.
+  - **Coefficients.** Accepted semantics alone do not bound them; the owner
+    accepted the 25 PROPOSED judgments and answered D1-D4 on 2026-10-15,
+    and the adopted policy satisfies all 32 judgments with 0 violations in
+    732 OR-Tools runs. Part B and P-D7 RESOLVED.
 - **Q1. Admissible categories: the backend's existing tourism POI classes.**
   The admission vocabulary is the tag classes the backend already treats as
   ordinary tourism POIs (`buildPoisWithinAreaQuery`: `tourism` except lodging

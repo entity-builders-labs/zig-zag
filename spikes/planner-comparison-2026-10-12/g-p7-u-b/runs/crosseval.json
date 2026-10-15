@@ -1,0 +1,611 @@
+{
+ "summary": {
+  "problems": 60,
+  "over1pct": 18,
+  "max": 7.24,
+  "mean": 1.01,
+  "exact": 26
+ },
+ "rows": [
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "checkPointValue": 586.12,
+   "bestKnown": 586.2,
+   "bestBy": "gx1.33",
+   "gapPct": 0.01,
+   "plansCompared": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 753.16,
+   "bestKnown": 767.14,
+   "bestBy": "bx0.75",
+   "gapPct": 1.82,
+   "plansCompared": 11
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 787.42,
+   "bestKnown": 804.7,
+   "bestBy": "bx0.75",
+   "gapPct": 2.15,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 798.72,
+   "bestKnown": 801.27,
+   "bestBy": "Adx1.33",
+   "gapPct": 0.32,
+   "plansCompared": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 763.23,
+   "bestKnown": 778.49,
+   "bestBy": "Abx1.33",
+   "gapPct": 1.96,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "checkPointValue": 519.27,
+   "bestKnown": 521.65,
+   "bestBy": "bx0.75",
+   "gapPct": 0.46,
+   "plansCompared": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 733.22,
+   "bestKnown": 734.58,
+   "bestBy": "Kx0.75",
+   "gapPct": 0.19,
+   "plansCompared": 11
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 718.19,
+   "bestKnown": 720.4,
+   "bestBy": "Kx0.75",
+   "gapPct": 0.31,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 754.34,
+   "bestKnown": 763.67,
+   "bestBy": "Kx1.33",
+   "gapPct": 1.22,
+   "plansCompared": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 718.19,
+   "bestKnown": 725.04,
+   "bestBy": "cbx0.75",
+   "gapPct": 0.94,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "checkPointValue": 377.33,
+   "bestKnown": 377.33,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 554.54,
+   "bestKnown": 554.54,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 11
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 530.26,
+   "bestKnown": 530.59,
+   "bestBy": "Kx0.75",
+   "gapPct": 0.06,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 566.51,
+   "bestKnown": 574.4,
+   "bestBy": "cbx1.33",
+   "gapPct": 1.37,
+   "plansCompared": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 530.59,
+   "bestKnown": 530.59,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "checkPointValue": 261.23,
+   "bestKnown": 261.23,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 464.62,
+   "bestKnown": 490.7,
+   "bestBy": "bx1.33",
+   "gapPct": 5.31,
+   "plansCompared": 11
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 477.46,
+   "bestKnown": 488.03,
+   "bestBy": "cbx1.33",
+   "gapPct": 2.17,
+   "plansCompared": 13
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 497.19,
+   "bestKnown": 521.95,
+   "bestBy": "cbx0.75",
+   "gapPct": 4.74,
+   "plansCompared": 15
+  },
+  {
+   "city": "BA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 465.04,
+   "bestKnown": 501.36,
+   "bestBy": "Kx1.33",
+   "gapPct": 7.24,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "checkPointValue": 325.02,
+   "bestKnown": 329.62,
+   "bestBy": "Kx0.75",
+   "gapPct": 1.4,
+   "plansCompared": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 499.98,
+   "bestKnown": 501.55,
+   "bestBy": "Kx0.75",
+   "gapPct": 0.31,
+   "plansCompared": 11
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 505.96,
+   "bestKnown": 517.93,
+   "bestBy": "rhox0.75",
+   "gapPct": 2.31,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 518.95,
+   "bestKnown": 522.83,
+   "bestBy": "Abx0.75",
+   "gapPct": 0.74,
+   "plansCompared": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 493.02,
+   "bestKnown": 507.65,
+   "bestBy": "Kx0.75",
+   "gapPct": 2.88,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "checkPointValue": 327.47,
+   "bestKnown": 327.51,
+   "bestBy": "Kx0.75",
+   "gapPct": 0.01,
+   "plansCompared": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 486.64,
+   "bestKnown": 486.64,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 11
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 486.87,
+   "bestKnown": 486.87,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 492.0,
+   "bestKnown": 493.79,
+   "bestBy": "rhox1.33",
+   "gapPct": 0.36,
+   "plansCompared": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 481.13,
+   "bestKnown": 481.13,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "checkPointValue": 100.0,
+   "bestKnown": 100.0,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 362.85,
+   "bestKnown": 362.85,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 11
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 321.53,
+   "bestKnown": 321.53,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 361.31,
+   "bestKnown": 366.95,
+   "bestBy": "Adx0.75",
+   "gapPct": 1.54,
+   "plansCompared": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 321.53,
+   "bestKnown": 321.53,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "checkPointValue": 0.0,
+   "bestKnown": 0.0,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 256.19,
+   "bestKnown": 269.39,
+   "bestBy": "Adx1.33",
+   "gapPct": 4.9,
+   "plansCompared": 11
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 238.28,
+   "bestKnown": 253.1,
+   "bestBy": "Kx1.33",
+   "gapPct": 5.86,
+   "plansCompared": 13
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 281.74,
+   "bestKnown": 281.74,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 15
+  },
+  {
+   "city": "LA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 238.28,
+   "bestKnown": 241.79,
+   "bestBy": "Abx0.75",
+   "gapPct": 1.45,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "A_WALK",
+   "checkPointValue": 579.4,
+   "bestKnown": 579.41,
+   "bestBy": "Kx1.33",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 607.86,
+   "bestKnown": 614.36,
+   "bestBy": "Adx1.33",
+   "gapPct": 1.06,
+   "plansCompared": 11
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 677.22,
+   "bestKnown": 677.22,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 677.22,
+   "bestKnown": 677.22,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S1-normal-pall",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 662.75,
+   "bestKnown": 665.22,
+   "bestBy": "cbx0.75",
+   "gapPct": 0.37,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "A_WALK",
+   "checkPointValue": 523.6,
+   "bestKnown": 523.61,
+   "bestBy": "bx0.75",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 619.11,
+   "bestKnown": 619.11,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 11
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 662.59,
+   "bestKnown": 668.33,
+   "bestBy": "cbx1.33",
+   "gapPct": 0.86,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 662.59,
+   "bestKnown": 668.33,
+   "bestBy": "cbx1.33",
+   "gapPct": 0.86,
+   "plansCompared": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S2-tight-hours",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 655.19,
+   "bestKnown": 660.26,
+   "bestBy": "bx0.75",
+   "gapPct": 0.77,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "A_WALK",
+   "checkPointValue": 361.75,
+   "bestKnown": 361.75,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 564.26,
+   "bestKnown": 564.26,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 11
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 600.9,
+   "bestKnown": 600.9,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 600.9,
+   "bestKnown": 600.9,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S5-oversupply-1day",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 599.52,
+   "bestKnown": 599.52,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "A_WALK",
+   "checkPointValue": 221.45,
+   "bestKnown": 221.45,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 9
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "B_WALK_DRIVE",
+   "checkPointValue": 365.05,
+   "bestKnown": 378.85,
+   "bestBy": "Kx0.75",
+   "gapPct": 3.64,
+   "plansCompared": 11
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "D_WALK_BICYCLE",
+   "checkPointValue": 435.65,
+   "bestKnown": 435.65,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 13
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "E_WALK_DRIVE_BICYCLE",
+   "checkPointValue": 435.65,
+   "bestKnown": 435.65,
+   "bestBy": "simple",
+   "gapPct": 0.0,
+   "plansCompared": 15
+  },
+  {
+   "city": "PA",
+   "scenario": "S9-anchors-startend-p20",
+   "profile": "F_BICYCLE",
+   "checkPointValue": 426.0,
+   "bestKnown": 429.97,
+   "bestBy": "rhox0.75",
+   "gapPct": 0.92,
+   "plansCompared": 13
+  }
+ ]
+}

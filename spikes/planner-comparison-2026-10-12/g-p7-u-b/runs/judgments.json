@@ -1,0 +1,1188 @@
+{
+ "objective": "(unit: tme = travel-minute equivalent; 1 walking minute = 1 tme):\n\n  TourUtility = \u03a3_scheduled p_i \u00b7 (1 \u2212 \u03c1\u00b7f_i)  \u2212  \u03a3_legs (c_m \u00b7 minutes + A_m)\n  p_i = K \u00b7 v_i / v_max(request)          v_i = D_i + \u03b2\u00b7I_i + \u03b3\u00b7r_i\n    D_i  \u03a3 stated importance of matched DIRECT facets  (strong 1.0 / medium 0.7 / weak 0.5, live mapping)\n    I_i  \u03a3 importance \u00d7 confidence of matched INFERRED facets\n    r_i  \u2208 [0, 1] within-request refinement position (soft anchor \u2192 semantic \u2192 quality, G-P7-U.A order)\n    f_i  uncertain / total VISIT components (P-D4)\n  c_WALK \u2261 1 (unit), c_DRIVE, c_BICYCLE per minute; A_DRIVE, A_BICYCLE per-leg mode friction; A_WALK = 0.",
+ "judgments": [
+  {
+   "id": "P-D1",
+   "group": "P",
+   "tourA": "swap in a weak DIRECT match (same travel)",
+   "tourB": "keep the best semantic-only candidate",
+   "status": "DERIVED",
+   "source": "G-P7-U.A: explicit evidence outranks anchor/semantic/quality; equal-cost swap follows the candidate order"
+  },
+  {
+   "id": "P-D2",
+   "group": "P",
+   "tourA": "swap in a weak DIRECT match (same travel)",
+   "tourB": "keep a strong INFERRED match at confidence 1.0 with the best refinement",
+   "status": "DERIVED",
+   "source": "G-P7-U.A: DIRECT outranks any INFERRED total (single INFERRED facet case)"
+  },
+  {
+   "id": "P-D3",
+   "group": "P",
+   "tourA": "swap in a strong INFERRED match at confidence 0.8 (same travel)",
+   "tourB": "keep the best semantic-only candidate",
+   "status": "DERIVED",
+   "source": "G-P7-U.A: INFERRED evidence outranks anchor/semantic/quality (typical confidence; arbitrarily low confidence is covered by the order-preserving repair, not by \u03b3)"
+  },
+  {
+   "id": "P-D4",
+   "group": "P",
+   "tourA": "the same Experiences in an order with 5 min of walking",
+   "tourB": "an order with 10 min of walking",
+   "status": "DERIVED",
+   "source": "preference-first: at equal preference satisfaction less travel is better"
+  },
+  {
+   "id": "P-O1a",
+   "group": "P",
+   "tourA": "add one strong DIRECT Experience at +40 min travel",
+   "tourB": "do not add it",
+   "status": "PROPOSED",
+   "source": "the user named this preference as strong; 40 min fits a 600 min day"
+  },
+  {
+   "id": "P-O1b",
+   "group": "P",
+   "tourA": "add one strong DIRECT Experience at +60 min travel",
+   "tourB": "do not add it",
+   "status": "PROPOSED",
+   "source": "as P-O1a; one hour of travel for a strongly stated preference is still worth it"
+  },
+  {
+   "id": "P-O1c",
+   "group": "P",
+   "tourA": "do not add",
+   "tourB": "add one strong DIRECT Experience at +150 min travel",
+   "status": "PROPOSED",
+   "source": "2.5 h of travel for one Experience degrades the Tour (a quarter of the day in transit)"
+  },
+  {
+   "id": "P-O2a",
+   "group": "P",
+   "tourA": "add one weak DIRECT Experience at +20 min",
+   "tourB": "do not add it",
+   "status": "PROPOSED",
+   "source": "a stated (weak) preference is worth a short detour"
+  },
+  {
+   "id": "P-O2b",
+   "group": "P",
+   "tourA": "do not add",
+   "tourB": "add one weak DIRECT Experience at +75 min",
+   "status": "PROPOSED",
+   "source": "a weakly stated preference is not worth more than an hour of travel"
+  },
+  {
+   "id": "P-O3a",
+   "group": "P",
+   "tourA": "add one strong INFERRED Experience (confidence 0.8) at +10 min",
+   "tourB": "do not add it",
+   "status": "PROPOSED",
+   "source": "an inferred match is still a preference match; a short detour is acceptable"
+  },
+  {
+   "id": "P-O3b",
+   "group": "P",
+   "tourA": "do not add",
+   "tourB": "add one strong INFERRED Experience (confidence 0.8) at +45 min",
+   "status": "PROPOSED",
+   "source": "the user never stated it; a long detour is not justified"
+  },
+  {
+   "id": "P-O4a",
+   "group": "P",
+   "tourA": "add the best semantic-only Experience at +3 min",
+   "tourB": "do not add it",
+   "status": "PROPOSED",
+   "source": "a relevant Experience on the way is worth adding when time allows"
+  },
+  {
+   "id": "P-O4b",
+   "group": "P",
+   "tourA": "do not add",
+   "tourB": "add the best semantic-only Experience at +20 min",
+   "status": "PROPOSED",
+   "source": "no stated or inferred preference; not worth a real detour"
+  },
+  {
+   "id": "P-O5",
+   "group": "P",
+   "tourA": "two medium DIRECT Experiences",
+   "tourB": "one strong DIRECT Experience (same total travel)",
+   "status": "PROPOSED",
+   "source": "each satisfied stated preference counts; 0.7 + 0.7 > 1.0 in the live importance mapping"
+  },
+  {
+   "id": "P-O6",
+   "group": "P",
+   "tourA": "one weak DIRECT Experience",
+   "tourB": "two strong INFERRED Experiences at confidence 0.8 (same travel)",
+   "status": "PROPOSED",
+   "source": "what the user said outranks what was inferred, even twice over"
+  },
+  {
+   "id": "P-O7",
+   "group": "P",
+   "tourA": "swap to a better-refined Experience (\u0394r = 0.5, same explicit evidence) at +5 min",
+   "tourB": "keep the original",
+   "status": "PROPOSED",
+   "source": "semantic refinement may justify a small detour"
+  },
+  {
+   "id": "U-D1",
+   "group": "U",
+   "tourA": "KNOWN-hours Experience",
+   "tourB": "otherwise identical UNKNOWN-hours Experience",
+   "status": "DERIVED",
+   "source": "P-D4 PENALIZE: known-compatible hours preferred over otherwise-equivalent UNKNOWN"
+  },
+  {
+   "id": "U-D2",
+   "group": "U",
+   "tourA": "schedule a lone UNKNOWN-hours weak DIRECT Experience (no extra travel)",
+   "tourB": "leave the slot empty",
+   "status": "DERIVED",
+   "source": "P-D4: UNKNOWN stays feasible; the cost must not erase an Experience by itself (owner brief)"
+  },
+  {
+   "id": "U-O1",
+   "group": "U",
+   "tourA": "UNKNOWN-hours strong DIRECT Experience",
+   "tourB": "KNOWN-hours weak DIRECT Experience (same travel)",
+   "status": "PROPOSED",
+   "source": "preference-first: uncertainty is a near-tie cost and does not overturn a clearly stronger stated preference"
+  },
+  {
+   "id": "U-O2",
+   "group": "U",
+   "tourA": "KNOWN-hours alternative of equal value at +5 min",
+   "tourB": "UNKNOWN-hours strong DIRECT Experience at +0",
+   "status": "PROPOSED",
+   "source": "avoiding a possibly closed venue is worth a few minutes"
+  },
+  {
+   "id": "U-O3",
+   "group": "U",
+   "tourA": "UNKNOWN-hours strong DIRECT Experience at +0",
+   "tourB": "KNOWN-hours alternative of equal value at +30 min",
+   "status": "PROPOSED",
+   "source": "half an hour of travel is too much to pay for hours certainty alone"
+  },
+  {
+   "id": "M-O1",
+   "group": "M",
+   "tourA": "walk 8 min",
+   "tourB": "drive 3 min",
+   "status": "PROPOSED",
+   "source": "a short walk beats a car hop (vehicle activation)"
+  },
+  {
+   "id": "M-O2",
+   "group": "M",
+   "tourA": "walk 12 min",
+   "tourB": "drive 4 min",
+   "status": "PROPOSED",
+   "source": "a 12-minute walk is still a pleasant urban leg"
+  },
+  {
+   "id": "M-O3",
+   "group": "M",
+   "tourA": "drive 5 min",
+   "tourB": "walk 20 min",
+   "status": "PROPOSED",
+   "source": "a 20-minute walk against a 5-minute drive wastes the day"
+  },
+  {
+   "id": "M-O4",
+   "group": "M",
+   "tourA": "drive 8 min",
+   "tourB": "walk 30 min",
+   "status": "PROPOSED",
+   "source": "at the continuous-walking limit the car is better"
+  },
+  {
+   "id": "M-O5",
+   "group": "M",
+   "tourA": "one drive leg of 20 min",
+   "tourB": "two drive legs of 8 min each (16 min) for the same visits",
+   "status": "PROPOSED",
+   "source": "each vehicle activation has a cost; four minutes do not justify a second activation"
+  },
+  {
+   "id": "M-D1",
+   "group": "M",
+   "tourA": "drive 20 min",
+   "tourB": "drive 30 min (same visits)",
+   "status": "DERIVED",
+   "source": "less travel at equal satisfaction"
+  },
+  {
+   "id": "B-O1",
+   "group": "B",
+   "tourA": "walk 6 min",
+   "tourB": "bicycle 3 min",
+   "status": "PROPOSED",
+   "source": "a very short walk beats unlocking and parking a bicycle"
+  },
+  {
+   "id": "B-O2",
+   "group": "B",
+   "tourA": "bicycle 5 min",
+   "tourB": "walk 15 min",
+   "status": "PROPOSED",
+   "source": "when the user allowed cycling, a 15-minute walk vs a 5-minute ride favours the ride"
+  },
+  {
+   "id": "B-O3",
+   "group": "B",
+   "tourA": "bicycle 8 min",
+   "tourB": "walk 25 min",
+   "status": "PROPOSED",
+   "source": "as B-O2, more clearly"
+  },
+  {
+   "id": "B-O4",
+   "group": "B",
+   "tourA": "bicycle 10 min",
+   "tourB": "drive 5 min (both allowed)",
+   "status": "PROPOSED",
+   "source": "the user allowed cycling; a short ride is not worse than a short car hop"
+  },
+  {
+   "id": "B-O5",
+   "group": "B",
+   "tourA": "drive 10 min",
+   "tourB": "bicycle 35 min (both allowed)",
+   "status": "PROPOSED",
+   "source": "a long ride across the city is a real burden next to a short drive"
+  }
+ ],
+ "regions": {
+  "P": {
+   "derivedOnly": {
+    "judgments": [
+     "P-D1",
+     "P-D2",
+     "P-D3",
+     "P-D4"
+    ],
+    "feasible": true,
+    "points": 30150,
+    "projection": {
+     "K": [
+      10.0,
+      662.6407607736666
+     ],
+     "b": [
+      0.02,
+      0.47767732973391513
+     ],
+     "g": [
+      0.005,
+      0.21045766732743743
+     ]
+    },
+    "atGridEdge": {
+     "K": [
+      true,
+      true
+     ],
+     "b": [
+      true,
+      false
+     ],
+     "g": [
+      true,
+      false
+     ]
+    },
+    "logWidth": {
+     "K": 4.194,
+     "b": 3.173,
+     "g": 3.74
+    },
+    "centre": {
+     "K": 10.0,
+     "b": 0.02,
+     "g": 0.005
+    },
+    "centreMargin": 0.693
+   },
+   "derivedPlusProposed": {
+    "judgments": [
+     "P-D1",
+     "P-D2",
+     "P-D3",
+     "P-D4",
+     "P-O1a",
+     "P-O1b",
+     "P-O1c",
+     "P-O2a",
+     "P-O2b",
+     "P-O3a",
+     "P-O3b",
+     "P-O4a",
+     "P-O4b",
+     "P-O5",
+     "P-O6",
+     "P-O7"
+    ],
+    "feasible": true,
+    "points": 296,
+    "projection": {
+     "K": [
+      61.159090448414645,
+      144.20993610649955
+     ],
+     "b": [
+      0.09774224570101867,
+      0.3035725786900486
+     ],
+     "g": [
+      0.07589314467251215,
+      0.21045766732743743
+     ]
+    },
+    "atGridEdge": {
+     "K": [
+      false,
+      false
+     ],
+     "b": [
+      false,
+      false
+     ],
+     "g": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "K": 0.858,
+     "b": 1.133,
+     "g": 1.02
+    },
+    "centre": {
+     "K": 108.34705943388394,
+     "b": 0.21607696528935896,
+     "g": 0.11941933243347878
+    },
+    "centreMargin": 0.258
+   }
+  },
+  "M": {
+   "derivedOnly": {
+    "judgments": [
+     "M-D1"
+    ],
+    "feasible": true,
+    "points": 2200,
+    "projection": {
+     "cd": [
+      0.25,
+      5.028824420555532
+     ],
+     "Ad": [
+      0.5,
+      31.904563015224564
+     ]
+    },
+    "atGridEdge": {
+     "cd": [
+      true,
+      true
+     ],
+     "Ad": [
+      true,
+      true
+     ]
+    },
+    "logWidth": {
+     "cd": 3.001,
+     "Ad": 4.156
+    },
+    "centre": {
+     "cd": 5.028824420555532,
+     "Ad": 0.5
+    },
+    "centreMargin": 0.404
+   },
+   "derivedPlusProposed": {
+    "judgments": [
+     "M-O1",
+     "M-O2",
+     "M-O3",
+     "M-O4",
+     "M-O5",
+     "M-D1"
+    ],
+    "feasible": true,
+    "points": 205,
+    "projection": {
+     "cd": [
+      0.25,
+      1.9970153672175561
+     ],
+     "Ad": [
+      6.338024817524248,
+      18.616006084419034
+     ]
+    },
+    "atGridEdge": {
+     "cd": [
+      true,
+      false
+     ],
+     "Ad": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "cd": 2.078,
+     "Ad": 1.077
+    },
+    "centre": {
+     "cd": 0.6295425292047451,
+     "Ad": 12.669740936933703
+    },
+    "centreMargin": 0.223
+   },
+   "derivedPlusProposed_cd1": {
+    "judgments": [
+     "M-O1",
+     "M-O2",
+     "M-O3",
+     "M-O4",
+     "M-O5",
+     "M-D1"
+    ],
+    "feasible": true,
+    "points": 8,
+    "projection": {
+     "cd": [
+      1.0,
+      1.0
+     ],
+     "Ad": [
+      8.622812792447757,
+      14.777985828839475
+     ]
+    },
+    "atGridEdge": {
+     "Ad": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "cd": 0.0,
+     "Ad": 0.539
+    },
+    "centre": {
+     "cd": 1.0,
+     "Ad": 10.862260748399951
+    },
+    "centreMargin": 0.201
+   }
+  },
+  "U": {
+   "derivedOnly_Ksimple": {
+    "judgments": [
+     "U-D1",
+     "U-D2"
+    ],
+    "feasible": true,
+    "points": 55,
+    "projection": {
+     "K": [
+      100.0,
+      100.0
+     ],
+     "rho": [
+      0.005,
+      0.8593597385058134
+     ]
+    },
+    "atGridEdge": {
+     "rho": [
+      true,
+      true
+     ]
+    },
+    "logWidth": {
+     "K": 0.0,
+     "rho": 5.147
+    },
+    "centre": {
+     "K": 100.0,
+     "rho": 0.005
+    },
+    "centreMargin": null
+   },
+   "derivedPlusProposed_Ksimple": {
+    "judgments": [
+     "U-D1",
+     "U-D2",
+     "U-O1",
+     "U-O2",
+     "U-O3"
+    ],
+    "feasible": true,
+    "points": 18,
+    "projection": {
+     "K": [
+      100.0,
+      100.0
+     ],
+     "rho": [
+      0.054173529716941976,
+      0.27381849618746545
+     ]
+    },
+    "atGridEdge": {
+     "rho": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "K": 0.0,
+     "rho": 1.62
+    },
+    "centre": {
+     "K": 100.0,
+     "rho": 0.09597171247887548
+    },
+    "centreMargin": 0.592
+   },
+   "derivedPlusProposed_Kfree": {
+    "judgments": [
+     "U-D1",
+     "U-D2",
+     "U-O1",
+     "U-O2",
+     "U-O3"
+    ],
+    "feasible": true,
+    "points": 665,
+    "projection": {
+     "K": [
+      11.0,
+      662.6407607736666
+     ],
+     "rho": [
+      0.008052550000000002,
+      0.48508616892436274
+     ]
+    },
+    "atGridEdge": {
+     "K": [
+      false,
+      true
+     ],
+     "rho": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "K": 4.098,
+     "rho": 4.098
+    },
+    "centre": {
+     "K": 662.6407607736666,
+     "rho": 0.015692141883605015
+    },
+    "centreMargin": 0.677
+   }
+  },
+  "B": {
+   "derivedPlusProposed_cd1_Adsimple": {
+    "judgments": [
+     "B-O1",
+     "B-O2",
+     "B-O3",
+     "B-O4",
+     "B-O5"
+    ],
+    "feasible": true,
+    "points": 176,
+    "projection": {
+     "cd": [
+      1.0,
+      1.0
+     ],
+     "Ad": [
+      11.0,
+      11.0
+     ],
+     "cb": [
+      0.25,
+      1.3591351031464585
+     ],
+     "Ab": [
+      1.9970153672175561,
+      12.663435378572466
+     ]
+    },
+    "atGridEdge": {
+     "cb": [
+      true,
+      false
+     ],
+     "Ab": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "cd": 0.0,
+     "Ad": 0.0,
+     "cb": 1.693,
+     "Ab": 1.847
+    },
+    "centre": {
+     "cd": 1.0,
+     "Ad": 11.0,
+     "cb": 0.6295425292047451,
+     "Ab": 5.865620804135974
+    },
+    "centreMargin": 0.256
+   },
+   "derivedPlusProposed_cd1_Adsimple_cb1": {
+    "judgments": [
+     "B-O1",
+     "B-O2",
+     "B-O3",
+     "B-O4",
+     "B-O5"
+    ],
+    "feasible": true,
+    "points": 9,
+    "projection": {
+     "cd": [
+      1.0,
+      1.0
+     ],
+     "Ad": [
+      11.0,
+      11.0
+     ],
+     "cb": [
+      1.0,
+      1.0
+     ],
+     "Ab": [
+      3.169012408762124,
+      5.865620804135974
+     ]
+    },
+    "atGridEdge": {
+     "Ab": [
+      false,
+      false
+     ]
+    },
+    "logWidth": {
+     "cd": 0.0,
+     "Ad": 0.0,
+     "cb": 0.0,
+     "Ab": 0.616
+    },
+    "centre": {
+     "cd": 1.0,
+     "Ad": 11.0,
+     "cb": 1.0,
+     "Ab": 3.992042959466554
+    },
+    "centreMargin": 0.134
+   }
+  }
+ },
+ "simplePoint": {
+  "params": {
+   "K": 100.0,
+   "b": 0.2,
+   "g": 0.12,
+   "cd": 1.0,
+   "Ad": 11.0,
+   "cb": 0.6,
+   "Ab": 6.0,
+   "rho": 0.15
+  },
+  "allJudgmentsHold": true,
+  "minMargin": 0.182,
+  "margins": {
+   "P-D1": 1.427,
+   "P-D2": 0.446,
+   "P-D3": 0.288,
+   "P-D4": 0.693,
+   "P-O1a": 0.916,
+   "P-O1b": 0.511,
+   "P-O1c": 0.405,
+   "P-O2a": 0.916,
+   "P-O2b": 0.405,
+   "P-O3a": 0.47,
+   "P-O3b": 1.034,
+   "P-O4a": 1.386,
+   "P-O4b": 0.511,
+   "P-O5": 0.336,
+   "P-O6": 0.446,
+   "P-O7": 0.182,
+   "U-D1": Infinity,
+   "U-D2": Infinity,
+   "U-O1": 0.531,
+   "U-O2": 1.099,
+   "U-O3": 0.693,
+   "M-O1": 0.56,
+   "M-O2": 0.223,
+   "M-O3": 0.223,
+   "M-O4": 0.457,
+   "M-O5": 0.204,
+   "M-D1": 0.28,
+   "B-O1": 0.262,
+   "B-O2": 0.511,
+   "B-O3": 0.839,
+   "B-O4": 0.288,
+   "B-O5": 0.251
+  }
+ },
+ "simplePointPerturbation": {
+  "Kx0.75": [
+   "P-O7"
+  ],
+  "Kx1.33": [],
+  "bx0.75": [],
+  "bx1.33": [],
+  "gx0.75": [
+   "P-O7"
+  ],
+  "gx1.33": [],
+  "cdx0.75": [],
+  "cdx1.33": [],
+  "Adx0.75": [],
+  "Adx1.33": [],
+  "cbx0.75": [],
+  "cbx1.33": [],
+  "Abx0.75": [],
+  "Abx1.33": [],
+  "rhox0.75": [],
+  "rhox1.33": []
+ },
+ "dropOneSensitivity": {
+  "P-O1a": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O1b": {
+   "K": [
+    50.54470284992945,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O1c": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O2a": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O2b": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O3a": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O3b": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O4a": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O4b": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O5": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.3035725786900486
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O6": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.09774224570101867,
+    0.380801442708797
+   ],
+   "g": [
+    0.07589314467251215,
+    0.21045766732743743
+   ]
+  },
+  "P-O7": {
+   "K": [
+    61.159090448414645,
+    144.20993610649955
+   ],
+   "b": [
+    0.08726986223305237,
+    0.3035725786900486
+   ],
+   "g": [
+    0.021817465558263093,
+    0.21045766732743743
+   ]
+  },
+  "U-O1": {
+   "K": [
+    100.0,
+    100.0
+   ],
+   "rho": [
+    0.054173529716941976,
+    0.27381849618746545
+   ]
+  },
+  "U-O2": {
+   "K": [
+    100.0,
+    100.0
+   ],
+   "rho": [
+    0.005,
+    0.27381849618746545
+   ]
+  },
+  "U-O3": {
+   "K": [
+    100.0,
+    100.0
+   ],
+   "rho": [
+    0.054173529716941976,
+    0.48508616892436274
+   ]
+  },
+  "M-O1": {
+   "cd": [
+    0.25,
+    1.9970153672175561
+   ],
+   "Ad": [
+    6.338024817524248,
+    18.616006084419034
+   ]
+  },
+  "M-O2": {
+   "cd": [
+    0.25,
+    1.9970153672175561
+   ],
+   "Ad": [
+    5.031328444536725,
+    18.616006084419034
+   ]
+  },
+  "M-O3": {
+   "cd": [
+    0.25,
+    2.3293187243225577
+   ],
+   "Ad": [
+    6.338024817524248,
+    27.35302041771653
+   ]
+  },
+  "M-O4": {
+   "cd": [
+    0.25,
+    1.9970153672175561
+   ],
+   "Ad": [
+    6.338024817524248,
+    18.616006084419034
+   ]
+  },
+  "M-O5": {
+   "cd": [
+    0.25,
+    3.4225334014630944
+   ],
+   "Ad": [
+    0.5,
+    18.616006084419034
+   ]
+  },
+  "B-O1": {
+   "cd": [
+    1.0,
+    1.0
+   ],
+   "Ad": [
+    11.0,
+    11.0
+   ],
+   "cb": [
+    0.25,
+    1.4678659113981751
+   ],
+   "Ab": [
+    0.25,
+    12.663435378572466
+   ]
+  },
+  "B-O2": {
+   "cd": [
+    1.0,
+    1.0
+   ],
+   "Ad": [
+    11.0,
+    11.0
+   ],
+   "cb": [
+    0.25,
+    1.3591351031464585
+   ],
+   "Ab": [
+    1.9970153672175561,
+    12.663435378572466
+   ]
+  },
+  "B-O3": {
+   "cd": [
+    1.0,
+    1.0
+   ],
+   "Ad": [
+    11.0,
+    11.0
+   ],
+   "cb": [
+    0.25,
+    1.3591351031464585
+   ],
+   "Ab": [
+    1.9970153672175561,
+    12.663435378572466
+   ]
+  },
+  "B-O4": {
+   "cd": [
+    1.0,
+    1.0
+   ],
+   "Ad": [
+    11.0,
+    11.0
+   ],
+   "cb": [
+    0.25,
+    2.9342707488538182
+   ],
+   "Ab": [
+    0.25,
+    13.676510208858264
+   ]
+  },
+  "B-O5": {
+   "cd": [
+    1.0,
+    1.0
+   ],
+   "Ad": [
+    11.0,
+    11.0
+   ],
+   "cb": [
+    0.25,
+    1.3591351031464585
+   ],
+   "Ab": [
+    1.9970153672175561,
+    12.663435378572466
+   ]
+  }
+ },
+ "adoptedPoint": {
+  "params": {
+   "K": 100.0,
+   "b": 0.2,
+   "g": 0.12,
+   "cd": 1.0,
+   "Ad": 11.0,
+   "cb": 1.0,
+   "Ab": 4.5,
+   "rho": 0.15
+  },
+  "allJudgmentsHold": true,
+  "minMargin": 0.098,
+  "margins": {
+   "P-D1": 1.427,
+   "P-D2": 0.446,
+   "P-D3": 0.288,
+   "P-D4": 0.693,
+   "P-O1a": 0.916,
+   "P-O1b": 0.511,
+   "P-O1c": 0.405,
+   "P-O2a": 0.916,
+   "P-O2b": 0.405,
+   "P-O3a": 0.47,
+   "P-O3b": 1.034,
+   "P-O4a": 1.386,
+   "P-O4b": 0.511,
+   "P-O5": 0.336,
+   "P-O6": 0.446,
+   "P-O7": 0.182,
+   "U-D1": Infinity,
+   "U-D2": Infinity,
+   "U-O1": 0.531,
+   "U-O2": 1.099,
+   "U-O3": 0.693,
+   "M-O1": 0.56,
+   "M-O2": 0.223,
+   "M-O3": 0.223,
+   "M-O4": 0.457,
+   "M-O5": 0.204,
+   "M-D1": 0.28,
+   "B-O1": 0.223,
+   "B-O2": 0.457,
+   "B-O3": 0.693,
+   "B-O4": 0.098,
+   "B-O5": 0.632
+  }
+ },
+ "adoptedPointPerturbation": {
+  "Kx0.75": [
+   "P-O7"
+  ],
+  "Kx1.33": [],
+  "bx0.75": [],
+  "bx1.33": [],
+  "gx0.75": [
+   "P-O7"
+  ],
+  "gx1.33": [],
+  "cdx0.75": [],
+  "cdx1.33": [],
+  "Adx0.75": [
+   "B-O4"
+  ],
+  "Adx1.33": [],
+  "cbx0.75": [],
+  "cbx1.33": [
+   "B-O4"
+  ],
+  "Abx0.75": [],
+  "Abx1.33": [],
+  "rhox0.75": [],
+  "rhox1.33": []
+ }
+}
