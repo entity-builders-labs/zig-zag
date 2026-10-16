@@ -444,7 +444,7 @@ A concept the extractor understands but that has no typed identity shared with E
 - **THEN** it is recorded as an unresolved concept and neither creates a facet, a deficit nor a forwarded acquisition trait, nor matches an Experience trait "craft beer"
 
 ### Requirement: Unprovable hard constraints end generation explicitly
-A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Compatibility SHALL be decided from target-level knowledge keyed by SemanticTarget with states SATISFIES / DOES_NOT_SATISFY / UNKNOWN (absence of evidence is never negative evidence); a HARD constraint over an inapplicable target, over a target with no producer, or over a target with only UNKNOWN knowledge SHALL end generation before destination resolution with HARD_CONSTRAINT_UNENFORCEABLE, recording each constraint and its typed missing-knowledge reason. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
+A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Compatibility SHALL come from target-level knowledge keyed by SemanticTarget. A HARD constraint that cannot be proven SHALL end generation before destination resolution with HARD_CONSTRAINT_UNENFORCEABLE, recording each constraint and its typed missing-knowledge reason.
 
 #### Scenario: Typed dietary restriction whose target is not yet applicable
 - **WHEN** the request selects the vegan dietary restriction and dietary_suitability:vegan is not yet an applicable/observable target

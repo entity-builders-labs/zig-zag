@@ -168,17 +168,18 @@ amendment (2026-10-11); no production code yet.**
   `TARGET_APPLICABILITY_UNKNOWN`, `TARGET_KNOWLEDGE_UNKNOWN`,
   `INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY`, `SHARED_CONCEPT_IDENTITY`;
   underlying `NO_EVIDENCE` / `CONFLICTING_EVIDENCE` / `INCONCLUSIVE_EVIDENCE`).
-- 25.7 implemented (2026-10-16, four additive commits): the docs contract;
-  the pure target-knowledge model + reconciliation + composite aggregation +
-  applicability + typed reasons; the OSM producer + `GeoEntityTargetObservation`
-  persistence + catalog projection; and the split gate (`classifyHardTarget`) +
-  post-catalog HARD eligibility policy (`resolveHardTargetEligibility`). The
-  literal generation-service wiring of the post-catalog filter (snapshot →
-  composition) remains: it needs the acquisition path to write target
-  observations (the OSM producer over tags) and the catalog projection to
-  surface them; until then the gate stays fail-closed (a wheelchair need ends
-  `HARD_CONSTRAINT_UNENFORCEABLE` with `TARGET_KNOWLEDGE_UNKNOWN`, never
-  planning without enforcement).
+- 25.7 implemented (2026-10-16, additive commits): the docs contract; the
+  pure target-knowledge model + reconciliation + composite aggregation +
+  applicability + typed reasons; the OSM producer at the provider boundary +
+  `GeoEntityTargetObservation` atomic persistence + catalog projection; and
+  the split gate (`classifyHardTarget`) + post-catalog HARD eligibility
+  (`resolveHardEligibility`) wired into the generation snapshot → composition
+  step. The live path is connected end to end: OSM tags → adapter mapping →
+  typed observation → persistence → GeoEntity reconciliation → Experience
+  aggregation → HARD eligibility → proven-compatible pool → ordinary
+  sufficiency → preference utility → composition → planning. A wheelchair
+  HARD need is now enforced from reconciled target knowledge (never planned
+  without enforcement); a HARD deficit never triggers acquisition.
 
 - The change must not be archived until groups 24-43 are complete.
 
@@ -190,7 +191,7 @@ amendment (2026-10-11); no production code yet.**
    producer, provider-neutral reconciliation over
    `GeoEntity + SemanticTarget`, theme/intent SOFT-only, explicit
    per-target applicability, no HARD-driven acquisition, and a clean
-   cutover from `CLASSIFICATION_COMPLETENESS` to typed reasons). 25.7's knowledge model, reconciliation, aggregation, producer, persistence, catalog projection, split gate and post-catalog eligibility policy are implemented and validated (2650 tours tests, typecheck, lint). The literal post-catalog filter wiring into the generation snapshot → composition step remains: it needs acquisition to write target observations and the catalog projection to surface them; until then the gate stays fail-closed.
+   cutover from `CLASSIFICATION_COMPLETENESS` to typed reasons). 25.7's knowledge model, reconciliation, aggregation, producer, persistence, catalog projection, split gate and the post-catalog eligibility wiring are implemented and validated (2655 tours unit tests, typecheck, lint, prisma validate, openspec validate --strict, git diff --check). The remaining verification is the DB-backed suites (acceptance, characterization, integration, e2e), which need a reachable Postgres.
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
