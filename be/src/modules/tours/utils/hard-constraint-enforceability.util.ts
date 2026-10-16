@@ -4,10 +4,8 @@ import {
   SemanticTarget,
 } from '../preferences/preference-assertion.interface';
 import { UnknownTargetReason } from '../preferences/target-knowledge.interface';
-import {
-  HardConstraintMissingKnowledge,
-  targetApplicability,
-} from './target-applicability.util';
+import { HardConstraintMissingKnowledge } from './target-applicability.util';
+import { classifyHardTarget } from './hard-eligibility.policy';
 
 /**
  * A hard constraint the request cannot guarantee (task 25.7, owner
@@ -42,14 +40,16 @@ export function findUnenforceableHardConstraints(
     ...spec.assertions
       .filter((assertion) => assertion.constraint === 'HARD')
       .map((assertion): UnenforceableHardConstraint => {
-        const applicability = targetApplicability(assertion.target);
+        const classification = classifyHardTarget(assertion.target);
         let missingKnowledge: HardConstraintMissingKnowledge;
         let unknownReason: UnknownTargetReason | undefined;
-        if (applicability.kind === 'ENFORCEABLE') {
+        if (classification.kind === 'UNENFORCEABLE') {
+          missingKnowledge = classification.missingKnowledge;
+        } else {
+          // Fail closed until orchestration wiring evaluates catalog target
+          // knowledge for the applicable target.
           missingKnowledge = 'TARGET_KNOWLEDGE_UNKNOWN';
           unknownReason = 'NO_EVIDENCE';
-        } else {
-          missingKnowledge = applicability.reason;
         }
         const unenforceable: UnenforceableHardConstraint = {
           target: assertion.target,
