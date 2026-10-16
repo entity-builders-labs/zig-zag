@@ -50,7 +50,6 @@ const spec: PreferenceSpec = {
   anchors: [],
   semanticQuery: '',
   explorationStyle: 'balanced',
-  softConstraints: { budget: [], group: [] },
   trip: { days: 1, startDates: [], pace: 'relaxed' },
 };
 function candidate(

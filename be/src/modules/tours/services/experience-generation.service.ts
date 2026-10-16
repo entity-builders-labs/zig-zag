@@ -244,10 +244,7 @@ export class ExperienceGenerationService {
       assertions: [],
       unresolvedConcepts: [],
       anchoredPlaces: [],
-      softConstraints: [],
       ambiguities: [],
-      budgetPreferences: [],
-      groupPreferences: [],
       positiveSemanticQuery: '',
       notes: [],
     };

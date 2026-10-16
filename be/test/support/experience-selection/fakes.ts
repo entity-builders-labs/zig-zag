@@ -58,10 +58,7 @@ export interface FakeInterpretation {
     constraint: 'SOFT' | 'HARD';
     evidence: string[];
   }>;
-  softConstraints: string[];
   ambiguities: string[];
-  budgetPreferences: string[];
-  groupPreferences: string[];
   positiveSemanticQuery: string;
   notes: string[];
 }
@@ -70,10 +67,7 @@ export function emptyInterpretation(): FakeInterpretation {
   return {
     assertions: [],
     unresolvedConcepts: [],
-    softConstraints: [],
     ambiguities: [],
-    budgetPreferences: [],
-    groupPreferences: [],
     positiveSemanticQuery: '',
     notes: ['CP-G competitive benchmark'],
   };

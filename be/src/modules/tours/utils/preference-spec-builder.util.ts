@@ -6,9 +6,7 @@
  * (§3, §4) and docs/superpowers/plans/2026-09-11-preference-first-selection-implementation.md (Task A3).
  */
 import {
-  BudgetLevel,
   ExplorationStyle,
-  GroupType,
   TourGenerationRequest,
   TravelPace,
 } from '../interfaces/tour-generation.interface';
@@ -27,23 +25,6 @@ import {
   PREFERENCE_FACET_SCHEMA_VERSION,
 } from '../preferences/preference-facet-vocabulary';
 import { structuredSelectionAssertion } from './preference-facet-merge.util';
-
-function unique(values: (string | undefined | null)[]): string[] {
-  const seen = new Set<string>();
-  const result: string[] = [];
-  for (const raw of values) {
-    if (typeof raw !== 'string') {
-      continue;
-    }
-    const value = raw.trim().toLowerCase();
-    if (!value || seen.has(value)) {
-      continue;
-    }
-    seen.add(value);
-    result.push(value);
-  }
-  return result;
-}
 
 function mapExplorationStyle(
   style: ExplorationStyle,
@@ -151,17 +132,10 @@ export function buildPreferenceSpec(
     )
     .map(toRequestedFacet);
 
-  // Each soft-constraint dimension is built from its own dedicated sources
-  // only.
-  const budget = unique([
-    ...(interpreted.budgetPreferences ?? []),
-    ...(request.budgetLevel === BudgetLevel.LOW ? ['low budget'] : []),
-  ]);
-  const group = unique([
-    ...(interpreted.groupPreferences ?? []),
-    ...(request.groupType === GroupType.FAMILY ? ['family friendly'] : []),
-  ]);
-
+  // Typed request context (budget level, group type) is not a preference
+  // assertion: it participates in preference utility only once a typed
+  // relation to Experience knowledge exists (task 25.9). Typed values are
+  // never turned into phrases for the semantic machinery (task 25.5).
   return {
     assertions,
     polarityConflicts,
@@ -174,10 +148,6 @@ export function buildPreferenceSpec(
     resolvedAnchors: [],
     semanticQuery: interpreted.positiveSemanticQuery ?? '',
     explorationStyle: mapExplorationStyle(request.intent.explorationStyle),
-    softConstraints: {
-      budget,
-      group,
-    },
     trip: {
       days: request.days,
       startDates: request.startDates ?? [],

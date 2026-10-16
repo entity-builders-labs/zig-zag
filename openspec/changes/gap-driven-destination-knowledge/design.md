@@ -1076,6 +1076,16 @@ disproven.
    `softConstraints.dietary` and the vegan rule are deleted. Exclusions
    are `EXCLUDE` assertions (participation: task 25.6); the dietary
    restriction is a typed `HARD` assertion (see *Preference assertions*).
+   *Status (task 25.5, owner 2026-10-16):* the budget/group soft lists, the
+   phrases generated from typed values (`'low budget'`, `'family
+   friendly'`) and the extractor's untyped `softConstraints`,
+   `budgetPreferences` and `groupPreferences` are deleted; so is the
+   `PreferenceSpec.softConstraints` container. Typed request context
+   (`budgetLevel`, `groupType`) is not a preference assertion: it stays in
+   the selector prompt and the trace and joins preference utility only once
+   typed Experience knowledge exists (task 25.9). The extractor's
+   `ambiguities` and `notes` remain diagnostics only (trace), never
+   domain semantics.
 5. **Accessibility.**
    - The wizard's `mobility.accessibilityNeeds` and the interpreter's
      `accessibilityPreferences` are merged into one

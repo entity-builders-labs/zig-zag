@@ -47,10 +47,7 @@ describe('tour-generation integration · preference-first live cutover', () => {
           anchoredPlaces: [
             { rawName: 'San Telmo', usage: 'unknown', priority: 'must' },
           ],
-          softConstraints: [],
           ambiguities: [],
-          budgetPreferences: [],
-          groupPreferences: [],
           positiveSemanticQuery: 'historical walking tour in san telmo',
           notes: [],
         }),

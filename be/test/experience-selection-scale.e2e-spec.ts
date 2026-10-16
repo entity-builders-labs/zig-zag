@@ -129,10 +129,7 @@ function normalizedIntent(
     assertions: [],
     unresolvedConcepts: [],
     anchoredPlaces: [],
-    softConstraints: [] as string[],
     ambiguities: [] as string[],
-    budgetPreferences: [] as string[],
-    groupPreferences: [] as string[],
     positiveSemanticQuery: '',
     notes: ['CP8 deterministic scale acceptance'],
     ...overrides,
@@ -258,7 +255,6 @@ const scenarios: ScenarioDefinition[] = [
     title: 'vegan gastronomy + low budget + duration feasibility',
     interpretation: normalizedIntent({
       unresolvedConcepts: [hardExcludedConcept('meat', 'sin carne')],
-      budgetPreferences: ['low budget'],
       positiveSemanticQuery: 'vegan affordable gastronomy Buenos Aires',
     }),
     // The typed vegan restriction is a HARD constraint the catalog cannot
@@ -430,7 +426,6 @@ const scenarios: ScenarioDefinition[] = [
         openConcept('family friendly', 'Familia con edades mixtas'),
         openConcept('interactive', 'propuestas interactivas'),
       ],
-      groupPreferences: ['family friendly'],
       positiveSemanticQuery: 'family friendly culture interactive mixed ages',
     }),
     request: baseRequest({

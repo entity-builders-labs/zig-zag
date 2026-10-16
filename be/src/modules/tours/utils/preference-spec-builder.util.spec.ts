@@ -74,10 +74,7 @@ function emptyInterpreted(
     assertions: [],
     unresolvedConcepts: [],
     anchoredPlaces: [],
-    softConstraints: [],
     ambiguities: [],
-    budgetPreferences: [],
-    groupPreferences: [],
     positiveSemanticQuery: '',
     notes: [],
     ...overrides,
@@ -208,27 +205,31 @@ describe('preference-spec-builder.util', () => {
     ]);
     // A HARD constraint never becomes a soft preference facet.
     expect(spec.facets).toEqual([]);
-    expect(spec.softConstraints).toEqual({ budget: [], group: [] });
   });
 
-  it('routes a low budget level to softConstraints.budget only', () => {
-    const request = baseRequest({ budgetLevel: 'low' as any });
-    const interpreted = emptyInterpreted();
+  it('never turns typed budget or group context into preference phrases or assertions (task 25.5)', () => {
+    const spec = buildPreferenceSpec(
+      baseRequest({ budgetLevel: 'low' as any, groupType: 'family' as any }),
+      emptyInterpreted(),
+    );
 
-    const spec = buildPreferenceSpec(request, interpreted);
-
-    expect(spec.softConstraints.budget).toContain('low budget');
-    expect(spec.softConstraints.group).not.toContain('low budget');
+    expect(spec.assertions).toEqual([]);
+    expect(spec.facets).toEqual([]);
+    expect(spec).not.toHaveProperty('softConstraints');
+    expect(JSON.stringify(spec)).not.toMatch(/low budget|family friendly/);
   });
 
-  it('routes a family group type to softConstraints.group only', () => {
-    const request = baseRequest({ groupType: 'family' as any });
-    const interpreted = emptyInterpreted();
-
-    const spec = buildPreferenceSpec(request, interpreted);
-
-    expect(spec.softConstraints.group).toContain('family friendly');
-    expect(spec.softConstraints.budget).not.toContain('family friendly');
+  it('never reads extractor diagnostics as preferences', () => {
+    const spec = buildPreferenceSpec(
+      baseRequest(),
+      emptyInterpreted({
+        ambiguities: ['quiere historia militar?'],
+        notes: ['viaja con chicos'],
+      }),
+    );
+    expect(spec.assertions).toEqual([]);
+    expect(spec.facets).toEqual([]);
+    expect(spec.unresolvedConcepts).toEqual([]);
   });
 
   it('passes anchoredPlaces through to spec.anchors unchanged', () => {
@@ -451,7 +452,6 @@ describe('preference-spec-builder.util', () => {
       },
     ]);
     expect(spec.facets).toEqual([]);
-    expect(spec.softConstraints).not.toHaveProperty('accessibility');
     expect(findUnenforceableHardConstraints(spec)).toEqual([
       expect.objectContaining({
         target: { dimension: 'accessibility', key: 'wheelchair_access' },

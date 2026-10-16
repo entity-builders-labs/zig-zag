@@ -264,7 +264,6 @@ describe('PreferenceInterpreterService', () => {
     expect(langChain.generateChatResponse).not.toHaveBeenCalled();
     expect(result.trace.status).toBe('skipped');
     expect(result.intent.assertions).toEqual([]);
-    expect(result.intent.softConstraints).toEqual([]);
     expect(result.intent.ambiguities).toEqual([]);
     expect(result.intent.anchoredPlaces).toEqual([]);
   });

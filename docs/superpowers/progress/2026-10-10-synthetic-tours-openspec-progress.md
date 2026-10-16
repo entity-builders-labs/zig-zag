@@ -150,15 +150,14 @@ amendment (2026-10-11); no production code yet.**
   - the canonical planning and routing paragraphs.
 - `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
   task 25.1 committed (0d1e6e97); 25.4 (2919e0db); 25.6 (2390a953); 25.2
-  (d1a4c738). Tasks 24.2 (decision record) and 25.3 (typed accessibility,
-  facet-schema-v2, outcome renamed HARD_CONSTRAINT_UNENFORCEABLE)
-  implemented and verified, uncommitted until owner review.
+  (d1a4c738); 24.2 (916156c8); 25.3 (9b0ab8fa). Task 25.5 (untyped
+  budget/group/soft-constraint preference fields deleted; diagnostics
+  only) implemented and verified, uncommitted until owner review.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted tasks 24.2 and 25.3 and authorizes their
-   commits; then `/opsx:apply` continues with the next unblocked task.
+1. Owner reviews the uncommitted task 25.5 and authorizes its commit; then `/opsx:apply` continues with the next unblocked task.
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
@@ -188,8 +187,8 @@ amendment (2026-10-11); no production code yet.**
   characterization (design defects 1-8; fix in tasks 25.2-25.5):
   - **Duplicate scoring authority, missing embedding = 0, dead ranking
     paths:** resolved by task 25.2 (one preference-utility boundary).
-  - **Unused soft fields.** Soft avoidances and constraints have no
-    consumer.
+  - **Unused soft fields:** resolved by 25.5 (deleted); typed budget and
+    group signals wait for catalog knowledge (task 25.9).
   - **Accessibility:** typed by task 25.3; needs end with
     HARD_CONSTRAINT_UNENFORCEABLE until accessibility facts and
     classification completeness exist (task 25.7).

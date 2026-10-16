@@ -70,8 +70,8 @@ name (never a generic theme). For each, output:
 Extract anchors conservatively: when in doubt about the name or the intent, omit the anchor
 rather than guessing. Do not invent named places that were not mentioned.
 
-Other fields: softConstraints, ambiguities, budgetPreferences,
-groupPreferences, positiveSemanticQuery (the positive interests only), notes.
+Other fields: positiveSemanticQuery (the positive interests only); ambiguities and
+notes (diagnostics only: what was uncertain or noteworthy).
 Use short lowercase phrases.`;
 
 const STRING_ARRAY = { type: 'array', items: { type: 'string' } };
@@ -148,10 +148,7 @@ const RESPONSE_SCHEMA = {
       type: 'array',
       items: ANCHORED_PLACE_SCHEMA,
     },
-    softConstraints: STRING_ARRAY,
     ambiguities: STRING_ARRAY,
-    budgetPreferences: STRING_ARRAY,
-    groupPreferences: STRING_ARRAY,
     positiveSemanticQuery: { type: 'string' },
     notes: STRING_ARRAY,
   },
@@ -159,10 +156,7 @@ const RESPONSE_SCHEMA = {
     'assertions',
     'unresolvedConcepts',
     'anchoredPlaces',
-    'softConstraints',
     'ambiguities',
-    'budgetPreferences',
-    'groupPreferences',
     'positiveSemanticQuery',
     'notes',
   ],
@@ -173,10 +167,7 @@ const EMPTY_INTENT: NormalizedPreferenceIntent = {
   assertions: [],
   unresolvedConcepts: [],
   anchoredPlaces: [],
-  softConstraints: [],
   ambiguities: [],
-  budgetPreferences: [],
-  groupPreferences: [],
   positiveSemanticQuery: '',
   notes: [],
 };
@@ -298,10 +289,7 @@ export class PreferenceInterpreterService {
           supportingText,
         ),
         anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
-        softConstraints: list(value?.softConstraints),
         ambiguities: list(value?.ambiguities),
-        budgetPreferences: list(value?.budgetPreferences),
-        groupPreferences: list(value?.groupPreferences),
         positiveSemanticQuery:
           typeof value?.positiveSemanticQuery === 'string'
             ? value.positiveSemanticQuery.trim().slice(0, 500)

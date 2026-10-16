@@ -150,15 +150,6 @@ export interface PreferenceSpec {
    */
   explorationStyle: 'iconic' | 'local_deep_dive' | 'balanced';
 
-  /**
-   * Untyped, unconsumed lists (task 25.5). Accessibility needs and
-   * preferences are typed assertions on the `accessibility` dimension.
-   */
-  softConstraints: {
-    budget: string[];
-    group: string[];
-  };
-
   trip: {
     days: number;
     startDates: string[];

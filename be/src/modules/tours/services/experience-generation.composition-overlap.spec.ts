@@ -43,10 +43,6 @@ const preferenceSpec: PreferenceSpec = {
   anchors: [],
   semanticQuery: '',
   explorationStyle: 'balanced',
-  softConstraints: {
-    budget: [],
-    group: [],
-  },
   trip: { days: 1, startDates: [], pace: 'moderate' },
 };
 

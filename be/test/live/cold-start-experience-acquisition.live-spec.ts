@@ -332,10 +332,7 @@ function normalizedPreferences(
     assertions: [...wizardAssertions(scenario), ...assertions],
     unresolvedConcepts,
     anchoredPlaces: [],
-    softConstraints: [],
     ambiguities: [],
-    budgetPreferences: [],
-    groupPreferences: [],
     positiveSemanticQuery: scenario.additionalPreferences,
     notes: [],
   };

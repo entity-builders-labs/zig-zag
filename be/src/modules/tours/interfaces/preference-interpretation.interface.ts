@@ -21,13 +21,15 @@ export interface NormalizedPreferenceIntent {
    */
   anchoredPlaces: InterpretedAnchor[];
 
-  // Untyped fields with no deterministic consumer (budget, group and soft
-  // constraints: task 25.5). Accessibility is a typed assertion target.
-  softConstraints: string[];
-  ambiguities: string[];
-  budgetPreferences: string[];
-  groupPreferences: string[];
+  /** Positive interests only; the semantic query of the utility boundary. */
   positiveSemanticQuery: string;
+  /**
+   * Diagnostics only (task 25.5): what the extractor found uncertain or
+   * noteworthy, recorded in the trace. Never parsed and never an input to
+   * assertions, utility, matching, enforcement, composition, planning,
+   * eligibility or any policy decision. Diagnostics are not domain semantics.
+   */
+  ambiguities: string[];
   notes: string[];
 }
 

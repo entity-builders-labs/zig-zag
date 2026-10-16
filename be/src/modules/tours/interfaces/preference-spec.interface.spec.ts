@@ -63,10 +63,6 @@ describe('preference-spec.interface', () => {
       anchors: [],
       semanticQuery: '',
       explorationStyle: 'iconic',
-      softConstraints: {
-        budget: [],
-        group: [],
-      },
       trip: { days: 1, startDates: [], pace: 'moderate' },
     };
 
