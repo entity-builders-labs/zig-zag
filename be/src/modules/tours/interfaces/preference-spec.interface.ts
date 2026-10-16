@@ -16,6 +16,7 @@ import {
   PreferenceAssertion,
   PreferenceEvidence,
   PreferencePolarityConflict,
+  SupersededAssertion,
   PreferenceProvenance,
   SemanticTarget,
   UnresolvedPreferenceConcept,
@@ -131,6 +132,11 @@ export interface PreferenceSpec {
   assertions: PreferenceAssertion[];
   /** Targets asserted with both polarities; none of them participates. */
   polarityConflicts: PreferencePolarityConflict[];
+  /**
+   * Duplicates that lost to the effective assertion of their (target,
+   * polarity), with the reason. Traceability only; never a policy input.
+   */
+  supersededAssertions: SupersededAssertion[];
   /** The SOFT INCLUDE assertions, projected for composition and ranking. */
   facets: RequestedFacet[];
   /** Concepts with no shared typed identity; never matched. */

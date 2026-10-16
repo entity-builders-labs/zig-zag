@@ -1201,9 +1201,18 @@ disproven.
     traveller chose a typed domain option, not because of the channel.
   - Confidence stays confidence in the interpretation, never provenance or
     polarity. Embeddings never certify `DIRECT`.
-  - Dedupe keeps one assertion per (target, polarity): `DIRECT` outranks
-    `INFERRED`, then the higher importance × confidence. An `INFERRED`
-    duplicate never displaces a `DIRECT` one and never lends it weight.
+  - Dedupe keeps exactly one effective assertion per (target, polarity),
+    resolved once by `resolveAssertions` (owner, 2026-10-16; corrects the
+    2026-10-15 wording): HARD outranks SOFT; then `DIRECT` outranks
+    `INFERRED`; then, both `DIRECT`, the higher stated importance
+    (confidence never discounts `DIRECT`); both `INFERRED`, the higher
+    importance × confidence; an exact tie breaks deterministically with no
+    semantic weighting. The result is input-order independent. A HARD
+    assertion is never weakened by provenance or weight; an `INFERRED`
+    duplicate never displaces a `DIRECT` one of the same constraint. Losers
+    are kept as `supersededAssertions` with a typed reason, for the trace
+    only. The extractor's output is validated, not resolved; the spec
+    builder is the single resolution point.
   - Only SOFT `INCLUDE` assertions become requested facets. A negated
     mention ("no me interesa la arquitectura") is an `EXCLUDE` assertion
     and never a positive facet. A SOFT `EXCLUDE` is precedence level 3
@@ -1438,7 +1447,9 @@ Decision:
   lower tier, a fixed 0.5, skipping it for the whole tier, and a pairwise
   skip all fail; the pairwise skip is not even transitive.
 - Dedupe by provenance class, then weight. The live max-weight dedupe lets
-  a strong `INFERRED` duplicate displace the `DIRECT` statement.
+  a strong `INFERRED` duplicate displace the `DIRECT` statement. (Refined
+  2026-10-16: HARD first, and `DIRECT` compares stated importance only —
+  see *Preference assertions*.)
 - The structured planner boundary, with no scalar in A.
 - Within one request, normalizing by requested weight never changes the
   order.

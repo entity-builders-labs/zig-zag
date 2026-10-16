@@ -57,6 +57,7 @@ describe('preference-spec.interface', () => {
     const spec: PreferenceSpec = {
       assertions: [],
       polarityConflicts: [],
+      supersededAssertions: [],
       facets: [selectedFacetFixture('theme', 'history')],
       unresolvedConcepts: [],
       facetSchemaVersion: 'facet-schema-v2',

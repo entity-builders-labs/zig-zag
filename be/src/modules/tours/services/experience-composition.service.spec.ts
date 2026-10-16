@@ -6,6 +6,7 @@ const preferenceSpec: PreferenceSpec = {
   facets: [],
   assertions: [],
   polarityConflicts: [],
+  supersededAssertions: [],
   unresolvedConcepts: [],
   facetSchemaVersion: 'facet-schema-v2',
   anchors: [],

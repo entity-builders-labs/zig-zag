@@ -79,38 +79,109 @@ export function semanticTargetKey(target: SemanticTarget): string {
   return `${target.dimension}:${target.key}`;
 }
 
+/** Why an assertion lost to the effective one of its (target, polarity). */
+export type SupersededReason =
+  | 'HARD_OUTRANKS_SOFT'
+  | 'DIRECT_OUTRANKS_INFERRED'
+  | 'HIGHER_STATED_IMPORTANCE'
+  | 'HIGHER_IMPORTANCE_TIMES_CONFIDENCE'
+  | 'DETERMINISTIC_TIE_BREAK';
+
+/** A duplicate kept only for traceability; it never takes part in policy. */
+export interface SupersededAssertion {
+  assertion: PreferenceAssertion;
+  reason: SupersededReason;
+}
+
+const MAGNITUDE_EPSILON = 1e-9;
+
+/** DIRECT weighs stated importance only; INFERRED weighs importance x confidence. */
+function magnitude(assertion: PreferenceAssertion): number {
+  return assertion.provenance === 'DIRECT'
+    ? assertion.importance
+    : assertion.importance * assertion.confidence;
+}
+
+/** Canonical serialization used only to break exact ties deterministically. */
+function tieBreakKey(assertion: PreferenceAssertion): string {
+  return JSON.stringify([
+    assertion.importance,
+    assertion.confidence,
+    assertion.evidence,
+  ]);
+}
+
 /**
- * The single duplicate rule for assertions of one target and polarity:
- * DIRECT outranks INFERRED, then the higher importance x confidence. The
- * capture channel never decides it.
+ * The single resolution rule for duplicates of one (target, polarity),
+ * owner decision 2026-10-16: HARD outranks SOFT; then DIRECT outranks
+ * INFERRED; then, both DIRECT, the higher stated importance (confidence never
+ * discounts DIRECT); both INFERRED, the higher importance x confidence; an
+ * exact tie is broken deterministically without semantic weighting. A HARD
+ * assertion is never weakened by provenance or numeric weight. Returns the
+ * reason when `candidate` outranks `existing`, or null.
  */
 export function outranksAssertion(
   candidate: PreferenceAssertion,
   existing: PreferenceAssertion,
-): boolean {
-  if (candidate.provenance !== existing.provenance) {
-    return candidate.provenance === 'DIRECT';
+): SupersededReason | null {
+  if (candidate.constraint !== existing.constraint) {
+    return candidate.constraint === 'HARD' ? 'HARD_OUTRANKS_SOFT' : null;
   }
-  return (
-    candidate.importance * candidate.confidence >
-    existing.importance * existing.confidence
-  );
+  if (candidate.provenance !== existing.provenance) {
+    return candidate.provenance === 'DIRECT'
+      ? 'DIRECT_OUTRANKS_INFERRED'
+      : null;
+  }
+  const difference = magnitude(candidate) - magnitude(existing);
+  if (Math.abs(difference) > MAGNITUDE_EPSILON) {
+    if (difference < 0) return null;
+    return candidate.provenance === 'DIRECT'
+      ? 'HIGHER_STATED_IMPORTANCE'
+      : 'HIGHER_IMPORTANCE_TIMES_CONFIDENCE';
+  }
+  return tieBreakKey(candidate) < tieBreakKey(existing)
+    ? 'DETERMINISTIC_TIE_BREAK'
+    : null;
 }
 
-/** One assertion per (target, polarity), per `outranksAssertion`. */
-export function dedupeAssertions(
+/**
+ * Resolves duplicates to exactly one effective assertion per (target,
+ * polarity), independent of input order, and keeps the others with the
+ * reason they lost, for traceability only.
+ */
+export function resolveAssertions(
   assertions: readonly (PreferenceAssertion | undefined)[],
-): PreferenceAssertion[] {
-  const best = new Map<string, PreferenceAssertion>();
+): { effective: PreferenceAssertion[]; superseded: SupersededAssertion[] } {
+  const groups = new Map<string, PreferenceAssertion[]>();
   for (const assertion of assertions) {
     if (!assertion) continue;
     const identity = `${semanticTargetKey(assertion.target)}:${assertion.polarity}`;
-    const existing = best.get(identity);
-    if (!existing || outranksAssertion(assertion, existing)) {
-      best.set(identity, assertion);
+    groups.set(identity, [...(groups.get(identity) ?? []), assertion]);
+  }
+  const effective: PreferenceAssertion[] = [];
+  const superseded: SupersededAssertion[] = [];
+  for (const group of groups.values()) {
+    const winner = group.reduce((best, candidate) =>
+      outranksAssertion(candidate, best) ? candidate : best,
+    );
+    effective.push(winner);
+    for (const loser of group) {
+      if (loser === winner) continue;
+      superseded.push({
+        assertion: loser,
+        // Identical duplicates have no strict winner; either is the same.
+        reason: outranksAssertion(winner, loser) ?? 'DETERMINISTIC_TIE_BREAK',
+      });
     }
   }
-  return [...best.values()];
+  return { effective, superseded };
+}
+
+/** The effective assertions of `resolveAssertions`. */
+export function dedupeAssertions(
+  assertions: readonly (PreferenceAssertion | undefined)[],
+): PreferenceAssertion[] {
+  return resolveAssertions(assertions).effective;
 }
 
 /**

@@ -141,6 +141,7 @@ export function recordRequestIntentStep(
       facets: preferenceSpec.facets,
       assertions: preferenceSpec.assertions,
       polarityConflicts: preferenceSpec.polarityConflicts,
+      supersededAssertions: preferenceSpec.supersededAssertions,
       unresolvedConcepts: preferenceSpec.unresolvedConcepts,
       facetSchemaVersion: preferenceSpec.facetSchemaVersion,
     },

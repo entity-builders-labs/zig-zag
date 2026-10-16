@@ -14,7 +14,6 @@ import {
   PreferencePolarity,
   PreferenceProvenance,
   PreferenceStrength,
-  dedupeAssertions,
   UnresolvedPreferenceConcept,
 } from '../preferences/preference-assertion.interface';
 import {
@@ -397,7 +396,8 @@ export class PreferenceInterpreterService {
       };
       accepted.push(assertion);
     }
-    return { assertions: dedupeAssertions(accepted), decisions };
+    // Duplicates are resolved once, by the spec builder (resolveAssertions).
+    return { assertions: accepted, decisions };
   }
 
   private validateUnresolvedConcepts(

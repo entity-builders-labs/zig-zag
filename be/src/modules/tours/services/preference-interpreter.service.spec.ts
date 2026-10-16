@@ -191,7 +191,7 @@ describe('PreferenceInterpreterService', () => {
     ).toEqual(new Set(['INVALID_ASSERTION_FIELD']));
   });
 
-  it('keeps one assertion per target and polarity: DIRECT over INFERRED whatever the weight', async () => {
+  it("validates duplicates without resolving them: resolution is the spec builder's single policy", async () => {
     const result = await interpretWith('me encanta la arquitectura de Gaudí', {
       assertions: [
         assertion({
@@ -207,12 +207,11 @@ describe('PreferenceInterpreterService', () => {
       ],
     });
 
-    expect(result.intent.assertions).toEqual([
-      expect.objectContaining({
-        provenance: 'DIRECT',
-        importance: 0.5,
-        confidence: 0.5,
-      }),
+    expect(
+      result.intent.assertions.map((a) => [a.provenance, a.importance]),
+    ).toEqual([
+      ['INFERRED', 1],
+      ['DIRECT', 0.5],
     ]);
   });
 

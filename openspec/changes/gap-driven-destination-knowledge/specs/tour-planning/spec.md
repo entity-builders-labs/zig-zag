@@ -382,8 +382,19 @@ Deterministic code SHALL only validate an extracted assertion: its target SHALL 
 - **THEN** the assertion is dropped with MISSING_EVIDENCE or UNKNOWN_KEY and nothing is substituted for it
 
 #### Scenario: Duplicate assertion keeps its direct provenance
-- **WHEN** the same target and polarity are asserted both as DIRECT and as INFERRED
+- **WHEN** the same target, polarity and constraint are asserted both as DIRECT and as INFERRED
 - **THEN** the DIRECT assertion is kept with its own importance and confidence, whatever the INFERRED assertion's weight
+
+### Requirement: Duplicate assertions resolve to one effective assertion
+For one target and polarity exactly one effective assertion SHALL remain, independent of input order: HARD outranks SOFT; then DIRECT outranks INFERRED; two DIRECT assertions compare stated importance only; two INFERRED assertions compare importance × confidence; an exact tie breaks deterministically without semantic weighting. A HARD assertion SHALL never be weakened by provenance or weight. Losers are kept for the trace only.
+
+#### Scenario: A soft selection never weakens a hard constraint
+- **WHEN** the traveller selects history (SOFT, DIRECT) and the extractor asserts history as a HARD INFERRED requirement
+- **THEN** the HARD assertion is the effective one and the SOFT selection is recorded as superseded
+
+#### Scenario: Confidence never discounts direct importance
+- **WHEN** two DIRECT assertions of one target have importance 1.0 with confidence 0.5 and importance 0.8 with confidence 1.0
+- **THEN** the importance 1.0 assertion is the effective one
 
 ### Requirement: No word list interprets preferences
 No maintained natural-language keyword, alias, synonym, canonical-word or regex list SHALL interpret preferences, decide provenance or polarity, or translate a word into a schema key anywhere in the preference or exclusion path. When extraction fails, no lexical fallback SHALL produce an assertion from the text.

@@ -16,8 +16,8 @@ import {
   RequestedFacet,
 } from '../interfaces/preference-spec.interface';
 import {
-  dedupeAssertions,
   PreferenceAssertion,
+  resolveAssertions,
   separatePolarityConflicts,
 } from '../preferences/preference-assertion.interface';
 import {
@@ -119,12 +119,16 @@ export function buildPreferenceSpec(
       }),
     ),
   ];
-  // Duplicates of one polarity resolve by provenance, then weight; a
-  // target asserted with both polarities is a typed conflict, never guessed.
+  // Duplicates of one (target, polarity) resolve once, by the canonical
+  // rule (HARD, then DIRECT, then magnitude); the losers are kept for the
+  // trace only. A target asserted with both polarities is a typed conflict,
+  // never guessed.
+  const resolved = resolveAssertions([
+    ...structured,
+    ...(interpreted.assertions ?? []),
+  ]);
   const { assertions, conflicts: polarityConflicts } =
-    separatePolarityConflicts(
-      dedupeAssertions([...structured, ...(interpreted.assertions ?? [])]),
-    );
+    separatePolarityConflicts(resolved.effective);
   const facets = assertions
     .filter(
       (assertion) =>
@@ -138,6 +142,7 @@ export function buildPreferenceSpec(
   // never turned into phrases for the semantic machinery (task 25.5).
   return {
     assertions,
+    supersededAssertions: resolved.superseded,
     polarityConflicts,
     facets,
     unresolvedConcepts: interpreted.unresolvedConcepts ?? [],

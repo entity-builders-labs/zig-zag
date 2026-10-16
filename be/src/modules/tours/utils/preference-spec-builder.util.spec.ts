@@ -483,4 +483,40 @@ describe('preference-spec-builder.util', () => {
     ]);
     expect(findUnenforceableHardConstraints(spec)).toEqual([]);
   });
+
+  it('never lets a SOFT DIRECT selection weaken an extracted HARD constraint on the same target (F7)', () => {
+    const hardExtracted = inferred({
+      target: { dimension: 'theme', key: 'history' },
+      constraint: 'HARD',
+      provenance: 'INFERRED',
+      importance: 0.5,
+      confidence: 0.4,
+    });
+    const spec = buildPreferenceSpec(
+      baseRequest({
+        intent: {
+          interests: ['history'],
+          intents: [],
+          explorationStyle: 'balanced' as any,
+        },
+      }),
+      emptyInterpreted({ assertions: [hardExtracted] }),
+    );
+    expect(spec.assertions).toEqual([hardExtracted]);
+    expect(spec.facets).toEqual([]);
+    expect(spec.supersededAssertions).toEqual([
+      {
+        assertion: expect.objectContaining({
+          constraint: 'SOFT',
+          provenance: 'DIRECT',
+        }),
+        reason: 'HARD_OUTRANKS_SOFT',
+      },
+    ]);
+    expect(findUnenforceableHardConstraints(spec)).toEqual([
+      expect.objectContaining({
+        target: { dimension: 'theme', key: 'history' },
+      }),
+    ]);
+  });
 });
