@@ -1,5 +1,13 @@
-import { existsSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
+import { join, relative } from 'node:path';
+import * as vocabularyModule from '../preferences/preference-facet-vocabulary';
+import * as assertionModule from '../preferences/preference-assertion.interface';
+import * as mergeModule from '../utils/preference-facet-merge.util';
+import * as matchFactsModule from '../utils/experience-match-facts.util';
+import {
+  canonicalTargetKey,
+  INITIAL_DIMENSION_VOCABULARY,
+} from '../preferences/preference-facet-vocabulary';
 
 const source = (name: string) => readFileSync(join(__dirname, name), 'utf8');
 /** Source without comments, so guards check code rather than prose. */
@@ -135,25 +143,137 @@ describe('preference-first architecture boundaries', () => {
     }
   });
 
-  it('keeps no maintained alias, synonym or keyword table in the preference path (task 25.4)', () => {
-    for (const name of [
-      '../preferences/preference-facet-vocabulary.ts',
-      '../preferences/preference-assertion.interface.ts',
-      'preference-interpreter.service.ts',
-      '../utils/preference-spec-builder.util.ts',
-      '../utils/preference-facet-merge.util.ts',
-      '../utils/preference-facet-matching.util.ts',
-      '../utils/hard-constraint-enforceability.util.ts',
-      '../utils/experience-candidate-facet-normalizer.util.ts',
-    ]) {
-      expect(source(name)).not.toMatch(/SYNONYM|ALIAS|KEYWORD/);
-    }
-    for (const deleted of [
-      '../utils/experience-preference-evaluator.util.ts',
-      '../preferences/preference-facet.interface.ts',
-    ]) {
-      expect(existsSync(join(__dirname, deleted))).toBe(false);
-    }
+  /**
+   * Structural semantic-boundary invariants (review correction C, F4). They
+   * check data flow and module roles, not identifier names.
+   */
+  describe('semantic boundary (review C)', () => {
+    const TOURS = join(__dirname, '..');
+    const walk = (dir: string): string[] =>
+      readdirSync(dir).flatMap((entry) => {
+        const path = join(dir, entry);
+        if (statSync(path).isDirectory()) return walk(path);
+        return path.endsWith('.ts') && !path.endsWith('.spec.ts') ? [path] : [];
+      });
+    const productionFiles = walk(TOURS);
+    const stripComments = (text: string) =>
+      text.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
+    const filesUsing = (pattern: RegExp) =>
+      productionFiles
+        .filter((path) =>
+          pattern.test(stripComments(readFileSync(path, 'utf8'))),
+        )
+        .map((path) => relative(TOURS, path))
+        .sort();
+
+    /** The deterministic preference path: validation, resolution, utility. */
+    const DETERMINISTIC_PREFERENCE_PATH = [
+      'preferences/preference-facet-vocabulary.ts',
+      'preferences/preference-assertion.interface.ts',
+      'utils/preference-spec-builder.util.ts',
+      'utils/preference-facet-merge.util.ts',
+      'utils/preference-facet-matching.util.ts',
+      'utils/preference-strong-match.util.ts',
+      'utils/preference-utility.util.ts',
+      'utils/hard-constraint-enforceability.util.ts',
+      'utils/experience-match-facts.util.ts',
+      'utils/composition-set-cover.util.ts',
+      'services/preference-utility.service.ts',
+      'services/experience-composition.service.ts',
+    ];
+
+    it('user free text reaches preference semantics only through the extractor', () => {
+      for (const file of DETERMINISTIC_PREFERENCE_PATH) {
+        const body = stripComments(readFileSync(join(TOURS, file), 'utf8'));
+        expect(`${file}: ${/additionalPreferences/.test(body)}`).toBe(
+          `${file}: false`,
+        );
+      }
+      // The orchestrator hands the text to exactly one interpreter call.
+      expect(
+        source('experience-generation.service.ts').match(
+          /preferenceInterpreter\.interpret\(/g,
+        ),
+      ).toHaveLength(1);
+    });
+
+    it('only reviewed boundary modules turn strings into schema identifiers', () => {
+      // A new caller of the schema-key primitives must be reviewed: it is
+      // either a validation/adaptation boundary or a semantic regression.
+      expect(
+        filesUsing(/\b(canonicalTargetKey|canonicalizeFacetKey)\(/),
+      ).toEqual([
+        'preferences/preference-facet-vocabulary.ts', // definition
+        'services/area-route-walk-acquisition.service.ts', // typed deficit key
+        'services/experience-classification.service.ts', // classifier output validation
+        'services/preference-interpreter.service.ts', // extractor output validation
+        'utils/experience-candidate-facet-normalizer.util.ts', // extraction output validation
+        'utils/experience-match-facts.util.ts', // fact adapters
+        'utils/preference-facet-merge.util.ts', // structured selection validation
+      ]);
+    });
+
+    it('the schema holds identifiers only, and no preference module exports a surface-form table', () => {
+      for (const keys of Object.values(INITIAL_DIMENSION_VOCABULARY)) {
+        for (const key of keys) expect(key).toMatch(/^[a-z][a-z0-9_]*$/);
+      }
+      for (const moduleExports of [
+        vocabularyModule,
+        assertionModule,
+        mergeModule,
+        matchFactsModule,
+      ]) {
+        for (const [name, value] of Object.entries(moduleExports)) {
+          if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            continue;
+          }
+          // A lowercase-keyed string-to-string object is a translation
+          // table; constant enums (UPPER_SNAKE keys) are not.
+          const entries = Object.entries(value as Record<string, unknown>);
+          const isTable =
+            entries.length > 0 &&
+            entries.every(([, v]) => typeof v === 'string') &&
+            entries.some(([k]) => /[a-z\s]/.test(k));
+          expect(`${name}: ${isTable}`).toBe(`${name}: false`);
+        }
+      }
+    });
+
+    it('schema-key normalization never maps one word to a different identifier', () => {
+      const formatOnly = (value: string) =>
+        value
+          .normalize('NFKD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .toLowerCase()
+          .trim()
+          .replace(/[^a-z0-9_ -]+/g, ' ')
+          .replace(/[\s-]+/g, '_');
+      const probes = [
+        ...Object.values(INITIAL_DIMENSION_VOCABULARY).flat(),
+        'Historia',
+        'arquitectura',
+        'vino',
+        'caminata',
+        'silla de ruedas',
+        'Day Trip',
+        'vida nocturna',
+      ];
+      for (const dimension of Object.keys(INITIAL_DIMENSION_VOCABULARY)) {
+        for (const probe of probes) {
+          const key = canonicalTargetKey(dimension, probe);
+          if (key !== undefined) expect(key).toBe(formatOnly(probe));
+        }
+      }
+    });
+
+    it('keeps the deleted lexical evaluator and legacy facet model deleted', () => {
+      for (const deleted of [
+        '../utils/experience-preference-evaluator.util.ts',
+        '../preferences/preference-facet.interface.ts',
+      ]) {
+        expect(existsSync(join(__dirname, deleted))).toBe(false);
+      }
+    });
   });
 
   it('keeps one preference-utility authority and no planner scoring formula (task 25.2)', () => {

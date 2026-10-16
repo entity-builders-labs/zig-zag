@@ -45,8 +45,10 @@ export function buildTourGenerationRequest(
     budgetLevel: dto.budgetLevel,
     groupType: dto.groupType,
     intent: {
-      interests: normalizeValues(dto.intent.interests),
-      intents: normalizeValues(dto.intent.intents),
+      // Typed schema identifiers validated by the DTO: only duplicates are
+      // removed; nothing is trimmed, recased or reinterpreted.
+      interests: [...new Set(dto.intent.interests)],
+      intents: [...new Set(dto.intent.intents ?? [])],
       explorationStyle: dto.intent.explorationStyle,
       additionalPreferences: additionalPreferences || undefined,
     },

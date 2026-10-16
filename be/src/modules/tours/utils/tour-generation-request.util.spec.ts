@@ -16,8 +16,10 @@ function validDto(): CreateTourFromWizardDto {
     budgetLevel: 'low' as any,
     groupType: 'couple' as any,
     intent: {
-      interests: [' History ', 'history', ' Architecture '],
-      intents: [' Day_Trip ', 'day_trip'],
+      // Typed schema identifiers (validated by the DTO): only duplicates
+      // are removed; nothing is trimmed, recased or reinterpreted.
+      interests: ['history', 'history', 'architecture'],
+      intents: ['day_trip', 'day_trip'],
       explorationStyle: 'balanced' as any,
       additionalPreferences: '  Street photography  ',
     },
@@ -49,8 +51,8 @@ describe('buildTourGenerationRequest', () => {
       contractVersion: 1,
       destination: { label: 'Córdoba, Argentina' },
       intent: {
-        interests: ['History', 'Architecture'],
-        intents: ['Day_Trip'],
+        interests: ['history', 'architecture'],
+        intents: ['day_trip'],
         additionalPreferences: 'Street photography',
       },
       mobility: { accessibilityNeeds: [AccessibilityNeed.AVOID_STAIRS] },

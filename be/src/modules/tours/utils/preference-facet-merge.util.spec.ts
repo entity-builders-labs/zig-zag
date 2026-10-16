@@ -1,4 +1,7 @@
-import { structuredSelectionAssertion } from './preference-facet-merge.util';
+import {
+  InvalidStructuredSelectionError,
+  structuredSelectionAssertion,
+} from './preference-facet-merge.util';
 
 describe('structuredSelectionAssertion', () => {
   it('turns a typed structured selection into a DIRECT assertion with its selection as evidence', () => {
@@ -27,16 +30,16 @@ describe('structuredSelectionAssertion', () => {
     });
   });
 
-  it('normalizes formatting only: case and separators of a schema key', () => {
-    expect(
+  it('accepts only the exact typed identifier: no recasing or separator rewriting', () => {
+    expect(() =>
       structuredSelectionAssertion({
         field: 'intent.intents',
         dimension: 'intent',
         key: 'Day-Trip',
         polarity: 'INCLUDE',
         constraint: 'SOFT',
-      })?.target,
-    ).toEqual({ dimension: 'intent', key: 'day_trip' });
+      }),
+    ).toThrow(InvalidStructuredSelectionError);
   });
 
   it.each([
@@ -50,9 +53,9 @@ describe('structuredSelectionAssertion', () => {
     ['exploration_style', 'iconic'],
     ['unknown_dimension', 'history'],
   ])(
-    'returns no assertion for %s:%s, which is not a key of the typed schema',
+    'fails explicitly for %s:%s, which is not a key of the typed schema (never dropped)',
     (dimension, key) => {
-      expect(
+      expect(() =>
         structuredSelectionAssertion({
           field: 'intent.interests',
           dimension,
@@ -60,7 +63,7 @@ describe('structuredSelectionAssertion', () => {
           polarity: 'INCLUDE',
           constraint: 'SOFT',
         }),
-      ).toBeUndefined();
+      ).toThrow(/INVALID_STRUCTURED_SELECTION/);
     },
   );
 

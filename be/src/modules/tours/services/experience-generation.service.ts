@@ -19,6 +19,7 @@ import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
 import { PreferenceUtilityService } from './preference-utility.service';
+import { InvalidStructuredSelectionError } from '../utils/preference-facet-merge.util';
 import { preservesRankPositions } from '../utils/rank-dominance.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
@@ -1913,7 +1914,8 @@ export class ExperienceGenerationService {
                     status: 'FAILED',
                     outcome:
                       error instanceof HardConstraintUnenforceableError ||
-                      error instanceof AmbiguousHardConstraintError
+                      error instanceof AmbiguousHardConstraintError ||
+                      error instanceof InvalidStructuredSelectionError
                         ? error.outcome
                         : 'GENERATION_FAILED',
                     reason: error?.message || String(error),

@@ -9,6 +9,7 @@ import {
   IsDateString,
   IsDefined,
   IsEnum,
+  IsIn,
   IsLatitude,
   IsLongitude,
   IsNumber,
@@ -19,6 +20,10 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
+import {
+  INITIAL_DIMENSION_VOCABULARY,
+  PREFERENCE_DIMENSIONS,
+} from '../preferences/preference-facet-vocabulary';
 import {
   AccessibilityNeed,
   DietaryRestriction,
@@ -81,16 +86,28 @@ export class TourDestinationSelectionDto {
 }
 
 export class TourIntentDto {
-  @ApiProperty({ type: [String], example: ['history', 'architecture'] })
+  /**
+   * Typed theme identifiers of the active facet schema. A value outside the
+   * schema is rejected here, never dropped later or reinterpreted (review
+   * correction C); shared concept identity beyond the schema is task 25.8.
+   */
+  @ApiProperty({
+    type: [String],
+    enum: INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.THEME],
+    example: ['history', 'architecture'],
+  })
   @IsArray()
   @ArrayMaxSize(20)
   @ArrayUnique()
   @IsString({ each: true })
-  @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
+  @IsIn(INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.THEME], {
+    each: true,
+  })
   interests: string[];
 
   @ApiProperty({
     type: [String],
+    enum: INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.INTENT],
     required: false,
     example: ['walk', 'day_trip'],
     description:
@@ -100,7 +117,9 @@ export class TourIntentDto {
   @ArrayMaxSize(20)
   @ArrayUnique()
   @IsString({ each: true })
-  @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
+  @IsIn(INITIAL_DIMENSION_VOCABULARY[PREFERENCE_DIMENSIONS.INTENT], {
+    each: true,
+  })
   @IsOptional()
   intents: string[] = [];
 

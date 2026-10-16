@@ -415,7 +415,11 @@ A typed request field SHALL participate in preference utility only through a def
 - **THEN** no preference assertion or facet is created from them and no phrase such as "low budget" or "family friendly" is generated, while both stay available to the selector prompt and the trace
 
 ### Requirement: Structured selections are direct assertions
-A typed structured selection (a wizard option or a typed dietary restriction) SHALL yield a DIRECT assertion whose evidence is that selection, with no language interpretation. Untyped dietary strings SHALL be rejected at the request boundary.
+A typed structured selection (a wizard option or a typed dietary restriction) SHALL yield a DIRECT assertion whose evidence is that selection, with no language interpretation. A structured value that is not an identifier of the active schema SHALL be rejected at the request boundary, never dropped or reinterpreted.
+
+#### Scenario: Structured value outside the schema is rejected
+- **WHEN** a request selects the interest "Historia" or "whatever_the_frontend_sent"
+- **THEN** the request is rejected at the boundary; nothing is dropped silently, recased or translated
 
 #### Scenario: Structured selection is direct by construction
 - **WHEN** the traveller selects the history interest or the vegan dietary restriction as a typed option

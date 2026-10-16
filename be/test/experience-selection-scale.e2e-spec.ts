@@ -431,7 +431,9 @@ const scenarios: ScenarioDefinition[] = [
     request: baseRequest({
       groupType: 'family',
       intent: {
-        interests: ['culture', 'interactive'],
+        // 'interactive' is not a schema theme; the request boundary would
+        // reject it (review C). It stays in the free text.
+        interests: ['culture'],
         intents: ['visit'],
         explorationStyle: 'balanced',
         additionalPreferences:
@@ -499,7 +501,9 @@ const scenarios: ScenarioDefinition[] = [
     }),
     request: baseRequest({
       intent: {
-        interests: ['hidden history'],
+        // 'hidden history' is not a schema theme (review C); it was always
+        // dropped, so no interest is selected. The free text still carries it.
+        interests: [],
         intents: ['walk'],
         explorationStyle: 'local_deep_dive',
         additionalPreferences:
@@ -949,7 +953,9 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
       ...scenario.request,
       intent: {
         ...(scenario.request.intent as Record<string, unknown>),
-        interests: ['tango', 'religion'],
+        // 'religion' is not a schema theme (review C); the free text and the
+        // semantic signal still carry it.
+        interests: ['tango'],
         additionalPreferences:
           'Quiero específicamente tango, arte religioso y catedrales caminando.',
       },

@@ -131,4 +131,27 @@ describe('CreateTourFromWizardDto', () => {
       expect(errors.map((error) => error.property)).toEqual(['mobility']);
     },
   );
+
+  it.each([
+    ['interests', ['Historia']],
+    ['interests', ['whatever_the_frontend_sent']],
+    ['interests', ['History']],
+    ['intents', ['caminata']],
+    ['intents', ['Day-Trip']],
+  ])(
+    'rejects a structured %s value outside the active facet schema: %j',
+    async (field, values) => {
+      const payload = validPayload() as any;
+      payload.intent[field] = values;
+      const errors = await errorsFor(payload);
+      expect(errors.map((error) => error.property)).toEqual(['intent']);
+    },
+  );
+
+  it('accepts typed theme and intent identifiers of the active schema', async () => {
+    const payload = validPayload() as any;
+    payload.intent.interests = ['history', 'nightlife'];
+    payload.intent.intents = ['walk', 'route_like'];
+    expect(await errorsFor(payload)).toEqual([]);
+  });
 });

@@ -144,20 +144,19 @@ describe('preference-spec-builder.util', () => {
     expect(spec.facets[0]).not.toHaveProperty('weight');
   });
 
-  it('never translates a structured value outside the typed schema', () => {
-    const spec = buildPreferenceSpec(
-      baseRequest({
-        intent: {
-          interests: ['historia', 'history'],
-          intents: ['caminata'],
-          explorationStyle: 'balanced' as any,
-        },
-      }),
-      emptyInterpreted(),
-    );
-    expect(spec.assertions.map((a) => a.target)).toEqual([
-      { dimension: 'theme', key: 'history' },
-    ]);
+  it('fails explicitly for a structured value outside the typed schema instead of dropping it', () => {
+    expect(() =>
+      buildPreferenceSpec(
+        baseRequest({
+          intent: {
+            interests: ['historia', 'history'],
+            intents: [],
+            explorationStyle: 'balanced' as any,
+          },
+        }),
+        emptyInterpreted(),
+      ),
+    ).toThrow(/INVALID_STRUCTURED_SELECTION/);
   });
 
   it('keeps explorationStyle out of facets entirely -- it is never a RequestedFacet', () => {

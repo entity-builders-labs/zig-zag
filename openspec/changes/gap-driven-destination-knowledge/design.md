@@ -1197,7 +1197,17 @@ disproven.
     failure produces no assertion from the text (no lexical fallback).
   - A typed structured selection (a wizard option, a typed
     `DietaryRestriction`) yields a `DIRECT` assertion whose evidence is the
-    selection, with no extractor call. It is `DIRECT` because the
+    selection, with no extractor call. Interests and intents are validated
+    at the request boundary against the active schema's identifiers
+    (review correction C, 2026-10-16): a value outside it is rejected,
+    never dropped, recased or translated; past the boundary an invalid one
+    fails as `INVALID_STRUCTURED_SELECTION`. Shared concept identity beyond
+    the closed schema stays task 25.8.
+  - Structural guard (review C): the deterministic preference path never
+    reads the user's free text; only reviewed boundary modules call the
+    schema-key primitives; the schema holds identifiers only; no preference
+    module exports a surface-form table; key normalization never maps one
+    word to a different identifier. It is `DIRECT` because the
     traveller chose a typed domain option, not because of the channel.
   - Confidence stays confidence in the interpretation, never provenance or
     polarity. Embeddings never certify `DIRECT`.

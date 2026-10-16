@@ -152,15 +152,17 @@ amendment (2026-10-11); no production code yet.**
   task 25.1 committed (0d1e6e97); 25.4 (2919e0db); 25.6 (2390a953); 25.2
   (d1a4c738); 24.2 (916156c8); 25.3 (9b0ab8fa); 25.5 (539c2b99).
   Architecture review of 0d1e6e97..539c2b99 (2026-10-16) found F1-F9;
-  corrective commits A (F7+F2 assertion resolution), B (F6+F8 typed
-  Experience facts) and C (F3-minimum + F4 structural guard) precede
-  25.7. F1 is owned by 25.8; F5 and F9 are recorded debt.
+  corrective commits A (F7+F2 assertion resolution, c731f351), B (F6+F8
+  typed Experience match facts, ce011a49) and C (F3-minimum request-boundary
+  validation + F4 structural guard) precede 25.7. F1 is owned by 25.8; F5
+  (importance mapping not yet versioned in preference-utility-v1) and F9
+  (rank/levelRank not nominally typed) are recorded debt.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Complete corrections A/B/C, report the engineering-principles gate and
-   verdict, then resume 25.7 only after owner review; then `/opsx:apply` continues with the next unblocked task.
+1. Owner reviews the A/B/C completion report; 25.7 resumes only after
+   that review (its pending design questions stay unanswered until then); then `/opsx:apply` continues with the next unblocked task.
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
