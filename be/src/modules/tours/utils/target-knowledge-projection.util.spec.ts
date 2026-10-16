@@ -1,7 +1,4 @@
-import {
-  applyObservation,
-  candidateTargetCompatibility,
-} from './target-knowledge-projection.util';
+import { applyObservation } from './target-knowledge-projection.util';
 import { TargetObservation } from '../preferences/target-knowledge.interface';
 
 function observation(
@@ -35,38 +32,5 @@ describe('applyObservation', () => {
       observation('SATISFIES', 'a'),
       observation('DOES_NOT_SATISFY', 'b'),
     ]);
-  });
-});
-
-describe('candidateTargetCompatibility', () => {
-  it('aggregates a single-place candidate (one component)', () => {
-    expect(
-      candidateTargetCompatibility('INCLUDE', [
-        [observation('SATISFIES', 'a')],
-      ]),
-    ).toBe('COMPATIBLE');
-    expect(
-      candidateTargetCompatibility('INCLUDE', [
-        [observation('DOES_NOT_SATISFY', 'a')],
-      ]),
-    ).toBe('INCOMPATIBLE');
-    expect(candidateTargetCompatibility('INCLUDE', [[]])).toBe('UNKNOWN');
-  });
-
-  it('aggregates a composite candidate across required components', () => {
-    // INCLUDE: one SATISFIES, one DOES_NOT_SATISFY -> INCOMPATIBLE.
-    expect(
-      candidateTargetCompatibility('INCLUDE', [
-        [observation('SATISFIES', 'a')],
-        [observation('DOES_NOT_SATISFY', 'b')],
-      ]),
-    ).toBe('INCOMPATIBLE');
-    // EXCLUDE: all DOES_NOT_SATISFY -> COMPATIBLE.
-    expect(
-      candidateTargetCompatibility('EXCLUDE', [
-        [observation('DOES_NOT_SATISFY', 'a')],
-        [observation('DOES_NOT_SATISFY', 'b')],
-      ]),
-    ).toBe('COMPATIBLE');
   });
 });

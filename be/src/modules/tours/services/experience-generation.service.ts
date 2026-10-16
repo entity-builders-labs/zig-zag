@@ -64,9 +64,14 @@ import { buildPlanningDays } from '../utils/planning-days.util';
 import {
   AmbiguousHardConstraintError,
   findAmbiguousHardConstraints,
+  findApplicableHardTargets,
   findUnenforceableHardConstraints,
   HardConstraintUnenforceableError,
+  UnenforceableHardConstraint,
 } from '../utils/hard-constraint-enforceability.util';
+import { resolveHardTargetEligibility } from '../utils/hard-eligibility.policy';
+import { semanticTargetKey } from '../preferences/preference-assertion.interface';
+import { TargetKnowledge } from '../preferences/target-knowledge.interface';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
@@ -639,6 +644,67 @@ export class ExperienceGenerationService {
   }
 
   /**
+   * Post-catalog HARD target eligibility (task 25.7): filters the snapshot's
+   * experiences to those proven compatible with every applicable HARD target,
+   * using the reconciled target knowledge the catalog projection surfaced.
+   * UNKNOWN is never compatible. When no Experience can be proven compatible,
+   * generation ends HARD_CONSTRAINT_UNENFORCEABLE with the typed reason —
+   * never a shortened Tour, never a relaxed constraint, and never a
+   * HARD-driven acquisition.
+   */
+  private applyHardTargetEligibility(
+    preferenceSpec: PreferenceSpec,
+    experiences: VerifiedExperienceRow[],
+    destinationLabel: string,
+  ): VerifiedExperienceRow[] {
+    const applicable = findApplicableHardTargets(preferenceSpec);
+    if (applicable.length === 0) return experiences;
+
+    let eligibleIndexes: Set<number> | null = null;
+    for (const { target, polarity } of applicable) {
+      const targetKey = semanticTargetKey(target);
+      const candidatesKnowledge = experiences.map((experience) =>
+        experience.matchFacts.targetKnowledge.map(
+          (component): TargetKnowledge =>
+            component.byTarget[targetKey] ?? {
+              state: 'UNKNOWN',
+              reason: 'NO_EVIDENCE',
+            },
+        ),
+      );
+      const outcome = resolveHardTargetEligibility(
+        polarity,
+        candidatesKnowledge,
+      );
+      if (outcome.kind === 'UNENFORCEABLE') {
+        const constraint: UnenforceableHardConstraint = {
+          target,
+          unresolvedLabel: null,
+          polarity,
+          missingKnowledge: outcome.missingKnowledge,
+          reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+        };
+        if (outcome.unknownReason) {
+          constraint.unknownReason = outcome.unknownReason;
+        }
+        throw new HardConstraintUnenforceableError(
+          [constraint],
+          destinationLabel,
+        );
+      }
+      const compatible = new Set(outcome.compatibleIndexes);
+      eligibleIndexes =
+        eligibleIndexes === null
+          ? compatible
+          : new Set(
+              [...eligibleIndexes].filter((index) => compatible.has(index)),
+            );
+    }
+    if (eligibleIndexes === null) return experiences;
+    return experiences.filter((_, index) => eligibleIndexes!.has(index));
+  }
+
+  /**
    * Plans ONE selection, deriving every planner input from that selection
    * only (no candidate, weight or score survives from an earlier
    * selection): overlap filter → initial solve → bounded reservoir
@@ -1091,14 +1157,20 @@ export class ExperienceGenerationService {
         });
       const composeSnapshot = (
         snapshot: CatalogCandidateSnapshot<VerifiedExperienceRow>,
-      ) =>
-        this.composeExperiences(
+      ) => {
+        const eligible = this.applyHardTargetEligibility(
+          preferenceSpec,
           snapshot.experiences,
+          request.destination.label,
+        );
+        return this.composeExperiences(
+          eligible,
           preferenceSpec,
           venueAnchorResolution.resolvedMustIds,
           venueAnchorResolution.resolvedSoftIds,
           venueAnchorResolution.resolvedNames,
         );
+      };
       const coverageScope = { ...searchArea, destination: geographicScope };
 
       await this.updateGenerationStatus(

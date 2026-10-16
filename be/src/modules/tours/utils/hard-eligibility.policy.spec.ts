@@ -3,24 +3,24 @@ import {
   resolveHardTargetEligibility,
 } from './hard-eligibility.policy';
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
-import { TargetObservation } from '../preferences/target-knowledge.interface';
+import { TargetKnowledge } from '../preferences/target-knowledge.interface';
+
+const SATISFIES: TargetKnowledge = { state: 'SATISFIES' };
+const DOES_NOT: TargetKnowledge = { state: 'DOES_NOT_SATISFY' };
+const CONFLICTING: TargetKnowledge = {
+  state: 'UNKNOWN',
+  reason: 'CONFLICTING_EVIDENCE',
+};
 
 function target(dimension: string, key: string): SemanticTarget {
   return { dimension: dimension as SemanticTarget['dimension'], key };
 }
 
-function observation(
-  state: TargetObservation['state'],
-  id: string,
-): TargetObservation {
-  return { sourceFactId: id, state };
-}
-
-/** One candidate whose single required component holds these observations. */
+/** One candidate: its required-component reconciled knowledge. */
 function candidate(
-  observations: readonly TargetObservation[],
-): readonly (readonly TargetObservation[])[] {
-  return [observations];
+  knowledge: readonly TargetKnowledge[],
+): readonly TargetKnowledge[] {
+  return knowledge;
 }
 
 describe('classifyHardTarget (split gate)', () => {
@@ -58,8 +58,8 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
   it('admits every candidate that SATISFIES a HARD INCLUDE target', () => {
     expect(
       resolveHardTargetEligibility('INCLUDE', [
-        candidate([observation('SATISFIES', 'a')]),
-        candidate([observation('SATISFIES', 'b')]),
+        candidate([SATISFIES]),
+        candidate([SATISFIES]),
       ]),
     ).toEqual({ kind: 'ELIGIBLE', compatibleIndexes: [0, 1] });
   });
@@ -67,8 +67,8 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
   it('admits only the compatible candidates of a HARD INCLUDE target', () => {
     expect(
       resolveHardTargetEligibility('INCLUDE', [
-        candidate([observation('SATISFIES', 'a')]),
-        candidate([observation('DOES_NOT_SATISFY', 'b')]),
+        candidate([SATISFIES]),
+        candidate([DOES_NOT]),
         candidate([]),
       ]),
     ).toEqual({ kind: 'ELIGIBLE', compatibleIndexes: [0] });
@@ -86,12 +86,7 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
 
   it('retains the underlying CONFLICTING_EVIDENCE reason when nothing is compatible', () => {
     expect(
-      resolveHardTargetEligibility('INCLUDE', [
-        candidate([
-          observation('SATISFIES', 'a'),
-          observation('DOES_NOT_SATISFY', 'b'),
-        ]),
-      ]),
+      resolveHardTargetEligibility('INCLUDE', [candidate([CONFLICTING])]),
     ).toEqual({
       kind: 'UNENFORCEABLE',
       missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
@@ -102,7 +97,7 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
   it('is INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY when some candidates are incompatible and none compatible', () => {
     expect(
       resolveHardTargetEligibility('INCLUDE', [
-        candidate([observation('DOES_NOT_SATISFY', 'a')]),
+        candidate([DOES_NOT]),
         candidate([]),
       ]),
     ).toEqual({
@@ -114,17 +109,15 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
   it('admits a HARD EXCLUDE target only when every required component DOES_NOT_SATISFY', () => {
     expect(
       resolveHardTargetEligibility('EXCLUDE', [
-        candidate([observation('DOES_NOT_SATISFY', 'a')]),
-        candidate([observation('SATISFIES', 'b')]),
+        candidate([DOES_NOT]),
+        candidate([SATISFIES]),
       ]),
     ).toEqual({ kind: 'ELIGIBLE', compatibleIndexes: [0] });
   });
 
   it('rejects a HARD EXCLUDE target when any required component SATISFIES', () => {
     expect(
-      resolveHardTargetEligibility('EXCLUDE', [
-        candidate([observation('SATISFIES', 'a')]),
-      ]),
+      resolveHardTargetEligibility('EXCLUDE', [candidate([SATISFIES])]),
     ).toEqual({
       kind: 'UNENFORCEABLE',
       missingKnowledge: 'INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY',

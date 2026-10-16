@@ -4,15 +4,14 @@ import {
 } from '../preferences/preference-assertion.interface';
 import {
   TargetCompatibility,
-  TargetObservation,
+  TargetKnowledge,
   UnknownTargetReason,
 } from '../preferences/target-knowledge.interface';
 import {
   HardConstraintMissingKnowledge,
   targetApplicability,
 } from './target-applicability.util';
-import { candidateTargetCompatibility } from './target-knowledge-projection.util';
-import { reconcileTargetKnowledge } from './target-knowledge-reconciliation.util';
+import { hardTargetCompatibility } from './target-composite-aggregation.util';
 
 /**
  * The split gate (task 25.7, owner 2026-10-16). A HARD target is either
@@ -34,15 +33,17 @@ export function classifyHardTarget(
 }
 
 /**
- * Per-candidate compatibility of one applicable HARD target, reconciled from
- * each candidate's required-component observations and aggregated.
+ * Per-candidate compatibility of one applicable HARD target, aggregated from
+ * each candidate's already-reconciled required-component knowledge. This is
+ * aggregation only: reconciliation happens once at the catalog projection
+ * boundary (the single reconciliation authority).
  */
 export function evaluateHardTargetCompatibility(
   polarity: PreferencePolarity,
-  candidatesObservations: readonly (readonly (readonly TargetObservation[])[])[],
+  candidatesKnowledge: readonly (readonly TargetKnowledge[])[],
 ): TargetCompatibility[] {
-  return candidatesObservations.map((components) =>
-    candidateTargetCompatibility(polarity, components),
+  return candidatesKnowledge.map((componentKnowledge) =>
+    hardTargetCompatibility(polarity, componentKnowledge),
   );
 }
 
@@ -67,11 +68,11 @@ export type HardTargetEligibility =
  */
 export function resolveHardTargetEligibility(
   polarity: PreferencePolarity,
-  candidatesObservations: readonly (readonly (readonly TargetObservation[])[])[],
+  candidatesKnowledge: readonly (readonly TargetKnowledge[])[],
 ): HardTargetEligibility {
   const compatibility = evaluateHardTargetCompatibility(
     polarity,
-    candidatesObservations,
+    candidatesKnowledge,
   );
   const compatibleIndexes: number[] = [];
   let sawIncompatible = false;
@@ -83,7 +84,7 @@ export function resolveHardTargetEligibility(
     } else if (state === 'INCOMPATIBLE') {
       sawIncompatible = true;
     } else {
-      collectUnknownReasons(candidatesObservations[index], unknownReasons);
+      collectUnknownReasons(candidatesKnowledge[index], unknownReasons);
     }
   });
 
@@ -104,11 +105,10 @@ export function resolveHardTargetEligibility(
 }
 
 function collectUnknownReasons(
-  components: readonly (readonly TargetObservation[])[],
+  componentKnowledge: readonly TargetKnowledge[],
   reasons: Set<UnknownTargetReason>,
 ): void {
-  for (const observations of components) {
-    const knowledge = reconcileTargetKnowledge(observations);
+  for (const knowledge of componentKnowledge) {
     if (knowledge.state === 'UNKNOWN') {
       reasons.add(knowledge.reason);
     }

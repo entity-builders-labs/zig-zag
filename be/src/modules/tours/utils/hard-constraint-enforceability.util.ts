@@ -25,56 +25,66 @@ export interface UnenforceableHardConstraint {
 }
 
 /**
- * Hard constraints the request cannot currently guarantee, without catalog
- * target knowledge. Unknown compatibility is never compatibility: an
- * inapplicable target, a target without a producer, an unresolved concept, or
- * a target with no reconciled knowledge fails closed with a typed reason.
- * Catalog evaluation of the applicable accessibility:wheelchair_access target
- * is the orchestration wiring step; until it is wired, every hard constraint
- * fails closed.
+ * Hard constraints the request cannot guarantee without any catalog target
+ * knowledge: an inapplicable target, a target without a producer, or an
+ * unresolved open concept. Applicable targets (REQUIRES_TARGET_KNOWLEDGE) are
+ * NOT decided here — they are deferred to the post-catalog eligibility stage,
+ * where their compatibility is proven (or not) from reconciled target
+ * knowledge. Unknown compatibility is never compatibility.
  */
 export function findUnenforceableHardConstraints(
   spec: Pick<PreferenceSpec, 'assertions' | 'unresolvedConcepts'>,
 ): UnenforceableHardConstraint[] {
-  return [
-    ...spec.assertions
-      .filter((assertion) => assertion.constraint === 'HARD')
-      .map((assertion): UnenforceableHardConstraint => {
-        const classification = classifyHardTarget(assertion.target);
-        let missingKnowledge: HardConstraintMissingKnowledge;
-        let unknownReason: UnknownTargetReason | undefined;
-        if (classification.kind === 'UNENFORCEABLE') {
-          missingKnowledge = classification.missingKnowledge;
-        } else {
-          // Fail closed until orchestration wiring evaluates catalog target
-          // knowledge for the applicable target.
-          missingKnowledge = 'TARGET_KNOWLEDGE_UNKNOWN';
-          unknownReason = 'NO_EVIDENCE';
-        }
-        const unenforceable: UnenforceableHardConstraint = {
-          target: assertion.target,
-          unresolvedLabel: null,
-          polarity: assertion.polarity,
-          missingKnowledge,
-          reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
-        };
-        if (unknownReason) {
-          unenforceable.unknownReason = unknownReason;
-        }
-        return unenforceable;
-      }),
-    ...spec.unresolvedConcepts
-      .filter((concept) => concept.constraint === 'HARD')
-      .map(
-        (concept): UnenforceableHardConstraint => ({
-          target: null,
-          unresolvedLabel: concept.label,
-          polarity: concept.polarity,
-          missingKnowledge: 'SHARED_CONCEPT_IDENTITY',
-          reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
-        }),
-      ),
-  ];
+  const unenforceable: UnenforceableHardConstraint[] = [];
+  for (const assertion of spec.assertions) {
+    if (assertion.constraint !== 'HARD') continue;
+    const classification = classifyHardTarget(assertion.target);
+    if (classification.kind !== 'UNENFORCEABLE') continue;
+    unenforceable.push({
+      target: assertion.target,
+      unresolvedLabel: null,
+      polarity: assertion.polarity,
+      missingKnowledge: classification.missingKnowledge,
+      reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+    });
+  }
+  for (const concept of spec.unresolvedConcepts) {
+    if (concept.constraint !== 'HARD') continue;
+    unenforceable.push({
+      target: null,
+      unresolvedLabel: concept.label,
+      polarity: concept.polarity,
+      missingKnowledge: 'SHARED_CONCEPT_IDENTITY',
+      reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+    });
+  }
+  return unenforceable;
+}
+
+/**
+ * One HARD target whose compatibility can only be proven from catalog target
+ * knowledge (task 25.7). Evaluated at the post-catalog eligibility stage,
+ * never decided by the pre-catalog gate.
+ */
+export interface ApplicableHardTarget {
+  target: SemanticTarget;
+  polarity: 'INCLUDE' | 'EXCLUDE';
+}
+
+export function findApplicableHardTargets(
+  spec: Pick<PreferenceSpec, 'assertions'>,
+): ApplicableHardTarget[] {
+  return spec.assertions
+    .filter((assertion) => assertion.constraint === 'HARD')
+    .filter(
+      (assertion) =>
+        classifyHardTarget(assertion.target).kind ===
+        'REQUIRES_TARGET_KNOWLEDGE',
+    )
+    .map((assertion) => ({
+      target: assertion.target,
+      polarity: assertion.polarity,
+    }));
 }
 
 /**

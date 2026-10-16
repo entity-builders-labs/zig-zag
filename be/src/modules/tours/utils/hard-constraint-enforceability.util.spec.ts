@@ -1,6 +1,7 @@
 import {
   AmbiguousHardConstraintError,
   findAmbiguousHardConstraints,
+  findApplicableHardTargets,
   findUnenforceableHardConstraints,
   HardConstraintUnenforceableError,
 } from './hard-constraint-enforceability.util';
@@ -125,26 +126,22 @@ describe('findUnenforceableHardConstraints', () => {
     ]);
   });
 
-  it('fails closed on an applicable target with no catalog knowledge (wheelchair)', () => {
-    expect(
-      findUnenforceableHardConstraints({
-        assertions: [
-          assertion({
-            target: { dimension: 'accessibility', key: 'wheelchair_access' },
-            polarity: 'INCLUDE',
-            constraint: 'HARD',
-          }),
-        ],
-        unresolvedConcepts: [],
-      }),
-    ).toEqual([
+  it('defers an applicable target (wheelchair) to the post-catalog eligibility stage', () => {
+    const spec = {
+      assertions: [
+        assertion({
+          target: { dimension: 'accessibility', key: 'wheelchair_access' },
+          polarity: 'INCLUDE',
+          constraint: 'HARD',
+        }),
+      ],
+      unresolvedConcepts: [] as UnresolvedPreferenceConcept[],
+    };
+    expect(findUnenforceableHardConstraints(spec)).toEqual([]);
+    expect(findApplicableHardTargets(spec)).toEqual([
       {
         target: { dimension: 'accessibility', key: 'wheelchair_access' },
-        unresolvedLabel: null,
         polarity: 'INCLUDE',
-        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
-        unknownReason: 'NO_EVIDENCE',
-        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
       },
     ]);
   });

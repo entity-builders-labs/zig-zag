@@ -451,12 +451,9 @@ describe('preference-spec-builder.util', () => {
       },
     ]);
     expect(spec.facets).toEqual([]);
-    expect(findUnenforceableHardConstraints(spec)).toEqual([
-      expect.objectContaining({
-        target: { dimension: 'accessibility', key: 'wheelchair_access' },
-        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
-      }),
-    ]);
+    // A wheelchair need is an applicable HARD target: it is deferred to the
+    // post-catalog eligibility stage, not pre-catalog-unenforceable.
+    expect(findUnenforceableHardConstraints(spec)).toEqual([]);
   });
 
   it('keeps an extracted SOFT accessibility preference as a facet for the utility boundary', () => {

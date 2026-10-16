@@ -256,8 +256,8 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
     expect(intentStep.facts.facets).toEqual([]);
   });
 
-  it('ends a typed accessibility need with HARD_CONSTRAINT_UNENFORCEABLE before destination resolution (unknown is never accessible)', async () => {
-    const { service, resolveDestination, tourUpdates } = harness(
+  it('defers a wheelchair HARD need past the pre-catalog gate (post-catalog eligibility decides it)', async () => {
+    const { service, resolveDestination } = harness(
       {
         ...REQUEST,
         mobility: {
@@ -268,18 +268,12 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
       interpreted(),
     );
 
+    // The wheelchair target is applicable, so the pre-catalog gate no longer
+    // ends it: generation proceeds to destination resolution (the post-catalog
+    // eligibility stage runs after the catalog snapshot, beyond this harness).
     await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
-      /HARD_CONSTRAINT_UNENFORCEABLE/,
+      /STOP_AFTER_GATE/,
     );
-    expect(resolveDestination).not.toHaveBeenCalled();
-    const trace = failedTrace(tourUpdates);
-    expect(trace.result.outcome).toBe('HARD_CONSTRAINT_UNENFORCEABLE');
-    expect(trace.result.facts.unenforceableHardConstraints).toEqual([
-      expect.objectContaining({
-        target: { dimension: 'accessibility', key: 'wheelchair_access' },
-        polarity: 'INCLUDE',
-        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
-      }),
-    ]);
+    expect(resolveDestination).toHaveBeenCalledTimes(1);
   });
 });
