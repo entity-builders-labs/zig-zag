@@ -56,15 +56,10 @@ describe('findUnenforceableHardConstraints', () => {
     ).toEqual([]);
   });
 
-  it('treats a HARD typed assertion as unenforceable: absence of a fact never proves compatibility', () => {
+  it('reports a HARD typed assertion over theme as TARGET_APPLICABILITY_UNKNOWN (theme is SOFT-only)', () => {
     expect(
       findUnenforceableHardConstraints({
         assertions: [
-          assertion({
-            target: { dimension: 'dietary_suitability', key: 'vegan' },
-            polarity: 'INCLUDE',
-            constraint: 'HARD',
-          }),
           assertion({
             target: { dimension: 'theme', key: 'nightlife' },
             polarity: 'EXCLUDE',
@@ -75,17 +70,80 @@ describe('findUnenforceableHardConstraints', () => {
       }),
     ).toEqual([
       {
-        target: { dimension: 'dietary_suitability', key: 'vegan' },
-        unresolvedLabel: null,
-        polarity: 'INCLUDE',
-        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
-        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
-      },
-      {
         target: { dimension: 'theme', key: 'nightlife' },
         unresolvedLabel: null,
         polarity: 'EXCLUDE',
-        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+        missingKnowledge: 'TARGET_APPLICABILITY_UNKNOWN',
+        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+      },
+    ]);
+  });
+
+  it('reports a typed vegan restriction as TARGET_APPLICABILITY_UNKNOWN (not yet enforceable)', () => {
+    expect(
+      findUnenforceableHardConstraints({
+        assertions: [
+          assertion({
+            target: { dimension: 'dietary_suitability', key: 'vegan' },
+            polarity: 'INCLUDE',
+            constraint: 'HARD',
+          }),
+        ],
+        unresolvedConcepts: [],
+      }),
+    ).toEqual([
+      {
+        target: { dimension: 'dietary_suitability', key: 'vegan' },
+        unresolvedLabel: null,
+        polarity: 'INCLUDE',
+        missingKnowledge: 'TARGET_APPLICABILITY_UNKNOWN',
+        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+      },
+    ]);
+  });
+
+  it('reports an accessibility target without a producer as TARGET_PRODUCER_UNAVAILABLE', () => {
+    expect(
+      findUnenforceableHardConstraints({
+        assertions: [
+          assertion({
+            target: { dimension: 'accessibility', key: 'avoid_stairs' },
+            polarity: 'INCLUDE',
+            constraint: 'HARD',
+          }),
+        ],
+        unresolvedConcepts: [],
+      }),
+    ).toEqual([
+      {
+        target: { dimension: 'accessibility', key: 'avoid_stairs' },
+        unresolvedLabel: null,
+        polarity: 'INCLUDE',
+        missingKnowledge: 'TARGET_PRODUCER_UNAVAILABLE',
+        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+      },
+    ]);
+  });
+
+  it('fails closed on an applicable target with no catalog knowledge (wheelchair)', () => {
+    expect(
+      findUnenforceableHardConstraints({
+        assertions: [
+          assertion({
+            target: { dimension: 'accessibility', key: 'wheelchair_access' },
+            polarity: 'INCLUDE',
+            constraint: 'HARD',
+          }),
+        ],
+        unresolvedConcepts: [],
+      }),
+    ).toEqual([
+      {
+        target: { dimension: 'accessibility', key: 'wheelchair_access' },
+        unresolvedLabel: null,
+        polarity: 'INCLUDE',
+        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
+        unknownReason: 'NO_EVIDENCE',
         reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
       },
     ]);

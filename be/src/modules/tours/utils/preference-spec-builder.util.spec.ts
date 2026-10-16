@@ -454,7 +454,7 @@ describe('preference-spec-builder.util', () => {
     expect(findUnenforceableHardConstraints(spec)).toEqual([
       expect.objectContaining({
         target: { dimension: 'accessibility', key: 'wheelchair_access' },
-        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
       }),
     ]);
   });

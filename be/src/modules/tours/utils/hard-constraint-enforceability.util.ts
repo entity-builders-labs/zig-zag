@@ -3,33 +3,37 @@ import {
   PreferencePolarityConflict,
   SemanticTarget,
 } from '../preferences/preference-assertion.interface';
+import { UnknownTargetReason } from '../preferences/target-knowledge.interface';
+import {
+  HardConstraintMissingKnowledge,
+  targetApplicability,
+} from './target-applicability.util';
 
-/** Knowledge that would be needed to guarantee a hard constraint. */
-export type MissingConstraintKnowledge =
-  /**
-   * The catalog does not record whether an Experience's typed facts are
-   * complete, so absence of a fact cannot prove compatibility.
-   */
-  | 'CLASSIFICATION_COMPLETENESS'
-  /** The concept has no typed identity shared with Experience facts. */
-  | 'SHARED_CONCEPT_IDENTITY';
-
+/**
+ * A hard constraint the request cannot guarantee (task 25.7, owner
+ * 2026-10-16). The typed `missingKnowledge` reason is never collapsed; the
+ * underlying UNKNOWN reason stays on the reconciled target knowledge.
+ */
 export interface UnenforceableHardConstraint {
   /** The typed target, or null for an unresolved open concept. */
   target: SemanticTarget | null;
   /** The extractor's description of an unresolved concept (trace only). */
   unresolvedLabel: string | null;
   polarity: 'INCLUDE' | 'EXCLUDE';
-  missingKnowledge: MissingConstraintKnowledge;
+  missingKnowledge: HardConstraintMissingKnowledge;
+  /** Underlying UNKNOWN reason when missingKnowledge is TARGET_KNOWLEDGE_UNKNOWN. */
+  unknownReason?: UnknownTargetReason;
   reason: 'COMPATIBILITY_CANNOT_BE_PROVEN';
 }
 
 /**
- * Hard constraints (HARD assertions and HARD unresolved concepts) the request
- * cannot currently guarantee. Unknown compatibility is never compatibility:
- * until the catalog records classification completeness (and a shared typed
- * concept space exists for open concepts), no Experience can be proven
- * compatible, so every hard constraint is unenforceable.
+ * Hard constraints the request cannot currently guarantee, without catalog
+ * target knowledge. Unknown compatibility is never compatibility: an
+ * inapplicable target, a target without a producer, an unresolved concept, or
+ * a target with no reconciled knowledge fails closed with a typed reason.
+ * Catalog evaluation of the applicable accessibility:wheelchair_access target
+ * is the orchestration wiring step; until it is wired, every hard constraint
+ * fails closed.
  */
 export function findUnenforceableHardConstraints(
   spec: Pick<PreferenceSpec, 'assertions' | 'unresolvedConcepts'>,
@@ -37,15 +41,28 @@ export function findUnenforceableHardConstraints(
   return [
     ...spec.assertions
       .filter((assertion) => assertion.constraint === 'HARD')
-      .map(
-        (assertion): UnenforceableHardConstraint => ({
+      .map((assertion): UnenforceableHardConstraint => {
+        const applicability = targetApplicability(assertion.target);
+        let missingKnowledge: HardConstraintMissingKnowledge;
+        let unknownReason: UnknownTargetReason | undefined;
+        if (applicability.kind === 'ENFORCEABLE') {
+          missingKnowledge = 'TARGET_KNOWLEDGE_UNKNOWN';
+          unknownReason = 'NO_EVIDENCE';
+        } else {
+          missingKnowledge = applicability.reason;
+        }
+        const unenforceable: UnenforceableHardConstraint = {
           target: assertion.target,
           unresolvedLabel: null,
           polarity: assertion.polarity,
-          missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+          missingKnowledge,
           reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
-        }),
-      ),
+        };
+        if (unknownReason) {
+          unenforceable.unknownReason = unknownReason;
+        }
+        return unenforceable;
+      }),
     ...spec.unresolvedConcepts
       .filter((concept) => concept.constraint === 'HARD')
       .map(

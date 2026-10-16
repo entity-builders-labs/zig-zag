@@ -149,7 +149,7 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
     expect(trace.result.facts.unenforceableHardConstraints).toEqual([
       expect.objectContaining({
         target: { dimension: 'dietary_suitability', key: 'vegan' },
-        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+        missingKnowledge: 'TARGET_APPLICABILITY_UNKNOWN',
       }),
     ]);
   });
@@ -278,7 +278,7 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
       expect.objectContaining({
         target: { dimension: 'accessibility', key: 'wheelchair_access' },
         polarity: 'INCLUDE',
-        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+        missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
       }),
     ]);
   });
