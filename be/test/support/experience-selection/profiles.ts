@@ -212,8 +212,8 @@ const CF4: Counterfactual = {
       interests: ['history', 'architecture'],
       semanticQuery: 'secular historic architecture walking tour, no churches',
       unresolvedConcepts: [hardExcludedConcept('religion', 'no churches')],
-      // Task 25.4: "religion" has no shared typed identity and the catalog
-      // records no classification completeness, so no Experience can be
+      // Task 25.4/25.7: "religion" has no shared typed identity and the catalog
+      // records no target knowledge, so no Experience can be
       // proven compatible: generation ends with the typed outcome instead
       // of a lexical exclusion guess.
       expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',

@@ -258,7 +258,7 @@ const scenarios: ScenarioDefinition[] = [
       positiveSemanticQuery: 'vegan affordable gastronomy Buenos Aires',
     }),
     // The typed vegan restriction is a HARD constraint the catalog cannot
-    // yet guarantee (no classification completeness).
+    // yet guarantee (no target knowledge / not yet an applicable target).
     expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
     request: baseRequest({
       budgetLevel: 'low',
