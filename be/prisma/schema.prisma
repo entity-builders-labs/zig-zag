@@ -41,6 +41,7 @@ model GeoEntity {
   identities             GeoEntityIdentity[]
   components             ExperienceComponent[]
   verifiedHintAssertions GeoEntityVerifiedHintAssertion[]
+  targetObservations    GeoEntityTargetObservation[]
   createdAt              DateTime                         @default(now())
   updatedAt              DateTime                         @updatedAt
 
@@ -98,6 +99,28 @@ model GeoEntityVerifiedHintAssertion {
   @@index([hintKey])
   @@index([geoEntityId, hintKey])
   @@map("geo_entity_verified_hint_assertion")
+}
+
+/// One provider-fact observation about a SemanticTarget of a GeoEntity
+/// (task 25.7). Provider semantics terminate at the adapter: only the
+/// normalized (dimension, key, state) and the stable source-fact identity are
+/// stored. A re-observation upserts by `sourceFactId`, superseding only the
+/// prior observation of that identity — never last-write-wins across
+/// independent sources.
+model GeoEntityTargetObservation {
+  id           String                 @id @default(uuid())
+  geoEntityId  String
+  dimension    String
+  key          String
+  state        TargetObservationState
+  sourceFactId String
+  geoEntity    GeoEntity              @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  createdAt    DateTime               @default(now())
+  updatedAt    DateTime               @updatedAt
+
+  @@unique([sourceFactId])
+  @@index([geoEntityId, dimension, key])
+  @@map("geo_entity_target_observation")
 }
 
 /// Provider-owned Overture Places runtime index. It is acquisition evidence,
@@ -330,6 +353,13 @@ enum ExperienceComponentResolutionReason {
 enum CatalogKnowledgeSource {
   AUTOMATIC
   ADMIN
+}
+
+/// The provider-neutral state of one target observation (task 25.7).
+enum TargetObservationState {
+  SATISFIES
+  DOES_NOT_SATISFY
+  INCONCLUSIVE
 }
 
 enum ExperienceStatus {
