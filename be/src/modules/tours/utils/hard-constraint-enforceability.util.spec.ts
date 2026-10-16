@@ -57,7 +57,7 @@ describe('findUnenforceableHardConstraints', () => {
     ).toEqual([]);
   });
 
-  it('reports a HARD typed assertion over theme as TARGET_APPLICABILITY_UNKNOWN (theme is SOFT-only)', () => {
+  it('reports a HARD typed assertion over theme as TARGET_PRODUCER_UNAVAILABLE (no HARD-proof producer)', () => {
     expect(
       findUnenforceableHardConstraints({
         assertions: [
@@ -74,7 +74,7 @@ describe('findUnenforceableHardConstraints', () => {
         target: { dimension: 'theme', key: 'nightlife' },
         unresolvedLabel: null,
         polarity: 'EXCLUDE',
-        missingKnowledge: 'TARGET_APPLICABILITY_UNKNOWN',
+        missingKnowledge: 'TARGET_PRODUCER_UNAVAILABLE',
         reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
       },
     ]);

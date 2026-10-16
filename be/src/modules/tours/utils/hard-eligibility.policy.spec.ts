@@ -48,10 +48,10 @@ describe('classifyHardTarget (split gate)', () => {
     });
   });
 
-  it('classifies theme as unenforceable (SOFT-only)', () => {
+  it('classifies theme as unenforceable (no HARD-proof producer)', () => {
     expect(classifyHardTarget(target('theme', 'history'))).toEqual({
       kind: 'UNENFORCEABLE',
-      missingKnowledge: 'TARGET_APPLICABILITY_UNKNOWN',
+      missingKnowledge: 'TARGET_PRODUCER_UNAVAILABLE',
     });
   });
 });

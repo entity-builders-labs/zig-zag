@@ -30,16 +30,16 @@ describe('targetApplicability', () => {
     );
   });
 
-  it('marks theme and intent SOFT-only (never HARD proof)', () => {
+  it('marks theme and intent SOFT-only (no HARD-proof producer)', () => {
     for (const key of ['history', 'nightlife']) {
       expect(targetApplicability(target('theme', key))).toEqual({
         kind: 'UNENFORCEABLE',
-        reason: 'TARGET_APPLICABILITY_UNKNOWN',
+        reason: 'TARGET_PRODUCER_UNAVAILABLE',
       });
     }
     expect(targetApplicability(target('intent', 'walk'))).toEqual({
       kind: 'UNENFORCEABLE',
-      reason: 'TARGET_APPLICABILITY_UNKNOWN',
+      reason: 'TARGET_PRODUCER_UNAVAILABLE',
     });
   });
 

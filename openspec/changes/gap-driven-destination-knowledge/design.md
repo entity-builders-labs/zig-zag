@@ -1276,8 +1276,8 @@ disproven.
     required component SATISFIES → incompatible; otherwise UNKNOWN.
   - *Themes and intents* stay SOFT matching/retrieval/preference utility
     only; a HARD INCLUDE/EXCLUDE over theme/intent remains
-    `HARD_CONSTRAINT_UNENFORCEABLE` — never bridged into target
-    assessments.
+    `HARD_CONSTRAINT_UNENFORCEABLE` with `TARGET_PRODUCER_UNAVAILABLE` (no
+    HARD-proof producer) — never bridged into target assessments.
   - *Target applicability* is explicit per target, with no general model
     in 25.7. `accessibility:wheelchair_access` is enforceable once target
     knowledge exists; `dietary_suitability:vegan` is NOT enforceable yet: a
