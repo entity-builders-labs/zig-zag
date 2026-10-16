@@ -11,6 +11,7 @@ import {
   PreferenceInterpretationTrace,
 } from '../../interfaces/preference-interpretation.interface';
 import { DestinationResolution } from '../../services/destination-resolution.service';
+import { UnenforceableHardConstraint } from '../hard-constraint-enforceability.util';
 
 export function recordPreferenceInterpretationStep(
   recorder: GenerationTraceRecorder,
@@ -30,15 +31,15 @@ export function recordPreferenceInterpretationStep(
     description:
       preferenceInterpretation.trace.status === 'applied'
         ? 'Preferencias libres normalizadas y combinadas con filtros.'
-        : preferenceInterpretation.trace.status === 'fallback'
-          ? 'Preferencias estructuradas aplicadas con respaldo determinístico.'
+        : preferenceInterpretation.trace.status === 'failed'
+          ? 'La extracción semántica falló: el texto libre quedó sin resolver y solo se aplican las selecciones estructuradas.'
           : 'Filtros estructurados aplicados.',
     component: 'PreferenceInterpreterService',
     decision: {
       status:
         preferenceInterpretation.trace.status === 'applied'
           ? 'PASS'
-          : preferenceInterpretation.trace.status === 'fallback'
+          : preferenceInterpretation.trace.status === 'failed'
             ? 'WARN'
             : 'INFO',
       outcome: preferenceInterpretation.trace.status.toUpperCase(),
@@ -110,6 +111,45 @@ export function recordRequestIntentStep(
       travelPace: request.mobility.travelPace,
       accessibilityNeeds: request.mobility.accessibilityNeeds,
       facets: preferenceSpec.facets,
+      assertions: preferenceSpec.assertions,
+      unresolvedConcepts: preferenceSpec.unresolvedConcepts,
+      facetSchemaVersion: preferenceSpec.facetSchemaVersion,
+    },
+  });
+}
+
+/** Records why a request with unguaranteeable hard constraints stops. */
+export function recordHardConstraintEnforceabilityStep(
+  recorder: GenerationTraceRecorder,
+  input: {
+    constraints: UnenforceableHardConstraint[];
+    destination: string;
+  },
+): TraceStepV5 {
+  return recorder.record({
+    name: 'preference.hard_constraints',
+    description: `${input.constraints.length} restricción(es) dura(s) no se pueden garantizar con el conocimiento actual.`,
+    component: 'HardConstraintEnforceability',
+    decision: {
+      status: 'FAIL',
+      outcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+      reasonCodes: [
+        ...new Set(
+          input.constraints.map((constraint) => constraint.missingKnowledge),
+        ),
+      ],
+    },
+    facts: {
+      destination: input.destination,
+      constraints: input.constraints.map((constraint) => ({
+        target: constraint.target
+          ? `${constraint.target.dimension}:${constraint.target.key}`
+          : null,
+        unresolvedLabel: constraint.unresolvedLabel,
+        polarity: constraint.polarity,
+        missingKnowledge: constraint.missingKnowledge,
+        reason: constraint.reason,
+      })),
     },
   });
 }

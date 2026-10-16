@@ -52,12 +52,11 @@ export interface WebSourcePlanPayload {
   /**
    * Deficit context the discovery extractor needs to build its
    * `ExperienceDiscoveryRequest` — projected deterministically from the plan's
-   * deficits (theme/intent/trait keys) plus the caller's positive semantic
+   * deficits (theme/intent keys) plus the caller's positive semantic
    * query. Kept on the plan so `executePlan(plan)` stays single-arg.
    */
   requestedThemes?: string[];
   requestedIntents?: string[];
-  preferredTraits?: string[];
   semanticQuery?: string;
   /**
    * Task B5 — every relevant area/route anchor name for a walk/route_like

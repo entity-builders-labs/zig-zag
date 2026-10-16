@@ -39,14 +39,29 @@ export function baseRequest(
   };
 }
 
-const traitFacet = (
-  key: string,
-  evidence: string = key.replace(/_/g, ' '),
-) => ({
-  dimension: 'trait',
-  key,
-  confidence: 1,
-  strength: 'strong' as const,
+/**
+ * A former open "trait" preference. Since task 25.4 an open concept has no
+ * shared typed identity, so the extractor reports it as an unresolved
+ * concept that never participates in matching.
+ */
+const openConcept = (
+  label: string,
+  evidence: string = label.replace(/_/g, ' '),
+): FakeInterpretation['unresolvedConcepts'][number] => ({
+  label,
+  polarity: 'INCLUDE',
+  constraint: 'SOFT',
+  evidence: [evidence],
+});
+
+/** A hard exclusion of a concept with no shared typed identity. */
+const hardExcludedConcept = (
+  label: string,
+  evidence: string,
+): FakeInterpretation['unresolvedConcepts'][number] => ({
+  label,
+  polarity: 'EXCLUDE',
+  constraint: 'HARD',
   evidence: [evidence],
 });
 
@@ -56,6 +71,8 @@ export interface Variant {
   interpretation: FakeInterpretation;
   /** Optional diagnostic cluster; acceptance is directional, not exclusive. */
   expectDominantCluster?: string;
+  /** A typed terminal outcome instead of a completed Tour. */
+  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
   /** Bare facet keys the profile requests — for the dominance helper. */
   requestedFacetKeys: string[];
 }
@@ -73,9 +90,10 @@ interface VariantSpec {
   explorationStyle?: 'iconic' | 'local_deep_dive' | 'balanced';
   /** Free-text the "user typed" — also becomes the semantic query's 3rd line. */
   semanticQuery: string;
-  extraFacets?: FakeInterpretation['preferredFacets'];
-  hardExclusions?: string[];
+  unresolvedConcepts?: FakeInterpretation['unresolvedConcepts'];
   expectDominantCluster?: string;
+  /** A typed terminal outcome instead of a completed Tour. */
+  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
   requestedFacetKeys: string[];
 }
 
@@ -99,11 +117,11 @@ function mkVariant(spec: VariantSpec): Variant {
     }),
     interpretation: {
       ...emptyInterpretation(),
-      preferredFacets: spec.extraFacets ?? [],
-      hardExclusions: spec.hardExclusions ?? [],
+      unresolvedConcepts: spec.unresolvedConcepts ?? [],
       positiveSemanticQuery: spec.semanticQuery,
     },
     expectDominantCluster: spec.expectDominantCluster,
+    expectOutcome: spec.expectOutcome,
     requestedFacetKeys: spec.requestedFacetKeys,
   };
 }
@@ -148,9 +166,9 @@ const CF2: Counterfactual = {
       name: '2A-craft-beer',
       interests: ['food'],
       semanticQuery: 'craft beer crawl through local breweries and taprooms',
-      extraFacets: [
-        traitFacet('local', 'local'),
-        traitFacet('craft_beer', 'craft beer'),
+      unresolvedConcepts: [
+        openConcept('local', 'local'),
+        openConcept('craft_beer', 'craft beer'),
       ],
       expectDominantCluster: 'craft_beer_crawl',
       requestedFacetKeys: ['food', 'walk', 'local', 'craft_beer'],
@@ -159,9 +177,9 @@ const CF2: Counterfactual = {
       name: '2B-specialty-coffee',
       interests: ['food'],
       semanticQuery: 'specialty coffee tasting tour, local roasters and cafes',
-      extraFacets: [
-        traitFacet('local', 'local'),
-        traitFacet('specialty_coffee', 'specialty coffee'),
+      unresolvedConcepts: [
+        openConcept('local', 'local'),
+        openConcept('specialty_coffee', 'specialty coffee'),
       ],
       expectDominantCluster: 'specialty_coffee_tour',
       requestedFacetKeys: ['food', 'walk', 'local', 'specialty_coffee'],
@@ -178,7 +196,7 @@ const CF3: Counterfactual = {
       name: '3-only',
       interests: ['history', 'architecture'],
       semanticQuery: 'small-group local guide, historic architecture walk',
-      extraFacets: [traitFacet('local_guide', 'local guide')],
+      unresolvedConcepts: [openConcept('local_guide', 'local guide')],
       expectDominantCluster: 'exact_fit_history',
       requestedFacetKeys: ['history', 'architecture', 'walk', 'local_guide'],
     }),
@@ -193,9 +211,12 @@ const CF4: Counterfactual = {
       name: '4-only',
       interests: ['history', 'architecture'],
       semanticQuery: 'secular historic architecture walking tour, no churches',
-      hardExclusions: ['religion'],
-      // Any non-religion history+architecture cluster is acceptable — the
-      // assertion is about the EXCLUSION, not which secular cluster wins.
+      unresolvedConcepts: [hardExcludedConcept('religion', 'no churches')],
+      // Task 25.4: "religion" has no shared typed identity and the catalog
+      // records no classification completeness, so no Experience can be
+      // proven compatible: generation ends with the typed outcome instead
+      // of a lexical exclusion guess.
+      expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
       requestedFacetKeys: ['history', 'architecture', 'walk'],
     }),
   ],

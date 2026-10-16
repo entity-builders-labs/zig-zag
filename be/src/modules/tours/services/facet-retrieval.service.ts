@@ -28,7 +28,6 @@ import {
 import { facetSatisfied } from '../utils/preference-sufficiency.util';
 import {
   isStrongFacetMatch,
-  requestedFacetToPreferenceFacet,
   StrongMatchPolicy,
 } from '../utils/preference-strong-match.util';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
@@ -91,7 +90,6 @@ export class FacetRetrievalService {
       scope.radiusMeters,
     );
 
-    const preferenceFacet = requestedFacetToPreferenceFacet(facet);
     const strong: ScoredRow[] = [];
     const weak: ScoredRow[] = [];
 
@@ -106,7 +104,7 @@ export class FacetRetrievalService {
       };
       if (isStrongFacetMatch(row, facet, policy)) {
         strong.push(scored);
-      } else if (candidateMatchesPreferenceFacet(row, preferenceFacet)) {
+      } else if (candidateMatchesPreferenceFacet(row, facet)) {
         weak.push(scored);
       }
       // Neither strong nor a base match -> unrelated to this facet, excluded.

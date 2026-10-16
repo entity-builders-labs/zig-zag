@@ -224,7 +224,8 @@ describe('tour-generation integration · canonical orchestration', () => {
     harness.fakes.osm.configure({ boundary });
     harness.fakes.langChain.generateChatResponse.mockResolvedValue(
       JSON.stringify({
-        preferredFacets: [],
+        assertions: [],
+        unresolvedConcepts: [],
         anchoredPlaces: [
           {
             rawName: 'Historic District',
@@ -232,12 +233,8 @@ describe('tour-generation integration · canonical orchestration', () => {
             priority: 'must',
           },
         ],
-        excludedThemes: [],
-        excludedTraits: [],
-        hardExclusions: [],
         softConstraints: [],
         ambiguities: [],
-        dietaryPreferences: [],
         accessibilityPreferences: [],
         budgetPreferences: [],
         groupPreferences: [],

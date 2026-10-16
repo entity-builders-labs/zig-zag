@@ -54,6 +54,7 @@ export interface CompetitiveHarness {
   generateTour: (
     token: string,
     generationRequest: Record<string, unknown>,
+    expectedStatus?: 'completed' | 'failed',
   ) => Promise<any>;
   truncateAll: () => Promise<void>;
   truncateToursOnly: () => Promise<void>;
@@ -112,6 +113,7 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
   const generateTour = async (
     token: string,
     generationRequest: Record<string, unknown>,
+    expectedStatus: 'completed' | 'failed' = 'completed',
   ): Promise<any> => {
     const created = await request(app.getHttpServer())
       .post('/tours/generate-tour')
@@ -127,7 +129,11 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
     });
     expect(event?.status).toBe('PENDING');
     const publication = await outboxPublisher.processNextBatch();
-    expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
+    // A terminal generation failure is rethrown by the processor, so the
+    // event is not counted as published.
+    if (expectedStatus === 'completed') {
+      expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
+    }
     let response: any;
     for (let attempt = 0; attempt < 6000; attempt++) {
       response = await request(app.getHttpServer())
@@ -142,7 +148,7 @@ export async function bootstrapCompetitiveApp(): Promise<CompetitiveHarness> {
         break;
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
     }
-    expect(response.body.metadata.generationStatus).toBe('completed');
+    expect(response.body.metadata.generationStatus).toBe(expectedStatus);
     await waitForTourQuiescence(prisma, outboxPublisher, tourId);
     response = await request(app.getHttpServer())
       .get(`/tours/${tourId}`)

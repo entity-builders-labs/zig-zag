@@ -85,7 +85,6 @@ function relevantDeficitsFor(
   const keys = new Set([
     ...(payload?.requestedThemes ?? []).map((key) => `theme:${key}`),
     ...(payload?.requestedIntents ?? []).map((key) => `intent:${key}`),
-    ...(payload?.preferredTraits ?? []).map((key) => `trait:${key}`),
   ]);
   return deficits.filter(
     (deficit) =>
@@ -866,7 +865,6 @@ export class ExperienceAcquisitionService {
         scope: { destinationName: plan.destination.destinationName },
         requestedThemes: web.requestedThemes ?? [],
         requestedIntents: web.requestedIntents,
-        preferredTraits: web.preferredTraits,
         semanticQuery: web.semanticQuery,
         ...(web.anchorNames?.length
           ? { anchorNames: [...web.anchorNames] }

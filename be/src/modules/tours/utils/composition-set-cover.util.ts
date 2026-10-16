@@ -75,10 +75,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     [...requested].map(([key, facet]) => [key, facet.weight]),
   );
   const eligible = input.candidates
-    .filter(
-      (candidate) =>
-        !candidate.matchesHardExclusion && candidate.componentCount > 0,
-    )
+    .filter((candidate) => candidate.componentCount > 0)
     .sort((a, b) => a.id.localeCompare(b.id));
   const byId = new Map(eligible.map((candidate) => [candidate.id, candidate]));
   const selected: CompositionCandidate[] = [];
@@ -155,9 +152,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     .map((candidate) => {
       const isEligible = byId.has(candidate.id);
       const excludedReason = !isEligible
-        ? candidate.matchesHardExclusion
-          ? ('hard_exclusion' as const)
-          : ('no_components' as const)
+        ? ('no_components' as const)
         : undefined;
       return {
         id: candidate.id,

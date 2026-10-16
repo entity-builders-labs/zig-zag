@@ -36,7 +36,7 @@ tours/
 │   ├── tour-image.service.ts            # Cover image generation (DALL-E)
 │   └── tour-location.service.ts         # Read-only nearby-tour lookup over persisted TourExperience
 ├── utils/                               # daily-planning-*, experience-dedupe, theme-matching,
-│                                         # experience-preference-evaluator, coverage-decision, trace builders, etc.
+│                                         # hard-constraint-enforceability, coverage-decision, trace builders, etc.
 └── tours.module.ts
 ```
 
@@ -54,7 +54,15 @@ The primary flow when a user creates a tour from the mobile app wizard:
    - Kicks off **background** activity generation (non-blocking)
 3. **The async tour-generation processor** (background):
    - Reads only the persisted canonical generation request
-   - Interprets free-text preferences through the configured LLM
+   - Interprets free-text preferences through the configured LLM into typed
+     `PreferenceAssertion`s (target, polarity, SOFT/HARD, DIRECT/INFERRED,
+     importance, confidence, evidence) that deterministic code only
+     validates (`preferences/preference-assertion.interface.ts`); there is
+     no keyword, alias or synonym list and no lexical fallback. Typed wizard
+     selections (interests, intents, `DietaryRestriction`) are DIRECT
+     assertions. A HARD constraint that cannot be proven ends generation
+     with `HARD_EXCLUSION_UNENFORCEABLE`
+     (`utils/hard-constraint-enforceability.util.ts`)
    - Discovers candidate Experiences with grounded search, through acquisition
      work units (`utils/acquisition-strategy-selector.util.ts`): each open
      `intent:walk` / `intent:route_like` deficit has its own unit

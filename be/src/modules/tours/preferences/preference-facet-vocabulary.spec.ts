@@ -5,71 +5,35 @@ import {
 } from './preference-facet-vocabulary';
 
 describe('preference-facet-vocabulary', () => {
-  describe('canonicalizeFacetKey - dimension scoped synonyms', () => {
-    it('canonicalizes autentico for local_character to authentic, but rejects it for tourism_intensity', () => {
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.LOCAL_CHARACTER,
-          'autentico',
-        ),
-      ).toBe('authentic');
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.LOCAL_CHARACTER,
-          'auténtico',
-        ),
-      ).toBe('authentic');
-
-      // In tourism_intensity, autentico is not a valid key or synonym
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.TOURISM_INTENSITY,
-          'autentico',
-        ),
-      ).toBeUndefined();
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.TOURISM_INTENSITY,
-          'auténtico',
-        ),
-      ).toBeUndefined();
-    });
-
-    it('canonicalizes vino for theme to wine, but rejects it for winery_scale', () => {
-      expect(canonicalizeFacetKey(PREFERENCE_DIMENSIONS.THEME, 'vino')).toBe(
-        'wine',
+  describe('canonicalizeFacetKey - formatting normalization only, never translation', () => {
+    it('normalizes case, accents and separators of a schema key', () => {
+      expect(canonicalizeFacetKey(PREFERENCE_DIMENSIONS.THEME, 'History')).toBe(
+        'history',
       );
       expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.WINERY_SCALE, 'vino'),
-      ).toBeUndefined();
+        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.INTENT, 'route-like'),
+      ).toBe('route_like');
+      expect(
+        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.INTENT, 'Day Trip'),
+      ).toBe('day_trip');
     });
 
-    it('canonicalizes winery scale synonyms correctly', () => {
-      expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.WINERY_SCALE, 'chica'),
-      ).toBe('boutique');
-      expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.WINERY_SCALE, 'pequeña'),
-      ).toBe('boutique');
-      expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.WINERY_SCALE, 'mediana'),
-      ).toBe('medium');
-      expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.WINERY_SCALE, 'grande'),
-      ).toBe('industrial');
-    });
-
-    it('canonicalizes nature type and tourism intensity synonyms', () => {
-      expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.NATURE_TYPE, 'montaña'),
-      ).toBe('mountain');
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.TOURISM_INTENSITY,
-          'secreto',
-        ),
-      ).toBe('hidden');
-    });
+    it.each([
+      [PREFERENCE_DIMENSIONS.LOCAL_CHARACTER, 'autentico'],
+      [PREFERENCE_DIMENSIONS.LOCAL_CHARACTER, 'auténtico'],
+      [PREFERENCE_DIMENSIONS.THEME, 'vino'],
+      [PREFERENCE_DIMENSIONS.THEME, 'compras'],
+      [PREFERENCE_DIMENSIONS.WINERY_SCALE, 'chica'],
+      [PREFERENCE_DIMENSIONS.WINERY_SCALE, 'pequeña'],
+      [PREFERENCE_DIMENSIONS.NATURE_TYPE, 'montaña'],
+      [PREFERENCE_DIMENSIONS.TOURISM_INTENSITY, 'secreto'],
+      [PREFERENCE_DIMENSIONS.INTENT, 'comida'],
+    ])(
+      'never translates a natural-language word (%s:%s) into a schema key',
+      (dimension, word) => {
+        expect(canonicalizeFacetKey(dimension, word)).toBeUndefined();
+      },
+    );
   });
 
   describe('canonicalizeFacetKey - controlled vocabulary rejection', () => {
@@ -157,9 +121,6 @@ describe('preference-facet-vocabulary', () => {
       expect(
         canonicalizeFacetKey(PREFERENCE_DIMENSIONS.INTENT, 'nightlife'),
       ).toBe('nightlife');
-      expect(canonicalizeFacetKey(PREFERENCE_DIMENSIONS.INTENT, 'comida')).toBe(
-        'food',
-      );
     });
 
     it('contains real themes shopping and sports', () => {
@@ -172,9 +133,6 @@ describe('preference-facet-vocabulary', () => {
       expect(
         canonicalizeFacetKey(PREFERENCE_DIMENSIONS.THEME, 'shopping'),
       ).toBe('shopping');
-      expect(canonicalizeFacetKey(PREFERENCE_DIMENSIONS.THEME, 'compras')).toBe(
-        'shopping',
-      );
     });
   });
 });

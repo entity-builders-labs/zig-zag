@@ -13,6 +13,15 @@ export enum TransportationMode {
   CYCLING = 'cycling',
 }
 
+/**
+ * A typed dietary requirement chosen as a structured option. Stable domain
+ * identifiers, not display text; each one is a HARD requirement on the
+ * `dietary_suitability` dimension of the facet schema.
+ */
+export enum DietaryRestriction {
+  VEGAN = 'vegan',
+}
+
 export enum GroupType {
   SOLO = 'solo',
   COUPLE = 'couple',
@@ -76,7 +85,7 @@ export interface TourGenerationRequest {
   groupType: GroupType;
   intent: TourIntent;
   mobility: MobilityPreferences;
-  dietaryRestrictions: string[];
+  dietaryRestrictions: DietaryRestriction[];
   startDates: string[];
   includeExistingExperiences: boolean;
   skipImageGeneration: boolean;

@@ -2,21 +2,16 @@ import {
   candidateMatchesPreferenceFacet,
   preferenceWeightForExperience,
 } from './preference-facet-matching.util';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import { SemanticTarget } from '../preferences/preference-assertion.interface';
+import { AssertionTargetDimension } from '../preferences/preference-facet-vocabulary';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
+import { selectedFacetFixture } from '../fixtures/requested-facet.fixture';
 
 describe('candidateMatchesPreferenceFacet', () => {
-  const baseFacet = (
-    dimension: string,
-    key: string,
-    overrides?: Partial<PreferenceFacet>,
-  ): PreferenceFacet => ({
-    dimension,
+  // Accepts any string so tests can probe non-target dimensions too.
+  const baseFacet = (dimension: string, key: string): SemanticTarget => ({
+    dimension: dimension as AssertionTargetDimension,
     key,
-    importance: 1.0,
-    confidence: 1.0,
-    source: 'wizard',
-    ...overrides,
   });
 
   describe('invalid / empty inputs', () => {
@@ -27,7 +22,7 @@ describe('candidateMatchesPreferenceFacet', () => {
       expect(
         candidateMatchesPreferenceFacet(
           { themes: ['art'] },
-          null as unknown as PreferenceFacet,
+          null as unknown as SemanticTarget,
         ),
       ).toBe(false);
       expect(
@@ -44,17 +39,22 @@ describe('candidateMatchesPreferenceFacet', () => {
       ).toBe(false);
     });
 
-    it('returns false for unknown dimensions and stale exploration_style keys', () => {
+    it('returns false for dimensions that are not assertion targets', () => {
       const exp = {
         canonicalName: 'Relaxed Tour',
         description: 'Super relaxed and balanced pace',
         traits: ['relaxed', 'custom_dim_val'],
+        dimensionedTraits: [
+          { dimension: 'tourism_intensity', key: 'iconic' },
+          { dimension: 'trait', key: 'custom_dim_val' },
+        ],
       };
-      // 'relaxed' is a stale Phase-2 key — no evidence-target mapping, no match.
+      // exploration_style is a meta-preference (a composition tilt), never
+      // a matched facet.
       expect(
         candidateMatchesPreferenceFacet(
           exp,
-          baseFacet('exploration_style', 'relaxed'),
+          baseFacet('exploration_style', 'iconic'),
         ),
       ).toBe(false);
       expect(
@@ -63,100 +63,6 @@ describe('candidateMatchesPreferenceFacet', () => {
           baseFacet('unknown_dimension', 'custom_dim_val'),
         ),
       ).toBe(false);
-    });
-  });
-
-  describe('exploration_style (Phase 6)', () => {
-    it('iconic matches explicit dimensioned tourism_intensity iconic|popular', () => {
-      const iconicExp = {
-        canonicalName: 'Obelisco',
-        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'iconic' }],
-      };
-      const popularExp = {
-        metadata: {
-          preferenceFacets: [
-            { dimension: 'tourism_intensity', key: 'popular' },
-          ],
-        },
-      };
-      expect(
-        candidateMatchesPreferenceFacet(
-          iconicExp,
-          baseFacet('exploration_style', 'iconic'),
-        ),
-      ).toBe(true);
-      expect(
-        candidateMatchesPreferenceFacet(
-          popularExp,
-          baseFacet('exploration_style', 'iconic'),
-        ),
-      ).toBe(true);
-    });
-
-    it('local_deep_dive matches tourism_intensity hidden|local or local_character authentic', () => {
-      const hiddenExp = {
-        metadata: {
-          dimensions: { tourism_intensity: 'hidden' },
-        },
-      };
-      const authenticExp = {
-        dimensionedTraits: [{ dimension: 'local_character', key: 'authentic' }],
-      };
-      expect(
-        candidateMatchesPreferenceFacet(
-          hiddenExp,
-          baseFacet('exploration_style', 'local_deep_dive'),
-        ),
-      ).toBe(true);
-      expect(
-        candidateMatchesPreferenceFacet(
-          authenticExp,
-          baseFacet('exploration_style', 'local_deep_dive'),
-        ),
-      ).toBe(true);
-    });
-
-    it('never matches from name / description / duration / components — only explicit dimensioned evidence', () => {
-      const noEvidence = {
-        canonicalName:
-          'Iconic landmark tour of the most popular authentic spots',
-        description:
-          'A hidden gem for local deep dives, very iconic and popular',
-        durationMinutes: 45,
-        components: [{ role: 'venue' }],
-        themes: ['history'],
-        traits: ['iconic', 'authentic'],
-      };
-      expect(
-        candidateMatchesPreferenceFacet(
-          noEvidence,
-          baseFacet('exploration_style', 'iconic'),
-        ),
-      ).toBe(false);
-      expect(
-        candidateMatchesPreferenceFacet(
-          noEvidence,
-          baseFacet('exploration_style', 'local_deep_dive'),
-        ),
-      ).toBe(false);
-    });
-
-    it('cross-dimension isolation: an iconic facet does not match tourism_intensity local evidence, and vice versa', () => {
-      const localExp = {
-        dimensionedTraits: [{ dimension: 'tourism_intensity', key: 'local' }],
-      };
-      expect(
-        candidateMatchesPreferenceFacet(
-          localExp,
-          baseFacet('exploration_style', 'iconic'),
-        ),
-      ).toBe(false);
-      expect(
-        candidateMatchesPreferenceFacet(
-          localExp,
-          baseFacet('exploration_style', 'local_deep_dive'),
-        ),
-      ).toBe(true);
     });
   });
 
@@ -254,52 +160,27 @@ describe('candidateMatchesPreferenceFacet', () => {
     });
   });
 
-  describe('dimension: trait', () => {
-    it('matches legacy experience.traits and metadata.traits', () => {
+  describe('dimension: trait (open strings, no shared typed identity)', () => {
+    it('never matches by string equality against legacy traits or dimensioned traits', () => {
       const exp = {
-        canonicalName: 'Vegan Bakery',
+        canonicalName: 'Family Winery',
         traits: ['vegan', 'organic'],
         metadata: { traits: ['family friendly'] },
-      };
-      expect(
-        candidateMatchesPreferenceFacet(exp, baseFacet('trait', 'vegan')),
-      ).toBe(true);
-      expect(
-        candidateMatchesPreferenceFacet(
-          exp,
-          baseFacet('trait', 'family friendly'),
-        ),
-      ).toBe(true);
-    });
-
-    it('matches relational dimensionedTraits with dimension general or trait', () => {
-      const exp = {
-        canonicalName: 'Historic Winery',
         dimensionedTraits: [
           { dimension: 'general', key: 'family_owned', label: 'Family Owned' },
           { dimension: 'trait', key: 'guided_tour', label: 'Guided Tour' },
-          { dimension: 'winery_scale', key: 'boutique', label: 'Boutique' },
         ],
       };
-      expect(
-        candidateMatchesPreferenceFacet(
-          exp,
-          baseFacet('trait', 'family_owned'),
-        ),
-      ).toBe(true);
-      expect(
-        candidateMatchesPreferenceFacet(
-          exp,
-          baseFacet('trait', 'Family Owned'),
-        ),
-      ).toBe(true);
-      expect(
-        candidateMatchesPreferenceFacet(exp, baseFacet('trait', 'guided_tour')),
-      ).toBe(true);
-      // boutique has dimension winery_scale, not trait/general, so trait matcher ignores it
-      expect(
-        candidateMatchesPreferenceFacet(exp, baseFacet('trait', 'boutique')),
-      ).toBe(false);
+      for (const key of [
+        'vegan',
+        'family friendly',
+        'family_owned',
+        'guided_tour',
+      ]) {
+        expect(
+          candidateMatchesPreferenceFacet(exp, baseFacet('trait', key)),
+        ).toBe(false);
+      }
     });
   });
 
@@ -438,31 +319,27 @@ describe('candidateMatchesPreferenceFacet', () => {
 
 describe('preferenceWeightForExperience', () => {
   const facet = (
-    dimension: string,
+    dimension: AssertionTargetDimension,
     key: string,
     weight: number,
   ): RequestedFacet => ({
-    dimension,
-    key,
+    ...selectedFacetFixture(dimension, key),
+    importance: weight,
     weight,
-    source: 'wizard',
-    required: false,
   });
 
   it('sums distinct canonically satisfied facets and ignores duplicate representations', () => {
     const experience = {
       themes: ['history'],
+      intents: ['walk'],
       qualityScore: 4,
       components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
-      metadata: {
-        dimensionedTraits: [{ dimension: 'trait', key: 'architecture' }],
-      },
     };
     expect(
       preferenceWeightForExperience(experience, [
         facet('theme', 'history', 1.0),
-        facet('theme', 'HISTORY', 1.0),
-        facet('trait', 'architecture', 0.7),
+        facet('theme', 'history', 1.0),
+        facet('intent', 'walk', 0.7),
         facet('theme', 'food', 0.4),
       ]),
     ).toBe(1.7);
@@ -508,7 +385,7 @@ describe('preferenceWeightForExperience', () => {
     expect(
       preferenceWeightForExperience(experience, [
         facet('theme', 'history', 1),
-        facet('trait', 'architecture', 0.7),
+        facet('theme', 'architecture', 0.7),
       ]),
     ).toBe(0);
   });

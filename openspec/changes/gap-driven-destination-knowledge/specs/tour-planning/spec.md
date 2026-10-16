@@ -287,8 +287,8 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 - **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility
 
 #### Scenario: Hard exclusion never reaches the optimizer
-- **WHEN** an Experience matches a hard exclusion of the request
-- **THEN** it is not offered to the optimizer and no objective weight can bring it back
+- **WHEN** the request has a hard exclusion whose compatibility can be proven and an Experience matches it
+- **THEN** it is not offered to the optimizer and no objective weight can bring it back; when compatibility cannot be proven, generation ends with HARD_EXCLUSION_UNENFORCEABLE instead
 
 ### Requirement: Preference evidence precedence
 Within one request, eligible candidates SHALL be ordered lexicographically by DIRECT facet evidence, then INFERRED facet evidence, then soft venue-anchor affinity, then semantic affinity, then generic quality. No exchange rate SHALL let a lower level outweigh a higher one, and the capture channel SHALL NOT be a level.
@@ -305,24 +305,67 @@ Within one request, eligible candidates SHALL be ordered lexicographically by DI
 - **WHEN** a resolved soft venue anchor has equal facet evidence with another Experience that has higher semantic similarity, and less facet evidence than a third Experience
 - **THEN** the anchor ranks above the second Experience and below the third
 
-### Requirement: Facet provenance is derived deterministically
-Each requested facet SHALL carry a provenance of DIRECT or INFERRED, derived by a deterministic validator and never asserted by the interpreter. A wizard selection SHALL be DIRECT. A free-text facet SHALL be DIRECT only when its quoted user-text excerpt maps to the same canonical key through the versioned facet vocabulary or its explicit aliases, and SHALL otherwise be INFERRED.
+### Requirement: Preference assertions are extracted semantically
+Natural-language preferences SHALL be interpreted only by a semantic extractor. For each preference it SHALL assert a typed target (a dimension and canonical key of the versioned facet schema), a polarity (INCLUDE or EXCLUDE), a constraint (SOFT or HARD), a provenance (DIRECT or INFERRED), an importance, a confidence and verbatim user-text evidence.
 
-#### Scenario: Direct statement maps through the vocabulary
-- **WHEN** the free text says "me encanta la arquitectura" and the interpreter proposes the architecture theme with that excerpt
-- **THEN** the validator classifies the facet as DIRECT, because the excerpt contains an alias of that key in the versioned vocabulary
+#### Scenario: The extractor asserts provenance and validation keeps it
+- **WHEN** the free text says "me encanta la arquitectura" and the extractor asserts the architecture theme as DIRECT with that span as evidence
+- **THEN** validation keeps the assertion as DIRECT; no word list decides or confirms it
 
-#### Scenario: Inference is not a direct statement
-- **WHEN** the free text says "quiero ver los edificios de Gaudí" and the interpreter proposes the architecture theme
-- **THEN** the validator classifies the facet as INFERRED, the facet is kept, and no confidence value or embedding similarity changes that classification
+#### Scenario: Inference stays inferred
+- **WHEN** the free text says "quiero ver los edificios de Gaudí" and the extractor asserts the architecture theme as INFERRED
+- **THEN** the assertion is kept as INFERRED and no confidence value, embedding similarity or lexical match upgrades it
 
-#### Scenario: Negated mention is not positive evidence
-- **WHEN** the free text says "no me interesa la arquitectura"
-- **THEN** no positive architecture facet participates in preference utility at any weight, whatever its provenance or confidence
+#### Scenario: Paraphrases are interpreted by the extractor, not by vocabulary
+- **WHEN** two requests express the same preference in different words, languages or paraphrases
+- **THEN** both reach the same typed target only through the extractor's assertions, and deterministic code never maps a word to a schema key
 
-#### Scenario: Duplicate facet keeps its direct provenance
-- **WHEN** the same facet key is requested both as DIRECT and as INFERRED evidence
-- **THEN** the requested facet is DIRECT and carries the DIRECT member's weight, whatever the INFERRED member's weight
+### Requirement: Preference assertions are validated deterministically
+Deterministic code SHALL only validate an extracted assertion: its target SHALL be a key of the versioned schema, enumerated fields SHALL hold schema values, confidence SHALL be within [0, 1] and each evidence span SHALL occur token-bounded in the user's text. A failing assertion SHALL be dropped with a typed reason, never repaired, defaulted or reclassified.
+
+#### Scenario: Ungrounded evidence is rejected, not repaired
+- **WHEN** an asserted evidence span does not occur token-bounded in the user's text, or the asserted key is not a key of the schema
+- **THEN** the assertion is dropped with MISSING_EVIDENCE or UNKNOWN_KEY and nothing is substituted for it
+
+#### Scenario: Duplicate assertion keeps its direct provenance
+- **WHEN** the same target and polarity are asserted both as DIRECT and as INFERRED
+- **THEN** the DIRECT assertion is kept with its own importance and confidence, whatever the INFERRED assertion's weight
+
+### Requirement: No word list interprets preferences
+No maintained natural-language keyword, alias, synonym, canonical-word or regex list SHALL interpret preferences, decide provenance or polarity, or translate a word into a schema key anywhere in the preference or exclusion path. When extraction fails, no lexical fallback SHALL produce an assertion from the text.
+
+#### Scenario: Negation is a polarity, not a positive facet
+- **WHEN** the free text says "no me interesa la arquitectura" and the extractor asserts the architecture theme with polarity EXCLUDE
+- **THEN** no positive architecture facet participates in preference utility at any weight
+
+#### Scenario: Extraction failure has no lexical fallback
+- **WHEN** the extractor fails or returns an invalid response
+- **THEN** the interpretation is recorded as failed, only structured selections produce assertions, and no keyword or regex reading of the text produces one
+
+### Requirement: Structured selections are direct assertions
+A typed structured selection (a wizard option or a typed dietary restriction) SHALL yield a DIRECT assertion whose evidence is that selection, with no language interpretation. Untyped dietary strings SHALL be rejected at the request boundary.
+
+#### Scenario: Structured selection is direct by construction
+- **WHEN** the traveller selects the history interest or the vegan dietary restriction as a typed option
+- **THEN** it yields a DIRECT assertion whose evidence is that structured selection, without calling the extractor; an untyped dietary string is rejected at the request boundary
+
+### Requirement: Open concepts without a shared typed identity are unresolved
+A concept the extractor understands but that has no typed identity shared with Experience facts (for example an open trait) SHALL be recorded as an unresolved concept (UNRESOLVED_OPEN_CONCEPT) and never matched lexically against Experience facts. An INCLUDE unresolved concept SHALL NOT participate in retrieval, coverage, acquisition or preference utility.
+
+#### Scenario: Open include concept does not participate
+- **WHEN** the free text asks for "cerveza artesanal" and the schema has no typed key for that concept
+- **THEN** it is recorded as an unresolved concept and neither creates a facet, a deficit nor a forwarded acquisition trait, nor matches an Experience trait "craft beer"
+
+### Requirement: Unprovable hard constraints end generation explicitly
+A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Without recorded classification completeness or a shared typed identity, generation SHALL end before destination resolution with HARD_EXCLUSION_UNENFORCEABLE, recording each constraint and its missing knowledge. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
+
+#### Scenario: Typed dietary restriction without classification completeness
+- **WHEN** the request selects the vegan dietary restriction and the catalog does not record whether Experiences' dietary classification is complete
+- **THEN** generation ends with HARD_EXCLUSION_UNENFORCEABLE recording dietary_suitability:vegan and CLASSIFICATION_COMPLETENESS, and no Tour is planned
+
+#### Scenario: Hard exclusion of an open concept
+- **WHEN** the extractor asserts a HARD exclusion of "religious places" and the schema has no typed key for it
+- **THEN** generation ends with HARD_EXCLUSION_UNENFORCEABLE recording SHARED_CONCEPT_IDENTITY, instead of guessing the exclusion from words in Experience names or descriptions
 
 ### Requirement: Allowed travel modes are a hard boundary
 Only the request's allowed travel modes that the release supports and a routing provider serves SHALL be offered to the optimizer. No objective weight SHALL make another mode usable, and an unavailable mode SHALL NOT be substituted by another mode.

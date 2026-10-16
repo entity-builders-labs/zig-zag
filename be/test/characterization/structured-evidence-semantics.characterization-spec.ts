@@ -1,6 +1,6 @@
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from '../../src/modules/tours/services/structured-candidate-corroboration.service';
-import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
+import { candidateMatchesPreferenceFacet } from '../../src/modules/tours/utils/preference-facet-matching.util';
 import {
   osmArtMuseumObservation,
   osmHistoricMonumentObservation,
@@ -61,7 +61,7 @@ describe('CHAR-1 structured evidence -> semantic preservation', () => {
     });
   }
 
-  it('a facet-less monument scores preferenceScore 0 for a "history" request even though it is objectively historical', () => {
+  it('a facet-less monument does not match theme:history even though it is objectively historical', () => {
     const [proposal] = synth.synthesizeProposals([
       osmHistoricMonumentObservation(),
     ]);
@@ -80,33 +80,14 @@ describe('CHAR-1 structured evidence -> semantic preservation', () => {
       },
     };
 
-    const evaluation = evaluateExperiencePreferences(hydrated, {
-      preferredFacets: [
-        {
-          dimension: 'theme',
-          key: 'history',
-          importance: 1,
-          confidence: 1,
-          source: 'wizard',
-        },
-      ],
-      excludedThemes: [],
-      excludedTraits: [],
-      hardExclusions: [],
-      softConstraints: [],
-      ambiguities: [],
-      dietaryPreferences: [],
-      accessibilityPreferences: [],
-      budgetPreferences: [],
-      groupPreferences: [],
-      positiveSemanticQuery: '',
-      notes: [],
-    } as any);
-
     // DEFECT: an objectively historical monument is invisible to the
-    // preference signal.
-    expect(evaluation.facetMatches[0].matched).toBe(false);
-    expect(evaluation.score).toBe(0);
+    // canonical facet-truth primitive.
+    expect(
+      candidateMatchesPreferenceFacet(hydrated, {
+        dimension: 'theme',
+        key: 'history',
+      }),
+    ).toBe(false);
   });
 
   // The former "CoverageAnalyzer disagrees with the preference evaluator"

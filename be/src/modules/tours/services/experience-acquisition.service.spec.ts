@@ -524,8 +524,8 @@ describe('ExperienceAcquisitionService', () => {
         destination: { destinationName: 'Buenos Aires' },
         deficits: [
           {
-            dimension: 'trait',
-            key: 'craft beer',
+            dimension: 'theme',
+            key: 'food',
             reason: 'r',
             origin: 'preference_facet',
           },
@@ -537,7 +537,6 @@ describe('ExperienceAcquisitionService', () => {
             provider: 'web',
             web: {
               query: 'Buenos Aires craft beer',
-              preferredTraits: ['craft beer'],
               requestedThemes: ['food'],
             },
           },

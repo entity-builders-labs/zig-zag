@@ -7,32 +7,59 @@ import {
   PreferenceInterpretationTrace,
 } from '../interfaces/preference-interpretation.interface';
 import {
-  InterpretedPreferenceFacet,
   mapStrengthToImportance,
-  PreferenceFacet,
-  PreferenceFacetStrength,
-  PreferenceFacetEvidence,
-} from '../preferences/preference-facet.interface';
-import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary';
+  PreferenceAssertion,
+  PreferenceConstraint,
+  PreferenceEvidence,
+  PreferencePolarity,
+  PreferenceProvenance,
+  PreferenceStrength,
+  dedupeAssertions,
+  UnresolvedPreferenceConcept,
+} from '../preferences/preference-assertion.interface';
+import {
+  ASSERTION_TARGET_DIMENSIONS,
+  AssertionTargetDimension,
+  canonicalTargetKey,
+  INITIAL_DIMENSION_VOCABULARY,
+} from '../preferences/preference-facet-vocabulary';
 import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
+import { containsTokenBoundedSpan } from '../utils/token-bounded-span.util';
 
 /** Conservative cap on extracted named anchors per request (plan Task A2). */
 const MAX_ANCHORED_PLACES = 5;
 
-const SYSTEM_PROMPT = `Interpret the user's supplemental tourism preferences into normalized intent.
-Return JSON only. You interpret language; deterministic code enforces the result.
+/** The typed targets the extractor may assert, rendered from the schema. */
+const TARGET_SCHEMA_TEXT = ASSERTION_TARGET_DIMENSIONS.map(
+  (dimension) =>
+    `- ${dimension}: ${INITIAL_DIMENSION_VOCABULARY[dimension].join(', ')}`,
+).join('\n');
+
+const SYSTEM_PROMPT = `Interpret the user's supplemental tourism preferences into typed assertions.
+Return JSON only. You interpret language; deterministic code only validates the result.
 Never invent geographic entities, provider IDs, coordinates, or evidence.
 Do not turn ambiguity into a hard rule. Preserve uncertainty in ambiguities.
-For positive preferences, output preferredFacets as a list of objects with:
-- dimension: active dimension name (theme, trait, intent, winery_scale, tourism_intensity, nature_type, local_character). Do NOT output exploration_style.
-- key: CANONICAL domain key in English (e.g. "architecture" not "arquitectura", "food" not "comida", "walk" not "caminata", "history" not "historia").
-- Map history to theme and walk to intent. nature_type is only for mountain, forest, coast, river, desert, or park. local_character is only for authentic, residential, traditional, or contemporary. A named neighborhood such as San Telmo is an anchor, not local_character.
-- confidence: float between 0 and 1 indicating certainty.
-- strength: "strong" | "medium" | "weak" indicating user emphasis.
-- evidence: one or more short excerpts copied from the user's text that support
-  this facet. Never invent evidence; facets without supporting excerpts are rejected.
-Do not invent arbitrary importance numbers; code derives importance deterministically from strength.
-Also output anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by
+
+assertions: one object per preference that maps to a typed target below, with:
+- dimension and key: exactly one of these typed targets (use the key as written):
+${TARGET_SCHEMA_TEXT}
+- polarity: "INCLUDE" when the user wants it, "EXCLUDE" when the user does not want it
+  (e.g. "no me interesa la arquitectura" is EXCLUDE architecture, never INCLUDE).
+- constraint: "HARD" only when the user states a requirement or prohibition that must be
+  guaranteed (e.g. a dietary need, "nada de X"); otherwise "SOFT".
+- provenance: "DIRECT" when the user explicitly expressed this concept in their own words;
+  "INFERRED" when you derived it (generalization, entity knowledge, interpretation).
+- strength: "strong" | "medium" | "weak", the user's emphasis.
+- confidence: 0..1, how sure you are of this interpretation.
+- evidence: one or more excerpts copied verbatim from the user's text that support it.
+  Never invent evidence; assertions without verbatim evidence are rejected.
+
+unresolvedConcepts: preferences you understood that match no typed target above
+(e.g. a quiet atmosphere, a kind of place not listed). For each: label (a short English
+description), polarity, constraint, evidence (verbatim excerpts). Do not force them into
+a typed target.
+
+anchoredPlaces: concrete named places/areas/routes the user explicitly mentioned by
 name (never a generic theme). For each, output:
 - rawName: the name as mentioned by the user.
 - usage: "geographic_scope" | "specific_destination" | "named_path" | "unknown". This describes how the phrase uses the name, not what geographic entity it is.
@@ -42,23 +69,48 @@ name (never a generic theme). For each, output:
   describing a theme, e.g. "me interesa la arquitectura de X" -- is priority "soft".
 Extract anchors conservatively: when in doubt about the name or the intent, omit the anchor
 rather than guessing. Do not invent named places that were not mentioned.
-Other fields: excludedThemes, excludedTraits, hardExclusions, softConstraints, ambiguities,
-dietaryPreferences, accessibilityPreferences, budgetPreferences, groupPreferences,
-positiveSemanticQuery, notes. Use short lowercase phrases.`;
+
+Other fields: softConstraints, ambiguities, accessibilityPreferences, budgetPreferences,
+groupPreferences, positiveSemanticQuery (the positive interests only), notes.
+Use short lowercase phrases.`;
 
 const STRING_ARRAY = { type: 'array', items: { type: 'string' } };
 
-const PREFERRED_FACET_SCHEMA = {
+const ASSERTION_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
     dimension: { type: 'string' },
     key: { type: 'string' },
-    confidence: { type: 'number' },
+    polarity: { type: 'string', enum: ['INCLUDE', 'EXCLUDE'] },
+    constraint: { type: 'string', enum: ['SOFT', 'HARD'] },
+    provenance: { type: 'string', enum: ['DIRECT', 'INFERRED'] },
     strength: { type: 'string', enum: ['strong', 'medium', 'weak'] },
+    confidence: { type: 'number' },
     evidence: STRING_ARRAY,
   },
-  required: ['dimension', 'key', 'confidence'],
+  required: [
+    'dimension',
+    'key',
+    'polarity',
+    'constraint',
+    'provenance',
+    'strength',
+    'confidence',
+    'evidence',
+  ],
+};
+
+const UNRESOLVED_CONCEPT_SCHEMA = {
+  type: 'object',
+  additionalProperties: false,
+  properties: {
+    label: { type: 'string' },
+    polarity: { type: 'string', enum: ['INCLUDE', 'EXCLUDE'] },
+    constraint: { type: 'string', enum: ['SOFT', 'HARD'] },
+    evidence: STRING_ARRAY,
+  },
+  required: ['label', 'polarity', 'constraint', 'evidence'],
 };
 
 const ANCHORED_PLACE_SCHEMA = {
@@ -84,20 +136,20 @@ const RESPONSE_SCHEMA = {
   type: 'object',
   additionalProperties: false,
   properties: {
-    preferredFacets: {
+    assertions: {
       type: 'array',
-      items: PREFERRED_FACET_SCHEMA,
+      items: ASSERTION_SCHEMA,
+    },
+    unresolvedConcepts: {
+      type: 'array',
+      items: UNRESOLVED_CONCEPT_SCHEMA,
     },
     anchoredPlaces: {
       type: 'array',
       items: ANCHORED_PLACE_SCHEMA,
     },
-    excludedThemes: STRING_ARRAY,
-    excludedTraits: STRING_ARRAY,
-    hardExclusions: STRING_ARRAY,
     softConstraints: STRING_ARRAY,
     ambiguities: STRING_ARRAY,
-    dietaryPreferences: STRING_ARRAY,
     accessibilityPreferences: STRING_ARRAY,
     budgetPreferences: STRING_ARRAY,
     groupPreferences: STRING_ARRAY,
@@ -105,14 +157,11 @@ const RESPONSE_SCHEMA = {
     notes: STRING_ARRAY,
   },
   required: [
-    'preferredFacets',
+    'assertions',
+    'unresolvedConcepts',
     'anchoredPlaces',
-    'excludedThemes',
-    'excludedTraits',
-    'hardExclusions',
     'softConstraints',
     'ambiguities',
-    'dietaryPreferences',
     'accessibilityPreferences',
     'budgetPreferences',
     'groupPreferences',
@@ -123,14 +172,11 @@ const RESPONSE_SCHEMA = {
 
 const EMPTY_INTENT: NormalizedPreferenceIntent = {
   interpretationStatus: 'complete',
-  preferredFacets: [],
+  assertions: [],
+  unresolvedConcepts: [],
   anchoredPlaces: [],
-  excludedThemes: [],
-  excludedTraits: [],
-  hardExclusions: [],
   softConstraints: [],
   ambiguities: [],
-  dietaryPreferences: [],
   accessibilityPreferences: [],
   budgetPreferences: [],
   groupPreferences: [],
@@ -200,23 +246,27 @@ export class PreferenceInterpreterService {
         }),
       };
     } catch (error: any) {
-      const fallbackResult = this.fallback(userPrompt);
-      const fallback = fallbackResult.intent;
-      this.logger.warn(`Preference interpretation fallback: ${error.message}`);
+      // No lexical fallback (owner, 2026-10-15): when semantic extraction
+      // fails, the free text yields no assertion and stays unresolved.
+      this.logger.warn(`Preference interpretation failed: ${error.message}`);
+      const failed: NormalizedPreferenceIntent = {
+        ...EMPTY_INTENT,
+        interpretationStatus: 'failed',
+        unresolvedFreeText: userPrompt,
+      };
       return {
-        intent: fallback,
+        intent: failed,
         trace: redactTracePayload({
           stage: 'preference_interpretation',
           ...this.providerMetadata(),
           systemPrompt: SYSTEM_PROMPT,
           userPrompt,
           responseSchema: RESPONSE_SCHEMA,
-          parsedResponse: fallback,
-          facetNormalizationDecisions:
-            fallbackResult.facetNormalizationDecisions,
+          parsedResponse: failed,
+          facetNormalizationDecisions: [],
           validationErrors: [error.message || 'interpretation_failed'],
-          status: 'fallback',
-          unresolvedFreeText: fallback.unresolvedFreeText,
+          status: 'failed',
+          unresolvedFreeText: userPrompt,
           durationMs: Date.now() - startedAt,
         }),
       };
@@ -239,20 +289,20 @@ export class PreferenceInterpreterService {
             .slice(0, 20)
         : [];
 
-    const facetResult = this.normalizeFacetsWithDecisions(
-      value?.preferredFacets,
+    const assertionResult = this.validateAssertions(
+      value?.assertions,
       supportingText,
     );
     return {
       intent: {
-        preferredFacets: facetResult.facets,
+        assertions: assertionResult.assertions,
+        unresolvedConcepts: this.validateUnresolvedConcepts(
+          value?.unresolvedConcepts,
+          supportingText,
+        ),
         anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
-        excludedThemes: list(value?.excludedThemes),
-        excludedTraits: list(value?.excludedTraits),
-        hardExclusions: list(value?.hardExclusions),
         softConstraints: list(value?.softConstraints),
         ambiguities: list(value?.ambiguities),
-        dietaryPreferences: list(value?.dietaryPreferences),
         accessibilityPreferences: list(value?.accessibilityPreferences),
         budgetPreferences: list(value?.budgetPreferences),
         groupPreferences: list(value?.groupPreferences),
@@ -262,188 +312,163 @@ export class PreferenceInterpreterService {
             : '',
         notes: list(value?.notes),
       },
-      facetNormalizationDecisions: facetResult.decisions,
+      facetNormalizationDecisions: assertionResult.decisions,
     };
   }
 
-  private normalizeFacets(rawFacets: unknown): PreferenceFacet[] {
-    return this.normalizeFacetsWithDecisions(rawFacets).facets;
-  }
-
-  private normalizeFacetsWithDecisions(
-    rawFacets: unknown,
-    supportingText = '',
+  /**
+   * Validates the extractor's assertions without reinterpreting the text:
+   * the target must be a typed schema key, every field a valid enum value,
+   * and every evidence excerpt must occur, token-bounded, in the user's text.
+   * Anything else is rejected and recorded. Duplicates of one target and
+   * polarity keep the DIRECT one, then the higher importance x confidence.
+   */
+  private validateAssertions(
+    raw: unknown,
+    supportingText: string,
   ): {
-    facets: PreferenceFacet[];
+    assertions: PreferenceAssertion[];
     decisions: FacetNormalizationDecision[];
   } {
-    if (!Array.isArray(rawFacets)) {
-      return { facets: [], decisions: [] };
-    }
-
-    const merged = new Map<string, PreferenceFacet>();
+    if (!Array.isArray(raw)) return { assertions: [], decisions: [] };
     const decisions: FacetNormalizationDecision[] = [];
-    const inferableDimensions = [
-      'theme',
-      'intent',
-      'winery_scale',
-      'tourism_intensity',
-      'nature_type',
-      'local_character',
-    ];
-
-    for (const item of rawFacets) {
-      if (!item || typeof item !== 'object') {
-        decisions.push({
-          rawDimension:
-            typeof item.dimension === 'string' ? item.dimension : '',
-          rawKey: '',
-          accepted: false,
-          reason: 'UNKNOWN_DIMENSION',
-        });
-        continue;
-      }
-
+    const accepted: PreferenceAssertion[] = [];
+    for (const item of raw) {
+      const rawDimension =
+        typeof item?.dimension === 'string'
+          ? item.dimension.trim().toLowerCase()
+          : '';
+      const rawKey = typeof item?.key === 'string' ? item.key.trim() : '';
+      const reject = (reason: FacetNormalizationDecision['reason']) =>
+        decisions.push({ rawDimension, rawKey, accepted: false, reason });
       if (
-        typeof item.dimension !== 'string' ||
-        item.dimension.trim().length === 0
+        !(ASSERTION_TARGET_DIMENSIONS as readonly string[]).includes(
+          rawDimension,
+        )
       ) {
+        reject('UNKNOWN_DIMENSION');
         continue;
       }
-
-      const rawDim = item.dimension.trim().toLowerCase();
-
-      // exploration_style is dormant in Phase 2
-      if (rawDim === 'exploration_style') {
-        decisions.push({
-          rawDimension: rawDim,
-          rawKey:
-            typeof item.key === 'string' ? item.key.trim().toLowerCase() : '',
-          accepted: false,
-          reason: 'DORMANT_DIMENSION',
-        });
+      const key = canonicalTargetKey(rawDimension, rawKey);
+      if (!key) {
+        reject('UNKNOWN_KEY');
         continue;
       }
-
-      const rawKey =
-        typeof item.key === 'string' ? item.key.trim().toLowerCase() : '';
-      if (!rawKey) {
-        decisions.push({
-          rawDimension: rawDim,
-          rawKey,
-          accepted: false,
-          reason: 'UNKNOWN_KEY',
-        });
-        continue;
-      }
-
-      let normalizedDim = rawDim;
-      let canonicalKey = canonicalizeFacetKey(rawDim, rawKey);
-      let reason: FacetNormalizationDecision['reason'] = 'VALID_AS_EMITTED';
-      if (!canonicalKey) {
-        const owners = inferableDimensions.filter((dimension) =>
-          canonicalizeFacetKey(dimension, rawKey),
-        );
-        if (owners.length === 1) {
-          normalizedDim = owners[0];
-          canonicalKey = canonicalizeFacetKey(normalizedDim, rawKey);
-          reason = 'REPAIRED_UNIQUE_VOCABULARY_MATCH';
-        } else {
-          decisions.push({
-            rawDimension: rawDim,
-            rawKey,
-            accepted: false,
-            reason:
-              owners.length > 1
-                ? 'AMBIGUOUS_CROSS_DIMENSION_KEY'
-                : 'UNKNOWN_KEY',
-          });
-          continue;
-        }
-      }
-      decisions.push({
-        rawDimension: rawDim,
-        rawKey,
-        normalizedDimension: normalizedDim,
-        normalizedKey: canonicalKey,
-        accepted: true,
-        reason,
-      });
-
-      const rawConfidence =
-        typeof item.confidence === 'number' && !Number.isNaN(item.confidence)
-          ? item.confidence
-          : 0.7;
-      const confidence = Math.max(0, Math.min(1, rawConfidence));
-
-      const validStrengths: PreferenceFacetStrength[] = [
+      const polarity = enumValue<PreferencePolarity>(item.polarity, [
+        'INCLUDE',
+        'EXCLUDE',
+      ]);
+      const constraint = enumValue<PreferenceConstraint>(item.constraint, [
+        'SOFT',
+        'HARD',
+      ]);
+      const provenance = enumValue<PreferenceProvenance>(item.provenance, [
+        'DIRECT',
+        'INFERRED',
+      ]);
+      const strength = enumValue<PreferenceStrength>(item.strength, [
         'strong',
         'medium',
         'weak',
-      ];
-      const strength: PreferenceFacetStrength | undefined =
-        validStrengths.includes(item.strength) ? item.strength : undefined;
-
-      const importance = mapStrengthToImportance(strength);
-      const compoundKey = `${normalizedDim}:${canonicalKey}`;
-      const evidence = this.normalizeEvidence(item.evidence);
-      const normalizedSupportingText = supportingText.toLocaleLowerCase();
-      const evidenceSupported =
-        supportingText.length > 0 &&
-        evidence.length > 0 &&
-        evidence.every((item) =>
-          normalizedSupportingText.includes(item.text.toLocaleLowerCase()),
-        );
-      if (!evidenceSupported) {
-        decisions[decisions.length - 1] = {
-          ...decisions[decisions.length - 1],
-          accepted: false,
-          reason:
-            evidence.length === 0 ? 'MISSING_EVIDENCE' : 'UNSUPPORTED_BY_INPUT',
-        };
+      ]);
+      const confidence =
+        typeof item.confidence === 'number' &&
+        Number.isFinite(item.confidence) &&
+        item.confidence >= 0 &&
+        item.confidence <= 1
+          ? item.confidence
+          : null;
+      if (
+        !polarity ||
+        !constraint ||
+        !provenance ||
+        !strength ||
+        confidence === null
+      ) {
+        reject('INVALID_ASSERTION_FIELD');
         continue;
       }
-
-      if (!merged.has(compoundKey)) {
-        merged.set(compoundKey, {
-          dimension: normalizedDim,
-          key: canonicalKey,
-          importance,
-          confidence,
-          source: 'free_text',
-          ...(evidence.length > 0 ? { evidence } : {}),
-        });
+      const evidence = this.groundedEvidence(item.evidence, supportingText);
+      if (evidence.failure) {
+        reject(evidence.failure);
+        continue;
       }
+      decisions.push({
+        rawDimension,
+        rawKey,
+        normalizedDimension: rawDimension,
+        normalizedKey: key,
+        accepted: true,
+        evidence: evidence.spans.map((span) => span.text),
+        reason: 'VALID_AS_EMITTED',
+      });
+      const assertion: PreferenceAssertion = {
+        target: { dimension: rawDimension as AssertionTargetDimension, key },
+        polarity,
+        constraint,
+        provenance,
+        importance: mapStrengthToImportance(strength),
+        confidence,
+        evidence: evidence.spans,
+      };
+      accepted.push(assertion);
     }
-
-    return { facets: Array.from(merged.values()), decisions };
+    return { assertions: dedupeAssertions(accepted), decisions };
   }
 
-  private normalizeEvidence(value: unknown): PreferenceFacetEvidence[] {
+  private validateUnresolvedConcepts(
+    raw: unknown,
+    supportingText: string,
+  ): UnresolvedPreferenceConcept[] {
+    if (!Array.isArray(raw)) return [];
+    const concepts: UnresolvedPreferenceConcept[] = [];
+    for (const item of raw) {
+      const label = typeof item?.label === 'string' ? item.label.trim() : '';
+      const polarity = enumValue<PreferencePolarity>(item?.polarity, [
+        'INCLUDE',
+        'EXCLUDE',
+      ]);
+      const constraint = enumValue<PreferenceConstraint>(item?.constraint, [
+        'SOFT',
+        'HARD',
+      ]);
+      const evidence = this.groundedEvidence(item?.evidence, supportingText);
+      if (!label || !polarity || !constraint || evidence.failure) continue;
+      concepts.push({
+        label: label.slice(0, 120),
+        polarity,
+        constraint,
+        evidence: evidence.spans,
+        reason: 'UNRESOLVED_OPEN_CONCEPT',
+      });
+    }
+    return concepts.slice(0, 20);
+  }
+
+  /** Every excerpt must occur token-bounded in the user's text. */
+  private groundedEvidence(
+    raw: unknown,
+    supportingText: string,
+  ): {
+    spans: UserTextSpanEvidence[];
+    failure: 'MISSING_EVIDENCE' | 'UNSUPPORTED_BY_INPUT' | null;
+  } {
+    const spans = this.normalizeEvidence(raw);
+    if (spans.length === 0) return { spans, failure: 'MISSING_EVIDENCE' };
+    const grounded = spans.every((span) =>
+      containsTokenBoundedSpan(supportingText, span.text),
+    );
+    return { spans, failure: grounded ? null : 'UNSUPPORTED_BY_INPUT' };
+  }
+
+  private normalizeEvidence(value: unknown): UserTextSpanEvidence[] {
     return Array.isArray(value)
       ? value
-          .map((item) => {
-            if (typeof item === 'string') {
-              return { source: 'user_free_text' as const, text: item };
-            }
-            if (
-              item &&
-              typeof item === 'object' &&
-              typeof (item as { text?: unknown }).text === 'string'
-            ) {
-              return {
-                source: 'user_free_text' as const,
-                text: (item as { text: string }).text,
-              };
-            }
-            return undefined;
-          })
-          .filter(
-            (item): item is PreferenceFacetEvidence =>
-              item !== undefined && item.text.trim().length > 0,
-          )
-          .map((item) => ({ ...item, text: item.text.trim() }))
+          .filter((item): item is string => typeof item === 'string')
+          .map((text) => text.trim())
+          .filter((text) => text.length > 0)
           .slice(0, 3)
+          .map((text) => ({ kind: 'USER_TEXT_SPAN' as const, text }))
       : [];
   }
 
@@ -502,104 +527,19 @@ export class PreferenceInterpreterService {
 
     return anchors.slice(0, MAX_ANCHORED_PLACES);
   }
+}
 
-  private fallback(text: string): {
-    intent: NormalizedPreferenceIntent;
-    facetNormalizationDecisions: FacetNormalizationDecision[];
-  } {
-    const lower = text.toLowerCase();
-    const excludedThemes: string[] = [];
-    const excludedTraits: string[] = [];
-    const hardExclusions: string[] = [];
-    const dietaryPreferences: string[] = [];
-    const accessibilityPreferences: string[] = [];
-    const budgetPreferences: string[] = [];
-    const groupPreferences: string[] = [];
+type UserTextSpanEvidence = Extract<
+  PreferenceEvidence,
+  { kind: 'USER_TEXT_SPAN' }
+>;
 
-    if (
-      /(no quiero|sin|evitar|evito)[^,.!?;]*(religios|iglesia|templo|mezquita|catedral)/.test(
-        lower,
-      )
-    ) {
-      excludedThemes.push('religion');
-      hardExclusions.push('religion');
-    }
-    if (/vegana|vegano|vegan/.test(lower)) {
-      dietaryPreferences.push('vegan');
-      hardExclusions.push('non-vegan food');
-    }
-    if (
-      /silla de ruedas|wheelchair|movilidad reducida|sin escaleras|accesible/.test(
-        lower,
-      )
-    ) {
-      accessibilityPreferences.push('accessibility');
-    }
-    if (/barato|economico|económico|low budget|budget/.test(lower)) {
-      budgetPreferences.push('low budget');
-    }
-    if (/niños|ninos|kids|chicos|familia/.test(lower)) {
-      groupPreferences.push('family friendly');
-    }
-
-    // Free text keywords mapped into candidate InterpretedPreferenceFacet objects
-    const candidateKeywords = [
-      { trigger: 'arquitectura', dimension: 'theme', rawKey: 'architecture' },
-      { trigger: 'architecture', dimension: 'theme', rawKey: 'architecture' },
-      { trigger: 'comida', dimension: 'theme', rawKey: 'food' },
-      { trigger: 'gastronomia', dimension: 'theme', rawKey: 'gastronomy' },
-      { trigger: 'gastronomía', dimension: 'theme', rawKey: 'gastronomy' },
-      { trigger: 'naturaleza', dimension: 'theme', rawKey: 'nature' },
-      { trigger: 'cultura', dimension: 'theme', rawKey: 'culture' },
-      { trigger: 'arte', dimension: 'theme', rawKey: 'art' },
-      { trigger: 'historia', dimension: 'theme', rawKey: 'history' },
-      { trigger: 'tango', dimension: 'theme', rawKey: 'tango' },
-      { trigger: 'vino', dimension: 'theme', rawKey: 'wine' },
-      { trigger: 'bodega', dimension: 'theme', rawKey: 'wine' },
-      { trigger: 'caminata', dimension: 'intent', rawKey: 'walk' },
-      { trigger: 'caminar', dimension: 'intent', rawKey: 'walk' },
-    ];
-
-    const rawFallbackFacets: InterpretedPreferenceFacet[] = [];
-    for (const kw of candidateKeywords) {
-      if (lower.includes(kw.trigger)) {
-        rawFallbackFacets.push({
-          dimension: kw.dimension,
-          key: kw.rawKey,
-          confidence: 0.9,
-          strength: 'strong',
-          evidence: [{ source: 'user_free_text', text: kw.trigger }],
-        });
-      }
-    }
-
-    const facetResult = this.normalizeFacetsWithDecisions(
-      rawFallbackFacets,
-      text,
-    );
-    const preferredFacets = facetResult.facets;
-
-    const positiveSemanticQuery = text
-      .replace(/\b(no quiero|sin|evitar|evito)\b[^,.!?;]*/gi, '')
-      .trim();
-
-    return {
-      intent: {
-        ...EMPTY_INTENT,
-        interpretationStatus: 'failed',
-        unresolvedFreeText: text,
-        preferredFacets,
-        excludedThemes,
-        excludedTraits,
-        hardExclusions,
-        dietaryPreferences,
-        accessibilityPreferences,
-        budgetPreferences,
-        groupPreferences,
-        positiveSemanticQuery,
-        notes: ['deterministic_fallback'],
-      },
-      facetNormalizationDecisions: facetResult.decisions,
-    };
-  }
+function enumValue<T extends string>(
+  value: unknown,
+  allowed: readonly T[],
+): T | null {
+  return typeof value === 'string' &&
+    (allowed as readonly string[]).includes(value)
+    ? (value as T)
+    : null;
 }

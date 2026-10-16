@@ -110,7 +110,8 @@ export interface ExperienceCandidate {
   description?: string;
   /**
    * Controlled dimension: canonical THEME keys from the central preference-facet
-   * vocabulary only (synonyms/localized forms resolved, deduped). The shared
+   * vocabulary only (formatting-normalized, deduped; a localized or synonym
+   * label is never translated and stays an open trait). The shared
    * extraction boundary (experience-candidate-facet-normalizer.util.ts)
    * guarantees this deterministically regardless of what the LLM emitted.
    */
@@ -224,9 +225,6 @@ export interface ExperienceDiscoveryRequest {
   requestedThemes: string[];
   /** Soft Experience facets/intents; never structural proposal kinds. */
   requestedIntents?: string[];
-  preferredTraits?: string[];
-  excludedThemes?: string[];
-  excludedTraits?: string[];
   semanticQuery?: string;
   /**
    * Names of the relevant anchors this acquisition targets (from

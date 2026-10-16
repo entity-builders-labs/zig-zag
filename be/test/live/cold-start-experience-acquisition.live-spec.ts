@@ -31,14 +31,18 @@ import {
   ExperienceGroundedSearchResult,
 } from 'src/modules/tours/interfaces/experience-grounding.interface';
 import { DestinationScaleHint } from 'src/modules/tours/interfaces/tour-generation.interface';
+import { NormalizedPreferenceIntent } from 'src/modules/tours/interfaces/preference-interpretation.interface';
 import {
-  getFacetKeysByDimension,
-  NormalizedPreferenceIntent,
-} from 'src/modules/tours/interfaces/preference-interpretation.interface';
-import { PreferenceFacet } from 'src/modules/tours/preferences/preference-facet.interface';
+  PreferenceAssertion,
+  SemanticTarget,
+  UnresolvedPreferenceConcept,
+} from 'src/modules/tours/preferences/preference-assertion.interface';
 import { candidateMatchesPreferenceFacet } from 'src/modules/tours/utils/preference-facet-matching.util';
-import { canonicalizeFacetKey } from 'src/modules/tours/preferences/preference-facet-vocabulary';
-import { normalizeWizardFacet } from 'src/modules/tours/utils/preference-facet-merge.util';
+import {
+  AssertionTargetDimension,
+  canonicalTargetKey,
+} from 'src/modules/tours/preferences/preference-facet-vocabulary';
+import { structuredSelectionAssertion } from 'src/modules/tours/utils/preference-facet-merge.util';
 import { boundingBoxToCenterRadius } from 'src/modules/tours/utils/geometry-search-area.util';
 import { ExperienceEmbeddingIndexerService } from 'src/shared/ai/services/experience-embedding-indexer.service';
 import { resetDbWith } from '../integration/support/test-db';
@@ -262,46 +266,93 @@ class RecordingExtractor implements ExperienceDiscoveryExtractor {
   }
 }
 
-function wizardFacets(scenario: CharacterizationScenario): PreferenceFacet[] {
+function wizardAssertions(
+  scenario: CharacterizationScenario,
+): PreferenceAssertion[] {
   return [
-    ...scenario.themes.map((key) => normalizeWizardFacet('theme', key)),
-    ...scenario.intents.map((key) => normalizeWizardFacet('intent', key)),
-  ].filter((facet): facet is PreferenceFacet => Boolean(facet));
+    ...scenario.themes.map((key) =>
+      structuredSelectionAssertion({
+        field: 'intent.interests',
+        dimension: 'theme',
+        key,
+        polarity: 'INCLUDE',
+        constraint: 'SOFT',
+      }),
+    ),
+    ...scenario.intents.map((key) =>
+      structuredSelectionAssertion({
+        field: 'intent.intents',
+        dimension: 'intent',
+        key,
+        polarity: 'INCLUDE',
+        constraint: 'SOFT',
+      }),
+    ),
+  ].filter((assertion): assertion is PreferenceAssertion => Boolean(assertion));
 }
 
+/**
+ * The validated extractor output: a schema target is an INFERRED assertion;
+ * an open concept (e.g. a former free trait) stays unresolved and never
+ * matches. Nothing is translated.
+ */
 function normalizedPreferences(
   scenario: CharacterizationScenario,
 ): NormalizedPreferenceIntent {
-  const inferredFacets = (scenario.inferredFacets ?? [])
-    .map(({ dimension, key }): PreferenceFacet | undefined => {
-      const canonicalKey = canonicalizeFacetKey(dimension, key);
-      return canonicalKey
-        ? {
-            dimension,
-            key: canonicalKey,
-            importance: 1,
-            confidence: 1,
-            source: 'free_text',
-          }
-        : undefined;
-    })
-    .filter((facet): facet is PreferenceFacet => Boolean(facet));
+  const assertions: PreferenceAssertion[] = [];
+  const unresolvedConcepts: UnresolvedPreferenceConcept[] = [];
+  for (const { dimension, key } of scenario.inferredFacets ?? []) {
+    const canonicalKey = canonicalTargetKey(dimension, key);
+    const evidence = [{ kind: 'USER_TEXT_SPAN' as const, text: key }];
+    if (canonicalKey) {
+      assertions.push({
+        target: {
+          dimension: dimension as AssertionTargetDimension,
+          key: canonicalKey,
+        },
+        polarity: 'INCLUDE',
+        constraint: 'SOFT',
+        provenance: 'INFERRED',
+        importance: 1,
+        confidence: 1,
+        evidence,
+      });
+    } else {
+      unresolvedConcepts.push({
+        label: key,
+        polarity: 'INCLUDE',
+        constraint: 'SOFT',
+        evidence,
+        reason: 'UNRESOLVED_OPEN_CONCEPT',
+      });
+    }
+  }
 
   return {
-    preferredFacets: [...wizardFacets(scenario), ...inferredFacets],
+    assertions: [...wizardAssertions(scenario), ...assertions],
+    unresolvedConcepts,
     anchoredPlaces: [],
-    excludedThemes: [],
-    excludedTraits: [],
-    hardExclusions: [],
     softConstraints: [],
     ambiguities: [],
-    dietaryPreferences: [],
     accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: scenario.additionalPreferences,
     notes: [],
   };
+}
+
+function targetKeys(
+  intent: NormalizedPreferenceIntent,
+  dimension: AssertionTargetDimension,
+): string[] {
+  return intent.assertions
+    .filter(
+      (assertion) =>
+        assertion.polarity === 'INCLUDE' &&
+        assertion.target.dimension === dimension,
+    )
+    .map((assertion) => assertion.target.key);
 }
 
 function coverageCandidates(experiences: any[]): any[] {
@@ -336,18 +387,14 @@ function coverageCandidates(experiences: any[]): any[] {
 function summarizeFacetCoverage(
   experiences: any[],
   requestedThemes: string[],
-  requestedTraits: string[],
   requestedIntents: string[],
 ): Record<string, Record<string, number>> {
   const summarize = (dimension: string, keys: string[]) =>
     Object.fromEntries(
       keys.map((key) => {
-        const facet: PreferenceFacet = {
-          dimension,
+        const facet: SemanticTarget = {
+          dimension: dimension as AssertionTargetDimension,
           key,
-          importance: 1,
-          confidence: 1,
-          source: 'wizard',
         };
         const count = experiences.filter((experience) =>
           candidateMatchesPreferenceFacet(experience, facet),
@@ -358,7 +405,6 @@ function summarizeFacetCoverage(
 
   return {
     theme: summarize('theme', requestedThemes),
-    trait: summarize('trait', requestedTraits),
     intent: summarize('intent', requestedIntents),
   };
 }
@@ -514,18 +560,8 @@ function webUnavailable(
           }
 
           const normalized = normalizedByScenario.get(scenario.id)!;
-          const requestedThemes = getFacetKeysByDimension(
-            normalized.intent.preferredFacets,
-            'theme',
-          );
-          const requestedTraits = getFacetKeysByDimension(
-            normalized.intent.preferredFacets,
-            'trait',
-          );
-          const requestedIntents = getFacetKeysByDimension(
-            normalized.intent.preferredFacets,
-            'intent',
-          );
+          const requestedThemes = targetKeys(normalized.intent, 'theme');
+          const requestedIntents = targetKeys(normalized.intent, 'intent');
           // Preference-first cutover (M2): CoverageAnalyzer is no longer the
           // live sufficiency/deficit authority. The cold-start invariant
           // just above (initialCatalog.length === 0) means every requested
@@ -538,12 +574,6 @@ function webUnavailable(
               dimension: 'theme',
               key,
               reason: `Preference facet [theme:${key}] has no strong catalog match yet.`,
-            })),
-            ...requestedTraits.map((key) => ({
-              origin: 'preference_facet' as const,
-              dimension: 'trait',
-              key,
-              reason: `Preference facet [trait:${key}] has no strong catalog match yet.`,
             })),
             ...requestedIntents.map((key) => ({
               origin: 'preference_facet' as const,
@@ -606,7 +636,6 @@ function webUnavailable(
           const finalCoverage = summarizeFacetCoverage(
             coverageCandidates(refreshed),
             requestedThemes,
-            requestedTraits,
             requestedIntents,
           );
           const persisted = await prisma.experience.findMany({
@@ -639,7 +668,7 @@ function webUnavailable(
               normalizedPreferences: normalized.intent,
               interpretation: normalized.interpretation,
               requestedThemes,
-              requestedTraits,
+              unresolvedConcepts: normalized.intent.unresolvedConcepts,
               requestedIntents,
             },
             destinationResolution: {

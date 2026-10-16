@@ -1057,6 +1057,8 @@ disproven.
    (`candidate-ranking.util.ts`) and `evaluateExperiencePreferences` (the
    legacy evaluator with magic 0.45 / 0.8 penalties) are imported only by
    tests. In that file only `findHardExclusionMatches` is live.
+   *Status (task 25.4):* the evaluator file, including
+   `findHardExclusionMatches` and its `ALIASES` table, is deleted.
 4. **Soft avoidances and soft constraints: a gap.** `exclusions.themes` /
    `exclusions.traits` and the dietary / budget / group `softConstraints`
    are built into `PreferenceSpec` but:
@@ -1070,6 +1072,10 @@ disproven.
    until either a structural negative-evidence signal is defined or the
    fields are deleted (early-stage deletion rule; task 25.5). No penalty is
    invented.
+   *Status (task 25.4):* the interpreter fallback, `exclusions.*`,
+   `softConstraints.dietary` and the vegan rule are deleted. Exclusions
+   are `EXCLUDE` assertions (participation: task 25.6); the dietary
+   restriction is a typed `HARD` assertion (see *Preference assertions*).
 5. **Accessibility.**
    - The wizard's `mobility.accessibilityNeeds` and the interpreter's
      `accessibilityPreferences` are merged into one
@@ -1141,48 +1147,64 @@ disproven.
     - Its request-relative rank may change with the cohort;
   - *generic quality*: canonical qualityScore (0..5) or UNKNOWN, labelled
     generic, not preference. UNKNOWN uses the same ordering projection.
-- *Facet provenance* (owner rule, 2026-10-14; closes PROVENANCE-1). A
-  deterministic provenance validator owns the classification; the LLM
-  interpreter does not.
-  - A wizard-selected facet is `DIRECT` by construction.
-  - A free-text facet is `DIRECT` only when its quoted user-text excerpt
-    maps deterministically to the same canonical key, through the
-    versioned facet vocabulary or its explicit aliases/synonyms. Matching
-    is token-bounded, with accents and case normalized. There is no
-    stemming and no fuzzy matching. The excerpt itself must occur
-    token-bounded in the user text.
-  - Otherwise the facet is `INFERRED`. That covers any semantic inference,
-    generalization, entity knowledge, ontology relation, embedding
-    similarity, external knowledge or LLM interpretation beyond that
-    mapping. Facets of the open `trait` dimension are therefore always
-    `INFERRED`.
-  - An `INFERRED` facet is still valid; it is never rejected for not being
-    `DIRECT`.
-  - Confidence stays confidence in the interpretation, never provenance.
-    Embeddings never certify `DIRECT`. The mapping stays narrow: the
-    ontology is not grown to make more facets `DIRECT`.
-  - Each facet records the provenance, the excerpt that decided it and the
-    vocabulary version.
-  - Dedupe keeps one facet per (dimension, key): the highest provenance
-    class wins, then the highest weight. An `INFERRED` duplicate never
-    displaces a `DIRECT` one and never lends it weight.
-  - Provenance is lexical. Polarity is not provenance, and confidence is not
-    a proxy for polarity: "no me interesa la arquitectura" must never become
-    a positive architecture facet, not even a weaker one. Polarity must be
-    established before `DIRECT` evidence participates in preference utility
-    (gap POLARITY-1, task 25.6).
-  - Examples on the live vocabulary:
-    - "me encanta la arquitectura" → architecture: `DIRECT`.
-    - "quiero arte moderno" → art: `DIRECT` via the alias `arte`. No
-      `modern_art` key exists.
-    - "los edificios de Gaudí" → architecture: `INFERRED`.
-    - "quiero conocer la ESMA" → history: `INFERRED`; intent visit:
-      `DIRECT` via the alias `conocer`.
+- *Preference assertions* (owner contract, 2026-10-15; supersedes the
+  2026-10-14 lexical provenance rule, implemented by task 25.4).
+  - Natural language → semantic extractor → typed assertions →
+    deterministic validation only. The extractor asserts each preference's
+    typed target (dimension and canonical key of the versioned facet schema
+    `facet-schema-v1`), polarity (`INCLUDE` / `EXCLUDE`), constraint
+    (`SOFT` / `HARD`), provenance (`DIRECT` / `INFERRED`), importance
+    (from its stated strength), confidence and verbatim evidence.
+  - Validation checks only that the target is a schema key, the enumerated
+    fields hold schema values, confidence is within [0, 1] and every
+    evidence span occurs token-bounded (accents and case normalized) in
+    the user text. A failing assertion is dropped with a typed reason; it
+    is never repaired, defaulted, translated or reclassified.
+  - There is no maintained natural-language keyword, alias, synonym,
+    canonical-word or regex list anywhere in the preference or exclusion
+    path: keyword match ≠ `DIRECT`; channel ≠ authority; word list ≠
+    semantic classification. The facet schema holds domain concepts, not
+    words; normalizing a key's formatting is not translation. Extraction
+    failure produces no assertion from the text (no lexical fallback).
+  - A typed structured selection (a wizard option, a typed
+    `DietaryRestriction`) yields a `DIRECT` assertion whose evidence is the
+    selection, with no extractor call. It is `DIRECT` because the
+    traveller chose a typed domain option, not because of the channel.
+  - Confidence stays confidence in the interpretation, never provenance or
+    polarity. Embeddings never certify `DIRECT`.
+  - Dedupe keeps one assertion per (target, polarity): `DIRECT` outranks
+    `INFERRED`, then the higher importance × confidence. An `INFERRED`
+    duplicate never displaces a `DIRECT` one and never lends it weight.
+  - Only SOFT `INCLUDE` assertions become requested facets. A negated
+    mention ("no me interesa la arquitectura") is an `EXCLUDE` assertion
+    and never a positive facet; how `EXCLUDE` participates is task 25.6.
+  - *Open concepts.* A concept with no typed identity shared with
+    Experience facts (the open `trait` dimension, keys outside the schema)
+    is an `UNRESOLVED_OPEN_CONCEPT`. It is never matched by string
+    equality; an `INCLUDE` one does not participate in retrieval,
+    coverage, acquisition or utility. Trait string matching and the
+    trait-driven web acquisition hint were deleted, not kept as debt.
+  - *Hard constraints.* Unknown compatibility is never compatibility. The
+    catalog records no classification completeness yet, so every `HARD`
+    assertion (including a typed dietary restriction) and every `HARD`
+    unresolved concept is unenforceable: generation ends before
+    destination resolution with the typed, non-retryable outcome
+    `HARD_EXCLUSION_UNENFORCEABLE`, distinct from an infeasible plan. The
+    lexical hard-exclusion matcher (`ALIASES`) and the vegan regex were
+    deleted. Classification completeness and a shared typed concept space
+    are follow-up tasks (see tasks).
+- *Facet provenance, lexical rule* (owner rule, 2026-10-14; **SUPERSEDED**
+  by the preference-assertion contract above on 2026-10-15). It classified
+  `DIRECT` by mapping a quoted excerpt to a key through the vocabulary's
+  aliases/synonyms. The owner rejected maintained word lists entirely, so
+  this rule, its alias table (`DIMENSION_KEY_SYNONYMS`, also used by the
+  catalog normalizer) and its examples no longer apply. Kept as the record
+  of what G-P7-U.A evaluated.
 - *Precedence* (owner, 2026-10-14). Lexicographic, with no exchange rate
   between levels:
   1. `DIRECT` facet evidence: the Σ of the stated **importance** of matched
      `DIRECT` facets. Interpreter confidence never reduces a facet once
-     deterministic validation has established `DIRECT`. Importance is the
+     its validated assertion is `DIRECT`. Importance is the
      existing strength mapping (strong / medium / weak), kept separate from
      confidence; a wizard pick has importance 1.0.
   2. `INFERRED` facet evidence: the Σ of importance × confidence over
@@ -1208,6 +1230,18 @@ disproven.
     explicit evidence → anchor → quality → stable id.
   - The precedence orders candidates within one request. It is not a
     scalar prize (see below).
+  - **Exploration style is not a precedence level** (owner, 2026-10-15).
+    `explorationStyle` is a meta-preference, not a facet and not an
+    evidence or utility tier. Composition may use its tilt only as a
+    composition-local portfolio key after quality and before id
+    (`DIRECT` → `INFERRED` → soft anchor → semantic → quality →
+    exploration tilt → id). It never enters the breakdown, the
+    within-request rank or the planner objective, and never overrides a
+    difference at an earlier canonical level. This is not an extension of
+    the canonical precedence.
+  - **Implementation order** (owner, 2026-10-15): task 25.4 (provenance,
+    importance and confidence kept separately), then 25.6 (polarity), then
+    25.2 (the boundary over those real values). No interim encoding.
 - *What crosses the planner boundary*:
   - **Structured, not a scalar.** The planning candidate carries:
     - the typed breakdown;
@@ -1314,9 +1348,12 @@ Evidence is in `spikes/planner-comparison-2026-10-12/g-p7-u-a/`:
   states.
 
 Decision:
-- The facet-provenance rule and the precedence above (`DIRECT` → `INFERRED`
-  → soft anchor → semantic → quality → id). It is the only evaluated
-  encoding that passes all 46 checks.
+- The precedence above (`DIRECT` → `INFERRED` → soft anchor → semantic →
+  quality → id). It is the only evaluated encoding that passes all 46
+  checks. (The lexical facet-provenance rule decided with it is
+  **superseded** by the 2026-10-15 preference-assertion contract; the
+  spike's `runs/provenance.json` evidence is historical and its
+  characterization imports the deleted alias table.)
 - `DIRECT` evidence is weighed by stated importance only. A wizard pick and
   a `DIRECT` free-text facet have the same authority. Confidence orders
   `INFERRED` evidence only.
@@ -1333,7 +1370,8 @@ Decision:
 Rejected:
 - a UI-channel tier, by the owner;
 - Σ weight across provenance classes;
-- LLM-asserted provenance;
+- LLM-asserted provenance (**reversed** by the owner on 2026-10-15: the
+  extractor asserts provenance and deterministic code only validates it);
 - embedding similarity or stemming to certify `DIRECT`;
 - confidence as a provenance or polarity proxy;
 - confidence discounting `DIRECT` evidence;

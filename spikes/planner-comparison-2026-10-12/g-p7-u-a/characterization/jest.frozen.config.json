@@ -1,0 +1,30 @@
+{
+  "rootDir": "../../../../be/src",
+  "roots": [
+    "<rootDir>/../../spikes/planner-comparison-2026-10-12/g-p7-u-a/characterization"
+  ],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
+  "testRegex": "provenance-rule-frozen\\.characterization\\.spec\\.ts$",
+  "transform": {
+    "^.+\\.(t|j)s$": [
+      "ts-jest",
+      {
+        "tsconfig": "<rootDir>/../tsconfig.json",
+        "isolatedModules": true
+      }
+    ]
+  },
+  "moduleNameMapper": {
+    "^src/(.*)$": "<rootDir>/$1",
+    "^@core/(.*)$": "<rootDir>/core/$1",
+    "^@shared/(.*)$": "<rootDir>/shared/$1",
+    "^@activities/(.*)$": "<rootDir>/modules/activities/$1",
+    "^@tours/(.*)$": "<rootDir>/modules/tours/$1",
+    "^@integrations/(.*)$": "<rootDir>/modules/integrations/$1"
+  },
+  "testEnvironment": "node"
+}

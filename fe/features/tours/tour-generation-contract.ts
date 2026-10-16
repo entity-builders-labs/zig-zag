@@ -11,6 +11,8 @@ export type TransportationMode =
   | 'cycling';
 export type ExplorationStyle = 'iconic' | 'balanced' | 'local_deep_dive';
 export type DestinationScaleHint = 'settlement' | 'specific_point';
+/** Typed dietary requirement identifiers (stable domain ids, not display text). */
+export type DietaryRestriction = 'vegan';
 export type ExperienceIntent =
   | 'visit'
   | 'walk'
@@ -50,7 +52,7 @@ export interface GenerateTourDto {
   groupType: GroupType;
   intent: TourIntent;
   mobility: MobilityPreferences;
-  dietaryRestrictions?: string[];
+  dietaryRestrictions?: DietaryRestriction[];
   startDates?: string[];
   skipImageGeneration?: boolean;
   excludeTours?: string[];

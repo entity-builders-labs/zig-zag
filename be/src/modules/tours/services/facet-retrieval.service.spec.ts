@@ -7,7 +7,10 @@ function facet(overrides: Partial<RequestedFacet> = {}): RequestedFacet {
     dimension: 'theme',
     key: 'history',
     weight: 1,
-    source: 'wizard',
+    provenance: 'DIRECT' as const,
+    importance: 1,
+    confidence: 1,
+    evidence: [],
     required: false,
     ...overrides,
   };

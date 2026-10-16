@@ -62,7 +62,7 @@ export function buildDiscoveryRequestHeader(
     `Destination: ${request.scope.destinationName ?? 'unknown'}`,
     `Themes: ${request.requestedThemes.join(', ') || 'none'}`,
     `Requested intents: ${request.requestedIntents?.join(', ') || 'none'}`,
-    `Preferences: ${(request.semanticQuery || request.preferredTraits?.join(', ')) ?? 'none'}`,
+    `Preferences: ${request.semanticQuery || 'none'}`,
     `Required evidence shape: ${request.evidenceRequirements?.includes('MULTI_COMPONENT_EXPERIENCE') ? 'MULTI_COMPONENT_EXPERIENCE' : request.evidenceRequirements?.length ? 'SINGLE_PLACE' : 'none'}`,
     ...buildDiscoveryAnchorContext(request.anchorNames),
   ];

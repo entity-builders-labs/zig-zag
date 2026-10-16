@@ -22,7 +22,7 @@ import {
 } from '../interfaces/experience-resolution.interface';
 import { ExperienceAcquisitionPlan } from '../interfaces/experience-acquisition-plan.interface';
 import { ExecuteAcquisitionPlanResult } from './experience-acquisition.service';
-import { normalizeWizardFacet } from '../utils/preference-facet-merge.util';
+import { canonicalTargetKey } from '../preferences/preference-facet-vocabulary';
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { normalizeGeoName } from '../utils/nominatim-match.util';
 import { evaluateScopeDestinationRelation } from '../utils/destination-compatibility.policy';
@@ -169,7 +169,10 @@ export class AreaRouteWalkAcquisitionService {
       (input.anchor.status === 'resolved' && input.anchor.kind === 'route') ||
       (input.anchor.status === 'unresolved' &&
         input.anchor.usage === 'named_path');
-    const facet = normalizeWizardFacet('intent', input.deficit.key);
+    const intentKey = canonicalTargetKey('intent', input.deficit.key);
+    const facet = intentKey
+      ? { dimension: 'intent' as const, key: intentKey }
+      : undefined;
 
     // Resolve ONCE per call -- reused by the warm check, the
     // validationScope passed into acquisition/materialization, AND the

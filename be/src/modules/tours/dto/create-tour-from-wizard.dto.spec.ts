@@ -77,4 +77,33 @@ describe('CreateTourFromWizardDto', () => {
 
     expect(await errorsFor(payload)).not.toEqual([]);
   });
+
+  it('accepts the typed dietary restriction and an empty list', async () => {
+    expect(
+      await errorsFor({ ...validPayload(), dietaryRestrictions: ['vegan'] }),
+    ).toEqual([]);
+    expect(
+      await errorsFor({ ...validPayload(), dietaryRestrictions: [] }),
+    ).toEqual([]);
+  });
+
+  it.each([
+    [['Vegan']],
+    [['vegano']],
+    [['gluten-free']],
+    [['no meat please']],
+    [['vegan', 'vegan']],
+    ['vegan'],
+  ])(
+    'rejects dietary restrictions outside the typed enum: %j',
+    async (dietaryRestrictions) => {
+      const errors = await errorsFor({
+        ...validPayload(),
+        dietaryRestrictions,
+      });
+      expect(errors.map((error) => error.property)).toEqual([
+        'dietaryRestrictions',
+      ]);
+    },
+  );
 });

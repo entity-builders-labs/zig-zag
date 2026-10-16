@@ -1,11 +1,16 @@
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import {
+  PreferenceAssertion,
+  UnresolvedPreferenceConcept,
+} from '../preferences/preference-assertion.interface';
 import { InterpretedAnchor } from './preference-spec.interface';
 
 export interface NormalizedPreferenceIntent {
   interpretationStatus?: 'complete' | 'partial' | 'failed';
   unresolvedFreeText?: string;
-  /** Canonical single positive facet collection. */
-  preferredFacets: PreferenceFacet[];
+  /** Typed assertions the extractor established and validation accepted. */
+  assertions: PreferenceAssertion[];
+  /** Concepts without a shared typed identity (observability only). */
+  unresolvedConcepts: UnresolvedPreferenceConcept[];
 
   /**
    * Concrete named places/areas/routes the user explicitly mentioned
@@ -16,36 +21,15 @@ export interface NormalizedPreferenceIntent {
    */
   anchoredPlaces: InterpretedAnchor[];
 
-  // Preserved negative and constraint fields
-  excludedThemes: string[];
-  excludedTraits: string[];
-  hardExclusions: string[];
+  // Untyped fields with no deterministic consumer (accessibility: task
+  // 25.3; budget, group and soft constraints: task 25.5).
   softConstraints: string[];
   ambiguities: string[];
-  dietaryPreferences: string[];
   accessibilityPreferences: string[];
   budgetPreferences: string[];
   groupPreferences: string[];
   positiveSemanticQuery: string;
   notes: string[];
-}
-
-export function getFacetsByDimension(
-  facets: PreferenceFacet[] | undefined | null,
-  dimension: string,
-): PreferenceFacet[] {
-  if (!Array.isArray(facets)) {
-    return [];
-  }
-  const target = dimension.trim().toLowerCase();
-  return facets.filter((f) => f.dimension?.trim().toLowerCase() === target);
-}
-
-export function getFacetKeysByDimension(
-  facets: PreferenceFacet[] | undefined | null,
-  dimension: string,
-): string[] {
-  return getFacetsByDimension(facets, dimension).map((f) => f.key);
 }
 
 export interface PreferenceInterpretationTrace {
@@ -59,11 +43,12 @@ export interface PreferenceInterpretationTrace {
   parsedResponse: NormalizedPreferenceIntent;
   facetNormalizationDecisions?: FacetNormalizationDecision[];
   validationErrors: string[];
-  status: 'applied' | 'fallback' | 'failed' | 'skipped';
+  status: 'applied' | 'failed' | 'skipped';
   durationMs: number;
   unresolvedFreeText?: string;
 }
 
+/** Validation outcome of one extractor assertion (trace only). */
 export interface FacetNormalizationDecision {
   rawDimension: string;
   rawKey: string;
@@ -73,11 +58,9 @@ export interface FacetNormalizationDecision {
   evidence?: string[];
   reason:
     | 'VALID_AS_EMITTED'
-    | 'REPAIRED_UNIQUE_VOCABULARY_MATCH'
     | 'UNKNOWN_DIMENSION'
     | 'UNKNOWN_KEY'
-    | 'AMBIGUOUS_CROSS_DIMENSION_KEY'
-    | 'DORMANT_DIMENSION'
+    | 'INVALID_ASSERTION_FIELD'
     | 'MISSING_EVIDENCE'
     | 'UNSUPPORTED_BY_INPUT';
 }

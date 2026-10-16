@@ -49,7 +49,10 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
     dimension: 'theme',
     key: 'history',
     weight: 1,
-    source: 'wizard',
+    provenance: 'DIRECT' as const,
+    importance: 1,
+    confidence: 1,
+    evidence: [],
     required: false,
   };
 

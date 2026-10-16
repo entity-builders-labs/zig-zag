@@ -40,20 +40,26 @@ export function makeFakeCompetitiveEmbeddingService() {
  * Deterministic preference interpreter (fake LangChain).
  * ------------------------------------------------------------------ */
 
+/** The extractor's raw JSON response (validated by the real interpreter). */
 export interface FakeInterpretation {
-  preferredFacets: Array<{
+  assertions: Array<{
     dimension: string;
     key: string;
+    polarity: 'INCLUDE' | 'EXCLUDE';
+    constraint: 'SOFT' | 'HARD';
+    provenance: 'DIRECT' | 'INFERRED';
+    strength: 'strong' | 'medium' | 'weak';
     confidence: number;
-    strength?: 'strong' | 'medium' | 'weak';
-    evidence?: string[];
+    evidence: string[];
   }>;
-  excludedThemes: string[];
-  excludedTraits: string[];
-  hardExclusions: string[];
+  unresolvedConcepts: Array<{
+    label: string;
+    polarity: 'INCLUDE' | 'EXCLUDE';
+    constraint: 'SOFT' | 'HARD';
+    evidence: string[];
+  }>;
   softConstraints: string[];
   ambiguities: string[];
-  dietaryPreferences: string[];
   accessibilityPreferences: string[];
   budgetPreferences: string[];
   groupPreferences: string[];
@@ -63,13 +69,10 @@ export interface FakeInterpretation {
 
 export function emptyInterpretation(): FakeInterpretation {
   return {
-    preferredFacets: [],
-    excludedThemes: [],
-    excludedTraits: [],
-    hardExclusions: [],
+    assertions: [],
+    unresolvedConcepts: [],
     softConstraints: [],
     ambiguities: [],
-    dietaryPreferences: [],
     accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],

@@ -19,107 +19,223 @@ describe('PreferenceInterpreterService', () => {
     };
   }
 
-  it('normalizes the complete typed LLM response and records an applied trace', async () => {
-    const { service, langChain } = makeService(
-      JSON.stringify({
-        preferredFacets: [
+  /** One extractor assertion as the LLM returns it. */
+  const assertion = (fields: Record<string, unknown>) => ({
+    dimension: 'theme',
+    key: 'architecture',
+    polarity: 'INCLUDE',
+    constraint: 'SOFT',
+    provenance: 'DIRECT',
+    strength: 'strong',
+    confidence: 0.9,
+    evidence: ['me encanta la arquitectura'],
+    ...fields,
+  });
+  const interpretWith = async (
+    text: string,
+    payload: Record<string, unknown>,
+  ) => makeService(JSON.stringify(payload)).service.interpret(text);
+
+  it('keeps a valid typed assertion exactly as the extractor asserted it', async () => {
+    const result = await interpretWith('me encanta la arquitectura', {
+      assertions: [assertion({})],
+      positiveSemanticQuery: 'arquitectura',
+    });
+
+    expect(result.trace.status).toBe('applied');
+    expect(result.intent.assertions).toEqual([
+      {
+        target: { dimension: 'theme', key: 'architecture' },
+        polarity: 'INCLUDE',
+        constraint: 'SOFT',
+        provenance: 'DIRECT',
+        importance: 1.0,
+        confidence: 0.9,
+        evidence: [
+          { kind: 'USER_TEXT_SPAN', text: 'me encanta la arquitectura' },
+        ],
+      },
+    ]);
+    expect(result.trace.facetNormalizationDecisions).toEqual([
+      expect.objectContaining({ accepted: true, reason: 'VALID_AS_EMITTED' }),
+    ]);
+  });
+
+  it('never upgrades provenance or flips polarity from the words in the text', async () => {
+    // Paraphrases: the extractor owns the semantics; validation only checks
+    // that the claimed evidence is in the text. "arquitectura" appearing in
+    // an INFERRED or EXCLUDE assertion's evidence changes nothing.
+    const inferred = await interpretWith('quiero ver los edificios de Gaudí', {
+      assertions: [
+        assertion({
+          provenance: 'INFERRED',
+          evidence: ['los edificios de Gaudí'],
+        }),
+      ],
+    });
+    expect(inferred.intent.assertions[0].provenance).toBe('INFERRED');
+
+    const negated = await interpretWith('no me interesa la arquitectura', {
+      assertions: [
+        assertion({
+          polarity: 'EXCLUDE',
+          evidence: ['no me interesa la arquitectura'],
+        }),
+      ],
+    });
+    expect(negated.intent.assertions).toEqual([
+      expect.objectContaining({ polarity: 'EXCLUDE', provenance: 'DIRECT' }),
+    ]);
+
+    const paraphrase = await interpretWith(
+      'nada de edificios religiosos, por favor',
+      {
+        assertions: [],
+        unresolvedConcepts: [
           {
-            dimension: 'theme',
-            key: 'Arquitectura',
-            confidence: 0.95,
-            strength: 'strong',
-            evidence: ['arquitectura'],
-          },
-          {
-            dimension: 'trait',
-            key: 'tranquilo',
-            confidence: 0.8,
-            strength: 'medium',
-            evidence: ['tranquila'],
-          },
-          {
-            dimension: 'intent',
-            key: 'walking-like',
-            confidence: 0.85,
-            strength: 'weak',
-            evidence: ['caminata'],
-          },
-          {
-            dimension: 'winery_scale',
-            key: 'boutique',
-            confidence: 0.9,
-            strength: 'strong',
-            evidence: ['boutique'],
-          },
-          // Should be dropped because exploration_style is dormant in Phase 2
-          {
-            dimension: 'exploration_style',
-            key: 'relaxed',
-            confidence: 0.9,
-            strength: 'strong',
-            evidence: ['historia'],
+            label: 'religious buildings',
+            polarity: 'EXCLUDE',
+            constraint: 'HARD',
+            evidence: ['nada de edificios religiosos'],
           },
         ],
-        excludedThemes: [],
-        excludedTraits: [],
-        hardExclusions: ['religion'],
-        softConstraints: ['prefer shade'],
-        ambiguities: ['short walks could mean distance or duration'],
-        dietaryPreferences: ['vegan'],
-        accessibilityPreferences: ['wheelchair accessible'],
-        budgetPreferences: ['low budget'],
-        groupPreferences: ['family friendly'],
-        positiveSemanticQuery: 'edificios históricos accesibles',
-        notes: ['prioridad alta'],
+      },
+    );
+    expect(paraphrase.intent.assertions).toEqual([]);
+    expect(paraphrase.intent.unresolvedConcepts).toEqual([
+      {
+        label: 'religious buildings',
+        polarity: 'EXCLUDE',
+        constraint: 'HARD',
+        evidence: [
+          { kind: 'USER_TEXT_SPAN', text: 'nada de edificios religiosos' },
+        ],
+        reason: 'UNRESOLVED_OPEN_CONCEPT',
+      },
+    ]);
+  });
+
+  it('accepts only targets of the typed schema and never translates a word into a key', async () => {
+    const result = await interpretWith(
+      'me encanta la arquitectura y el arte moderno',
+      {
+        assertions: [
+          assertion({ key: 'Arquitectura' }),
+          assertion({ key: 'modern_art', evidence: ['el arte moderno'] }),
+          assertion({ dimension: 'trait', key: 'tranquilo' }),
+          assertion({ dimension: 'exploration_style', key: 'iconic' }),
+          assertion({
+            dimension: 'local_character',
+            key: 'Contemporary',
+            evidence: ['el arte moderno'],
+          }),
+        ],
+      },
+    );
+
+    expect(result.intent.assertions.map((item) => item.target)).toEqual([
+      { dimension: 'local_character', key: 'contemporary' },
+    ]);
+    expect(
+      result.trace.facetNormalizationDecisions!.map(
+        (decision) => decision.reason,
+      ),
+    ).toEqual([
+      'UNKNOWN_KEY',
+      'UNKNOWN_KEY',
+      'UNKNOWN_DIMENSION',
+      'UNKNOWN_DIMENSION',
+      'VALID_AS_EMITTED',
+    ]);
+  });
+
+  it('requires every evidence excerpt to occur token-bounded in the user text', async () => {
+    const result = await interpretWith('quiero ir el martes al centro', {
+      assertions: [
+        assertion({ key: 'art', evidence: ['arte'] }),
+        assertion({ key: 'history', evidence: [] }),
+        assertion({ key: 'culture', evidence: ['el martes', 'un museo'] }),
+      ],
+    });
+
+    expect(result.intent.assertions).toEqual([]);
+    expect(
+      result.trace.facetNormalizationDecisions!.map(
+        (decision) => decision.reason,
+      ),
+    ).toEqual([
+      'UNSUPPORTED_BY_INPUT',
+      'MISSING_EVIDENCE',
+      'UNSUPPORTED_BY_INPUT',
+    ]);
+  });
+
+  it('rejects assertions with a missing or invalid field instead of defaulting it', async () => {
+    const result = await interpretWith('me encanta la arquitectura', {
+      assertions: [
+        assertion({ strength: undefined }),
+        assertion({ provenance: 'WIZARD' }),
+        assertion({ polarity: 'MAYBE' }),
+        assertion({ constraint: undefined }),
+        assertion({ confidence: 1.4 }),
+      ],
+    });
+
+    expect(result.intent.assertions).toEqual([]);
+    expect(
+      new Set(
+        result.trace.facetNormalizationDecisions!.map(
+          (decision) => decision.reason,
+        ),
+      ),
+    ).toEqual(new Set(['INVALID_ASSERTION_FIELD']));
+  });
+
+  it('keeps one assertion per target and polarity: DIRECT over INFERRED whatever the weight', async () => {
+    const result = await interpretWith('me encanta la arquitectura de Gaudí', {
+      assertions: [
+        assertion({
+          provenance: 'INFERRED',
+          confidence: 1,
+          evidence: ['arquitectura de Gaudí'],
+        }),
+        assertion({
+          strength: 'weak',
+          confidence: 0.5,
+          evidence: ['me encanta la arquitectura'],
+        }),
+      ],
+    });
+
+    expect(result.intent.assertions).toEqual([
+      expect.objectContaining({
+        provenance: 'DIRECT',
+        importance: 0.5,
+        confidence: 0.5,
       }),
+    ]);
+  });
+
+  it('produces no assertion when semantic extraction fails: no lexical fallback', async () => {
+    const { service } = makeService(
+      undefined,
+      new Error('provider unavailable'),
     );
 
     const result = await service.interpret(
-      'Quiero arquitectura tranquila, una caminata y una bodega boutique',
+      'Evitar iglesias, soy vegano, necesito silla de ruedas y busco arquitectura',
     );
 
-    expect(langChain.generateChatResponse).toHaveBeenCalledTimes(1);
-
-    // Verify canonical mapping for localized Spanish "arquitectura" -> "architecture"
-    const archFacet = result.intent.preferredFacets.find(
-      (f) => f.dimension === 'theme' && f.key === 'architecture',
+    expect(result.trace.status).toBe('failed');
+    expect(result.trace.validationErrors).toContain('provider unavailable');
+    expect(result.intent.interpretationStatus).toBe('failed');
+    expect(result.intent.unresolvedFreeText).toBe(
+      'Evitar iglesias, soy vegano, necesito silla de ruedas y busco arquitectura',
     );
-    expect(archFacet).toBeDefined();
-    expect(archFacet?.importance).toBe(1.0); // strong -> 1.0
-    expect(archFacet?.confidence).toBeCloseTo(0.95);
-    expect(archFacet?.source).toBe('free_text');
-
-    // Verify walking-like -> walk and weak strength -> 0.5
-    const walkFacet = result.intent.preferredFacets.find(
-      (f) => f.dimension === 'intent' && f.key === 'walk',
-    );
-    expect(walkFacet).toBeDefined();
-    expect(walkFacet?.importance).toBe(0.5); // weak -> 0.5
-    expect(walkFacet?.confidence).toBeCloseTo(0.85);
-
-    // Verify winery_scale boutique
-    const wineryFacet = result.intent.preferredFacets.find(
-      (f) => f.dimension === 'winery_scale' && f.key === 'boutique',
-    );
-    expect(wineryFacet).toBeDefined();
-    expect(wineryFacet?.importance).toBe(1.0);
-
-    // Verify exploration_style was filtered out
-    const explorationFacet = result.intent.preferredFacets.find(
-      (f) => f.dimension === 'exploration_style',
-    );
-    expect(explorationFacet).toBeUndefined();
-
-    expect(result.intent.dietaryPreferences).toEqual(['vegan']);
-    expect(result.intent.accessibilityPreferences).toEqual([
-      'wheelchair accessible',
-    ]);
-    expect(result.trace.status).toBe('applied');
-    expect(result.trace.provider).toBe('gemini');
-    expect(result.trace.model).toBe('gemini-test');
-    expect(result.trace.userPrompt).toBe(
-      'Quiero arquitectura tranquila, una caminata y una bodega boutique',
-    );
+    expect(result.intent.assertions).toEqual([]);
+    expect(result.intent.unresolvedConcepts).toEqual([]);
+    expect(result.intent.accessibilityPreferences).toEqual([]);
+    expect(result.intent.positiveSemanticQuery).toBe('');
   });
 
   it('accepts JSON already normalized by the provider boundary', async () => {
@@ -141,35 +257,6 @@ describe('PreferenceInterpreterService', () => {
     ]);
   });
 
-  it('uses a deterministic fallback for religion, diet and accessibility when the provider fails', async () => {
-    const { service } = makeService(
-      undefined,
-      new Error('provider unavailable'),
-    );
-
-    const result = await service.interpret(
-      'Evitar iglesias, soy vegano, necesito silla de ruedas y busco arquitectura',
-    );
-
-    expect(result.trace.status).toBe('fallback');
-    expect(result.intent.excludedThemes).toContain('religion');
-    expect(result.intent.hardExclusions).toContain('religion');
-    expect(result.intent.hardExclusions).toContain('non-vegan food');
-    expect(result.intent.dietaryPreferences).toContain('vegan');
-    expect(result.intent.accessibilityPreferences).toContain('accessibility');
-
-    // Fallback maps "arquitectura" to canonical "architecture"
-    const archFacet = result.intent.preferredFacets.find(
-      (f) => f.dimension === 'theme' && f.key === 'architecture',
-    );
-    expect(archFacet).toBeDefined();
-    expect(archFacet?.importance).toBe(1.0); // strong -> 1.0
-    expect(archFacet?.confidence).toBe(0.9);
-    expect(archFacet?.source).toBe('free_text');
-
-    expect(result.trace.validationErrors).toContain('provider unavailable');
-  });
-
   it('skips the provider for empty preferences', async () => {
     const { service, langChain } = makeService();
 
@@ -177,234 +264,25 @@ describe('PreferenceInterpreterService', () => {
 
     expect(langChain.generateChatResponse).not.toHaveBeenCalled();
     expect(result.trace.status).toBe('skipped');
-    expect(result.intent.preferredFacets).toEqual([]);
+    expect(result.intent.assertions).toEqual([]);
     expect(result.intent.softConstraints).toEqual([]);
     expect(result.intent.ambiguities).toEqual([]);
     expect(result.intent.anchoredPlaces).toEqual([]);
   });
 
-  it('drops invalid keys for controlled dimensions in LLM response', async () => {
-    const { service } = makeService(
-      JSON.stringify({
-        preferredFacets: [
-          {
-            dimension: 'theme',
-            key: 'unsupported_theme_123',
-            confidence: 0.9,
-            strength: 'strong',
-          },
-          {
-            dimension: 'theme',
-            key: 'history',
-            confidence: 0.9,
-            strength: 'strong',
-            evidence: ['historia'],
-          },
-        ],
-      }),
-    );
+  it('sends the typed schema, not a word list, and asks the extractor for provenance and polarity', async () => {
+    const { service, langChain } = makeService(JSON.stringify({}));
 
-    const result = await service.interpret('Quiero algo raro e historia');
-    expect(result.intent.preferredFacets).toHaveLength(1);
-    expect(result.intent.preferredFacets[0].key).toBe('history');
-  });
+    await service.interpret('quiero historia');
 
-  it('requires real free-text evidence for every LLM facet', async () => {
-    const { service } = makeService(
-      JSON.stringify({
-        preferredFacets: [
-          {
-            dimension: 'intent',
-            key: 'walk',
-            confidence: 0.9,
-            evidence: ['caminata'],
-          },
-          {
-            dimension: 'theme',
-            key: 'history',
-            confidence: 0.9,
-            evidence: ['histórica'],
-          },
-          {
-            dimension: 'local_character',
-            key: 'traditional',
-            confidence: 0.9,
-          },
-          {
-            dimension: 'local_character',
-            key: 'authentic',
-            confidence: 0.9,
-            evidence: [],
-          },
-          {
-            dimension: 'local_character',
-            key: 'contemporary',
-            confidence: 0.9,
-            evidence: ['tradicional'],
-          },
-        ],
-      }),
-    );
-
-    const result = await service.interpret(
-      'caminata histórica por San Telmo, no contemporánea',
-    );
-
-    expect(result.intent.preferredFacets).toEqual([
-      expect.objectContaining({ dimension: 'intent', key: 'walk' }),
-      expect.objectContaining({ dimension: 'theme', key: 'history' }),
-    ]);
-    expect(result.intent.preferredFacets).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ dimension: 'local_character' }),
-      ]),
-    );
-    expect(result.trace.facetNormalizationDecisions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          reason: 'MISSING_EVIDENCE',
-          accepted: false,
-        }),
-        expect.objectContaining({
-          reason: 'UNSUPPORTED_BY_INPUT',
-          accepted: false,
-        }),
-      ]),
-    );
-  });
-
-  it('repairs uniquely mappable malformed dimensions and traces rejected facets', async () => {
-    const { service } = makeService(
-      JSON.stringify({
-        preferredFacets: [
-          {
-            dimension: 'nature_type',
-            key: 'history',
-            confidence: 0.8,
-            strength: 'strong',
-            evidence: ['histórica'],
-          },
-          {
-            dimension: 'tourism_intensity',
-            key: 'walk',
-            confidence: 0.7,
-            strength: 'medium',
-            evidence: ['caminata'],
-          },
-          {
-            dimension: 'local_character',
-            key: 'San Telmo',
-            confidence: 0.9,
-            strength: 'strong',
-            evidence: ['historia'],
-          },
-          {
-            dimension: 'invalid_dimension',
-            key: 'food',
-            confidence: 0.5,
-            strength: 'weak',
-          },
-        ],
-        anchoredPlaces: [
-          { rawName: 'San Telmo', kind: 'area', priority: 'must' },
-        ],
-      }),
-    );
-
-    const result = await service.interpret(
-      'sí o sí quiero una caminata histórica por San Telmo',
-    );
-    expect(result.intent.preferredFacets).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({ dimension: 'theme', key: 'history' }),
-        expect.objectContaining({ dimension: 'intent', key: 'walk' }),
-      ]),
-    );
-    expect(result.intent.preferredFacets).not.toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          dimension: 'local_character',
-          key: 'san_telmo',
-        }),
-      ]),
-    );
-    expect(result.intent.anchoredPlaces).toEqual([
-      {
-        rawName: 'San Telmo',
-        usage: 'unknown',
-        priority: 'must',
-      },
-    ]);
-    expect(result.trace.facetNormalizationDecisions).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          rawDimension: 'nature_type',
-          rawKey: 'history',
-          normalizedDimension: 'theme',
-          normalizedKey: 'history',
-          accepted: true,
-          reason: 'REPAIRED_UNIQUE_VOCABULARY_MATCH',
-        }),
-        expect.objectContaining({
-          rawDimension: 'tourism_intensity',
-          rawKey: 'walk',
-          normalizedDimension: 'intent',
-          normalizedKey: 'walk',
-          accepted: true,
-          reason: 'REPAIRED_UNIQUE_VOCABULARY_MATCH',
-        }),
-        expect.objectContaining({
-          rawDimension: 'local_character',
-          rawKey: 'san telmo',
-          accepted: false,
-          reason: 'UNKNOWN_KEY',
-        }),
-        expect.objectContaining({
-          rawDimension: 'invalid_dimension',
-          rawKey: 'food',
-          accepted: false,
-          reason: 'AMBIGUOUS_CROSS_DIMENSION_KEY',
-        }),
-      ]),
-    );
-  });
-
-  it('drops facets with missing or blank dimension in LLM response', async () => {
-    const { service } = makeService(
-      JSON.stringify({
-        preferredFacets: [
-          {
-            key: 'history',
-            confidence: 0.9,
-            strength: 'strong',
-          },
-          {
-            dimension: '',
-            key: 'history',
-            confidence: 0.9,
-            strength: 'strong',
-          },
-          {
-            dimension: 'theme',
-            key: 'history',
-            confidence: 0.9,
-            strength: 'strong',
-            evidence: ['historia'],
-          },
-        ],
-      }),
-    );
-
-    const result = await service.interpret('Quiero historia');
-    expect(result.intent.preferredFacets).toHaveLength(1);
-    expect(result.intent.preferredFacets[0]).toEqual(
-      expect.objectContaining({
-        dimension: 'theme',
-        key: 'history',
-        confidence: 0.9,
-        importance: 1.0,
-      }),
-    );
+    const systemPrompt: string =
+      langChain.generateChatResponse.mock.calls[0][0];
+    expect(systemPrompt).toContain('- theme: history, culture, art');
+    expect(systemPrompt).toContain('- dietary_suitability: vegan');
+    expect(systemPrompt).toContain('provenance: "DIRECT"');
+    expect(systemPrompt).toContain('polarity: "INCLUDE"');
+    expect(systemPrompt).toContain('unresolvedConcepts');
+    expect(systemPrompt).not.toContain('arquitectura" not');
   });
 
   describe('anchoredPlaces (D3)', () => {
@@ -527,12 +405,15 @@ describe('PreferenceInterpreterService', () => {
           anchoredPlaces: [
             { rawName: 'Teatro Colón', kind: 'venue', priority: 'soft' },
           ],
-          preferredFacets: [
+          assertions: [
             {
               dimension: 'theme',
               key: 'architecture',
-              confidence: 0.8,
+              polarity: 'INCLUDE',
+              constraint: 'SOFT',
+              provenance: 'DIRECT',
               strength: 'medium',
+              confidence: 0.8,
               evidence: ['arquitectura'],
             },
           ],
@@ -616,7 +497,7 @@ describe('PreferenceInterpreterService', () => {
       expect(result.intent.anchoredPlaces.length).toBeLessThanOrEqual(5);
     });
 
-    it('defaults anchoredPlaces to an empty array in the deterministic fallback', async () => {
+    it('defaults anchoredPlaces to an empty array when extraction fails', async () => {
       const { service } = makeService(
         undefined,
         new Error('provider unavailable'),

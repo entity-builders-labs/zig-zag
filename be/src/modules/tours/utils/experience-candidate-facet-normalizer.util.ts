@@ -20,9 +20,11 @@ import {
  * back to `traits`.
  *
  * The single source of truth is `preference-facet-vocabulary.ts`
- * (`INITIAL_DIMENSION_VOCABULARY` + `DIMENSION_KEY_SYNONYMS` via
- * `canonicalizeFacetKey`). This util never declares its own taxonomy and never
- * contains per-interest rules (no `if wine` / `if beer` / `if tango`).
+ * (`INITIAL_DIMENSION_VOCABULARY` via `canonicalizeFacetKey`), which only
+ * normalizes formatting and never translates words: a localized or synonym
+ * label is not a key and stays an open trait. This util never declares its
+ * own taxonomy and never contains per-interest rules (no `if wine` /
+ * `if beer` / `if tango`).
  */
 
 /** Canonical THEME keys, straight from the central vocabulary. */

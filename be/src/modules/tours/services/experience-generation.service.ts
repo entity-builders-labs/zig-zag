@@ -22,6 +22,7 @@ import { filterOverlappingExperienceCandidates } from '../utils/candidate-overla
 import {
   recordPreferenceInterpretationStep,
   recordRequestIntentStep,
+  recordHardConstraintEnforceabilityStep,
   recordDestinationResolutionStep,
   recordAnchorResolutionStep,
   recordCatalogSearchStep,
@@ -56,6 +57,10 @@ import {
 } from './planning-candidate-normalizer.service';
 import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
 import { buildPlanningDays } from '../utils/planning-days.util';
+import {
+  findUnenforceableHardConstraints,
+  HardExclusionUnenforceableError,
+} from '../utils/hard-constraint-enforceability.util';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
@@ -89,7 +94,6 @@ import { GenerationTraceRecorder } from '../utils/generation-trace-recorder.util
 import { GenerationTraceV5 } from '../interfaces/generation-trace-v5.interface';
 import { PreferenceInterpreterService } from './preference-interpreter.service';
 import { EmbeddingIndexIdentity } from '@shared/ai/interfaces/embedding-index.interface';
-import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
 import { ExperienceCompositionService } from './experience-composition.service';
 import { VenueAnchorResolutionService } from './venue-anchor-resolution.service';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
@@ -234,14 +238,11 @@ export class ExperienceGenerationService {
 
   private emptyNormalizedPreferences(): NormalizedPreferenceIntent {
     return {
-      preferredFacets: [],
+      assertions: [],
+      unresolvedConcepts: [],
       anchoredPlaces: [],
-      excludedThemes: [],
-      excludedTraits: [],
-      hardExclusions: [],
       softConstraints: [],
       ambiguities: [],
-      dietaryPreferences: [],
       accessibilityPreferences: [],
       budgetPreferences: [],
       groupPreferences: [],
@@ -294,7 +295,7 @@ export class ExperienceGenerationService {
     // eligible Experience matches no requested facet, and collapses to 0
     // whenever zero facets are requested regardless of real catalog size).
     const totalDistinctEligibleExperiences =
-      await this.computeTotalDistinctEligibleExperiences(scope, preferenceSpec);
+      await this.computeTotalDistinctEligibleExperiences(scope);
 
     const baseTarget = basePortfolioTarget(
       preferenceSpec.trip.days,
@@ -363,12 +364,10 @@ export class ExperienceGenerationService {
    * (`ExperienceCatalogService.findVerifiedWithinForMatching`: real PostGIS
    * radius, no correctness-visible LIMIT; its own JOIN already structurally
    * excludes bare/no-component rows), then applies the two SS12.1
-   * eligibility rules that already have real, reusable primitives today:
-   * hard exclusion (`findHardExclusionMatches` -- the SAME hard-exclusion
-   * policy the legacy preference evaluator uses, fed from
-   * `PreferenceSpec.exclusions.hard` here instead of
-   * `NormalizedPreferenceIntent.hardExclusions`) and "not a bare AREA/ROUTE
-   * representation" (at least one real PLACE-kind resolved component).
+   * eligibility rule that has a real, reusable primitive today: "not a bare
+   * AREA/ROUTE representation" (at least one real PLACE-kind resolved
+   * component). Hard constraints never reach this count: a request carrying
+   * one ends HARD_EXCLUSION_UNENFORCEABLE before any catalog read.
    *
    * Full SS12.1 eligibility (destination-scope exclusion beyond the
    * geography query, etc.) is Checkpoint C/M5 composition's job, which does
@@ -378,7 +377,6 @@ export class ExperienceGenerationService {
    */
   private async computeTotalDistinctEligibleExperiences(
     scope: FacetRetrievalScope,
-    preferenceSpec: PreferenceSpec,
   ): Promise<number> {
     const pool: VerifiedExperienceRow[] =
       await this.experienceCatalog.findVerifiedWithinForMatching(
@@ -386,17 +384,9 @@ export class ExperienceGenerationService {
         scope.longitude,
         scope.radiusMeters,
       );
-    const hardExclusions = preferenceSpec.exclusions.hard;
-
     let count = 0;
     for (const row of pool) {
       if (!isTourEligibleForDestinationRequest(row, scope.destination)) {
-        continue;
-      }
-      if (
-        hardExclusions.length > 0 &&
-        findHardExclusionMatches(row, hardExclusions).length > 0
-      ) {
         continue;
       }
       const hasRealPlaceComponent = row.components.some(
@@ -850,11 +840,9 @@ export class ExperienceGenerationService {
               origin: 'planner_capacity',
               dayNumber: meaningfulResidual.dayNumber,
               availableMinutes: meaningfulResidual.availableMinutes,
-              preferredFacets: preferenceSpec.facets.map((facet) => ({
-                dimension: facet.dimension,
-                key: facet.key,
-                weight: facet.weight,
-              })),
+              preferredFacets: preferenceSpec.facets.map(
+                ({ dimension, key, weight }) => ({ dimension, key, weight }),
+              ),
             },
           ]
         : [];
@@ -983,6 +971,22 @@ export class ExperienceGenerationService {
         request,
         preferenceSpec,
       });
+
+      // A hard constraint must be guaranteed. When current knowledge cannot
+      // prove compatibility, the generation ends with the typed
+      // HARD_EXCLUSION_UNENFORCEABLE outcome before any catalog read or
+      // acquisition: never a silent admission and never an empty Tour.
+      const unenforceable = findUnenforceableHardConstraints(preferenceSpec);
+      if (unenforceable.length > 0) {
+        recordHardConstraintEnforceabilityStep(traceRecorder, {
+          constraints: unenforceable,
+          destination: request.destination.label,
+        });
+        throw new HardExclusionUnenforceableError(
+          unenforceable,
+          request.destination.label,
+        );
+      }
 
       const destinationResolution =
         await this.destinationResolutionService.resolveDestination(
@@ -1444,13 +1448,12 @@ export class ExperienceGenerationService {
               },
             ),
             deficits: [plannerDeficit],
-            preferredFacets: preferenceSpec.facets.map((facet) => ({
-              dimension: facet.dimension,
-              key: facet.key,
-              importance: facet.weight,
-              confidence: 1,
-              source: facet.source === 'free_text' ? 'free_text' : 'wizard',
-            })),
+            preferredFacets: preferenceSpec.facets.map(
+              ({ dimension, key }) => ({
+                dimension,
+                key,
+              }),
+            ),
             semanticQuery: preferenceSpec.semanticQuery,
             breadth: 'focused',
             anchors: resolvedAnchors,
@@ -1920,10 +1923,16 @@ export class ExperienceGenerationService {
                     {}) as TourGenerationRequest,
                   result: {
                     status: 'FAILED',
-                    outcome: 'GENERATION_FAILED',
+                    outcome:
+                      error instanceof HardExclusionUnenforceableError
+                        ? error.outcome
+                        : 'GENERATION_FAILED',
                     reason: error?.message || String(error),
                     facts: {
                       error: error?.message || String(error),
+                      ...(error instanceof HardExclusionUnenforceableError
+                        ? { unenforceableHardConstraints: error.constraints }
+                        : {}),
                       degradedAcquisitionReason,
                       acquisitionProvidersAttempted: Array.from(
                         acquisitionProvidersAttempted,

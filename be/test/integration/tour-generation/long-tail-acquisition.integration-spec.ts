@@ -3,11 +3,13 @@ import { osmPoi } from './support/fakes';
 import { seedTour } from '../support/seed';
 
 /**
- * A `food` request carrying long-tail traits ("craft beer", "specialty
- * coffee") the catalog lacks drives the real chain: CoverageAnalyzer deficit
- * → ExperienceAcquisitionPlanner → web SourcePlan → grounded search →
- * discovery extractor → an ExperienceCandidate with OPEN traits → resolver →
- * persistence → catalog re-query. No new enum, no hardcoded taxonomy. Negative
+ * A `food` request whose free text adds long-tail concepts ("craft beer",
+ * "specialty coffee") with no shared typed identity. Since task 25.4 they are
+ * unresolved concepts: they never become facets, deficits or forwarded
+ * traits. The typed `food` deficit alone drives the real chain: deficit →
+ * ExperienceAcquisitionPlanner → web SourcePlan → grounded search →
+ * discovery extractor → an ExperienceCandidate (whose own OPEN traits are
+ * catalog facts) → resolver → persistence → catalog re-query. Negative
  * preferences are never forwarded as search terms.
  */
 const DEST = { latitude: -34.6, longitude: -58.42 };
@@ -25,24 +27,30 @@ describe('tour-generation integration · long-tail acquisition', () => {
     await harness.reset();
   });
 
-  it('acquires open-trait long-tail candidates via the web SourcePlan', async () => {
+  it('acquires through typed deficits only and never forwards unresolved concepts as traits', async () => {
     harness.fakes.langChain.generateChatResponse.mockResolvedValue(
       JSON.stringify({
-        preferredFacets: [
+        assertions: [],
+        unresolvedConcepts: [
           {
-            dimension: 'trait',
-            key: 'craft beer',
-            strength: 'strong',
+            label: 'craft beer',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
             evidence: ['cerveza artesanal'],
           },
           {
-            dimension: 'trait',
-            key: 'specialty coffee',
-            strength: 'strong',
+            label: 'specialty coffee',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
             evidence: ['café de especialidad'],
           },
+          {
+            label: 'tourist trap',
+            polarity: 'EXCLUDE',
+            constraint: 'SOFT',
+            evidence: ['nada turístico'],
+          },
         ],
-        excludedTraits: ['tourist trap'],
         positiveSemanticQuery:
           'craft beer taprooms and specialty coffee roasters in Buenos Aires',
       }),
@@ -89,16 +97,20 @@ describe('tour-generation integration · long-tail acquisition', () => {
     const outcome = await harness.generate(tourId);
     expect(outcome.error?.message ?? 'ok').toBe('ok');
 
-    // The web SourcePlan ran with the long-tail traits.
+    // The web SourcePlan ran from the typed food deficit.
     expect(harness.fakes.groundedSearch.search).toHaveBeenCalled();
     const extractCall =
       harness.fakes.discoveryExtractor.extractExperiences.mock.calls[0];
     expect(extractCall).toBeDefined();
     const discoveryRequest = extractCall[0] as any;
-    // The long-tail traits were routed to the web SourcePlan as open traits.
-    expect(discoveryRequest.preferredTraits).toEqual(
-      expect.arrayContaining(['craft_beer', 'specialty_coffee']),
-    );
+    expect(discoveryRequest.requestedThemes).toEqual(['food']);
+    // Unresolved concepts are never routed as traits or deficits.
+    expect(discoveryRequest).not.toHaveProperty('preferredTraits');
+    expect(
+      discoveryRequest.coverageGaps.some((gap: string) =>
+        /craft|coffee|trait/i.test(gap),
+      ),
+    ).toBe(false);
 
     // Negative preference never forwarded as a search term.
     const groundedArgs = JSON.stringify(

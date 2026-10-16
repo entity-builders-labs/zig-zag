@@ -9,6 +9,10 @@ import {
   ResolvedAnchor,
   CompositionResult,
 } from './preference-spec.interface';
+import {
+  requestedFacetFixture,
+  selectedFacetFixture,
+} from '../fixtures/requested-facet.fixture';
 
 describe('preference-spec.interface', () => {
   describe('facetKey', () => {
@@ -25,15 +29,17 @@ describe('preference-spec.interface', () => {
     });
   });
 
-  it('constructs a valid RequestedFacet literal with required:false', () => {
-    const facet: RequestedFacet = {
+  it('constructs a valid RequestedFacet with required:false and provenance kept separate from weight', () => {
+    const facet: RequestedFacet = requestedFacetFixture({
       dimension: 'theme',
       key: 'history',
-      weight: 1,
-      source: 'wizard',
-      required: false,
-    };
+      provenance: 'INFERRED',
+      importance: 0.7,
+      confidence: 0.5,
+    });
     expect(facet.required).toBe(false);
+    expect(facet.provenance).toBe('INFERRED');
+    expect(facet.weight).toBeCloseTo(0.35);
   });
 
   it('constructs a valid AnchoredPlace literal for each kind/priority combination', () => {
@@ -48,21 +54,14 @@ describe('preference-spec.interface', () => {
 
   it('PreferenceSpec has explorationStyle as a top-level field separate from facets -- it is NEVER a RequestedFacet', () => {
     const spec: PreferenceSpec = {
-      facets: [
-        {
-          dimension: 'theme',
-          key: 'history',
-          weight: 1,
-          source: 'wizard',
-          required: false,
-        },
-      ],
-      exclusions: { themes: [], traits: [], hard: [] },
+      assertions: [],
+      facets: [selectedFacetFixture('theme', 'history')],
+      unresolvedConcepts: [],
+      facetSchemaVersion: 'facet-schema-v1',
       anchors: [],
       semanticQuery: '',
       explorationStyle: 'iconic',
       softConstraints: {
-        dietary: [],
         accessibility: [],
         budget: [],
         group: [],
@@ -75,9 +74,9 @@ describe('preference-spec.interface', () => {
     // ...and is never present among the requested facets, however the
     // fixture's facets array is populated. No helper in this module inserts
     // 'exploration_style' as a facet dimension.
-    expect(spec.facets.some((f) => f.dimension === 'exploration_style')).toBe(
-      false,
-    );
+    expect(
+      spec.facets.some((f) => (f.dimension as string) === 'exploration_style'),
+    ).toBe(false);
   });
 
   it('PreferenceSpec.explorationStyle only accepts the three canonical values', () => {
@@ -90,13 +89,7 @@ describe('preference-spec.interface', () => {
   });
 
   it('constructs a valid FacetCandidates literal where satisfied mirrors strongMatches.length >= 1', () => {
-    const facet: RequestedFacet = {
-      dimension: 'theme',
-      key: 'tango',
-      weight: 1,
-      source: 'free_text',
-      required: false,
-    };
+    const facet: RequestedFacet = selectedFacetFixture('theme', 'tango');
     const satisfied: FacetCandidates = {
       facet,
       strongMatches: ['exp-1'],

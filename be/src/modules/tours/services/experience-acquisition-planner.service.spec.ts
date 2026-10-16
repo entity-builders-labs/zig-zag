@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ExperienceAcquisitionPlannerService } from './experience-acquisition-planner.service';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import { SemanticTarget } from '../preferences/preference-assertion.interface';
 import { ExperienceCandidate } from '../interfaces/experience-discovery.interface';
 import {
   ExperienceAcquisitionPlan,
@@ -41,21 +41,8 @@ describe('ExperienceAcquisitionPlannerService', () => {
       },
     ];
 
-    const wineFacet: PreferenceFacet = {
-      dimension: 'theme',
-      key: 'wine',
-      importance: 1.0,
-      confidence: 1.0,
-      source: 'wizard',
-    };
-
-    const natureFacet: PreferenceFacet = {
-      dimension: 'theme',
-      key: 'nature',
-      importance: 1.0,
-      confidence: 1.0,
-      source: 'wizard',
-    };
+    const wineFacet: SemanticTarget = { dimension: 'theme', key: 'wine' };
+    const natureFacet: SemanticTarget = { dimension: 'theme', key: 'nature' };
 
     // Wine has no match -> deficit emitted
     const wineDeficits = service.projectPreferenceFacetDeficits(candidatePool, [
@@ -75,31 +62,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
       [natureFacet],
     );
     expect(natureDeficits).toHaveLength(0);
-  });
-
-  // Scenario O: Exploration style dormancy
-  it('Scenario O: ignores exploration_style facets completely in deficit projection and source routing', () => {
-    const candidatePool: ExperienceCandidate[] = [];
-    const explorationFacet: PreferenceFacet = {
-      dimension: 'exploration_style',
-      key: 'relaxed',
-      importance: 1.0,
-      confidence: 1.0,
-      source: 'wizard',
-    };
-
-    const deficits = service.projectPreferenceFacetDeficits(candidatePool, [
-      explorationFacet,
-    ]);
-    expect(deficits).toHaveLength(0);
-
-    const plan = service.buildAcquisitionPlan({
-      destination: { destinationName: 'Mendoza' },
-      preferredFacets: [explorationFacet],
-      candidates: candidatePool,
-    });
-    expect(plan.deficits).toHaveLength(0);
-    expect(plan.sourcePlans).toHaveLength(0);
   });
 
   // Specific canonical route tests

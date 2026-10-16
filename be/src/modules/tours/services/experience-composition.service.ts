@@ -10,7 +10,6 @@ import {
   isStrongFacetMatch,
   preferenceWeightForExperience,
 } from '../utils/preference-strong-match.util';
-import { findHardExclusionMatches } from '../utils/experience-preference-evaluator.util';
 import {
   computeExplorationSignals,
   computeExplorationTilt,
@@ -125,11 +124,6 @@ export class ExperienceCompositionService {
             ? (semantic.scores.get(experience.id) ?? 0)
             : 0,
         groundingStrength: satisfiedFacets.length > 0 ? 1 : 0,
-        matchesHardExclusion:
-          findHardExclusionMatches(
-            experience,
-            input.preferenceSpec.exclusions.hard,
-          ).length > 0,
         softAnchorBoost,
         isPerformanceVenue:
           Array.isArray(experience.traits) &&

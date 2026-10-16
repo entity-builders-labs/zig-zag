@@ -143,7 +143,7 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
 
   it('keeps explorationStyle outside facet coverage and acquisition semantics', () => {
     const interpretation = COUNTERFACTUALS[0].variants[0].interpretation;
-    expect(interpretation.preferredFacets).not.toEqual(
+    expect(interpretation.assertions).not.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ dimension: 'exploration_style' }),
       ]),
@@ -174,6 +174,19 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
       for (const variant of cf.variants) {
         it(`${variant.name}: selection direction, dominance, determinism`, async () => {
           h.setInterpretation(variant.interpretation);
+          if (variant.expectOutcome) {
+            const failed = await h.generateTour(
+              token,
+              variant.request,
+              'failed',
+            );
+            tours[variant.name] = failed;
+            expect(failed.metadata.generationTrace.result.outcome).toBe(
+              variant.expectOutcome,
+            );
+            expect(failed.experiences ?? []).toEqual([]);
+            return;
+          }
           const tour = await h.generateTour(token, variant.request);
           tours[variant.name] = tour;
 
@@ -218,6 +231,24 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
         });
       }
 
+      if (cf.key === 'exact-fit-vs-quality') {
+        // KNOWN GAP (task 25.4, owner 2026-10-15): the exact fit differs from
+        // the generic 5-star cluster only by the open "local guide" concept.
+        // Open concepts have no shared typed identity, so they no longer
+        // participate (no trait string equality). This passes again only
+        // once the shared typed concept space task gives the concept a
+        // typed identity shared with Experience facts.
+        it.failing(
+          'exact fit outranks the generic 5-star cluster (needs a shared typed concept space)',
+          () => {
+            const tour = tours['3-only'];
+            expect(clusterShare(tour, 'exact_fit_history')).toBeGreaterThan(
+              clusterShare(tour, 'generic_five_star_history'),
+            );
+          },
+        );
+      }
+
       it('cross-variant behavior', () => {
         if (cf.key === 'iconic-vs-local') {
           expect(plan(tours['1A-iconic'])).not.toEqual(plan(tours['1B-local']));
@@ -255,24 +286,22 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
             tour,
             'preference.interpretation',
           );
-          expect(interpretationStep?.output?.intent?.preferredFacets).toEqual(
+          // An open concept is kept as unresolved (observability only).
+          expect(
+            interpretationStep?.output?.intent?.unresolvedConcepts,
+          ).toEqual(
             expect.arrayContaining([
-              expect.objectContaining({
-                dimension: 'trait',
-                key: 'local_guide',
-              }),
+              expect.objectContaining({ label: 'local_guide' }),
             ]),
-          );
-          expect(clusterShare(tour, 'exact_fit_history')).toBeGreaterThan(
-            clusterShare(tour, 'generic_five_star_history'),
           );
         }
 
         if (cf.key === 'hard-exclusion') {
+          // Never a silent admission and never a guessed exclusion.
           const tour = tours['4-only'];
-          expect(
-            selected(tour).every((r) => !r.themes.includes('religion')),
-          ).toBe(true);
+          expect(tour.metadata.generationTrace.result.outcome).toBe(
+            'HARD_EXCLUSION_UNENFORCEABLE',
+          );
         }
 
         if (cf.key === 'one-preference-delta') {

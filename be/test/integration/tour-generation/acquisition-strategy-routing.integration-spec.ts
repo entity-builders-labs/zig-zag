@@ -50,14 +50,11 @@ const BUENOS_AIRES_AREA_DESTINATION = {
 
 function interpreterResponse(overrides: Record<string, unknown>): string {
   return JSON.stringify({
-    preferredFacets: [],
+    assertions: [],
+    unresolvedConcepts: [],
     anchoredPlaces: [],
-    excludedThemes: [],
-    excludedTraits: [],
-    hardExclusions: [],
     softConstraints: [],
     ambiguities: [],
-    dietaryPreferences: [],
     accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
@@ -83,15 +80,19 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
   it('1. routes an AREA anchor + intent:walk deficit to AreaRouteWalkAcquisitionService', async () => {
     harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
       interpreterResponse({
-        preferredFacets: [
+        assertions: [
           {
             dimension: 'intent',
             key: 'walk',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['caminata'],
           },
         ],
+        unresolvedConcepts: [],
         anchoredPlaces: [
           { rawName: 'San Telmo', usage: 'geographic_scope', priority: 'must' },
         ],
@@ -198,15 +199,19 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
   it('2. routes a ROUTE anchor + intent:route_like deficit to AreaRouteWalkAcquisitionService', async () => {
     harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
       interpreterResponse({
-        preferredFacets: [
+        assertions: [
           {
             dimension: 'intent',
             key: 'route_like',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['Caminito'],
           },
         ],
+        unresolvedConcepts: [],
         anchoredPlaces: [
           { rawName: 'Caminito', usage: 'named_path', priority: 'must' },
         ],
@@ -300,10 +305,13 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
   it('3b. walk + route_like + visit/history without an AREA/ROUTE anchor -> independent DEDICATED_INTENT walk and route_like work plus one generic unit (no global intent ambiguity)', async () => {
     harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
       interpreterResponse({
-        preferredFacets: [
+        assertions: [
           {
             dimension: 'intent',
             key: 'walk',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['caminar'],
@@ -311,6 +319,9 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
           {
             dimension: 'intent',
             key: 'route_like',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['ruta'],
@@ -318,6 +329,9 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
           {
             dimension: 'intent',
             key: 'visit',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['visitar'],
@@ -325,11 +339,15 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
           {
             dimension: 'theme',
             key: 'history',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['historia'],
           },
         ],
+        unresolvedConcepts: [],
         positiveSemanticQuery: 'walks, scenic routes and historic visits',
       }),
     );
@@ -433,15 +451,19 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
 
     harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
       interpreterResponse({
-        preferredFacets: [
+        assertions: [
           {
             dimension: 'theme',
             key: 'history',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.9,
             strength: 'strong',
             evidence: ['history'],
           },
         ],
+        unresolvedConcepts: [],
         anchoredPlaces: [
           { rawName: 'San Telmo', usage: 'geographic_scope', priority: 'soft' },
         ],
@@ -546,15 +568,19 @@ describe('tour-generation integration · acquisition strategy routing (M3)', () 
 
     harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
       interpreterResponse({
-        preferredFacets: [
+        assertions: [
           {
             dimension: 'intent',
             key: 'route_like',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
             confidence: 0.95,
             strength: 'strong',
             evidence: ['route'],
           },
         ],
+        unresolvedConcepts: [],
         anchoredPlaces: [
           { rawName: anchorName, usage: 'named_path', priority: 'must' },
         ],

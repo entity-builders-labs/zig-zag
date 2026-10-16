@@ -61,7 +61,7 @@ export function buildTourGenerationRequest(
       travelPace: dto.mobility.travelPace,
       accessibilityNeeds: normalizeValues(dto.mobility.accessibilityNeeds),
     },
-    dietaryRestrictions: normalizeValues(dto.dietaryRestrictions),
+    dietaryRestrictions: [...new Set(dto.dietaryRestrictions ?? [])],
     startDates: [...(dto.startDates ?? [])],
     includeExistingExperiences: dto.includeExistingExperiences !== false,
     skipImageGeneration: dto.skipImageGeneration !== false,

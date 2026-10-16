@@ -188,7 +188,7 @@ describe('extractExperienceCandidates', () => {
     expect(result.candidates[0].orderedByEvidence).toBe(true);
   });
 
-  it('repairs leaked/localized semantic facets on the returned candidate', () => {
+  it('repairs leaked canonical facets on the returned candidate and never translates a localized word', () => {
     const result = extractExperienceCandidates(
       {
         candidates: [
@@ -219,9 +219,10 @@ describe('extractExperienceCandidates', () => {
     );
     expect(result.candidates).toHaveLength(1);
     expect(result.candidates[0]).toMatchObject({
-      themes: ['gastronomy', 'history', 'architecture'],
+      // 'gastronomía' is not a schema key, so it stays an open trait.
+      themes: ['history', 'architecture'],
       intents: ['route_like', 'walk'],
-      traits: ['Craft Beer'],
+      traits: ['gastronomía', 'Craft Beer'],
     });
   });
 

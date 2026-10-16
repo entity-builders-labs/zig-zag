@@ -23,7 +23,6 @@
  * `candidateMatchesPreferenceFacet(...) && !isStrongFacetMatch(...)`.
  */
 import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
 
 export const DEFAULT_QUALITY_FLOOR = 3.0;
@@ -92,39 +91,12 @@ function isClassificationKnownThin(exp: Record<string, any>): boolean {
   return classification.state === 'degraded';
 }
 
-/**
- * Adapts a `RequestedFacet` (Task A1) to the `PreferenceFacet` shape
- * `candidateMatchesPreferenceFacet` expects. Only `dimension`/`key` are
- * ever read by that primitive; `importance`/`confidence` are filled with
- * neutral values purely to satisfy the type, never used for matching.
- * Exported so other canonical-matching callers (e.g. Task A6's
- * `FacetRetrievalService`, deriving a "weak" verdict as
- * `candidateMatchesPreferenceFacet(...) && !isStrongFacetMatch(...)`) reuse
- * this one adapter instead of duplicating it.
- */
-export function requestedFacetToPreferenceFacet(
-  facet: RequestedFacet,
-): PreferenceFacet {
-  return {
-    dimension: facet.dimension,
-    key: facet.key,
-    importance: 1,
-    confidence: 1,
-    source: facet.source,
-  };
-}
-
 export function isStrongFacetMatch(
   experience: unknown,
   facet: RequestedFacet,
   policy: StrongMatchPolicy = {},
 ): boolean {
-  if (
-    !candidateMatchesPreferenceFacet(
-      experience,
-      requestedFacetToPreferenceFacet(facet),
-    )
-  ) {
+  if (!candidateMatchesPreferenceFacet(experience, facet)) {
     return false;
   }
 

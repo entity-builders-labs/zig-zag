@@ -12,19 +12,30 @@
  * anywhere in this codebase.
  */
 import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
+import {
+  PreferenceAssertion,
+  PreferenceEvidence,
+  PreferenceProvenance,
+  SemanticTarget,
+  UnresolvedPreferenceConcept,
+} from '../preferences/preference-assertion.interface';
 import { ExplorationSignalInput } from '../utils/exploration-signals.util';
 import { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 
-/** A single positive preference the user requested, always soft in v1. */
-export interface RequestedFacet {
-  /** e.g. 'theme' | 'intent' | 'trait' | a supported structured dimension. */
-  dimension: string;
-  key: string;
-  /** importance x confidence, normalized 0..1. */
+/**
+ * A SOFT INCLUDE assertion as composition, retrieval and ranking consume it:
+ * its typed target plus provenance, importance, confidence and evidence kept
+ * separately. `weight` (importance x confidence) is consumed only until the
+ * preference-utility boundary of task 25.2 replaces it.
+ */
+export interface RequestedFacet extends SemanticTarget {
   weight: number;
-  source: 'wizard' | 'free_text';
-  /** Positive facets remain soft in v1 -- always false. */
+  provenance: PreferenceProvenance;
+  importance: number;
+  confidence: number;
+  evidence: PreferenceEvidence[];
+  /** Positive facets remain soft -- always false. */
   required: false;
 }
 
@@ -111,12 +122,14 @@ export type ResolvedAnchor =
     };
 
 export interface PreferenceSpec {
+  /** Every typed assertion of the request (INCLUDE / EXCLUDE, SOFT / HARD). */
+  assertions: PreferenceAssertion[];
+  /** The SOFT INCLUDE assertions, projected for composition and ranking. */
   facets: RequestedFacet[];
-  exclusions: {
-    themes: string[];
-    traits: string[];
-    hard: string[];
-  };
+  /** Concepts with no shared typed identity; never matched. */
+  unresolvedConcepts: UnresolvedPreferenceConcept[];
+  /** Version of the typed facet schema the assertions were validated against. */
+  facetSchemaVersion: string;
   anchors: InterpretedAnchor[];
   /** Resolved geographic authority consumed by acquisition/planning. */
   resolvedAnchors?: ResolvedAnchor[];
@@ -130,8 +143,8 @@ export interface PreferenceSpec {
    */
   explorationStyle: 'iconic' | 'local_deep_dive' | 'balanced';
 
+  /** Untyped, unconsumed lists (accessibility: task 25.3; others: 25.5). */
   softConstraints: {
-    dietary: string[];
     accessibility: string[];
     budget: string[];
     group: string[];
@@ -229,7 +242,6 @@ export interface CompositionCandidate {
   /** Neutral zero means unavailable/unknown, never a semantic match. */
   semanticSimilarity: number;
   groundingStrength: number;
-  matchesHardExclusion: boolean;
   softAnchorBoost: number;
   isPerformanceVenue: boolean;
 }
@@ -261,7 +273,7 @@ export interface CompositionCandidateDecision {
   reservoir: boolean;
   /** Dropped before composition. */
   excluded: boolean;
-  excludedReason?: 'hard_exclusion' | 'no_components';
+  excludedReason?: 'no_components';
 }
 
 /** Formats a facet-shaped `{dimension,key}` pair as `"dimension:key"`. */

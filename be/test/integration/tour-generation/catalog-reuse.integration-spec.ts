@@ -63,60 +63,22 @@ describe('tour-generation integration · catalog-reuse', () => {
   });
 
   it('reuses the persisted catalog on a second compatible request', async () => {
-    // ── Request A: Wikivoyage-only acquisition establishes real, grounded
-    // quality evidence for 7 real places (no themes/intents of their own --
-    // structured synthesis is mechanical, never classifies). Entity
-    // resolution grounds each named hint against a trusted geo provider
-    // (never the raw Wikivoyage-claimed coordinates directly), so the same
-    // 7 places must also be resolvable via OSM. ──
-    harness.configure({
-      wikivoyage: {
-        status: 'ok',
-        title: 'Buenos Aires',
-        entries: DISCOVERED.map((name, i) => ({
-          name,
-          lat: DEST.latitude + i * 0.005,
-          long: DEST.longitude + i * 0.005,
-          sectionType: 'SEE',
-        })),
-      },
-      osm: {
-        pois: DISCOVERED.map((name, i) =>
-          osmPoi(name, DEST.latitude + i * 0.005, DEST.longitude + i * 0.005),
-        ),
-      },
-    });
-    const tourA = await seedTour(harness.prisma, {
-      destinationLabel: 'Buenos Aires',
-      latitude: DEST.latitude,
-      longitude: DEST.longitude,
-      radiusMeters: 12000,
-      days: 1,
-      interests: ['history'],
-      intents: [],
-      // The fixture intentionally places seven distinct real places along a
-      // 3+ km corridor; mobility is not the behavior under test here.
-      maxContinuousWalkingDistanceMeters: 12000,
-    });
-    const runA = await harness.generate(tourA);
-    expect(runA.error?.message ?? 'ok').toBe('ok');
+    // Every generation below plans, so every Experience it plans must
+    // satisfy the planning-readiness contract with an explicit duration
+    // (task 25.1 removed the planner's default). Structured Wikivoyage
+    // synthesis has no visit-duration source, so the web stream -- whose
+    // extracted candidates state one -- runs first and the Wikivoyage stream
+    // converges onto those rows afterwards (dedupe keeps the duration and
+    // merges the grounded quality). The convergence and reuse claims are
+    // unchanged.
 
-    const afterRunA = await harness.prisma.experience.findMany({
-      where: { canonicalName: { in: DISCOVERED } },
-    });
-    expect(afterRunA.length).toBe(7);
-    for (const row of afterRunA) {
-      // B3 live wiring: a real Wikivoyage listing clears the strong-match
-      // quality floor (WIKIVOYAGE_LISTED_QUALITY = 3.5) -- never null.
-      expect(row.qualityScore).not.toBeNull();
-      expect(row.qualityScore as number).toBeGreaterThanOrEqual(3.0);
-    }
-
-    // ── Request B ("Run 1"): a real web-discovery request for the SAME real
-    // places (same name/coordinates). Dedupe converges each web candidate
-    // onto the already-persisted Wikivoyage row for that place, enriching
-    // it with real themes/intents while preserving its real qualityScore --
-    // never re-acquiring quality, never overwriting it with null. ──
+    // ── Request A: a real web-discovery request for 7 real places. Each
+    // extracted candidate carries real themes/intents and an explicit visit
+    // duration, but NEVER a quality rating (extraction must not author one,
+    // per B3). Cutover M4: every accepted candidate converges through
+    // evidence-only classification before it can satisfy a requested facet,
+    // so the fake LLM returns a genuine, evidence-grounded verdict citing
+    // the real evidenceKey -- never a passthrough of the candidate's claim.
     harness.configure({
       groundedSearch: { evidence: [{ key: 'web:reuse:1' }] },
       discoveryExtractor: {
@@ -124,6 +86,7 @@ describe('tour-generation integration · catalog-reuse', () => {
           name,
           themes: ['history'],
           intents: ['visit'],
+          suggestedDurationMinutes: 90,
           evidenceKeys: ['web:reuse:1'],
         })),
       },
@@ -134,12 +97,6 @@ describe('tour-generation integration · catalog-reuse', () => {
       },
       wikivoyage: { status: 'not_found' },
     });
-    // Cutover M4: every accepted candidate now converges through real
-    // evidence-only classification (ExperienceAcquisitionService
-    // .materializeExecution()) before it can satisfy a requested facet.
-    // The fake LLM must return a genuine, evidence-grounded verdict citing
-    // the real evidenceKey this request's discovery evidence carries --
-    // never a magic passthrough of the candidate's own unverified claim.
     harness.fakes.langChain.generateChatResponse.mockResolvedValue(
       JSON.stringify({
         themes: ['history'],
@@ -159,7 +116,57 @@ describe('tour-generation integration · catalog-reuse', () => {
         ],
       }),
     );
+    const tourA = await seedTour(harness.prisma, {
+      destinationLabel: 'Buenos Aires',
+      latitude: DEST.latitude,
+      longitude: DEST.longitude,
+      radiusMeters: 12000,
+      days: 1,
+      interests: ['history'],
+      intents: ['visit'],
+      // The fixture intentionally places seven distinct real places along a
+      // 3+ km corridor; mobility is not the behavior under test here.
+      maxContinuousWalkingDistanceMeters: 12000,
+    });
+    const runA = await harness.generate(tourA);
+    expect(runA.error?.message ?? 'ok').toBe('ok');
+    expect(
+      harness.fakes.discoveryExtractor.extractExperiences,
+    ).toHaveBeenCalled();
 
+    const afterRunA = await harness.prisma.experience.findMany({
+      where: { canonicalName: { in: DISCOVERED } },
+    });
+    expect(afterRunA.length).toBe(7);
+    for (const row of afterRunA) {
+      expect(row.durationMinutes).toBe(90);
+    }
+
+    // ── Request B ("Run 1"): Wikivoyage-only acquisition for the SAME real
+    // places (same name/coordinates) establishes real, grounded quality
+    // evidence (no themes/intents of its own -- structured synthesis is
+    // mechanical, never classifies). Entity resolution grounds each named
+    // hint against a trusted geo provider, so the same 7 places must also be
+    // resolvable via OSM. Dedupe converges each observation onto the
+    // already-persisted web row, adding its real qualityScore while
+    // preserving the row's themes/intents and duration. ──
+    harness.configure({
+      wikivoyage: {
+        status: 'ok',
+        title: 'Buenos Aires',
+        entries: DISCOVERED.map((name, i) => ({
+          name,
+          lat: DEST.latitude + i * 0.005,
+          long: DEST.longitude + i * 0.005,
+          sectionType: 'SEE',
+        })),
+      },
+      osm: {
+        pois: DISCOVERED.map((name, i) =>
+          osmPoi(name, DEST.latitude + i * 0.005, DEST.longitude + i * 0.005),
+        ),
+      },
+    });
     const tour1 = await seedTour(harness.prisma, {
       destinationLabel: 'Buenos Aires',
       latitude: DEST.latitude,
@@ -177,21 +184,21 @@ describe('tour-generation integration · catalog-reuse', () => {
       where: { status: 'VERIFIED' },
     });
     expect(afterRun1).toBe(7);
-    expect(
-      harness.fakes.discoveryExtractor.extractExperiences,
-    ).toHaveBeenCalled();
 
     // Each of the 7 real places now carries BOTH a real qualityScore
-    // (from request A) AND real themes/intents (from request B) on the
-    // SAME canonical row -- proof of genuine cross-request convergence,
-    // never a duplicate.
+    // (from the Wikivoyage stream) AND real themes/intents and duration
+    // (from the web stream) on the SAME canonical row -- proof of genuine
+    // cross-request convergence, never a duplicate.
     const reusedRows = await harness.prisma.experience.findMany({
       where: { canonicalName: { in: DISCOVERED } },
     });
     expect(reusedRows.length).toBe(7);
     for (const row of reusedRows) {
+      // B3 live wiring: a real Wikivoyage listing clears the strong-match
+      // quality floor (WIKIVOYAGE_LISTED_QUALITY = 3.5) -- never null.
       expect(row.qualityScore).not.toBeNull();
       expect(row.qualityScore as number).toBeGreaterThanOrEqual(3.0);
+      expect(row.durationMinutes).toBe(90);
       expect((row.metadata as any).intents).toEqual(
         expect.arrayContaining(['visit']),
       );

@@ -129,4 +129,25 @@ describe('preference-first architecture boundaries', () => {
       expect(source(name)).not.toMatch(/\b\w*[Aa]uthorization\w*\s*:/);
     }
   });
+
+  it('keeps no maintained alias, synonym or keyword table in the preference path (task 25.4)', () => {
+    for (const name of [
+      '../preferences/preference-facet-vocabulary.ts',
+      '../preferences/preference-assertion.interface.ts',
+      'preference-interpreter.service.ts',
+      '../utils/preference-spec-builder.util.ts',
+      '../utils/preference-facet-merge.util.ts',
+      '../utils/preference-facet-matching.util.ts',
+      '../utils/hard-constraint-enforceability.util.ts',
+      '../utils/experience-candidate-facet-normalizer.util.ts',
+    ]) {
+      expect(source(name)).not.toMatch(/SYNONYM|ALIAS|KEYWORD/);
+    }
+    for (const deleted of [
+      '../utils/experience-preference-evaluator.util.ts',
+      '../preferences/preference-facet.interface.ts',
+    ]) {
+      expect(existsSync(join(__dirname, deleted))).toBe(false);
+    }
+  });
 });

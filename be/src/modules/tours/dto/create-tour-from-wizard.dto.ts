@@ -20,6 +20,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import {
+  DietaryRestriction,
   BudgetLevel,
   DestinationScaleHint,
   ExplorationStyle,
@@ -187,14 +188,12 @@ export class CreateTourFromWizardDto {
   @Type(() => MobilityPreferencesDto)
   mobility: MobilityPreferencesDto;
 
-  @ApiProperty({ type: [String], required: false })
+  @ApiProperty({ enum: DietaryRestriction, isArray: true, required: false })
   @IsArray()
-  @ArrayMaxSize(20)
   @ArrayUnique()
-  @IsString({ each: true })
-  @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
+  @IsEnum(DietaryRestriction, { each: true })
   @IsOptional()
-  dietaryRestrictions: string[] = [];
+  dietaryRestrictions: DietaryRestriction[] = [];
 
   @ApiProperty({ type: [String], required: false })
   @IsArray()

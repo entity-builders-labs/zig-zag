@@ -1,3 +1,5 @@
+import { AssertionTargetDimension } from '../preferences/preference-facet-vocabulary';
+import { selectedFacetFixture } from '../fixtures/requested-facet.fixture';
 import { composeSet } from './composition-set-cover.util';
 import {
   basePortfolioTarget,
@@ -26,22 +28,30 @@ const spec: PreferenceSpec = {
       dimension: 'theme',
       key: 'history',
       weight: 1,
-      source: 'wizard',
+      provenance: 'DIRECT' as const,
+      importance: 1,
+      confidence: 1,
+      evidence: [],
       required: false,
     },
     {
       dimension: 'theme',
       key: 'food',
       weight: 0.2,
-      source: 'wizard',
+      provenance: 'DIRECT' as const,
+      importance: 0.2,
+      confidence: 1,
+      evidence: [],
       required: false,
     },
   ],
-  exclusions: { themes: [], traits: [], hard: [] },
+  assertions: [],
+  unresolvedConcepts: [],
+  facetSchemaVersion: 'facet-schema-v1',
   anchors: [],
   semanticQuery: '',
   explorationStyle: 'balanced',
-  softConstraints: { dietary: [], accessibility: [], budget: [], group: [] },
+  softConstraints: { accessibility: [], budget: [], group: [] },
   trip: { days: 1, startDates: [], pace: 'relaxed' },
 };
 function candidate(
@@ -58,7 +68,6 @@ function candidate(
     explorationTilt: 0,
     semanticSimilarity: 0,
     groundingStrength: 1,
-    matchesHardExclusion: false,
     softAnchorBoost: 0,
     isPerformanceVenue: false,
     ...overrides,
@@ -143,13 +152,10 @@ describe('composeSet', () => {
         ...spec,
         facets: facets.map((facet) => {
           const [dimension, key] = facet.split(':');
-          return {
-            dimension,
+          return selectedFacetFixture(
+            dimension as AssertionTargetDimension,
             key,
-            weight: 1,
-            source: 'wizard' as const,
-            required: false as const,
-          };
+          );
         }),
         trip: { days, startDates: [], pace },
       };
@@ -202,7 +208,7 @@ describe('composeSet', () => {
     expect(composeSet(input)).toEqual(first);
   });
 
-  it('drops hard exclusions before reservation and forces resolved venue must ids', () => {
+  it('drops component-less candidates before reservation and forces resolved venue must ids', () => {
     const mustSpec = {
       ...spec,
       anchors: [
@@ -215,9 +221,7 @@ describe('composeSet', () => {
     };
     const result = composeSet({
       candidates: [
-        candidate('excluded', ['theme:history'], {
-          matchesHardExclusion: true,
-        }),
+        candidate('excluded', ['theme:history'], { componentCount: 0 }),
         candidate('venue', []),
       ],
       preferenceSpec: mustSpec,
@@ -236,9 +240,7 @@ describe('composeSet', () => {
         candidate('history', ['theme:history']),
         candidate('food', ['theme:food']),
         candidate('generic', []),
-        candidate('excluded', ['theme:history'], {
-          matchesHardExclusion: true,
-        }),
+        candidate('excluded', ['theme:history'], { componentCount: 0 }),
       ],
       preferenceSpec: spec,
     });
@@ -255,6 +257,6 @@ describe('composeSet', () => {
     expect(byId.get('generic')?.initialSelected).toBe(true);
     expect(byId.get('excluded')?.eligible).toBe(false);
     expect(byId.get('excluded')?.excluded).toBe(true);
-    expect(byId.get('excluded')?.excludedReason).toBe('hard_exclusion');
+    expect(byId.get('excluded')?.excludedReason).toBe('no_components');
   });
 });

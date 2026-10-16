@@ -11,7 +11,6 @@ import { acquisitionStepNames } from './support/experience-selection/assertions'
 import { GeoapifyTravelEstimateProvider } from '../src/modules/tours/services/geoapify-travel-estimate.provider';
 import { TourImageService } from '../src/modules/tours/services/tour-image.service';
 import { TransportationMode } from '../src/modules/tours/interfaces/tour-generation.interface';
-import { normalizeWizardFacet } from '../src/modules/tours/utils/preference-facet-merge.util';
 import { LangChainService } from '../src/shared/ai/langchain.service';
 import { AiEmbeddingService } from '../src/shared/ai/services/ai-embedding.service';
 import { assertDisposableDatabase } from './support/assert-disposable-database';
@@ -88,70 +87,56 @@ interface ScenarioDefinition {
   request: Record<string, unknown>;
   expectedSelectedClass: string;
   minimumExpectedSelected: number;
+  /** A typed terminal outcome instead of a completed Tour. */
+  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
   buildExperience(index: number): ScenarioExperience;
   assertTrace?: (tour: any, rows: SeededRow[]) => void;
 }
 
+type RawConcept = {
+  label: string;
+  polarity: 'INCLUDE' | 'EXCLUDE';
+  constraint: 'SOFT' | 'HARD';
+  evidence: string[];
+};
+
+/** An open concept with no shared typed identity (never matched). */
+const openConcept = (label: string, span: string): RawConcept => ({
+  label,
+  polarity: 'INCLUDE',
+  constraint: 'SOFT',
+  evidence: [span],
+});
+
+/** A hard exclusion of an open concept: compatibility cannot be proven. */
+const hardExcludedConcept = (label: string, span: string): RawConcept => ({
+  label,
+  polarity: 'EXCLUDE',
+  constraint: 'HARD',
+  evidence: [span],
+});
+
+/**
+ * The extractor's raw JSON response, validated by the real interpreter.
+ * Typed interests and intents already come from the structured wizard
+ * selection (DIRECT), so the fake only carries what the free text adds;
+ * every evidence span is a verbatim span of `additionalPreferences`.
+ */
 function normalizedIntent(
   overrides: Record<string, unknown>,
 ): Record<string, unknown> {
-  const preferredFacets: any[] = [];
-  if (Array.isArray(overrides.preferredThemes)) {
-    for (const theme of overrides.preferredThemes as string[]) {
-      const facet = normalizeWizardFacet('theme', theme);
-      if (!facet) {
-        throw new Error(
-          `Invalid preferredThemes fixture override "${theme}": failed to normalize to a valid wizard facet`,
-        );
-      }
-      preferredFacets.push(facet);
-    }
-  }
-  if (Array.isArray(overrides.preferredTraits)) {
-    for (const trait of overrides.preferredTraits as string[]) {
-      const facet = normalizeWizardFacet('trait', trait);
-      if (!facet) {
-        throw new Error(
-          `Invalid preferredTraits fixture override "${trait}": failed to normalize to a valid wizard facet`,
-        );
-      }
-      preferredFacets.push(facet);
-    }
-  }
-  if (Array.isArray(overrides.preferredIntents)) {
-    for (const intent of overrides.preferredIntents as string[]) {
-      const facet = normalizeWizardFacet('intent', intent);
-      if (!facet) {
-        throw new Error(
-          `Invalid preferredIntents fixture override "${intent}": failed to normalize to a valid wizard facet`,
-        );
-      }
-      preferredFacets.push(facet);
-    }
-  }
-  if (Array.isArray(overrides.preferredFacets)) {
-    preferredFacets.push(...(overrides.preferredFacets as any[]));
-  }
-
-  const restOverrides = { ...overrides };
-  delete restOverrides.preferredThemes;
-  delete restOverrides.preferredTraits;
-  delete restOverrides.preferredIntents;
-
   return {
-    preferredFacets,
-    excludedThemes: [] as string[],
-    excludedTraits: [] as string[],
-    hardExclusions: [] as string[],
+    assertions: [],
+    unresolvedConcepts: [],
+    anchoredPlaces: [],
     softConstraints: [] as string[],
     ambiguities: [] as string[],
-    dietaryPreferences: [] as string[],
     accessibilityPreferences: [] as string[],
     budgetPreferences: [] as string[],
     groupPreferences: [] as string[],
     positiveSemanticQuery: '',
     notes: ['CP8 deterministic scale acceptance'],
-    ...restOverrides,
+    ...overrides,
   };
 }
 
@@ -217,12 +202,15 @@ const scenarios: ScenarioDefinition[] = [
     key: 'culture-art-tango',
     title: 'culture + art + tango + walking, excluding religion',
     interpretation: normalizedIntent({
-      preferredThemes: ['culture', 'art', 'tango'],
-      preferredIntents: ['walk'],
-      excludedThemes: ['religion'],
-      hardExclusions: ['religion'],
+      unresolvedConcepts: [
+        hardExcludedConcept(
+          'religion',
+          'No quiero iglesias ni experiencias religiosas',
+        ),
+      ],
       positiveSemanticQuery: 'culture art tango walking Buenos Aires',
     }),
+    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
     request: baseRequest({
       intent: {
         interests: ['culture', 'art', 'tango'],
@@ -265,25 +253,18 @@ const scenarios: ScenarioDefinition[] = [
         themes: index % 5 ? ['shopping'] : ['tango'],
       });
     },
-    assertTrace(tour) {
-      expect(
-        tour.experiences.every(
-          (item: any) => !item.experience.metadata.themes.includes('religion'),
-        ),
-      ).toBe(true);
-    },
   },
   {
     key: 'vegan-budget-duration',
     title: 'vegan gastronomy + low budget + duration feasibility',
     interpretation: normalizedIntent({
-      preferredThemes: ['gastronomy'],
-      preferredTraits: ['vegan'],
-      dietaryPreferences: ['vegan'],
+      unresolvedConcepts: [hardExcludedConcept('meat', 'sin carne')],
       budgetPreferences: ['low budget'],
-      hardExclusions: ['non-vegan food'],
       positiveSemanticQuery: 'vegan affordable gastronomy Buenos Aires',
     }),
+    // The typed vegan restriction is a HARD constraint the catalog cannot
+    // yet guarantee (no classification completeness).
+    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
     request: baseRequest({
       budgetLevel: 'low',
       dietaryRestrictions: ['vegan'],
@@ -366,8 +347,7 @@ const scenarios: ScenarioDefinition[] = [
     key: 'accessible-short-open',
     title: 'reduced mobility + short distances + strict opening hours',
     interpretation: normalizedIntent({
-      preferredThemes: ['culture'],
-      preferredTraits: ['accessibility'],
+      unresolvedConcepts: [openConcept('accessibility', 'accesible')],
       accessibilityPreferences: ['accessibility'],
       positiveSemanticQuery: 'accessible short distance culture Buenos Aires',
     }),
@@ -445,23 +425,10 @@ const scenarios: ScenarioDefinition[] = [
     key: 'mixed-age-family',
     title: 'mixed-age family + conflicting adult/child preferences',
     interpretation: normalizedIntent({
-      preferredFacets: [
-        {
-          dimension: 'theme',
-          key: 'culture',
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-        {
-          dimension: 'theme',
-          key: 'interactive',
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
+      unresolvedConcepts: [
+        openConcept('family friendly', 'Familia con edades mixtas'),
+        openConcept('interactive', 'propuestas interactivas'),
       ],
-      preferredTraits: ['family friendly'],
       groupPreferences: ['family friendly'],
       positiveSemanticQuery: 'family friendly culture interactive mixed ages',
     }),
@@ -528,17 +495,10 @@ const scenarios: ScenarioDefinition[] = [
     key: 'long-tail',
     title: 'long-tail intent inside a mostly irrelevant 320-row catalog',
     interpretation: normalizedIntent({
-      preferredFacets: [
-        {
-          dimension: 'theme',
-          key: 'hidden history',
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
+      unresolvedConcepts: [
+        openConcept('hidden history', 'Historias barriales poco conocidas'),
+        openConcept('local', 'detalles locales'),
       ],
-      preferredTraits: ['local'],
-      preferredIntents: ['walk'],
       positiveSemanticQuery: 'hidden history local walk obscure Buenos Aires',
     }),
     request: baseRequest({
@@ -581,13 +541,16 @@ const scenarios: ScenarioDefinition[] = [
   {
     key: 'explicit-relaxation',
     title:
-      'hard exclusion remains authoritative when eligible alternatives exist',
+      'an unprovable hard exclusion ends with HARD_EXCLUSION_UNENFORCEABLE',
     interpretation: normalizedIntent({
-      preferredThemes: ['tango'],
-      preferredIntents: ['performance'],
-      hardExclusions: ['religion'],
+      unresolvedConcepts: [
+        hardExcludedConcept('religion', 'no acepto ningún lugar religioso'),
+      ],
       positiveSemanticQuery: 'tango Buenos Aires',
     }),
+    // Task 25.4: an exclusion that cannot be proven is never guessed (no
+    // lexical match) nor relaxed: the request ends with the typed outcome.
+    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
     request: baseRequest({
       intent: {
         interests: ['tango'],
@@ -623,15 +586,6 @@ const scenarios: ScenarioDefinition[] = [
         semanticTier: index < 40 ? 'positive' : 'negative',
         qualityScore: 3,
       });
-    },
-    assertTrace(tour) {
-      const preference = traceStep(tour, 'preference.interpretation');
-      expect(preference.output.intent.hardExclusions).toContain('religion');
-      expect(
-        tour.experiences.every(
-          (item: any) => !item.experience.metadata.themes.includes('religion'),
-        ),
-      ).toBe(true);
     },
   },
 ];
@@ -842,7 +796,10 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     return rows;
   }
 
-  async function generateTour(generationRequest: Record<string, unknown>) {
+  async function generateTour(
+    generationRequest: Record<string, unknown>,
+    expectedStatus: 'completed' | 'failed' = 'completed',
+  ) {
     const created = await request(app.getHttpServer())
       .post('/tours/generate-tour')
       .set('Authorization', `Bearer ${accessToken}`)
@@ -857,7 +814,11 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
     });
     expect(event?.status).toBe('PENDING');
     const publication = await outboxPublisher.processNextBatch();
-    expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
+    // A terminal generation failure is rethrown by the processor, so the
+    // event is not counted as published.
+    if (expectedStatus === 'completed') {
+      expect(publication.publishedCount).toBeGreaterThanOrEqual(1);
+    }
     let response: any;
     for (let attempt = 0; attempt < 6000; attempt++) {
       response = await request(app.getHttpServer())
@@ -872,16 +833,18 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
         break;
       await new Promise<void>((resolve) => setTimeout(resolve, 10));
     }
-    expect(response.body.metadata.generationStatus).toBe('completed');
+    expect(response.body.metadata.generationStatus).toBe(expectedStatus);
     await waitForTourQuiescence(prisma, outboxPublisher, tourId);
     response = await request(app.getHttpServer())
       .get(`/tours/${tourId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .expect(200);
-    expect(
-      (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))
-        ?.status,
-    ).toBe('PUBLISHED');
+    if (expectedStatus === 'completed') {
+      expect(
+        (await prisma.outboxEvent.findUnique({ where: { id: event!.id } }))
+          ?.status,
+      ).toBe('PUBLISHED');
+    }
     return response.body;
   }
 
@@ -900,6 +863,14 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   for (const scenario of scenarios) {
     it(`CP8: ${scenario.title}`, async () => {
       const rows = await seedScenario(scenario);
+      if (scenario.expectOutcome) {
+        const failed = await generateTour(scenario.request, 'failed');
+        expect(failed.metadata.generationTrace.result.outcome).toBe(
+          scenario.expectOutcome,
+        );
+        expect(failed.experiences ?? []).toEqual([]);
+        return;
+      }
       const expectedIds = new Set(
         rows
           .filter(
@@ -939,29 +910,34 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
   }
 
   it('CP8: changing preferences changes selection direction on the same catalog', async () => {
-    const scenario = scenarios[0];
+    // The culture/art/tango catalog without the free-text exclusion, which
+    // would end with HARD_EXCLUSION_UNENFORCEABLE (task 25.4).
+    const base = scenarios[0];
+    const scenario: ScenarioDefinition = {
+      ...base,
+      interpretation: normalizedIntent({
+        positiveSemanticQuery: 'culture art tango walking Buenos Aires',
+      }),
+      expectOutcome: undefined,
+      request: {
+        ...base.request,
+        intent: {
+          ...(base.request.intent as Record<string, unknown>),
+          additionalPreferences: 'Quiero cultura, arte y tango caminando.',
+        },
+      },
+    };
     await seedScenario(scenario);
+    // Baseline direction comes from a preference signal (semantic
+    // similarity), not from a lexical exclusion: the religious rows are
+    // semantically far from the baseline request.
+    await prisma.$executeRawUnsafe(
+      `UPDATE "experience" SET "embedding" = '[${negativeVector.join(',')}]'::vector WHERE "metadata"->>'oracleClass' = 'religious_false_friend'`,
+    );
     const original = await generateTour(scenario.request);
     expect(selectedClasses(original)).toContain('ideal_culture_walk');
 
     activeInterpretation = normalizedIntent({
-      preferredFacets: [
-        {
-          dimension: 'theme',
-          key: 'tango',
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-        {
-          dimension: 'theme',
-          key: 'religion',
-          importance: 1.0,
-          confidence: 1.0,
-          source: 'wizard',
-        },
-      ],
-      preferredIntents: ['walk'],
       positiveSemanticQuery: 'religious tango cathedral walk Buenos Aires',
     });
     const negative = `[${negativeVector.join(',')}]`;

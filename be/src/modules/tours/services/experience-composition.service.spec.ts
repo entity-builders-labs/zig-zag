@@ -3,11 +3,13 @@ import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 
 const preferenceSpec: PreferenceSpec = {
   facets: [],
-  exclusions: { themes: [], traits: [], hard: [] },
+  assertions: [],
+  unresolvedConcepts: [],
+  facetSchemaVersion: 'facet-schema-v1',
   anchors: [],
   semanticQuery: 'history walk',
   explorationStyle: 'balanced',
-  softConstraints: { dietary: [], accessibility: [], budget: [], group: [] },
+  softConstraints: { accessibility: [], budget: [], group: [] },
   trip: { days: 1, startDates: [], pace: 'moderate' },
 };
 

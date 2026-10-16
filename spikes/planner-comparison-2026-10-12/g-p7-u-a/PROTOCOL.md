@@ -72,3 +72,20 @@ no exchange rate between preference and minutes, is chosen here.
 python3 -I spikes/planner-comparison-2026-10-12/g-p7-u-a/scripts/encoding.py
 cd be && npx jest -c ../spikes/planner-comparison-2026-10-12/g-p7-u-a/characterization/jest.config.json
 ```
+
+**Reproduction after task 25.4 (2026-10-15).** The lexical provenance rule
+evaluated here is superseded by the preference-assertion contract, and task
+25.4 removed the alias table, the interpreter fallback and the hard-exclusion
+evaluator from production, so the command above no longer runs against the
+current tree. The results in `runs/` are unchanged. Two reproductions remain:
+
+```bash
+# Self-contained: the reference rule on the frozen vocabulary and synonym
+# table of commit 9673571e (characterization/frozen-facet-vocabulary-9673571e.json);
+# asserts equality with runs/provenance.json and never writes runs/.
+cd be && npx jest -c ../spikes/planner-comparison-2026-10-12/g-p7-u-a/characterization/jest.frozen.config.json
+
+# Live-code characterizations, pinned to their evidence commit: runs the
+# original config in a temporary worktree of 9673571e and diffs runs/.
+bash spikes/planner-comparison-2026-10-12/g-p7-u-a/scripts/reproduce-live-characterization.sh
+```

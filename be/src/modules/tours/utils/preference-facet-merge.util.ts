@@ -1,93 +1,33 @@
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
-import { canonicalizeFacetKey } from '../preferences/preference-facet-vocabulary';
+import { PreferenceAssertion } from '../preferences/preference-assertion.interface';
+import { canonicalTargetKey } from '../preferences/preference-facet-vocabulary';
 
 /**
- * Constructs a normalized PreferenceFacet for a wizard selection.
- * Wizard choices always have importance: 1.0, confidence: 1.0, and source: 'wizard'.
- * Returns undefined if key is invalid or dimension is not supported/dormant.
+ * The assertion a typed structured selection carries: the traveller chose a
+ * typed domain option, so it is DIRECT by construction with no language
+ * interpretation (not because of the channel). Returns undefined when the
+ * value is not a key of the schema; nothing is translated.
  */
-export function normalizeWizardFacet(
-  dimension: string,
-  rawKey: string,
-): PreferenceFacet | undefined {
-  if (
-    !dimension ||
-    typeof dimension !== 'string' ||
-    !rawKey ||
-    typeof rawKey !== 'string'
-  ) {
-    return undefined;
-  }
-  const normDim = dimension.trim().toLowerCase();
-  const canonicalKey = canonicalizeFacetKey(normDim, rawKey);
-  if (!canonicalKey) {
-    return undefined;
-  }
+export function structuredSelectionAssertion(input: {
+  field: string;
+  dimension: string;
+  key: string;
+  polarity: PreferenceAssertion['polarity'];
+  constraint: PreferenceAssertion['constraint'];
+}): PreferenceAssertion | undefined {
+  const key = canonicalTargetKey(input.dimension, input.key);
+  if (!key) return undefined;
   return {
-    dimension: normDim,
-    key: canonicalKey,
+    target: {
+      dimension: input.dimension as PreferenceAssertion['target']['dimension'],
+      key,
+    },
+    polarity: input.polarity,
+    constraint: input.constraint,
+    provenance: 'DIRECT',
     importance: 1.0,
     confidence: 1.0,
-    source: 'wizard',
+    evidence: [
+      { kind: 'STRUCTURED_SELECTION', field: input.field, value: input.key },
+    ],
   };
-}
-
-/**
- * Merges explicit wizard facets and inferred free-text facets.
- *
- * Strict Invariant:
- * Explicit wizard selections take absolute precedence. If a facet with the same
- * (dimension, key) was chosen in the wizard, the free-text version is ignored
- * and cannot weaken, duplicate, or overwrite the wizard facet.
- * Inferred facets with distinct (dimension, key) are retained.
- */
-export function mergePreferenceFacets(
-  wizardFacets: (PreferenceFacet | undefined | null)[] = [],
-  interpretedFacets: (PreferenceFacet | undefined | null)[] = [],
-): PreferenceFacet[] {
-  const mergedMap = new Map<string, PreferenceFacet>();
-
-  // 1. Wizard facets are inserted first as authoritative
-  for (const facet of wizardFacets) {
-    if (!facet || !facet.key || !facet.dimension) {
-      continue;
-    }
-    const normDim = facet.dimension.trim().toLowerCase();
-    const canonicalKey = canonicalizeFacetKey(normDim, facet.key);
-    if (!canonicalKey) {
-      continue;
-    }
-    const compoundKey = `${normDim}:${canonicalKey}`;
-    mergedMap.set(compoundKey, {
-      dimension: normDim,
-      key: canonicalKey,
-      importance: 1.0,
-      confidence: 1.0,
-      source: 'wizard',
-    });
-  }
-
-  // 2. Free-text facets are merged; cannot weaken or overwrite existing wizard facets
-  for (const facet of interpretedFacets) {
-    if (!facet || !facet.key || !facet.dimension) {
-      continue;
-    }
-    const normDim = facet.dimension.trim().toLowerCase();
-    const canonicalKey = canonicalizeFacetKey(normDim, facet.key);
-    if (!canonicalKey) {
-      continue;
-    }
-    const compoundKey = `${normDim}:${canonicalKey}`;
-    if (!mergedMap.has(compoundKey)) {
-      mergedMap.set(compoundKey, {
-        dimension: normDim,
-        key: canonicalKey,
-        importance: facet.importance,
-        confidence: facet.confidence,
-        source: 'free_text',
-      });
-    }
-  }
-
-  return Array.from(mergedMap.values());
 }

@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { PreferenceFacet } from '../preferences/preference-facet.interface';
+import { SemanticTarget } from '../preferences/preference-assertion.interface';
 import {
   ExperienceCandidate,
   ExperienceDiscoveryBreadth,
@@ -36,7 +36,7 @@ export interface BuildPlanInput {
   destination: ExperienceDiscoveryScope;
   breadth?: ExperienceDiscoveryBreadth;
   deficits?: AcquisitionDeficit[];
-  preferredFacets?: PreferenceFacet[];
+  preferredFacets?: SemanticTarget[];
   candidates?: ExperienceCandidate[];
   semanticQuery?: string;
   /**
@@ -54,12 +54,12 @@ export class ExperienceAcquisitionPlannerService {
   );
 
   /**
-   * Projects custom PreferenceFacets against a candidate pool.
+   * Projects requested typed targets against a candidate pool.
    * If any facet has no matching candidate, an AcquisitionDeficit is emitted.
    */
   projectPreferenceFacetDeficits(
     candidates: ExperienceCandidate[],
-    preferredFacets?: PreferenceFacet[],
+    preferredFacets?: SemanticTarget[],
   ): AcquisitionDeficit[] {
     if (!preferredFacets || preferredFacets.length === 0) {
       return [];
@@ -69,11 +69,6 @@ export class ExperienceAcquisitionPlannerService {
     const seenDeficits = new Set<string>();
 
     for (const facet of preferredFacets) {
-      // exploration_style is dormant in Phase 3
-      if (facet.dimension === 'exploration_style') {
-        continue;
-      }
-
       const dedupeKey = `${facet.dimension}:${facet.key.toLowerCase().trim()}`;
       if (seenDeficits.has(dedupeKey)) {
         continue;
@@ -293,7 +288,6 @@ export class ExperienceAcquisitionPlannerService {
         ].sort();
       const webThemes = byDimension('theme');
       const webIntents = byDimension('intent');
-      const webTraits = byDimension('trait');
       const webSemanticQuery = input.semanticQuery?.trim() || undefined;
 
       sourcePlans.push({
@@ -302,7 +296,6 @@ export class ExperienceAcquisitionPlannerService {
           query: queryParts.join(' '),
           ...(webThemes.length ? { requestedThemes: webThemes } : {}),
           ...(webIntents.length ? { requestedIntents: webIntents } : {}),
-          ...(webTraits.length ? { preferredTraits: webTraits } : {}),
           ...(webSemanticQuery ? { semanticQuery: webSemanticQuery } : {}),
           ...(relevantAnchorNames.length
             ? { anchorNames: relevantAnchorNames }

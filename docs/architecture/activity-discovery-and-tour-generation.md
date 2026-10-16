@@ -2675,16 +2675,20 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   The signals are:
   - **Explicit preference evidence** is authoritative. Its authority
     follows the provenance of the preference, not the UI channel that
-    captured it. A deterministic validator, never the LLM, classifies each
-    facet:
-    - `DIRECT`: a wizard pick, or a free-text excerpt that maps to the key
-      through the versioned facet vocabulary or its explicit aliases;
-    - `INFERRED`: anything else.
+    captured it. Natural language is interpreted only by a semantic
+    extractor, which asserts each preference as a typed assertion (target
+    in the versioned facet schema, polarity, SOFT/HARD constraint,
+    `DIRECT`/`INFERRED` provenance, importance, confidence, verbatim
+    evidence); deterministic code only validates it (schema keys,
+    token-bounded evidence grounding). No keyword, alias, synonym or regex
+    list interprets preferences anywhere. A typed structured selection is
+    `DIRECT` by construction. A concept with no typed identity shared with
+    Experience facts stays unresolved and never matches.
 
     `DIRECT` evidence outranks any amount of `INFERRED` evidence.
     Interpreter confidence is never provenance and never discounts
-    `DIRECT` evidence; it weighs only `INFERRED` evidence. Polarity is
-    established before a facet counts as evidence.
+    `DIRECT` evidence; it weighs only `INFERRED` evidence. Only SOFT
+    `INCLUDE` assertions count as positive evidence.
   - **A soft venue anchor** is a separate typed signal, never a facet match.
     It follows facet evidence and precedes semantic refinement.
   - **Semantic (embedding) affinity** only refines among candidates with
@@ -2700,7 +2704,9 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   versioned objective policy projects from it; it never performs semantic
   retrieval.
   An explicit accessibility need is a hard eligibility constraint while an
-  accessibility preference is soft. Hard exclusions, accessibility needs,
+  accessibility preference is soft. A hard constraint whose compatibility
+  cannot be proven (unknown is never compatible) ends generation with
+  `HARD_EXCLUSION_UNENFORCEABLE`. Hard exclusions, accessibility needs,
   must-include feasibility
   and allowed travel modes are hard constraints, never weights; a mode the
   release does not support (public transport in v1) is never substituted.

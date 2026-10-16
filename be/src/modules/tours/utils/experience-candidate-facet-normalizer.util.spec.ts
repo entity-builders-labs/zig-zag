@@ -24,10 +24,10 @@ describe('normalizeExperienceCandidateFacets', () => {
     });
   });
 
-  it('B. canonicalizes localized theme synonyms', () => {
+  it('B. never translates localized words into theme keys: they stay open traits', () => {
     expect(norm(['historia', 'arquitectura', 'VINO'], [], [])).toEqual({
-      themes: ['history', 'architecture', 'wine'],
-      traits: [],
+      themes: [],
+      traits: ['historia', 'arquitectura', 'VINO'],
       intents: [],
     });
   });
@@ -36,8 +36,8 @@ describe('normalizeExperienceCandidateFacets', () => {
     expect(
       norm([], ['history', 'cultura', 'Architecture', 'Craft Beer'], []),
     ).toEqual({
-      themes: ['history', 'culture', 'architecture'],
-      traits: ['Craft Beer'],
+      themes: ['history', 'architecture'],
+      traits: ['cultura', 'Craft Beer'],
       intents: [],
     });
   });
@@ -45,7 +45,8 @@ describe('normalizeExperienceCandidateFacets', () => {
   it('D. a controlled key present in both themes and traits never stays a trait', () => {
     expect(norm(['history'], ['History', 'historia'], [])).toEqual({
       themes: ['history'],
-      traits: [],
+      // A localized word is not a key, so it stays an open trait.
+      traits: ['historia'],
       intents: [],
     });
   });
@@ -58,11 +59,13 @@ describe('normalizeExperienceCandidateFacets', () => {
     });
   });
 
-  it('F. canonicalizes localized intent synonyms', () => {
-    expect(norm([], [], ['walking', 'excursión', 'visita'])).toEqual({
+  it('F. never translates words into intent keys: non-keys fall back to open traits', () => {
+    expect(
+      norm([], [], ['walking', 'excursión', 'visita', 'Day-Trip']),
+    ).toEqual({
       themes: [],
-      traits: [],
-      intents: ['walk', 'day_trip', 'visit'],
+      traits: ['walking', 'excursión', 'visita'],
+      intents: ['day_trip'],
     });
   });
 

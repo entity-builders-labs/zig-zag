@@ -31,24 +31,24 @@ describe('tour-generation integration · preference-first live cutover', () => {
     it('the real orchestrator builds a canonical PreferenceSpec reflecting wizard facets and the interpreter-extracted anchor, and records it in the trace', async () => {
       harness.fakes.langChain.generateChatResponse.mockResolvedValueOnce(
         JSON.stringify({
-          preferredFacets: [
+          assertions: [
             {
               dimension: 'theme',
               key: 'history',
+              polarity: 'INCLUDE',
+              constraint: 'SOFT',
+              provenance: 'DIRECT',
               confidence: 0.95,
               strength: 'strong',
               evidence: ['histórica'],
             },
           ],
+          unresolvedConcepts: [],
           anchoredPlaces: [
             { rawName: 'San Telmo', usage: 'unknown', priority: 'must' },
           ],
-          excludedThemes: [],
-          excludedTraits: [],
-          hardExclusions: [],
           softConstraints: [],
           ambiguities: [],
-          dietaryPreferences: [],
           accessibilityPreferences: [],
           budgetPreferences: [],
           groupPreferences: [],

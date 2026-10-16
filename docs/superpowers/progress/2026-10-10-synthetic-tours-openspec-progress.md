@@ -37,9 +37,11 @@ Repository: `entity-builders-labs/zig-zag`
   2026-10-15. The experimental `p-d7/` spike is non-production evidence.
 - G-P7-U part A (owner, 2026-10-14): RESOLVED. Part B (owner,
   2026-10-15): RESOLVED. P-D7: RESOLVED.
-  - **Provenance.** A deterministic validator, not the LLM, derives
-    `DIRECT` (a wizard pick, or an excerpt that maps through the versioned
-    vocabulary or its aliases) or `INFERRED`.
+  - **Preference assertions** (owner contract 2026-10-15, supersedes the
+    lexical provenance rule). The semantic extractor asserts target,
+    polarity, constraint, provenance, importance, confidence and evidence;
+    deterministic code only validates. No word list anywhere in the
+    preference/exclusion path. Implemented by task 25.4.
   - **Order.** `DIRECT` → `INFERRED` → soft anchor → semantic → generic
     quality → id.
     - `DIRECT` is weighed by stated importance; confidence never discounts
@@ -147,15 +149,17 @@ amendment (2026-10-11); no production code yet.**
     41.0 and 41.1;
   - the canonical planning and routing paragraphs.
 - `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
-  task 25.1 (planning input/output contract) implemented, uncommitted until
-  owner review (design P2 "Implemented contract").
+  task 25.1 committed (0d1e6e97). Task 25.4 (preference assertions)
+  implemented and verified, uncommitted until owner review; order 25.4 →
+  25.6 → 25.2.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted task 25.1 implementation and authorizes
-   its commit; then `/opsx:apply` continues with task 25.2 (preference-
-   utility boundary). The only remaining pre-41 gate
+1. Owner reviews the uncommitted task 25.4 implementation and authorizes
+   its commit; then `/opsx:apply` continues with task 25.6 (polarity
+   participation), then 25.2 (preference-utility boundary). The only
+   remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
    sample that meets the sufficiency rule, compute p75, pass the
    leave-one-destination-out check, then approve `fallback-v1`.
@@ -186,8 +190,8 @@ amendment (2026-10-11); no production code yet.**
   - **Missing embedding = 0.** Composition and the normalizer coerce it to
     0; in the live `composeSet` this pushes an equal-evidence,
     best-quality candidate into the reservoir.
-  - **Dead paths:** `rankCandidatesByRelevance` and
-    `evaluateExperiencePreferences`.
+  - **Dead paths:** `rankCandidatesByRelevance` (task 25.2);
+    `evaluateExperiencePreferences` deleted by 25.4.
   - **Unused soft fields.** Soft avoidances and constraints have no
     consumer.
   - **Accessibility.** Need and preference are merged and unenforced, the
@@ -196,15 +200,10 @@ amendment (2026-10-11); no production code yet.**
   - **Minor.** `groundingStrength` is a no-op and `qualityBonus` is
     mislabelled.
   - **Soft anchors** are applied last (the spec says "strong").
-  - **Provenance.** `PreferenceSpec` cannot distinguish direct from
-    inferred facets (PROVENANCE-1). The rule is now decided, and its
-    implementation is task 25.4.
-  - **Interpreter evidence.** The evidence-support check is a substring
-    match ("arte" from "martes"). The fallback duplicates the vocabulary
-    aliases in its own substring-matched keyword table. The facet
-    vocabulary has no version (task 25.4).
-  - **Polarity (POLARITY-1, task 25.6).** No deterministic check keeps a
-    negated mention out of positive facets.
+  - **Provenance / interpreter evidence:** resolved by task 25.4.
+  - **Polarity (POLARITY-1, task 25.6).** The extractor asserts polarity
+    and only SOFT INCLUDE assertions become facets; how SOFT EXCLUDE
+    participates is still open.
 - Solver finding for P-D5 follow-up (not reopened): single-start GLS at
   SL1000 is > 1 % below the best known plan in 13/28 P-D7 scenarios (max
   8.7 %); larger budgets barely help; same pattern under the P11 weights.
@@ -232,6 +231,15 @@ amendment (2026-10-11); no production code yet.**
   durations (e.g. pf_final 0/20, rw4_final_rerun 1/20 planning-ready), so
   they plan little or nothing until duration knowledge is enriched; local
   `zigzag` 8/8 ready. Missing enrichment, not a planner failure.
+- Task 25.4 consequences (owner-accepted): every HARD constraint (typed
+  dietary restriction, HARD exclusion) ends HARD_EXCLUSION_UNENFORCEABLE
+  until classification completeness exists (task 25.7); open concepts
+  (former traits) no longer participate until a shared typed concept
+  space exists (task 25.8; CP-G CF3 exact-fit case is `it.failing`).
+- Fixed with 25.4: `catalog-reuse` integration (a 25.1 regression) now
+  states explicit visit durations; the web stream runs before the
+  Wikivoyage stream, which has no duration source. G-P7-U.A stays
+  reproducible: frozen vocabulary harness plus a commit-pinned script.
 - Pre-existing, outside 25.1: `test/characterization/shared-component-
   identity` CHAR-7 expects AMBIGUOUS for one shared component out of two,
   the dedupe now returns NEW (stale since the dedupe commits).

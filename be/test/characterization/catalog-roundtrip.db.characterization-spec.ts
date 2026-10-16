@@ -2,7 +2,7 @@ import { PrismaService } from 'src/core/database/prisma.service';
 import { ExperienceCatalogService } from 'src/modules/tours/services/experience-catalog.service';
 import { StructuredExperienceCandidateSynthesizerService } from 'src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from 'src/modules/tours/services/structured-candidate-corroboration.service';
-import { evaluateExperiencePreferences } from 'src/modules/tours/utils/experience-preference-evaluator.util';
+import { SemanticTarget } from 'src/modules/tours/preferences/preference-assertion.interface';
 import { candidateMatchesPreferenceFacet } from 'src/modules/tours/utils/preference-facet-matching.util';
 import {
   getGuardedCharacterizationPrisma,
@@ -104,7 +104,7 @@ describe('CHAR-DB catalog round-trips', () => {
 
   // ── CHAR-1 DB — structured evidence -> semantic preservation ──
   describe('CHAR-1 DB — structured evidence semantics after real persist + hydrate', () => {
-    it('an OSM historic monument still has themes=[] traits=[] intents=[] after persist -> findVerifiedByIds, and scores 0 for theme:history', async () => {
+    it('an OSM historic monument still has themes=[] traits=[] intents=[] after persist -> findVerifiedByIds, and does not match theme:history', async () => {
       const { id, candidateThemes } = await persistFromObservation(
         osmHistoricMonumentObservation(),
       );
@@ -125,36 +125,18 @@ describe('CHAR-DB catalog round-trips', () => {
       expect(hydrated.traits).toEqual([]);
       expect(hydrated.intents).toEqual([]);
 
-      const evaluation = evaluateExperiencePreferences(hydrated, {
-        preferredFacets: [
-          {
-            dimension: 'theme',
-            key: 'history',
-            importance: 1,
-            confidence: 1,
-            source: 'wizard',
-          },
-        ],
-        excludedThemes: [],
-        excludedTraits: [],
-        hardExclusions: [],
-        softConstraints: [],
-        ambiguities: [],
-        dietaryPreferences: [],
-        accessibilityPreferences: [],
-        budgetPreferences: [],
-        groupPreferences: [],
-        positiveSemanticQuery: '',
-        notes: [],
-      } as any);
-      expect(evaluation.facetMatches[0].matched).toBe(false);
-      expect(evaluation.score).toBe(0);
+      expect(
+        candidateMatchesPreferenceFacet(hydrated, {
+          dimension: 'theme',
+          key: 'history',
+        }),
+      ).toBe(false);
     });
   });
 
   // ── CHAR-2 DB — trait dimension is flattened to 'general' ──
   describe('CHAR-2 DB — trait persistence flattens dimension to general', () => {
-    it('resolveOrCreateTraitDefinitions(["iconic"]) writes TraitDefinition.dimension="general"; the hydrated row fails exploration_style:iconic but passes trait:iconic', async () => {
+    it('resolveOrCreateTraitDefinitions(["iconic"]) writes TraitDefinition.dimension="general"; the hydrated row matches neither exploration_style:iconic nor trait:iconic (no open-trait string matching since 25.4)', async () => {
       // Build a candidate that DOES carry a trait (unlike the synthesizer's []),
       // exactly as discovery/extraction would, then run the real persist path.
       const geo = await prisma.geoEntity.create({
@@ -219,20 +201,14 @@ describe('CHAR-DB catalog round-trips', () => {
         candidateMatchesPreferenceFacet(hydrated, {
           dimension: 'exploration_style',
           key: 'iconic',
-          importance: 1,
-          confidence: 1,
-          source: 'wizard',
-        }),
+        } as unknown as SemanticTarget),
       ).toBe(false);
       expect(
         candidateMatchesPreferenceFacet(hydrated, {
           dimension: 'trait',
           key: 'iconic',
-          importance: 1,
-          confidence: 1,
-          source: 'wizard',
-        }),
-      ).toBe(true);
+        } as unknown as SemanticTarget),
+      ).toBe(false);
     });
 
     it.failing(
@@ -261,9 +237,6 @@ describe('CHAR-DB catalog round-trips', () => {
           candidateMatchesPreferenceFacet(hydrated, {
             dimension: 'tourism_intensity',
             key: 'iconic',
-            importance: 1,
-            confidence: 1,
-            source: 'wizard',
           }),
         ).toBe(true);
       },

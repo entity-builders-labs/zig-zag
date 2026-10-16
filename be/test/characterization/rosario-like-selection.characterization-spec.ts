@@ -9,7 +9,9 @@ import {
 import { filterOverlappingExperienceCandidates } from '../../src/modules/tours/utils/candidate-overlap-filter.util';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
-import { evaluateExperiencePreferences } from '../../src/modules/tours/utils/experience-preference-evaluator.util';
+import { preferenceWeightForExperience } from '../../src/modules/tours/utils/preference-strong-match.util';
+import { RequestedFacet } from '../../src/modules/tours/interfaces/preference-spec.interface';
+import { selectedFacetFixture } from '../../src/modules/tours/fixtures/requested-facet.fixture';
 import {
   TransportationMode,
   TravelPace,
@@ -43,34 +45,15 @@ import { createGreedySolver } from '../acceptance/harness/solver-factory';
 
 const WINDOW = 15;
 
-const wizardFacet = (dimension: string, key: string) => ({
-  dimension,
-  key,
-  importance: 1,
-  confidence: 1,
-  source: 'wizard' as const,
-});
-
-const intentFor = (explorationStyle: 'iconic' | 'local_deep_dive'): any => ({
-  preferredFacets: [
-    wizardFacet('theme', 'history'),
-    wizardFacet('theme', 'culture'),
-    wizardFacet('theme', 'architecture'),
-    wizardFacet('intent', 'visit'),
-    wizardFacet('exploration_style', explorationStyle),
-  ],
-  excludedThemes: [],
-  excludedTraits: [],
-  hardExclusions: [],
-  softConstraints: [],
-  ambiguities: [],
-  dietaryPreferences: [],
-  accessibilityPreferences: [],
-  budgetPreferences: [],
-  groupPreferences: [],
-  positiveSemanticQuery: 'Quiero visitar el Monumento a la Bandera',
-  notes: [],
-});
+// The request's typed SOFT INCLUDE facets. explorationStyle is a
+// composition-local tilt, never a facet, so it does not enter the
+// preference weight (owner 25.2/25.4).
+const REQUEST_FACETS: RequestedFacet[] = [
+  selectedFacetFixture('theme', 'history'),
+  selectedFacetFixture('theme', 'culture'),
+  selectedFacetFixture('theme', 'architecture'),
+  selectedFacetFixture('intent', 'visit'),
+];
 
 interface Row {
   id: string;
@@ -233,27 +216,26 @@ const GENEROUS_MOBILITY: PlanningMobilityConstraints = {
   cycling: null,
 };
 
-async function runChain(explorationStyle: 'iconic' | 'local_deep_dive') {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+async function runChain(_explorationStyle: 'iconic' | 'local_deep_dive') {
   const catalog = buildCatalog();
-  const intent = intentFor(explorationStyle);
 
   const preferenceById = new Map<string, number>();
   for (const row of catalog) {
-    const hydrated = {
-      canonicalName: row.canonicalName,
-      description: row.description,
-      themes: row.themes,
-      traits: [] as string[],
-      intents: row.intents,
-      metadata: {
-        themes: row.themes,
-        traits: [] as string[],
-        intents: row.intents,
-      },
-    };
+    // The production preference weight composition hands to ranking.
     preferenceById.set(
       row.id,
-      evaluateExperiencePreferences(hydrated, intent).score,
+      preferenceWeightForExperience(
+        {
+          canonicalName: row.canonicalName,
+          description: row.description,
+          themes: row.themes,
+          intents: row.intents,
+          qualityScore: row.qualityScore,
+          components: row.components,
+        },
+        REQUEST_FACETS,
+      ),
     );
   }
 
@@ -351,12 +333,9 @@ describe('CHAR-10 realistic Rosario-like selection regression', () => {
     iconic = await runChain('iconic');
   });
 
-  it('A/B — the named "Monumento a la Bandera" standalone never reaches the 15-window (facet-less => only the generic "visit" intent matches => preferenceScore 0.2, far below the real history rows at 0.8)', () => {
-    expect(iconic.preferenceById.get('monument-standalone')).toBeCloseTo(
-      0.2,
-      5,
-    );
-    expect(iconic.preferenceById.get('hist-0')).toBeCloseTo(0.8, 5);
+  it('A/B — the named "Monumento a la Bandera" standalone never reaches the 15-window (facet-less with no quality => no strong facet match => preference weight 0, below the real history rows)', () => {
+    expect(iconic.preferenceById.get('monument-standalone')).toBe(0);
+    expect(iconic.preferenceById.get('hist-0')).toBeGreaterThan(0);
     const rankPos = iconic.rankedIds.indexOf('monument-standalone');
     // eslint-disable-next-line no-console
     console.info(
