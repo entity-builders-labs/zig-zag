@@ -7,7 +7,7 @@ import {
   PlanningExperienceCandidate,
   PlanningVisitFacts,
 } from '../interfaces/daily-planning.interface';
-import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
+import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
 import { legacyOpeningHoursByDay } from '../utils/normalized-opening-hours.util';
 import {
   buildExperienceFootprint,
@@ -52,7 +52,6 @@ export interface PlanningProjectableExperience {
     mobility?: PersistedInternalMobility;
   } | null;
   mobility?: PersistedInternalMobility;
-  qualityScore?: number | null;
   components?: Array<
     ComponentLike & { geoEntityId?: string | null; required?: boolean | null }
   >;
@@ -61,7 +60,6 @@ export interface PlanningProjectableExperience {
 export interface PlanningCandidateNormalizationContext {
   /** The request's planning days; per-day facts are resolved against them. */
   days: PlanningDay[];
-  preferenceWeightById?: ReadonlyMap<string, number>;
   mustIncludeExperienceIds?: ReadonlySet<string>;
 }
 
@@ -125,7 +123,7 @@ export function partitionPlanningReady<T extends PlanningProjectableExperience>(
 export class PlanningCandidateNormalizerService {
   normalizeExperiences(
     experiences: PlanningProjectableExperience[],
-    scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
+    preferenceUtility: PreferenceUtilityResult,
     context: PlanningCandidateNormalizationContext,
   ): {
     candidates: PlanningExperienceCandidate[];
@@ -134,7 +132,7 @@ export class PlanningCandidateNormalizerService {
     const { ready, ineligible } = partitionPlanningReady(experiences);
     return {
       candidates: ready.map((experience) =>
-        this.toCandidate(experience, scoreBreakdownById, context),
+        this.toCandidate(experience, preferenceUtility, context),
       ),
       ineligible,
     };
@@ -142,7 +140,7 @@ export class PlanningCandidateNormalizerService {
 
   private toCandidate(
     experience: PlanningProjectableExperience,
-    scoreBreakdownById: Map<string, CandidateScoreBreakdown>,
+    preferenceUtility: PreferenceUtilityResult,
     context: PlanningCandidateNormalizationContext,
   ): PlanningExperienceCandidate {
     const persistedMobility =
@@ -201,7 +199,14 @@ export class PlanningCandidateNormalizerService {
       components.length >= 2
         ? components[components.length - 1].footprint
         : spatialFootprint;
-    const scoreBreakdown = scoreBreakdownById.get(experience.id);
+    // Every planned Experience carries its canonical preference; a missing
+    // assessment is a pipeline error, never a default rank.
+    const preference = preferenceUtility.byId.get(experience.id);
+    if (!preference) {
+      throw new Error(
+        `Experience ${experience.id} reached planning without a preference-utility assessment`,
+      );
+    }
     return {
       experienceId: experience.id,
       title: experience.canonicalName ?? experience.name ?? experience.id,
@@ -210,15 +215,11 @@ export class PlanningCandidateNormalizerService {
       spatialFootprint,
       startFootprint,
       endFootprint,
-      semanticScore: scoreBreakdown?.semanticSimilarity ?? 0,
-      qualityScore:
-        typeof experience.qualityScore === 'number' &&
-        Number.isFinite(experience.qualityScore) &&
-        experience.qualityScore >= 0 &&
-        experience.qualityScore <= 5
-          ? experience.qualityScore
-          : undefined,
-      preferenceWeight: context.preferenceWeightById?.get(experience.id),
+      preference: {
+        policyVersion: preferenceUtility.policyVersion,
+        rank: preference.rank,
+        breakdown: preference.breakdown,
+      },
       mustInclude:
         context.mustIncludeExperienceIds?.has(experience.id) ?? false,
       mobility: persistedMobility

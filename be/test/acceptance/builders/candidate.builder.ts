@@ -17,8 +17,8 @@ export class CandidateBuilder {
       experienceId: id,
       title: `Experience ${id}`,
       durationMinutes: 60,
-      semanticScore: 0.8,
-      qualityScore: 0.9,
+      // A lone candidate; pools give distinct ranks with withPreferenceRank.
+      preferenceRank: 1,
       spatialFootprint: {
         type: 'POINT',
         centroid: { lat: -34.6037, lng: -58.3816 }, // Default Buenos Aires
@@ -58,19 +58,8 @@ export class CandidateBuilder {
     return this;
   }
 
-  withScores(semantic: number, quality: number): this {
-    this.candidate.semanticScore = semantic;
-    this.candidate.qualityScore = quality;
-    return this;
-  }
-
-  withSemanticScore(score: number): this {
-    this.candidate.semanticScore = score;
-    return this;
-  }
-
-  withQualityScore(score: number): this {
-    this.candidate.qualityScore = score;
+  withPreferenceRank(rank: number): this {
+    this.candidate.preferenceRank = rank;
     return this;
   }
 

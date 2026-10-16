@@ -17,7 +17,9 @@ import { DestinationResolutionService } from './destination-resolution.service';
 import { boundingBoxToCenterRadius } from '../utils/geometry-search-area.util';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
-import { CandidateScoreBreakdown } from '../utils/candidate-ranking.util';
+import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
+import { PreferenceUtilityService } from './preference-utility.service';
+import { preservesRankPositions } from '../utils/rank-dominance.util';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 import {
   recordPreferenceInterpretationStep,
@@ -101,7 +103,6 @@ import { ExperienceCompositionService } from './experience-composition.service';
 import { VenueAnchorResolutionService } from './venue-anchor-resolution.service';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { buildTourExperienceCreateData } from '../utils/tour-experience-snapshot.util';
-import { plannerRelevanceScore } from '../utils/daily-planning-candidate-sort.util';
 import { buildPreferenceSpec } from '../utils/preference-spec-builder.util';
 import {
   FacetRetrievalScope,
@@ -151,10 +152,8 @@ interface CandidateSelection {
   /** Canonical Stage-9 selection result, traced without re-running policy. */
   compositionResult: CompositionSelectionResult;
   semanticRanking: SemanticRankingOutcome;
-  scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
-  preferenceEvaluationById: Map<string, unknown>;
-  hardExclusionRelaxed: boolean;
-  preferenceWeightById: Map<string, number>;
+  /** The canonical preference utility of the composed snapshot (25.2). */
+  preferenceUtility: PreferenceUtilityResult;
   mustIncludeExperienceIds: Set<string>;
   compositionOrderScoreById: Map<string, number>;
   /** Catalogued Experiences left out of planning (not planning-ready). */
@@ -191,6 +190,7 @@ export class ExperienceGenerationService {
     private readonly experienceCatalog: ExperienceCatalogService,
     private readonly experienceAcquisition: ExperienceAcquisitionService,
     private readonly experienceComposition: ExperienceCompositionService,
+    private readonly preferenceUtility: PreferenceUtilityService,
     private readonly venueAnchorResolution: VenueAnchorResolutionService,
     private readonly tourImageService: TourImageService,
     private readonly destinationResolutionService: DestinationResolutionService,
@@ -471,11 +471,18 @@ export class ExperienceGenerationService {
     // A catalogued Experience is composed for planning only when it is
     // planning-ready; the others stay catalogued and are traced.
     const readiness = partitionPlanningReady(experiences);
-    const composition = await this.experienceComposition.compose({
+    // The single canonical preference-utility derivation of this snapshot:
+    // composition, planning and the trace consume it; none recomputes it.
+    const preferenceUtility = await this.preferenceUtility.derive({
       experiences: readiness.ready,
       preferenceSpec,
+      softAnchorIds: resolvedVenueSoftIds,
+    });
+    const composition = this.experienceComposition.compose({
+      experiences: readiness.ready,
+      preferenceSpec,
+      preferenceUtility,
       resolvedVenueMustIds,
-      resolvedVenueSoftIds,
       resolvedVenueMustAnchorNames,
     });
     const orderedIds = [
@@ -491,45 +498,20 @@ export class ExperienceGenerationService {
     const reservoirExperiences = composition.result.reservoir
       .map((id) => composition.candidatesById.get(id))
       .filter(Boolean);
-    const scoreBreakdownById = new Map<string, CandidateScoreBreakdown>();
-    for (const id of orderedIds) {
-      const candidate = composition.candidatesById.get(id);
-      const preferenceWeight = composition.preferenceWeightById.get(id) ?? 0;
-      scoreBreakdownById.set(id, {
-        semanticSimilarity: composition.semanticSimilarityById.has(id)
-          ? composition.semanticSimilarityById.get(id)!
-          : null,
-        qualityBonus:
-          typeof candidate?.qualityScore === 'number'
-            ? candidate.qualityScore
-            : 0,
-        preferenceScore: preferenceWeight,
-        preferenceBonus: preferenceWeight,
-        proximityBonus: 0,
-        diversityBonus: 0,
-        // Composition is set-based and has no scalar ranking score. Keep a
-        // transparent trace value for the existing contract; this value is
-        // never transported as planner rankingScore.
-        totalScore: preferenceWeight,
-      });
-    }
     return {
       initialExperiences,
       reservoirExperiences,
       compositionResult: composition.result,
-      scoreBreakdownById,
-      preferenceEvaluationById: new Map(),
-      hardExclusionRelaxed: false,
+      preferenceUtility,
       semanticRanking: {
-        status: composition.semanticRanking.status,
+        status: preferenceUtility.semanticRanking.status,
         eligibleCandidateCount:
-          composition.semanticRanking.requestedCandidateCount,
+          preferenceUtility.semanticRanking.requestedCandidateCount,
         indexedCandidateCount:
-          composition.semanticRanking.indexedCandidateCount,
-        identity: composition.semanticRanking.identity,
-        reason: composition.semanticRanking.reason,
+          preferenceUtility.semanticRanking.indexedCandidateCount,
+        identity: preferenceUtility.semanticRanking.identity,
+        reason: preferenceUtility.semanticRanking.reason,
       },
-      preferenceWeightById: composition.preferenceWeightById,
       mustIncludeExperienceIds: new Set(resolvedVenueMustIds),
       compositionOrderScoreById,
       planningIneligible: readiness.ineligible,
@@ -692,9 +674,9 @@ export class ExperienceGenerationService {
         compositionOrderScore: selection.compositionOrderScoreById.get(
           experience.id,
         ),
-        weightedPreferenceCoverage: selection.preferenceWeightById.get(
+        preferenceBreakdown: selection.preferenceUtility.byId.get(
           experience.id,
-        ),
+        )?.breakdown,
         mustInclude: selection.mustIncludeExperienceIds.has(experience.id),
       })),
     );
@@ -724,10 +706,9 @@ export class ExperienceGenerationService {
     const normalizePlanningPool = (experiences: any[]) =>
       this.planningCandidateNormalizer.normalizeExperiences(
         experiences,
-        selection.scoreBreakdownById,
+        selection.preferenceUtility,
         {
           days: planningBase.days,
-          preferenceWeightById: selection.preferenceWeightById,
           mustIncludeExperienceIds: mustIncludeIds,
         },
       ).candidates;
@@ -741,27 +722,21 @@ export class ExperienceGenerationService {
       solution.days.reduce((total, day) => total + day.experiences.length, 0);
     const utilization = (solution: DailyPlanningSolution) =>
       solution.days.reduce((sum, day) => sum + day.utilizationMinutes, 0);
-    const solutionRelevance = (
+    // Scheduled preference ranks (lower rank is better); compared with the
+    // rank-dominance no-degradation rule, never summed.
+    const scheduledRanks = (
       solution: DailyPlanningSolution,
       candidates: PlanningExperienceCandidate[],
     ) => {
-      const byId = new Map(
-        candidates.map((candidate) => [candidate.experienceId, candidate]),
+      const rankById = new Map(
+        candidates.map((candidate) => [
+          candidate.experienceId,
+          candidate.preference.rank,
+        ]),
       );
-      return solution.days.reduce(
-        (total, day) =>
-          total +
-          day.experiences.reduce(
-            (dayTotal, planned) =>
-              dayTotal +
-              plannerRelevanceScore(
-                byId.get(planned.experienceId)!,
-                this.dailyPlanningPolicy.scoring,
-              ),
-            0,
-          ),
-        0,
-      );
+      return solution.days
+        .flatMap((day) => day.experiences)
+        .map((planned) => rankById.get(planned.experienceId)!);
     };
     const mustCount = (solution: DailyPlanningSolution) =>
       solution.days
@@ -807,9 +782,10 @@ export class ExperienceGenerationService {
         .some((planned) => planned.experienceId === experience.id);
       const noDegradation =
         mustCount(trialSolution) >= mustCount(planningSolution) &&
-        solutionRelevance(trialSolution, promotedCandidates) >=
-          solutionRelevance(planningSolution, admittedPlanningCandidates) -
-            1e-9;
+        preservesRankPositions(
+          scheduledRanks(trialSolution, promotedCandidates),
+          scheduledRanks(planningSolution, admittedPlanningCandidates),
+        );
       const strictProgress =
         scheduledCount(trialSolution) > scheduledCount(planningSolution) ||
         utilization(trialSolution) > utilization(planningSolution);
@@ -844,7 +820,7 @@ export class ExperienceGenerationService {
               dayNumber: meaningfulResidual.dayNumber,
               availableMinutes: meaningfulResidual.availableMinutes,
               preferredFacets: preferenceSpec.facets.map(
-                ({ dimension, key, weight }) => ({ dimension, key, weight }),
+                ({ dimension, key }) => ({ dimension, key }),
               ),
             },
           ]
@@ -1613,7 +1589,7 @@ export class ExperienceGenerationService {
             experience.canonicalName ?? experience.name,
           ]),
         ),
-        scoreBreakdownById: plan.selection.scoreBreakdownById,
+        preferenceUtility: plan.selection.preferenceUtility,
         overlapExcluded: plan.overlapExcluded,
         planningSolution,
         convergence: planningSolution.metadata.convergence!,

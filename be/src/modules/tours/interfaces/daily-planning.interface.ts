@@ -1,3 +1,4 @@
+import { PlanningPreference } from './preference-utility.interface';
 import { TravelPace, TransportationMode } from './tour-generation.interface';
 
 export interface Coordinate {
@@ -179,12 +180,13 @@ export interface PlanningExperienceCandidate {
    */
   startFootprint: SpatialFootprint;
   endFootprint: SpatialFootprint;
-  /** Raw semantic similarity remains separately observable. */
-  semanticScore: number;
-  /** Raw canonical Experience qualityScore on the 0..5 scale. */
-  qualityScore?: number;
-  /** Sum of distinct requested facets canonically satisfied by this Experience. */
-  preferenceWeight?: number;
+  /**
+   * The canonical preference utility of this Experience (task 25.2): its
+   * typed numeric breakdown, the policy version and its strict
+   * within-request rank. The planner orders by rank and never recombines
+   * the breakdown into a score.
+   */
+  preference: PlanningPreference;
   /** Request-declared inclusion constraint (a resolved MUST venue anchor). */
   mustInclude: boolean;
   /** Internal routing of the components; filled by the solver when absent. */
@@ -487,7 +489,6 @@ export interface PlannerCapacityDeficit {
   preferredFacets: Array<{
     dimension: string;
     key: string;
-    weight: number;
   }>;
 }
 

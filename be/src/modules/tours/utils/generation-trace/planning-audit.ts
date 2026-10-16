@@ -5,7 +5,7 @@ import {
 } from '../../interfaces/generation-trace-v5.interface';
 import { TourGenerationRequest } from '../../interfaces/tour-generation.interface';
 import { CompositionSelectionResult } from '../../interfaces/preference-spec.interface';
-import { CandidateScoreBreakdown } from '../candidate-ranking.util';
+import { PreferenceUtilityResult } from '../../interfaces/preference-utility.interface';
 import { DailyPlanningSolution } from '../../interfaces/daily-planning.interface';
 import { TourCompletenessResult } from '../../interfaces/tour-completeness.interface';
 
@@ -21,7 +21,7 @@ export interface CandidatePoolSelectionStepInput {
     initialExperiences: CandidatePoolExperienceItem[];
     reservoirExperiences: CandidatePoolExperienceItem[];
     compositionResult: CompositionSelectionResult;
-    scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
+    preferenceUtility: PreferenceUtilityResult;
   };
   request: TourGenerationRequest;
   initialCatalogCount: number;
@@ -105,7 +105,7 @@ export function recordCandidatePoolSelectionStep(
     subjects: allOffered.map((exp: CandidatePoolExperienceItem) => {
       const isSelected = selectedSet.has(exp.id);
       const isReservoir = reservoirSet.has(exp.id);
-      const scoreBreakdown = selection.scoreBreakdownById.get(exp.id);
+      const assessment = selection.preferenceUtility.byId.get(exp.id);
       const traceSource = discoveryResolvedExperienceIds.has(exp.id)
         ? 'discovery'
         : newlyAcquiredExperienceIds.has(exp.id)
@@ -126,13 +126,16 @@ export function recordCandidatePoolSelectionStep(
             : isReservoir
               ? 'RESERVOIR'
               : 'OFFERED',
-          reason: scoreBreakdown
-            ? `Score total ${scoreBreakdown.totalScore.toFixed(3)}`
+          reason: assessment
+            ? `Rango de preferencia ${assessment.rank} (${selection.preferenceUtility.policyVersion})`
             : undefined,
         },
         facts: {
           source: traceSource,
-          scoreBreakdown,
+          preferenceRank: assessment?.rank ?? null,
+          preferenceBreakdown: assessment?.breakdown ?? null,
+          matchedFacets: assessment?.matchedFacets ?? [],
+          avoidedTargets: assessment?.avoidedTargets ?? [],
         },
       };
     }),

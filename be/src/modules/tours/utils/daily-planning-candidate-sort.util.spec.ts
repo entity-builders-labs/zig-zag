@@ -7,79 +7,65 @@ import { singleVisitCandidate } from '../fixtures/planning-input.fixture';
 
 function candidate(
   id: string,
-  semanticScore: number,
-  qualityScore?: number,
-  preferenceWeight?: number,
+  preferenceRank: number,
 ): PlanningExperienceCandidate {
   return singleVisitCandidate({
     experienceId: id,
     durationMinutes: 60,
-    semanticScore,
-    qualityScore,
-    preferenceWeight,
+    preferenceRank,
   });
 }
 
 describe('sortCandidatesDeterministically', () => {
-  it('sorts by semantic score descending when no upstream ranking score exists', () => {
+  it('orders by the canonical preference rank, best (lowest) first', () => {
     const sorted = sortCandidatesDeterministically([
-      candidate('low', 0.2),
-      candidate('high', 0.9),
-    ]);
-    expect(sorted.map((c) => c.experienceId)).toEqual(['high', 'low']);
-  });
-
-  it('includes canonical preference weight in deterministic planner ordering', () => {
-    const sorted = sortCandidatesDeterministically([
-      candidate('semantic-false-friend', 0.95, 4.9),
-      candidate('preference-best-fit', 0.9, 4.4, 1),
+      candidate('third', 3),
+      candidate('first', 1),
+      candidate('second', 2),
     ]);
     expect(sorted.map((c) => c.experienceId)).toEqual([
-      'preference-best-fit',
-      'semantic-false-friend',
+      'first',
+      'second',
+      'third',
     ]);
   });
 
-  it('breaks a ranking tie by quality score descending', () => {
+  it('never reads the preference breakdown: a richer breakdown does not outrank a better rank', () => {
+    const richer = candidate('richer-breakdown', 2);
+    richer.preference.breakdown = {
+      ...richer.preference.breakdown,
+      directEvidence: 5,
+      semantic: { status: 'KNOWN', similarity: 0.99 },
+      quality: { status: 'KNOWN', score: 5 },
+    };
     const sorted = sortCandidatesDeterministically([
-      candidate('low-quality', 0.5, 1),
-      candidate('high-quality', 0.5, 4),
+      richer,
+      candidate('better-rank', 1),
     ]);
     expect(sorted.map((c) => c.experienceId)).toEqual([
-      'high-quality',
-      'low-quality',
+      'better-rank',
+      'richer-breakdown',
     ]);
   });
 
-  it('breaks a full tie by experienceId lexical ascending, stably', () => {
+  it('breaks an equal rank by experienceId lexical ascending, stably', () => {
     const sorted = sortCandidatesDeterministically([
-      candidate('b', 0.5, 1),
-      candidate('a', 0.5, 1),
+      candidate('b', 1),
+      candidate('a', 1),
     ]);
     expect(sorted.map((c) => c.experienceId)).toEqual(['a', 'b']);
   });
 
-  it('never treats an undefined qualityScore as worse than 0', () => {
-    const sorted = sortCandidatesDeterministically([
-      candidate('zero-quality', 0.5, 0),
-      candidate('unknown-quality', 0.5, undefined),
-    ]);
-    // unknown (0 fallback) ties with an explicit 0 — falls through to the
-    // lexical tie-break, not an implicit penalty below the explicit 0.
-    expect(sorted.map((c) => c.experienceId)).toEqual([
-      'unknown-quality',
-      'zero-quality',
-    ]);
+  it('does not mutate its input', () => {
+    const input = [candidate('b', 2), candidate('a', 1)];
+    sortCandidatesDeterministically(input);
+    expect(input.map((c) => c.experienceId)).toEqual(['b', 'a']);
   });
 });
 
 describe('selectDailyAnchors', () => {
   it('picks the top N sorted candidates as anchors, one per day in order', () => {
-    const sorted = [
-      candidate('a', 0.9),
-      candidate('b', 0.8),
-      candidate('c', 0.7),
-    ];
+    const sorted = [candidate('a', 1), candidate('b', 2), candidate('c', 3)];
     expect(selectDailyAnchors(sorted, 2).map((c) => c.experienceId)).toEqual([
       'a',
       'b',
@@ -87,7 +73,7 @@ describe('selectDailyAnchors', () => {
   });
 
   it('returns fewer anchors than requested when candidates run out', () => {
-    const sorted = [candidate('a', 0.9)];
+    const sorted = [candidate('a', 1)];
     expect(selectDailyAnchors(sorted, 3)).toHaveLength(1);
   });
 });

@@ -18,8 +18,6 @@ describe('ApproximateTravelEstimateProvider', () => {
     },
     internalWalking: { unknownFallbackMinutes: 20 },
     scoring: {
-      semanticWeight: 1,
-      qualityWeight: 0.5,
       dayBalanceWeight: 0.25,
     },
     localImprovement: { maxIterations: 50 },

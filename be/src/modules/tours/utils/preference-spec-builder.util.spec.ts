@@ -110,7 +110,6 @@ describe('preference-spec-builder.util', () => {
       {
         dimension: 'theme',
         key: 'history',
-        weight: 1,
         provenance: 'DIRECT',
         importance: 1,
         confidence: 1,
@@ -126,7 +125,7 @@ describe('preference-spec-builder.util', () => {
     ]);
   });
 
-  it('keeps an INFERRED assertion INFERRED and its weight as importance x confidence', () => {
+  it('keeps an INFERRED assertion INFERRED with importance and confidence separate', () => {
     const spec = buildPreferenceSpec(
       baseRequest(),
       emptyInterpreted({
@@ -142,7 +141,8 @@ describe('preference-spec-builder.util', () => {
         confidence: 0.9,
       }),
     ]);
-    expect(spec.facets[0].weight).toBeCloseTo(0.63);
+    // No combined scalar: utility weighs INFERRED by importance x confidence.
+    expect(spec.facets[0]).not.toHaveProperty('weight');
   });
 
   it('never translates a structured value outside the typed schema', () => {

@@ -1,5 +1,6 @@
 import { ExperienceCompositionService } from './experience-composition.service';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
+import { derivePreferenceUtility } from '../utils/preference-utility.util';
 
 const preferenceSpec: PreferenceSpec = {
   facets: [],
@@ -8,76 +9,64 @@ const preferenceSpec: PreferenceSpec = {
   unresolvedConcepts: [],
   facetSchemaVersion: 'facet-schema-v1',
   anchors: [],
-  semanticQuery: 'history walk',
+  semanticQuery: '',
   explorationStyle: 'balanced',
   softConstraints: { accessibility: [], budget: [], group: [] },
   trip: { days: 1, startDates: [], pace: 'moderate' },
 };
 
-describe('ExperienceCompositionService semantic handoff', () => {
-  it('queries embeddings once and preserves known versus unknown scores', async () => {
-    const getSimilarityScores = jest.fn().mockResolvedValue({
-      status: 'applied',
-      scores: new Map([['known', 0.91]]),
-      requestedCandidateCount: 2,
-      indexedCandidateCount: 1,
-      identity: {
-        provider: 'ollama',
-        model: 'nomic-embed-text',
-        dimensions: 256,
-        documentVersion: 2,
+const component = (name: string) => ({
+  geoEntity: { name, kind: 'PLACE', latitude: 1, longitude: 2 },
+});
+
+describe('ExperienceCompositionService (consumer of the preference utility)', () => {
+  const service = new ExperienceCompositionService();
+
+  it('orders composition by the canonical utility it receives, never re-deriving it', () => {
+    const experiences = [
+      { id: 'a-low-quality', components: [component('A')], qualityScore: 3 },
+      { id: 'b-high-quality', components: [component('B')], qualityScore: 5 },
+    ];
+    const preferenceUtility = {
+      ...derivePreferenceUtility({
+        experiences,
+        preferenceSpec,
+        softAnchorIds: new Set(),
+        semantic: null,
+      }),
+      semanticRanking: {
+        status: 'not_requested' as const,
+        requestedCandidateCount: 0,
+        indexedCandidateCount: 0,
       },
-    });
-    const service = new ExperienceCompositionService({
-      getSimilarityScores,
-    } as any);
+    };
 
-    const output = await service.compose({
-      experiences: [
-        { id: 'known', components: [], qualityScore: 4 },
-        { id: 'unknown', components: [], qualityScore: 4 },
-      ],
+    const output = service.compose({
+      experiences,
       preferenceSpec,
+      preferenceUtility,
     });
 
-    expect(getSimilarityScores).toHaveBeenCalledTimes(1);
-    expect(output.semanticSimilarityById).toEqual(new Map([['known', 0.91]]));
-    expect(output.semanticRanking).toMatchObject({
-      status: 'applied',
-      requestedCandidateCount: 2,
-      indexedCandidateCount: 1,
-    });
-    expect(output.candidatesById.has('known')).toBe(true);
-    expect(output.candidatesById.has('unknown')).toBe(true);
+    expect(output.result.selected).toEqual(['b-high-quality', 'a-low-quality']);
+    expect(output.candidatesById.has('a-low-quality')).toBe(true);
   });
 
-  it('reports unavailable embeddings without failing composition', async () => {
-    const service = new ExperienceCompositionService({
-      getSimilarityScores: jest.fn().mockResolvedValue({
-        status: 'unavailable',
-        scores: new Map(),
-        requestedCandidateCount: 1,
-        indexedCandidateCount: 0,
-        identity: {
-          provider: 'ollama',
-          model: 'nomic-embed-text',
-          dimensions: 256,
-          documentVersion: 2,
+  it('fails explicitly when an Experience has no preference-utility assessment', () => {
+    expect(() =>
+      service.compose({
+        experiences: [{ id: 'orphan', components: [component('O')] }],
+        preferenceSpec,
+        preferenceUtility: {
+          policyVersion: 'preference-utility-v1',
+          order: [],
+          byId: new Map(),
+          semanticRanking: {
+            status: 'not_requested',
+            requestedCandidateCount: 0,
+            indexedCandidateCount: 0,
+          },
         },
-        reason: 'provider unavailable',
       }),
-    } as any);
-
-    const output = await service.compose({
-      experiences: [{ id: 'one', components: [] }],
-      preferenceSpec,
-    });
-
-    expect(output.candidatesById.has('one')).toBe(true);
-    expect(output.semanticRanking).toMatchObject({
-      status: 'unavailable',
-      reason: 'provider unavailable',
-    });
-    expect(output.semanticSimilarityById.size).toBe(0);
+    ).toThrow(/without a preference-utility assessment/);
   });
 });

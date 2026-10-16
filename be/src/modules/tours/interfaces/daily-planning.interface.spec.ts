@@ -47,7 +47,7 @@ describe('daily-planning.interface', () => {
   });
 
   it('constructs a valid single-place PlanningExperienceCandidate', () => {
-    const candidate: PlanningExperienceCandidate = singleVisitCandidate({
+    const candidate: PlanningExperienceCandidate = singleVisitCandidate({ preferenceRank: 1,
       experienceId: 'e1',
       durationMinutes: 60,
     });

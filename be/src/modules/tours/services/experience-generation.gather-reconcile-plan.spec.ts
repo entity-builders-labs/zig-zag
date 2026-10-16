@@ -1,5 +1,6 @@
 import { ExperienceGenerationService } from './experience-generation.service';
 import { ExperienceCompositionService } from './experience-composition.service';
+import { PreferenceUtilityService } from './preference-utility.service';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
@@ -134,7 +135,8 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
         experienceCatalog: catalog,
         // The real composition policy.
         // No index: every candidate is an explicit semantic unknown.
-        experienceComposition: new ExperienceCompositionService({
+        experienceComposition: new ExperienceCompositionService(),
+        preferenceUtility: new PreferenceUtilityService({
           getSimilarityScores: jest.fn(async (ids: string[]) => ({
             status: 'applied',
             scores: new Map(),
@@ -150,8 +152,6 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
             endMinutesFromMidnight: 1200,
           },
           scoring: {
-            semanticWeight: 1,
-            qualityWeight: 0.5,
             dayBalanceWeight: 0.25,
           },
           backfill: {

@@ -1,3 +1,7 @@
+import {
+  PlanningPreference,
+  PREFERENCE_UTILITY_POLICY_VERSION,
+} from '../interfaces/preference-utility.interface';
 import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
 import {
   DailyPlanningInput,
@@ -86,14 +90,35 @@ const point = (lat: number, lng: number): SpatialFootprint => ({
   centroid: { lat, lng },
 });
 
+/**
+ * A planner preference at `rank`. The breakdown records no preference
+ * signal: the planner orders by rank only and never reads it.
+ */
+export function planningPreferenceFixture(rank: number): PlanningPreference {
+  return {
+    policyVersion: PREFERENCE_UTILITY_POLICY_VERSION,
+    rank,
+    breakdown: {
+      directEvidence: 0,
+      inferredEvidence: 0,
+      avoidance: { directConflict: 0, inferredConflict: 0 },
+      softAnchor: false,
+      semantic: { status: 'UNKNOWN', reason: 'EMPTY_QUERY' },
+      quality: { status: 'UNKNOWN', reason: 'NO_QUALITY_SIGNAL' },
+    },
+  };
+}
+
 interface CandidateFixtureOptions {
   experienceId: string;
   title?: string;
   durationMinutes?: number;
   openingHoursByDay?: PlanningDayOpeningHours[];
-  semanticScore?: number;
-  qualityScore?: number;
-  preferenceWeight?: number;
+  /**
+   * The candidate's canonical within-request preference rank (1 = best).
+   * Explicit: it is the only preference input the planner orders by.
+   */
+  preferenceRank: number;
   mustInclude?: boolean;
   mobility?: PlanningExperienceCandidate['mobility'];
 }
@@ -129,9 +154,7 @@ export function singleVisitCandidate(
     spatialFootprint: footprint,
     startFootprint: footprint,
     endFootprint: footprint,
-    semanticScore: options.semanticScore ?? 0,
-    qualityScore: options.qualityScore,
-    preferenceWeight: options.preferenceWeight,
+    preference: planningPreferenceFixture(options.preferenceRank),
     mustInclude: options.mustInclude ?? false,
     mobility: options.mobility,
   };
@@ -173,9 +196,7 @@ export function legacyCompositeCandidate(
       options.footprints.length >= 2
         ? options.footprints[options.footprints.length - 1]
         : spatialFootprint,
-    semanticScore: options.semanticScore ?? 0,
-    qualityScore: options.qualityScore,
-    preferenceWeight: options.preferenceWeight,
+    preference: planningPreferenceFixture(options.preferenceRank),
     mustInclude: options.mustInclude ?? false,
     mobility: options.mobility,
   };

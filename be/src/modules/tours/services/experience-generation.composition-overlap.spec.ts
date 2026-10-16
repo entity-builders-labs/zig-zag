@@ -1,4 +1,5 @@
 import { ExperienceCompositionService } from './experience-composition.service';
+import { PreferenceUtilityService } from './preference-utility.service';
 import { ExperienceGenerationService } from './experience-generation.service';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
@@ -28,7 +29,6 @@ const preferenceSpec: PreferenceSpec = {
     {
       dimension: 'theme',
       key: 'history',
-      weight: 1,
       provenance: 'DIRECT' as const,
       importance: 1,
       confidence: 1,
@@ -52,15 +52,18 @@ const preferenceSpec: PreferenceSpec = {
 };
 
 describe('ExperienceGenerationService composition/overlap handoff', () => {
-  it('preserves composition ordering when equal preference weights overlap', async () => {
+  it('preserves composition ordering when equal explicit preference overlaps', async () => {
     const later = experience('A-later', 4);
     const earlier = experience('B-earlier', 5);
-    const compositionService = new ExperienceCompositionService({
-      getSimilarityScores: jest.fn(),
-    } as any);
     const generationService = Object.assign(
       Object.create(ExperienceGenerationService.prototype),
-      { experienceComposition: compositionService },
+      {
+        experienceComposition: new ExperienceCompositionService(),
+        // No semantic query: the utility never calls the vector store.
+        preferenceUtility: new PreferenceUtilityService({
+          getSimilarityScores: jest.fn(),
+        } as any),
+      },
     ) as any;
 
     const selection = await generationService.composeExperiences(
@@ -71,12 +74,12 @@ describe('ExperienceGenerationService composition/overlap handoff', () => {
     expect(
       selection.initialExperiences.map((candidate: any) => candidate.id),
     ).toEqual(['B-earlier', 'A-later']);
-    expect(selection.preferenceWeightById).toEqual(
-      new Map([
-        ['A-later', 1],
-        ['B-earlier', 1],
-      ]),
-    );
+    // Equal explicit preference: both match the one DIRECT history facet.
+    expect(
+      ['A-later', 'B-earlier'].map(
+        (id) => selection.preferenceUtility.byId.get(id).breakdown.directEvidence,
+      ),
+    ).toEqual([1, 1]);
 
     const overlapResult = filterOverlappingExperienceCandidates(
       selection.initialExperiences.map((candidate: any) => ({

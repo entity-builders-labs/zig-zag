@@ -48,7 +48,6 @@ describe('tour-generation integration · facet retrieval (Task A6 / A6.1)', () =
   const HISTORY_FACET: RequestedFacet = {
     dimension: 'theme',
     key: 'history',
-    weight: 1,
     provenance: 'DIRECT' as const,
     importance: 1,
     confidence: 1,

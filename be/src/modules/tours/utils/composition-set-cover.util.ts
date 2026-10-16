@@ -19,61 +19,22 @@ export interface ComposeSetInput {
   resolvedVenueMustAnchorNames?: string[];
 }
 
-const numeric = (value: number | null | undefined) =>
-  typeof value === 'number' && Number.isFinite(value) ? value : -Infinity;
-
-function byFacetPriority(
-  facetWeight: number,
-  a: CompositionCandidate,
-  b: CompositionCandidate,
-) {
-  // The facet's weight is constant within this reservation. It remains part
-  // of the outer requested-facet ordering, not a fabricated per-candidate
-  // bonus here.
-  void facetWeight;
+/**
+ * Composition order: the canonical preference level rank, then the
+ * composition-local exploration tilt, then id. The tilt never crosses a
+ * canonical level (owner, 2026-10-15).
+ */
+function byCompositionOrder(a: CompositionCandidate, b: CompositionCandidate) {
   return (
-    numeric(b.groundingStrength) - numeric(a.groundingStrength) ||
-    numeric(b.semanticSimilarity) - numeric(a.semanticSimilarity) ||
-    numeric(b.qualityScore) - numeric(a.qualityScore) ||
-    numeric(b.explorationTilt) - numeric(a.explorationTilt) ||
-    numeric(b.softAnchorBoost) - numeric(a.softAnchorBoost) ||
-    a.id.localeCompare(b.id)
-  );
-}
-
-function coverageWeight(
-  candidate: CompositionCandidate,
-  weights: Map<string, number>,
-) {
-  return candidate.satisfiedFacets.reduce(
-    (sum, key) => sum + (weights.get(key) ?? 0),
-    0,
-  );
-}
-
-function byRemainderPriority(
-  weights: Map<string, number>,
-  a: CompositionCandidate,
-  b: CompositionCandidate,
-) {
-  return (
-    coverageWeight(b, weights) - coverageWeight(a, weights) ||
-    numeric(b.semanticSimilarity) - numeric(a.semanticSimilarity) ||
-    numeric(b.qualityScore) - numeric(a.qualityScore) ||
-    numeric(b.explorationTilt) - numeric(a.explorationTilt) ||
-    numeric(b.softAnchorBoost) - numeric(a.softAnchorBoost) ||
+    a.levelRank - b.levelRank ||
+    b.explorationTilt - a.explorationTilt ||
     a.id.localeCompare(b.id)
   );
 }
 
 /** Pure deterministic Stage-9 set composition. It never establishes facet truth. */
 export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
-  const requested = new Map(
-    input.preferenceSpec.facets.map((facet) => [facetKey(facet), facet]),
-  );
-  const weights = new Map(
-    [...requested].map(([key, facet]) => [key, facet.weight]),
-  );
+  const requested = new Set(input.preferenceSpec.facets.map(facetKey));
   const eligible = input.candidates
     .filter((candidate) => candidate.componentCount > 0)
     .sort((a, b) => a.id.localeCompare(b.id));
@@ -96,7 +57,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     mustAnchorsForced.push(id);
   }
 
-  for (const [key, facet] of requested) {
+  for (const key of requested) {
     if (selected.some((candidate) => candidate.satisfiedFacets.includes(key)))
       continue;
     const strongest = eligible
@@ -105,7 +66,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
           !selectedIds.has(candidate.id) &&
           candidate.satisfiedFacets.includes(key),
       )
-      .sort((a, b) => byFacetPriority(facet.weight, a, b))[0];
+      .sort(byCompositionOrder)[0];
     if (strongest) {
       selected.push(strongest);
       selectedIds.add(strongest.id);
@@ -126,7 +87,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   });
   const remaining = eligible
     .filter((candidate) => !selectedIds.has(candidate.id))
-    .sort((a, b) => byRemainderPriority(weights, a, b));
+    .sort(byCompositionOrder);
   const remainderFillIds: string[] = [];
   while (selected.length < target && remaining.length > 0) {
     const candidate = remaining.shift()!;
@@ -139,7 +100,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
   const remainderFillIdSet = new Set(remainderFillIds);
   const perFacetCoverage: Record<string, string[]> = {};
   const unmetFacets: string[] = [];
-  for (const key of requested.keys()) {
+  for (const key of requested) {
     const coverage = selected
       .filter((candidate) => candidate.satisfiedFacets.includes(key))
       .map((candidate) => candidate.id);
@@ -160,7 +121,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
         initialSelected: selectedIds.has(candidate.id),
         reservedForFacets: reservedForFacetsById.get(candidate.id) ?? [],
         mustForced: mustAnchorsForced.includes(candidate.id),
-        softAnchorBoosted: candidate.softAnchorBoost > 0,
+        softAnchorBoosted: candidate.softAnchor,
         remainderFill: remainderFillIdSet.has(candidate.id),
         reservoir: reservoirIds.has(candidate.id),
         excluded: !isEligible,
@@ -175,7 +136,7 @@ export function composeSet(input: ComposeSetInput): CompositionSelectionResult {
     unmetFacets,
     mustAnchorsForced,
     softAnchorsBoosted: eligible
-      .filter((candidate) => candidate.softAnchorBoost > 0)
+      .filter((candidate) => candidate.softAnchor)
       .map((candidate) => candidate.id),
     unmetAnchors,
     portfolioTarget: target,

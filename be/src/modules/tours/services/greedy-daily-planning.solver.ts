@@ -67,6 +67,23 @@ function assertSupportedByGreedy(
       'day anchors and user unavailable windows',
     );
   }
+  // The greedy order is the canonical preference rank: every candidate must
+  // carry the declared ranking policy and a distinct rank.
+  const foreignPolicy = candidates.find(
+    (candidate) =>
+      candidate.preference.policyVersion !== policies.rankingPolicyVersion,
+  );
+  if (foreignPolicy) {
+    throw new UnsupportedPlanningInputError(
+      `preference policy ${foreignPolicy.preference.policyVersion} of Experience ${foreignPolicy.experienceId} differs from ranking policy ${policies.rankingPolicyVersion}`,
+    );
+  }
+  const ranks = candidates.map((candidate) => candidate.preference.rank);
+  if (new Set(ranks).size !== ranks.length) {
+    throw new UnsupportedPlanningInputError(
+      'candidates without distinct preference ranks',
+    );
+  }
   const composite = candidates.find(
     (candidate) => !collapsedVisitFacts(candidate),
   );
@@ -116,10 +133,7 @@ export class GreedyDailyPlanningSolver implements DailyPlanningSolver {
         ),
       ),
     );
-    const sorted = sortCandidatesDeterministically(routedCandidates, {
-      semanticWeight: this.policy.scoring.semanticWeight,
-      qualityWeight: this.policy.scoring.qualityWeight,
-    });
+    const sorted = sortCandidatesDeterministically(routedCandidates);
     const partitioned = partitionMustIncludeCandidates(sorted);
     const context: PlacementContext = {
       policy: this.policy,

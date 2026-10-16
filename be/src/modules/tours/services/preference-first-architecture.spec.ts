@@ -150,4 +150,32 @@ describe('preference-first architecture boundaries', () => {
       expect(existsSync(join(__dirname, deleted))).toBe(false);
     }
   });
+
+  it('keeps one preference-utility authority and no planner scoring formula (task 25.2)', () => {
+    expect(existsSync(join(__dirname, '../utils/candidate-ranking.util.ts'))).toBe(
+      false,
+    );
+    for (const name of [
+      '../utils/daily-planning-candidate-sort.util.ts',
+      '../utils/daily-planning-placement.util.ts',
+      'greedy-daily-planning.solver.ts',
+      'experience-generation.service.ts',
+      'planning-candidate-normalizer.service.ts',
+      'experience-composition.service.ts',
+      '../utils/composition-set-cover.util.ts',
+    ]) {
+      const code = source(name);
+      expect(code).not.toMatch(/plannerRelevanceScore|preferenceWeight\b/);
+      expect(code).not.toMatch(/semanticWeight|qualityWeight/);
+      expect(code).not.toMatch(/groundingStrength/);
+      expect(code).not.toMatch(/semanticSimilarity\s*\?\?\s*0/);
+    }
+    // Only the utility service queries the semantic batch.
+    expect(source('experience-composition.service.ts')).not.toMatch(
+      /getSimilarityScores/,
+    );
+    expect(source('preference-utility.service.ts')).toMatch(
+      /getSimilarityScores/,
+    );
+  });
 });

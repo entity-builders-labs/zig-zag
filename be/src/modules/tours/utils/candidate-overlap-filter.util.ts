@@ -1,4 +1,6 @@
 import { calculateDistance } from '@shared/utils/distance.utils';
+import { PreferenceUtilityBreakdown } from '../interfaces/preference-utility.interface';
+import { compareExplicitPreference } from './preference-utility.util';
 
 // Same tolerance ExperienceCatalogService.upsertGeoEntity uses to reconcile
 // cross-provider identities for the same real place onto one GeoEntity —
@@ -19,7 +21,8 @@ export interface OverlapCandidateComponent {
 export interface OverlapCandidate {
   id: string;
   compositionOrderScore?: number;
-  weightedPreferenceCoverage?: number;
+  /** Canonical preference breakdown (task 25.2); explicit levels decide. */
+  preferenceBreakdown?: PreferenceUtilityBreakdown;
   mustInclude?: boolean;
   components?: Array<{ geoEntity?: OverlapCandidateComponent | null }> | null;
 }
@@ -82,9 +85,11 @@ function componentsOverlap(
  * underlying records got that way.
  *
  * When two candidates share a component (by proximity + name, independent of
- * GeoEntity id), only one survives: prefer the one with more components (a
- * composite subsumes the plain POI it contains, not the other way around),
- * tie-broken by composition order, then by id for determinism.
+ * GeoEntity id), only one survives: a resolved MUST first, then the stronger
+ * canonical explicit preference (`compareExplicitPreference`, levels 1–3 of
+ * the preference utility), then the one with more components (a composite
+ * subsumes the plain POI it contains, not the other way around), then
+ * composition order, then id for determinism.
  */
 export function filterOverlappingExperienceCandidates<
   T extends OverlapCandidate,
@@ -105,13 +110,12 @@ export function filterOverlappingExperienceCandidates<
   const preferWinner = (a: T, b: T): T => {
     if (a.mustInclude === true && b.mustInclude !== true) return a;
     if (b.mustInclude === true && a.mustInclude !== true) return b;
-    if (
-      a.weightedPreferenceCoverage !== undefined ||
-      b.weightedPreferenceCoverage !== undefined
-    ) {
-      const aCoverage = a.weightedPreferenceCoverage ?? -Infinity;
-      const bCoverage = b.weightedPreferenceCoverage ?? -Infinity;
-      if (aCoverage !== bCoverage) return aCoverage > bCoverage ? a : b;
+    if (a.preferenceBreakdown && b.preferenceBreakdown) {
+      const explicit = compareExplicitPreference(
+        a.preferenceBreakdown,
+        b.preferenceBreakdown,
+      );
+      if (explicit !== 0) return explicit < 0 ? a : b;
     }
     const aComponentCount = componentsById.get(a.id)?.length ?? 0;
     const bComponentCount = componentsById.get(b.id)?.length ?? 0;

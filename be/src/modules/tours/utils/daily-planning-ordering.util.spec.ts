@@ -24,14 +24,16 @@ function candidate(
   lat: number,
   lng: number,
   durationMinutes = 60,
-  semanticScore = 0.5,
+  // Canonical preference rank (1 = best); candidates left at the shared
+  // rank 5 order by id.
+  preferenceRank = 5,
 ): PlanningExperienceCandidate {
   return singleVisitCandidate({
     experienceId: id,
     lat,
     lng,
     durationMinutes,
-    semanticScore,
+    preferenceRank,
   });
 }
 
@@ -71,7 +73,7 @@ const policy: DailyPlanningPolicy = {
     carUrbanSpeedKmh: 25,
   },
   internalWalking: { unknownFallbackMinutes: 20 },
-  scoring: { semanticWeight: 1, qualityWeight: 0.5, dayBalanceWeight: 0.25 },
+  scoring: { dayBalanceWeight: 0.25 },
   localImprovement: { maxIterations: 20 },
   backfill: {
     minimumUsefulResidualMinutes: 60,
@@ -150,7 +152,7 @@ describe('orderAndScheduleDay', () => {
       [
         candidate('near', 0, 0.001),
         candidate('far', 0, 0.01),
-        candidate('start', 0, 0, 60, 0.9),
+        candidate('start', 0, 0, 60, 1),
       ],
       context(),
     );
@@ -186,7 +188,7 @@ describe('orderAndScheduleDay', () => {
       [
         nearClosed,
         candidate('far-open', 0, 0.05),
-        candidate('start', 0, 0, 60, 0.9),
+        candidate('start', 0, 0, 60, 1),
       ],
       { ...context(), days: mondayDays() },
     );
@@ -210,7 +212,7 @@ describe('orderAndScheduleDay', () => {
 
     const day = await orderAndScheduleDay(
       1,
-      [near, candidate('far', 0, 0.01), candidate('start', 0, 0, 60, 0.9)],
+      [near, candidate('far', 0, 0.01), candidate('start', 0, 0, 60, 1)],
       { ...context(), days: mondayDays() },
     );
 
@@ -235,7 +237,7 @@ describe('orderAndScheduleDay', () => {
       [
         nearClosed,
         candidate('far-open', 0, 0.01),
-        candidate('start', 0, 0, 60, 0.9),
+        candidate('start', 0, 0, 60, 1),
       ],
       context(),
     );
@@ -249,11 +251,11 @@ describe('orderAndScheduleDay', () => {
 
   it('repairs a post-routing opening-hours conflict without aborting the whole day', async () => {
     const closed = withMondayHours(
-      candidate('closed', 0, 0.001, 60, 0.2),
+      candidate('closed', 0, 0.001, 60, 8),
       7 * 60,
       8 * 60,
     );
-    const start = candidate('start', 0, 0, 60, 0.9);
+    const start = candidate('start', 0, 0, 60, 1);
 
     const repaired = await orderAndScheduleDayWithRepair(1, [start, closed], {
       ...context(),
@@ -272,8 +274,8 @@ describe('orderAndScheduleDay', () => {
   });
 
   it('removes ordinary candidates before a MUST during repair', async () => {
-    const must = { ...candidate('must', 0, 0, 60, 0.1), mustInclude: true };
-    const ordinary = candidate('ordinary', 0, 0.001, 60, 0.9);
+    const must = { ...candidate('must', 0, 0, 60, 9), mustInclude: true };
+    const ordinary = candidate('ordinary', 0, 0.001, 60, 1);
     const repaired = await orderAndScheduleDayWithRepair(1, [must, ordinary], {
       ...context(),
       days: planningDaysFixture(1, {
@@ -357,10 +359,10 @@ describe('orderAndScheduleDayWithRepair walking feasibility', () => {
   // Nearest-next ordering instead visits start → nearEast → farEast and then
   // must create farEast→west = 3,097 m, a leg placement never checked.
   const reorderFixture = (): PlanningExperienceCandidate[] => [
-    candidate('start', 0, 0, 60, 0.9),
-    candidate('west', 0, -0.0144, 60, 0.8),
-    candidate('nearEast', 0, 0.0045, 60, 0.7),
-    candidate('farEast', 0, 0.0135, 60, 0.6),
+    candidate('start', 0, 0, 60, 1),
+    candidate('west', 0, -0.0144, 60, 2),
+    candidate('nearEast', 0, 0.0045, 60, 3),
+    candidate('farEast', 0, 0.0135, 60, 4),
   ];
 
   it('never emits an inbound leg over the continuous limit; repair drops the lowest-priority candidate with a typed reason', async () => {
@@ -403,7 +405,7 @@ describe('orderAndScheduleDayWithRepair walking feasibility', () => {
 
   it('enforces the internal continuous walking leg in ordering too', async () => {
     const composite: PlanningExperienceCandidate = {
-      ...candidate('composite', 0, 0, 60, 0.9),
+      ...candidate('composite', 0, 0, 60, 1),
       mobility: {
         internalWalkingDistanceMeters: 3200,
         maxInternalContinuousWalkingDistanceMeters: 3200,
@@ -430,10 +432,10 @@ describe('orderAndScheduleDayWithRepair walking feasibility', () => {
     // start → west → nearEast → farEast walks 3,885 m; nearest-next walks
     // start → nearEast → farEast → west = 4,940 m, over a 4,500 m day.
     const candidates = [
-      candidate('start', 0, 0, 60, 0.9),
-      candidate('west', 0, -0.0085, 60, 0.8),
-      candidate('nearEast', 0, 0.0081, 60, 0.7),
-      candidate('farEast', 0, 0.018, 60, 0.6),
+      candidate('start', 0, 0, 60, 1),
+      candidate('west', 0, -0.0085, 60, 2),
+      candidate('nearEast', 0, 0.0081, 60, 3),
+      candidate('farEast', 0, 0.018, 60, 4),
     ];
 
     const repaired = await orderAndScheduleDayWithRepair(
@@ -460,11 +462,11 @@ describe('orderAndScheduleDayWithRepair walking feasibility', () => {
 
   it('includes internal walking in the running day total', async () => {
     const first: PlanningExperienceCandidate = {
-      ...candidate('first', 0, 0, 60, 0.9),
+      ...candidate('first', 0, 0, 60, 1),
       mobility: { internalWalkingDistanceMeters: 2000 },
     };
     // 0.009 deg = 999 m leg; 2,000 internal + 999 leg > 2,500 day limit.
-    const second = candidate('second', 0, 0.009, 60, 0.5);
+    const second = candidate('second', 0, 0.009, 60, 5);
     expect(0.009 * METERS_PER_DEGREE).toBeCloseTo(999);
 
     const repaired = await orderAndScheduleDayWithRepair(
@@ -502,7 +504,7 @@ describe('orderAndScheduleDay schedule evidence (task 25.1)', () => {
       1,
       [
         withMondayHours(
-          candidate('known', 0, 0, 60, 0.9),
+          candidate('known', 0, 0, 60, 1),
           9 * 60,
           18 * 60,
           days,

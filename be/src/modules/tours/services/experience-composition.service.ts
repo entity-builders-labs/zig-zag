@@ -4,66 +4,42 @@ import {
   CompositionSelectionResult,
   PreferenceSpec,
   ComposableExperience,
-  facetKey,
 } from '../interfaces/preference-spec.interface';
-import {
-  isStrongFacetMatch,
-  preferenceWeightForExperience,
-} from '../utils/preference-strong-match.util';
+import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
 import {
   computeExplorationSignals,
   computeExplorationTilt,
 } from '../utils/exploration-signals.util';
 import { composeSet } from '../utils/composition-set-cover.util';
-import { ExperienceVectorStoreService } from '@shared/ai/services/experience-vector-store.service';
-import {
-  EmbeddingIndexIdentity,
-  SemanticSimilarityResult,
-} from '@shared/ai/interfaces/embedding-index.interface';
 
 export interface ExperienceCompositionInput {
   experiences: ComposableExperience[];
   preferenceSpec: PreferenceSpec;
+  /** The canonical preference utility of these Experiences (task 25.2). */
+  preferenceUtility: PreferenceUtilityResult;
   /** A future venue-resolution boundary supplies these canonical IDs. */
   resolvedVenueMustIds?: string[];
-  resolvedVenueSoftIds?: string[];
   resolvedVenueMustAnchorNames?: string[];
 }
 
 export interface ExperienceCompositionOutput {
   result: CompositionSelectionResult;
   candidatesById: Map<string, ComposableExperience>;
-  preferenceWeightById: Map<string, number>;
-  semanticSimilarityById: Map<string, number>;
-  semanticRanking: {
-    status: 'not_requested' | 'applied' | 'unavailable';
-    requestedCandidateCount: number;
-    indexedCandidateCount: number;
-    identity?: EmbeddingIndexIdentity;
-    reason?: string;
-  };
 }
 
+/**
+ * Set composition over the canonical preference utility: a consumer of the
+ * utility boundary, never a second ranking authority.
+ */
 @Injectable()
 export class ExperienceCompositionService {
-  constructor(private readonly vectorStore: ExperienceVectorStoreService) {}
-
-  async compose(
-    input: ExperienceCompositionInput,
-  ): Promise<ExperienceCompositionOutput> {
+  compose(input: ExperienceCompositionInput): ExperienceCompositionOutput {
     const deduped = new Map(
       input.experiences.map((experience) => [experience.id, experience]),
     );
     const experiences = [...deduped.values()].sort((a, b) =>
       a.id.localeCompare(b.id),
     );
-    const semantic: SemanticSimilarityResult | null =
-      input.preferenceSpec.semanticQuery.trim()
-        ? await this.vectorStore.getSimilarityScores(
-            experiences.map((experience) => experience.id),
-            input.preferenceSpec.semanticQuery,
-          )
-        : null;
     const candidates: CompositionCandidate[] = experiences.map((experience) => {
       const components = experience.components ?? [];
       const isBareAreaOrRoute =
@@ -71,9 +47,12 @@ export class ExperienceCompositionService {
         ['AREA', 'ROUTE'].includes(
           String(components[0]?.geoEntity?.kind ?? '').toUpperCase(),
         );
-      const satisfiedFacets = input.preferenceSpec.facets
-        .filter((facet) => isStrongFacetMatch(experience, facet))
-        .map(facetKey);
+      const utility = input.preferenceUtility.byId.get(experience.id);
+      if (!utility) {
+        throw new Error(
+          `Composition received Experience ${experience.id} without a preference-utility assessment`,
+        );
+      }
       const dimensionedTraits = experience.dimensionedTraits ?? [];
       const explorationFacts = experience.explorationFacts ?? {};
       const tourismIntensityEvidence = dimensionedTraits
@@ -101,30 +80,17 @@ export class ExperienceCompositionService {
           ...(explorationFacts.explicitLocalCharacterEvidence ?? []),
         ],
       });
-      const softAnchorBoost = (input.resolvedVenueSoftIds ?? []).includes(
-        experience.id,
-      )
-        ? 1
-        : 0;
       return {
         id: experience.id,
         componentCount: isBareAreaOrRoute ? 0 : components.length,
-        satisfiedFacets,
-        qualityScore:
-          typeof experience.qualityScore === 'number'
-            ? experience.qualityScore
-            : null,
+        satisfiedFacets: utility.matchedFacets,
+        levelRank: utility.levelRank,
         explorationSignals: signals,
         explorationTilt: computeExplorationTilt(
           input.preferenceSpec.explorationStyle,
           signals,
         ).score,
-        semanticSimilarity:
-          semantic?.status === 'applied'
-            ? (semantic.scores.get(experience.id) ?? 0)
-            : 0,
-        groundingStrength: satisfiedFacets.length > 0 ? 1 : 0,
-        softAnchorBoost,
+        softAnchor: utility.breakdown.softAnchor,
         isPerformanceVenue:
           Array.isArray(experience.traits) &&
           experience.traits.includes('performance_venue'),
@@ -138,30 +104,6 @@ export class ExperienceCompositionService {
         resolvedVenueMustAnchorNames: input.resolvedVenueMustAnchorNames,
       }),
       candidatesById: deduped,
-      preferenceWeightById: new Map(
-        experiences.map((experience) => [
-          experience.id,
-          preferenceWeightForExperience(
-            experience,
-            input.preferenceSpec.facets,
-          ),
-        ]),
-      ),
-      semanticSimilarityById:
-        semantic?.status === 'applied' ? new Map(semantic.scores) : new Map(),
-      semanticRanking: semantic
-        ? {
-            status: semantic.status,
-            requestedCandidateCount: semantic.requestedCandidateCount,
-            indexedCandidateCount: semantic.indexedCandidateCount,
-            identity: semantic.identity,
-            reason: semantic.reason,
-          }
-        : {
-            status: 'not_requested',
-            requestedCandidateCount: 0,
-            indexedCandidateCount: 0,
-          },
     };
   }
 }

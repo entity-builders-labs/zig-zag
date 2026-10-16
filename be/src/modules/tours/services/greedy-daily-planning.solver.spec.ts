@@ -47,8 +47,6 @@ const policy: DailyPlanningPolicy = {
   },
   internalWalking: { unknownFallbackMinutes: 20 },
   scoring: {
-    semanticWeight: 1,
-    qualityWeight: 0.5,
     dayBalanceWeight: 0.25,
   },
   localImprovement: { maxIterations: 20 },
@@ -69,7 +67,7 @@ function baseInput(
 
 function candidate(
   id: string,
-  semanticScore = 0.5,
+  preferenceRank: number,
 ): PlanningExperienceCandidate {
   const stableOffset =
     Array.from(id).reduce(
@@ -81,7 +79,7 @@ function candidate(
     durationMinutes: 60,
     lat: 0,
     lng: stableOffset * 0.0001,
-    semanticScore,
+    preferenceRank,
   });
 }
 
@@ -94,7 +92,7 @@ describe('GreedyDailyPlanningSolver', () => {
     const solution = await solver.solve(
       baseInput({
         requestedDays: 3,
-        candidates: [candidate('a'), candidate('b')],
+        candidates: [candidate('a', 1), candidate('b', 2)],
       }),
     );
     expect(solution.days).toHaveLength(3);
@@ -106,7 +104,7 @@ describe('GreedyDailyPlanningSolver', () => {
       policy,
     );
     const solution = await solver.solve(
-      baseInput({ requestedDays: 3, candidates: [candidate('only-one')] }),
+      baseInput({ requestedDays: 3, candidates: [candidate('only-one', 1)] }),
     );
     const totalScheduled = solution.days.reduce(
       (sum, day) => sum + day.experiences.length,
@@ -121,7 +119,7 @@ describe('GreedyDailyPlanningSolver', () => {
       policy,
     );
     const solution = await solver.solve(
-      baseInput({ requestedDays: 1, candidates: [candidate('a')] }),
+      baseInput({ requestedDays: 1, candidates: [candidate('a', 1)] }),
     );
     expect(solution.metadata.approximateTravel).toBe(false);
     expect(solution.metadata.routing).toMatchObject({
@@ -137,7 +135,7 @@ describe('GreedyDailyPlanningSolver', () => {
     const solver = new GreedyDailyPlanningSolver(provider, policy);
     const composite = legacyCompositeCandidate({
       experienceId: 'composite',
-      semanticScore: 0.5,
+      preferenceRank: 1,
       footprints: [
         { type: 'POINT', centroid: { lat: 0, lng: 0 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.001 } },
@@ -168,7 +166,7 @@ describe('GreedyDailyPlanningSolver', () => {
     const solver = new GreedyDailyPlanningSolver(provider, policy);
     const composite = legacyCompositeCandidate({
       experienceId: 'too-much-internal-walking',
-      semanticScore: 0.9,
+      preferenceRank: 1,
       footprints: [
         { type: 'POINT', centroid: { lat: 0, lng: 0 } },
         { type: 'POINT', centroid: { lat: 0, lng: 0.01 } },
@@ -234,7 +232,7 @@ describe('GreedyDailyPlanningSolver', () => {
     ];
     const composite = legacyCompositeCandidate({
       experienceId: 'rw2-walk',
-      semanticScore: 0.9,
+      preferenceRank: 1,
       footprints: stops.map(([lat, lng]) => ({
         type: 'POINT' as const,
         centroid: { lat, lng },
@@ -304,9 +302,9 @@ describe('GreedyDailyPlanningSolver', () => {
     const input = baseInput({
       requestedDays: 2,
       candidates: [
-        candidate('a', 0.9),
-        candidate('b', 0.5),
-        candidate('c', 0.7),
+        candidate('a', 1),
+        candidate('b', 3),
+        candidate('c', 2),
       ],
     });
     const first = await solver.solve(input);
@@ -319,7 +317,7 @@ describe('GreedyDailyPlanningSolver', () => {
       realishTravelEstimateProvider(),
       policy,
     );
-    const dup = candidate('dup');
+    const dup = candidate('dup', 1);
     const solution = await solver.solve(
       baseInput({ requestedDays: 1, candidates: [dup, { ...dup }] }),
     );
@@ -340,7 +338,7 @@ describe('GreedyDailyPlanningSolver', () => {
 });
 
 describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService walking invariant', () => {
-  // Placement checks legs in relevance order; routed ordering later rebuilds
+  // Placement checks legs in preference-rank order; routed ordering later rebuilds
   // the day nearest-next. Each fixture is placement-feasible, but the
   // nearest-next order creates a leg/total placement never checked. The
   // validator only reads the solver's own `travelFromPrevious` estimates, so
@@ -348,14 +346,14 @@ describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService 
   function pointCandidate(
     id: string,
     lng: number,
-    semanticScore: number,
+    preferenceRank: number,
   ): PlanningExperienceCandidate {
     return singleVisitCandidate({
       experienceId: id,
       durationMinutes: 60,
       lat: 0,
       lng,
-      semanticScore,
+      preferenceRank,
     });
   }
 
@@ -388,10 +386,10 @@ describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService 
     // (placement); nearest-next would add farEast→west = 3,097 m.
     const { solution, validation } = await solveAndValidate(
       [
-        pointCandidate('start', 0, 0.9),
-        pointCandidate('west', -0.0144, 0.8),
-        pointCandidate('nearEast', 0.0045, 0.7),
-        pointCandidate('farEast', 0.0135, 0.6),
+        pointCandidate('start', 0, 1),
+        pointCandidate('west', -0.0144, 2),
+        pointCandidate('nearEast', 0.0045, 3),
+        pointCandidate('farEast', 0.0135, 4),
       ],
       {
         maxContinuousWalkingDistanceMeters: 3000,
@@ -415,10 +413,10 @@ describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService 
     // with every leg under the 3,000 m continuous limit.
     const { solution, validation } = await solveAndValidate(
       [
-        pointCandidate('start', 0, 0.9),
-        pointCandidate('west', -0.0085, 0.8),
-        pointCandidate('nearEast', 0.0081, 0.7),
-        pointCandidate('farEast', 0.018, 0.6),
+        pointCandidate('start', 0, 1),
+        pointCandidate('west', -0.0085, 2),
+        pointCandidate('nearEast', 0.0081, 3),
+        pointCandidate('farEast', 0.018, 4),
       ],
       {
         maxContinuousWalkingDistanceMeters: 3000,
@@ -435,10 +433,10 @@ describe('GreedyDailyPlanningSolver → TourPlanningFeasibilityValidatorService 
   it('keeps the nearest-next order unchanged when it is walking-feasible', async () => {
     const { solution, validation } = await solveAndValidate(
       [
-        pointCandidate('start', 0, 0.9),
-        pointCandidate('west', -0.0144, 0.8),
-        pointCandidate('nearEast', 0.0045, 0.7),
-        pointCandidate('farEast', 0.0135, 0.6),
+        pointCandidate('start', 0, 1),
+        pointCandidate('west', -0.0144, 2),
+        pointCandidate('nearEast', 0.0045, 3),
+        pointCandidate('farEast', 0.0135, 4),
       ],
       {
         maxContinuousWalkingDistanceMeters: 3500,

@@ -1,39 +1,18 @@
 import { PlanningExperienceCandidate } from '../interfaces/daily-planning.interface';
-import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
-import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
-
-type PlannerSoftScoring = Pick<
-  DailyPlanningPolicy['scoring'],
-  'semanticWeight' | 'qualityWeight'
->;
-
-export function plannerRelevanceScore(
-  candidate: PlanningExperienceCandidate,
-  scoring: PlannerSoftScoring,
-): number {
-  return (
-    scoring.semanticWeight * candidate.semanticScore +
-    (candidate.preferenceWeight ?? 0) +
-    scoring.qualityWeight * ((candidate.qualityScore ?? 0) / 5)
-  );
-}
 
 /** Deterministic initial ordering used to drive anchor seeding and the
- * greedy placement loop. It uses the same explicit soft-relevance formula as
- * placement; geographic compactness and redundancy remain day-planning
+ * greedy placement loop: the canonical within-request preference rank
+ * (task 25.2), then id. The planner never recombines preference signals
+ * into a score; geographic compactness and redundancy remain day-planning
  * concerns. Never depends on DB result order or object iteration order. */
 export function sortCandidatesDeterministically(
   candidates: PlanningExperienceCandidate[],
-  scoring: PlannerSoftScoring = dailyPlanningPolicyConfig().scoring,
 ): PlanningExperienceCandidate[] {
-  return [...candidates].sort((a, b) => {
-    const aRanking = plannerRelevanceScore(a, scoring);
-    const bRanking = plannerRelevanceScore(b, scoring);
-    if (bRanking !== aRanking) {
-      return bRanking - aRanking;
-    }
-    return a.experienceId.localeCompare(b.experienceId);
-  });
+  return [...candidates].sort(
+    (a, b) =>
+      a.preference.rank - b.preference.rank ||
+      a.experienceId.localeCompare(b.experienceId),
+  );
 }
 
 /** Seeds each requested day with one strong, deterministic anchor so top

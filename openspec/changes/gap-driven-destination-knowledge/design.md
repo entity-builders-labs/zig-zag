@@ -1260,6 +1260,35 @@ disproven.
   - **Implementation order** (owner, 2026-10-15): task 25.4 (provenance,
     importance and confidence kept separately), then 25.6 (polarity), then
     25.2 (the boundary over those real values). No interim encoding.
+- *Implemented boundary* (task 25.2, owner decisions 2026-10-16).
+  - `PreferenceUtilityService` owns the single semantic-similarity batch;
+    the pure `derivePreferenceUtility` derives once per catalog snapshot,
+    after hard eligibility and before composition, the numeric breakdown
+    (`directEvidence`, `inferredEvidence`, `avoidance`, `softAnchor`,
+    `semantic` KNOWN/UNKNOWN{reason}, `quality` KNOWN/UNKNOWN), the
+    canonical order, a strict `rank` (id tie-break) and a dense
+    `levelRank` (levels 1–6 only) under `preference-utility-v1`. Strong
+    positive evidence reuses `isStrongFacetMatch`; avoidance reuses
+    `candidateMatchesPreferenceFacet` with no quality floor.
+  - UNKNOWN semantic / quality order at the median of KNOWN peers tied on
+    levels 1–4 (quality not subdivided by semantic value); a tier with no
+    KNOWN value skips the level; the breakdown keeps UNKNOWN.
+  - Composition consumes `levelRank`, then the composition-local
+    exploration tilt, then id; it never re-derives preference. The overlap
+    filter reuses `compareExplicitPreference` (levels 1–3).
+  - The planning candidate carries `preference {policyVersion, rank,
+    breakdown}` only (numeric, no facet keys); the greedy solver orders by
+    rank then id (objective `greedy-preference-rank-v1`) and refuses a
+    foreign policy or non-distinct ranks; placement chooses a day by day
+    balance only.
+  - Reservoir promotion uses rank dominance: must-includes preserved,
+    strict progress, and every occupied rank position preserved or
+    improved — no sum, average or compensation.
+  - Deleted: `plannerRelevanceScore`, `preferenceWeightForExperience`,
+    `RequestedFacet.weight`, `candidate-ranking.util`
+    (`rankCandidatesByRelevance`, `CandidateScoreBreakdown`,
+    `qualityBonus`), `groundingStrength`, the `?? 0` similarity
+    coercions and the planner scoring weights.
 - *What crosses the planner boundary*:
   - **Structured, not a scalar.** The planning candidate carries:
     - the typed breakdown;

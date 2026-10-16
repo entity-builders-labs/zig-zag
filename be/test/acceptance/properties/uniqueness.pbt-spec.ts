@@ -4,6 +4,7 @@ import dailyPlanningPolicyConfig from 'src/modules/tours/config/daily-planning-p
 import { DeterministicTravelEstimator } from '../harness/travel-estimator-mock';
 import { TourInputBuilder } from '../builders/tour-input.builder';
 import { arbitraryCandidate } from '../arbitraries/candidate.arbitrary';
+import { rankByPosition } from '../builders/point-footprints.util';
 import { TourInvariantsAsserter } from '../harness/tour-invariants-asserter';
 
 describe('PBT-02: Uniqueness [Invariant 6]', () => {
@@ -21,10 +22,8 @@ describe('PBT-02: Uniqueness [Invariant 6]', () => {
         }),
         async (requestedDays, baseCandidates) => {
           // Intentionally duplicate candidates in pool
-          const noisyPool = [
-            ...baseCandidates,
-            ...baseCandidates.map((c) => ({ ...c })),
-          ];
+          const ranked = rankByPosition(baseCandidates);
+          const noisyPool = [...ranked, ...ranked.map((c) => ({ ...c }))];
 
           const input = TourInputBuilder.aTourInput()
             .withRequestedDays(requestedDays)

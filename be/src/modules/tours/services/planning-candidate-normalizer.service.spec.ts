@@ -1,3 +1,6 @@
+import { derivePreferenceUtility } from '../utils/preference-utility.util';
+import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
+import { ComposableExperience } from '../interfaces/preference-spec.interface';
 import {
   PlanningCandidateNormalizerService,
   PlanningProjectableExperience,
@@ -26,6 +29,23 @@ const venue = (
   ...extra,
 });
 
+/** The canonical utility of the given Experiences (no requested facets). */
+const utilityOf = (
+  experiences: PlanningProjectableExperience[],
+): PreferenceUtilityResult => ({
+  ...derivePreferenceUtility({
+    experiences: experiences as ComposableExperience[],
+    preferenceSpec: { facets: [], assertions: [] },
+    softAnchorIds: new Set(),
+    semantic: null,
+  }),
+  semanticRanking: {
+    status: 'not_requested',
+    requestedCandidateCount: 0,
+    indexedCandidateCount: 0,
+  },
+});
+
 describe('PlanningCandidateNormalizerService', () => {
   const service = new PlanningCandidateNormalizerService();
   const normalize = (
@@ -33,9 +53,8 @@ describe('PlanningCandidateNormalizerService', () => {
     context: Partial<
       Parameters<PlanningCandidateNormalizerService['normalizeExperiences']>[2]
     > = {},
-    scores = new Map(),
   ) =>
-    service.normalizeExperiences(experiences, scores, {
+    service.normalizeExperiences(experiences, utilityOf(experiences), {
       days: DAYS,
       ...context,
     });
@@ -162,7 +181,7 @@ describe('PlanningCandidateNormalizerService', () => {
       collapsedVisitFacts(dated)!.openingHoursByDay.map((day) => day.status),
     ).toEqual(['UNKNOWN', 'UNKNOWN']);
 
-    const undated = service.normalizeExperiences([experience], new Map(), {
+    const undated = service.normalizeExperiences([experience], utilityOf([experience]), {
       days: planningDaysFixture(1),
     }).candidates[0];
     expect(collapsedVisitFacts(undated)!.openingHoursByDay).toEqual([
@@ -282,25 +301,53 @@ describe('PlanningCandidateNormalizerService', () => {
     expect(candidate.legacyExperienceFacts).not.toBeNull();
   });
 
-  it('carries raw canonical Experience quality into the planner contract', () => {
-    const [candidate] = normalize(
-      [
-        {
-          id: 'e5',
-          canonicalName: 'Comida',
-          durationMinutes: 60,
-          qualityScore: 4.7,
-          components: [venue('g5', 1, 2)],
-        },
-      ],
-      {},
-      new Map([['e5', { semanticSimilarity: 0.8, qualityBonus: 0.4 } as any]]),
-    ).candidates;
-    expect(candidate.semanticScore).toBe(0.8);
-    expect(candidate.qualityScore).toBe(4.7);
+  it('carries the canonical preference (policy, rank, numeric breakdown) and no untyped score', () => {
+    const experiences = [
+      {
+        id: 'e5',
+        canonicalName: 'Comida',
+        durationMinutes: 60,
+        qualityScore: 4.7,
+        components: [venue('g5', 1, 2)],
+      },
+      {
+        id: 'e6',
+        canonicalName: 'Otra',
+        durationMinutes: 60,
+        qualityScore: 3,
+        components: [venue('g6', 1, 2.1)],
+      },
+    ];
+    const [best, second] = normalize(experiences).candidates;
+    expect(best.preference).toEqual({
+      policyVersion: 'preference-utility-v1',
+      rank: 1,
+      breakdown: expect.objectContaining({
+        quality: { status: 'KNOWN', score: 4.7 },
+        semantic: { status: 'UNKNOWN', reason: 'EMPTY_QUERY' },
+      }),
+    });
+    expect(second.preference.rank).toBe(2);
+    expect(best).not.toHaveProperty('semanticScore');
+    expect(best).not.toHaveProperty('qualityScore');
+    expect(best).not.toHaveProperty('preferenceWeight');
   });
 
-  it('carries preference weight and only resolved MUST venue IDs', () => {
+  it('fails explicitly for an Experience without a preference-utility assessment', () => {
+    const experience = {
+      id: 'orphan',
+      canonicalName: 'Orphan',
+      durationMinutes: 60,
+      components: [venue('g-orphan', 1, 2)],
+    };
+    expect(() =>
+      service.normalizeExperiences([experience], utilityOf([]), {
+        days: DAYS,
+      }),
+    ).toThrow(/without a preference-utility assessment/);
+  });
+
+  it('carries only resolved MUST venue IDs as must-include', () => {
     const experience = (id: string) => ({
       id,
       canonicalName: id,
@@ -309,20 +356,12 @@ describe('PlanningCandidateNormalizerService', () => {
     });
     const [must, soft, ordinary] = normalize(
       [experience('must'), experience('soft'), experience('ordinary')],
-      {
-        preferenceWeightById: new Map([
-          ['must', 1.7],
-          ['soft', 0.4],
-        ]),
-        mustIncludeExperienceIds: new Set(['must']),
-      },
+      { mustIncludeExperienceIds: new Set(['must']) },
     ).candidates;
 
-    expect(must.preferenceWeight).toBe(1.7);
     expect(must.mustInclude).toBe(true);
-    expect(soft).toMatchObject({ preferenceWeight: 0.4, mustInclude: false });
+    expect(soft.mustInclude).toBe(false);
     expect(ordinary.mustInclude).toBe(false);
-    expect(ordinary.preferenceWeight).toBeUndefined();
   });
 
   it('preserves acquisition-provided internal mobility without deriving it from duration', () => {

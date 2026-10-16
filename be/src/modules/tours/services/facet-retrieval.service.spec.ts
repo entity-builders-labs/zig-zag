@@ -6,7 +6,6 @@ function facet(overrides: Partial<RequestedFacet> = {}): RequestedFacet {
   return {
     dimension: 'theme',
     key: 'history',
-    weight: 1,
     provenance: 'DIRECT' as const,
     importance: 1,
     confidence: 1,

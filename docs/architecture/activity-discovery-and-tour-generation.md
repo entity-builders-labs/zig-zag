@@ -2670,7 +2670,8 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   baseline policy for every destination, no destination-specific weights.
   Preference utility is derived once, upstream of the optimizer, at
   exactly one canonical derivation boundary consumed by composition,
-  ranking and planning (owner chosen by the implementation). No consumer
+  ranking and planning (`PreferenceUtilityService`, which also owns the
+  single semantic-similarity batch). No consumer
   recombines the signals; the planner keeps no scoring formula of its own.
   The signals are:
   - **Explicit preference evidence** is authoritative. Its authority

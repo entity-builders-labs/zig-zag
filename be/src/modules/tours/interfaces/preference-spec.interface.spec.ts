@@ -29,7 +29,7 @@ describe('preference-spec.interface', () => {
     });
   });
 
-  it('constructs a valid RequestedFacet with required:false and provenance kept separate from weight', () => {
+  it('constructs a valid RequestedFacet with required:false and provenance, importance and confidence kept separate', () => {
     const facet: RequestedFacet = requestedFacetFixture({
       dimension: 'theme',
       key: 'history',
@@ -39,7 +39,8 @@ describe('preference-spec.interface', () => {
     });
     expect(facet.required).toBe(false);
     expect(facet.provenance).toBe('INFERRED');
-    expect(facet.weight).toBeCloseTo(0.35);
+    expect(facet).not.toHaveProperty('weight');
+    expect([facet.importance, facet.confidence]).toEqual([0.7, 0.5]);
   });
 
   it('constructs a valid AnchoredPlace literal for each kind/priority combination', () => {

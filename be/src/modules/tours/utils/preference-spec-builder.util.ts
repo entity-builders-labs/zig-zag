@@ -71,12 +71,11 @@ function mapPace(pace: TravelPace): PreferenceSpec['trip']['pace'] {
   }
 }
 
-/** The SOFT INCLUDE projection consumed until task 25.2. */
+/** The SOFT INCLUDE projection consumed by retrieval and utility. */
 function toRequestedFacet(assertion: PreferenceAssertion): RequestedFacet {
   return {
     dimension: assertion.target.dimension,
     key: assertion.target.key,
-    weight: assertion.importance * assertion.confidence,
     provenance: assertion.provenance,
     importance: assertion.importance,
     confidence: assertion.confidence,

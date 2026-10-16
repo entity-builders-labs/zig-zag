@@ -23,7 +23,7 @@ function baseInput(
   return planningInputFixture({
     dayCount: requestedDays ?? 1,
     candidates: [
-      singleVisitCandidate({ experienceId: 'a', semanticScore: 0.5 }),
+      singleVisitCandidate({ experienceId: 'a', preferenceRank: 1 }),
     ],
     ...rest,
   });
@@ -114,8 +114,8 @@ const withSecondCandidate = (
 ): DailyPlanningInput =>
   baseInput({
     candidates: [
-      singleVisitCandidate({ experienceId: 'a', semanticScore: 0.5 }),
-      singleVisitCandidate({ experienceId: 'a2', semanticScore: 0.5 }),
+      singleVisitCandidate({ experienceId: 'a', preferenceRank: 1 }),
+      singleVisitCandidate({ experienceId: 'a2', preferenceRank: 2 }),
     ],
     ...overrides,
   });
@@ -220,7 +220,7 @@ describe('TourPlanningFeasibilityValidatorService', () => {
       candidates: [
         singleVisitCandidate({
           experienceId: 'a',
-          semanticScore: 0.5,
+          preferenceRank: 1,
           mobility: { internalWalkingDistanceMeters: 15000 },
         }),
       ],

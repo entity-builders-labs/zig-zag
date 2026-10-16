@@ -42,7 +42,8 @@ function candidateWithOptions(
     lat,
     lng,
     durationMinutes: opts.durationMinutes ?? 60,
-    semanticScore: 0.5,
+    // Equal preference: improvement order is decided by geography and id.
+    preferenceRank: 1,
     openingHoursByDay: opts.openingHours
       ? legacyHoursByDay(
           opts.openingHours,
@@ -100,8 +101,6 @@ const policy: DailyPlanningPolicy = {
   },
   internalWalking: { unknownFallbackMinutes: 20 },
   scoring: {
-    semanticWeight: 1,
-    qualityWeight: 0.5,
     dayBalanceWeight: 0.25,
   },
   localImprovement: { maxIterations: 20 },

@@ -3,7 +3,6 @@ import { PREFERENCE_DIMENSIONS } from '../preferences/preference-facet-vocabular
 // Kept as a compatibility export for existing callers. The implementation
 // lives with the canonical strong-match policy so weak matches cannot acquire
 // planner preference weight.
-export { preferenceWeightForExperience } from './preference-strong-match.util';
 
 function normalizeText(value: string): string {
   return value

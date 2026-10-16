@@ -290,6 +290,31 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 - **WHEN** the request has a hard exclusion whose compatibility can be proven and an Experience matches it
 - **THEN** it is not offered to the optimizer and no objective weight can bring it back; when compatibility cannot be proven, generation ends with HARD_EXCLUSION_UNENFORCEABLE instead
 
+### Requirement: UNKNOWN ordering projection is tier-local
+For ordering only, an UNKNOWN semantic affinity or generic quality SHALL take the median of the KNOWN values among candidates tied on every earlier canonical level (DIRECT, INFERRED, soft-exclusion avoidance, soft anchor). Quality SHALL use the same tier, not subdivided by semantic value. A tier with no KNOWN value SHALL skip that level. The breakdown SHALL keep UNKNOWN and no median SHALL be stored.
+
+#### Scenario: Other tiers do not move an UNKNOWN
+- **WHEN** an UNKNOWN-similarity Experience is tied on explicit evidence only with peers of similarity 0.3 and 0.5, while other tiers hold peers of 0.9
+- **THEN** it orders as 0.4 within its tier and its breakdown still reports UNKNOWN
+
+### Requirement: The planner follows the canonical preference rank
+Every planning candidate SHALL carry its canonical preference policy version, a strict within-request rank and the numeric breakdown, with no embedding, text, facet structure or untyped score. The greedy planner SHALL order candidates by rank, then id, and SHALL NOT combine breakdown signals into a score; a candidate of another ranking policy or without a distinct rank SHALL be refused.
+
+#### Scenario: A richer breakdown does not outrank a better rank
+- **WHEN** a planning candidate with higher quality and similarity in its breakdown has a worse rank than another
+- **THEN** the planner orders the better-ranked candidate first
+
+### Requirement: Reservoir promotion preserves preference rank positions
+A reservoir promotion SHALL be accepted only if must-includes are preserved, planning strictly progresses (more scheduled candidates or strictly better utilization) and, for every position of the current schedule, the trial's k-th best rank is equal or better. No sum, average, weighting or compensation between positions SHALL be used.
+
+#### Scenario: Improvement at every occupied position
+- **WHEN** the current schedule holds ranks 1, 3, 5 and a trial holds 1, 2, 5 with more utilization
+- **THEN** the promotion is accepted
+
+#### Scenario: A worse position is not compensated
+- **WHEN** the current schedule holds ranks 1, 3, 5 and a trial holds 1, 4, 4
+- **THEN** the promotion is rejected
+
 ### Requirement: Preference evidence precedence
 Within one request, eligible candidates SHALL be ordered lexicographically by DIRECT facet evidence, then INFERRED facet evidence, then soft-exclusion avoidance, then soft venue-anchor affinity, then semantic affinity, then generic quality. No exchange rate SHALL let a lower level outweigh a higher one, and the capture channel SHALL NOT be a level.
 

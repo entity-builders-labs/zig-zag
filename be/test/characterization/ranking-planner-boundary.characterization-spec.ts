@@ -1,33 +1,19 @@
 import { planningDaysFixture } from '../../src/modules/tours/fixtures/planning-input.fixture';
-import { CandidateScoreBreakdown } from '../../src/modules/tours/utils/candidate-ranking.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
-import dailyPlanningPolicyConfig from '../../src/modules/tours/config/daily-planning-policy.config';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
-import { scoreCandidateForDay } from '../../src/modules/tours/utils/daily-planning-placement.util';
-import { preferenceWeightForExperience } from '../../src/modules/tours/utils/preference-facet-matching.util';
-import { RequestedFacet } from '../../src/modules/tours/interfaces/preference-spec.interface';
+import { derivePreferenceUtility } from '../../src/modules/tours/utils/preference-utility.util';
+import { PreferenceUtilityResult } from '../../src/modules/tours/interfaces/preference-utility.interface';
+import { selectedFacetFixture } from '../../src/modules/tours/fixtures/requested-facet.fixture';
 
-const facets: RequestedFacet[] = [
-  {
-    dimension: 'theme',
-    key: 'history',
-    weight: 1,
-    provenance: 'DIRECT' as const,
-    importance: 1,
-    confidence: 1,
-    evidence: [],
-    required: false,
-  },
-  {
-    dimension: 'theme',
-    key: 'art',
-    weight: 1,
-    provenance: 'DIRECT' as const,
-    importance: 1,
-    confidence: 1,
-    evidence: [],
-    required: false,
-  },
+/**
+ * CHAR-5 — ranking/planner boundary (task 25.2). The canonical preference
+ * utility is derived once; the planner receives only its rank, policy and
+ * numeric breakdown, and orders by the rank. No scalar recombination of
+ * semantic, facet and quality signals happens at or after the boundary.
+ */
+const facets = [
+  selectedFacetFixture('theme', 'history'),
+  selectedFacetFixture('theme', 'art'),
 ];
 
 function experience(id: string, themes: string[], qualityScore: number) {
@@ -49,90 +35,86 @@ function experience(id: string, themes: string[], qualityScore: number) {
   };
 }
 
+function utility(
+  experiences: ReturnType<typeof experience>[],
+  similarity: Record<string, number>,
+): PreferenceUtilityResult {
+  return {
+    ...derivePreferenceUtility({
+      experiences,
+      preferenceSpec: { facets, assertions: [] },
+      softAnchorIds: new Set(),
+      semantic: {
+        status: 'applied',
+        scores: new Map(Object.entries(similarity)),
+        requestedCandidateCount: experiences.length,
+        indexedCandidateCount: Object.keys(similarity).length,
+        identity: {
+          provider: 'ollama',
+          model: 'test',
+          dimensions: 2,
+          documentVersion: 1,
+        },
+      },
+    }),
+    semanticRanking: {
+      status: 'applied',
+      requestedCandidateCount: experiences.length,
+      indexedCandidateCount: Object.keys(similarity).length,
+    },
+  };
+}
+
 describe('CHAR-5 ranking/planner boundary', () => {
-  it('preserves strong canonical preference through the planner boundary', async () => {
+  it('preserves strong canonical preference through the planner boundary against semantic and quality', () => {
     const a = experience('A-strong-pref', ['history', 'art'], 3);
     const b = experience('B-weaker-pref', ['art'], 5);
-    const weights = new Map([
-      [a.id, preferenceWeightForExperience(a, facets)],
-      [b.id, preferenceWeightForExperience(b, facets)],
-    ]);
-    expect(weights).toEqual(
-      new Map([
-        ['A-strong-pref', 2],
-        ['B-weaker-pref', 1],
-      ]),
-    );
+    const result = utility([a, b], {
+      'A-strong-pref': 0.1,
+      'B-weaker-pref': 0.99,
+    });
+    expect(
+      [a.id, b.id].map((id) => result.byId.get(id)!.breakdown.directEvidence),
+    ).toEqual([2, 1]);
 
-    const normalizer = new PlanningCandidateNormalizerService();
-    const normalized = normalizer.normalizeExperiences(
-      [a, b],
-      new Map<string, CandidateScoreBreakdown>([
-        [
-          'A-strong-pref',
-          {
-            semanticSimilarity: 0.99,
-            qualityBonus: 0,
-            diversityBonus: 0,
-            proximityBonus: 0,
-            totalScore: 999,
-          },
-        ],
-        [
-          'B-weaker-pref',
-          {
-            semanticSimilarity: 0,
-            qualityBonus: 0,
-            diversityBonus: 0,
-            proximityBonus: 0,
-            totalScore: 1000,
-          },
-        ],
-      ]),
-      { days: planningDaysFixture(1), preferenceWeightById: weights },
+    const normalized = new PlanningCandidateNormalizerService().normalizeExperiences(
+      [b, a],
+      result,
+      { days: planningDaysFixture(1) },
     ).candidates;
 
     expect(
       sortCandidatesDeterministically(normalized).map((c) => c.experienceId),
     ).toEqual(['A-strong-pref', 'B-weaker-pref']);
-    const policy = dailyPlanningPolicyConfig();
-    const context: any = { policy };
-    const emptyDay: any = { dayNumber: 1, assigned: [] };
-    expect(
-      scoreCandidateForDay(normalized[0], emptyDay, context),
-    ).toBeGreaterThan(scoreCandidateForDay(normalized[1], emptyDay, context));
   });
 
-  it('does not let an ordinal rankingScore override typed planner signals', async () => {
+  it('carries no ordinal or untyped score across the boundary', () => {
     const candidate = experience('typed', ['history'], 4);
-    const normalizer = new PlanningCandidateNormalizerService();
-    const [normalized] = normalizer.normalizeExperiences(
-      [candidate],
-      new Map([
-        [
-          'typed',
-          {
-            semanticSimilarity: 0.2,
-            qualityBonus: 0,
-            diversityBonus: 0,
-            proximityBonus: 0,
-            totalScore: 999,
-          } as CandidateScoreBreakdown,
-        ],
-      ]),
-      {
-        days: planningDaysFixture(1),
-        preferenceWeightById: new Map([['typed', 1]]),
+    const [normalized] =
+      new PlanningCandidateNormalizerService().normalizeExperiences(
+        [candidate],
+        utility([candidate], { typed: 0.2 }),
+        { days: planningDaysFixture(1) },
+      ).candidates;
+    for (const field of [
+      'rankingScore',
+      'semanticScore',
+      'qualityScore',
+      'preferenceWeight',
+    ]) {
+      expect(field in normalized).toBe(false);
+    }
+    expect(normalized.preference).toEqual({
+      policyVersion: 'preference-utility-v1',
+      rank: 1,
+      breakdown: {
+        directEvidence: 1,
+        inferredEvidence: 0,
+        avoidance: { directConflict: 0, inferredConflict: 0 },
+        softAnchor: false,
+        semantic: { status: 'KNOWN', similarity: 0.2 },
+        quality: { status: 'KNOWN', score: 4 },
       },
-    ).candidates;
-    expect('rankingScore' in normalized).toBe(false);
-    expect(normalized.preferenceWeight).toBe(1);
-    expect(
-      scoreCandidateForDay(
-        normalized,
-        { dayNumber: 1, assigned: [] } as any,
-        { policy: dailyPlanningPolicyConfig() } as any,
-      ),
-    ).toBeCloseTo(1.85);
+    });
   });
 });

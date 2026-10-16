@@ -9,7 +9,6 @@ import {
 } from '../interfaces/daily-planning.interface';
 import { DailyPlanningPolicy } from '../config/daily-planning-policy.config';
 import { evaluateVisitOpeningHours } from './normalized-opening-hours.util';
-import { plannerRelevanceScore } from './daily-planning-candidate-sort.util';
 import {
   evaluateCyclingFeasibility,
   evaluateWalkingFeasibility,
@@ -137,20 +136,16 @@ export async function checkHardConstraints(
   };
 }
 
-export function scoreCandidateForDay(
-  candidate: PlanningExperienceCandidate,
+/**
+ * Chooses among the feasible days for one candidate. The candidate's
+ * preference is identical on every day, so only day balance decides; the
+ * planner never turns preference into a score (task 25.2).
+ */
+export function scoreDayForCandidate(
   acc: DayAccumulator,
   context: PlacementContext,
 ): number {
-  const { scoring } = context.policy;
-  // This is the sole planner soft-relevance normalization path. Preference is
-  // already the sum of distinct strong requested facets; quality is raw on the
-  // canonical 0..5 scale and normalized here exactly once. Unknown quality is
-  // neutral because it has no contribution, not because it is a fake score.
-  const relevance = plannerRelevanceScore(candidate, scoring);
-  const dayBalanceBonus =
-    scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
-  return relevance + dayBalanceBonus;
+  return context.policy.scoring.dayBalanceWeight * (1 / (acc.assigned.length + 1));
 }
 
 /**
@@ -195,7 +190,7 @@ export async function placeCandidates(
         }
         continue;
       }
-      const score = scoreCandidateForDay(candidate, acc, context);
+      const score = scoreDayForCandidate(acc, context);
       if (score > bestScore) {
         bestScore = score;
         bestDay = dayNumber;

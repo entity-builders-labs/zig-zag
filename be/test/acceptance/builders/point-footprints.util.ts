@@ -16,8 +16,8 @@ export interface AcceptanceCandidateSpec {
   experienceId: string;
   title: string;
   durationMinutes: number;
-  semanticScore: number;
-  qualityScore?: number;
+  /** Canonical within-request preference rank (1 = best). */
+  preferenceRank: number;
   spatialFootprint: SpatialFootprint;
   /** Legacy weekly hours; resolved per planning day by `TourInputBuilder`. */
   openingHours?: NormalizedOpeningHours;
@@ -45,8 +45,7 @@ export function toPointCandidate(
     experienceId: spec.experienceId,
     title: spec.title,
     durationMinutes: spec.durationMinutes,
-    semanticScore: spec.semanticScore,
-    qualityScore: spec.qualityScore,
+    preferenceRank: spec.preferenceRank,
     footprint: spec.spatialFootprint,
   });
   if (spec.openingHours) {
@@ -66,4 +65,17 @@ export function resolveForDays(
         openingHoursByDay: legacyHoursByDay(weekly, days),
       })
     : alignUnknownHours(candidate, days.length);
+}
+
+/**
+ * Gives each candidate of a pool its position as a distinct preference rank
+ * (1 = first). For generated pools, whose order is itself arbitrary.
+ */
+export function rankByPosition(
+  candidates: PlanningExperienceCandidate[],
+): PlanningExperienceCandidate[] {
+  return candidates.map((candidate, index) => ({
+    ...candidate,
+    preference: { ...candidate.preference, rank: index + 1 },
+  }));
 }

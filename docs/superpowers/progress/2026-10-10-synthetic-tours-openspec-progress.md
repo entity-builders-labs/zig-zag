@@ -149,18 +149,16 @@ amendment (2026-10-11); no production code yet.**
     41.0 and 41.1;
   - the canonical planning and routing paragraphs.
 - `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
-  task 25.1 committed (0d1e6e97); task 25.4 committed (2919e0db). Task
-  25.6 (polarity: SOFT EXCLUDE level decided for 25.2, typed
-  PREFERENCE_POLARITY_CONFLICT implemented; a HARD conflict blocks with
-  AMBIGUOUS_HARD_CONSTRAINT) verified, uncommitted until
-  owner review; next 25.2.
+  task 25.1 committed (0d1e6e97); 25.4 (2919e0db); 25.6 (2390a953).
+  Task 25.2 (canonical preference-utility boundary, rank-based planner)
+  implemented and verified, uncommitted until owner review.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted task 25.6 implementation and authorizes
-   its commit; then `/opsx:apply` continues with task 25.2 (preference-
-   utility boundary, including the soft-exclusion avoidance level). The only
+1. Owner reviews the uncommitted task 25.2 implementation and authorizes
+   its commit; then `/opsx:apply` continues with the next unblocked task.
+   The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
    sample that meets the sufficiency rule, compute p75, pass the
@@ -187,21 +185,15 @@ amendment (2026-10-11); no production code yet.**
   client deadline must exceed the safety cap.
 - P-D7 code findings, confirmed on the live code by the G-P7-U.A
   characterization (design defects 1-8; fix in tasks 25.2-25.5):
-  - **Duplicate scoring authority.** The additive `plannerRelevanceScore`
-    lets semantic similarity, and quality, outweigh explicit evidence.
-  - **Missing embedding = 0.** Composition and the normalizer coerce it to
-    0; in the live `composeSet` this pushes an equal-evidence,
-    best-quality candidate into the reservoir.
-  - **Dead paths:** `rankCandidatesByRelevance` (task 25.2);
-    `evaluateExperiencePreferences` deleted by 25.4.
+  - **Duplicate scoring authority, missing embedding = 0, dead ranking
+    paths:** resolved by task 25.2 (one preference-utility boundary).
   - **Unused soft fields.** Soft avoidances and constraints have no
     consumer.
   - **Accessibility.** Need and preference are merged and unenforced, the
     fallback files "wheelchair" as a preference, and no canonical
     accessibility fact exists.
-  - **Minor.** `groundingStrength` is a no-op and `qualityBonus` is
-    mislabelled.
-  - **Soft anchors** are applied last (the spec says "strong").
+  - **Soft anchors:** resolved by 25.2 (canonical level after explicit
+    evidence and avoidance, before semantic).
   - **Provenance / interpreter evidence:** resolved by task 25.4.
   - **Polarity (POLARITY-1):** resolved by task 25.6; the SOFT EXCLUDE
     avoidance level is implemented by 25.2.

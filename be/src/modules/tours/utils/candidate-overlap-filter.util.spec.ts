@@ -184,10 +184,21 @@ describe('filterOverlappingExperienceCandidates', () => {
     ]);
   });
 
-  it('prefers requested weighted coverage before component count', () => {
+  it('prefers stronger canonical explicit preference before component count', () => {
+    const breakdown = (directEvidence: number) => ({
+      directEvidence,
+      inferredEvidence: 0,
+      avoidance: { directConflict: 0, inferredConflict: 0 },
+      softAnchor: false,
+      semantic: { status: 'UNKNOWN' as const, reason: 'EMPTY_QUERY' as const },
+      quality: {
+        status: 'UNKNOWN' as const,
+        reason: 'NO_QUALITY_SIGNAL' as const,
+      },
+    });
     const broad = {
       id: 'broad-composite',
-      weightedPreferenceCoverage: 1,
+      preferenceBreakdown: breakdown(1),
       components: [
         { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
         { geoEntity: { name: 'Second Place', latitude: 1.001, longitude: 1 } },
@@ -195,7 +206,7 @@ describe('filterOverlappingExperienceCandidates', () => {
     };
     const preferred = {
       id: 'preferred-poi',
-      weightedPreferenceCoverage: 3,
+      preferenceBreakdown: breakdown(2),
       components: [
         { geoEntity: { name: 'Shared Place', latitude: 1, longitude: 1 } },
       ],

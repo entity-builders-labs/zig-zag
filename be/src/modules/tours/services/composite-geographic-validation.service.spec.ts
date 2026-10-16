@@ -3499,7 +3499,7 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           experienceId: 'exp-long-walk',
           title: 'Across Buenos Aires Epic Walk',
           durationMinutes: 90,
-          semanticScore: 1,
+          preferenceRank: 1,
           footprint: {
             type: 'POINT',
             centroid: { lat: -34.56, lng: -58.45 },
@@ -3544,8 +3544,6 @@ describe('Regression tests for forensic geographic trace evidence', () => {
           },
           internalWalking: { unknownFallbackMinutes: 20 },
           scoring: {
-            semanticWeight: 1,
-            qualityWeight: 0.5,
             dayBalanceWeight: 0.25,
           },
           localImprovement: { maxIterations: 50 },

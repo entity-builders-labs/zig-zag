@@ -30,7 +30,7 @@ describe('TourPlanningFeasibilityValidatorService opening-hours defense', () => 
           durationMinutes: 60,
           lat: -34.6,
           lng: -58.4,
-          semanticScore: 1,
+          preferenceRank: 1,
           openingHoursByDay: legacyHoursByDay(
             {
               status: 'known',

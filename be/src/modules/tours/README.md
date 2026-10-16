@@ -63,6 +63,11 @@ The primary flow when a user creates a tour from the mobile app wizard:
      assertions. A HARD constraint that cannot be proven ends generation
      with `HARD_EXCLUSION_UNENFORCEABLE`
      (`utils/hard-constraint-enforceability.util.ts`)
+   - Derives the canonical preference utility once per catalog snapshot
+     (`services/preference-utility.service.ts`, `preference-utility-v1`):
+     a numeric breakdown, the lexicographic order and a within-request
+     rank. Composition, the overlap filter, planning and the trace consume
+     it; the greedy planner orders by rank and never scores preference
    - Discovers candidate Experiences with grounded search, through acquisition
      work units (`utils/acquisition-strategy-selector.util.ts`): each open
      `intent:walk` / `intent:route_like` deficit has its own unit

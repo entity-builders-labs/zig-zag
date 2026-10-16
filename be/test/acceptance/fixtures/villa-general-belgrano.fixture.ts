@@ -7,8 +7,8 @@ export const VILLA_GENERAL_BELGRANO_CANDIDATES: PlanningExperienceCandidate[] =
       experienceId: 'villa_general_belgrano-' + i,
       title: 'VILLA_GENERAL_BELGRANO Experience ' + i,
       durationMinutes: 60 + (i % 3) * 30,
-      semanticScore: 0.9 - i * 0.01,
-      qualityScore: 0.85,
+      // Fixture order is the preference order.
+      preferenceRank: i + 1,
       spatialFootprint: {
         type: 'POINT',
         centroid: { lat: -34.6 + i * 0.001, lng: -58.4 + i * 0.001 },

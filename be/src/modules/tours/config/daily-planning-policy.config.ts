@@ -24,8 +24,6 @@ export interface DailyPlanningPolicy {
     unknownFallbackMinutes: number;
   };
   scoring: {
-    semanticWeight: number;
-    qualityWeight: number;
     dayBalanceWeight: number;
   };
   localImprovement: {
@@ -66,8 +64,6 @@ export default registerAs(
       ),
     },
     scoring: {
-      semanticWeight: 1,
-      qualityWeight: 0.5,
       dayBalanceWeight: 0.25,
     },
     localImprovement: {

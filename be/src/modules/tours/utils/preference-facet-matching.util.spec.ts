@@ -1,7 +1,4 @@
-import {
-  candidateMatchesPreferenceFacet,
-  preferenceWeightForExperience,
-} from './preference-facet-matching.util';
+import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
 import { AssertionTargetDimension } from '../preferences/preference-facet-vocabulary';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
@@ -314,79 +311,5 @@ describe('candidateMatchesPreferenceFacet', () => {
         ),
       ).toBe(true);
     });
-  });
-});
-
-describe('preferenceWeightForExperience', () => {
-  const facet = (
-    dimension: AssertionTargetDimension,
-    key: string,
-    weight: number,
-  ): RequestedFacet => ({
-    ...selectedFacetFixture(dimension, key),
-    importance: weight,
-    weight,
-  });
-
-  it('sums distinct canonically satisfied facets and ignores duplicate representations', () => {
-    const experience = {
-      themes: ['history'],
-      intents: ['walk'],
-      qualityScore: 4,
-      components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
-    };
-    expect(
-      preferenceWeightForExperience(experience, [
-        facet('theme', 'history', 1.0),
-        facet('theme', 'history', 1.0),
-        facet('intent', 'walk', 0.7),
-        facet('theme', 'food', 0.4),
-      ]),
-    ).toBe(1.7);
-  });
-
-  it('excludes weak semantic matches from planner preference weight', () => {
-    const facetDefinition = facet('theme', 'history', 1);
-    const strong = {
-      themes: ['history'],
-      qualityScore: 4,
-      components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
-    };
-    expect(preferenceWeightForExperience(strong, [facetDefinition])).toBe(1);
-    expect(
-      preferenceWeightForExperience(
-        { themes: ['history'], qualityScore: 2, components: strong.components },
-        [facetDefinition],
-      ),
-    ).toBe(0);
-    expect(
-      preferenceWeightForExperience({ themes: ['history'], qualityScore: 4 }, [
-        facetDefinition,
-      ]),
-    ).toBe(0);
-    expect(
-      preferenceWeightForExperience(
-        {
-          themes: ['history'],
-          qualityScore: 4,
-          components: strong.components,
-          metadata: { classification: { state: 'degraded' } },
-        },
-        [facetDefinition],
-      ),
-    ).toBe(0);
-  });
-
-  it('does not infer preference truth from semantic-looking text', () => {
-    const experience = {
-      canonicalName: 'Historic architecture museum',
-      description: 'A very similar history and architecture experience',
-    };
-    expect(
-      preferenceWeightForExperience(experience, [
-        facet('theme', 'history', 1),
-        facet('theme', 'architecture', 0.7),
-      ]),
-    ).toBe(0);
   });
 });

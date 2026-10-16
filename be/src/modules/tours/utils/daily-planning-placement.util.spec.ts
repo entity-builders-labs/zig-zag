@@ -1,7 +1,7 @@
 import {
   placeCandidates,
   checkHardConstraints,
-  scoreCandidateForDay,
+  scoreDayForCandidate,
   DayAccumulator,
   PlacementContext,
 } from './daily-planning-placement.util';
@@ -16,6 +16,7 @@ import {
   legacyHoursByDay,
   mobilityFixture,
   planningDaysFixture,
+  planningPreferenceFixture,
   singleVisitCandidate,
   withVisitFacts,
 } from '../fixtures/planning-input.fixture';
@@ -31,7 +32,7 @@ function candidate(
       experienceId: overrides.experienceId ?? 'a1',
       title: 'Test',
       durationMinutes: durationMinutes ?? 60,
-      semanticScore: 0.5,
+      preferenceRank: 1,
     }),
     ...rest,
   };
@@ -72,8 +73,6 @@ const policy: DailyPlanningPolicy = {
   },
   internalWalking: { unknownFallbackMinutes: 20 },
   scoring: {
-    semanticWeight: 1,
-    qualityWeight: 0.5,
     dayBalanceWeight: 0.25,
   },
   localImprovement: { maxIterations: 50 },
@@ -313,40 +312,24 @@ describe('checkHardConstraints', () => {
   });
 });
 
-describe('scoreCandidateForDay', () => {
-  it('never penalizes an undefined qualityScore relative to an explicit 0', () => {
-    const scoreUnknown = scoreCandidateForDay(
-      candidate({ qualityScore: undefined }),
-      emptyDay(1),
-      baseContext(),
-    );
-    const scoreZero = scoreCandidateForDay(
-      candidate({ qualityScore: 0 }),
-      emptyDay(1),
-      baseContext(),
-    );
-    expect(scoreUnknown).toBe(scoreZero);
-  });
-
-  it('does not apply a structural family penalty in V2', () => {
-    const acc: DayAccumulator = {
+describe('scoreDayForCandidate', () => {
+  it('prefers the day with fewer assigned Experiences (day balance only)', () => {
+    const busy: DayAccumulator = {
       dayNumber: 1,
       assigned: [candidate({ experienceId: 'existing' })],
       totalExperienceMinutes: 60,
       totalWalkingMeters: 0,
       totalCyclingMinutes: 0,
     };
-    const sameFamily = scoreCandidateForDay(
-      candidate({ experienceId: 'same' }),
-      acc,
-      baseContext(),
+    expect(scoreDayForCandidate(emptyDay(2), baseContext())).toBeGreaterThan(
+      scoreDayForCandidate(busy, baseContext()),
     );
-    const differentFamily = scoreCandidateForDay(
-      candidate({ experienceId: 'different' }),
-      acc,
-      baseContext(),
-    );
-    expect(sameFamily).toBe(differentFamily);
+  });
+
+  it('takes no candidate input: preference never becomes a placement score', () => {
+    // The candidate's preference is identical on every day, so it cannot
+    // change which feasible day wins (task 25.2).
+    expect(scoreDayForCandidate.length).toBe(2);
   });
 });
 
@@ -405,7 +388,8 @@ describe('checkHardConstraints cycling limit (owner D3)', () => {
 
   it('rejects a bicycle leg longer than the continuous cycling limit', async () => {
     const result = await checkHardConstraints(
-      candidate({ experienceId: 'next', preferenceWeight: 100 }),
+      // The best preference rank never buys hard feasibility.
+      candidate({ experienceId: 'next', preference: planningPreferenceFixture(1) }),
       dayWithPrevious(),
       cyclingContext(
         { maxContinuousCyclingMinutes: 30, maxDailyCyclingMinutes: null },

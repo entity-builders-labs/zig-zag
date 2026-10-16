@@ -2,7 +2,7 @@ import { GenerationTraceRecorder } from '../generation-trace-recorder.util';
 import { TraceStepV5 } from '../../interfaces/generation-trace-v5.interface';
 import { FinalExperienceResolutionResponse } from '../../interfaces/experience-resolution.interface';
 import { DailyPlanningSolution } from '../../interfaces/daily-planning.interface';
-import { CandidateScoreBreakdown } from '../candidate-ranking.util';
+import { PreferenceUtilityResult } from '../../interfaces/preference-utility.interface';
 
 /**
  * Trace producers for the GATHER → RECONCILE → FREEZE → PLAN boundary of one
@@ -245,7 +245,7 @@ export function recordFinalSelectionStep(
     selectedIds: string[];
     reservoirIds: string[];
     labelsById: Map<string, string | undefined>;
-    scoreBreakdownById: Map<string, CandidateScoreBreakdown>;
+    preferenceUtility: PreferenceUtilityResult;
     overlapExcluded: Array<{ id: string; overlapsWith: string }>;
     planningSolution: DailyPlanningSolution;
     convergence: {
@@ -298,7 +298,7 @@ export function recordFinalSelectionStep(
     },
     subjects: ids.map((id) => {
       const [outcome, reason] = outcomeOf(id);
-      const breakdown = input.scoreBreakdownById.get(id);
+      const assessment = input.preferenceUtility.byId.get(id);
       return {
         subject: { kind: 'experience', id, label: input.labelsById.get(id) },
         decision: {
@@ -308,8 +308,8 @@ export function recordFinalSelectionStep(
         },
         facts: {
           composition: selected.has(id) ? 'SELECTED' : 'RESERVOIR',
-          preferenceCoverage: breakdown?.preferenceScore ?? null,
-          semanticSimilarity: breakdown?.semanticSimilarity ?? null,
+          preferenceRank: assessment?.rank ?? null,
+          preference: assessment?.breakdown ?? null,
         },
       };
     }),

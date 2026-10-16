@@ -27,7 +27,6 @@ const spec: PreferenceSpec = {
     {
       dimension: 'theme',
       key: 'history',
-      weight: 1,
       provenance: 'DIRECT' as const,
       importance: 1,
       confidence: 1,
@@ -37,7 +36,6 @@ const spec: PreferenceSpec = {
     {
       dimension: 'theme',
       key: 'food',
-      weight: 0.2,
       provenance: 'DIRECT' as const,
       importance: 0.2,
       confidence: 1,
@@ -64,12 +62,11 @@ function candidate(
     id,
     componentCount: 1,
     satisfiedFacets: facets,
-    qualityScore: 4,
+    // Equal canonical preference unless a test states otherwise.
+    levelRank: 1,
     explorationSignals: signals,
     explorationTilt: 0,
-    semanticSimilarity: 0,
-    groundingStrength: 1,
-    softAnchorBoost: 0,
+    softAnchor: false,
     isPerformanceVenue: false,
     ...overrides,
   };
@@ -195,11 +192,11 @@ describe('composeSet', () => {
     expect(result.portfolioTarget).toBe(3);
   });
 
-  it('does not allow semantic similarity to create coverage and is deterministic', () => {
+  it('does not allow a better preference level to create coverage and is deterministic', () => {
     const input = {
       candidates: [
-        candidate('semantic-only', [], { semanticSimilarity: 0.99 }),
-        candidate('history', ['theme:history']),
+        candidate('semantic-only', [], { levelRank: 1 }),
+        candidate('history', ['theme:history'], { levelRank: 2 }),
       ],
       preferenceSpec: spec,
     };
@@ -259,5 +256,38 @@ describe('composeSet', () => {
     expect(byId.get('excluded')?.eligible).toBe(false);
     expect(byId.get('excluded')?.excluded).toBe(true);
     expect(byId.get('excluded')?.excludedReason).toBe('no_components');
+  });
+
+  it('reserves and fills by the canonical level rank, never by the exploration tilt across levels', () => {
+    const result = composeSet({
+      candidates: [
+        candidate('history-worse-level-high-tilt', ['theme:history'], {
+          levelRank: 2,
+          explorationTilt: 1,
+        }),
+        candidate('history-best-level', ['theme:history'], {
+          levelRank: 1,
+          explorationTilt: -1,
+        }),
+      ],
+      preferenceSpec: { ...spec, trip: { ...spec.trip, pace: 'relaxed' } },
+    });
+    expect(
+      result.decisions.find((d) => d.id === 'history-best-level')
+        ?.reservedForFacets,
+    ).toEqual(['theme:history']);
+  });
+
+  it('uses the exploration tilt only inside one level rank, before id', () => {
+    const result = composeSet({
+      candidates: [
+        candidate('a-low-tilt', ['theme:history'], { explorationTilt: 0 }),
+        candidate('b-high-tilt', ['theme:history'], { explorationTilt: 1 }),
+      ],
+      preferenceSpec: spec,
+    });
+    expect(
+      result.decisions.find((d) => d.id === 'b-high-tilt')?.reservedForFacets,
+    ).toEqual(['theme:history']);
   });
 });

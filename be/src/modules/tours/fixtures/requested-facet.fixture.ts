@@ -4,8 +4,7 @@ import { AssertionTargetDimension } from '../preferences/preference-facet-vocabu
 
 /**
  * A SOFT INCLUDE facet as the spec builder projects it. Provenance,
- * importance and confidence are explicit; `weight` is derived exactly as
- * production derives it (importance x confidence).
+ * importance and confidence are explicit.
  */
 export function requestedFacetFixture(input: {
   dimension: AssertionTargetDimension;
@@ -17,7 +16,6 @@ export function requestedFacetFixture(input: {
   return {
     dimension: input.dimension,
     key: input.key,
-    weight: input.importance * input.confidence,
     provenance: input.provenance,
     importance: input.importance,
     confidence: input.confidence,

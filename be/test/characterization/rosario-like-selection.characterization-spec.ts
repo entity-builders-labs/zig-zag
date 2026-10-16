@@ -1,15 +1,10 @@
 import { PlanningMobilityConstraints } from '../../src/modules/tours/interfaces/daily-planning.interface';
 import { GREEDY_PLANNING_POLICY_VERSIONS } from '../../src/modules/tours/constants/planning-policy-versions';
 import { buildPlanningDays } from '../../src/modules/tours/utils/planning-days.util';
-import {
-  rankCandidatesByRelevance,
-  RankableCandidate,
-  CandidateScoreBreakdown,
-} from '../../src/modules/tours/utils/candidate-ranking.util';
 import { filterOverlappingExperienceCandidates } from '../../src/modules/tours/utils/candidate-overlap-filter.util';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
-import { preferenceWeightForExperience } from '../../src/modules/tours/utils/preference-strong-match.util';
+import { derivePreferenceUtility } from '../../src/modules/tours/utils/preference-utility.util';
 import { RequestedFacet } from '../../src/modules/tours/interfaces/preference-spec.interface';
 import { selectedFacetFixture } from '../../src/modules/tours/fixtures/requested-facet.fixture';
 import {
@@ -23,7 +18,7 @@ import { createGreedySolver } from '../acceptance/harness/solver-factory';
  * (pre-planner selection + real deterministic planner)
  *
  * A deterministic ~60-row catalog run through the REAL chain end to end:
- *   rankCandidatesByRelevance
+ *   derivePreferenceUtility (the canonical preference-utility boundary)
  *     -> selectBoundedWindow
  *     -> filterOverlappingExperienceCandidates
  *     -> PlanningCandidateNormalizerService
@@ -47,7 +42,7 @@ const WINDOW = 15;
 
 // The request's typed SOFT INCLUDE facets. explorationStyle is a
 // composition-local tilt, never a facet, so it does not enter the
-// preference weight (owner 25.2/25.4).
+// preference utility (owner 25.2/25.4).
 const REQUEST_FACETS: RequestedFacet[] = [
   selectedFacetFixture('theme', 'history'),
   selectedFacetFixture('theme', 'culture'),
@@ -220,54 +215,61 @@ const GENEROUS_MOBILITY: PlanningMobilityConstraints = {
 async function runChain(_explorationStyle: 'iconic' | 'local_deep_dive') {
   const catalog = buildCatalog();
 
-  const preferenceById = new Map<string, number>();
-  for (const row of catalog) {
-    // The production preference weight composition hands to ranking.
-    preferenceById.set(
-      row.id,
-      preferenceWeightForExperience(
-        {
-          canonicalName: row.canonicalName,
-          description: row.description,
-          themes: row.themes,
-          intents: row.intents,
-          qualityScore: row.qualityScore,
-          components: row.components,
+  // The production preference-utility boundary over the catalog.
+  const utility = {
+    ...derivePreferenceUtility({
+      experiences: catalog.map((row) => ({
+        id: row.id,
+        canonicalName: row.canonicalName,
+        description: row.description,
+        themes: row.themes,
+        intents: row.intents,
+        qualityScore: row.qualityScore,
+        components: row.components,
+      })),
+      preferenceSpec: { facets: REQUEST_FACETS, assertions: [] },
+      softAnchorIds: new Set<string>(),
+      semantic: {
+        status: 'applied',
+        scores: new Map(catalog.map((r) => [r.id, r.similarity])),
+        requestedCandidateCount: catalog.length,
+        indexedCandidateCount: catalog.length,
+        identity: {
+          provider: 'ollama',
+          model: 'test',
+          dimensions: 2,
+          documentVersion: 1,
         },
-        REQUEST_FACETS,
-      ),
-    );
-  }
-
-  const rankable: (RankableCandidate & { original: Row })[] = catalog.map(
-    (row) => ({
-      id: row.id,
-      source: row.components.length > 1 ? 'composite' : 'poi',
-      subtype: row.themes[0],
-      weightedScore: row.qualityScore ?? undefined,
-      preferenceScore: preferenceById.get(row.id) ?? 0,
-      original: row,
+      },
     }),
+    semanticRanking: {
+      status: 'applied' as const,
+      requestedCandidateCount: catalog.length,
+      indexedCandidateCount: catalog.length,
+    },
+  };
+  const preferenceById = new Map(
+    catalog.map((row) => [
+      row.id,
+      utility.byId.get(row.id)!.breakdown.directEvidence,
+    ]),
   );
-
-  const similarity = new Map(catalog.map((r) => [r.id, r.similarity]));
-  const ranked = rankCandidatesByRelevance(rankable, similarity);
-  const window = ranked.slice(0, WINDOW);
+  const rowById = new Map(catalog.map((row) => [row.id, row]));
+  const rankedIds = utility.order;
+  const windowIds = rankedIds.slice(0, WINDOW);
   const overlap = filterOverlappingExperienceCandidates(
-    window.map((w: any) => ({
-      id: w.candidate.id,
-      rankingScore: w.scoreBreakdown.totalScore,
-      components: w.candidate.original.components,
+    windowIds.map((id, index) => ({
+      id,
+      compositionOrderScore: windowIds.length - index,
+      preferenceBreakdown: utility.byId.get(id)!.breakdown,
+      components: rowById.get(id)!.components,
     })),
   );
   const keptIds = new Set(overlap.kept.map((k) => k.id));
 
   // ── through the real planner ──
-  const breakdownById = new Map<string, CandidateScoreBreakdown>(
-    ranked.map((r) => [r.candidate.id, r.scoreBreakdown]),
-  );
-  const survivors = window
-    .map((w: any) => w.candidate.original as Row)
+  const survivors = windowIds
+    .map((id) => rowById.get(id)!)
     .filter((row) => keptIds.has(row.id));
   const days = buildPlanningDays({
     requestedDays: 3,
@@ -293,7 +295,7 @@ async function runChain(_explorationStyle: 'iconic' | 'local_deep_dive') {
         order,
       })),
     })),
-    breakdownById,
+    utility,
     { days },
   ).candidates;
   const greedyOrderIds = sortCandidatesDeterministically(normalized).map(
@@ -315,8 +317,8 @@ async function runChain(_explorationStyle: 'iconic' | 'local_deep_dive') {
   return {
     catalog,
     preferenceById,
-    rankedIds: ranked.map((r) => r.candidate.id),
-    windowIds: window.map((w: any) => w.candidate.id),
+    rankedIds,
+    windowIds,
     overlapExcluded: overlap.excluded,
     keptIds,
     plannerInputIds: normalized.map((n) => n.experienceId),

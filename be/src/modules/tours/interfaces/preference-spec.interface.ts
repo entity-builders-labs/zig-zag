@@ -27,11 +27,11 @@ import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 /**
  * A SOFT INCLUDE assertion as composition, retrieval and ranking consume it:
  * its typed target plus provenance, importance, confidence and evidence kept
- * separately. `weight` (importance x confidence) is consumed only until the
- * preference-utility boundary of task 25.2 replaces it.
+ * separately. There is no combined scalar weight: the preference-utility
+ * boundary weighs DIRECT by importance and INFERRED by importance x
+ * confidence.
  */
 export interface RequestedFacet extends SemanticTarget {
-  weight: number;
   provenance: PreferenceProvenance;
   importance: number;
   confidence: number;
@@ -238,18 +238,21 @@ export interface CompositionResult {
   portfolioTarget: number;
 }
 
-/** Ranking-only facts assembled at the composition boundary. */
+/**
+ * Composition facts assembled from the canonical preference utility. The
+ * canonical levels arrive as `levelRank`; composition never re-derives them.
+ */
 export interface CompositionCandidate {
   id: string;
   componentCount: number;
+  /** Requested facet keys strongly matched (from the utility boundary). */
   satisfiedFacets: string[];
-  qualityScore: number | null;
-  explorationSignals: import('../utils/exploration-signals.util').ExplorationSignals;
+  /** Dense canonical level rank (1 = best; equal levels share it). */
+  levelRank: number;
+  /** Composition-local tie-break inside one level rank, before id. */
   explorationTilt: number;
-  /** Neutral zero means unavailable/unknown, never a semantic match. */
-  semanticSimilarity: number;
-  groundingStrength: number;
-  softAnchorBoost: number;
+  explorationSignals: import('../utils/exploration-signals.util').ExplorationSignals;
+  softAnchor: boolean;
   isPerformanceVenue: boolean;
 }
 
