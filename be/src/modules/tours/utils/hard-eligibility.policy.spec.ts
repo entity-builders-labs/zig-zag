@@ -1,5 +1,7 @@
 import {
   classifyHardTarget,
+  HardEligibleCandidate,
+  resolveHardEligibility,
   resolveHardTargetEligibility,
 } from './hard-eligibility.policy';
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
@@ -121,6 +123,85 @@ describe('resolveHardTargetEligibility (post-catalog)', () => {
     ).toEqual({
       kind: 'UNENFORCEABLE',
       missingKnowledge: 'INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY',
+    });
+  });
+});
+
+const WHEELCHAIR: SemanticTarget = {
+  dimension: 'accessibility',
+  key: 'wheelchair_access',
+};
+const WHEELCHAIR_KEY = 'accessibility:wheelchair_access';
+
+function eligibleCandidate(
+  byTarget: Record<string, TargetKnowledge>,
+): HardEligibleCandidate {
+  return { targetKnowledge: [{ byTarget }] };
+}
+
+describe('resolveHardEligibility (multi-target orchestration)', () => {
+  it('keeps a candidate proven SATISFIES (wheelchair=yes)', () => {
+    expect(
+      resolveHardEligibility(
+        [{ target: WHEELCHAIR, polarity: 'INCLUDE' }],
+        [eligibleCandidate({ [WHEELCHAIR_KEY]: SATISFIES })],
+      ),
+    ).toEqual({ kind: 'ELIGIBLE', compatibleIndexes: [0] });
+  });
+
+  it('removes a DOES_NOT_SATISFY candidate (wheelchair=no) before the pool', () => {
+    expect(
+      resolveHardEligibility(
+        [{ target: WHEELCHAIR, polarity: 'INCLUDE' }],
+        [
+          eligibleCandidate({ [WHEELCHAIR_KEY]: SATISFIES }),
+          eligibleCandidate({ [WHEELCHAIR_KEY]: DOES_NOT }),
+        ],
+      ),
+    ).toEqual({ kind: 'ELIGIBLE', compatibleIndexes: [0] });
+  });
+
+  it('is TARGET_KNOWLEDGE_UNKNOWN when no candidate has evidence (NO_EVIDENCE)', () => {
+    expect(
+      resolveHardEligibility(
+        [{ target: WHEELCHAIR, polarity: 'INCLUDE' }],
+        [eligibleCandidate({})],
+      ),
+    ).toEqual({
+      kind: 'UNENFORCEABLE',
+      target: WHEELCHAIR,
+      polarity: 'INCLUDE',
+      missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
+      unknownReason: 'NO_EVIDENCE',
+    });
+  });
+
+  it('is INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY when candidates are incompatible', () => {
+    expect(
+      resolveHardEligibility(
+        [{ target: WHEELCHAIR, polarity: 'INCLUDE' }],
+        [eligibleCandidate({ [WHEELCHAIR_KEY]: DOES_NOT })],
+      ),
+    ).toEqual({
+      kind: 'UNENFORCEABLE',
+      target: WHEELCHAIR,
+      polarity: 'INCLUDE',
+      missingKnowledge: 'INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY',
+    });
+  });
+
+  it('retains a CONFLICTING_EVIDENCE candidate as UNKNOWN (never compatible)', () => {
+    expect(
+      resolveHardEligibility(
+        [{ target: WHEELCHAIR, polarity: 'INCLUDE' }],
+        [eligibleCandidate({ [WHEELCHAIR_KEY]: CONFLICTING })],
+      ),
+    ).toEqual({
+      kind: 'UNENFORCEABLE',
+      target: WHEELCHAIR,
+      polarity: 'INCLUDE',
+      missingKnowledge: 'TARGET_KNOWLEDGE_UNKNOWN',
+      unknownReason: 'CONFLICTING_EVIDENCE',
     });
   });
 });

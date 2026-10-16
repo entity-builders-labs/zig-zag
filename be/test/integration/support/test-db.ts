@@ -71,6 +71,7 @@ export const RESET_TABLES = [
   'experience_media',
   'experience_component',
   'experience',
+  'geo_entity_target_observation',
   'geo_entity_identity',
   'geo_entity',
   'trait_definition',

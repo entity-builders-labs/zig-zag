@@ -69,9 +69,7 @@ import {
   HardConstraintUnenforceableError,
   UnenforceableHardConstraint,
 } from '../utils/hard-constraint-enforceability.util';
-import { resolveHardTargetEligibility } from '../utils/hard-eligibility.policy';
-import { semanticTargetKey } from '../preferences/preference-assertion.interface';
-import { TargetKnowledge } from '../preferences/target-knowledge.interface';
+import { resolveHardEligibility } from '../utils/hard-eligibility.policy';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
   DAILY_PLANNING_SOLVER,
@@ -660,48 +658,29 @@ export class ExperienceGenerationService {
     const applicable = findApplicableHardTargets(preferenceSpec);
     if (applicable.length === 0) return experiences;
 
-    let eligibleIndexes: Set<number> | null = null;
-    for (const { target, polarity } of applicable) {
-      const targetKey = semanticTargetKey(target);
-      const candidatesKnowledge = experiences.map((experience) =>
-        experience.matchFacts.targetKnowledge.map(
-          (component): TargetKnowledge =>
-            component.byTarget[targetKey] ?? {
-              state: 'UNKNOWN',
-              reason: 'NO_EVIDENCE',
-            },
-        ),
-      );
-      const outcome = resolveHardTargetEligibility(
-        polarity,
-        candidatesKnowledge,
-      );
-      if (outcome.kind === 'UNENFORCEABLE') {
-        const constraint: UnenforceableHardConstraint = {
-          target,
-          unresolvedLabel: null,
-          polarity,
-          missingKnowledge: outcome.missingKnowledge,
-          reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
-        };
-        if (outcome.unknownReason) {
-          constraint.unknownReason = outcome.unknownReason;
-        }
-        throw new HardConstraintUnenforceableError(
-          [constraint],
-          destinationLabel,
-        );
+    const outcome = resolveHardEligibility(
+      applicable,
+      experiences.map((experience) => experience.matchFacts),
+    );
+    if (outcome.kind === 'UNENFORCEABLE') {
+      const constraint: UnenforceableHardConstraint = {
+        target: outcome.target,
+        unresolvedLabel: null,
+        polarity: outcome.polarity,
+        missingKnowledge: outcome.missingKnowledge,
+        reason: 'COMPATIBILITY_CANNOT_BE_PROVEN',
+      };
+      if (outcome.unknownReason) {
+        constraint.unknownReason = outcome.unknownReason;
       }
-      const compatible = new Set(outcome.compatibleIndexes);
-      eligibleIndexes =
-        eligibleIndexes === null
-          ? compatible
-          : new Set(
-              [...eligibleIndexes].filter((index) => compatible.has(index)),
-            );
+      throw new HardConstraintUnenforceableError(
+        [constraint],
+        destinationLabel,
+      );
     }
-    if (eligibleIndexes === null) return experiences;
-    return experiences.filter((_, index) => eligibleIndexes!.has(index));
+    return experiences.filter((_, index) =>
+      outcome.compatibleIndexes.includes(index),
+    );
   }
 
   /**

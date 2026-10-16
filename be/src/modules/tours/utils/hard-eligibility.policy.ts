@@ -1,6 +1,7 @@
 import {
   PreferencePolarity,
   SemanticTarget,
+  semanticTargetKey,
 } from '../preferences/preference-assertion.interface';
 import {
   TargetCompatibility,
@@ -121,4 +122,75 @@ function dominantUnknownReason(
   if (reasons.has('INCONCLUSIVE_EVIDENCE')) return 'INCONCLUSIVE_EVIDENCE';
   if (reasons.has('CONFLICTING_EVIDENCE')) return 'CONFLICTING_EVIDENCE';
   return 'NO_EVIDENCE';
+}
+
+/** A candidate whose components carry reconciled target knowledge. */
+export interface HardEligibleCandidate {
+  targetKnowledge: readonly {
+    byTarget: Readonly<Record<string, TargetKnowledge>>;
+  }[];
+}
+
+/** The post-catalog outcome over one or more applicable HARD targets. */
+export type MultiTargetHardEligibility =
+  | { kind: 'ELIGIBLE'; compatibleIndexes: number[] }
+  | {
+      kind: 'UNENFORCEABLE';
+      target: SemanticTarget;
+      polarity: PreferencePolarity;
+      missingKnowledge:
+        | 'TARGET_KNOWLEDGE_UNKNOWN'
+        | 'INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY';
+      unknownReason?: UnknownTargetReason;
+    };
+
+const NO_EVIDENCE: TargetKnowledge = {
+  state: 'UNKNOWN',
+  reason: 'NO_EVIDENCE',
+};
+
+/**
+ * Resolve every applicable HARD target over the offered candidates: a
+ * candidate is proven compatible only when it is COMPATIBLE with every
+ * applicable target (UNKNOWN is never compatible). The first target with no
+ * compatible candidate decides the unenforceable outcome; otherwise the
+ * intersection of compatible indexes is returned.
+ */
+export function resolveHardEligibility(
+  applicable: readonly {
+    target: SemanticTarget;
+    polarity: PreferencePolarity;
+  }[],
+  candidates: readonly HardEligibleCandidate[],
+): MultiTargetHardEligibility {
+  let compatibleIndexes: number[] | null = null;
+  for (const { target, polarity } of applicable) {
+    const key = semanticTargetKey(target);
+    const candidatesKnowledge = candidates.map((candidate) =>
+      candidate.targetKnowledge.map(
+        (component) => component.byTarget[key] ?? NO_EVIDENCE,
+      ),
+    );
+    const outcome = resolveHardTargetEligibility(polarity, candidatesKnowledge);
+    if (outcome.kind === 'UNENFORCEABLE') {
+      return {
+        kind: 'UNENFORCEABLE',
+        target,
+        polarity,
+        missingKnowledge: outcome.missingKnowledge,
+        ...(outcome.unknownReason
+          ? { unknownReason: outcome.unknownReason }
+          : {}),
+      };
+    }
+    const compatible = new Set(outcome.compatibleIndexes);
+    compatibleIndexes =
+      compatibleIndexes === null
+        ? [...compatible]
+        : compatibleIndexes.filter((index) => compatible.has(index));
+  }
+  return {
+    kind: 'ELIGIBLE',
+    compatibleIndexes: compatibleIndexes ?? candidates.map((_, index) => index),
+  };
 }
