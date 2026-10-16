@@ -1,16 +1,4 @@
-import { SemanticTarget } from '../preferences/preference-assertion.interface';
-import { TargetObservation } from '../preferences/target-knowledge.interface';
-
-/**
- * One structured provider fact normalized to a (target, observation) pair.
- * The target is a typed SemanticTarget and the observation is
- * provider-neutral; provider-specific semantics (OSM tag names, element ids)
- * terminate in this adapter.
- */
-export interface StructuredTargetFact {
-  target: SemanticTarget;
-  observation: TargetObservation;
-}
+import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 
 /**
  * OSM structured target-knowledge producer (task 25.7, owner 2026-10-16).
@@ -26,8 +14,8 @@ export interface StructuredTargetFact {
 export function osmTargetFacts(element: {
   id: string;
   tags: Readonly<Record<string, string>>;
-}): StructuredTargetFact[] {
-  const facts: StructuredTargetFact[] = [];
+}): TargetObservationFact[] {
+  const facts: TargetObservationFact[] = [];
 
   const wheelchair = element.tags['wheelchair'];
   if (wheelchair === 'yes') {

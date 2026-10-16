@@ -1,4 +1,5 @@
 import { catalogMatchFacts } from '../utils/experience-match-facts.util';
+import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import {
   ExperienceComponentResolutionReason,
@@ -128,6 +129,12 @@ export interface GeoEntityInput {
   geometry?: unknown;
   address?: string;
   metadata?: unknown;
+  /**
+   * Typed target observations produced at the provider boundary (task 25.7),
+   * persisted atomically with the GeoEntity. Supersession is by the stable
+   * source-fact identity only; independent sources never last-write-wins.
+   */
+  targetObservations?: TargetObservationFact[];
 }
 
 /**
@@ -1091,11 +1098,20 @@ export class ExperienceCatalogService {
       address: input.address,
       metadata: input.metadata as Prisma.InputJsonValue | undefined,
     };
+    const targetObservations = input.targetObservations ?? [];
 
     if (identity) {
-      return this.prisma.geoEntity.update({
-        where: { id: identity.geoEntityId },
-        data,
+      return this.prisma.$transaction(async (tx) => {
+        const updated = await tx.geoEntity.update({
+          where: { id: identity.geoEntityId },
+          data,
+        });
+        await this.persistTargetObservations(
+          tx,
+          identity.geoEntityId,
+          targetObservations,
+        );
+        return updated;
       });
     }
 
@@ -1125,10 +1141,16 @@ export class ExperienceCatalogService {
         select: { geoEntityId: true },
       });
       if (identityAfterLock) {
-        return tx.geoEntity.update({
+        const updated = await tx.geoEntity.update({
           where: { id: identityAfterLock.geoEntityId },
           data,
         });
+        await this.persistTargetObservations(
+          tx,
+          identityAfterLock.geoEntityId,
+          targetObservations,
+        );
+        return updated;
       }
 
       const nearbyMatch = await this.findNearbyMatchingGeoEntity(tx, input);
@@ -1143,14 +1165,20 @@ export class ExperienceCatalogService {
             externalId: input.externalId,
           },
         });
-        return tx.geoEntity.update({
+        const updated = await tx.geoEntity.update({
           where: { id: nearbyMatch.id },
           data,
         });
+        await this.persistTargetObservations(
+          tx,
+          nearbyMatch.id,
+          targetObservations,
+        );
+        return updated;
       }
 
       try {
-        return await tx.geoEntity.create({
+        const created = await tx.geoEntity.create({
           data: {
             ...data,
             identities: {
@@ -1161,6 +1189,8 @@ export class ExperienceCatalogService {
             },
           },
         });
+        await this.persistTargetObservations(tx, created.id, targetObservations);
+        return created;
       } catch (error) {
         // Defense in depth: the advisory lock above should make this
         // unreachable in normal operation, but a P2002 here still means
@@ -1180,14 +1210,51 @@ export class ExperienceCatalogService {
             },
             select: { geoEntityId: true },
           });
-          return tx.geoEntity.update({
+          const updated = await tx.geoEntity.update({
             where: { id: winner.geoEntityId },
             data,
           });
+          await this.persistTargetObservations(
+            tx,
+            winner.geoEntityId,
+            targetObservations,
+          );
+          return updated;
         }
         throw error;
       }
     });
+  }
+
+  /**
+   * Upsert one provider observation per stable source-fact identity, within
+   * the caller's transaction. A re-observation of the same sourceFactId
+   * supersedes only that identity's row; an independent source is a separate
+   * row — never cross-source last-write-wins.
+   */
+  private async persistTargetObservations(
+    tx: Prisma.TransactionClient,
+    geoEntityId: string,
+    facts: readonly TargetObservationFact[],
+  ): Promise<void> {
+    for (const fact of facts) {
+      await tx.geoEntityTargetObservation.upsert({
+        where: { sourceFactId: fact.observation.sourceFactId },
+        update: {
+          geoEntityId,
+          dimension: fact.target.dimension,
+          key: fact.target.key,
+          state: fact.observation.state,
+        },
+        create: {
+          geoEntityId,
+          dimension: fact.target.dimension,
+          key: fact.target.key,
+          state: fact.observation.state,
+          sourceFactId: fact.observation.sourceFactId,
+        },
+      });
+    }
   }
 
   /**

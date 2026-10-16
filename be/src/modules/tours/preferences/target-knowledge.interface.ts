@@ -1,3 +1,5 @@
+import { SemanticTarget } from './preference-assertion.interface';
+
 /**
  * Target-level knowledge for HARD eligibility (task 25.7, owner 2026-10-16).
  *
@@ -35,6 +37,17 @@ export interface TargetObservation {
    */
   sourceFactId: string;
   state: 'SATISFIES' | 'DOES_NOT_SATISFY' | 'INCONCLUSIVE';
+}
+
+/**
+ * One normalized (target, observation) pair produced by a provider adapter.
+ * The target is a typed SemanticTarget and the observation is
+ * provider-neutral; provider-specific semantics (tag names, element ids)
+ * terminate at the adapter.
+ */
+export interface TargetObservationFact {
+  target: SemanticTarget;
+  observation: TargetObservation;
 }
 
 /**

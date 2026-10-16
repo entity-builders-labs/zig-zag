@@ -16,7 +16,7 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
   };
 
   it('updates the existing GeoEntity when an identity already exists', async () => {
-    const prisma: any = {
+    const prisma: any = withTransaction({
       geoEntityIdentity: {
         findUnique: jest.fn().mockResolvedValue({ geoEntityId: 'geo-1' }),
       },
@@ -24,7 +24,7 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
         update: jest.fn().mockResolvedValue({ id: 'geo-1' }),
         create: jest.fn(),
       },
-    };
+    });
     const service = new ExperienceCatalogService(prisma, {} as any);
 
     const result = await service.upsertGeoEntity(input);

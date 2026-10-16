@@ -16,6 +16,7 @@ import {
 } from './component-identity-context.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { SourceKnowledgeReconciliation } from '../utils/source-knowledge-reconciliation.policy';
+import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
   AreaScopeMembershipAudit,
@@ -792,6 +793,12 @@ export interface EntityCandidate {
   };
   /** Provider-specific metadata carried through to persistence (tags, etc). */
   persistenceMetadata?: unknown;
+  /**
+   * Typed target observations produced at the provider boundary (task 25.7).
+   * Persisted atomically with the GeoEntity; the core never rereads
+   * `persistenceMetadata.tags` to infer target semantics.
+   */
+  targetObservations?: TargetObservationFact[];
   /**
    * The COMPLETE set of strong provider-native identities of this ONE real
    * entity -- the canonical correlation facts (IDENTITY_CONVERGENCE is their

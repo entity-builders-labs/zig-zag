@@ -74,6 +74,7 @@ import { persistableUnresolvedReason } from '../utils/component-deficit-classifi
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { calculateDistance } from '@shared/utils/distance.utils';
 import { SourceObservation } from '../interfaces/experience-acquisition.interface';
+import { osmTargetFacts } from '../providers/osm-target-knowledge.provider';
 import { computeQualityScore } from '../utils/quality-score.util';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
@@ -2163,6 +2164,7 @@ export class ExperienceProposalResolverService
       longitude: candidate.longitude ?? undefined,
       geometry: candidate.geometry,
       metadata: candidate.persistenceMetadata,
+      targetObservations: candidate.targetObservations,
     });
     return {
       hintKey: candidate.hintKey,
@@ -2697,6 +2699,7 @@ export class ExperienceProposalResolverService
       structuralKind: structuralKindFromOsmTags(matched.tags),
       upstreamDatasets: ['openstreetmap'],
       persistenceMetadata: { tags: matched.tags },
+      targetObservations: osmTargetFacts({ id: matched.id, tags: matched.tags }),
     };
   }
 
