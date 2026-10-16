@@ -1177,7 +1177,19 @@ disproven.
     duplicate never displaces a `DIRECT` one and never lends it weight.
   - Only SOFT `INCLUDE` assertions become requested facets. A negated
     mention ("no me interesa la arquitectura") is an `EXCLUDE` assertion
-    and never a positive facet; how `EXCLUDE` participates is task 25.6.
+    and never a positive facet. A SOFT `EXCLUDE` is precedence level 3
+    (below); a HARD one follows the hard-constraint rule.
+  - *Polarity conflict* (owner, 2026-10-15/16, task 25.6). A target
+    asserted both `INCLUDE` and `EXCLUDE` is `PREFERENCE_POLARITY_CONFLICT`,
+    recorded with both assertions' constraint, provenance and evidence.
+    Both SOFT: neither participates and planning continues. Either HARD:
+    contradictory hard intent — generation stops before destination
+    resolution with the typed, non-retryable `AMBIGUOUS_HARD_CONSTRAINT`
+    (never drop-both-and-plan; distinct from `HARD_EXCLUSION_UNENFORCEABLE`,
+    which is clear intent with unprovable compatibility).
+    `outranksAssertion` resolves duplicates of one polarity only, never
+    across polarities; `EXCLUDE` never wins automatically; a later semantic
+    reconciliation may resolve the contradiction upstream.
   - *Open concepts.* A concept with no typed identity shared with
     Experience facts (the open `trait` dimension, keys outside the schema)
     is an `UNRESOLVED_OPEN_CONCEPT`. It is never matched by string
@@ -1210,10 +1222,16 @@ disproven.
   2. `INFERRED` facet evidence: the Σ of importance × confidence over
      matched `INFERRED` facets, where interpretation confidence stays
      meaningful. It is never added to `DIRECT`.
-  3. Soft venue-anchor affinity.
-  4. Semantic refinement.
-  5. Generic quality.
-  6. Stable Experience id.
+  3. Soft-exclusion avoidance (owner, 2026-10-15, task 25.6): a candidate
+     with a confirmed typed fact matching a SOFT `EXCLUDE` target ranks
+     below an otherwise equal one; an absent or unknown fact is neutral.
+     No filter, no numeric penalty, no coefficient, never folded into a
+     scalar. Implemented once inside the 25.2 breakdown (no interim
+     `composeSet` encoding).
+  4. Soft venue-anchor affinity.
+  5. Semantic refinement.
+  6. Generic quality.
+  7. Stable Experience id.
 
   Constraints on the order:
   - The capture channel is not an authority tier. A wizard pick and a
@@ -1234,8 +1252,8 @@ disproven.
     `explorationStyle` is a meta-preference, not a facet and not an
     evidence or utility tier. Composition may use its tilt only as a
     composition-local portfolio key after quality and before id
-    (`DIRECT` → `INFERRED` → soft anchor → semantic → quality →
-    exploration tilt → id). It never enters the breakdown, the
+    (`DIRECT` → `INFERRED` → soft-exclusion avoidance → soft anchor →
+    semantic → quality → exploration tilt → id). It never enters the breakdown, the
     within-request rank or the planner objective, and never overrides a
     difference at an earlier canonical level. This is not an extension of
     the canonical precedence.

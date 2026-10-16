@@ -55,6 +55,7 @@ describe('preference-spec.interface', () => {
   it('PreferenceSpec has explorationStyle as a top-level field separate from facets -- it is NEVER a RequestedFacet', () => {
     const spec: PreferenceSpec = {
       assertions: [],
+      polarityConflicts: [],
       facets: [selectedFacetFixture('theme', 'history')],
       unresolvedConcepts: [],
       facetSchemaVersion: 'facet-schema-v1',

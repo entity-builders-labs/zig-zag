@@ -12,6 +12,7 @@ import {
 } from '../../interfaces/preference-interpretation.interface';
 import { DestinationResolution } from '../../services/destination-resolution.service';
 import { UnenforceableHardConstraint } from '../hard-constraint-enforceability.util';
+import { PreferencePolarityConflict } from '../../preferences/preference-assertion.interface';
 
 export function recordPreferenceInterpretationStep(
   recorder: GenerationTraceRecorder,
@@ -89,6 +90,33 @@ export function recordRequestIntentStep(
         facts: { contractVersion: request.contractVersion },
       },
       {
+        id: 'INTENT-POLARITY-001',
+        name: 'No adivinar la polaridad de un objetivo afirmado con ambas',
+        status: preferenceSpec.polarityConflicts.some((c) => c.blocking)
+          ? 'FAIL'
+          : preferenceSpec.polarityConflicts.length
+            ? 'WARN'
+            : 'PASS',
+        reason: preferenceSpec.polarityConflicts.some((c) => c.blocking)
+          ? 'Un objetivo se afirmó como INCLUDE y EXCLUDE con una restricción dura: la generación se detiene (AMBIGUOUS_HARD_CONSTRAINT).'
+          : preferenceSpec.polarityConflicts.length
+            ? 'Objetivos afirmados como INCLUDE y EXCLUDE: ninguno participa (PREFERENCE_POLARITY_CONFLICT).'
+            : 'Ningún objetivo se afirmó con polaridades opuestas.',
+        facts: {
+          conflicts: preferenceSpec.polarityConflicts.map((conflict) => ({
+            target: conflict.target,
+            reason: conflict.reason,
+            blocking: conflict.blocking,
+            includeConstraint: conflict.include.constraint,
+            excludeConstraint: conflict.exclude.constraint,
+            includeProvenance: conflict.include.provenance,
+            includeEvidence: conflict.include.evidence,
+            excludeProvenance: conflict.exclude.provenance,
+            excludeEvidence: conflict.exclude.evidence,
+          })),
+        },
+      },
+      {
         id: 'INTENT-FREETEXT-001',
         name: 'Conservar preferencias adicionales como intención suplementaria',
         status: hasAdditionalPreferences ? 'PASS' : 'SKIPPED',
@@ -112,6 +140,7 @@ export function recordRequestIntentStep(
       accessibilityNeeds: request.mobility.accessibilityNeeds,
       facets: preferenceSpec.facets,
       assertions: preferenceSpec.assertions,
+      polarityConflicts: preferenceSpec.polarityConflicts,
       unresolvedConcepts: preferenceSpec.unresolvedConcepts,
       facetSchemaVersion: preferenceSpec.facetSchemaVersion,
     },
@@ -233,6 +262,43 @@ export function recordAnchorResolutionStep(
         .length,
       unresolvedCount: resolvedAnchors.filter((a) => a.status === 'unresolved')
         .length,
+    },
+  });
+}
+
+/** Records why a request with contradictory hard intent stops. */
+export function recordAmbiguousHardConstraintStep(
+  recorder: GenerationTraceRecorder,
+  input: {
+    conflicts: PreferencePolarityConflict[];
+    destination: string;
+  },
+): TraceStepV5 {
+  return recorder.record({
+    name: 'preference.hard_constraints',
+    description: `${input.conflicts.length} objetivo(s) con intención dura contradictoria (INCLUDE y EXCLUDE).`,
+    component: 'HardConstraintEnforceability',
+    decision: {
+      status: 'FAIL',
+      outcome: 'AMBIGUOUS_HARD_CONSTRAINT',
+      reasonCodes: ['PREFERENCE_POLARITY_CONFLICT'],
+    },
+    facts: {
+      destination: input.destination,
+      conflicts: input.conflicts.map((conflict) => ({
+        target: `${conflict.target.dimension}:${conflict.target.key}`,
+        include: {
+          constraint: conflict.include.constraint,
+          provenance: conflict.include.provenance,
+          evidence: conflict.include.evidence,
+        },
+        exclude: {
+          constraint: conflict.exclude.constraint,
+          provenance: conflict.exclude.provenance,
+          evidence: conflict.exclude.evidence,
+        },
+        reason: conflict.reason,
+      })),
     },
   });
 }

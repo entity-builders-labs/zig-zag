@@ -291,7 +291,7 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 - **THEN** it is not offered to the optimizer and no objective weight can bring it back; when compatibility cannot be proven, generation ends with HARD_EXCLUSION_UNENFORCEABLE instead
 
 ### Requirement: Preference evidence precedence
-Within one request, eligible candidates SHALL be ordered lexicographically by DIRECT facet evidence, then INFERRED facet evidence, then soft venue-anchor affinity, then semantic affinity, then generic quality. No exchange rate SHALL let a lower level outweigh a higher one, and the capture channel SHALL NOT be a level.
+Within one request, eligible candidates SHALL be ordered lexicographically by DIRECT facet evidence, then INFERRED facet evidence, then soft-exclusion avoidance, then soft venue-anchor affinity, then semantic affinity, then generic quality. No exchange rate SHALL let a lower level outweigh a higher one, and the capture channel SHALL NOT be a level.
 
 #### Scenario: Direct evidence outranks inferred evidence
 - **WHEN** Experience A matches a DIRECT facet and Experience B matches only INFERRED facets with a larger total weight, a higher interpretation confidence or higher semantic similarity
@@ -304,6 +304,35 @@ Within one request, eligible candidates SHALL be ordered lexicographically by DI
 #### Scenario: Soft venue anchor follows facet evidence and precedes semantic refinement
 - **WHEN** a resolved soft venue anchor has equal facet evidence with another Experience that has higher semantic similarity, and less facet evidence than a third Experience
 - **THEN** the anchor ranks above the second Experience and below the third
+
+### Requirement: Soft exclusions are a preference level, not a constraint
+A SOFT EXCLUDE assertion SHALL only order candidates, at its own lexicographic level after positive explicit evidence: a candidate with a confirmed typed fact matching a SOFT EXCLUDE target SHALL rank below an otherwise equal candidate without one. An absent or unknown fact SHALL be neutral, never proof of avoidance. It SHALL NOT filter, add a numeric penalty or coefficient, or fold into any aggregate score.
+
+#### Scenario: Avoidance orders equal positive evidence
+- **WHEN** the request asserts a SOFT EXCLUDE of nightlife and two Experiences have equal DIRECT and INFERRED evidence, one with a confirmed nightlife fact
+- **THEN** the other Experience ranks above it, before soft-anchor, semantic or quality signals are considered
+
+#### Scenario: Avoidance never outranks positive evidence
+- **WHEN** an Experience with a confirmed nightlife fact has more DIRECT evidence than one without it
+- **THEN** it still ranks above, and it is never removed from the candidates
+
+#### Scenario: Unknown is neutral for a soft exclusion
+- **WHEN** an Experience has no recorded nightlife fact
+- **THEN** it is treated as neither matching nor avoiding the target, and planning continues
+
+### Requirement: Contradictory polarity is an explicit conflict
+When one typed target is asserted both as INCLUDE and as EXCLUDE and both assertions are SOFT, neither SHALL participate in preference ordering or exclusion, planning SHALL continue, and the conflict SHALL be recorded as PREFERENCE_POLARITY_CONFLICT with both assertions' provenance and evidence. Provenance, importance, confidence, channel and polarity SHALL NOT decide between them.
+
+#### Scenario: Structured include and extracted exclude of the same target
+- **WHEN** the traveller selects the history interest and the extractor asserts history with polarity EXCLUDE
+- **THEN** history is neither a requested facet nor an exclusion, and the trace records PREFERENCE_POLARITY_CONFLICT for theme:history
+
+### Requirement: Contradictory hard intent blocks generation
+When one typed target is asserted both as INCLUDE and as EXCLUDE and either assertion is HARD, generation SHALL end before destination resolution with AMBIGUOUS_HARD_CONSTRAINT, recording both assertions' constraint, provenance and evidence. It SHALL NOT drop both and plan, SHALL NOT pick a winner, and SHALL be distinct from HARD_EXCLUSION_UNENFORCEABLE (clear intent, unprovable compatibility). It SHALL NOT be retried.
+
+#### Scenario: Selected interest contradicted by a hard exclusion
+- **WHEN** the traveller selects the history interest and the extractor asserts a HARD exclusion of history
+- **THEN** generation ends with AMBIGUOUS_HARD_CONSTRAINT for theme:history, no Tour is planned, and neither assertion is chosen over the other
 
 ### Requirement: Preference assertions are extracted semantically
 Natural-language preferences SHALL be interpreted only by a semantic extractor. For each preference it SHALL assert a typed target (a dimension and canonical key of the versioned facet schema), a polarity (INCLUDE or EXCLUDE), a constraint (SOFT or HARD), a provenance (DIRECT or INFERRED), an importance, a confidence and verbatim user-text evidence.

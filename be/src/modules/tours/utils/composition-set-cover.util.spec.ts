@@ -46,6 +46,7 @@ const spec: PreferenceSpec = {
     },
   ],
   assertions: [],
+  polarityConflicts: [],
   unresolvedConcepts: [],
   facetSchemaVersion: 'facet-schema-v1',
   anchors: [],

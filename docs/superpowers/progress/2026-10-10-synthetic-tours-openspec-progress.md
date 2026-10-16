@@ -149,16 +149,18 @@ amendment (2026-10-11); no production code yet.**
     41.0 and 41.1;
   - the canonical planning and routing paragraphs.
 - `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
-  task 25.1 committed (0d1e6e97). Task 25.4 (preference assertions)
-  implemented and verified, uncommitted until owner review; order 25.4 →
-  25.6 → 25.2.
+  task 25.1 committed (0d1e6e97); task 25.4 committed (2919e0db). Task
+  25.6 (polarity: SOFT EXCLUDE level decided for 25.2, typed
+  PREFERENCE_POLARITY_CONFLICT implemented; a HARD conflict blocks with
+  AMBIGUOUS_HARD_CONSTRAINT) verified, uncommitted until
+  owner review; next 25.2.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted task 25.4 implementation and authorizes
-   its commit; then `/opsx:apply` continues with task 25.6 (polarity
-   participation), then 25.2 (preference-utility boundary). The only
+1. Owner reviews the uncommitted task 25.6 implementation and authorizes
+   its commit; then `/opsx:apply` continues with task 25.2 (preference-
+   utility boundary, including the soft-exclusion avoidance level). The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
    sample that meets the sufficiency rule, compute p75, pass the
@@ -201,9 +203,8 @@ amendment (2026-10-11); no production code yet.**
     mislabelled.
   - **Soft anchors** are applied last (the spec says "strong").
   - **Provenance / interpreter evidence:** resolved by task 25.4.
-  - **Polarity (POLARITY-1, task 25.6).** The extractor asserts polarity
-    and only SOFT INCLUDE assertions become facets; how SOFT EXCLUDE
-    participates is still open.
+  - **Polarity (POLARITY-1):** resolved by task 25.6; the SOFT EXCLUDE
+    avoidance level is implemented by 25.2.
 - Solver finding for P-D5 follow-up (not reopened): single-start GLS at
   SL1000 is > 1 % below the best known plan in 13/28 P-D7 scenarios (max
   8.7 %); larger budgets barely help; same pattern under the P11 weights.

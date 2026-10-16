@@ -112,3 +112,60 @@ export function dedupeAssertions(
   }
   return [...best.values()];
 }
+
+/**
+ * One target asserted with both polarities. The contradiction is explicit and
+ * never resolved by provenance, importance, confidence, channel or polarity
+ * (owner, task 25.6); a later semantic reconciliation may resolve it
+ * upstream. When both assertions are SOFT, neither participates and planning
+ * continues. When either is HARD, the request has contradictory hard intent
+ * and generation stops with `AMBIGUOUS_HARD_CONSTRAINT`.
+ */
+export interface PreferencePolarityConflict {
+  target: SemanticTarget;
+  include: PreferenceAssertion;
+  exclude: PreferenceAssertion;
+  /** True when either assertion is HARD: the conflict blocks planning. */
+  blocking: boolean;
+  reason: 'PREFERENCE_POLARITY_CONFLICT';
+}
+
+/**
+ * Splits deduplicated assertions (one per target and polarity) into the
+ * unambiguous ones and the targets asserted with both polarities.
+ */
+export function separatePolarityConflicts(
+  assertions: readonly PreferenceAssertion[],
+): {
+  assertions: PreferenceAssertion[];
+  conflicts: PreferencePolarityConflict[];
+} {
+  const byTarget = new Map<string, PreferenceAssertion[]>();
+  for (const assertion of assertions) {
+    const key = semanticTargetKey(assertion.target);
+    byTarget.set(key, [...(byTarget.get(key) ?? []), assertion]);
+  }
+  const conflicts: PreferencePolarityConflict[] = [];
+  const conflicting = new Set<string>();
+  for (const [key, group] of byTarget) {
+    const include = group.find((a) => a.polarity === 'INCLUDE');
+    const exclude = group.find((a) => a.polarity === 'EXCLUDE');
+    if (include && exclude) {
+      conflicting.add(key);
+      conflicts.push({
+        target: include.target,
+        include,
+        exclude,
+        blocking:
+          include.constraint === 'HARD' || exclude.constraint === 'HARD',
+        reason: 'PREFERENCE_POLARITY_CONFLICT',
+      });
+    }
+  }
+  return {
+    assertions: assertions.filter(
+      (assertion) => !conflicting.has(semanticTargetKey(assertion.target)),
+    ),
+    conflicts,
+  };
+}

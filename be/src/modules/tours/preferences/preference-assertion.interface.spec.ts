@@ -2,6 +2,7 @@ import {
   dedupeAssertions,
   mapStrengthToImportance,
   PreferenceAssertion,
+  separatePolarityConflicts,
 } from './preference-assertion.interface';
 
 function assertion(
@@ -77,6 +78,92 @@ describe('preference assertions', () => {
         confidence: 1,
       });
       expect(dedupeAssertions([undefined, kept, undefined])).toEqual([kept]);
+    });
+  });
+
+  describe('separatePolarityConflicts', () => {
+    it('keeps neither polarity of a target asserted as INCLUDE and EXCLUDE, whatever their provenance and weight', () => {
+      const include = assertion({
+        provenance: 'DIRECT',
+        importance: 1,
+        confidence: 1,
+      });
+      const exclude = assertion({
+        polarity: 'EXCLUDE',
+        provenance: 'INFERRED',
+        importance: 0.5,
+        confidence: 0.4,
+      });
+      const other = assertion({
+        target: { dimension: 'theme', key: 'history' },
+        provenance: 'INFERRED',
+        importance: 0.7,
+        confidence: 0.9,
+      });
+      expect(separatePolarityConflicts([include, exclude, other])).toEqual({
+        assertions: [other],
+        conflicts: [
+          {
+            target: { dimension: 'theme', key: 'wine' },
+            include,
+            exclude,
+            blocking: false,
+            reason: 'PREFERENCE_POLARITY_CONFLICT',
+          },
+        ],
+      });
+    });
+
+    it('marks a conflict blocking when either assertion is HARD', () => {
+      const include = assertion({
+        provenance: 'INFERRED',
+        importance: 0.5,
+        confidence: 0.5,
+      });
+      const hardExclude = assertion({
+        polarity: 'EXCLUDE',
+        constraint: 'HARD',
+        provenance: 'DIRECT',
+        importance: 1,
+        confidence: 1,
+      });
+      const result = separatePolarityConflicts([include, hardExclude]);
+      expect(result.assertions).toEqual([]);
+      expect(result.conflicts).toEqual([
+        expect.objectContaining({
+          blocking: true,
+          reason: 'PREFERENCE_POLARITY_CONFLICT',
+        }),
+      ]);
+      const hardInclude = assertion({
+        constraint: 'HARD',
+        provenance: 'DIRECT',
+        importance: 1,
+        confidence: 1,
+      });
+      const softExclude = assertion({
+        polarity: 'EXCLUDE',
+        provenance: 'INFERRED',
+        importance: 0.5,
+        confidence: 0.5,
+      });
+      expect(
+        separatePolarityConflicts([hardInclude, softExclude]).conflicts[0]
+          .blocking,
+      ).toBe(true);
+    });
+
+    it('leaves a single polarity per target untouched', () => {
+      const exclude = assertion({
+        polarity: 'EXCLUDE',
+        provenance: 'DIRECT',
+        importance: 1,
+        confidence: 1,
+      });
+      expect(separatePolarityConflicts([exclude])).toEqual({
+        assertions: [exclude],
+        conflicts: [],
+      });
     });
   });
 });

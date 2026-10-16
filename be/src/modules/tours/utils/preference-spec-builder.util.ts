@@ -20,6 +20,7 @@ import {
 import {
   dedupeAssertions,
   PreferenceAssertion,
+  separatePolarityConflicts,
 } from '../preferences/preference-assertion.interface';
 import {
   PREFERENCE_DIMENSIONS,
@@ -127,10 +128,12 @@ export function buildPreferenceSpec(
       }),
     ),
   ];
-  const assertions = dedupeAssertions([
-    ...structured,
-    ...(interpreted.assertions ?? []),
-  ]);
+  // Duplicates of one polarity resolve by provenance, then weight; a
+  // target asserted with both polarities is a typed conflict, never guessed.
+  const { assertions, conflicts: polarityConflicts } =
+    separatePolarityConflicts(
+      dedupeAssertions([...structured, ...(interpreted.assertions ?? [])]),
+    );
   const facets = assertions
     .filter(
       (assertion) =>
@@ -155,6 +158,7 @@ export function buildPreferenceSpec(
 
   return {
     assertions,
+    polarityConflicts,
     facets,
     unresolvedConcepts: interpreted.unresolvedConcepts ?? [],
     facetSchemaVersion: PREFERENCE_FACET_SCHEMA_VERSION,

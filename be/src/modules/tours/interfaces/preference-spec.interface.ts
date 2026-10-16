@@ -15,6 +15,7 @@ import { AcquisitionDeficit } from './experience-acquisition-plan.interface';
 import {
   PreferenceAssertion,
   PreferenceEvidence,
+  PreferencePolarityConflict,
   PreferenceProvenance,
   SemanticTarget,
   UnresolvedPreferenceConcept,
@@ -122,8 +123,14 @@ export type ResolvedAnchor =
     };
 
 export interface PreferenceSpec {
-  /** Every typed assertion of the request (INCLUDE / EXCLUDE, SOFT / HARD). */
+  /**
+   * Every unambiguous typed assertion of the request (INCLUDE / EXCLUDE,
+   * SOFT / HARD). A target asserted with both polarities is excluded here
+   * and kept in `polarityConflicts`.
+   */
   assertions: PreferenceAssertion[];
+  /** Targets asserted with both polarities; none of them participates. */
+  polarityConflicts: PreferencePolarityConflict[];
   /** The SOFT INCLUDE assertions, projected for composition and ranking. */
   facets: RequestedFacet[];
   /** Concepts with no shared typed identity; never matched. */

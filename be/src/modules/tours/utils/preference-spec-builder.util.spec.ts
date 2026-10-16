@@ -1,4 +1,10 @@
 import { buildPreferenceSpec } from './preference-spec-builder.util';
+import {
+  findAmbiguousHardConstraints,
+  findUnenforceableHardConstraints,
+} from './hard-constraint-enforceability.util';
+import { recordRequestIntentStep } from './generation-trace/request-audit';
+import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
 import { DietaryRestriction } from '../interfaces/tour-generation.interface';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
@@ -287,6 +293,134 @@ describe('preference-spec-builder.util', () => {
       days: 5,
       startDates: ['2026-10-01'],
       pace: 'fast',
+    });
+  });
+
+  describe('polarity (task 25.6)', () => {
+    it('never turns an EXCLUDE assertion into a positive facet, whatever its provenance or weight', () => {
+      const spec = buildPreferenceSpec(
+        baseRequest(),
+        emptyInterpreted({
+          assertions: [
+            inferred({
+              target: { dimension: 'theme', key: 'architecture' },
+              polarity: 'EXCLUDE',
+              provenance: 'DIRECT',
+              importance: 1,
+              confidence: 1,
+            }),
+          ],
+        }),
+      );
+      expect(spec.facets).toEqual([]);
+      expect(spec.assertions).toEqual([
+        expect.objectContaining({
+          target: { dimension: 'theme', key: 'architecture' },
+          polarity: 'EXCLUDE',
+          constraint: 'SOFT',
+        }),
+      ]);
+    });
+
+    it('records a structured INCLUDE and an extracted EXCLUDE of the same target as a conflict in which neither participates', () => {
+      const exclusion = inferred({
+        target: { dimension: 'theme', key: 'history' },
+        polarity: 'EXCLUDE',
+      });
+      const spec = buildPreferenceSpec(
+        baseRequest({
+          intent: {
+            interests: ['history', 'art'],
+            intents: [],
+            explorationStyle: 'balanced' as any,
+          },
+        }),
+        emptyInterpreted({ assertions: [exclusion] }),
+      );
+
+      expect(spec.facets.map((f) => `${f.dimension}:${f.key}`)).toEqual([
+        'theme:art',
+      ]);
+      expect(spec.assertions.map((a) => a.target.key)).toEqual(['art']);
+      expect(spec.polarityConflicts).toEqual([
+        {
+          target: { dimension: 'theme', key: 'history' },
+          include: expect.objectContaining({
+            polarity: 'INCLUDE',
+            provenance: 'DIRECT',
+          }),
+          exclude: exclusion,
+          blocking: false,
+          reason: 'PREFERENCE_POLARITY_CONFLICT',
+        },
+      ]);
+    });
+
+    it('turns an INCLUDE plus HARD EXCLUDE of one target into a blocking conflict, never a guessed winner', () => {
+      const spec = buildPreferenceSpec(
+        baseRequest({
+          intent: {
+            interests: ['nightlife'],
+            intents: [],
+            explorationStyle: 'balanced' as any,
+          },
+        }),
+        emptyInterpreted({
+          assertions: [
+            inferred({
+              target: { dimension: 'theme', key: 'nightlife' },
+              polarity: 'EXCLUDE',
+              constraint: 'HARD',
+            }),
+          ],
+        }),
+      );
+      expect(spec.polarityConflicts).toHaveLength(1);
+      expect(spec.facets).toEqual([]);
+      // Contradictory intent is not unenforceable intent.
+      expect(findUnenforceableHardConstraints(spec)).toEqual([]);
+      expect(findAmbiguousHardConstraints(spec)).toEqual([
+        expect.objectContaining({
+          target: { dimension: 'theme', key: 'nightlife' },
+          blocking: true,
+        }),
+      ]);
+    });
+
+    it('records the conflict in the request.intent trace step', () => {
+      const spec = buildPreferenceSpec(
+        baseRequest({
+          intent: {
+            interests: ['history'],
+            intents: [],
+            explorationStyle: 'balanced' as any,
+          },
+        }),
+        emptyInterpreted({
+          assertions: [
+            inferred({
+              target: { dimension: 'theme', key: 'history' },
+              polarity: 'EXCLUDE',
+            }),
+          ],
+        }),
+      );
+      const step = recordRequestIntentStep(new GenerationTraceRecorder(), {
+        request: baseRequest(),
+        preferenceSpec: spec,
+      });
+      const rule = step.rules.find(
+        (candidate) => candidate.id === 'INTENT-POLARITY-001',
+      );
+      expect(rule?.status).toBe('WARN');
+      expect((rule?.facts as Record<string, unknown>)?.conflicts).toEqual([
+        expect.objectContaining({
+          target: { dimension: 'theme', key: 'history' },
+          reason: 'PREFERENCE_POLARITY_CONFLICT',
+          includeProvenance: 'DIRECT',
+          excludeProvenance: 'INFERRED',
+        }),
+      ]);
     });
   });
 });

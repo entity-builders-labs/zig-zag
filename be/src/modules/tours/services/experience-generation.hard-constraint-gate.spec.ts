@@ -4,7 +4,10 @@ import {
   DietaryRestriction,
   TourGenerationRequest,
 } from '../interfaces/tour-generation.interface';
-import { UnresolvedPreferenceConcept } from '../preferences/preference-assertion.interface';
+import {
+  PreferenceAssertion,
+  UnresolvedPreferenceConcept,
+} from '../preferences/preference-assertion.interface';
 
 const REQUEST = {
   contractVersion: 1,
@@ -57,6 +60,20 @@ function concept(
     constraint,
     evidence: [{ kind: 'USER_TEXT_SPAN', text: 'fixture' }],
     reason: 'UNRESOLVED_OPEN_CONCEPT',
+  };
+}
+
+function historyExclusion(
+  constraint: PreferenceAssertion['constraint'],
+): PreferenceAssertion {
+  return {
+    target: { dimension: 'theme', key: 'history' },
+    polarity: 'EXCLUDE',
+    constraint,
+    provenance: 'INFERRED',
+    importance: 0.7,
+    confidence: 0.8,
+    evidence: [{ kind: 'USER_TEXT_SPAN', text: 'fixture' }],
   };
 }
 
@@ -171,5 +188,74 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
     );
     expect(resolveDestination).toHaveBeenCalledTimes(1);
     expect(failedTrace(tourUpdates).result.outcome).toBe('GENERATION_FAILED');
+  });
+
+  it('stops INCLUDE + HARD EXCLUDE of one target with AMBIGUOUS_HARD_CONSTRAINT before destination resolution', async () => {
+    // REQUEST selects the history interest (structured DIRECT INCLUDE).
+    const { service, resolveDestination, tourUpdates } = harness(
+      REQUEST,
+      interpreted({ assertions: [historyExclusion('HARD')] }),
+    );
+
+    await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
+      /AMBIGUOUS_HARD_CONSTRAINT/,
+    );
+    expect(resolveDestination).not.toHaveBeenCalled();
+    const trace = failedTrace(tourUpdates);
+    expect(trace.result.outcome).toBe('AMBIGUOUS_HARD_CONSTRAINT');
+    expect(trace.result.facts.ambiguousHardConstraints).toEqual([
+      expect.objectContaining({
+        target: { dimension: 'theme', key: 'history' },
+        blocking: true,
+        include: expect.objectContaining({
+          provenance: 'DIRECT',
+          evidence: [
+            {
+              kind: 'STRUCTURED_SELECTION',
+              field: 'intent.interests',
+              value: 'history',
+            },
+          ],
+        }),
+        exclude: expect.objectContaining({
+          constraint: 'HARD',
+          provenance: 'INFERRED',
+          evidence: [{ kind: 'USER_TEXT_SPAN', text: 'fixture' }],
+        }),
+      }),
+    ]);
+    const step = trace.steps.find(
+      (candidate: any) => candidate.name === 'preference.hard_constraints',
+    );
+    expect(step.decision.outcome).toBe('AMBIGUOUS_HARD_CONSTRAINT');
+  });
+
+  it('neutralizes INCLUDE + SOFT EXCLUDE of one target and continues to destination resolution', async () => {
+    const { service, resolveDestination, tourUpdates } = harness(
+      REQUEST,
+      interpreted({ assertions: [historyExclusion('SOFT')] }),
+    );
+
+    await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
+      /STOP_AFTER_GATE/,
+    );
+    expect(resolveDestination).toHaveBeenCalledTimes(1);
+    const intentStep = failedTrace(tourUpdates).steps.find(
+      (candidate: any) => candidate.name === 'request.intent',
+    );
+    const polarityRule = intentStep.rules.find(
+      (rule: any) => rule.id === 'INTENT-POLARITY-001',
+    );
+    expect(polarityRule.status).toBe('WARN');
+    expect(polarityRule.facts.conflicts).toEqual([
+      expect.objectContaining({
+        target: { dimension: 'theme', key: 'history' },
+        blocking: false,
+        includeProvenance: 'DIRECT',
+        excludeProvenance: 'INFERRED',
+        excludeEvidence: [{ kind: 'USER_TEXT_SPAN', text: 'fixture' }],
+      }),
+    ]);
+    expect(intentStep.facts.facets).toEqual([]);
   });
 });

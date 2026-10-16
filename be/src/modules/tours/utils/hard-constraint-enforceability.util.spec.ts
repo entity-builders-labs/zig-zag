@@ -1,4 +1,6 @@
 import {
+  AmbiguousHardConstraintError,
+  findAmbiguousHardConstraints,
   findUnenforceableHardConstraints,
   HardExclusionUnenforceableError,
 } from './hard-constraint-enforceability.util';
@@ -127,5 +129,51 @@ describe('HardExclusionUnenforceableError', () => {
     // The trace message names the missing knowledge, never the user's text.
     expect(error.message).toContain('SHARED_CONCEPT_IDENTITY');
     expect(error.message).not.toContain('religious');
+  });
+});
+
+describe('ambiguous hard constraints', () => {
+  const include = assertion({
+    target: { dimension: 'theme', key: 'nightlife' },
+    polarity: 'INCLUDE',
+    constraint: 'SOFT',
+  });
+  const hardExclude = assertion({
+    target: { dimension: 'theme', key: 'nightlife' },
+    polarity: 'EXCLUDE',
+    constraint: 'HARD',
+  });
+
+  it('selects only blocking polarity conflicts', () => {
+    const blocking = {
+      target: include.target,
+      include,
+      exclude: hardExclude,
+      blocking: true,
+      reason: 'PREFERENCE_POLARITY_CONFLICT' as const,
+    };
+    const soft = { ...blocking, blocking: false };
+    expect(
+      findAmbiguousHardConstraints({ polarityConflicts: [soft, blocking] }),
+    ).toEqual([blocking]);
+  });
+
+  it('carries the AMBIGUOUS_HARD_CONSTRAINT outcome, not HARD_EXCLUSION_UNENFORCEABLE', () => {
+    const error = new AmbiguousHardConstraintError(
+      [
+        {
+          target: include.target,
+          include,
+          exclude: hardExclude,
+          blocking: true,
+          reason: 'PREFERENCE_POLARITY_CONFLICT',
+        },
+      ],
+      'Buenos Aires',
+    );
+    expect(error.outcome).toBe('AMBIGUOUS_HARD_CONSTRAINT');
+    expect(error.retryable).toBe(false);
+    expect(error.message).toContain('theme:nightlife');
+    expect(error.message).not.toContain('HARD_EXCLUSION_UNENFORCEABLE');
   });
 });

@@ -4,6 +4,7 @@ import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 const preferenceSpec: PreferenceSpec = {
   facets: [],
   assertions: [],
+  polarityConflicts: [],
   unresolvedConcepts: [],
   facetSchemaVersion: 'facet-schema-v1',
   anchors: [],

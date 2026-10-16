@@ -23,6 +23,7 @@ import {
   recordPreferenceInterpretationStep,
   recordRequestIntentStep,
   recordHardConstraintEnforceabilityStep,
+  recordAmbiguousHardConstraintStep,
   recordDestinationResolutionStep,
   recordAnchorResolutionStep,
   recordCatalogSearchStep,
@@ -58,6 +59,8 @@ import {
 import { GREEDY_PLANNING_POLICY_VERSIONS } from '../constants/planning-policy-versions';
 import { buildPlanningDays } from '../utils/planning-days.util';
 import {
+  AmbiguousHardConstraintError,
+  findAmbiguousHardConstraints,
   findUnenforceableHardConstraints,
   HardExclusionUnenforceableError,
 } from '../utils/hard-constraint-enforceability.util';
@@ -976,6 +979,20 @@ export class ExperienceGenerationService {
       // prove compatibility, the generation ends with the typed
       // HARD_EXCLUSION_UNENFORCEABLE outcome before any catalog read or
       // acquisition: never a silent admission and never an empty Tour.
+      // Contradictory hard intent (one target asserted INCLUDE and EXCLUDE
+      // with a HARD constraint) blocks first: nothing decides which governs.
+      const ambiguousHard = findAmbiguousHardConstraints(preferenceSpec);
+      if (ambiguousHard.length > 0) {
+        recordAmbiguousHardConstraintStep(traceRecorder, {
+          conflicts: ambiguousHard,
+          destination: request.destination.label,
+        });
+        throw new AmbiguousHardConstraintError(
+          ambiguousHard,
+          request.destination.label,
+        );
+      }
+
       const unenforceable = findUnenforceableHardConstraints(preferenceSpec);
       if (unenforceable.length > 0) {
         recordHardConstraintEnforceabilityStep(traceRecorder, {
@@ -1924,7 +1941,8 @@ export class ExperienceGenerationService {
                   result: {
                     status: 'FAILED',
                     outcome:
-                      error instanceof HardExclusionUnenforceableError
+                      error instanceof HardExclusionUnenforceableError ||
+                      error instanceof AmbiguousHardConstraintError
                         ? error.outcome
                         : 'GENERATION_FAILED',
                     reason: error?.message || String(error),
@@ -1932,6 +1950,9 @@ export class ExperienceGenerationService {
                       error: error?.message || String(error),
                       ...(error instanceof HardExclusionUnenforceableError
                         ? { unenforceableHardConstraints: error.constraints }
+                        : {}),
+                      ...(error instanceof AmbiguousHardConstraintError
+                        ? { ambiguousHardConstraints: error.conflicts }
                         : {}),
                       degradedAcquisitionReason,
                       acquisitionProvidersAttempted: Array.from(

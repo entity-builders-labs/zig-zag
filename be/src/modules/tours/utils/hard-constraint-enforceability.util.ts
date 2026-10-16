@@ -1,5 +1,8 @@
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
-import { SemanticTarget } from '../preferences/preference-assertion.interface';
+import {
+  PreferencePolarityConflict,
+  SemanticTarget,
+} from '../preferences/preference-assertion.interface';
 
 /** Knowledge that would be needed to guarantee a hard constraint. */
 export type MissingConstraintKnowledge =
@@ -80,5 +83,41 @@ export class HardExclusionUnenforceableError extends Error {
         .join('; ')})`,
     );
     this.name = 'HardExclusionUnenforceableError';
+  }
+}
+
+/**
+ * Targets the request asserts both as INCLUDE and as EXCLUDE where either
+ * assertion is HARD. Planning cannot safely tell which one governs, so these
+ * block generation; nothing decides between them deterministically.
+ */
+export function findAmbiguousHardConstraints(
+  spec: Pick<PreferenceSpec, 'polarityConflicts'>,
+): PreferencePolarityConflict[] {
+  return spec.polarityConflicts.filter((conflict) => conflict.blocking);
+}
+
+/**
+ * The typed generation outcome for contradictory hard intent: the request
+ * was understood, but two incompatible assertions govern the same target.
+ * Distinct from HARD_EXCLUSION_UNENFORCEABLE (clear intent, unprovable
+ * compatibility). Nothing is planned and retrying cannot resolve it.
+ */
+export class AmbiguousHardConstraintError extends Error {
+  readonly outcome = 'AMBIGUOUS_HARD_CONSTRAINT' as const;
+  readonly retryable = false;
+
+  constructor(
+    readonly conflicts: PreferencePolarityConflict[],
+    readonly destination: string,
+  ) {
+    super(
+      `AMBIGUOUS_HARD_CONSTRAINT: ${conflicts.length} target(s) asserted both as INCLUDE and EXCLUDE with a hard constraint for ${destination} (${conflicts
+        .map(
+          (conflict) => `${conflict.target.dimension}:${conflict.target.key}`,
+        )
+        .join('; ')})`,
+    );
+    this.name = 'AmbiguousHardConstraintError';
   }
 }
