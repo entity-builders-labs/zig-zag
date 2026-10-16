@@ -1,4 +1,5 @@
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
+import { TargetKnowledge } from '../preferences/target-knowledge.interface';
 
 /**
  * The provider-neutral typed facts the canonical preference matcher reads
@@ -41,4 +42,18 @@ export interface ExperienceMatchFacts {
   qualityScore: number | null;
   /** Visit duration in minutes, or null when UNKNOWN. */
   durationMinutes: number | null;
+  /**
+   * Reconciled target knowledge per required component (task 25.7), aligned
+   * with the candidate's components. Reconciliation happens once, at the
+   * catalog projection boundary; consumers aggregate, never re-reconcile.
+   */
+  targetKnowledge: readonly ExperienceTargetKnowledge[];
+}
+
+/**
+ * The reconciled, provider-neutral target knowledge of one required
+ * component, keyed by the canonical `${dimension}:${key}` target key.
+ */
+export interface ExperienceTargetKnowledge {
+  byTarget: Readonly<Record<string, TargetKnowledge>>;
 }

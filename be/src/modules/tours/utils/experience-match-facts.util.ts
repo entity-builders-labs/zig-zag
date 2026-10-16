@@ -2,8 +2,14 @@ import {
   ExperienceClassificationState,
   ExperienceMatchFacts,
   ExperienceSemanticFacts,
+  ExperienceTargetKnowledge,
 } from '../interfaces/experience-match-facts.interface';
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
+import {
+  TargetKnowledge,
+  TargetObservation,
+} from '../preferences/target-knowledge.interface';
+import { reconcileTargetKnowledge } from './target-knowledge-reconciliation.util';
 import {
   ASSERTION_TARGET_DIMENSIONS,
   AssertionTargetDimension,
@@ -126,7 +132,8 @@ function hasResolvedGeography(components: readonly unknown[] | undefined) {
  * Catalog persistence adapter: the documented persisted classification
  * contract of a VERIFIED Experience (`themes`, `intents`, typed
  * `dimensionedTraits`, `classification.state`) plus its resolved geography,
- * quality and duration. Used once, by the catalog projection.
+ * quality, duration and reconciled target knowledge. Used once, by the
+ * catalog projection.
  */
 export function catalogMatchFacts(row: {
   themes: readonly string[];
@@ -147,6 +154,80 @@ export function catalogMatchFacts(row: {
       Number.isFinite(row.durationMinutes)
         ? row.durationMinutes
         : null,
+    targetKnowledge: targetKnowledgeOf(row.components),
+  };
+}
+
+/**
+ * Reconciled target knowledge from a candidate's raw persisted target
+ * observations (task 25.7). The raw rows are read exactly once, here at the
+ * projection boundary, and each target is reconciled through the single
+ * reconciliation authority; values outside the typed schema are not facts
+ * and are dropped.
+ */
+function targetKnowledgeOf(
+  components: readonly unknown[],
+): ExperienceTargetKnowledge[] {
+  return components.map((component) => {
+    const geoEntity =
+      component && typeof component === 'object'
+        ? (component as { geoEntity?: unknown }).geoEntity
+        : undefined;
+    const rows =
+      geoEntity && typeof geoEntity === 'object'
+        ? (geoEntity as { targetObservations?: unknown }).targetObservations
+        : undefined;
+    const grouped = new Map<string, TargetObservation[]>();
+    if (Array.isArray(rows)) {
+      for (const row of rows) {
+        const fact = targetObservation(row);
+        if (!fact) continue;
+        grouped.set(fact.targetKey, [
+          ...(grouped.get(fact.targetKey) ?? []),
+          fact.observation,
+        ]);
+      }
+    }
+    const byTarget: Record<string, TargetKnowledge> = {};
+    for (const [targetKey, observations] of grouped) {
+      byTarget[targetKey] = reconcileTargetKnowledge(observations);
+    }
+    return { byTarget };
+  });
+}
+
+function targetObservation(
+  row: unknown,
+): { targetKey: string; observation: TargetObservation } | undefined {
+  if (!row || typeof row !== 'object') return undefined;
+  const { dimension, key, state, sourceFactId } = row as {
+    dimension?: unknown;
+    key?: unknown;
+    state?: unknown;
+    sourceFactId?: unknown;
+  };
+  if (
+    typeof dimension !== 'string' ||
+    typeof key !== 'string' ||
+    typeof sourceFactId !== 'string'
+  ) {
+    return undefined;
+  }
+  if (
+    state !== 'SATISFIES' &&
+    state !== 'DOES_NOT_SATISFY' &&
+    state !== 'INCONCLUSIVE'
+  ) {
+    return undefined;
+  }
+  // Validate against the closed assertion-target schema: an out-of-schema
+  // dimension/key is not a fact and is dropped, and the key is canonicalized
+  // exactly like an assertion target key so both sides address the same key.
+  const canonicalKey = canonicalTargetKey(dimension, key);
+  if (!canonicalKey) return undefined;
+  return {
+    targetKey: `${dimension}:${canonicalKey}`,
+    observation: { sourceFactId, state },
   };
 }
 

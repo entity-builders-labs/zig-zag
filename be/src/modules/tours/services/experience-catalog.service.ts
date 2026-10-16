@@ -494,7 +494,9 @@ export class ExperienceCatalogService {
     const rows = await this.prisma.experience.findMany({
       where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
       include: {
-        components: { include: { geoEntity: true } },
+        components: {
+          include: { geoEntity: { include: { targetObservations: true } } },
+        },
         traits: { include: { traitDefinition: true } },
       },
     });
@@ -603,7 +605,9 @@ export class ExperienceCatalogService {
     const rows = await this.prisma.experience.findMany({
       where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
       include: {
-        components: { include: { geoEntity: true } },
+        components: {
+          include: { geoEntity: { include: { targetObservations: true } } },
+        },
         traits: { include: { traitDefinition: true } },
       },
       orderBy: { id: 'asc' },

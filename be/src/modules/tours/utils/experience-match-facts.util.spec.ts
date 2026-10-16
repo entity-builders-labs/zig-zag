@@ -57,6 +57,7 @@ describe('experience match-facts adapters', () => {
       hasResolvedGeography: true,
       qualityScore: null,
       durationMinutes: null,
+      targetKnowledge: [{ byTarget: {} }],
     });
     expect(
       catalogMatchFacts({
@@ -74,6 +75,82 @@ describe('experience match-facts adapters', () => {
       qualityScore: 4,
       durationMinutes: 60,
     });
+  });
+
+  it('reconciles raw persisted target observations once into typed target knowledge', () => {
+    const facts = catalogMatchFacts({
+      themes: [],
+      intents: [],
+      dimensionedTraits: [],
+      classification: undefined,
+      components: [
+        {
+          geoEntity: {
+            latitude: -34.6,
+            longitude: -58.4,
+            targetObservations: [
+              {
+                dimension: 'accessibility',
+                key: 'wheelchair_access',
+                state: 'SATISFIES',
+                sourceFactId: 'osm:way:1:wheelchair',
+              },
+            ],
+          },
+        },
+      ],
+      qualityScore: null,
+      durationMinutes: null,
+    });
+    expect(facts.targetKnowledge).toEqual([
+      {
+        byTarget: { 'accessibility:wheelchair_access': { state: 'SATISFIES' } },
+      },
+    ]);
+  });
+
+  it('drops out-of-schema target rows and reconciles conflicts through one authority', () => {
+    const facts = catalogMatchFacts({
+      themes: [],
+      intents: [],
+      dimensionedTraits: [],
+      classification: undefined,
+      components: [
+        {
+          geoEntity: {
+            latitude: -34.6,
+            longitude: -58.4,
+            targetObservations: [
+              {
+                dimension: 'accessibility',
+                key: 'wheelchair_access',
+                state: 'SATISFIES',
+                sourceFactId: 'a',
+              },
+              {
+                dimension: 'accessibility',
+                key: 'wheelchair_access',
+                state: 'DOES_NOT_SATISFY',
+                sourceFactId: 'b',
+              },
+              { dimension: 'trait', key: 'x', state: 'SATISFIES', sourceFactId: 'c' },
+            ],
+          },
+        },
+      ],
+      qualityScore: null,
+      durationMinutes: null,
+    });
+    expect(facts.targetKnowledge).toEqual([
+      {
+        byTarget: {
+          'accessibility:wheelchair_access': {
+            state: 'UNKNOWN',
+            reason: 'CONFLICTING_EVIDENCE',
+          },
+        },
+      },
+    ]);
   });
 
   it('adapts a discovery candidate from its themes and intents; open traits carry no typed identity', () => {
