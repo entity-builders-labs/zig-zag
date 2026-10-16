@@ -13,6 +13,11 @@ export type ExplorationStyle = 'iconic' | 'balanced' | 'local_deep_dive';
 export type DestinationScaleHint = 'settlement' | 'specific_point';
 /** Typed dietary requirement identifiers (stable domain ids, not display text). */
 export type DietaryRestriction = 'vegan';
+/** Typed accessibility need identifiers (stable domain ids, not display text). */
+export type AccessibilityNeed =
+  | 'wheelchair_access'
+  | 'avoid_stairs'
+  | 'limited_mobility';
 export type ExperienceIntent =
   | 'visit'
   | 'walk'
@@ -42,7 +47,7 @@ export interface MobilityPreferences {
   maxWalkingDistancePerDayMeters: number;
   maxContinuousWalkingDistanceMeters: number;
   travelPace: TravelPace;
-  accessibilityNeeds: string[];
+  accessibilityNeeds: AccessibilityNeed[];
 }
 
 export interface GenerateTourDto {

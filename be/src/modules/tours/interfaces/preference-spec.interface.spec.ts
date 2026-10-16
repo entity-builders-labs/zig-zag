@@ -59,12 +59,11 @@ describe('preference-spec.interface', () => {
       polarityConflicts: [],
       facets: [selectedFacetFixture('theme', 'history')],
       unresolvedConcepts: [],
-      facetSchemaVersion: 'facet-schema-v1',
+      facetSchemaVersion: 'facet-schema-v2',
       anchors: [],
       semanticQuery: '',
       explorationStyle: 'iconic',
       softConstraints: {
-        accessibility: [],
         budget: [],
         group: [],
       },

@@ -22,6 +22,17 @@ export enum DietaryRestriction {
   VEGAN = 'vegan',
 }
 
+/**
+ * A typed accessibility need chosen as a structured option. Stable domain
+ * identifiers, not display text; each one is a HARD requirement on the
+ * `accessibility` dimension of the facet schema (task 25.3).
+ */
+export enum AccessibilityNeed {
+  WHEELCHAIR_ACCESS = 'wheelchair_access',
+  AVOID_STAIRS = 'avoid_stairs',
+  LIMITED_MOBILITY = 'limited_mobility',
+}
+
 export enum GroupType {
   SOLO = 'solo',
   COUPLE = 'couple',
@@ -61,7 +72,7 @@ export interface MobilityPreferences {
   maxWalkingDistancePerDayMeters: number;
   maxContinuousWalkingDistanceMeters: number;
   travelPace: TravelPace;
-  accessibilityNeeds: string[];
+  accessibilityNeeds: AccessibilityNeed[];
 }
 
 export interface TourDestinationSelection {

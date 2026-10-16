@@ -21,11 +21,10 @@ export interface NormalizedPreferenceIntent {
    */
   anchoredPlaces: InterpretedAnchor[];
 
-  // Untyped fields with no deterministic consumer (accessibility: task
-  // 25.3; budget, group and soft constraints: task 25.5).
+  // Untyped fields with no deterministic consumer (budget, group and soft
+  // constraints: task 25.5). Accessibility is a typed assertion target.
   softConstraints: string[];
   ambiguities: string[];
-  accessibilityPreferences: string[];
   budgetPreferences: string[];
   groupPreferences: string[];
   positiveSemanticQuery: string;

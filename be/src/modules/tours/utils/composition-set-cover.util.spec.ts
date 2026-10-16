@@ -46,11 +46,11 @@ const spec: PreferenceSpec = {
   assertions: [],
   polarityConflicts: [],
   unresolvedConcepts: [],
-  facetSchemaVersion: 'facet-schema-v1',
+  facetSchemaVersion: 'facet-schema-v2',
   anchors: [],
   semanticQuery: '',
   explorationStyle: 'balanced',
-  softConstraints: { accessibility: [], budget: [], group: [] },
+  softConstraints: { budget: [], group: [] },
   trip: { days: 1, startDates: [], pace: 'relaxed' },
 };
 function candidate(

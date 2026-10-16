@@ -79,7 +79,6 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
       anchoredPlaces: [],
       softConstraints: [],
       ambiguities: [],
-      accessibilityPreferences: [],
       budgetPreferences: [],
       groupPreferences: [],
       positiveSemanticQuery: '',

@@ -59,7 +59,7 @@ export function buildTourGenerationRequest(
       maxContinuousWalkingDistanceMeters:
         dto.mobility.maxContinuousWalkingDistanceMeters,
       travelPace: dto.mobility.travelPace,
-      accessibilityNeeds: normalizeValues(dto.mobility.accessibilityNeeds),
+      accessibilityNeeds: [...new Set(dto.mobility.accessibilityNeeds ?? [])],
     },
     dietaryRestrictions: [...new Set(dto.dietaryRestrictions ?? [])],
     startDates: [...(dto.startDates ?? [])],

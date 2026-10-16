@@ -49,7 +49,6 @@ describe('tour-generation integration · preference-first live cutover', () => {
           ],
           softConstraints: [],
           ambiguities: [],
-          accessibilityPreferences: [],
           budgetPreferences: [],
           groupPreferences: [],
           positiveSemanticQuery: 'historical walking tour in san telmo',

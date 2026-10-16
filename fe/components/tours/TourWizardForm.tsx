@@ -16,6 +16,7 @@ import { ArrowLeft, MapPin, Sparkles } from 'lucide-react-native';
 import { requestAndGetCurrentLocation } from '@/utils/location';
 import { GenerateTourDto } from '@/api/tours';
 import {
+  AccessibilityNeed,
   BudgetLevel,
   DestinationScaleHint,
   ExperienceIntent,
@@ -110,7 +111,9 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     maxContinuousWalkingDistanceMeters,
     setMaxContinuousWalkingDistanceMeters
   ] = useState(WALKING_EFFORT_PRESETS.moderate.continuousMeters);
-  const [accessibilityNeeds, setAccessibilityNeeds] = useState<string[]>([]);
+  const [accessibilityNeeds, setAccessibilityNeeds] = useState<
+    AccessibilityNeed[]
+  >([]);
   const [additionalPreferences, setAdditionalPreferences] = useState('');
 
   useEffect(() => {
@@ -187,7 +190,7 @@ export const TourWizardForm: React.FC<TourWizardFormProps> = ({
     });
   };
 
-  const toggleAccessibilityNeed = (need: string) => {
+  const toggleAccessibilityNeed = (need: AccessibilityNeed) => {
     setAccessibilityNeeds((current) =>
       current.includes(need)
         ? current.filter((value) => value !== need)

@@ -161,7 +161,7 @@ export function recordHardConstraintEnforceabilityStep(
     component: 'HardConstraintEnforceability',
     decision: {
       status: 'FAIL',
-      outcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+      outcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
       reasonCodes: [
         ...new Set(
           input.constraints.map((constraint) => constraint.missingKnowledge),

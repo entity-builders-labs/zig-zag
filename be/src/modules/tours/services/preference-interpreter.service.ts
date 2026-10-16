@@ -70,7 +70,7 @@ name (never a generic theme). For each, output:
 Extract anchors conservatively: when in doubt about the name or the intent, omit the anchor
 rather than guessing. Do not invent named places that were not mentioned.
 
-Other fields: softConstraints, ambiguities, accessibilityPreferences, budgetPreferences,
+Other fields: softConstraints, ambiguities, budgetPreferences,
 groupPreferences, positiveSemanticQuery (the positive interests only), notes.
 Use short lowercase phrases.`;
 
@@ -150,7 +150,6 @@ const RESPONSE_SCHEMA = {
     },
     softConstraints: STRING_ARRAY,
     ambiguities: STRING_ARRAY,
-    accessibilityPreferences: STRING_ARRAY,
     budgetPreferences: STRING_ARRAY,
     groupPreferences: STRING_ARRAY,
     positiveSemanticQuery: { type: 'string' },
@@ -162,7 +161,6 @@ const RESPONSE_SCHEMA = {
     'anchoredPlaces',
     'softConstraints',
     'ambiguities',
-    'accessibilityPreferences',
     'budgetPreferences',
     'groupPreferences',
     'positiveSemanticQuery',
@@ -177,7 +175,6 @@ const EMPTY_INTENT: NormalizedPreferenceIntent = {
   anchoredPlaces: [],
   softConstraints: [],
   ambiguities: [],
-  accessibilityPreferences: [],
   budgetPreferences: [],
   groupPreferences: [],
   positiveSemanticQuery: '',
@@ -303,7 +300,6 @@ export class PreferenceInterpreterService {
         anchoredPlaces: this.normalizeAnchors(value?.anchoredPlaces),
         softConstraints: list(value?.softConstraints),
         ambiguities: list(value?.ambiguities),
-        accessibilityPreferences: list(value?.accessibilityPreferences),
         budgetPreferences: list(value?.budgetPreferences),
         groupPreferences: list(value?.groupPreferences),
         positiveSemanticQuery:

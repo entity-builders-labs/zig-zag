@@ -59,9 +59,9 @@ The primary flow when a user creates a tour from the mobile app wizard:
      importance, confidence, evidence) that deterministic code only
      validates (`preferences/preference-assertion.interface.ts`); there is
      no keyword, alias or synonym list and no lexical fallback. Typed wizard
-     selections (interests, intents, `DietaryRestriction`) are DIRECT
-     assertions. A HARD constraint that cannot be proven ends generation
-     with `HARD_EXCLUSION_UNENFORCEABLE`
+     selections (interests, intents, `DietaryRestriction`,
+     `AccessibilityNeed`) are DIRECT assertions. A HARD constraint that cannot be proven ends generation
+     with `HARD_CONSTRAINT_UNENFORCEABLE`
      (`utils/hard-constraint-enforceability.util.ts`)
    - Derives the canonical preference utility once per catalog snapshot
      (`services/preference-utility.service.ts`, `preference-utility-v1`):

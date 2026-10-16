@@ -55,7 +55,6 @@ function interpreterResponse(overrides: Record<string, unknown>): string {
     anchoredPlaces: [],
     softConstraints: [],
     ambiguities: [],
-    accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: '',

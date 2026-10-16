@@ -149,15 +149,16 @@ amendment (2026-10-11); no production code yet.**
     41.0 and 41.1;
   - the canonical planning and routing paragraphs.
 - `/opsx:apply` started (2026-10-15) after the docs checkpoint 20500504:
-  task 25.1 committed (0d1e6e97); 25.4 (2919e0db); 25.6 (2390a953).
-  Task 25.2 (canonical preference-utility boundary, rank-based planner)
+  task 25.1 committed (0d1e6e97); 25.4 (2919e0db); 25.6 (2390a953); 25.2
+  (d1a4c738). Tasks 24.2 (decision record) and 25.3 (typed accessibility,
+  facet-schema-v2, outcome renamed HARD_CONSTRAINT_UNENFORCEABLE)
   implemented and verified, uncommitted until owner review.
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the uncommitted task 25.2 implementation and authorizes
-   its commit; then `/opsx:apply` continues with the next unblocked task.
+1. Owner reviews the uncommitted tasks 24.2 and 25.3 and authorizes their
+   commits; then `/opsx:apply` continues with the next unblocked task.
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
@@ -189,9 +190,9 @@ amendment (2026-10-11); no production code yet.**
     paths:** resolved by task 25.2 (one preference-utility boundary).
   - **Unused soft fields.** Soft avoidances and constraints have no
     consumer.
-  - **Accessibility.** Need and preference are merged and unenforced, the
-    fallback files "wheelchair" as a preference, and no canonical
-    accessibility fact exists.
+  - **Accessibility:** typed by task 25.3; needs end with
+    HARD_CONSTRAINT_UNENFORCEABLE until accessibility facts and
+    classification completeness exist (task 25.7).
   - **Soft anchors:** resolved by 25.2 (canonical level after explicit
     evidence and avoidance, before semantic).
   - **Provenance / interpreter evidence:** resolved by task 25.4.
@@ -225,7 +226,7 @@ amendment (2026-10-11); no production code yet.**
   they plan little or nothing until duration knowledge is enriched; local
   `zigzag` 8/8 ready. Missing enrichment, not a planner failure.
 - Task 25.4 consequences (owner-accepted): every HARD constraint (typed
-  dietary restriction, HARD exclusion) ends HARD_EXCLUSION_UNENFORCEABLE
+  dietary restriction, HARD exclusion) ends HARD_CONSTRAINT_UNENFORCEABLE
   until classification completeness exists (task 25.7); open concepts
   (former traits) no longer participate until a shared typed concept
   space exists (task 25.8; CP-G CF3 exact-fit case is `it.failing`).

@@ -39,12 +39,11 @@ const preferenceSpec: PreferenceSpec = {
   assertions: [],
   polarityConflicts: [],
   unresolvedConcepts: [],
-  facetSchemaVersion: 'facet-schema-v1',
+  facetSchemaVersion: 'facet-schema-v2',
   anchors: [],
   semanticQuery: '',
   explorationStyle: 'balanced',
   softConstraints: {
-    accessibility: [],
     budget: [],
     group: [],
   },
@@ -77,7 +76,8 @@ describe('ExperienceGenerationService composition/overlap handoff', () => {
     // Equal explicit preference: both match the one DIRECT history facet.
     expect(
       ['A-later', 'B-earlier'].map(
-        (id) => selection.preferenceUtility.byId.get(id).breakdown.directEvidence,
+        (id) =>
+          selection.preferenceUtility.byId.get(id).breakdown.directEvidence,
       ),
     ).toEqual([1, 1]);
 

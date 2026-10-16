@@ -88,7 +88,7 @@ interface ScenarioDefinition {
   expectedSelectedClass: string;
   minimumExpectedSelected: number;
   /** A typed terminal outcome instead of a completed Tour. */
-  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
+  expectOutcome?: 'HARD_CONSTRAINT_UNENFORCEABLE';
   buildExperience(index: number): ScenarioExperience;
   assertTrace?: (tour: any, rows: SeededRow[]) => void;
 }
@@ -131,7 +131,6 @@ function normalizedIntent(
     anchoredPlaces: [],
     softConstraints: [] as string[],
     ambiguities: [] as string[],
-    accessibilityPreferences: [] as string[],
     budgetPreferences: [] as string[],
     groupPreferences: [] as string[],
     positiveSemanticQuery: '',
@@ -210,7 +209,7 @@ const scenarios: ScenarioDefinition[] = [
       ],
       positiveSemanticQuery: 'culture art tango walking Buenos Aires',
     }),
-    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+    expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
     request: baseRequest({
       intent: {
         interests: ['culture', 'art', 'tango'],
@@ -264,7 +263,7 @@ const scenarios: ScenarioDefinition[] = [
     }),
     // The typed vegan restriction is a HARD constraint the catalog cannot
     // yet guarantee (no classification completeness).
-    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+    expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
     request: baseRequest({
       budgetLevel: 'low',
       dietaryRestrictions: ['vegan'],
@@ -347,17 +346,19 @@ const scenarios: ScenarioDefinition[] = [
     key: 'accessible-short-open',
     title: 'reduced mobility + short distances + strict opening hours',
     interpretation: normalizedIntent({
-      unresolvedConcepts: [openConcept('accessibility', 'accesible')],
-      accessibilityPreferences: ['accessibility'],
       positiveSemanticQuery: 'accessible short distance culture Buenos Aires',
     }),
+    // Task 25.3: the typed limited-mobility need is a HARD constraint and no
+    // Experience records a complete accessibility classification yet, so
+    // the request ends with the typed outcome instead of planning without it.
+    expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
     request: baseRequest({
       mobility: {
         allowedTransportationModes: ['walking'],
         maxWalkingDistancePerDayMeters: 2500,
         maxContinuousWalkingDistanceMeters: 600,
         travelPace: 'relaxed',
-        accessibilityNeeds: ['accessibility'],
+        accessibilityNeeds: ['limited_mobility'],
       },
       intent: {
         interests: ['culture'],
@@ -541,7 +542,7 @@ const scenarios: ScenarioDefinition[] = [
   {
     key: 'explicit-relaxation',
     title:
-      'an unprovable hard exclusion ends with HARD_EXCLUSION_UNENFORCEABLE',
+      'an unprovable hard exclusion ends with HARD_CONSTRAINT_UNENFORCEABLE',
     interpretation: normalizedIntent({
       unresolvedConcepts: [
         hardExcludedConcept('religion', 'no acepto ningún lugar religioso'),
@@ -550,7 +551,7 @@ const scenarios: ScenarioDefinition[] = [
     }),
     // Task 25.4: an exclusion that cannot be proven is never guessed (no
     // lexical match) nor relaxed: the request ends with the typed outcome.
-    expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+    expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
     request: baseRequest({
       intent: {
         interests: ['tango'],
@@ -911,7 +912,7 @@ describe('Experience V2 CP8 mandatory selection scenarios at scale', () => {
 
   it('CP8: changing preferences changes selection direction on the same catalog', async () => {
     // The culture/art/tango catalog without the free-text exclusion, which
-    // would end with HARD_EXCLUSION_UNENFORCEABLE (task 25.4).
+    // would end with HARD_CONSTRAINT_UNENFORCEABLE (task 25.4).
     const base = scenarios[0];
     const scenario: ScenarioDefinition = {
       ...base,

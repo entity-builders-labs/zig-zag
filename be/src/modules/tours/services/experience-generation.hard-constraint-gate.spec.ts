@@ -1,6 +1,7 @@
 import { ExperienceGenerationService } from './experience-generation.service';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import {
+  AccessibilityNeed,
   DietaryRestriction,
   TourGenerationRequest,
 } from '../interfaces/tour-generation.interface';
@@ -41,7 +42,6 @@ function interpreted(
     anchoredPlaces: [],
     softConstraints: [],
     ambiguities: [],
-    accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: '',
@@ -137,18 +137,18 @@ const failedTrace = (tourUpdates: any[]) =>
   tourUpdates[tourUpdates.length - 1].data.metadata.generationTrace;
 
 describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
-  it('ends a typed vegan restriction with HARD_EXCLUSION_UNENFORCEABLE before destination resolution', async () => {
+  it('ends a typed vegan restriction with HARD_CONSTRAINT_UNENFORCEABLE before destination resolution', async () => {
     const { service, resolveDestination, tourUpdates } = harness(
       { ...REQUEST, dietaryRestrictions: [DietaryRestriction.VEGAN] },
       interpreted(),
     );
 
     await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
-      /HARD_EXCLUSION_UNENFORCEABLE/,
+      /HARD_CONSTRAINT_UNENFORCEABLE/,
     );
     expect(resolveDestination).not.toHaveBeenCalled();
     const trace = failedTrace(tourUpdates);
-    expect(trace.result.outcome).toBe('HARD_EXCLUSION_UNENFORCEABLE');
+    expect(trace.result.outcome).toBe('HARD_CONSTRAINT_UNENFORCEABLE');
     expect(trace.result.facts.unenforceableHardConstraints).toEqual([
       expect.objectContaining({
         target: { dimension: 'dietary_suitability', key: 'vegan' },
@@ -157,18 +157,18 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
     ]);
   });
 
-  it('ends a HARD unresolved exclusion with HARD_EXCLUSION_UNENFORCEABLE (unknown is never compatible)', async () => {
+  it('ends a HARD unresolved exclusion with HARD_CONSTRAINT_UNENFORCEABLE (unknown is never compatible)', async () => {
     const { service, resolveDestination, tourUpdates } = harness(
       REQUEST,
       interpreted({ unresolvedConcepts: [concept('EXCLUDE', 'HARD')] }),
     );
 
     await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
-      /HARD_EXCLUSION_UNENFORCEABLE/,
+      /HARD_CONSTRAINT_UNENFORCEABLE/,
     );
     expect(resolveDestination).not.toHaveBeenCalled();
     expect(failedTrace(tourUpdates).result.outcome).toBe(
-      'HARD_EXCLUSION_UNENFORCEABLE',
+      'HARD_CONSTRAINT_UNENFORCEABLE',
     );
   });
 
@@ -257,5 +257,32 @@ describe('ExperienceGenerationService hard-constraint gate (task 25.4)', () => {
       }),
     ]);
     expect(intentStep.facts.facets).toEqual([]);
+  });
+
+  it('ends a typed accessibility need with HARD_CONSTRAINT_UNENFORCEABLE before destination resolution (unknown is never accessible)', async () => {
+    const { service, resolveDestination, tourUpdates } = harness(
+      {
+        ...REQUEST,
+        mobility: {
+          ...REQUEST.mobility,
+          accessibilityNeeds: [AccessibilityNeed.WHEELCHAIR_ACCESS],
+        },
+      },
+      interpreted(),
+    );
+
+    await expect(service.generateTourExperiences('tour-1')).rejects.toThrow(
+      /HARD_CONSTRAINT_UNENFORCEABLE/,
+    );
+    expect(resolveDestination).not.toHaveBeenCalled();
+    const trace = failedTrace(tourUpdates);
+    expect(trace.result.outcome).toBe('HARD_CONSTRAINT_UNENFORCEABLE');
+    expect(trace.result.facts.unenforceableHardConstraints).toEqual([
+      expect.objectContaining({
+        target: { dimension: 'accessibility', key: 'wheelchair_access' },
+        polarity: 'INCLUDE',
+        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+      }),
+    ]);
   });
 });

@@ -235,7 +235,6 @@ describe('tour-generation integration · canonical orchestration', () => {
         ],
         softConstraints: [],
         ambiguities: [],
-        accessibilityPreferences: [],
         budgetPreferences: [],
         groupPreferences: [],
         positiveSemanticQuery: '',

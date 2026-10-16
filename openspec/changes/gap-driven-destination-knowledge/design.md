@@ -1087,6 +1087,10 @@ disproven.
      accessibility is UNKNOWN today. Enforcing a need therefore requires
      that fact first, and until it exists a request carrying a need must end
      explicitly rather than silently plan without it (task 25.3).
+   *Status (task 25.3, 2026-10-16):* needs are a typed `AccessibilityNeed`
+   enum and both needs and preferences are typed assertions on the
+   `accessibility` dimension; the string lists are deleted (see
+   *Accessibility* below).
 6. **Mislabelled trace.** The composition trace's `qualityBonus` carries the
    raw 0..5 `qualityScore`, and `totalScore` is a placeholder.
 7. **No-op key.** `groundingStrength` is constant within every facet
@@ -1112,6 +1116,20 @@ disproven.
   before optimization; UNKNOWN accessibility is not evidence of
   accessibility. The request contract must carry the distinction (task
   25.3).
+  *Implemented (task 25.3, owner 2026-10-16):* the facet schema is
+  `facet-schema-v2`, adding the typed dimension `accessibility`
+  (`wheelchair_access`, `avoid_stairs`, `limited_mobility`) — domain
+  concepts, no labels or synonyms. A wizard/API need is a typed
+  `AccessibilityNeed` (the DTO rejects anything else) and yields a DIRECT
+  HARD INCLUDE assertion with no extractor call; free text reaches the same
+  targets only through the extractor, which decides HARD (need) or SOFT
+  (preference). A SOFT preference is a requested facet weighed by the 25.2
+  utility boundary and matches only explicit dimensioned accessibility
+  facts (none are produced yet, so it is neutral). A HARD need follows the
+  hard-constraint gate: without recorded classification completeness
+  (task 25.7) generation ends with `HARD_CONSTRAINT_UNENFORCEABLE`. The
+  untyped `accessibilityPreferences` and `softConstraints.accessibility`
+  are deleted.
 - *Preference utility* has exactly one canonical derivation boundary. It is
   derived once, consumed by composition, ranking and planning as each needs
   it, and never recomputed differently by a consumer; it crosses into the
@@ -1151,8 +1169,9 @@ disproven.
   2026-10-14 lexical provenance rule, implemented by task 25.4).
   - Natural language → semantic extractor → typed assertions →
     deterministic validation only. The extractor asserts each preference's
-    typed target (dimension and canonical key of the versioned facet schema
-    `facet-schema-v1`), polarity (`INCLUDE` / `EXCLUDE`), constraint
+    typed target (dimension and canonical key of the versioned facet schema,
+    `facet-schema-v1` at task 25.4 and `facet-schema-v2` since task 25.3
+    added `accessibility`), polarity (`INCLUDE` / `EXCLUDE`), constraint
     (`SOFT` / `HARD`), provenance (`DIRECT` / `INFERRED`), importance
     (from its stated strength), confidence and verbatim evidence.
   - Validation checks only that the target is a schema key, the enumerated
@@ -1185,7 +1204,7 @@ disproven.
     Both SOFT: neither participates and planning continues. Either HARD:
     contradictory hard intent — generation stops before destination
     resolution with the typed, non-retryable `AMBIGUOUS_HARD_CONSTRAINT`
-    (never drop-both-and-plan; distinct from `HARD_EXCLUSION_UNENFORCEABLE`,
+    (never drop-both-and-plan; distinct from `HARD_CONSTRAINT_UNENFORCEABLE`,
     which is clear intent with unprovable compatibility).
     `outranksAssertion` resolves duplicates of one polarity only, never
     across polarities; `EXCLUDE` never wins automatically; a later semantic
@@ -1201,7 +1220,7 @@ disproven.
     assertion (including a typed dietary restriction) and every `HARD`
     unresolved concept is unenforceable: generation ends before
     destination resolution with the typed, non-retryable outcome
-    `HARD_EXCLUSION_UNENFORCEABLE`, distinct from an infeasible plan. The
+    `HARD_CONSTRAINT_UNENFORCEABLE`, distinct from an infeasible plan. The
     lexical hard-exclusion matcher (`ALIASES`) and the vegan regex were
     deleted. Classification completeness and a shared typed concept space
     are follow-up tasks (see tasks).

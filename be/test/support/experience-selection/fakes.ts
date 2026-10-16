@@ -60,7 +60,6 @@ export interface FakeInterpretation {
   }>;
   softConstraints: string[];
   ambiguities: string[];
-  accessibilityPreferences: string[];
   budgetPreferences: string[];
   groupPreferences: string[];
   positiveSemanticQuery: string;
@@ -73,7 +72,6 @@ export function emptyInterpretation(): FakeInterpretation {
     unresolvedConcepts: [],
     softConstraints: [],
     ambiguities: [],
-    accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: '',

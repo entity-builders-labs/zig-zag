@@ -300,7 +300,7 @@ describe('Experience selection — competitive engine-quality benchmark (CP-G)',
           // Never a silent admission and never a guessed exclusion.
           const tour = tours['4-only'];
           expect(tour.metadata.generationTrace.result.outcome).toBe(
-            'HARD_EXCLUSION_UNENFORCEABLE',
+            'HARD_CONSTRAINT_UNENFORCEABLE',
           );
         }
 

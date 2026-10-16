@@ -284,11 +284,11 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 
 #### Scenario: Accessibility need versus preference
 - **WHEN** the request states an explicit accessibility need and an Experience is known not to meet it or its accessibility is UNKNOWN
-- **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility
+- **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility; while no accessibility classification completeness is recorded, a need ends generation with HARD_CONSTRAINT_UNENFORCEABLE
 
 #### Scenario: Hard exclusion never reaches the optimizer
 - **WHEN** the request has a hard exclusion whose compatibility can be proven and an Experience matches it
-- **THEN** it is not offered to the optimizer and no objective weight can bring it back; when compatibility cannot be proven, generation ends with HARD_EXCLUSION_UNENFORCEABLE instead
+- **THEN** it is not offered to the optimizer and no objective weight can bring it back; when compatibility cannot be proven, generation ends with HARD_CONSTRAINT_UNENFORCEABLE instead
 
 ### Requirement: UNKNOWN ordering projection is tier-local
 For ordering only, an UNKNOWN semantic affinity or generic quality SHALL take the median of the KNOWN values among candidates tied on every earlier canonical level (DIRECT, INFERRED, soft-exclusion avoidance, soft anchor). Quality SHALL use the same tier, not subdivided by semantic value. A tier with no KNOWN value SHALL skip that level. The breakdown SHALL keep UNKNOWN and no median SHALL be stored.
@@ -353,7 +353,7 @@ When one typed target is asserted both as INCLUDE and as EXCLUDE and both assert
 - **THEN** history is neither a requested facet nor an exclusion, and the trace records PREFERENCE_POLARITY_CONFLICT for theme:history
 
 ### Requirement: Contradictory hard intent blocks generation
-When one typed target is asserted both as INCLUDE and as EXCLUDE and either assertion is HARD, generation SHALL end before destination resolution with AMBIGUOUS_HARD_CONSTRAINT, recording both assertions' constraint, provenance and evidence. It SHALL NOT drop both and plan, SHALL NOT pick a winner, and SHALL be distinct from HARD_EXCLUSION_UNENFORCEABLE (clear intent, unprovable compatibility). It SHALL NOT be retried.
+When one typed target is asserted both as INCLUDE and as EXCLUDE and either assertion is HARD, generation SHALL end before destination resolution with AMBIGUOUS_HARD_CONSTRAINT, recording both assertions' constraint, provenance and evidence. It SHALL NOT drop both and plan, SHALL NOT pick a winner, and SHALL be distinct from HARD_CONSTRAINT_UNENFORCEABLE (clear intent, unprovable compatibility). It SHALL NOT be retried.
 
 #### Scenario: Selected interest contradicted by a hard exclusion
 - **WHEN** the traveller selects the history interest and the extractor asserts a HARD exclusion of history
@@ -403,6 +403,17 @@ A typed structured selection (a wizard option or a typed dietary restriction) SH
 - **WHEN** the traveller selects the history interest or the vegan dietary restriction as a typed option
 - **THEN** it yields a DIRECT assertion whose evidence is that structured selection, without calling the extractor; an untyped dietary string is rejected at the request boundary
 
+### Requirement: Accessibility is a typed assertion dimension
+Accessibility needs and preferences SHALL be typed assertions on the `accessibility` dimension of the versioned facet schema. A structured need SHALL be a typed identifier (anything else is rejected at the request boundary) yielding a DIRECT HARD INCLUDE assertion without the extractor; free text SHALL reach these targets only through the extractor, which decides HARD or SOFT. No untyped accessibility list SHALL exist.
+
+#### Scenario: Wizard wheelchair need
+- **WHEN** the traveller selects the wheelchair-access need
+- **THEN** it yields a DIRECT HARD INCLUDE assertion on accessibility:wheelchair_access and never a preference facet
+
+#### Scenario: Free-text accessibility preference
+- **WHEN** the extractor asserts "preferiría evitar escaleras" as a SOFT accessibility:avoid_stairs assertion
+- **THEN** it is a requested facet that ranks only Experiences with a confirmed typed fact, and no embedding or wording decides accessibility
+
 ### Requirement: Open concepts without a shared typed identity are unresolved
 A concept the extractor understands but that has no typed identity shared with Experience facts (for example an open trait) SHALL be recorded as an unresolved concept (UNRESOLVED_OPEN_CONCEPT) and never matched lexically against Experience facts. An INCLUDE unresolved concept SHALL NOT participate in retrieval, coverage, acquisition or preference utility.
 
@@ -411,15 +422,15 @@ A concept the extractor understands but that has no typed identity shared with E
 - **THEN** it is recorded as an unresolved concept and neither creates a facet, a deficit nor a forwarded acquisition trait, nor matches an Experience trait "craft beer"
 
 ### Requirement: Unprovable hard constraints end generation explicitly
-A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Without recorded classification completeness or a shared typed identity, generation SHALL end before destination resolution with HARD_EXCLUSION_UNENFORCEABLE, recording each constraint and its missing knowledge. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
+A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Without recorded classification completeness or a shared typed identity, generation SHALL end before destination resolution with HARD_CONSTRAINT_UNENFORCEABLE, recording each constraint and its missing knowledge. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
 
 #### Scenario: Typed dietary restriction without classification completeness
 - **WHEN** the request selects the vegan dietary restriction and the catalog does not record whether Experiences' dietary classification is complete
-- **THEN** generation ends with HARD_EXCLUSION_UNENFORCEABLE recording dietary_suitability:vegan and CLASSIFICATION_COMPLETENESS, and no Tour is planned
+- **THEN** generation ends with HARD_CONSTRAINT_UNENFORCEABLE recording dietary_suitability:vegan and CLASSIFICATION_COMPLETENESS, and no Tour is planned
 
 #### Scenario: Hard exclusion of an open concept
 - **WHEN** the extractor asserts a HARD exclusion of "religious places" and the schema has no typed key for it
-- **THEN** generation ends with HARD_EXCLUSION_UNENFORCEABLE recording SHARED_CONCEPT_IDENTITY, instead of guessing the exclusion from words in Experience names or descriptions
+- **THEN** generation ends with HARD_CONSTRAINT_UNENFORCEABLE recording SHARED_CONCEPT_IDENTITY, instead of guessing the exclusion from words in Experience names or descriptions
 
 ### Requirement: Allowed travel modes are a hard boundary
 Only the request's allowed travel modes that the release supports and a routing provider serves SHALL be offered to the optimizer. No objective weight SHALL make another mode usable, and an unavailable mode SHALL NOT be substituted by another mode.

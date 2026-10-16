@@ -108,14 +108,18 @@ function order(scenario: Scenario, candidates = scenario.candidates) {
     scenario.semantic === 'none'
       ? null
       : {
-          status: scenario.semantic === 'unavailable' ? 'unavailable' : 'applied',
+          status:
+            scenario.semantic === 'unavailable' ? 'unavailable' : 'applied',
           scores: new Map(
             candidates
-              .filter((c) => c.sim !== null && scenario.semantic !== 'unavailable')
+              .filter(
+                (c) => c.sim !== null && scenario.semantic !== 'unavailable',
+              )
               .map((c) => [c.id, c.sim!]),
           ),
           requestedCandidateCount: candidates.length,
-          indexedCandidateCount: candidates.filter((c) => c.sim !== null).length,
+          indexedCandidateCount: candidates.filter((c) => c.sim !== null)
+            .length,
           identity: {
             provider: 'ollama',
             model: 'test',
@@ -125,7 +129,10 @@ function order(scenario: Scenario, candidates = scenario.candidates) {
         };
   return derivePreferenceUtility({
     experiences: candidates.map(experience),
-    preferenceSpec: { facets: requestedFacets(scenario.facets), assertions: [] },
+    preferenceSpec: {
+      facets: requestedFacets(scenario.facets),
+      assertions: [],
+    },
     softAnchorIds: new Set(candidates.filter((c) => c.anchor).map((c) => c.id)),
     semantic,
   }).order;
@@ -140,7 +147,11 @@ const SCENARIOS: Scenario[] = [
       cand('B', ['history'], 0.98, 5.0),
       cand('C', [], 0.99, 5.0),
     ],
-    expect: [['>', 'A', 'B'], ['>', 'A', 'C'], ['>', 'B', 'C']],
+    expect: [
+      ['>', 'A', 'B'],
+      ['>', 'A', 'C'],
+      ['>', 'B', 'C'],
+    ],
   },
   {
     id: 'A2',
@@ -150,7 +161,11 @@ const SCENARIOS: Scenario[] = [
       cand('B', ['history'], 0.98, 5.0),
       cand('C', [], 0.99, 5.0),
     ],
-    expect: [['>', 'A', 'B'], ['>', 'A', 'C'], ['>', 'B', 'C']],
+    expect: [
+      ['>', 'A', 'B'],
+      ['>', 'A', 'C'],
+      ['>', 'B', 'C'],
+    ],
   },
   {
     id: 'B1',
@@ -221,7 +236,11 @@ const SCENARIOS: Scenario[] = [
       cand('B', ['family_friendly'], null, 4.9),
       cand('C', ['family_friendly'], null, 4.0),
     ],
-    expect: [['>', 'A', 'B'], ['>', 'A', 'C'], ['>', 'B', 'C']],
+    expect: [
+      ['>', 'A', 'B'],
+      ['>', 'A', 'C'],
+      ['>', 'B', 'C'],
+    ],
     semantic: 'none',
   },
   {
@@ -398,7 +417,11 @@ const SCENARIOS: Scenario[] = [
       cand('C', ['history'], null, 4.0),
       cand('D', [], null, 5.0),
     ],
-    expect: [['>', 'A', 'B'], ['>', 'B', 'C'], ['>', 'C', 'D']],
+    expect: [
+      ['>', 'A', 'B'],
+      ['>', 'B', 'C'],
+      ['>', 'C', 'D'],
+    ],
     semantic: 'unavailable',
   },
   {
@@ -517,7 +540,12 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
           components: geo,
           qualityScore: 5,
         },
-        { id: 'b-plain', themes: ['history'], components: geo, qualityScore: 3 },
+        {
+          id: 'b-plain',
+          themes: ['history'],
+          components: geo,
+          qualityScore: 3,
+        },
       ],
       [W('history')],
       [avoid('nightlife', 'DIRECT', 1, 1)],
@@ -541,7 +569,12 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
           components: geo,
           qualityScore: 4,
         },
-        { id: 'b-plain', themes: ['history'], components: geo, qualityScore: 4 },
+        {
+          id: 'b-plain',
+          themes: ['history'],
+          components: geo,
+          qualityScore: 4,
+        },
       ],
       [W('history'), W('art')],
       [avoid('nightlife', 'DIRECT', 1, 1)],
@@ -566,7 +599,10 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
         },
       ],
       [],
-      [avoid('nightlife', 'DIRECT', 0.5, 1), avoid('shopping', 'INFERRED', 1, 1)],
+      [
+        avoid('nightlife', 'DIRECT', 0.5, 1),
+        avoid('shopping', 'INFERRED', 1, 1),
+      ],
     );
     expect(result.order).toEqual(['b-inferred-conflict', 'a-direct-conflict']);
   });
@@ -626,7 +662,12 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
     const result = derive(
       [
         { id: 'strong', themes: ['history'], components: geo, qualityScore: 4 },
-        { id: 'low-quality', themes: ['history'], components: geo, qualityScore: 2 },
+        {
+          id: 'low-quality',
+          themes: ['history'],
+          components: geo,
+          qualityScore: 2,
+        },
         { id: 'no-geography', themes: ['history'], qualityScore: 4 },
         {
           id: 'text-only',
@@ -643,5 +684,61 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
         (id) => result.byId.get(id)!.breakdown.directEvidence,
       ),
     ).toEqual([1, 0, 0, 0]);
+  });
+
+  it('keeps a SOFT accessibility preference neutral without a typed fact and positive with one; embeddings never decide it', () => {
+    const facets: RequestedFacet[] = [
+      {
+        dimension: 'accessibility',
+        key: 'avoid_stairs',
+        provenance: 'DIRECT',
+        importance: 0.7,
+        confidence: 0.9,
+        evidence: [{ kind: 'USER_TEXT_SPAN', text: 'evitar escaleras' }],
+        required: false,
+      },
+    ];
+    const result = derivePreferenceUtility({
+      experiences: [
+        {
+          id: 'a-step-free-fact',
+          components: geo,
+          qualityScore: 3,
+          dimensionedTraits: [
+            { dimension: 'accessibility', key: 'avoid_stairs' },
+          ],
+        },
+        {
+          id: 'b-unknown-similar-text',
+          canonicalName: 'Step-free accessible museum',
+          components: geo,
+          qualityScore: 5,
+        },
+      ],
+      preferenceSpec: { facets, assertions: [] },
+      softAnchorIds: new Set(),
+      semantic: {
+        status: 'applied',
+        scores: new Map([['b-unknown-similar-text', 0.99]]),
+        requestedCandidateCount: 2,
+        indexedCandidateCount: 1,
+        identity: {
+          provider: 'ollama',
+          model: 'test',
+          dimensions: 2,
+          documentVersion: 1,
+        },
+      },
+    });
+    expect(result.byId.get('a-step-free-fact')!.breakdown.directEvidence).toBe(
+      0.7,
+    );
+    expect(
+      result.byId.get('b-unknown-similar-text')!.breakdown.directEvidence,
+    ).toBe(0);
+    expect(result.order).toEqual([
+      'a-step-free-fact',
+      'b-unknown-similar-text',
+    ]);
   });
 });

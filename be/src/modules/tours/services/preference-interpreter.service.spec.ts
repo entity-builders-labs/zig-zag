@@ -234,7 +234,6 @@ describe('PreferenceInterpreterService', () => {
     );
     expect(result.intent.assertions).toEqual([]);
     expect(result.intent.unresolvedConcepts).toEqual([]);
-    expect(result.intent.accessibilityPreferences).toEqual([]);
     expect(result.intent.positiveSemanticQuery).toBe('');
   });
 
@@ -279,10 +278,79 @@ describe('PreferenceInterpreterService', () => {
       langChain.generateChatResponse.mock.calls[0][0];
     expect(systemPrompt).toContain('- theme: history, culture, art');
     expect(systemPrompt).toContain('- dietary_suitability: vegan');
+    expect(systemPrompt).toContain(
+      '- accessibility: wheelchair_access, avoid_stairs, limited_mobility',
+    );
+    expect(systemPrompt).not.toContain('accessibilityPreferences');
     expect(systemPrompt).toContain('provenance: "DIRECT"');
     expect(systemPrompt).toContain('polarity: "INCLUDE"');
     expect(systemPrompt).toContain('unresolvedConcepts');
     expect(systemPrompt).not.toContain('arquitectura" not');
+  });
+
+  it('keeps accessibility as typed assertions: the extractor decides HARD need vs SOFT preference (task 25.3)', async () => {
+    const text =
+      'necesito acceso para silla de ruedas y preferiría evitar escaleras';
+    const { service } = makeService(
+      JSON.stringify({
+        assertions: [
+          {
+            dimension: 'accessibility',
+            key: 'wheelchair_access',
+            polarity: 'INCLUDE',
+            constraint: 'HARD',
+            provenance: 'DIRECT',
+            strength: 'strong',
+            confidence: 0.95,
+            evidence: ['necesito acceso para silla de ruedas'],
+          },
+          {
+            dimension: 'accessibility',
+            key: 'avoid_stairs',
+            polarity: 'INCLUDE',
+            constraint: 'SOFT',
+            provenance: 'DIRECT',
+            strength: 'medium',
+            confidence: 0.9,
+            evidence: ['preferiría evitar escaleras'],
+          },
+        ],
+      }),
+    );
+
+    const result = await service.interpret(text);
+
+    expect(
+      result.intent.assertions.map((a) => [
+        `${a.target.dimension}:${a.target.key}`,
+        a.constraint,
+        a.provenance,
+      ]),
+    ).toEqual([
+      ['accessibility:wheelchair_access', 'HARD', 'DIRECT'],
+      ['accessibility:avoid_stairs', 'SOFT', 'DIRECT'],
+    ]);
+  });
+
+  it('rejects an accessibility key outside the typed schema instead of translating it', async () => {
+    const { service } = makeService(
+      JSON.stringify({
+        assertions: [
+          {
+            dimension: 'accessibility',
+            key: 'silla_de_ruedas',
+            polarity: 'INCLUDE',
+            constraint: 'HARD',
+            provenance: 'DIRECT',
+            strength: 'strong',
+            confidence: 0.9,
+            evidence: ['silla de ruedas'],
+          },
+        ],
+      }),
+    );
+    const result = await service.interpret('voy en silla de ruedas');
+    expect(result.intent.assertions).toEqual([]);
   });
 
   describe('anchoredPlaces (D3)', () => {

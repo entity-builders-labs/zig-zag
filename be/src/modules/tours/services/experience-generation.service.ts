@@ -64,7 +64,7 @@ import {
   AmbiguousHardConstraintError,
   findAmbiguousHardConstraints,
   findUnenforceableHardConstraints,
-  HardExclusionUnenforceableError,
+  HardConstraintUnenforceableError,
 } from '../utils/hard-constraint-enforceability.util';
 import dailyPlanningPolicyConfig from '../config/daily-planning-policy.config';
 import {
@@ -246,7 +246,6 @@ export class ExperienceGenerationService {
       anchoredPlaces: [],
       softConstraints: [],
       ambiguities: [],
-      accessibilityPreferences: [],
       budgetPreferences: [],
       groupPreferences: [],
       positiveSemanticQuery: '',
@@ -370,7 +369,7 @@ export class ExperienceGenerationService {
    * eligibility rule that has a real, reusable primitive today: "not a bare
    * AREA/ROUTE representation" (at least one real PLACE-kind resolved
    * component). Hard constraints never reach this count: a request carrying
-   * one ends HARD_EXCLUSION_UNENFORCEABLE before any catalog read.
+   * one ends HARD_CONSTRAINT_UNENFORCEABLE before any catalog read.
    *
    * Full SS12.1 eligibility (destination-scope exclusion beyond the
    * geography query, etc.) is Checkpoint C/M5 composition's job, which does
@@ -674,9 +673,8 @@ export class ExperienceGenerationService {
         compositionOrderScore: selection.compositionOrderScoreById.get(
           experience.id,
         ),
-        preferenceBreakdown: selection.preferenceUtility.byId.get(
-          experience.id,
-        )?.breakdown,
+        preferenceBreakdown: selection.preferenceUtility.byId.get(experience.id)
+          ?.breakdown,
         mustInclude: selection.mustIncludeExperienceIds.has(experience.id),
       })),
     );
@@ -953,7 +951,7 @@ export class ExperienceGenerationService {
 
       // A hard constraint must be guaranteed. When current knowledge cannot
       // prove compatibility, the generation ends with the typed
-      // HARD_EXCLUSION_UNENFORCEABLE outcome before any catalog read or
+      // HARD_CONSTRAINT_UNENFORCEABLE outcome before any catalog read or
       // acquisition: never a silent admission and never an empty Tour.
       // Contradictory hard intent (one target asserted INCLUDE and EXCLUDE
       // with a HARD constraint) blocks first: nothing decides which governs.
@@ -975,7 +973,7 @@ export class ExperienceGenerationService {
           constraints: unenforceable,
           destination: request.destination.label,
         });
-        throw new HardExclusionUnenforceableError(
+        throw new HardConstraintUnenforceableError(
           unenforceable,
           request.destination.label,
         );
@@ -1917,14 +1915,14 @@ export class ExperienceGenerationService {
                   result: {
                     status: 'FAILED',
                     outcome:
-                      error instanceof HardExclusionUnenforceableError ||
+                      error instanceof HardConstraintUnenforceableError ||
                       error instanceof AmbiguousHardConstraintError
                         ? error.outcome
                         : 'GENERATION_FAILED',
                     reason: error?.message || String(error),
                     facts: {
                       error: error?.message || String(error),
-                      ...(error instanceof HardExclusionUnenforceableError
+                      ...(error instanceof HardConstraintUnenforceableError
                         ? { unenforceableHardConstraints: error.constraints }
                         : {}),
                       ...(error instanceof AmbiguousHardConstraintError

@@ -12,6 +12,9 @@ export const PREFERENCE_DIMENSIONS = {
   EXPLORATION_STYLE: 'exploration_style',
   // Hard dietary requirements (typed structured input or extractor output).
   DIETARY_SUITABILITY: 'dietary_suitability',
+  // Accessibility capabilities: a HARD need or a SOFT preference, asserted
+  // by structured input or the extractor (task 25.3).
+  ACCESSIBILITY: 'accessibility',
 } as const;
 
 export type PreferenceDimension =
@@ -79,6 +82,12 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
   // neutral and produces no facet / no ranking pressure.
   [PREFERENCE_DIMENSIONS.EXPLORATION_STYLE]: ['iconic', 'local_deep_dive'],
   [PREFERENCE_DIMENSIONS.DIETARY_SUITABILITY]: ['vegan'],
+  // Mirrors the AccessibilityNeed enum of the request contract.
+  [PREFERENCE_DIMENSIONS.ACCESSIBILITY]: [
+    'wheelchair_access',
+    'avoid_stairs',
+    'limited_mobility',
+  ],
 };
 
 /**
@@ -87,7 +96,7 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
  * alias, synonym or keyword table, and natural language is interpreted only
  * by the semantic extractor (owner, 2026-10-15).
  */
-export const PREFERENCE_FACET_SCHEMA_VERSION = 'facet-schema-v1';
+export const PREFERENCE_FACET_SCHEMA_VERSION = 'facet-schema-v2';
 
 /**
  * Dimensions a preference assertion may target: closed, typed dimensions
@@ -103,6 +112,7 @@ export const ASSERTION_TARGET_DIMENSIONS = [
   PREFERENCE_DIMENSIONS.NATURE_TYPE,
   PREFERENCE_DIMENSIONS.LOCAL_CHARACTER,
   PREFERENCE_DIMENSIONS.DIETARY_SUITABILITY,
+  PREFERENCE_DIMENSIONS.ACCESSIBILITY,
 ] as const;
 
 export type AssertionTargetDimension =

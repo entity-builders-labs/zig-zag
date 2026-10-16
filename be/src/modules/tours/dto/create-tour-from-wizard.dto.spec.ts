@@ -106,4 +106,29 @@ describe('CreateTourFromWizardDto', () => {
       ]);
     },
   );
+
+  it('accepts typed accessibility needs', async () => {
+    const payload = validPayload();
+    payload.mobility.accessibilityNeeds = [
+      'wheelchair_access',
+      'avoid_stairs',
+      'limited_mobility',
+    ];
+    expect(await errorsFor(payload)).toEqual([]);
+  });
+
+  it.each([
+    ['Silla de ruedas'],
+    ['wheelchair'],
+    ['accessibility'],
+    ['avoid stairs'],
+  ])(
+    'rejects an accessibility need outside the typed enum: %s',
+    async (need) => {
+      const payload = validPayload();
+      payload.mobility.accessibilityNeeds = [need];
+      const errors = await errorsFor(payload);
+      expect(errors.map((error) => error.property)).toEqual(['mobility']);
+    },
+  );
 });

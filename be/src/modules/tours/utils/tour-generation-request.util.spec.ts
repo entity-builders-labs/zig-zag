@@ -1,3 +1,4 @@
+import { AccessibilityNeed } from '../interfaces/tour-generation.interface';
 import { BadRequestException } from '@nestjs/common';
 import { CreateTourFromWizardDto } from '../dto/create-tour-from-wizard.dto';
 import { buildTourGenerationRequest } from './tour-generation-request.util';
@@ -25,7 +26,11 @@ function validDto(): CreateTourFromWizardDto {
       maxWalkingDistancePerDayMeters: 5000,
       maxContinuousWalkingDistanceMeters: 1500,
       travelPace: 'moderate' as any,
-      accessibilityNeeds: [' Avoid stairs ', 'avoid stairs'],
+      // Typed needs: only duplicates are removed; nothing is reinterpreted.
+      accessibilityNeeds: [
+        AccessibilityNeed.AVOID_STAIRS,
+        AccessibilityNeed.AVOID_STAIRS,
+      ],
     },
     dietaryRestrictions: [],
     startDates: [],
@@ -48,7 +53,7 @@ describe('buildTourGenerationRequest', () => {
         intents: ['Day_Trip'],
         additionalPreferences: 'Street photography',
       },
-      mobility: { accessibilityNeeds: ['Avoid stairs'] },
+      mobility: { accessibilityNeeds: [AccessibilityNeed.AVOID_STAIRS] },
     });
   });
 

@@ -115,6 +115,17 @@ export function buildPreferenceSpec(
         constraint: 'SOFT',
       }),
     ),
+    // A typed accessibility need is a HARD requirement on the accessibility
+    // dimension, with no language interpretation (task 25.3).
+    ...(request.mobility.accessibilityNeeds ?? []).map((key) =>
+      structuredSelectionAssertion({
+        field: 'mobility.accessibilityNeeds',
+        dimension: PREFERENCE_DIMENSIONS.ACCESSIBILITY,
+        key,
+        polarity: 'INCLUDE',
+        constraint: 'HARD',
+      }),
+    ),
     // A typed dietary restriction is a HARD requirement on dietary
     // suitability, with no language interpretation.
     ...(request.dietaryRestrictions ?? []).map((key) =>
@@ -142,10 +153,6 @@ export function buildPreferenceSpec(
 
   // Each soft-constraint dimension is built from its own dedicated sources
   // only.
-  const accessibility = unique([
-    ...(request.mobility.accessibilityNeeds ?? []),
-    ...(interpreted.accessibilityPreferences ?? []),
-  ]);
   const budget = unique([
     ...(interpreted.budgetPreferences ?? []),
     ...(request.budgetLevel === BudgetLevel.LOW ? ['low budget'] : []),
@@ -168,7 +175,6 @@ export function buildPreferenceSpec(
     semanticQuery: interpreted.positiveSemanticQuery ?? '',
     explorationStyle: mapExplorationStyle(request.intent.explorationStyle),
     softConstraints: {
-      accessibility,
       budget,
       group,
     },

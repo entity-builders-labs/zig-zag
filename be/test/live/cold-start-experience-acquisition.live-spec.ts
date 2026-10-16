@@ -334,7 +334,6 @@ function normalizedPreferences(
     anchoredPlaces: [],
     softConstraints: [],
     ambiguities: [],
-    accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: scenario.additionalPreferences,

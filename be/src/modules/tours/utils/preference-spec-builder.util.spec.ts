@@ -6,7 +6,10 @@ import {
 import { recordRequestIntentStep } from './generation-trace/request-audit';
 import { GenerationTraceRecorder } from './generation-trace-recorder.util';
 import { TourGenerationRequest } from '../interfaces/tour-generation.interface';
-import { DietaryRestriction } from '../interfaces/tour-generation.interface';
+import {
+  AccessibilityNeed,
+  DietaryRestriction,
+} from '../interfaces/tour-generation.interface';
 import { NormalizedPreferenceIntent } from '../interfaces/preference-interpretation.interface';
 import { InterpretedAnchor } from '../interfaces/preference-spec.interface';
 import {
@@ -73,7 +76,6 @@ function emptyInterpreted(
     anchoredPlaces: [],
     softConstraints: [],
     ambiguities: [],
-    accessibilityPreferences: [],
     budgetPreferences: [],
     groupPreferences: [],
     positiveSemanticQuery: '',
@@ -206,11 +208,7 @@ describe('preference-spec-builder.util', () => {
     ]);
     // A HARD constraint never becomes a soft preference facet.
     expect(spec.facets).toEqual([]);
-    expect(spec.softConstraints).toEqual({
-      accessibility: [],
-      budget: [],
-      group: [],
-    });
+    expect(spec.softConstraints).toEqual({ budget: [], group: [] });
   });
 
   it('routes a low budget level to softConstraints.budget only', () => {
@@ -220,7 +218,6 @@ describe('preference-spec-builder.util', () => {
     const spec = buildPreferenceSpec(request, interpreted);
 
     expect(spec.softConstraints.budget).toContain('low budget');
-    expect(spec.softConstraints.accessibility).not.toContain('low budget');
     expect(spec.softConstraints.group).not.toContain('low budget');
   });
 
@@ -232,7 +229,6 @@ describe('preference-spec-builder.util', () => {
 
     expect(spec.softConstraints.group).toContain('family friendly');
     expect(spec.softConstraints.budget).not.toContain('family friendly');
-    expect(spec.softConstraints.accessibility).not.toContain('family friendly');
   });
 
   it('passes anchoredPlaces through to spec.anchors unchanged', () => {
@@ -287,7 +283,7 @@ describe('preference-spec-builder.util', () => {
     expect(spec.assertions).toEqual([nightlifeExclusion]);
     expect(spec.facets).toEqual([]);
     expect(spec.unresolvedConcepts).toEqual([religiousSites]);
-    expect(spec.facetSchemaVersion).toBe('facet-schema-v1');
+    expect(spec.facetSchemaVersion).toBe('facet-schema-v2');
     expect(spec.semanticQuery).toBe('edificios históricos accesibles');
     expect(spec.trip).toEqual({
       days: 5,
@@ -422,5 +418,69 @@ describe('preference-spec-builder.util', () => {
         }),
       ]);
     });
+  });
+
+  it('turns a typed accessibility need into a DIRECT HARD INCLUDE assertion, never a facet (task 25.3)', () => {
+    const spec = buildPreferenceSpec(
+      baseRequest({
+        mobility: {
+          allowedTransportationModes: ['walking' as any],
+          maxWalkingDistancePerDayMeters: 5000,
+          maxContinuousWalkingDistanceMeters: 1500,
+          travelPace: 'moderate' as any,
+          accessibilityNeeds: [AccessibilityNeed.WHEELCHAIR_ACCESS],
+        },
+      }),
+      emptyInterpreted(),
+    );
+    expect(spec.assertions).toEqual([
+      {
+        target: { dimension: 'accessibility', key: 'wheelchair_access' },
+        polarity: 'INCLUDE',
+        constraint: 'HARD',
+        provenance: 'DIRECT',
+        importance: 1,
+        confidence: 1,
+        evidence: [
+          {
+            kind: 'STRUCTURED_SELECTION',
+            field: 'mobility.accessibilityNeeds',
+            value: 'wheelchair_access',
+          },
+        ],
+      },
+    ]);
+    expect(spec.facets).toEqual([]);
+    expect(spec.softConstraints).not.toHaveProperty('accessibility');
+    expect(findUnenforceableHardConstraints(spec)).toEqual([
+      expect.objectContaining({
+        target: { dimension: 'accessibility', key: 'wheelchair_access' },
+        missingKnowledge: 'CLASSIFICATION_COMPLETENESS',
+      }),
+    ]);
+  });
+
+  it('keeps an extracted SOFT accessibility preference as a facet for the utility boundary', () => {
+    const spec = buildPreferenceSpec(
+      baseRequest(),
+      emptyInterpreted({
+        assertions: [
+          inferred({
+            target: { dimension: 'accessibility', key: 'avoid_stairs' },
+            provenance: 'DIRECT',
+            importance: 0.7,
+            confidence: 0.9,
+          }),
+        ],
+      }),
+    );
+    expect(spec.facets).toEqual([
+      expect.objectContaining({
+        dimension: 'accessibility',
+        key: 'avoid_stairs',
+        provenance: 'DIRECT',
+      }),
+    ]);
+    expect(findUnenforceableHardConstraints(spec)).toEqual([]);
   });
 });

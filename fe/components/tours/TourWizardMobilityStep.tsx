@@ -25,6 +25,7 @@ import {
   Sliders
 } from 'lucide-react-native';
 import {
+  AccessibilityNeed,
   BudgetLevel,
   GroupType,
   TransportationMode,
@@ -41,7 +42,7 @@ interface TourWizardMobilityStepProps {
   walkingEffortProfile: WalkingEffortProfile;
   maxWalkingDistancePerDayMeters: number;
   maxContinuousWalkingDistanceMeters: number;
-  accessibilityNeeds: string[];
+  accessibilityNeeds: AccessibilityNeed[];
   onBudgetLevelChange: (value: BudgetLevel) => void;
   onGroupTypeChange: (value: GroupType) => void;
   onTravelPaceChange: (value: number) => void;
@@ -49,7 +50,7 @@ interface TourWizardMobilityStepProps {
   onWalkingEffortProfileChange: (value: WalkingEffortProfile) => void;
   onMaxWalkingDistancePerDayChange: (value: number) => void;
   onMaxContinuousWalkingDistanceChange: (value: number) => void;
-  onAccessibilityNeedToggle: (value: string) => void;
+  onAccessibilityNeedToggle: (value: AccessibilityNeed) => void;
 }
 
 const GROUP_OPTIONS = [
@@ -101,7 +102,7 @@ const WALKING_PROFILES: Array<{
   }
 ];
 
-const ACCESSIBILITY_OPTIONS = [
+const ACCESSIBILITY_OPTIONS: { value: AccessibilityNeed; label: string }[] = [
   { value: 'wheelchair_access', label: '♿ Silla de ruedas' },
   { value: 'avoid_stairs', label: '🚫 Evitar escaleras' },
   { value: 'limited_mobility', label: '🦽 Movilidad reducida' }

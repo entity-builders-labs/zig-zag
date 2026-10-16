@@ -64,8 +64,8 @@ export function findUnenforceableHardConstraints(
  * The typed generation outcome when a hard constraint cannot be guaranteed:
  * distinct from an infeasible or empty Tour. Nothing is planned.
  */
-export class HardExclusionUnenforceableError extends Error {
-  readonly outcome = 'HARD_EXCLUSION_UNENFORCEABLE' as const;
+export class HardConstraintUnenforceableError extends Error {
+  readonly outcome = 'HARD_CONSTRAINT_UNENFORCEABLE' as const;
   /** Retrying cannot change the outcome until the missing knowledge exists. */
   readonly retryable = false;
 
@@ -74,7 +74,7 @@ export class HardExclusionUnenforceableError extends Error {
     readonly destination: string,
   ) {
     super(
-      `HARD_EXCLUSION_UNENFORCEABLE: ${constraints.length} hard constraint(s) cannot be guaranteed for ${destination} (${constraints
+      `HARD_CONSTRAINT_UNENFORCEABLE: ${constraints.length} hard constraint(s) cannot be guaranteed for ${destination} (${constraints
         .map((constraint) =>
           constraint.target
             ? `${constraint.target.dimension}:${constraint.target.key} ${constraint.missingKnowledge}`
@@ -82,7 +82,7 @@ export class HardExclusionUnenforceableError extends Error {
         )
         .join('; ')})`,
     );
-    this.name = 'HardExclusionUnenforceableError';
+    this.name = 'HardConstraintUnenforceableError';
   }
 }
 
@@ -100,7 +100,7 @@ export function findAmbiguousHardConstraints(
 /**
  * The typed generation outcome for contradictory hard intent: the request
  * was understood, but two incompatible assertions govern the same target.
- * Distinct from HARD_EXCLUSION_UNENFORCEABLE (clear intent, unprovable
+ * Distinct from HARD_CONSTRAINT_UNENFORCEABLE (clear intent, unprovable
  * compatibility). Nothing is planned and retrying cannot resolve it.
  */
 export class AmbiguousHardConstraintError extends Error {

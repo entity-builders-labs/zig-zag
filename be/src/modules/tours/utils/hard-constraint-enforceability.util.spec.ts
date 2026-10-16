@@ -2,7 +2,7 @@ import {
   AmbiguousHardConstraintError,
   findAmbiguousHardConstraints,
   findUnenforceableHardConstraints,
-  HardExclusionUnenforceableError,
+  HardConstraintUnenforceableError,
 } from './hard-constraint-enforceability.util';
 import {
   PreferenceAssertion,
@@ -111,7 +111,7 @@ describe('findUnenforceableHardConstraints', () => {
   });
 });
 
-describe('HardExclusionUnenforceableError', () => {
+describe('HardConstraintUnenforceableError', () => {
   it('carries the typed outcome, distinct from an infeasible Tour', () => {
     const constraints = findUnenforceableHardConstraints({
       assertions: [],
@@ -119,11 +119,11 @@ describe('HardExclusionUnenforceableError', () => {
         unresolved({ polarity: 'EXCLUDE', constraint: 'HARD' }),
       ],
     });
-    const error = new HardExclusionUnenforceableError(
+    const error = new HardConstraintUnenforceableError(
       constraints,
       'Buenos Aires',
     );
-    expect(error.outcome).toBe('HARD_EXCLUSION_UNENFORCEABLE');
+    expect(error.outcome).toBe('HARD_CONSTRAINT_UNENFORCEABLE');
     expect(error.constraints).toBe(constraints);
     expect(error.destination).toBe('Buenos Aires');
     // The trace message names the missing knowledge, never the user's text.
@@ -158,7 +158,7 @@ describe('ambiguous hard constraints', () => {
     ).toEqual([blocking]);
   });
 
-  it('carries the AMBIGUOUS_HARD_CONSTRAINT outcome, not HARD_EXCLUSION_UNENFORCEABLE', () => {
+  it('carries the AMBIGUOUS_HARD_CONSTRAINT outcome, not HARD_CONSTRAINT_UNENFORCEABLE', () => {
     const error = new AmbiguousHardConstraintError(
       [
         {
@@ -174,6 +174,6 @@ describe('ambiguous hard constraints', () => {
     expect(error.outcome).toBe('AMBIGUOUS_HARD_CONSTRAINT');
     expect(error.retryable).toBe(false);
     expect(error.message).toContain('theme:nightlife');
-    expect(error.message).not.toContain('HARD_EXCLUSION_UNENFORCEABLE');
+    expect(error.message).not.toContain('HARD_CONSTRAINT_UNENFORCEABLE');
   });
 });

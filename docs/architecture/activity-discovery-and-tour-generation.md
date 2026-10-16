@@ -2707,7 +2707,7 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   An explicit accessibility need is a hard eligibility constraint while an
   accessibility preference is soft. A hard constraint whose compatibility
   cannot be proven (unknown is never compatible) ends generation with
-  `HARD_EXCLUSION_UNENFORCEABLE`. Hard exclusions, accessibility needs,
+  `HARD_CONSTRAINT_UNENFORCEABLE`. Hard exclusions, accessibility needs,
   must-include feasibility
   and allowed travel modes are hard constraints, never weights; a mode the
   release does not support (public transport in v1) is never substituted.

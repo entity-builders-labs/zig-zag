@@ -75,6 +75,9 @@ export function candidateMatchesPreferenceFacet(
     PREFERENCE_DIMENSIONS.TOURISM_INTENSITY,
     PREFERENCE_DIMENSIONS.NATURE_TYPE,
     PREFERENCE_DIMENSIONS.LOCAL_CHARACTER,
+    // Accessibility capabilities match only explicit dimensioned facts; none
+    // are produced yet, so a SOFT accessibility preference is neutral.
+    PREFERENCE_DIMENSIONS.ACCESSIBILITY,
   ];
 
   if (structuredDimensions.includes(dim)) {

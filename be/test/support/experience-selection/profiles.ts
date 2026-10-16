@@ -72,7 +72,7 @@ export interface Variant {
   /** Optional diagnostic cluster; acceptance is directional, not exclusive. */
   expectDominantCluster?: string;
   /** A typed terminal outcome instead of a completed Tour. */
-  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
+  expectOutcome?: 'HARD_CONSTRAINT_UNENFORCEABLE';
   /** Bare facet keys the profile requests — for the dominance helper. */
   requestedFacetKeys: string[];
 }
@@ -93,7 +93,7 @@ interface VariantSpec {
   unresolvedConcepts?: FakeInterpretation['unresolvedConcepts'];
   expectDominantCluster?: string;
   /** A typed terminal outcome instead of a completed Tour. */
-  expectOutcome?: 'HARD_EXCLUSION_UNENFORCEABLE';
+  expectOutcome?: 'HARD_CONSTRAINT_UNENFORCEABLE';
   requestedFacetKeys: string[];
 }
 
@@ -216,7 +216,7 @@ const CF4: Counterfactual = {
       // records no classification completeness, so no Experience can be
       // proven compatible: generation ends with the typed outcome instead
       // of a lexical exclusion guess.
-      expectOutcome: 'HARD_EXCLUSION_UNENFORCEABLE',
+      expectOutcome: 'HARD_CONSTRAINT_UNENFORCEABLE',
       requestedFacetKeys: ['history', 'architecture', 'walk'],
     }),
   ],

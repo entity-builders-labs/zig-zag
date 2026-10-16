@@ -20,6 +20,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import {
+  AccessibilityNeed,
   DietaryRestriction,
   BudgetLevel,
   DestinationScaleHint,
@@ -145,14 +146,12 @@ export class MobilityPreferencesDto {
   @IsEnum(TravelPace)
   travelPace: TravelPace;
 
-  @ApiProperty({ type: [String], required: false })
+  @ApiProperty({ enum: AccessibilityNeed, isArray: true, required: false })
   @IsArray()
-  @ArrayMaxSize(10)
   @ArrayUnique()
-  @IsString({ each: true })
-  @MaxLength(INTENT_VALUE_MAX_LENGTH, { each: true })
+  @IsEnum(AccessibilityNeed, { each: true })
   @IsOptional()
-  accessibilityNeeds: string[] = [];
+  accessibilityNeeds: AccessibilityNeed[] = [];
 }
 
 export class CreateTourFromWizardDto {
