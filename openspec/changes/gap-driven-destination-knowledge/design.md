@@ -2982,9 +2982,12 @@ gates):
   preference-first objective"). Preference utility is derived once, upstream
   of the optimizer, at one canonical boundary:
   - explicit preference evidence is authoritative, ordered by provenance
-    rather than UI channel: `DIRECT` (a wizard pick, or free text whose
-    excerpt maps to the key through the versioned vocabulary or its
-    aliases) before `INFERRED`, decided by a deterministic validator;
+    rather than UI channel: `DIRECT` before `INFERRED`. Since 2026-10-15
+    (task 25.4) provenance comes from the preference-assertion contract —
+    natural language → semantic extractor → typed `PreferenceAssertion` →
+    deterministic validation; a typed structured selection is `DIRECT` by
+    construction. (The 2026-10-14 lexical rule — an excerpt mapped through
+    the vocabulary or its aliases — is superseded historical context.)
   - soft venue-anchor affinity is a separate typed signal;
   - semantic affinity refines within a tier and is UNKNOWN, never zero,
     when no compatible embedding exists;
@@ -2993,9 +2996,10 @@ gates):
   The planner boundary is structured: a typed breakdown plus its policy
   version. OR-Tools receives only the prize that the versioned objective
   policy projects from it. The planner's duplicate recombination
-  (`plannerRelevanceScore`) is removed. Gate G-P7-U part A (encoding) is
-  RESOLVED (owner, 2026-10-14); part B is RESOLVED (owner, 2026-10-15), so
-  P-D7 is RESOLVED. Allowed modes, hard exclusions and every other
+  (`plannerRelevanceScore`) is removed. Gate G-P7-U part A (encoding: the
+  lexicographic precedence) is RESOLVED (owner, 2026-10-14; implemented by
+  tasks 25.4, 25.6 and 25.2 on 2026-10-15/16); part B is RESOLVED (owner,
+  2026-10-15), so P-D7 is RESOLVED. Allowed modes, hard exclusions and every other
   hard constraint stay outside the objective; TRANSIT stays feature-gated in
   v1 and is never substituted. Not production policy: the experimental
   coefficients of `spikes/planner-comparison-2026-10-12/p-d7/` (K = 120,
