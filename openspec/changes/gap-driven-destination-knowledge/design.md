@@ -1136,7 +1136,7 @@ disproven.
   (preference). A SOFT preference is a requested facet weighed by the 25.2
   utility boundary and matches only explicit dimensioned accessibility
   facts (none are produced yet, so it is neutral). A HARD need follows the
-  hard-constraint gate: without recorded classification completeness
+  hard-constraint gate: without recorded target knowledge
   (task 25.7) generation ends with `HARD_CONSTRAINT_UNENFORCEABLE`. The
   untyped `accessibilityPreferences` and `softConstraints.accessibility`
   are deleted.
@@ -1245,14 +1245,58 @@ disproven.
     coverage, acquisition or utility. Trait string matching and the
     trait-driven web acquisition hint were deleted, not kept as debt.
   - *Hard constraints.* Unknown compatibility is never compatibility. The
-    catalog records no classification completeness yet, so every `HARD`
-    assertion (including a typed dietary restriction) and every `HARD`
-    unresolved concept is unenforceable: generation ends before
-    destination resolution with the typed, non-retryable outcome
-    `HARD_CONSTRAINT_UNENFORCEABLE`, distinct from an infeasible plan. The
     lexical hard-exclusion matcher (`ALIASES`) and the vegan regex were
-    deleted. Classification completeness and a shared typed concept space
-    are follow-up tasks (see tasks).
+    deleted. How a HARD assertion becomes enforceable is the target-level
+    knowledge contract below.
+- *Target knowledge and HARD eligibility* (owner 2026-10-16, task 25.7;
+  supersedes the 2026-10-15 "classification completeness" wording). HARD
+  enforcement reads target-level knowledge keyed by `SemanticTarget`; a
+  target's compatibility state is `SATISFIES | DOES_NOT_SATISFY | UNKNOWN`.
+  Absence of evidence is never negative evidence, and there is no
+  dimension-level completeness model.
+  - *First producer*: structured provider facts only, with provider
+    semantics terminating at the adapter. OSM `wheelchair=yes|no|limited`
+    → `accessibility:wheelchair_access` SATISFIES / DOES_NOT_SATISFY /
+    UNKNOWN{INCONCLUSIVE_EVIDENCE}; `diet:vegan=yes|only|no` →
+    `dietary_suitability:vegan` SATISFIES / SATISFIES / DOES_NOT_SATISFY.
+    `avoid_stairs` and `limited_mobility` are never derived from
+    `wheelchair=*`.
+  - *Reconciliation*: one provider-neutral policy over
+    `GeoEntity + SemanticTarget`. No observations → UNKNOWN{NO_EVIDENCE};
+    all SATISFIES → SATISFIES; all DOES_NOT_SATISFY → DOES_NOT_SATISFY;
+    SATISFIES + DOES_NOT_SATISFY → UNKNOWN{CONFLICTING_EVIDENCE}; any
+    inconclusive observation → UNKNOWN{INCONCLUSIVE_EVIDENCE}. No
+    provider/source precedence; a re-observation supersedes only the prior
+    observation of the same stable source-fact identity, never
+    last-write-wins across independent sources.
+  - *Composite aggregation*: HARD INCLUDE — all required components
+    SATISFY → SATISFIES; any required component DOES_NOT_SATISFY →
+    DOES_NOT_SATISFY; otherwise UNKNOWN. HARD EXCLUDE — all required
+    components DOES_NOT_SATISFY → compatible with the exclusion; any
+    required component SATISFIES → incompatible; otherwise UNKNOWN.
+  - *Themes and intents* stay SOFT matching/retrieval/preference utility
+    only; a HARD INCLUDE/EXCLUDE over theme/intent remains
+    `HARD_CONSTRAINT_UNENFORCEABLE` — never bridged into target
+    assessments.
+  - *Target applicability* is explicit per target, with no general model
+    in 25.7. `accessibility:wheelchair_access` is enforceable once target
+    knowledge exists; `dietary_suitability:vegan` is NOT enforceable yet: a
+    museum or walk lacking a vegan fact never fails a vegan HARD
+    constraint, and a HARD vegan request stays
+    `HARD_CONSTRAINT_UNENFORCEABLE` with an applicability reason. A
+    follow-up task owns general target applicability.
+  - *Acquisition*: a HARD knowledge deficit never triggers acquisition;
+    normal acquisition for its catalog/SOFT reasons may incidentally add
+    target knowledge. Insufficient proven-compatible capacity →
+    `HARD_CONSTRAINT_UNENFORCEABLE`{INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY};
+    never shorten the Tour, relax HARD, or count UNKNOWN as compatible.
+  - *Reasons*: clean cutover from `CLASSIFICATION_COMPLETENESS`. Typed
+    reasons distinguish `TARGET_PRODUCER_UNAVAILABLE`,
+    `TARGET_APPLICABILITY_UNKNOWN`, `TARGET_KNOWLEDGE_UNKNOWN`,
+    `INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY`, `SHARED_CONCEPT_IDENTITY`,
+    retaining the underlying UNKNOWN reasons `NO_EVIDENCE`,
+    `CONFLICTING_EVIDENCE`, `INCONCLUSIVE_EVIDENCE`. The external outcome
+    stays `HARD_CONSTRAINT_UNENFORCEABLE`; the reasons are not collapsed.
 - *Facet provenance, lexical rule* (owner rule, 2026-10-14; **SUPERSEDED**
   by the preference-assertion contract above on 2026-10-15). It classified
   `DIRECT` by mapping a quoted excerpt to a key through the vocabulary's

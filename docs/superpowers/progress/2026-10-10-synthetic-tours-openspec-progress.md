@@ -2,7 +2,7 @@
 
 <!-- agent-track: id=synthetic-tours-openspec; status=ACTIVE; branch=feat/synthetic-tours-openspec; integration=main; base=16f41e89eb238431b339dfccc22473f791ed4908; plan=docs/superpowers/plans/2026-10-09-openspec-documentation-governance-cutover.md -->
 
-Updated: 2026-10-15\
+Updated: 2026-10-16\
 Branch: `feat/synthetic-tours-openspec`  
 Repository: `entity-builders-labs/zig-zag`
 
@@ -157,12 +157,33 @@ amendment (2026-10-11); no production code yet.**
   validation + F4 structural guard) precede 25.7. F1 is owned by 25.8; F5
   (importance mapping not yet versioned in preference-utility-v1) and F9
   (rank/levelRank not nominally typed) are recorded debt.
+- 25.7 owner decisions (2026-10-16): HARD enforcement is target-level
+  knowledge keyed by `SemanticTarget` (SATISFIES / DOES_NOT_SATISFY /
+  UNKNOWN; no dimension-level completeness model), composite aggregation,
+  a structured-provider first producer, provider-neutral reconciliation over
+  `GeoEntity + SemanticTarget`, theme/intent SOFT-only, explicit per-target
+  applicability (wheelchair enforceable, vegan not yet), no HARD-driven
+  acquisition, and a clean cutover from `CLASSIFICATION_COMPLETENESS` to
+  typed reasons (`TARGET_PRODUCER_UNAVAILABLE`,
+  `TARGET_APPLICABILITY_UNKNOWN`, `TARGET_KNOWLEDGE_UNKNOWN`,
+  `INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY`, `SHARED_CONCEPT_IDENTITY`;
+  underlying `NO_EVIDENCE` / `CONFLICTING_EVIDENCE` / `INCONCLUSIVE_EVIDENCE`).
+
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
 
-1. Owner reviews the A/B/C completion report; 25.7 resumes only after
-   that review (its pending design questions stay unanswered until then); then `/opsx:apply` continues with the next unblocked task.
+1. Owner reviewed the A/B/C completion report (2026-10-16) and resolved
+   the pending 25.7 design questions (target-level knowledge keyed by
+   `SemanticTarget`, composite aggregation, a structured-provider first
+   producer, provider-neutral reconciliation over
+   `GeoEntity + SemanticTarget`, theme/intent SOFT-only, explicit
+   per-target applicability, no HARD-driven acquisition, and a clean
+   cutover from `CLASSIFICATION_COMPLETENESS` to typed reasons). 25.7 is
+   now the active task, implemented in the approved additive sequence
+   (docs contract → pure target-knowledge/reconciliation/aggregation/HARD
+   policy → structured producer + persistence + catalog projection →
+   orchestration wiring / split gate / typed outcomes).
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
@@ -196,7 +217,7 @@ amendment (2026-10-11); no production code yet.**
     group signals wait for catalog knowledge (task 25.9).
   - **Accessibility:** typed by task 25.3; needs end with
     HARD_CONSTRAINT_UNENFORCEABLE until accessibility facts and
-    classification completeness exist (task 25.7).
+    target knowledge exist (task 25.7).
   - **Soft anchors:** resolved by 25.2 (canonical level after explicit
     evidence and avoidance, before semantic).
   - **Provenance / interpreter evidence:** resolved by task 25.4.
@@ -231,7 +252,7 @@ amendment (2026-10-11); no production code yet.**
   `zigzag` 8/8 ready. Missing enrichment, not a planner failure.
 - Task 25.4 consequences (owner-accepted): every HARD constraint (typed
   dietary restriction, HARD exclusion) ends HARD_CONSTRAINT_UNENFORCEABLE
-  until classification completeness exists (task 25.7); open concepts
+  until target knowledge exists (task 25.7); open concepts
   (former traits) no longer participate until a shared typed concept
   space exists (task 25.8; CP-G CF3 exact-fit case is `it.failing`).
 - Fixed with 25.4: `catalog-reuse` integration (a 25.1 regression) now

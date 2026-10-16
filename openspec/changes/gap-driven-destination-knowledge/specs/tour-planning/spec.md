@@ -284,7 +284,7 @@ Each candidate's preference utility SHALL be derived once, before optimization, 
 
 #### Scenario: Accessibility need versus preference
 - **WHEN** the request states an explicit accessibility need and an Experience is known not to meet it or its accessibility is UNKNOWN
-- **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility; while no accessibility classification completeness is recorded, a need ends generation with HARD_CONSTRAINT_UNENFORCEABLE
+- **THEN** the Experience is not offered to the optimizer, whereas an accessibility preference only changes preference utility; while no accessibility target knowledge is recorded, a need ends generation with HARD_CONSTRAINT_UNENFORCEABLE
 
 #### Scenario: Hard exclusion never reaches the optimizer
 - **WHEN** the request has a hard exclusion whose compatibility can be proven and an Experience matches it
@@ -444,11 +444,15 @@ A concept the extractor understands but that has no typed identity shared with E
 - **THEN** it is recorded as an unresolved concept and neither creates a facet, a deficit nor a forwarded acquisition trait, nor matches an Experience trait "craft beer"
 
 ### Requirement: Unprovable hard constraints end generation explicitly
-A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Without recorded classification completeness or a shared typed identity, generation SHALL end before destination resolution with HARD_CONSTRAINT_UNENFORCEABLE, recording each constraint and its missing knowledge. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
+A HARD assertion or HARD unresolved concept SHALL be honoured only when every offered Experience's compatibility can be proven; unknown is never compatible. Compatibility SHALL be decided from target-level knowledge keyed by SemanticTarget with states SATISFIES / DOES_NOT_SATISFY / UNKNOWN (absence of evidence is never negative evidence); a HARD constraint over an inapplicable target, over a target with no producer, or over a target with only UNKNOWN knowledge SHALL end generation before destination resolution with HARD_CONSTRAINT_UNENFORCEABLE, recording each constraint and its typed missing-knowledge reason. It SHALL be distinct from an infeasible plan, not retried and not relaxed.
 
-#### Scenario: Typed dietary restriction without classification completeness
-- **WHEN** the request selects the vegan dietary restriction and the catalog does not record whether Experiences' dietary classification is complete
-- **THEN** generation ends with HARD_CONSTRAINT_UNENFORCEABLE recording dietary_suitability:vegan and CLASSIFICATION_COMPLETENESS, and no Tour is planned
+#### Scenario: Typed dietary restriction whose target is not yet applicable
+- **WHEN** the request selects the vegan dietary restriction and dietary_suitability:vegan is not yet an applicable/observable target
+- **THEN** generation ends with HARD_CONSTRAINT_UNENFORCEABLE recording dietary_suitability:vegan and TARGET_APPLICABILITY_UNKNOWN, and no Tour is planned; a museum or walk without a dietary assessment never fails the constraint
+
+#### Scenario: Enforceable target without recorded knowledge
+- **WHEN** the request asserts a HARD accessibility:wheelchair_access need and no provider has produced target knowledge for the offered Experiences
+- **THEN** generation ends with HARD_CONSTRAINT_UNENFORCEABLE recording accessibility:wheelchair_access and TARGET_KNOWLEDGE_UNKNOWN, or INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY when no Experience can be proven compatible
 
 #### Scenario: Hard exclusion of an open concept
 - **WHEN** the extractor asserts a HARD exclusion of "religious places" and the schema has no typed key for it

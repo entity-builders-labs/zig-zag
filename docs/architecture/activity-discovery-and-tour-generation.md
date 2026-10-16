@@ -2728,6 +2728,40 @@ user schedule + mobility constraints ---------------+   itinerary + typed
   - an equal-cost swap never contradicts the candidate preference order;
   - the UNKNOWN-hours cost alone never erases an Experience.
 
+**Target knowledge and HARD eligibility (task 25.7).** A HARD preference
+(exclusion, dietary restriction, accessibility need) is enforced from
+target-level knowledge keyed by `SemanticTarget`, with compatibility states
+`SATISFIES | DOES_NOT_SATISFY | UNKNOWN`. Absence of evidence is never
+negative evidence and there is no dimension-level completeness model. The
+first producer maps structured provider facts only (provider semantics stop
+at the adapter): OSM `wheelchair=yes|no|limited` →
+`accessibility:wheelchair_access` SATISFIES / DOES_NOT_SATISFY /
+UNKNOWN{INCONCLUSIVE_EVIDENCE}; `diet:vegan=yes|only|no` →
+`dietary_suitability:vegan`. One provider-neutral reconciliation policy over
+`GeoEntity + SemanticTarget` merges observations (no observations → UNKNOWN;
+uniform SATISFIES/DOES_NOT_SATISFY → that state; mixed →
+UNKNOWN{CONFLICTING_EVIDENCE}; any inconclusive →
+UNKNOWN{INCONCLUSIVE_EVIDENCE}), with no provider/source precedence and a
+re-observation superseding only the prior observation of the same stable
+source-fact identity. Composite aggregation: a HARD INCLUDE target needs all
+required components to SATISFY, fails on any DOES_NOT_SATISFY, and is
+UNKNOWN otherwise; a HARD EXCLUDE target is compatible only when every
+required component DOES_NOT_SATISFY and incompatible when any SATISFIES.
+Theme/intent classification remains SOFT-only: a HARD include/exclude over
+theme/intent is `HARD_CONSTRAINT_UNENFORCEABLE`. Target applicability is
+explicit per target (`accessibility:wheelchair_access` enforceable once
+target knowledge exists; `dietary_suitability:vegan` not yet — a museum or
+walk without a vegan fact never fails a vegan HARD constraint). A HARD
+knowledge deficit never triggers acquisition; insufficient
+proven-compatible capacity ends `HARD_CONSTRAINT_UNENFORCEABLE` (never a
+shortened Tour, relaxed HARD, or UNKNOWN counted compatible).
+Missing-knowledge reasons cut over cleanly from `CLASSIFICATION_COMPLETENESS`
+to typed reasons (`TARGET_PRODUCER_UNAVAILABLE`,
+`TARGET_APPLICABILITY_UNKNOWN`, `TARGET_KNOWLEDGE_UNKNOWN`,
+`INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY`, `SHARED_CONCEPT_IDENTITY`)
+retaining the underlying UNKNOWN reasons `NO_EVIDENCE`,
+`CONFLICTING_EVIDENCE`, `INCONCLUSIVE_EVIDENCE`.
+
 **Parent sites and visit units (R4-D2).** A PART_OF / containment
 relationship alone does not decide whether a child has its own Experience;
 the decision is about the real visit unit. A parent relationship is
