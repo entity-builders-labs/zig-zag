@@ -24,6 +24,7 @@
  */
 import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
+import { ExperienceMatchFacts } from '../interfaces/experience-match-facts.interface';
 
 export const DEFAULT_QUALITY_FLOOR = 3.0;
 
@@ -40,101 +41,34 @@ export interface StrongMatchPolicy {
   planningWindowMinutes?: number;
 }
 
-/**
- * `NaN`/`Infinity` satisfy `typeof value === 'number'`, so a valid
- * geographic component requires `Number.isFinite` plus real-world range,
- * not just the JS `number` type.
- */
-function isValidLatitude(value: unknown): value is number {
-  return (
-    typeof value === 'number' &&
-    Number.isFinite(value) &&
-    value >= -90 &&
-    value <= 90
-  );
-}
-
-function isValidLongitude(value: unknown): value is number {
-  return (
-    typeof value === 'number' &&
-    Number.isFinite(value) &&
-    value >= -180 &&
-    value <= 180
-  );
-}
-
-function hasResolvedComponentWithGeography(exp: Record<string, any>): boolean {
-  const components = Array.isArray(exp.components) ? exp.components : [];
-  return components.some((component: any) => {
-    if (!component || typeof component !== 'object') {
-      return false;
-    }
-    const geoEntity = component.geoEntity;
-    return (
-      geoEntity &&
-      typeof geoEntity === 'object' &&
-      isValidLatitude(geoEntity.latitude) &&
-      isValidLongitude(geoEntity.longitude)
-    );
-  });
-}
-
-function isClassificationKnownThin(exp: Record<string, any>): boolean {
-  const metadata =
-    exp.metadata && typeof exp.metadata === 'object' ? exp.metadata : {};
-  const classification = metadata.classification;
-  if (!classification || typeof classification !== 'object') {
-    // No classification recorded yet is not the same as known-thin
-    // evidence -- only an explicit 'degraded' state disqualifies.
-    return false;
-  }
-  return classification.state === 'degraded';
-}
-
 export function isStrongFacetMatch(
-  experience: unknown,
+  facts: ExperienceMatchFacts,
   facet: RequestedFacet,
   policy: StrongMatchPolicy = {},
 ): boolean {
-  if (!candidateMatchesPreferenceFacet(experience, facet)) {
+  if (!candidateMatchesPreferenceFacet(facts.semantic, facet)) {
     return false;
   }
-
-  // candidateMatchesPreferenceFacet already rejected non-object/null
-  // experiences, so this is a plain narrowing, not a second validity gate.
-  const exp = experience as Record<string, any>;
-
-  if (!hasResolvedComponentWithGeography(exp)) {
+  if (!facts.hasResolvedGeography) {
     return false;
   }
-
+  // UNKNOWN quality never gets a magic default: it fails the floor and the
+  // candidate stays at most a weak match.
   const qualityFloor = policy.qualityFloor ?? DEFAULT_QUALITY_FLOOR;
-  const quality = exp.qualityScore;
-  // NaN/Infinity satisfy `typeof quality === 'number'`, so require
-  // Number.isFinite plus the canonical 0..5 scale before comparing against
-  // the floor -- an invalid numeric value is rejected here for a different
-  // reason than a valid-but-low score, even though both yield `false`.
-  if (
-    typeof quality !== 'number' ||
-    !Number.isFinite(quality) ||
-    quality < 0 ||
-    quality > 5 ||
-    quality < qualityFloor
-  ) {
+  if (facts.qualityScore === null || facts.qualityScore < qualityFloor) {
     return false;
   }
-
-  if (isClassificationKnownThin(exp)) {
+  // Only an explicit degraded classification is known-thin evidence; no
+  // classification recorded yet is not.
+  if (facts.classificationState === 'DEGRADED') {
     return false;
   }
-
   if (
     typeof policy.planningWindowMinutes === 'number' &&
-    typeof exp.durationMinutes === 'number' &&
-    exp.durationMinutes > policy.planningWindowMinutes
+    facts.durationMinutes !== null &&
+    facts.durationMinutes > policy.planningWindowMinutes
   ) {
     return false;
   }
-
   return true;
 }

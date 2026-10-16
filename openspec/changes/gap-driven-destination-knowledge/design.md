@@ -1327,6 +1327,21 @@ disproven.
     (`rankCandidatesByRelevance`, `CandidateScoreBreakdown`,
     `qualityBonus`), `groundingStrength`, the `?? 0` similarity
     coercions and the planner scoring weights.
+- *Typed Experience match facts* (review correction B, 2026-10-16). The
+  canonical matcher (`candidateMatchesPreferenceFacet`,
+  `isStrongFacetMatch`) reads only `ExperienceMatchFacts`: semantic facts
+  (schema theme and intent keys, typed dimensioned facts on the other closed
+  dimensions), the classification state (`CLASSIFIED | DEGRADED |
+  UNCLASSIFIED`), resolved geography, quality and duration, with UNKNOWN as
+  null or absence. Each raw representation adapts once
+  (`experience-match-facts.util.ts`): the catalog projection
+  (`matchFacts`, from the persisted classification contract), discovery
+  candidates and persisted classifications. The matcher reads no metadata
+  and accepts no unknown shape; the metadata branches with no producer
+  (`preferenceFacets`, `facets`, `dimensions`, `archetypes`) are deleted,
+  and `exploration_style` is no longer a facet dimension. Classification
+  state is not completeness; per-target compatibility knowledge for HARD
+  constraints is task 25.7, built on this boundary.
 - *What crosses the planner boundary*:
   - **Structured, not a scalar.** The planning candidate carries:
     - the typed breakdown;

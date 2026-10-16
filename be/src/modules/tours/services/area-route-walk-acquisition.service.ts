@@ -29,7 +29,7 @@ import { evaluateScopeDestinationRelation } from '../utils/destination-compatibi
 import {
   convergeExperienceClassification,
   ClassificationAuditRecord,
-  classificationSemanticView,
+  classificationSemanticFacts,
 } from '../utils/experience-classification-convergence.util';
 import { ExperienceClassificationService } from './experience-classification.service';
 import { ClassificationFailure } from './experience-classification.service';
@@ -317,8 +317,8 @@ export class AreaRouteWalkAcquisitionService {
     // (canReuseClassification, the same B2 validity gate used everywhere
     // else) that actually satisfies the requested intent. A stale/
     // degraded/malformed/never-classified row is a conservative MISS here,
-    // evaluated strictly against classifier-owned semantics (never legacy
-    // metadata.intents or metadata.archetypes).
+    // evaluated strictly against classifier-owned semantics (never
+    // metadata intents).
     const isSemanticallyEligible = (row: {
       id: string;
       metadata?: unknown;
@@ -335,7 +335,7 @@ export class AreaRouteWalkAcquisitionService {
       const persisted = readPersistedClassification(row.metadata);
       if (!persisted) return false;
       return candidateMatchesPreferenceFacet(
-        classificationSemanticView(persisted),
+        classificationSemanticFacts(persisted),
         facet,
       );
     };
@@ -403,7 +403,7 @@ export class AreaRouteWalkAcquisitionService {
       if (
         facet &&
         candidateMatchesPreferenceFacet(
-          classificationSemanticView(refreshResult),
+          classificationSemanticFacts(refreshResult),
           facet,
         )
       ) {

@@ -1,3 +1,4 @@
+import { composableExperience } from '../fixtures/composable-experience.fixture';
 import { derivePreferenceUtility } from './preference-utility.util';
 import {
   ComposableExperience,
@@ -18,6 +19,27 @@ import { SemanticSimilarityResult } from '@shared/ai/interfaces/embedding-index.
  */
 
 type Provenance = 'DIRECT' | 'INFERRED';
+
+/**
+ * The spike's scenario labels as distinct theme keys of the typed schema.
+ * The ranking scenarios only need distinct typed identities; labels that
+ * are already schema keys map to themselves.
+ */
+const SCENARIO_KEY: Record<string, string> = {
+  history: 'history',
+  architecture: 'architecture',
+  art: 'art',
+  food: 'food',
+  modern_art: 'photography',
+  markets: 'shopping',
+  family_friendly: 'family',
+  parks: 'nature',
+  street_art: 'music',
+  cafes: 'gastronomy',
+  bookshops: 'culture',
+  museums: 'entertainment',
+};
+const schemaKey = (label: string) => SCENARIO_KEY[label] ?? label;
 interface ScenarioFacet {
   key: string;
   provenance: Provenance;
@@ -75,7 +97,7 @@ interface Scenario {
 /** Facets as the spec builder produces them: deduped, DIRECT first. */
 function requestedFacets(facets: ScenarioFacet[]): RequestedFacet[] {
   const assertions: PreferenceAssertion[] = facets.map((f) => ({
-    target: { dimension: 'theme', key: f.key },
+    target: { dimension: 'theme', key: schemaKey(f.key) },
     polarity: 'INCLUDE',
     constraint: 'SOFT',
     provenance: f.provenance,
@@ -95,12 +117,12 @@ function requestedFacets(facets: ScenarioFacet[]): RequestedFacet[] {
 }
 
 function experience(c: ScenarioCandidate): ComposableExperience {
-  return {
+  return composableExperience({
     id: c.id,
-    themes: c.matched,
+    themes: c.matched.map(schemaKey),
     qualityScore: c.quality,
     components: [{ geoEntity: { latitude: 1, longitude: 2 } }],
-  };
+  });
 }
 
 function order(scenario: Scenario, candidates = scenario.candidates) {
@@ -485,12 +507,12 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
     evidence: [{ kind: 'USER_TEXT_SPAN', text: key }],
   });
   const derive = (
-    experiences: ComposableExperience[],
+    experiences: Parameters<typeof composableExperience>[0][],
     facets: ScenarioFacet[],
     assertions: PreferenceAssertion[] = [],
   ) =>
     derivePreferenceUtility({
-      experiences,
+      experiences: experiences.map(composableExperience),
       preferenceSpec: { facets: requestedFacets(facets), assertions },
       softAnchorIds: new Set(),
       semantic: null,
@@ -648,7 +670,7 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
   });
 
   it('is independent of input order', () => {
-    const experiences: ComposableExperience[] = [
+    const experiences: Parameters<typeof composableExperience>[0][] = [
       { id: 'x', themes: ['history'], components: geo, qualityScore: 3 },
       { id: 'y', themes: [], components: geo, qualityScore: 5 },
       { id: 'z', themes: ['history'], components: geo, qualityScore: 4 },
@@ -700,20 +722,20 @@ describe('derivePreferenceUtility — breakdown, ranks and avoidance', () => {
     ];
     const result = derivePreferenceUtility({
       experiences: [
-        {
+        composableExperience({
           id: 'a-step-free-fact',
           components: geo,
           qualityScore: 3,
           dimensionedTraits: [
             { dimension: 'accessibility', key: 'avoid_stairs' },
           ],
-        },
-        {
+        }),
+        composableExperience({
           id: 'b-unknown-similar-text',
           canonicalName: 'Step-free accessible museum',
           components: geo,
           qualityScore: 5,
-        },
+        }),
       ],
       preferenceSpec: { facets, assertions: [] },
       softAnchorIds: new Set(),

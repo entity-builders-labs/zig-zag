@@ -1,3 +1,4 @@
+import { composableExperience } from '../fixtures/composable-experience.fixture';
 import { ExperienceCompositionService } from './experience-composition.service';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 import { derivePreferenceUtility } from '../utils/preference-utility.util';
@@ -24,8 +25,16 @@ describe('ExperienceCompositionService (consumer of the preference utility)', ()
 
   it('orders composition by the canonical utility it receives, never re-deriving it', () => {
     const experiences = [
-      { id: 'a-low-quality', components: [component('A')], qualityScore: 3 },
-      { id: 'b-high-quality', components: [component('B')], qualityScore: 5 },
+      composableExperience({
+        id: 'a-low-quality',
+        components: [component('A')],
+        qualityScore: 3,
+      }),
+      composableExperience({
+        id: 'b-high-quality',
+        components: [component('B')],
+        qualityScore: 5,
+      }),
     ];
     const preferenceUtility = {
       ...derivePreferenceUtility({
@@ -54,7 +63,9 @@ describe('ExperienceCompositionService (consumer of the preference utility)', ()
   it('fails explicitly when an Experience has no preference-utility assessment', () => {
     expect(() =>
       service.compose({
-        experiences: [{ id: 'orphan', components: [component('O')] }],
+        experiences: [
+          composableExperience({ id: 'orphan', components: [component('O')] }),
+        ],
         preferenceSpec,
         preferenceUtility: {
           policyVersion: 'preference-utility-v1',

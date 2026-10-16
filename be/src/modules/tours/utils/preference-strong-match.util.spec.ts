@@ -3,6 +3,20 @@ import {
   DEFAULT_QUALITY_FLOOR,
 } from './preference-strong-match.util';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
+import { catalogMatchFacts } from './experience-match-facts.util';
+
+/** Scenario rows enter the matcher through the catalog adapter, as in production. */
+function asFacts(row: Record<string, any>) {
+  return catalogMatchFacts({
+    themes: row.themes ?? [],
+    intents: row.intents ?? [],
+    dimensionedTraits: row.dimensionedTraits ?? [],
+    classification: row.metadata?.classification,
+    components: row.components ?? [],
+    qualityScore: row.qualityScore ?? null,
+    durationMinutes: row.durationMinutes ?? null,
+  });
+}
 
 function facet(overrides: Partial<RequestedFacet> = {}): RequestedFacet {
   return {
@@ -37,31 +51,31 @@ describe('preference-strong-match.util', () => {
     it('is strong when the candidate matches, has a resolved geographic component, clears the quality floor and classification is not known-thin', () => {
       const experience = experienceWithComponent();
 
-      expect(isStrongFacetMatch(experience, facet())).toBe(true);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
     });
 
     it('is not strong when qualityScore is below the floor', () => {
       const experience = experienceWithComponent({ qualityScore: 2.5 });
 
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
     });
 
     it('is not strong when qualityScore is null (no magic default -- spec §10.1)', () => {
       const experience = experienceWithComponent({ qualityScore: null });
 
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
     });
 
     it('is not strong when there is no resolved component with real geography', () => {
       const noComponents = experienceWithComponent({ components: [] });
-      expect(isStrongFacetMatch(noComponents, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(noComponents), facet())).toBe(false);
 
       const componentWithoutGeography = experienceWithComponent({
         components: [{ geoEntity: { latitude: null, longitude: null } }],
       });
-      expect(isStrongFacetMatch(componentWithoutGeography, facet())).toBe(
-        false,
-      );
+      expect(
+        isStrongFacetMatch(asFacts(componentWithoutGeography), facet()),
+      ).toBe(false);
     });
 
     it('is not strong when classification is explicitly degraded (known-thin evidence)', () => {
@@ -69,37 +83,37 @@ describe('preference-strong-match.util', () => {
         metadata: { classification: { state: 'degraded' } },
       });
 
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
     });
 
     it('is still eligible to be strong when classification metadata is simply absent -- absence is not proof of thinness', () => {
       const experience = experienceWithComponent({ metadata: {} });
 
-      expect(isStrongFacetMatch(experience, facet())).toBe(true);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
     });
 
     it('is not strong when candidateMatchesPreferenceFacet itself does not match (non-matching case)', () => {
       const experience = experienceWithComponent({ themes: ['tango'] });
 
-      expect(isStrongFacetMatch(experience, facet({ key: 'history' }))).toBe(
-        false,
-      );
+      expect(
+        isStrongFacetMatch(asFacts(experience), facet({ key: 'history' })),
+      ).toBe(false);
     });
 
     it('is not strong when the Experience duration obviously exceeds the entire planning window', () => {
       const experience = experienceWithComponent({ durationMinutes: 600 });
 
       expect(
-        isStrongFacetMatch(experience, facet(), {
+        isStrongFacetMatch(asFacts(experience), facet(), {
           planningWindowMinutes: 480,
         }),
       ).toBe(false);
       // Same candidate is strong when no planning window is supplied, or
       // when it fits within it -- the daily planner remains authoritative
       // for full feasibility; this is only an "obviously impossible" guard.
-      expect(isStrongFacetMatch(experience, facet())).toBe(true);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
       expect(
-        isStrongFacetMatch(experience, facet(), {
+        isStrongFacetMatch(asFacts(experience), facet(), {
           planningWindowMinutes: 700,
         }),
       ).toBe(true);
@@ -109,10 +123,10 @@ describe('preference-strong-match.util', () => {
       const experience = experienceWithComponent({ qualityScore: 3.2 });
 
       expect(
-        isStrongFacetMatch(experience, facet(), { qualityFloor: 3.5 }),
+        isStrongFacetMatch(asFacts(experience), facet(), { qualityFloor: 3.5 }),
       ).toBe(false);
       expect(
-        isStrongFacetMatch(experience, facet(), { qualityFloor: 3.0 }),
+        isStrongFacetMatch(asFacts(experience), facet(), { qualityFloor: 3.0 }),
       ).toBe(true);
     });
 
@@ -134,7 +148,7 @@ describe('preference-strong-match.util', () => {
       const experience = experienceWithComponent({
         components: [{ geoEntity: geo }],
       });
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
     });
 
     it('accepts the exact +-90/+-180 lat/lng boundary as valid geography (no over-rejection)', () => {
@@ -146,7 +160,7 @@ describe('preference-strong-match.util', () => {
         const experience = experienceWithComponent({
           components: [{ geoEntity }],
         });
-        expect(isStrongFacetMatch(experience, facet())).toBe(true);
+        expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
       }
     });
 
@@ -158,24 +172,24 @@ describe('preference-strong-match.util', () => {
       ['above canonical scale (5.1)', 5.1],
     ])('is not strong when qualityScore is invalid: %s', (_label, quality) => {
       const experience = experienceWithComponent({ qualityScore: quality });
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
     });
 
     it('treats qualityScore = 0 as a valid number simply below the floor, not an invalid value', () => {
       const experience = experienceWithComponent({ qualityScore: 0 });
 
       // Below the default floor (3.0) -> not strong...
-      expect(isStrongFacetMatch(experience, facet())).toBe(false);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(false);
       // ...but for the right reason: a valid low score, not an invalid one --
       // proven by becoming strong once the floor itself is lowered to 0.
-      expect(isStrongFacetMatch(experience, facet(), { qualityFloor: 0 })).toBe(
-        true,
-      );
+      expect(
+        isStrongFacetMatch(asFacts(experience), facet(), { qualityFloor: 0 }),
+      ).toBe(true);
     });
 
     it('accepts qualityScore = 5, the top of the canonical 0..5 scale, as valid (no over-rejection)', () => {
       const experience = experienceWithComponent({ qualityScore: 5 });
-      expect(isStrongFacetMatch(experience, facet())).toBe(true);
+      expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
     });
   });
 });

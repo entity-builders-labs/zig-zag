@@ -1,3 +1,4 @@
+import { withCatalogMatchFacts } from '../fixtures/composable-experience.fixture';
 import { ExperienceGenerationService } from './experience-generation.service';
 import { ExperienceCompositionService } from './experience-composition.service';
 import { PreferenceUtilityService } from './preference-utility.service';
@@ -29,36 +30,37 @@ describe('ExperienceGenerationService gather → freeze → plan seams', () => {
   const window = { ...CENTER, radiusMeters: 5_000 };
 
   /** A catalog projection row sharing `geoId` when given (overlap). */
-  const row = (id: string, geoId = `geo-${id}`, offset = 0.001) => ({
-    id,
-    name: `Experience ${id}`,
-    canonicalName: `Experience ${id}`,
-    qualityScore: 4.5,
-    themes: ['history'],
-    intents: ['visit'],
-    traits: [] as string[],
-    dimensionedTraits: [] as unknown[],
-    durationMinutes: 60,
-    duration: 1,
-    latitude: CENTER.latitude + offset,
-    longitude: CENTER.longitude + offset,
-    metadata: {},
-    components: [
-      {
-        geoEntityId: geoId,
-        resolutionState: 'RESOLVED',
-        sourcePosition: 0,
-        geoEntity: {
-          id: geoId,
-          kind: 'PLACE',
-          name: `Place ${geoId}`,
-          latitude: CENTER.latitude + offset,
-          longitude: CENTER.longitude + offset,
+  const row = (id: string, geoId = `geo-${id}`, offset = 0.001) =>
+    withCatalogMatchFacts({
+      id,
+      name: `Experience ${id}`,
+      canonicalName: `Experience ${id}`,
+      qualityScore: 4.5,
+      themes: ['history'],
+      intents: ['visit'],
+      traits: [] as string[],
+      dimensionedTraits: [] as unknown[],
+      durationMinutes: 60,
+      duration: 1,
+      latitude: CENTER.latitude + offset,
+      longitude: CENTER.longitude + offset,
+      metadata: {},
+      components: [
+        {
+          geoEntityId: geoId,
+          resolutionState: 'RESOLVED',
+          sourcePosition: 0,
+          geoEntity: {
+            id: geoId,
+            kind: 'PLACE',
+            name: `Place ${geoId}`,
+            latitude: CENTER.latitude + offset,
+            longitude: CENTER.longitude + offset,
+          },
         },
-      },
-    ],
-    compositionCompleteness: 'COMPLETE' as const,
-  });
+      ],
+      compositionCompleteness: 'COMPLETE' as const,
+    });
 
   // The production PreferenceSpec builder over a minimal canonical request.
   const preferenceSpec: PreferenceSpec = buildPreferenceSpec(

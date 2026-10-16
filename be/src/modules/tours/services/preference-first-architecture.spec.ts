@@ -2,6 +2,11 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const source = (name: string) => readFileSync(join(__dirname, name), 'utf8');
+/** Source without comments, so guards check code rather than prose. */
+const code = (name: string) =>
+  source(name)
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
 
 describe('preference-first architecture boundaries', () => {
   it('keeps PreferenceSpec as the downstream preference authority', () => {
@@ -152,9 +157,9 @@ describe('preference-first architecture boundaries', () => {
   });
 
   it('keeps one preference-utility authority and no planner scoring formula (task 25.2)', () => {
-    expect(existsSync(join(__dirname, '../utils/candidate-ranking.util.ts'))).toBe(
-      false,
-    );
+    expect(
+      existsSync(join(__dirname, '../utils/candidate-ranking.util.ts')),
+    ).toBe(false);
     for (const name of [
       '../utils/daily-planning-candidate-sort.util.ts',
       '../utils/daily-planning-placement.util.ts',
@@ -176,6 +181,24 @@ describe('preference-first architecture boundaries', () => {
     );
     expect(source('preference-utility.service.ts')).toMatch(
       /getSimilarityScores/,
+    );
+  });
+
+  it('keeps the canonical matcher on typed Experience facts only (review B)', () => {
+    for (const name of [
+      '../utils/preference-facet-matching.util.ts',
+      '../utils/preference-strong-match.util.ts',
+      '../utils/preference-utility.util.ts',
+    ]) {
+      const body = code(name);
+      expect(body).not.toMatch(/\bmetadata\b/);
+      expect(body).not.toMatch(
+        /Record<string,\s*any>|:\s*unknown\b|\bas any\b/,
+      );
+    }
+    // One adapter module owns the translation into typed facts.
+    expect(source('../utils/experience-match-facts.util.ts')).toMatch(
+      /export function catalogMatchFacts/,
     );
   });
 });

@@ -76,22 +76,9 @@ describe('preference-facet-vocabulary', () => {
       ).toBe('handcrafted_goods');
     });
 
-    it('canonicalizes the two actionable exploration_style poles and rejects everything else', () => {
+    it('has no exploration_style facet dimension: exploration style is a composition-local tilt', () => {
       expect(
-        canonicalizeFacetKey(PREFERENCE_DIMENSIONS.EXPLORATION_STYLE, 'iconic'),
-      ).toBe('iconic');
-      expect(canonicalizeFacetKey('exploration_style', 'local_deep_dive')).toBe(
-        'local_deep_dive',
-      );
-      // BALANCED is neutral -> no facet; the old Phase-2 speculative keys are gone.
-      expect(
-        canonicalizeFacetKey('exploration_style', 'balanced'),
-      ).toBeUndefined();
-      expect(
-        canonicalizeFacetKey(
-          PREFERENCE_DIMENSIONS.EXPLORATION_STYLE,
-          'relaxed',
-        ),
+        canonicalizeFacetKey('exploration_style', 'iconic'),
       ).toBeUndefined();
       expect(
         canonicalizeFacetKey('completely_unknown_dimension', 'some_key'),

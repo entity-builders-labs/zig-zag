@@ -1,3 +1,4 @@
+import { composableExperience } from '../fixtures/composable-experience.fixture';
 import { PreferenceUtilityService } from './preference-utility.service';
 import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 
@@ -31,8 +32,12 @@ describe('PreferenceUtilityService semantic batch', () => {
 
     const result = await service.derive({
       experiences: [
-        { id: 'unknown', components: [], qualityScore: 4 },
-        { id: 'known', components: [], qualityScore: 4 },
+        composableExperience({
+          id: 'unknown',
+          components: [],
+          qualityScore: 4,
+        }),
+        composableExperience({ id: 'known', components: [], qualityScore: 4 }),
       ],
       preferenceSpec: spec('history walk'),
       softAnchorIds: [],
@@ -71,7 +76,7 @@ describe('PreferenceUtilityService semantic batch', () => {
     } as any);
 
     const result = await service.derive({
-      experiences: [{ id: 'one', components: [] }],
+      experiences: [composableExperience({ id: 'one', components: [] })],
       preferenceSpec: spec('history walk'),
       softAnchorIds: [],
     });
@@ -93,7 +98,7 @@ describe('PreferenceUtilityService semantic batch', () => {
     } as any);
 
     const result = await service.derive({
-      experiences: [{ id: 'one', components: [] }],
+      experiences: [composableExperience({ id: 'one', components: [] })],
       preferenceSpec: spec('  '),
       softAnchorIds: ['one'],
     });

@@ -93,7 +93,7 @@ export class FacetRetrievalService {
     const strong: ScoredRow[] = [];
     const weak: ScoredRow[] = [];
 
-    for (const row of rows as Array<Record<string, any>>) {
+    for (const row of rows) {
       if (!isTourEligibleForDestinationRequest(row, scope.destination)) {
         continue;
       }
@@ -102,9 +102,11 @@ export class FacetRetrievalService {
         qualityScore:
           typeof row.qualityScore === 'number' ? row.qualityScore : null,
       };
-      if (isStrongFacetMatch(row, facet, policy)) {
+      if (isStrongFacetMatch(row.matchFacts, facet, policy)) {
         strong.push(scored);
-      } else if (candidateMatchesPreferenceFacet(row, facet)) {
+      } else if (
+        candidateMatchesPreferenceFacet(row.matchFacts.semantic, facet)
+      ) {
         weak.push(scored);
       }
       // Neither strong nor a base match -> unrelated to this facet, excluded.

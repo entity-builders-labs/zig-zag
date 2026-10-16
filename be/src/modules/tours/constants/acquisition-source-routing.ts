@@ -175,11 +175,6 @@ export function lookupSourceCapabilityRoute(
     return GENERIC_DEFICIT_ROUTE;
   }
 
-  // exploration_style must remain completely dormant
-  if (dimension === 'exploration_style') {
-    return undefined;
-  }
-
   const lookupKey = `${dimension.toLowerCase().trim()}:${key.toLowerCase().trim()}`;
   if (SOURCE_CAPABILITY_ROUTES[lookupKey]) {
     return SOURCE_CAPABILITY_ROUTES[lookupKey];

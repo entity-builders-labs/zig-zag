@@ -1,3 +1,4 @@
+import { discoveryCandidateSemanticFacts } from '../utils/experience-match-facts.util';
 import { Injectable, Logger } from '@nestjs/common';
 import { SemanticTarget } from '../preferences/preference-assertion.interface';
 import {
@@ -67,6 +68,8 @@ export class ExperienceAcquisitionPlannerService {
 
     const deficits: AcquisitionDeficit[] = [];
     const seenDeficits = new Set<string>();
+    // Each candidate adapts once into typed semantic facts.
+    const candidateFacts = candidates.map(discoveryCandidateSemanticFacts);
 
     for (const facet of preferredFacets) {
       const dedupeKey = `${facet.dimension}:${facet.key.toLowerCase().trim()}`;
@@ -74,8 +77,8 @@ export class ExperienceAcquisitionPlannerService {
         continue;
       }
 
-      const hasMatch = candidates.some((candidate) =>
-        candidateMatchesPreferenceFacet(candidate, facet),
+      const hasMatch = candidateFacts.some((facts) =>
+        candidateMatchesPreferenceFacet(facts, facet),
       );
 
       if (!hasMatch) {

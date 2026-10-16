@@ -82,15 +82,6 @@ describe('experience-metadata-merge.util', () => {
       expect(merged.metadata.intents).toEqual(['visit', 'walk']);
     });
 
-    it('reads legacy metadata.archetypes as an intents fallback, but never re-emits archetypes itself', () => {
-      const merged = mergeExperienceMetadata(
-        { metadata: { archetypes: ['walk'] } },
-        { metadata: { intents: ['visit'] } },
-      );
-      expect(merged.metadata.intents).toEqual(['visit', 'walk']);
-      expect(merged.metadata.archetypes).toBeUndefined();
-    });
-
     it('dedupes traits case/whitespace-insensitively using the same normalization as the classifier', () => {
       const merged = mergeExperienceMetadata(
         { metadata: { traits: ['  Craft   Beer  '] } },

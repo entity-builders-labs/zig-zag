@@ -1,3 +1,4 @@
+import { withCatalogMatchFacts } from '../fixtures/composable-experience.fixture';
 import { GeographicScope } from '../interfaces/experience-resolution.interface';
 import { FacetRetrievalService } from './facet-retrieval.service';
 import { RequestedFacet } from '../interfaces/preference-spec.interface';
@@ -16,7 +17,7 @@ function facet(overrides: Partial<RequestedFacet> = {}): RequestedFacet {
 }
 
 function row(overrides: Record<string, any> = {}) {
-  return {
+  return withCatalogMatchFacts({
     id: 'exp-1',
     themes: ['history'],
     qualityScore: 4.4,
@@ -24,7 +25,7 @@ function row(overrides: Record<string, any> = {}) {
     components: [{ geoEntity: { latitude: -34.6, longitude: -58.38 } }],
     metadata: {},
     ...overrides,
-  };
+  });
 }
 
 describe('FacetRetrievalService', () => {

@@ -1,3 +1,4 @@
+import { composableExperience } from '../../src/modules/tours/fixtures/composable-experience.fixture';
 import { planningDaysFixture } from 'src/modules/tours/fixtures/planning-input.fixture';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
@@ -52,7 +53,7 @@ describe('CHAR-6 quality signal round-trip', () => {
     }));
     const utility = {
       ...derivePreferenceUtility({
-        experiences,
+        experiences: experiences.map(composableExperience),
         preferenceSpec: { facets: [], assertions: [] },
         softAnchorIds: new Set<string>(),
         semantic: null,

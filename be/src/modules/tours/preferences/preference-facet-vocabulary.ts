@@ -6,10 +6,6 @@ export const PREFERENCE_DIMENSIONS = {
   TOURISM_INTENSITY: 'tourism_intensity',
   NATURE_TYPE: 'nature_type',
   LOCAL_CHARACTER: 'local_character',
-  // Activated in Phase 6. Wizard-sourced only (the LLM interpreter is
-  // forbidden from emitting it); influences ranking, never acquisition or
-  // search-query phrasing.
-  EXPLORATION_STYLE: 'exploration_style',
   // Hard dietary requirements (typed structured input or extractor output).
   DIETARY_SUITABILITY: 'dietary_suitability',
   // Accessibility capabilities: a HARD need or a SOFT preference, asserted
@@ -77,10 +73,6 @@ export const INITIAL_DIMENSION_VOCABULARY: Record<
     'traditional',
     'contemporary',
   ],
-  // Matches the two actionable poles of the ExplorationStyle enum
-  // (ICONIC / LOCAL_DEEP_DIVE). BALANCED is deliberately absent — it is
-  // neutral and produces no facet / no ranking pressure.
-  [PREFERENCE_DIMENSIONS.EXPLORATION_STYLE]: ['iconic', 'local_deep_dive'],
   [PREFERENCE_DIMENSIONS.DIETARY_SUITABILITY]: ['vegan'],
   // Mirrors the AccessibilityNeed enum of the request contract.
   [PREFERENCE_DIMENSIONS.ACCESSIBILITY]: [

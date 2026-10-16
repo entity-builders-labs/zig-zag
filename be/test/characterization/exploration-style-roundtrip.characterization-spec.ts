@@ -1,4 +1,5 @@
 import { candidateMatchesPreferenceFacet } from '../../src/modules/tours/utils/preference-facet-matching.util';
+import { semanticFacts } from '../../src/modules/tours/utils/experience-match-facts.util';
 import { SemanticTarget } from '../../src/modules/tours/preferences/preference-assertion.interface';
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import {
@@ -49,13 +50,13 @@ describe('CHAR-2 exploration-style / open-trait matcher semantics', () => {
 
     expect(
       candidateMatchesPreferenceFacet(
-        experienceAsPersisted,
+        semanticFacts(experienceAsPersisted),
         facet('exploration_style', 'iconic'),
       ),
     ).toBe(false);
     expect(
       candidateMatchesPreferenceFacet(
-        experienceAsPersisted,
+        semanticFacts(experienceAsPersisted),
         facet('trait', 'iconic'),
       ),
     ).toBe(false);
@@ -63,19 +64,24 @@ describe('CHAR-2 exploration-style / open-trait matcher semantics', () => {
 
   it('explicit dimensioned evidence matches its typed dimension only, never an exploration_style facet (SYNTHETIC controlled fixture)', () => {
     // syntheticDimensionedExperience is hand-authored, NOT provider-derived.
-    const dimensioned = syntheticDimensionedExperience(
+    // The catalog projection lifts persisted metadata.dimensionedTraits to
+    // the row before the adapter; the matcher itself never reads metadata.
+    const persisted = syntheticDimensionedExperience(
       'tourism_intensity',
       'iconic',
-    );
+    ) as { metadata: { dimensionedTraits: unknown[] } };
+    const dimensioned = {
+      dimensionedTraits: persisted.metadata.dimensionedTraits,
+    };
     expect(
       candidateMatchesPreferenceFacet(
-        dimensioned,
+        semanticFacts(dimensioned),
         facet('tourism_intensity', 'iconic'),
       ),
     ).toBe(true);
     expect(
       candidateMatchesPreferenceFacet(
-        dimensioned,
+        semanticFacts(dimensioned),
         facet('exploration_style', 'iconic'),
       ),
     ).toBe(false);
@@ -105,7 +111,9 @@ describe('CHAR-2 exploration-style / open-trait matcher semantics', () => {
         facet('tourism_intensity', 'local'),
         facet('local_character', 'authentic'),
       ]) {
-        expect(candidateMatchesPreferenceFacet(hydrated, target)).toBe(false);
+        expect(
+          candidateMatchesPreferenceFacet(semanticFacts(hydrated), target),
+        ).toBe(false);
       }
     }
   });

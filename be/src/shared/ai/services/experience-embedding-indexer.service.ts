@@ -73,7 +73,7 @@ export class ExperienceEmbeddingIndexerService {
         durationMinutes: experience.durationMinutes,
         price: experience.price,
         themes: this.stringList(metadata.themes),
-        intents: this.stringList(metadata.intents ?? metadata.archetypes),
+        intents: this.stringList(metadata.intents),
         traits: experience.traits.map(({ traitDefinition }) => ({
           dimension: traitDefinition.dimension,
           key: traitDefinition.key,

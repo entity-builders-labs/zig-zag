@@ -126,7 +126,7 @@ describe('CHAR-DB catalog round-trips', () => {
       expect(hydrated.intents).toEqual([]);
 
       expect(
-        candidateMatchesPreferenceFacet(hydrated, {
+        candidateMatchesPreferenceFacet(hydrated.matchFacts.semantic, {
           dimension: 'theme',
           key: 'history',
         }),
@@ -198,13 +198,13 @@ describe('CHAR-DB catalog round-trips', () => {
       ).toBe(false);
 
       expect(
-        candidateMatchesPreferenceFacet(hydrated, {
+        candidateMatchesPreferenceFacet(hydrated.matchFacts.semantic, {
           dimension: 'exploration_style',
           key: 'iconic',
         } as unknown as SemanticTarget),
       ).toBe(false);
       expect(
-        candidateMatchesPreferenceFacet(hydrated, {
+        candidateMatchesPreferenceFacet(hydrated.matchFacts.semantic, {
           dimension: 'trait',
           key: 'iconic',
         } as unknown as SemanticTarget),
@@ -234,7 +234,7 @@ describe('CHAR-DB catalog round-trips', () => {
           (experience as any).id,
         ]);
         expect(
-          candidateMatchesPreferenceFacet(hydrated, {
+          candidateMatchesPreferenceFacet(hydrated.matchFacts.semantic, {
             dimension: 'tourism_intensity',
             key: 'iconic',
           }),

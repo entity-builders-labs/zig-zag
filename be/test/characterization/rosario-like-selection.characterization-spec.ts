@@ -1,3 +1,4 @@
+import { composableExperience } from '../../src/modules/tours/fixtures/composable-experience.fixture';
 import { PlanningMobilityConstraints } from '../../src/modules/tours/interfaces/daily-planning.interface';
 import { GREEDY_PLANNING_POLICY_VERSIONS } from '../../src/modules/tours/constants/planning-policy-versions';
 import { buildPlanningDays } from '../../src/modules/tours/utils/planning-days.util';
@@ -218,15 +219,17 @@ async function runChain(_explorationStyle: 'iconic' | 'local_deep_dive') {
   // The production preference-utility boundary over the catalog.
   const utility = {
     ...derivePreferenceUtility({
-      experiences: catalog.map((row) => ({
-        id: row.id,
-        canonicalName: row.canonicalName,
-        description: row.description,
-        themes: row.themes,
-        intents: row.intents,
-        qualityScore: row.qualityScore,
-        components: row.components,
-      })),
+      experiences: catalog.map((row) =>
+        composableExperience({
+          id: row.id,
+          canonicalName: row.canonicalName,
+          description: row.description,
+          themes: row.themes,
+          intents: row.intents,
+          qualityScore: row.qualityScore,
+          components: row.components,
+        }),
+      ),
       preferenceSpec: { facets: REQUEST_FACETS, assertions: [] },
       softAnchorIds: new Set<string>(),
       semantic: {

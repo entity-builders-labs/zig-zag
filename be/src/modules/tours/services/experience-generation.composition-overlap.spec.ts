@@ -1,3 +1,4 @@
+import { withCatalogMatchFacts } from '../fixtures/composable-experience.fixture';
 import { ExperienceCompositionService } from './experience-composition.service';
 import { PreferenceUtilityService } from './preference-utility.service';
 import { ExperienceGenerationService } from './experience-generation.service';
@@ -5,7 +6,7 @@ import { PreferenceSpec } from '../interfaces/preference-spec.interface';
 import { filterOverlappingExperienceCandidates } from '../utils/candidate-overlap-filter.util';
 
 function experience(id: string, qualityScore: number) {
-  return {
+  return withCatalogMatchFacts({
     id,
     canonicalName: id,
     themes: ['history'],
@@ -21,7 +22,7 @@ function experience(id: string, qualityScore: number) {
         },
       },
     ],
-  };
+  });
 }
 
 const preferenceSpec: PreferenceSpec = {

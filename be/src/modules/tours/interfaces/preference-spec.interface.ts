@@ -187,6 +187,8 @@ export interface ComposableExperience {
     label?: string;
   }[];
   explorationFacts?: ExplorationSignalInput;
+  /** Typed preference-matching facts, adapted once by the catalog. */
+  matchFacts: import('./experience-match-facts.interface').ExperienceMatchFacts;
 }
 
 /** Per-facet retrieval result: strong/weak candidate ids, strongest-first. */

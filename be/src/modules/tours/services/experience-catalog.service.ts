@@ -1,3 +1,4 @@
+import { catalogMatchFacts } from '../utils/experience-match-facts.util';
 import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import {
   ExperienceComponentResolutionReason,
@@ -845,7 +846,7 @@ export class ExperienceCatalogService {
       durationMinutes: experience.durationMinutes,
       openingHours: experience.openingHours,
       themes: this.stringList(metadata.themes),
-      intents: this.stringList(metadata.intents ?? metadata.archetypes),
+      intents: this.stringList(metadata.intents),
       traits: Array.from(
         new Set([...this.stringList(metadata.traits), ...relationalTraits]),
       ),
@@ -858,6 +859,19 @@ export class ExperienceCatalogService {
       },
       /** Navigable places: one resolved member per GeoEntity, source order. */
       components: resolvedComponents,
+      /**
+       * The typed facts the canonical preference matcher reads, adapted once
+       * here from the persisted classification contract (review B).
+       */
+      matchFacts: catalogMatchFacts({
+        themes: this.stringList(metadata.themes),
+        intents: this.stringList(metadata.intents),
+        dimensionedTraits,
+        classification: metadata.classification,
+        components: resolvedComponents,
+        qualityScore: experience.qualityScore,
+        durationMinutes: experience.durationMinutes,
+      }),
       compositionCompleteness: sourceCompositionCompleteness(experience),
       /** Source-membership counts (trace/audit only; never planner input). */
       sourceMembership: {
@@ -931,7 +945,7 @@ export class ExperienceCatalogService {
       durationMinutes: experience.durationMinutes,
       openingHours: experience.openingHours,
       themes: this.stringList(metadata.themes),
-      intents: this.stringList(metadata.intents ?? metadata.archetypes),
+      intents: this.stringList(metadata.intents),
       traits: Array.from(
         new Set([...this.stringList(metadata.traits), ...relationalTraits]),
       ),
@@ -1933,7 +1947,7 @@ export class ExperienceCatalogService {
       description,
       ...this.stringList(metadata.themes),
       ...this.stringList(metadata.traits),
-      ...this.stringList(metadata.intents ?? metadata.archetypes),
+      ...this.stringList(metadata.intents),
       ...relationalTraits,
     ].filter(
       (value): value is string => typeof value === 'string' && !!value.trim(),
@@ -1954,7 +1968,7 @@ export class ExperienceCatalogService {
     const metadata = this.objectMetadata(metadataValue);
     return [
       ...this.stringList(metadata.themes),
-      ...this.stringList(metadata.intents ?? metadata.archetypes),
+      ...this.stringList(metadata.intents),
     ];
   }
 

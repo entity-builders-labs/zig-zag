@@ -62,7 +62,7 @@ function assess(
   let inferredEvidence = 0;
   const matchedFacets: string[] = [];
   for (const facet of input.preferenceSpec.facets) {
-    if (!isStrongFacetMatch(experience, facet)) continue;
+    if (!isStrongFacetMatch(experience.matchFacts, facet)) continue;
     matchedFacets.push(facetKey(facet));
     if (facet.provenance === 'DIRECT') directEvidence += facet.importance;
     else inferredEvidence += facet.importance * facet.confidence;
@@ -76,7 +76,12 @@ function assess(
       continue;
     }
     // A confirmed typed fact only; an absent fact is neutral.
-    if (!candidateMatchesPreferenceFacet(experience, assertion.target)) {
+    if (
+      !candidateMatchesPreferenceFacet(
+        experience.matchFacts.semantic,
+        assertion.target,
+      )
+    ) {
       continue;
     }
     avoidedTargets.push(semanticTargetKey(assertion.target));

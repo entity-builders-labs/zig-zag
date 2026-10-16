@@ -1,6 +1,6 @@
 import { derivePreferenceUtility } from '../utils/preference-utility.util';
 import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
-import { ComposableExperience } from '../interfaces/preference-spec.interface';
+import { composableExperience } from '../fixtures/composable-experience.fixture';
 import {
   PlanningCandidateNormalizerService,
   PlanningProjectableExperience,
@@ -34,7 +34,14 @@ const utilityOf = (
   experiences: PlanningProjectableExperience[],
 ): PreferenceUtilityResult => ({
   ...derivePreferenceUtility({
-    experiences: experiences as ComposableExperience[],
+    experiences: experiences.map((experience) =>
+      composableExperience({
+        id: experience.id,
+        components: experience.components ?? [],
+        qualityScore: (experience as { qualityScore?: number | null })
+          .qualityScore,
+      }),
+    ),
     preferenceSpec: { facets: [], assertions: [] },
     softAnchorIds: new Set(),
     semantic: null,
@@ -181,9 +188,13 @@ describe('PlanningCandidateNormalizerService', () => {
       collapsedVisitFacts(dated)!.openingHoursByDay.map((day) => day.status),
     ).toEqual(['UNKNOWN', 'UNKNOWN']);
 
-    const undated = service.normalizeExperiences([experience], utilityOf([experience]), {
-      days: planningDaysFixture(1),
-    }).candidates[0];
+    const undated = service.normalizeExperiences(
+      [experience],
+      utilityOf([experience]),
+      {
+        days: planningDaysFixture(1),
+      },
+    ).candidates[0];
     expect(collapsedVisitFacts(undated)!.openingHoursByDay).toEqual([
       { status: 'UNKNOWN', provenance: LEGACY_HOURS_PROVENANCE },
     ]);

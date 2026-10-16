@@ -304,24 +304,6 @@ describe('ExperienceAcquisitionPlannerService', () => {
     expect(plan.sourcePlans).toHaveLength(0);
   });
 
-  // Explicit dormant deficit handling
-  it('returns empty source plans when all deficits are dormant (exploration_style)', () => {
-    const plan = service.buildAcquisitionPlan({
-      destination: { destinationName: 'Salta' },
-      deficits: [
-        {
-          dimension: 'exploration_style',
-          key: 'relaxed',
-          reason: 'dormant',
-          origin: 'preference_facet',
-        },
-      ],
-    });
-
-    expect(plan.deficits).toHaveLength(1);
-    expect(plan.sourcePlans).toHaveLength(0);
-  });
-
   // Generic/dimensionless deficit conservative fallback
   it('routes generic/dimensionless deficits to conservative Wikivoyage + Web fallback without OSM or Places pollution', () => {
     const plan = service.buildAcquisitionPlan({

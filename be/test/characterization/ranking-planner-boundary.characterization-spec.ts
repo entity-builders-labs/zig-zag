@@ -1,3 +1,4 @@
+import { composableExperience } from '../../src/modules/tours/fixtures/composable-experience.fixture';
 import { planningDaysFixture } from '../../src/modules/tours/fixtures/planning-input.fixture';
 import { PlanningCandidateNormalizerService } from '../../src/modules/tours/services/planning-candidate-normalizer.service';
 import { sortCandidatesDeterministically } from '../../src/modules/tours/utils/daily-planning-candidate-sort.util';
@@ -41,7 +42,7 @@ function utility(
 ): PreferenceUtilityResult {
   return {
     ...derivePreferenceUtility({
-      experiences,
+      experiences: experiences.map(composableExperience),
       preferenceSpec: { facets, assertions: [] },
       softAnchorIds: new Set(),
       semantic: {
@@ -77,11 +78,12 @@ describe('CHAR-5 ranking/planner boundary', () => {
       [a.id, b.id].map((id) => result.byId.get(id)!.breakdown.directEvidence),
     ).toEqual([2, 1]);
 
-    const normalized = new PlanningCandidateNormalizerService().normalizeExperiences(
-      [b, a],
-      result,
-      { days: planningDaysFixture(1) },
-    ).candidates;
+    const normalized =
+      new PlanningCandidateNormalizerService().normalizeExperiences(
+        [b, a],
+        result,
+        { days: planningDaysFixture(1) },
+      ).candidates;
 
     expect(
       sortCandidatesDeterministically(normalized).map((c) => c.experienceId),

@@ -10,7 +10,7 @@
  * snapshot, using a canonical, field-specific policy instead of a generic
  * object spread / last-write-wins:
  *
- * - `themes` / `intents` (+ legacy `archetypes` intents fallback) /
+ * - `themes` / `intents` /
  *   `traits`: union, deduped, sorted -- never simply "whichever side came
  *   last".
  * - `dimensionedTraits`: union of explicit `{dimension, key, label?}`
@@ -61,13 +61,10 @@ export interface MergedExperienceMetadata {
 }
 
 /** Metadata keys with a dedicated policy below; everything else falls
- *  through to the generic scalar policy. `archetypes` is a legacy
- *  read-only fallback for `intents` -- it is folded into the canonical
- *  `intents` union and never re-emitted on its own. */
+ *  through to the generic scalar policy. */
 const KNOWN_METADATA_KEYS = new Set([
   'themes',
   'intents',
-  'archetypes',
   'traits',
   'dimensionedTraits',
   'classification',
@@ -391,10 +388,7 @@ export function mergeExperienceMetadata(
     normalizeSimpleKey,
   );
   const intents = sortedUnion(
-    [
-      ...stringArray(aMeta.intents ?? aMeta.archetypes),
-      ...stringArray(bMeta.intents ?? bMeta.archetypes),
-    ],
+    [...stringArray(aMeta.intents), ...stringArray(bMeta.intents)],
     normalizeSimpleKey,
   );
   const traits = sortedUnion(

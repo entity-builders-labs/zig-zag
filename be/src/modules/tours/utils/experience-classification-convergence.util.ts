@@ -1,3 +1,5 @@
+import { ExperienceSemanticFacts } from '../interfaces/experience-match-facts.interface';
+import { semanticFacts } from './experience-match-facts.util';
 /**
  * Cutover M4 — the ONE place evidence-only classification converges for
  * EVERY acquisition strategy's materialized output (spec cutover plan §6).
@@ -215,43 +217,21 @@ export interface ClassificationSemantics {
   traits: readonly string[];
 }
 
-export interface ClassificationSemanticView {
-  themes: string[];
-  intents: string[];
-  traits: string[];
-  metadata: {
-    themes: string[];
-    intents: string[];
-    traits: string[];
-  };
-}
-
 /**
- * Pure projection helper that projects ONLY classifier-owned semantics into
- * the facet matcher candidate shape.
+ * Classification adapter into the typed match facts: projects ONLY
+ * classifier-owned semantics (review correction B).
  *
  * The contract is intentionally strict: missing semantic arrays are malformed
  * classification state, not an implicit empty classification. Explicit empty
- * arrays remain valid.
- *
- * Ensures stale/discovery-era metadata (archetypes, old intents/themes/traits)
- * cannot override an authoritative evidence-only classification verdict.
+ * arrays remain valid. Open traits carry no typed identity and are not facts.
+ * Stale or discovery-era metadata can never override the evidence-only
+ * classification verdict, because no metadata is read.
  */
-export function classificationSemanticView(
+export function classificationSemanticFacts(
   classification: ClassificationSemantics,
-): ClassificationSemanticView {
-  const themes = [...classification.themes];
-  const intents = [...classification.intents];
-  const traits = [...classification.traits];
-
-  return {
-    themes,
-    intents,
-    traits,
-    metadata: {
-      themes: [...themes],
-      intents: [...intents],
-      traits: [...traits],
-    },
-  };
+): ExperienceSemanticFacts {
+  return semanticFacts({
+    themes: classification.themes,
+    intents: classification.intents,
+  });
 }

@@ -1,7 +1,7 @@
 import {
   classifyAcceptedResultsByExperience,
   convergeExperienceClassification,
-  classificationSemanticView,
+  classificationSemanticFacts,
 } from './experience-classification-convergence.util';
 import { CURRENT_CLASSIFICATION_PROMPT_VERSION } from '../services/experience-classification.service';
 import { ResolvedExperienceCandidate } from '../interfaces/experience-resolution.interface';
@@ -451,44 +451,24 @@ describe('convergeExperienceClassification', () => {
   });
 });
 
-describe('classificationSemanticView', () => {
-  it('projects only classifier-owned semantics into top-level and metadata', () => {
-    const view = classificationSemanticView({
-      themes: ['culture', 'history'],
-      intents: ['walk'],
-      traits: ['outdoor'],
-    });
-
-    expect(view).toEqual({
-      themes: ['culture', 'history'],
-      intents: ['walk'],
-      traits: ['outdoor'],
-      metadata: {
+describe('classificationSemanticFacts', () => {
+  it('projects only classifier-owned semantics into typed facts, with no metadata', () => {
+    expect(
+      classificationSemanticFacts({
         themes: ['culture', 'history'],
         intents: ['walk'],
         traits: ['outdoor'],
-      },
+      }),
+    ).toEqual({
+      themes: ['culture', 'history'],
+      intents: ['walk'],
+      dimensionedFacts: [],
     });
-    // Ensure no legacy fields exist
-    expect((view.metadata as any).archetypes).toBeUndefined();
   });
 
   it('preserves an explicit empty classification', () => {
-    const view = classificationSemanticView({
-      themes: [],
-      intents: [],
-      traits: [],
-    });
-
-    expect(view).toEqual({
-      themes: [],
-      intents: [],
-      traits: [],
-      metadata: {
-        themes: [],
-        intents: [],
-        traits: [],
-      },
-    });
+    expect(
+      classificationSemanticFacts({ themes: [], intents: [], traits: [] }),
+    ).toEqual({ themes: [], intents: [], dimensionedFacts: [] });
   });
 });

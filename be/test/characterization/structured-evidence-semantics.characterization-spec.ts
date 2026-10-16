@@ -1,6 +1,7 @@
 import { StructuredExperienceCandidateSynthesizerService } from '../../src/modules/tours/services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from '../../src/modules/tours/services/structured-candidate-corroboration.service';
 import { candidateMatchesPreferenceFacet } from '../../src/modules/tours/utils/preference-facet-matching.util';
+import { semanticFacts } from '../../src/modules/tours/utils/experience-match-facts.util';
 import {
   osmArtMuseumObservation,
   osmHistoricMonumentObservation,
@@ -83,7 +84,7 @@ describe('CHAR-1 structured evidence -> semantic preservation', () => {
     // DEFECT: an objectively historical monument is invisible to the
     // canonical facet-truth primitive.
     expect(
-      candidateMatchesPreferenceFacet(hydrated, {
+      candidateMatchesPreferenceFacet(semanticFacts(hydrated), {
         dimension: 'theme',
         key: 'history',
       }),
