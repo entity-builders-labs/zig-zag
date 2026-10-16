@@ -168,6 +168,17 @@ amendment (2026-10-11); no production code yet.**
   `TARGET_APPLICABILITY_UNKNOWN`, `TARGET_KNOWLEDGE_UNKNOWN`,
   `INSUFFICIENT_PROVEN_COMPATIBLE_CAPACITY`, `SHARED_CONCEPT_IDENTITY`;
   underlying `NO_EVIDENCE` / `CONFLICTING_EVIDENCE` / `INCONCLUSIVE_EVIDENCE`).
+- 25.7 implemented (2026-10-16, four additive commits): the docs contract;
+  the pure target-knowledge model + reconciliation + composite aggregation +
+  applicability + typed reasons; the OSM producer + `GeoEntityTargetObservation`
+  persistence + catalog projection; and the split gate (`classifyHardTarget`) +
+  post-catalog HARD eligibility policy (`resolveHardTargetEligibility`). The
+  literal generation-service wiring of the post-catalog filter (snapshot →
+  composition) remains: it needs the acquisition path to write target
+  observations (the OSM producer over tags) and the catalog projection to
+  surface them; until then the gate stays fail-closed (a wheelchair need ends
+  `HARD_CONSTRAINT_UNENFORCEABLE` with `TARGET_KNOWLEDGE_UNKNOWN`, never
+  planning without enforcement).
 
 - The change must not be archived until groups 24-43 are complete.
 
@@ -179,11 +190,7 @@ amendment (2026-10-11); no production code yet.**
    producer, provider-neutral reconciliation over
    `GeoEntity + SemanticTarget`, theme/intent SOFT-only, explicit
    per-target applicability, no HARD-driven acquisition, and a clean
-   cutover from `CLASSIFICATION_COMPLETENESS` to typed reasons). 25.7 is
-   now the active task, implemented in the approved additive sequence
-   (docs contract → pure target-knowledge/reconciliation/aggregation/HARD
-   policy → structured producer + persistence + catalog projection →
-   orchestration wiring / split gate / typed outcomes).
+   cutover from `CLASSIFICATION_COMPLETENESS` to typed reasons). 25.7's knowledge model, reconciliation, aggregation, producer, persistence, catalog projection, split gate and post-catalog eligibility policy are implemented and validated (2650 tours tests, typecheck, lint). The literal post-catalog filter wiring into the generation snapshot → composition step remains: it needs acquisition to write target observations and the catalog projection to surface them; until then the gate stays fail-closed.
    The only
    remaining pre-41 gate
    is 40.2's numeric value: run task 27.3 to obtain an evidence-backed
