@@ -1859,12 +1859,19 @@ provider adapters, recorded with each admission):
 
 | Signal | Strength | Typical provider sources |
 |---|---|---|
-| EXPLICIT_VISITOR_CLASSIFICATION — the provider classifies the place in its own attraction / sight / cultural-visit taxonomy | decisive | OSM `tourism=*` (except values the adapter maps to an exclusion class), other providers' attraction/culture branches, Wikidata class under a visitor-attraction root |
+| EXPLICIT_VISITOR_CLASSIFICATION — the provider classifies the place in its own attraction / sight / cultural-visit taxonomy | decisive | OSM `tourism=*` values that denote a standalone visitor destination (attraction, museum, gallery, viewpoint, zoo, aquarium, theme_park, ...), other providers' attraction/culture branches, Wikidata class under a visitor-attraction root |
 | HISTORIC_CLASSIFICATION — the provider classifies the place as a historic feature | decisive | OSM `historic=*`, Wikidata class under a historic-site root |
 | HERITAGE_DESIGNATION — an official heritage designation | decisive | Wikidata P1435, OSM `heritage=*` |
 | VISITABLE_PLACE_CLASS — the base or secondary category describes a place the public typically visits (open space, worship, venue, market, cemetery, ...) | supporting | provider category / alternate taxonomy |
 | ENCYCLOPEDIC_NOTABILITY — a linked encyclopedic item with its own articles | supporting | Wikidata item linked by strong identity, with sitelinks |
 | PROVIDER_PROMINENCE — a provider importance / rank / popularity value | supporting | providers that expose one (OSM does not) |
+
+Object-level sub-features are not decisive by themselves: `tourism=artwork`
+(a sculpture, statue, mural or installation) is at most
+`VISITABLE_PLACE_CLASS` (supporting). A bare artwork with no historic or
+heritage signal, encyclopedic notability, provider prominence or structured
+parent-site relationship is rejected with INSUFFICIENT_ADMISSION_EVIDENCE; an
+artwork with a structured parent follows C5 (parent/child) instead.
 
 Decisive and supporting are policy strengths, not scores; no weighted sum
 and no tuned cutoff exist.

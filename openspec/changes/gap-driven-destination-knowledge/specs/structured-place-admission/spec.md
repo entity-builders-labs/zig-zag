@@ -41,6 +41,10 @@ The admission policy SHALL NOT require membership of a base category in an exhau
 - **WHEN** a stadium carries no notability, visitor-classification, historic or heritage signal
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
+#### Scenario: Bare artwork
+- **WHEN** a named sculpture carries only `tourism=artwork` and no historic or heritage classification, encyclopedic notability, provider prominence or parent-site relationship
+- **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
+
 ### Requirement: The visitable-place mapping is never a whitelist
 The visitable-place class mapping SHALL be supporting evidence only. It SHALL NOT be required to be exhaustive, and absence of a category from it SHALL NOT by itself reject a place.
 

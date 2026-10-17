@@ -15,6 +15,20 @@ Each emitted knowledge gap SHALL be passed to an acquisition router that returns
 - **WHEN** the same gap is routed twice with the same policy version and provider availability
 - **THEN** both routes list the same strategies in the same order
 
+### Requirement: One canonical concept identity per preference concept
+The interpretation vocabulary SHALL define exactly one canonical facet key per concept, so two keys such as `food` and `gastronomy` SHALL NOT both remain canonical for the same semantic concept. Acquisition routing SHALL be keyed by canonical gap type and source capability, never by a second preference-to-provider-type lookup table.
+
+#### Scenario: Divergent concept keys
+- **WHEN** a request expresses the same food interest using wording that could map to two different canonical theme keys
+- **THEN** interpretation produces one canonical key and routing does not depend on the wording
+
+### Requirement: Bounded acquisition capacity is recorded as a limitation
+When an acquisition strategy's capacity is bounded for operational reasons, the bound SHALL be attributable to the demand or gap being satisfied and recorded as an acquisition-strategy limitation, never as a rejection.
+
+#### Scenario: Bounded acquisition capacity
+- **WHEN** an acquisition strategy bounds its result capacity for operational reasons
+- **THEN** the bound is recorded as an acquisition-strategy limitation tied to the gap it satisfied, never as a rejection
+
 ### Requirement: Source classes are defined by knowledge type, not by website
 The routing policy SHALL name source classes (GEOGRAPHIC_STRUCTURE, STRUCTURED_POI, STRUCTURED_ENTITY_FACTS, ROUTE_GEOMETRY, RESEARCH_MEMORY, WEB_EVIDENCE) and the providers that implement them. It SHALL NOT contain lists of websites or domains.
 
