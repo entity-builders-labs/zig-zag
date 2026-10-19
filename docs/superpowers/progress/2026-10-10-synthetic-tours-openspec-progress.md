@@ -113,7 +113,9 @@ amendment (2026-10-11); no production code yet.**
   32.0-32.1 done; 33.2 added for the planner sidecar runtime; 24.11 done,
   25.2 and 33.0 (G-P7-U) added; 37.1-37.2 done — canonical structured
   admission policy + OSM/Wikidata adapters, dead acquisition authorities
-  removed, destination-scope discovery derived from adapter signals).
+  removed, destination-scope discovery derived from adapter signals; 36.1-36.2
+  done — live admission rule wired into the resolver, S3-A replay passes with
+  the 16 Tour stops admitted).
 - P-D7 reframed (2026-10-14) in design ("P-D7 preference-first
   objective"), `tour-planning` spec (objective, preference-utility
   boundary, accessibility need vs preference, allowed modes hard), tasks
@@ -189,8 +191,17 @@ amendment (2026-10-11); no production code yet.**
 
 37.1/37.2 done (2026-10-19): canonical structured admission policy +
 OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope
-discovery derived from adapter signals. Next: 36.1/36.2 (admission gate) or
-35.1 (parent/child). Do not start 25.8 or production code.
+discovery derived from adapter signals. 36.1/36.2 done (2026-10-19): live
+admission rule wired into the resolver materialization path (INSUFFICIENT_ADMISSION_EVIDENCE /
+EXCLUDED_CATEGORY, per-component record); S3-A replay (zero live calls): 2712
+candidates, 1173 admitted / 1539 rejected (1411 INSUFFICIENT_ADMISSION_EVIDENCE,
+128 EXCLUDED_CATEGORY); all 16 accepted S3-A Tour stops remain admitted;
+1410 previously-admitted places no longer pass (leisure:park 761,
+amenity:place_of_worship 371, tourism:artwork 252, amenity:marketplace 19,
+tourism:picnic_site 4, tourism:attraction 2 [Caminito + Puente de la Mujer, both
+ROUTEs], tourism:yes 1) — intended R4-D3 consequence. La Bombonera stays absent
+(stadiums outside signal-bearing keys). Next: 35.1 (parent/child visit units) or
+38.1 (identity reconciliation). Do not start 25.8 or production code.
 
 1. Owner reviewed the A/B/C completion report (2026-10-16) and resolved
    the pending 25.7 design questions (target-level knowledge keyed by
