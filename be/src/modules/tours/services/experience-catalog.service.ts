@@ -333,12 +333,18 @@ export class ExperienceCatalogService {
         await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`experience:composition:${signature}`}))`;
         const entity = await tx.geoEntity.findUnique({
           where: { id },
-          include: { admission: true },
+          include: { admission: true, childRelations: true },
         });
         if (
           !entity ||
           entity.kind !== GeoEntityKind.PLACE ||
-          entity.admission?.outcome !== 'ADMITTED'
+          entity.admission?.outcome !== 'ADMITTED' ||
+          entity.childRelations.some(
+            (relation) =>
+              relation.type === 'PART_OF' &&
+              relation.visitUnitClassification !==
+                'CHILD_INDEPENDENTLY_VISITABLE',
+          )
         ) {
           return;
         }
@@ -394,6 +400,24 @@ export class ExperienceCatalogService {
               where: { id: { in: extras.map((row) => row.id) } },
             });
           }
+        } else {
+          if (existing.length) {
+            await tx.experienceComponent.deleteMany({
+              where: { experienceId: experience.id },
+            });
+          }
+          await tx.experienceComponent.create({
+            data: {
+              experienceId: experience.id,
+              geoEntityId: entity.id,
+              sourcePosition: 0,
+              sourceName: entity.name,
+              order: 0,
+              required: true,
+              resolutionState: 'RESOLVED',
+              participation: ExperienceComponentParticipation.VISIT,
+            },
+          });
         }
         composed.push(experience.id);
       });
@@ -604,7 +628,15 @@ export class ExperienceCatalogService {
       where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
       include: {
         components: {
-          include: { geoEntity: { include: { targetObservations: true } } },
+          include: {
+            geoEntity: {
+              include: {
+                targetObservations: true,
+                openingHours: true,
+                visitDuration: true,
+              },
+            },
+          },
         },
         traits: { include: { traitDefinition: true } },
       },
@@ -877,6 +909,7 @@ export class ExperienceCatalogService {
   private projectVerifiedExperienceRow(
     experience: {
       id: string;
+      compositionSignature?: string | null;
       canonicalName: string;
       description: string | null;
       price: number | null;
@@ -894,6 +927,25 @@ export class ExperienceCatalogService {
           kind: GeoEntityKind;
           latitude: number | null;
           longitude: number | null;
+          openingHours?: {
+            status: string;
+            timezone: string | null;
+            schedule: unknown;
+            scheduleVersion: number | null;
+            source: string;
+            sourceRecordRef: string | null;
+            parserVersion: string | null;
+            retrievedAt: Date | string;
+          } | null;
+          visitDuration?: {
+            status: string;
+            typicalMinutes: number | null;
+            authorityClass: string | null;
+            evidenceQuality: string | null;
+            evidence: unknown;
+            resolverVersion: string;
+            resolvedAt: Date | string;
+          } | null;
         } | null;
         [key: string]: any;
       }>;
@@ -919,6 +971,11 @@ export class ExperienceCatalogService {
     const lat = experience.latitude ?? component?.latitude ?? null;
     const lon = experience.longitude ?? component?.longitude ?? null;
     const metadata = this.objectMetadata(experience.metadata);
+    const isStructuredComposition = !!experience.compositionSignature;
+    const legacyDurationMinutes = isStructuredComposition
+      ? null
+      : experience.durationMinutes;
+    if (isStructuredComposition) delete metadata.openingHours;
     const relationalTraits = experience.traits.flatMap((trait) =>
       [trait.traitDefinition.label, trait.traitDefinition.key].filter(
         (value): value is string => !!value,
@@ -951,6 +1008,7 @@ export class ExperienceCatalogService {
         : undefined;
     return {
       id: experience.id,
+      compositionSignature: experience.compositionSignature ?? null,
       name: experience.canonicalName,
       canonicalName: experience.canonicalName,
       description: experience.description,
@@ -960,11 +1018,11 @@ export class ExperienceCatalogService {
       longitude: lon,
       distance: distanceKm,
       duration:
-        experience.durationMinutes == null
+        legacyDurationMinutes == null
           ? undefined
-          : experience.durationMinutes / 60,
-      durationMinutes: experience.durationMinutes,
-      openingHours: experience.openingHours,
+          : legacyDurationMinutes / 60,
+      durationMinutes: legacyDurationMinutes,
+      openingHours: isStructuredComposition ? null : experience.openingHours,
       themes: this.stringList(metadata.themes),
       intents: this.stringList(metadata.intents),
       traits: Array.from(
@@ -990,7 +1048,7 @@ export class ExperienceCatalogService {
         classification: metadata.classification,
         components: resolvedComponents,
         qualityScore: experience.qualityScore,
-        durationMinutes: experience.durationMinutes,
+        durationMinutes: legacyDurationMinutes,
       }),
       compositionCompleteness: sourceCompositionCompleteness(experience),
       /** Source-membership counts (trace/audit only; never planner input). */

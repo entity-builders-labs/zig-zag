@@ -1,5 +1,6 @@
 import {
   AppliedOpeningHours,
+  GeoEntityOpeningHoursProvenance,
   LEGACY_EXPERIENCE_OPENING_HOURS,
   NormalizedOpeningHours,
   NormalizedOpeningHoursKnown,
@@ -198,6 +199,146 @@ export function legacyOpeningHoursByDay(
       provenance,
     };
   });
+}
+
+interface PersistedGeoOpeningWindow {
+  startMinutesFromMidnight: number;
+  endMinutesFromMidnight: number;
+  lastAdmissionMinutesFromMidnight?: number | null;
+}
+
+interface PersistedGeoOpeningSchedule {
+  weekly?: Record<string, PersistedGeoOpeningWindow[]>;
+  exceptions?: Record<
+    string,
+    | { status: 'KNOWN_CLOSED' }
+    | { status: 'KNOWN_OPEN_WINDOW'; windows: PersistedGeoOpeningWindow[] }
+  >;
+}
+
+/** Projects C14 GeoEntity hours only; absent or invalid knowledge stays UNKNOWN. */
+export function geoEntityOpeningHoursByDay(
+  geoEntityId: string,
+  persisted:
+    | {
+        status: string;
+        timezone: string | null;
+        schedule: unknown;
+        scheduleVersion: number | null;
+        source: string;
+        sourceRecordRef: string | null;
+        parserVersion: string | null;
+        retrievedAt: Date | string;
+      }
+    | null
+    | undefined,
+  days: PlanningDay[],
+): PlanningDayOpeningHours[] {
+  const provenance: GeoEntityOpeningHoursProvenance = persisted
+    ? {
+        source: 'GEO_ENTITY_OPENING_HOURS',
+        evidenceBacked: true,
+        geoEntityId,
+        provider: persisted.source,
+        sourceRecordRef: persisted.sourceRecordRef,
+        parserVersion: persisted.parserVersion,
+        retrievedAt: new Date(persisted.retrievedAt).toISOString(),
+        timezone: persisted.timezone,
+        scheduleVersion: persisted.scheduleVersion,
+      }
+    : {
+        source: 'GEO_ENTITY_OPENING_HOURS',
+        evidenceBacked: false,
+        geoEntityId,
+        provider: null,
+        sourceRecordRef: null,
+        parserVersion: null,
+        retrievedAt: null,
+        timezone: null,
+        scheduleVersion: null,
+      };
+  const unknown = (): PlanningDayOpeningHours => ({
+    status: 'UNKNOWN',
+    provenance,
+  });
+  if (!persisted || persisted.status !== 'KNOWN') return days.map(unknown);
+  const schedule = asGeoOpeningSchedule(persisted.schedule);
+  if (!schedule) return days.map(unknown);
+  return days.map((day): PlanningDayOpeningHours => {
+    if (!day.date) return unknown();
+    const exception = schedule.exceptions?.[day.date];
+    if (exception?.status === 'KNOWN_CLOSED') {
+      return { status: 'KNOWN_CLOSED', provenance };
+    }
+    if (exception?.status === 'KNOWN_OPEN_WINDOW') {
+      const windows = normalizeGeoWindows(exception.windows);
+      return windows
+        ? { status: 'KNOWN_OPEN_WINDOW', windows, provenance }
+        : unknown();
+    }
+    const weekday = weekdayOfPlanningDate(day.date);
+    if (weekday === null) return unknown();
+    const rawWindows = schedule.weekly?.[String(weekday)];
+    if (!Array.isArray(rawWindows)) return unknown();
+    const windows = normalizeGeoWindows(rawWindows);
+    if (!windows) return unknown();
+    return windows.length === 0
+      ? { status: 'KNOWN_CLOSED', provenance }
+      : { status: 'KNOWN_OPEN_WINDOW', windows, provenance };
+  });
+}
+
+function asGeoOpeningSchedule(
+  value: unknown,
+): PersistedGeoOpeningSchedule | null {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const candidate = value as PersistedGeoOpeningSchedule;
+  if (
+    candidate.weekly !== undefined &&
+    (!candidate.weekly ||
+      typeof candidate.weekly !== 'object' ||
+      Array.isArray(candidate.weekly))
+  )
+    return null;
+  if (
+    candidate.exceptions !== undefined &&
+    (!candidate.exceptions ||
+      typeof candidate.exceptions !== 'object' ||
+      Array.isArray(candidate.exceptions))
+  )
+    return null;
+  return candidate;
+}
+
+function normalizeGeoWindows(
+  windows: PersistedGeoOpeningWindow[],
+): PlanningOpeningWindow[] | null {
+  if (!Array.isArray(windows)) return null;
+  const normalized: PlanningOpeningWindow[] = [];
+  for (const window of windows) {
+    if (
+      !window ||
+      !Number.isInteger(window.startMinutesFromMidnight) ||
+      !Number.isInteger(window.endMinutesFromMidnight) ||
+      window.startMinutesFromMidnight < 0 ||
+      window.endMinutesFromMidnight > 1440 ||
+      window.endMinutesFromMidnight <= window.startMinutesFromMidnight ||
+      (window.lastAdmissionMinutesFromMidnight != null &&
+        (!Number.isInteger(window.lastAdmissionMinutesFromMidnight) ||
+          window.lastAdmissionMinutesFromMidnight <
+            window.startMinutesFromMidnight ||
+          window.lastAdmissionMinutesFromMidnight >
+            window.endMinutesFromMidnight))
+    )
+      return null;
+    normalized.push({
+      startMinutesFromMidnight: window.startMinutesFromMidnight,
+      endMinutesFromMidnight: window.endMinutesFromMidnight,
+      lastAdmissionMinutesFromMidnight:
+        window.lastAdmissionMinutesFromMidnight ?? null,
+    });
+  }
+  return normalized;
 }
 
 function isKnownLegacyOpeningHours(

@@ -412,4 +412,195 @@ describe('PlanningCandidateNormalizerService', () => {
     expect('durationMinutes' in candidate).toBe(false);
     expect('openingHours' in candidate).toBe(false);
   });
+
+  describe('revision-4 single-place knowledge projection', () => {
+    const structured = (
+      overrides: Partial<PlanningProjectableExperience> = {},
+    ): PlanningProjectableExperience => ({
+      id: 'structured-place',
+      canonicalName: 'Museum',
+      compositionSignature: 'v1:stable',
+      durationMinutes: 180,
+      metadata: {
+        openingHours: {
+          status: 'known',
+          rangesByWeekday: {
+            1: [{ startMinutesFromMidnight: 0, endMinutesFromMidnight: 1440 }],
+          },
+        },
+      },
+      components: [
+        {
+          geoEntityId: 'geo-structured',
+          participation: 'VISIT',
+          required: true,
+          geoEntity: {
+            latitude: 1,
+            longitude: 2,
+            visitDuration: {
+              status: 'RESOLVED',
+              typicalMinutes: 75,
+              authorityClass: 'STRUCTURED_PROVIDER',
+              evidenceQuality: 'DIRECT',
+              evidence: [{ source: 'fixture' }],
+              resolverVersion: 'duration-v1',
+              resolvedAt: '2026-10-19T00:00:00.000Z',
+            },
+            openingHours: {
+              status: 'UNKNOWN',
+              timezone: null,
+              schedule: null,
+              scheduleVersion: null,
+              source: 'openstreetmap',
+              sourceRecordRef: 'osm:node:1',
+              parserVersion: null,
+              retrievedAt: '2026-10-19T00:00:00.000Z',
+            },
+          },
+        },
+      ],
+      ...overrides,
+    });
+
+    it('projects C14 duration and provenance without reading the legacy duration', () => {
+      const result = normalize([structured()]);
+      expect(result.candidates[0].components[0].visit?.duration).toEqual({
+        minutes: 75,
+        provenance: {
+          source: 'GEO_ENTITY_VISIT_DURATION',
+          evidenceBacked: true,
+          geoEntityId: 'geo-structured',
+          authorityClass: 'STRUCTURED_PROVIDER',
+          evidenceQuality: 'DIRECT',
+          evidence: [{ source: 'fixture' }],
+          resolverVersion: 'duration-v1',
+          resolvedAt: '2026-10-19T00:00:00.000Z',
+        },
+      });
+    });
+
+    it('keeps absent C14 duration missing despite a legacy Experience duration', () => {
+      const experience = structured({
+        components: [
+          {
+            geoEntityId: 'geo-structured',
+            participation: 'VISIT',
+            geoEntity: { latitude: 1, longitude: 2, visitDuration: null },
+          },
+        ],
+      });
+      expect(normalize([experience])).toMatchObject({
+        candidates: [],
+        ineligible: [
+          {
+            experienceId: 'structured-place',
+            reason: 'MISSING_REQUIRED_DURATION',
+          },
+        ],
+      });
+    });
+
+    it('keeps UNKNOWN C14 hours UNKNOWN instead of reading metadata hours', () => {
+      const candidate = normalize([structured()]).candidates[0];
+      expect(candidate.components[0].visit?.openingHoursByDay[0]).toEqual({
+        status: 'UNKNOWN',
+        provenance: {
+          source: 'GEO_ENTITY_OPENING_HOURS',
+          evidenceBacked: true,
+          geoEntityId: 'geo-structured',
+          provider: 'openstreetmap',
+          sourceRecordRef: 'osm:node:1',
+          parserVersion: null,
+          retrievedAt: '2026-10-19T00:00:00.000Z',
+          timezone: null,
+          scheduleVersion: null,
+        },
+      });
+    });
+
+    it('keeps missing C14 hours UNKNOWN despite legacy opening-hours values', () => {
+      const experience = structured({
+        components: [
+          {
+            geoEntityId: 'geo-structured',
+            participation: 'VISIT',
+            geoEntity: {
+              latitude: 1,
+              longitude: 2,
+              visitDuration:
+                structured().components![0].geoEntity!.visitDuration,
+            },
+          },
+        ],
+      });
+      expect(
+        normalize([experience]).candidates[0].components[0].visit
+          ?.openingHoursByDay[0],
+      ).toMatchObject({
+        status: 'UNKNOWN',
+        provenance: {
+          source: 'GEO_ENTITY_OPENING_HOURS',
+          evidenceBacked: false,
+          geoEntityId: 'geo-structured',
+          provider: null,
+        },
+      });
+    });
+
+    it('projects a known weekly window with its source provenance', () => {
+      const experience = structured({
+        components: [
+          {
+            geoEntityId: 'geo-structured',
+            participation: 'VISIT',
+            geoEntity: {
+              latitude: 1,
+              longitude: 2,
+              visitDuration:
+                structured().components![0].geoEntity!.visitDuration,
+              openingHours: {
+                status: 'KNOWN',
+                timezone: 'America/Argentina/Buenos_Aires',
+                schedule: {
+                  weekly: {
+                    '1': [
+                      {
+                        startMinutesFromMidnight: 540,
+                        endMinutesFromMidnight: 1020,
+                        lastAdmissionMinutesFromMidnight: 960,
+                      },
+                    ],
+                  },
+                },
+                scheduleVersion: 1,
+                source: 'institutional',
+                sourceRecordRef: 'hours:1',
+                parserVersion: 'hours-v1',
+                retrievedAt: '2026-10-19T00:00:00.000Z',
+              },
+            },
+          },
+        ],
+      });
+      const candidate = normalize([experience]).candidates[0];
+      expect(candidate.components[0].visit?.openingHoursByDay[0]).toMatchObject(
+        {
+          status: 'KNOWN_OPEN_WINDOW',
+          windows: [
+            {
+              startMinutesFromMidnight: 540,
+              endMinutesFromMidnight: 1020,
+              lastAdmissionMinutesFromMidnight: 960,
+            },
+          ],
+          provenance: {
+            source: 'GEO_ENTITY_OPENING_HOURS',
+            provider: 'institutional',
+            sourceRecordRef: 'hours:1',
+            scheduleVersion: 1,
+          },
+        },
+      );
+    });
+  });
 });

@@ -550,15 +550,6 @@ export class ExperienceGenerationService {
       plan,
       executionLedger,
     );
-    // Structured POI persistence owns admission and canonical C14 facts; this
-    // explicit composition step materializes only the admitted visit units.
-    const compositionWindow =
-      context.geographicScope.kind === 'POINT_RADIUS'
-        ? context.geographicScope
-        : boundingBoxToCenterRadius(context.geographicScope.boundary.geometry);
-    await this.experienceCatalog.composeAdmittedPlacesWithinScope(
-      compositionWindow,
-    );
     for (const [provider, result] of Object.entries(
       execution.providerResults,
     )) {
@@ -586,6 +577,15 @@ export class ExperienceGenerationService {
         { ...context, geographicGrant },
       );
     }
+    // Structured POI persistence owns admission and canonical C14 facts; this
+    // explicit composition step materializes only the admitted visit units.
+    const compositionWindow =
+      context.geographicScope.kind === 'POINT_RADIUS'
+        ? context.geographicScope
+        : boundingBoxToCenterRadius(context.geographicScope.boundary.geometry);
+    await this.experienceCatalog.composeAdmittedPlacesWithinScope(
+      compositionWindow,
+    );
     recordAcquisitionLifecycle(traceRecorder, {
       passNumber,
       workUnit,

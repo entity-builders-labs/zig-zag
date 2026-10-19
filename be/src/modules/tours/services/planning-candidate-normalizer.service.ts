@@ -8,7 +8,10 @@ import {
   PlanningVisitFacts,
 } from '../interfaces/daily-planning.interface';
 import { PreferenceUtilityResult } from '../interfaces/preference-utility.interface';
-import { legacyOpeningHoursByDay } from '../utils/normalized-opening-hours.util';
+import {
+  geoEntityOpeningHoursByDay,
+  legacyOpeningHoursByDay,
+} from '../utils/normalized-opening-hours.util';
 import {
   buildExperienceFootprint,
   buildOrderedComponentsWithFootprints,
@@ -46,14 +49,43 @@ export interface PlanningProjectableExperience {
   latitude?: number | null;
   longitude?: number | null;
   durationMinutes?: number | null;
+  compositionSignature?: string | null;
   openingHours?: unknown;
   metadata?: {
     openingHours?: unknown;
     mobility?: PersistedInternalMobility;
+    [key: string]: unknown;
   } | null;
   mobility?: PersistedInternalMobility;
   components?: Array<
-    ComponentLike & { geoEntityId?: string | null; required?: boolean | null }
+    ComponentLike & {
+      geoEntityId?: string | null;
+      required?: boolean | null;
+      participation?: PlanningComponentParticipation | null;
+      geoEntity?:
+        | (ComponentLike['geoEntity'] & {
+            visitDuration?: {
+              status: string;
+              typicalMinutes: number | null;
+              authorityClass: string | null;
+              evidenceQuality: string | null;
+              evidence: unknown;
+              resolverVersion: string;
+              resolvedAt: Date | string;
+            } | null;
+            openingHours?: {
+              status: string;
+              timezone: string | null;
+              schedule: unknown;
+              scheduleVersion: number | null;
+              source: string;
+              sourceRecordRef: string | null;
+              parserVersion: string | null;
+              retrievedAt: Date | string;
+            } | null;
+          })
+        | null;
+    }
   >;
 }
 
@@ -92,6 +124,45 @@ function usableLegacyDurationMinutes(
     : null;
 }
 
+function structuredSinglePlaceComponent(
+  experience: PlanningProjectableExperience,
+) {
+  if (!experience.compositionSignature?.startsWith('v1:')) return undefined;
+  const components = experience.components ?? [];
+  if (
+    components.length !== 1 ||
+    components[0].participation !== 'VISIT' ||
+    !components[0].geoEntityId
+  ) {
+    return undefined;
+  }
+  return components[0];
+}
+
+function usableStructuredDurationMinutes(
+  experience: PlanningProjectableExperience,
+): number | null {
+  const duration =
+    structuredSinglePlaceComponent(experience)?.geoEntity?.visitDuration;
+  if (
+    duration?.status !== 'RESOLVED' ||
+    typeof duration.typicalMinutes !== 'number' ||
+    !Number.isFinite(duration.typicalMinutes) ||
+    duration.typicalMinutes <= 0
+  ) {
+    return null;
+  }
+  return duration.typicalMinutes;
+}
+
+function usableDurationMinutes(
+  experience: PlanningProjectableExperience,
+): number | null {
+  return structuredSinglePlaceComponent(experience)
+    ? usableStructuredDurationMinutes(experience)
+    : usableLegacyDurationMinutes(experience);
+}
+
 /** Splits catalogued Experiences into planning-ready ones and the others. */
 export function partitionPlanningReady<T extends PlanningProjectableExperience>(
   experiences: T[],
@@ -99,7 +170,7 @@ export function partitionPlanningReady<T extends PlanningProjectableExperience>(
   const ready: T[] = [];
   const ineligible: PlanningIneligibleExperience[] = [];
   for (const experience of experiences) {
-    if (usableLegacyDurationMinutes(experience) === null) {
+    if (usableDurationMinutes(experience) === null) {
       ineligible.push({
         experienceId: experience.id,
         reason: 'MISSING_REQUIRED_DURATION',
@@ -145,20 +216,46 @@ export class PlanningCandidateNormalizerService {
   ): PlanningExperienceCandidate {
     const persistedMobility =
       experience.mobility ?? experience.metadata?.mobility;
+    const structuredComponent = structuredSinglePlaceComponent(experience);
+    const structuredDuration = structuredComponent?.geoEntity?.visitDuration;
+    const structuredHours = structuredComponent?.geoEntity?.openingHours;
+    const durationMinutes = structuredComponent
+      ? usableStructuredDurationMinutes(experience)
+      : usableLegacyDurationMinutes(experience);
     // The `metadata.openingHours` read is the legacy hidden-metadata path the
-    // design removes when the projection moves to GeoEntity hours (group 40).
+    // design removes from the structured single-place projection.
     const facts: PlanningVisitFacts = {
       duration: {
-        minutes: usableLegacyDurationMinutes(experience)!,
-        provenance: {
-          source: LEGACY_EXPERIENCE_DURATION,
-          evidenceBacked: false,
-        },
+        minutes: durationMinutes!,
+        provenance:
+          structuredComponent && structuredDuration
+            ? {
+                source: 'GEO_ENTITY_VISIT_DURATION',
+                evidenceBacked: true,
+                geoEntityId: structuredComponent.geoEntityId!,
+                authorityClass: structuredDuration.authorityClass,
+                evidenceQuality: structuredDuration.evidenceQuality,
+                evidence: structuredDuration.evidence,
+                resolverVersion: structuredDuration.resolverVersion,
+                resolvedAt: new Date(
+                  structuredDuration.resolvedAt,
+                ).toISOString(),
+              }
+            : {
+                source: LEGACY_EXPERIENCE_DURATION,
+                evidenceBacked: false,
+              },
       },
-      openingHoursByDay: legacyOpeningHoursByDay(
-        experience.openingHours ?? experience.metadata?.openingHours,
-        context.days,
-      ),
+      openingHoursByDay: structuredComponent
+        ? geoEntityOpeningHoursByDay(
+            structuredComponent.geoEntityId!,
+            structuredHours ?? null,
+            context.days,
+          )
+        : legacyOpeningHoursByDay(
+            experience.openingHours ?? experience.metadata?.openingHours,
+            context.days,
+          ),
     };
     const ordered = buildOrderedComponentsWithFootprints(
       (experience.components ?? []).filter(
@@ -169,11 +266,16 @@ export class PlanningCandidateNormalizerService {
     // a legacy composite holds them only for the whole Experience.
     const singleVisit =
       ordered.length === 1 &&
-      LEGACY_ROLE_PARTICIPATION[ordered[0].component.role ?? ''] === 'VISIT';
+      (structuredComponent
+        ? true
+        : LEGACY_ROLE_PARTICIPATION[ordered[0].component.role ?? ''] ===
+          'VISIT');
     const components: PlanningComponent[] = ordered.map(
       ({ component, footprint }, index): PlanningComponent => {
         const participation =
-          LEGACY_ROLE_PARTICIPATION[component.role ?? ''] ?? null;
+          component.participation ??
+          LEGACY_ROLE_PARTICIPATION[component.role ?? ''] ??
+          null;
         return {
           order: index,
           participation,

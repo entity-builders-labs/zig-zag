@@ -96,12 +96,12 @@ export interface LegacyExperienceOpeningHoursProvenance {
 
 export interface GeoEntityOpeningHoursProvenance {
   source: 'GEO_ENTITY_OPENING_HOURS';
-  evidenceBacked: true;
+  evidenceBacked: boolean;
   geoEntityId: string;
-  provider: string;
+  provider: string | null;
   sourceRecordRef: string | null;
   parserVersion: string | null;
-  retrievedAt: string;
+  retrievedAt: string | null;
   timezone: string | null;
   scheduleVersion: number | null;
 }
