@@ -22,6 +22,10 @@ export interface OsmCandidate {
   osmId: number;
   geometry: GeoJsonGeometry;
   tags: Record<string, string>;
+  /** Direct member identities when this result is a provider relation. */
+  memberIds?: string[];
+  /** Explicit label members are C8 identity evidence, not visit-site members. */
+  identityMemberIds?: string[];
   // Populated in Fase 3, when the candidate carries a `wikidata` tag and
   // Wikidata content is available and passes the content-safety check.
   narrativeContext?: string;
@@ -207,6 +211,16 @@ export class OsmPlacesService {
       osmId: element.id,
       geometry,
       tags,
+      ...(element.type === 'relation' && element.members
+        ? {
+            memberIds: element.members.map(
+              (member) => `osm:${member.type}:${member.ref}`,
+            ),
+            identityMemberIds: element.members
+              .filter((member) => member.role === 'label')
+              .map((member) => `osm:${member.type}:${member.ref}`),
+          }
+        : {}),
     };
   }
 

@@ -162,8 +162,9 @@ export function buildPoisQuery({
 }
 
 // Proactive feature discovery: ONE bounded `around:` union query for every
-// structured selector in the plan (not one request per concept). `out tags
-// center` — discovery only needs tags + a centroid, never full geometry.
+// structured selector in the plan (not one request per concept). `out body
+// center` keeps relation member IDs/roles for structured parent evidence,
+// without requesting full geometry.
 export function buildFeaturesNearQuery({
   latitude,
   longitude,
@@ -189,7 +190,7 @@ export function buildFeaturesNearQuery({
     '(',
     ...lines.map((line) => `  ${line}`),
     ');',
-    'out tags center;',
+    'out body center;',
   ].join('\n');
 }
 

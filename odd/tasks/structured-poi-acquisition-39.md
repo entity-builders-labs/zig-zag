@@ -20,10 +20,10 @@ Scope guard: implement only S1 and S2. Do not start tasks 40.x, 41.x, 42.x, 43.x
 
 ## Tasks
 
-- T39.0 — S1 — inline — in progress; inherited schema/migration checkpoint `bc83614f`, acceptance checks pending.
-- T39.1 — S2 — inline — in progress; inherited persistence service/resolver checkpoint `bc83614f`, router/provider and database integration coverage pending.
+- T39.0 — S1 — inline — complete; clean C14 migration reset, Prisma generation, typecheck, and direct SQL constraint tests passed on `zigzag_39_test`; completion commit pending.
+- T39.1 — S2 — inline — complete; production destination-scope router, structured acquisition/persistence, and production-path DB integration matrix passed; completion commit pending.
 
-Risk: item 1 (additive database schema migration and C14 persisted contracts).
+Risk: item 1 (additive database schema migration and C14 persisted contracts); item 3 (shared acquisition-plan routing contract).
 
 ## Log
 
@@ -241,3 +241,28 @@ remaining blockers before task 40
   fixture after routing was enabled; the fixture was then updated to provide a
   structured OSM feature, but that update has not yet been verified.
 - No completion commit or push was created; 39.0 and 39.1 remain unchecked.
+
+### L6 — Production acquisition, persistence, and gates (2026-10-19)
+
+- Added the production destination-scope `STRUCTURED_POI` route and direct
+  structured catalog persistence; it does not require an Experience proposal.
+- The path uses OSM structured discovery, C8 identity reconciliation, C5
+  visit-unit policy, and C7 structured admission. Admission outcomes and typed
+  per-signal provenance, identity evidence, PART_OF relations, and structured
+  opening-hours evidence are persisted. Explicit visit duration is persisted
+  only when supplied as valid canonical evidence; no duration record is
+  written when evidence is absent. Provider failure remains typed `FAILED`.
+- The production-path DB integration matrix passed against `zigzag_39_test`,
+  including standalone visitor place, bare artwork rejection, parent/child
+  relation, duplicate/shared-QID identity, label-member identity evidence,
+  opening hours, explicit/absent duration, provider failure, and zero
+  LLM/search/fetch calls. C14 constraint integration tests also passed.
+- A clean reset applied the entire migration chain through C14; Prisma
+  generation and `yarn typecheck` passed. Eight targeted unit suites (120
+  tests), three database integration suites (7 tests), changed-file ESLint,
+  Prettier, strict OpenSpec validation, and `git diff --check` passed.
+- Independent item-1 verification completed its bounded correction/recheck;
+  the C14 admission provenance and C8 OSM label-role identity findings are
+  resolved. Separate Wikidata facts routing is optional under task 37.2.
+- Completion commit and final clean-worktree preflight remain to be run;
+  remote push still requires the explicitly authorized credential/session.

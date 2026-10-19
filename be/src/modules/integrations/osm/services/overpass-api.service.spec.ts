@@ -91,7 +91,7 @@ describe('OverpassApiService', () => {
     expect(result).toEqual([{ type: 'node', id: 7 }]);
     const [, body] = mockedAxios.post.mock.calls[0];
     const decoded = decodeURIComponent(String(body).replace(/\+/g, ' '));
-    expect(decoded).toContain('out tags center;');
+    expect(decoded).toContain('out body center;');
     expect(decoded).toContain(
       'nwr["tourism"="museum"]["name"](around:3000,-34.6,-58.38);',
     );

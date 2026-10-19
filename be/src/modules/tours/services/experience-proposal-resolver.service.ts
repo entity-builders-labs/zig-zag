@@ -2216,6 +2216,11 @@ export class ExperienceProposalResolverService
       await this.knowledge.upsertAdmission(entity.geoEntityId, record, {
         provider: entity.provider,
         externalId: entity.externalId,
+        signalEvidence: record.signalEvidence.map((fact) => ({
+          ...fact,
+          provider: entity.provider,
+          externalId: entity.externalId,
+        })),
       });
       const openingHoursEvidence = osmTagsToOpeningHoursEvidence(entity.tags);
       if (openingHoursEvidence) {

@@ -19,6 +19,12 @@ export type AdmissionSignalType =
   | 'ENCYCLOPEDIC_NOTABILITY'
   | 'PROVIDER_PROMINENCE';
 
+export interface AdmissionSignalEvidence {
+  signal: AdmissionSignalType;
+  field: string;
+  value: string | number;
+}
+
 /** Decisive signals admit on their own; supporting signals never do. */
 export type AdmissionSignalStrength = 'decisive' | 'supporting';
 
@@ -84,6 +90,17 @@ export function isExclusionOverridable(
   klass: AdmissionExclusionClass,
 ): boolean {
   return EXCLUSION_OVERRIDABILITY[klass];
+}
+
+/** Whether this decision-level exclusion is represented as an admission row. */
+export function isAdmissionExclusionPersisted(
+  klass: AdmissionExclusionClass,
+): boolean {
+  return klass !== 'SUB_FEATURE';
+}
+
+export function isRouteExclusion(klass: AdmissionExclusionClass): boolean {
+  return klass === 'ROAD_OR_ROUTE';
 }
 
 /**

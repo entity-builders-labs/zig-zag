@@ -22,8 +22,15 @@ describe('ExperienceAcquisitionPlannerService · structured POI route', () => {
 
     expect(plan.sourcePlans[0]).toEqual({
       provider: 'structured_poi',
-      structuredPoi: { radiusMeters: 5_000 },
+      structuredPoi: {
+        radiusMeters: 5_000,
+        sourceClass: 'STRUCTURED_POI',
+        routingPolicyVersion: 'gap-source-routing-v1',
+      },
     });
+    expect(plan.sourcePlans.map((source) => source.provider)).toEqual([
+      'structured_poi',
+    ]);
   });
 
   it('does not invent a destination window to route structured discovery', () => {

@@ -1,9 +1,84 @@
 import {
   AdmissionExclusionClass,
   AdmissionSignal,
+  AdmissionSignalEvidence,
+  AdmissionSignalType,
   admissionSignal,
   CanonicalPlaceClass,
+  ChildPlaceClass,
+  ParentPlaceClass,
 } from '@tours/admission/structured-admission-policy';
+import { PerInstanceEvidence } from '@tours/admission/parent-site-visit-unit.policy';
+
+export interface OsmVisitUnitFacts {
+  childClass?: ChildPlaceClass;
+  parentClass?: ParentPlaceClass;
+  perInstanceEvidence: PerInstanceEvidence;
+}
+
+export interface OsmVisitDurationEvidence {
+  typicalMinutes: number;
+  rawValue: string;
+  field: 'visit_duration_minutes';
+}
+
+/** Normalize only an explicit provider duration; missing or invalid stays absent. */
+export function osmTagsToVisitDurationEvidence(
+  tags: Record<string, string> | undefined,
+): OsmVisitDurationEvidence | undefined {
+  const rawValue = tags?.visit_duration_minutes?.trim();
+  if (!rawValue || !/^\d+$/.test(rawValue)) return undefined;
+  const typicalMinutes = Number(rawValue);
+  if (!Number.isSafeInteger(typicalMinutes) || typicalMinutes <= 0) {
+    return undefined;
+  }
+  return {
+    typicalMinutes,
+    rawValue,
+    field: 'visit_duration_minutes',
+  };
+}
+
+/** Convert explicit OSM structural tags into the canonical visit-unit inputs. */
+export function osmTagsToVisitUnitFacts(
+  tags: Record<string, string> | undefined,
+): OsmVisitUnitFacts {
+  const t = tags ?? {};
+  const childClass: ChildPlaceClass | undefined =
+    t.tourism === 'artwork' || t.historic === 'memorial'
+      ? 'artwork'
+      : t.amenity === 'grave_yard' || t.historic === 'grave_yard'
+        ? 'grave'
+        : t.amenity !== undefined ||
+            t.shop !== undefined ||
+            t.craft !== undefined
+          ? 'venue'
+          : undefined;
+  const parentClass: ParentPlaceClass | undefined =
+    t.amenity === 'cemetery' ||
+    t.landuse === 'cemetery' ||
+    t.historic === 'cemetery'
+      ? 'cemetery'
+      : t.tourism === 'museum'
+        ? 'museum'
+        : t.leisure === 'park' ||
+            t.tourism === 'theme_park' ||
+            t.leisure === 'nature_reserve'
+          ? 'park_or_complex'
+          : undefined;
+
+  return {
+    childClass,
+    parentClass,
+    perInstanceEvidence: {
+      ...(t.separate_entrance === 'yes' ? { separateEntrance: true } : {}),
+      ...(t.separate_opening_hours === 'yes'
+        ? { separateOpeningHours: true }
+        : {}),
+      ...(t.independent_venue === 'yes' ? { explicitVenueEvidence: true } : {}),
+    },
+  };
+}
 
 /**
  * OSM → canonical admission mapping (design C7, task 37.1). The OSM adapter
@@ -69,6 +144,7 @@ const OSM_VISITABLE_LEISURE_VALUES = new Set([
 
 export interface OsmAdmissionFacts {
   signals: AdmissionSignal[];
+  signalEvidence: AdmissionSignalEvidence[];
   exclusions: AdmissionExclusionClass[];
   placeClasses: CanonicalPlaceClass[];
 }
@@ -85,9 +161,18 @@ export function osmTagsToAdmissionFacts(
   tags: Record<string, string> | undefined,
 ): OsmAdmissionFacts {
   const signals: AdmissionSignal[] = [];
+  const signalEvidence: AdmissionSignalEvidence[] = [];
   const exclusions: AdmissionExclusionClass[] = [];
   const placeClasses: CanonicalPlaceClass[] = [];
   const t = tags ?? {};
+  const addSignal = (
+    signal: AdmissionSignalType,
+    field: string,
+    value: string,
+  ) => {
+    signals.push(admissionSignal(signal));
+    signalEvidence.push({ signal, field, value });
+  };
 
   // Structural exclusions first (a record is not an ordinary PLACE).
   if (t.boundary !== undefined) exclusions.push('ADMINISTRATIVE_OR_LOCALITY');
@@ -106,37 +191,37 @@ export function osmTagsToAdmissionFacts(
     } else if (OSM_INFORMATION_TOURISM_VALUES.has(value)) {
       exclusions.push('INFORMATION_OR_SIGNAGE');
     } else if (OSM_VISITOR_DESTINATION_TOURISM_VALUES.has(value)) {
-      signals.push(admissionSignal('EXPLICIT_VISITOR_CLASSIFICATION'));
+      addSignal('EXPLICIT_VISITOR_CLASSIFICATION', 'tourism', value);
       placeClasses.push(`tourism:${value}`);
     } else {
       // `tourism=artwork`, `tourism=yes` and any other value that does not
       // denote a standalone visitor destination is supporting evidence only.
-      signals.push(admissionSignal('VISITABLE_PLACE_CLASS'));
+      addSignal('VISITABLE_PLACE_CLASS', 'tourism', value);
       placeClasses.push(`tourism:${value}`);
     }
   }
 
   if (t.historic !== undefined) {
-    signals.push(admissionSignal('HISTORIC_CLASSIFICATION'));
+    addSignal('HISTORIC_CLASSIFICATION', 'historic', t.historic);
     placeClasses.push(`historic:${t.historic}`);
   }
   if (t.heritage !== undefined) {
-    signals.push(admissionSignal('HERITAGE_DESIGNATION'));
+    addSignal('HERITAGE_DESIGNATION', 'heritage', t.heritage);
   }
   if (t.amenity !== undefined && OSM_VISITABLE_AMENITY_VALUES.has(t.amenity)) {
-    signals.push(admissionSignal('VISITABLE_PLACE_CLASS'));
+    addSignal('VISITABLE_PLACE_CLASS', 'amenity', t.amenity);
     placeClasses.push(`amenity:${t.amenity}`);
   }
   if (t.leisure !== undefined && OSM_VISITABLE_LEISURE_VALUES.has(t.leisure)) {
-    signals.push(admissionSignal('VISITABLE_PLACE_CLASS'));
+    addSignal('VISITABLE_PLACE_CLASS', 'leisure', t.leisure);
     placeClasses.push(`leisure:${t.leisure}`);
   }
   if (t.natural === 'beach') {
-    signals.push(admissionSignal('VISITABLE_PLACE_CLASS'));
+    addSignal('VISITABLE_PLACE_CLASS', 'natural', t.natural);
     placeClasses.push('natural:beach');
   }
   if (t.highway === 'corridor') {
-    signals.push(admissionSignal('VISITABLE_PLACE_CLASS'));
+    addSignal('VISITABLE_PLACE_CLASS', 'highway', t.highway);
     placeClasses.push('highway:corridor');
   }
   if (t.wikidata !== undefined) {
@@ -146,7 +231,7 @@ export function osmTagsToAdmissionFacts(
     placeClasses.push('encyclopedic_link');
   }
 
-  return { signals, exclusions, placeClasses };
+  return { signals, signalEvidence, exclusions, placeClasses };
 }
 
 /**

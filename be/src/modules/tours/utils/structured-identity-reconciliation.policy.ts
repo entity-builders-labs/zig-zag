@@ -8,6 +8,8 @@
  */
 
 export type ReconciliationOsmType = 'node' | 'way' | 'relation';
+export const STRUCTURED_IDENTITY_RECONCILIATION_VERSION =
+  'structured-identity-v1';
 
 export type ReconciliationGeometry =
   | { kind: 'POINT'; latitude: number; longitude: number }

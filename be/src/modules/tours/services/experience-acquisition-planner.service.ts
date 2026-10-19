@@ -15,6 +15,7 @@ import { lookupSourceCapabilityRoute } from '../constants/acquisition-source-rou
 import { candidateMatchesPreferenceFacet } from '../utils/preference-facet-matching.util';
 import { ResolvedAnchor } from '../interfaces/preference-spec.interface';
 import { deriveAcquisitionEvidenceRequirements } from '../utils/acquisition-evidence-requirement.util';
+import { ExperienceAcquisitionRouter } from './experience-acquisition-router.service';
 
 /**
  * `AcquisitionDeficit` is a discriminated union -- only `preference_facet`
@@ -50,6 +51,8 @@ export interface BuildPlanInput {
 
 @Injectable()
 export class ExperienceAcquisitionPlannerService {
+  private readonly acquisitionRouter = new ExperienceAcquisitionRouter();
+
   private readonly logger = new Logger(
     ExperienceAcquisitionPlannerService.name,
   );
@@ -143,8 +146,15 @@ export class ExperienceAcquisitionPlannerService {
     const placesTypes = new Set<string>();
     const webKeywords = new Set<string>();
     let hasRoutableDeficit = false;
+    const hasDestinationPlaceGap = deficits.some(
+      (deficit) => deficit.origin === 'global_capacity',
+    );
 
     for (const deficit of deficits) {
+      if (deficit.origin === 'global_capacity') {
+        hasRoutableDeficit = true;
+        continue;
+      }
       const route = lookupSourceCapabilityRoute(
         deficitDimension(deficit),
         deficitKey(deficit),
@@ -180,19 +190,24 @@ export class ExperienceAcquisitionPlannerService {
 
     const sourcePlans: SourcePlan[] = [];
     const destName = input.destination.destinationName?.trim() || '';
-    const hasResolvedDestinationWindow =
-      Number.isFinite(input.destination.latitude) &&
-      Number.isFinite(input.destination.longitude) &&
-      Number.isFinite(input.destination.radiusMeters) &&
-      (input.destination.radiusMeters ?? 0) > 0;
-
-    // Physical-candidate gaps use destination-bounded structured discovery
-    // before preference/editorial strategies. The radius is supplied by
-    // destination resolution; this planner never invents a search window.
-    if (hasResolvedDestinationWindow) {
+    const placeRoute = hasDestinationPlaceGap
+      ? this.acquisitionRouter.route({
+          gapType: 'PLACE_CANDIDATES',
+          destination: input.destination,
+          availability: { openstreetmap: true, wikidata: false },
+        })
+      : undefined;
+    const structuredPoiStrategy = placeRoute?.strategies.find(
+      (strategy) => strategy.sourceClass === 'STRUCTURED_POI',
+    );
+    if (structuredPoiStrategy && placeRoute) {
       sourcePlans.push({
         provider: 'structured_poi',
-        structuredPoi: { radiusMeters: input.destination.radiusMeters! },
+        structuredPoi: {
+          radiusMeters: input.destination.radiusMeters!,
+          sourceClass: 'STRUCTURED_POI',
+          routingPolicyVersion: placeRoute.policyVersion,
+        },
       });
     }
     const relevantArticleTargets = [

@@ -6,13 +6,19 @@ import {
   IdentityLinkRule,
   OpeningHoursStatus,
   VisitUnitClassification,
+  Prisma,
 } from '@prisma/client';
 import { PrismaService } from '@core/database/prisma.service';
 import {
   StructuredPlaceAdmissionRecord,
   rejectionReason,
 } from '../admission/structured-place-admission';
-import { AdmissionExclusionClass } from '../admission/structured-admission-policy';
+import {
+  AdmissionExclusionClass,
+  AdmissionSignalEvidence,
+  isAdmissionExclusionPersisted,
+  isRouteExclusion,
+} from '../admission/structured-admission-policy';
 
 /**
  * Persists the GeoEntity-keyed structured knowledge of design C14 (task 39.1):
@@ -54,6 +60,10 @@ export interface IdentityLinkInput {
 export interface AdmissionProvenance {
   provider: string;
   externalId?: string;
+  identities?: Array<{ provider: string; externalId: string }>;
+  signalEvidence?: Array<
+    AdmissionSignalEvidence & { provider: string; externalId: string }
+  >;
 }
 
 function toAdmissionOutcome(
@@ -69,8 +79,8 @@ function toAdmissionOutcome(
 function toAdmissionExclusion(
   klass: AdmissionExclusionClass,
 ): AdmissionExclusion | undefined {
-  if (klass === 'SUB_FEATURE') return undefined;
-  if (klass === 'ROAD_OR_ROUTE') return 'ROAD_OR_ROUTE_AS_PLACE';
+  if (!isAdmissionExclusionPersisted(klass)) return undefined;
+  if (isRouteExclusion(klass)) return 'ROAD_OR_ROUTE_AS_PLACE';
   return klass as AdmissionExclusion;
 }
 
@@ -87,10 +97,20 @@ export class StructuredKnowledgePersistenceService {
     const evidence = {
       provider: provenance.provider,
       ...(provenance.externalId ? { externalId: provenance.externalId } : {}),
+      ...(provenance.identities ? { identities: provenance.identities } : {}),
+      signalEvidence:
+        provenance.signalEvidence ??
+        (provenance.externalId
+          ? record.signalEvidence.map((fact) => ({
+              ...fact,
+              provider: provenance.provider,
+              externalId: provenance.externalId!,
+            }))
+          : []),
       signals: record.signals,
       exclusions: record.exclusions,
       policyVersion: record.policyVersion,
-    };
+    } as unknown as Prisma.InputJsonValue;
     await this.prisma.geoEntityAdmission.upsert({
       where: { geoEntityId },
       create: {

@@ -6,6 +6,9 @@ import {
   VisitUnit,
 } from './structured-admission-policy';
 
+export const PARENT_SITE_VISIT_UNIT_POLICY_VERSION =
+  'parent-site-visit-unit-v1';
+
 /**
  * Parent/child visit-unit policy (design C5, R4-D2 RESOLVED). Decides whether
  * a child place is its own schedulable Experience or is represented by a

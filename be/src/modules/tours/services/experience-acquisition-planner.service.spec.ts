@@ -304,8 +304,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
     expect(plan.sourcePlans).toHaveLength(0);
   });
 
-  // Generic/dimensionless deficit conservative fallback
-  it('routes generic/dimensionless deficits to conservative Wikivoyage + Web fallback without OSM or Places pollution', () => {
+  it('does not route a candidate-supply gap to research when destination scope is unresolved', () => {
     const plan = service.buildAcquisitionPlan({
       destination: { destinationName: 'Salta' },
       deficits: [
@@ -318,17 +317,7 @@ describe('ExperienceAcquisitionPlannerService', () => {
       ],
     });
 
-    expect(findPlan(plan, 'google_places')).toBeUndefined();
-
-    const wv = findPlan(plan, 'wikivoyage');
-    expect(wv).toBeDefined();
-    expect(wv?.wikivoyage.sections).toEqual(['SEE', 'DO', 'EAT']);
-
-    const web = findPlan(plan, 'web');
-    expect(web).toBeDefined();
-    expect(web?.web.query).toContain('Salta');
-    expect(web?.web.query).toContain('top attractions');
-    expect(web?.web.query).toContain('things to do');
+    expect(plan.sourcePlans).toEqual([]);
   });
 
   it('preserves BOTH anchor names for a multi-anchor walk deficit, never collapsing to one (Task B5)', () => {

@@ -7,6 +7,29 @@ import {
   SourceObservation,
 } from '../interfaces/experience-acquisition.interface';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
+import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
+import {
+  OsmAdmissionFacts,
+  OsmVisitDurationEvidence,
+  OsmVisitUnitFacts,
+  osmTagsToAdmissionFacts,
+  osmTagsToOpeningHoursEvidence,
+  osmTagsToVisitDurationEvidence,
+  osmTagsToVisitUnitFacts,
+} from '@integrations/osm/utils/osm-admission-adapter';
+
+export interface StructuredPoiCandidate extends SourceObservation {
+  osmType: OsmCandidate['osmType'];
+  osmId: number;
+  tags: Record<string, string>;
+  osmGeometry: OsmCandidate['geometry'];
+  memberIds?: string[];
+  identityMemberIds?: string[];
+  admissionFacts: OsmAdmissionFacts;
+  openingHoursEvidence?: string;
+  visitUnitFacts: OsmVisitUnitFacts;
+  visitDurationEvidence?: OsmVisitDurationEvidence;
+}
 
 function discoverySelectors(): OverpassSelector[] {
   return OSM_ADMISSION_DISCOVERY_SELECTORS.flatMap((selector) => {
@@ -27,7 +50,7 @@ export class StructuredPoiAcquisitionProvider {
   async acquire(
     destination: ExperienceDiscoveryScope,
     options: { radiusMeters: number },
-  ): Promise<AcquisitionProviderResult<SourceObservation>> {
+  ): Promise<AcquisitionProviderResult<StructuredPoiCandidate>> {
     const { latitude, longitude } = destination;
     if (
       !Number.isFinite(latitude) ||
@@ -63,7 +86,7 @@ export class StructuredPoiAcquisitionProvider {
     }
 
     const value = lookup.value.map(
-      (candidate): SourceObservation => ({
+      (candidate): StructuredPoiCandidate => ({
         provider: 'structured_poi',
         externalId: candidate.id,
         title: candidate.name,
@@ -88,6 +111,16 @@ export class StructuredPoiAcquisitionProvider {
         canonicalIdentity: {
           wikidataQid: candidate.tags.wikidata,
         },
+        osmType: candidate.osmType,
+        osmId: candidate.osmId,
+        tags: candidate.tags,
+        osmGeometry: candidate.geometry,
+        memberIds: candidate.memberIds,
+        identityMemberIds: candidate.identityMemberIds,
+        admissionFacts: osmTagsToAdmissionFacts(candidate.tags),
+        openingHoursEvidence: osmTagsToOpeningHoursEvidence(candidate.tags),
+        visitUnitFacts: osmTagsToVisitUnitFacts(candidate.tags),
+        visitDurationEvidence: osmTagsToVisitDurationEvidence(candidate.tags),
         originationCapabilities: [],
       }),
     );

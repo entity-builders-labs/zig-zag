@@ -504,6 +504,10 @@ describe('OsmPlacesService', () => {
           type: 'relation',
           id: 3,
           tags: { name: 'Parque Lezama', leisure: 'park' },
+          members: [
+            { type: 'node', ref: 1, role: '' },
+            { type: 'node', ref: 2, role: 'label' },
+          ],
           center: { lat: -34.628, lon: -58.369 },
         },
       ]);
@@ -519,7 +523,12 @@ describe('OsmPlacesService', () => {
       expect(result.rawResultCount).toBe(3); // raw Overpass count, pre-filter
       expect(result.value).toEqual([
         expect.objectContaining({ id: 'osm:node:1', osmType: 'node' }),
-        expect.objectContaining({ id: 'osm:relation:3', osmType: 'relation' }),
+        expect.objectContaining({
+          id: 'osm:relation:3',
+          osmType: 'relation',
+          memberIds: ['osm:node:1', 'osm:node:2'],
+          identityMemberIds: ['osm:node:2'],
+        }),
       ]);
       expect(result.value).toHaveLength(2); // candidateCount after filtering
     });

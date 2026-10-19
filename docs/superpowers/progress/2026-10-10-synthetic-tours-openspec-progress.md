@@ -93,8 +93,8 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current checkpoint
 
 **OS6 — revision 4 cutover contract planned, including the planning
-amendment (2026-10-11); tasks 39.0/39.1 are now active from checkpoint
-`bc83614f`.**
+amendment (2026-10-11); tasks 39.0/39.1 completed locally from checkpoint
+`1c75e5a7` after preserving `bc83614f`.**
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -192,13 +192,15 @@ amendment (2026-10-11); tasks 39.0/39.1 are now active from checkpoint
 
 ## Next authorized action
 
-Complete only OpenSpec tasks 39.0 and 39.1, as explicitly resumed by the owner
-on 2026-10-19. The disposable database is `zigzag_39_test`; preserve checkpoint
-`bc83614f`. Task 39.0's C14 migration has been applied cleanly and its direct
-database constraint tests pass. Task 39.1 is in progress: a destination-bounded
-`structured_poi` acquisition source and OSM adapter were added, but direct
-candidate-level identity/visit-unit/admission persistence and the required
-end-to-end DB integration matrix remain pending. Do not start task 40.
+Tasks 39.0 and 39.1 completed and validated on 2026-10-19 against the disposable
+database `zigzag_39_test`. C14 migration reset and generation passed; the
+production destination-scope `STRUCTURED_POI` path now discovers and persists
+structured candidates without an Experience proposal, using canonical C8
+identity, C5 visit-unit, and C7 admission policies. DB integration coverage
+verified admission/provenance, identity evidence, PART_OF relations, opening
+hours, explicit-only durations, provider failure semantics, and zero
+LLM/search/fetch calls. Do not start task 40. Completion commit, final preflight,
+and authorized push remain pending.
 
 37.1/37.2 done (2026-10-19): canonical structured admission policy +
 OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope

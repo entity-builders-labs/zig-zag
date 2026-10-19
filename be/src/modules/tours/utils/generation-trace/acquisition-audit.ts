@@ -368,6 +368,9 @@ export function recordAcquisitionLifecycle(
       sourcePlans: plan.sourcePlans.map((sp: SourcePlan) => ({
         provider: sp.provider,
         ...(sp.provider === 'google_places' ? { places: sp.places } : {}),
+        ...(sp.provider === 'structured_poi'
+          ? { structuredPoi: sp.structuredPoi }
+          : {}),
         ...(sp.provider === 'wikivoyage' ? { wikivoyage: sp.wikivoyage } : {}),
         ...(sp.provider === 'web' ? { web: sp.web } : {}),
       })),

@@ -69,6 +69,8 @@ export interface WebSourcePlanPayload {
 export interface StructuredPoiSourcePlanPayload {
   /** An explicit caller-resolved destination window; never defaulted here. */
   radiusMeters: number;
+  sourceClass: 'STRUCTURED_POI';
+  routingPolicyVersion: string;
 }
 
 export interface WikivoyageSourcePlan {

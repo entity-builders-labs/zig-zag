@@ -77,6 +77,10 @@ import {
 } from './atomized-source-unit-extractor';
 import { isAtomizableSourceUnit } from '../utils/atomized-candidate-mapping.util';
 import { StructuredPoiAcquisitionProvider } from '../providers/structured-poi-acquisition.provider';
+import {
+  StructuredPoiCatalogAcquisitionService,
+  StructuredPoiPersistenceResult,
+} from './structured-poi-catalog-acquisition.service';
 
 function relevantDeficitsFor(
   sourcePlan: SourcePlan,
@@ -428,6 +432,7 @@ export interface ExecuteAcquisitionPlanResult {
     rejectedOriginations: CorroborationMergeResult['rejectedOriginations'];
     pairDecisionSummary: StructuredPairDecisionSummary;
   };
+  structuredPoiPersistence?: StructuredPoiPersistenceResult;
   structuredCandidateCount?: number;
   webCandidateCount?: number;
   evidence?: ResolverEvidenceItem[];
@@ -546,6 +551,8 @@ export class ExperienceAcquisitionService {
     private readonly atomizedUnitExtractor?: AtomizedSourceUnitExtractor,
     @Optional()
     private readonly structuredPoiProvider?: StructuredPoiAcquisitionProvider,
+    @Optional()
+    private readonly structuredPoiCatalog?: StructuredPoiCatalogAcquisitionService,
   ) {}
 
   async executePlan(
@@ -608,6 +615,7 @@ export class ExperienceAcquisitionService {
       >
     > = {};
     const allObservations: SourceObservation[] = [];
+    let structuredPoiPersistence: StructuredPoiPersistenceResult | undefined;
 
     for (const sourcePlan of sourcePlans) {
       if (
@@ -619,9 +627,40 @@ export class ExperienceAcquisitionService {
             plan.destination,
             sourcePlan.structuredPoi,
           );
-          providerResults.structured_poi = res;
           if (res.status === 'success' && res.value.length > 0) {
-            allObservations.push(...res.value);
+            if (!this.structuredPoiCatalog) {
+              providerResults.structured_poi = {
+                status: 'failed',
+                value: [],
+                failureReason:
+                  'Structured POI catalog persistence service is unavailable',
+                provenance: {
+                  sourceClass: 'STRUCTURED_POI',
+                  status: 'FAILED',
+                },
+              };
+            } else {
+              structuredPoiPersistence =
+                await this.structuredPoiCatalog.persist(res.value);
+              providerResults.structured_poi = {
+                ...res,
+                provenance: {
+                  ...res.provenance,
+                  persistence: {
+                    status: structuredPoiPersistence.status,
+                    canonicalCount: structuredPoiPersistence.canonicalCount,
+                    persistedCount: structuredPoiPersistence.persistedCount,
+                    excludedCount: structuredPoiPersistence.excludedCount,
+                    candidateOutcomes:
+                      structuredPoiPersistence.candidateOutcomes,
+                    possibleDuplicates:
+                      structuredPoiPersistence.possibleDuplicates,
+                  },
+                },
+              };
+            }
+          } else {
+            providerResults.structured_poi = res;
           }
         } catch (error: any) {
           this.logger.warn(
@@ -772,6 +811,7 @@ export class ExperienceAcquisitionService {
       candidates: [...structuredCandidates, ...webCandidates],
       observations: allObservations,
       providerResults,
+      structuredPoiPersistence,
       webResults: webResults.length > 0 ? webResults : undefined,
       structuredCandidateCount: structuredCandidates.length,
       webCandidateCount: webCandidates.length,

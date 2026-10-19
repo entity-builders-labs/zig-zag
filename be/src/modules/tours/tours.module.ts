@@ -51,7 +51,9 @@ import { GooglePlacesAcquisitionProvider } from './providers/google-places-acqui
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
 import { StructuredPoiAcquisitionProvider } from './providers/structured-poi-acquisition.provider';
+import { StructuredPoiCatalogAcquisitionService } from './services/structured-poi-catalog-acquisition.service';
 import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
+import { ExperienceAcquisitionRouter } from './services/experience-acquisition-router.service';
 import { ExperienceClassificationService } from './services/experience-classification.service';
 import { AreaRouteAnchorResolverService } from './services/area-route-anchor-resolver.service';
 import { AreaRouteWalkAcquisitionService } from './services/area-route-walk-acquisition.service';
@@ -159,7 +161,9 @@ import { MediaModule } from '../media/media.module';
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
     StructuredPoiAcquisitionProvider,
+    StructuredPoiCatalogAcquisitionService,
     ExperienceAcquisitionPlannerService,
+    ExperienceAcquisitionRouter,
     ExperienceClassificationService,
     AreaRouteAnchorResolverService,
     AreaRouteWalkAcquisitionService,

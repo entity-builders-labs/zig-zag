@@ -258,7 +258,7 @@ describe('sanitizeOverpassTagToken', () => {
 describe('buildFeaturesNearQuery', () => {
   const base = { latitude: -34.6037, longitude: -58.3816, radiusMeters: 3000 };
 
-  it('builds one bounded union query with out tags center', () => {
+  it('builds one bounded union query and preserves relation members', () => {
     const query = buildFeaturesNearQuery({
       ...base,
       selectors: [{ key: 'tourism', value: 'museum', requireName: true }],
@@ -268,7 +268,7 @@ describe('buildFeaturesNearQuery', () => {
     expect(query).toContain(
       'nwr["tourism"="museum"]["name"](around:3000,-34.6037,-58.3816);',
     );
-    expect(query.trimEnd().endsWith('out tags center;')).toBe(true);
+    expect(query.trimEnd().endsWith('out body center;')).toBe(true);
     expect(query).not.toContain('out geom');
   });
 
