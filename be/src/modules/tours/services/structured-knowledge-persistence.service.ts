@@ -36,7 +36,10 @@ export interface OpeningHoursInput {
 export interface RelationInput {
   childId: string;
   parentId: string;
-  evidenceSource: 'PROVIDER_SITE_MEMBERSHIP' | 'ENCYCLOPEDIC_PART_OF' | 'DECLARED_CONTAINMENT';
+  evidenceSource:
+    | 'PROVIDER_SITE_MEMBERSHIP'
+    | 'ENCYCLOPEDIC_PART_OF'
+    | 'DECLARED_CONTAINMENT';
   evidence: unknown;
   visitUnitClassification?: VisitUnitClassification;
   classificationVersion?: string;
@@ -46,6 +49,11 @@ export interface IdentityLinkInput {
   linkRule: IdentityLinkRule;
   linkPolicyVersion: string;
   linkEvidence: unknown;
+}
+
+export interface AdmissionProvenance {
+  provider: string;
+  externalId?: string;
 }
 
 function toAdmissionOutcome(
@@ -74,7 +82,15 @@ export class StructuredKnowledgePersistenceService {
   async upsertAdmission(
     geoEntityId: string,
     record: StructuredPlaceAdmissionRecord,
+    provenance: AdmissionProvenance,
   ): Promise<void> {
+    const evidence = {
+      provider: provenance.provider,
+      ...(provenance.externalId ? { externalId: provenance.externalId } : {}),
+      signals: record.signals,
+      exclusions: record.exclusions,
+      policyVersion: record.policyVersion,
+    };
     await this.prisma.geoEntityAdmission.upsert({
       where: { geoEntityId },
       create: {
@@ -86,7 +102,7 @@ export class StructuredKnowledgePersistenceService {
           .map(toAdmissionExclusion)
           .filter((e): e is AdmissionExclusion => e !== undefined),
         policyVersion: record.policyVersion,
-        evidence: {},
+        evidence,
         evaluatedAt: new Date(),
       },
       update: {
@@ -97,6 +113,7 @@ export class StructuredKnowledgePersistenceService {
           .map(toAdmissionExclusion)
           .filter((e): e is AdmissionExclusion => e !== undefined),
         policyVersion: record.policyVersion,
+        evidence,
         evaluatedAt: new Date(),
       },
     });

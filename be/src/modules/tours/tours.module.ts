@@ -50,6 +50,7 @@ import { WikivoyageAcquisitionProvider } from './providers/wikivoyage-acquisitio
 import { GooglePlacesAcquisitionProvider } from './providers/google-places-acquisition.provider';
 import { StructuredExperienceCandidateSynthesizerService } from './services/structured-experience-candidate-synthesizer.service';
 import { StructuredCandidateCorroborationService } from './services/structured-candidate-corroboration.service';
+import { StructuredPoiAcquisitionProvider } from './providers/structured-poi-acquisition.provider';
 import { ExperienceAcquisitionPlannerService } from './services/experience-acquisition-planner.service';
 import { ExperienceClassificationService } from './services/experience-classification.service';
 import { AreaRouteAnchorResolverService } from './services/area-route-anchor-resolver.service';
@@ -157,6 +158,7 @@ import { MediaModule } from '../media/media.module';
     },
     StructuredExperienceCandidateSynthesizerService,
     StructuredCandidateCorroborationService,
+    StructuredPoiAcquisitionProvider,
     ExperienceAcquisitionPlannerService,
     ExperienceClassificationService,
     AreaRouteAnchorResolverService,

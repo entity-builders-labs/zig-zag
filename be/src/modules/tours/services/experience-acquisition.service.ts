@@ -76,6 +76,7 @@ import {
   AtomizedSourceUnitExtractor,
 } from './atomized-source-unit-extractor';
 import { isAtomizableSourceUnit } from '../utils/atomized-candidate-mapping.util';
+import { StructuredPoiAcquisitionProvider } from '../providers/structured-poi-acquisition.provider';
 
 function relevantDeficitsFor(
   sourcePlan: SourcePlan,
@@ -543,6 +544,8 @@ export class ExperienceAcquisitionService {
     @Optional()
     @Inject(ATOMIZED_SOURCE_UNIT_EXTRACTOR)
     private readonly atomizedUnitExtractor?: AtomizedSourceUnitExtractor,
+    @Optional()
+    private readonly structuredPoiProvider?: StructuredPoiAcquisitionProvider,
   ) {}
 
   async executePlan(
@@ -607,7 +610,42 @@ export class ExperienceAcquisitionService {
     const allObservations: SourceObservation[] = [];
 
     for (const sourcePlan of sourcePlans) {
-      if (sourcePlan.provider === 'wikivoyage' && this.wikivoyageProvider) {
+      if (
+        sourcePlan.provider === 'structured_poi' &&
+        this.structuredPoiProvider
+      ) {
+        try {
+          const res = await this.structuredPoiProvider.acquire(
+            plan.destination,
+            sourcePlan.structuredPoi,
+          );
+          providerResults.structured_poi = res;
+          if (res.status === 'success' && res.value.length > 0) {
+            allObservations.push(...res.value);
+          }
+        } catch (error: any) {
+          this.logger.warn(
+            `Structured POI acquisition threw: ${error?.message ?? String(error)}`,
+          );
+          providerResults.structured_poi = {
+            status: 'failed',
+            value: [],
+            failureReason:
+              error?.message ?? 'Structured POI acquisition failed',
+            provenance: { sourceClass: 'STRUCTURED_POI', status: 'FAILED' },
+          };
+        }
+      } else if (sourcePlan.provider === 'structured_poi') {
+        providerResults.structured_poi = {
+          status: 'failed',
+          value: [],
+          failureReason: 'Structured POI acquisition provider is unavailable',
+          provenance: { sourceClass: 'STRUCTURED_POI', status: 'FAILED' },
+        };
+      } else if (
+        sourcePlan.provider === 'wikivoyage' &&
+        this.wikivoyageProvider
+      ) {
         try {
           const res = await this.wikivoyageProvider.acquire(
             plan.destination.destinationName,

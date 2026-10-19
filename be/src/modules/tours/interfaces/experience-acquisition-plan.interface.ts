@@ -66,6 +66,11 @@ export interface WebSourcePlanPayload {
   anchorNames?: string[];
 }
 
+export interface StructuredPoiSourcePlanPayload {
+  /** An explicit caller-resolved destination window; never defaulted here. */
+  radiusMeters: number;
+}
+
 export interface WikivoyageSourcePlan {
   provider: 'wikivoyage';
   wikivoyage: WikivoyageSourcePlanPayload;
@@ -81,9 +86,16 @@ export interface WebSourcePlan {
   web: WebSourcePlanPayload;
 }
 
+/** Destination-bounded structured physical-place discovery capability. */
+export interface StructuredPoiSourcePlan {
+  provider: 'structured_poi';
+  structuredPoi: StructuredPoiSourcePlanPayload;
+}
+
 export type SourcePlan =
   | WikivoyageSourcePlan
   | GooglePlacesSourcePlan
+  | StructuredPoiSourcePlan
   | WebSourcePlan;
 
 export interface ExperienceAcquisitionPlan {

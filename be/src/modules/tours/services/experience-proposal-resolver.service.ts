@@ -76,6 +76,7 @@ import {
   StructuredPlaceAdmissionRecord,
 } from '../admission/structured-place-admission';
 import { StructuredKnowledgePersistenceService } from './structured-knowledge-persistence.service';
+import { osmTagsToOpeningHoursEvidence } from '@integrations/osm/utils/osm-admission-adapter';
 import { persistableUnresolvedReason } from '../utils/component-deficit-classification.policy';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { calculateDistance } from '@shared/utils/distance.utils';
@@ -2211,12 +2212,19 @@ export class ExperienceProposalResolverService
         continue;
       }
       if (entity.role !== 'venue' && entity.role !== 'waypoint') continue;
-      if (!entity.tags || Object.keys(entity.tags).length === 0) continue;
       const record = evaluateStructuredPlaceAdmission({ tags: entity.tags });
-      if (record.signals.length === 0 && record.exclusions.length === 0) {
-        continue;
+      await this.knowledge.upsertAdmission(entity.geoEntityId, record, {
+        provider: entity.provider,
+        externalId: entity.externalId,
+      });
+      const openingHoursEvidence = osmTagsToOpeningHoursEvidence(entity.tags);
+      if (openingHoursEvidence) {
+        await this.knowledge.upsertOpeningHours(entity.geoEntityId, {
+          source: 'openstreetmap',
+          sourceRecordRef: entity.externalId,
+          sourceRaw: openingHoursEvidence,
+        });
       }
-      await this.knowledge.upsertAdmission(entity.geoEntityId, record);
     }
   }
 

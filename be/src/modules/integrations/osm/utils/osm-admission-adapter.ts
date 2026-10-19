@@ -73,6 +73,14 @@ export interface OsmAdmissionFacts {
   placeClasses: CanonicalPlaceClass[];
 }
 
+/** Preserve explicit OSM opening-hours evidence without guessing a parser or timezone. */
+export function osmTagsToOpeningHoursEvidence(
+  tags: Record<string, string> | undefined,
+): string | undefined {
+  const raw = tags?.opening_hours?.trim();
+  return raw || undefined;
+}
+
 export function osmTagsToAdmissionFacts(
   tags: Record<string, string> | undefined,
 ): OsmAdmissionFacts {

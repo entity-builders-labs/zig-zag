@@ -180,6 +180,21 @@ export class ExperienceAcquisitionPlannerService {
 
     const sourcePlans: SourcePlan[] = [];
     const destName = input.destination.destinationName?.trim() || '';
+    const hasResolvedDestinationWindow =
+      Number.isFinite(input.destination.latitude) &&
+      Number.isFinite(input.destination.longitude) &&
+      Number.isFinite(input.destination.radiusMeters) &&
+      (input.destination.radiusMeters ?? 0) > 0;
+
+    // Physical-candidate gaps use destination-bounded structured discovery
+    // before preference/editorial strategies. The radius is supplied by
+    // destination resolution; this planner never invents a search window.
+    if (hasResolvedDestinationWindow) {
+      sourcePlans.push({
+        provider: 'structured_poi',
+        structuredPoi: { radiusMeters: input.destination.radiusMeters! },
+      });
+    }
     const relevantArticleTargets = [
       destName,
       ...(input.anchors ?? [])

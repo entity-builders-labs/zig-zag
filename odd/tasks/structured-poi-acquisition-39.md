@@ -223,3 +223,21 @@ missing/implemented persistence paths
 commit SHAs
 remaining blockers before task 40
 ```
+
+### L5 — Resume implementation verification (2026-10-19)
+
+- Re-ran `scripts/agent-preflight`: WRITE AUTHORIZED and INTEGRATION READY.
+- Verified `zigzag_39_test` with the repository disposable-name guard; Prisma
+  reset applied the full migration chain, including C14, from an empty schema.
+- `prisma:generate` passed. Added real-Postgres C14 CHECK/uniqueness/cascade
+  coverage; its three tests pass. Targeted structured-POI and persistence unit
+  tests pass, and `yarn typecheck` passed before the latest integration rerun.
+- Began task 39.1 by adding a destination-bounded `structured_poi` source plan,
+  OSM adapter provider, typed failure handling, admission provenance, and raw
+  opening-hours evidence persistence. Task 39.1 remains incomplete: the
+  production path still needs direct candidate-level identity/visit-unit/
+  admission persistence and its required end-to-end DB integration matrix.
+- The last combined integration run exposed a failing canonical orchestration
+  fixture after routing was enabled; the fixture was then updated to provide a
+  structured OSM feature, but that update has not yet been verified.
+- No completion commit or push was created; 39.0 and 39.1 remain unchecked.

@@ -28,6 +28,12 @@ describe('tour-generation integration · canonical orchestration', () => {
   });
 
   it('acquires from a structured source AND a web SourcePlan, persists, re-queries and plans a Tour', async () => {
+    const structuredPoi = osmPoi(
+      'Structured standalone museum',
+      DEST.latitude + 0.0008,
+      DEST.longitude + 0.0008,
+      { tourism: 'museum', opening_hours: 'Mo-Fr 10:00-18:00' },
+    );
     harness.configure({
       wikivoyage: {
         status: 'ok',
@@ -62,7 +68,9 @@ describe('tour-generation integration · canonical orchestration', () => {
         ],
       },
       osm: {
+        features: [structuredPoi],
         pois: [
+          structuredPoi,
           osmPoi('Museo Histórico Nacional', DEST.latitude, DEST.longitude),
           osmPoi(
             'San Telmo colonial history walk',
@@ -139,6 +147,12 @@ describe('tour-generation integration · canonical orchestration', () => {
     }
 
     // ── Both acquisition channels were exercised ──
+    expect(harness.fakes.osm.lookupFeaturesNear).toHaveBeenCalledWith(
+      DEST.latitude,
+      DEST.longitude,
+      12000,
+      expect.any(Array),
+    );
     expect(harness.fakes.wikivoyage.fetchArticle).toHaveBeenCalled();
     expect(harness.fakes.groundedSearch.search).toHaveBeenCalled();
     expect(

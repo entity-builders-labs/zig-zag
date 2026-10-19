@@ -1,6 +1,7 @@
 import { AcquisitionEvidenceRequirement } from './acquisition-evidence-requirement.interface';
 
 export type ExperienceAcquisitionProvider =
+  | 'structured_poi'
   | 'wikivoyage'
   | 'wikidata'
   | 'google_places'

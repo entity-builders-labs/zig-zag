@@ -16,13 +16,20 @@ describe('StructuredKnowledgePersistenceService', () => {
     const record = evaluateStructuredPlaceAdmission({
       tags: { tourism: 'museum' },
     });
-    await svc.upsertAdmission('geo-1', record);
+    await svc.upsertAdmission('geo-1', record, {
+      provider: 'openstreetmap',
+      externalId: 'osm:node:1',
+    });
     expect(prisma.geoEntityAdmission.upsert).toHaveBeenCalledWith(
       expect.objectContaining({
         where: { geoEntityId: 'geo-1' },
         create: expect.objectContaining({
           outcome: 'ADMITTED',
           signals: ['EXPLICIT_VISITOR_CLASSIFICATION'],
+          evidence: expect.objectContaining({
+            provider: 'openstreetmap',
+            externalId: 'osm:node:1',
+          }),
         }),
       }),
     );
@@ -34,7 +41,7 @@ describe('StructuredKnowledgePersistenceService', () => {
     const record = evaluateStructuredPlaceAdmission({
       tags: { highway: 'residential' },
     });
-    await svc.upsertAdmission('geo-1', record);
+    await svc.upsertAdmission('geo-1', record, { provider: 'openstreetmap' });
     const call = prisma.geoEntityAdmission.upsert.mock.calls[0][0];
     expect(call.create.outcome).toBe('EXCLUDED_CATEGORY');
     expect(call.create.exclusions).toEqual(['ROAD_OR_ROUTE_AS_PLACE']);
@@ -46,7 +53,7 @@ describe('StructuredKnowledgePersistenceService', () => {
     const record = evaluateStructuredPlaceAdmission({
       tags: { tourism: 'artwork' },
     });
-    await svc.upsertAdmission('geo-1', record);
+    await svc.upsertAdmission('geo-1', record, { provider: 'openstreetmap' });
     const call = prisma.geoEntityAdmission.upsert.mock.calls[0][0];
     expect(call.create.outcome).toBe('INSUFFICIENT_ADMISSION_EVIDENCE');
     expect(call.create.exclusions).toEqual([]);
