@@ -52,7 +52,6 @@ export interface PlanningProjectableExperience {
   compositionSignature?: string | null;
   openingHours?: unknown;
   metadata?: {
-    openingHours?: unknown;
     mobility?: PersistedInternalMobility;
     [key: string]: unknown;
   } | null;
@@ -222,8 +221,8 @@ export class PlanningCandidateNormalizerService {
     const durationMinutes = structuredComponent
       ? usableStructuredDurationMinutes(experience)
       : usableLegacyDurationMinutes(experience);
-    // The `metadata.openingHours` read is the legacy hidden-metadata path the
-    // design removes from the structured single-place projection.
+    // Opening-hours decisions use typed Experience or GeoEntity knowledge;
+    // metadata is not a planning authority.
     const facts: PlanningVisitFacts = {
       duration: {
         minutes: durationMinutes!,
@@ -252,10 +251,7 @@ export class PlanningCandidateNormalizerService {
             structuredHours ?? null,
             context.days,
           )
-        : legacyOpeningHoursByDay(
-            experience.openingHours ?? experience.metadata?.openingHours,
-            context.days,
-          ),
+        : legacyOpeningHoursByDay(experience.openingHours, context.days),
     };
     const ordered = buildOrderedComponentsWithFootprints(
       (experience.components ?? []).filter(

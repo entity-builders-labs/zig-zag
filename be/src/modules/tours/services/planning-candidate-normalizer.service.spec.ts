@@ -200,6 +200,30 @@ describe('PlanningCandidateNormalizerService', () => {
     ]);
   });
 
+  it('does not read opening-hours facts from metadata', () => {
+    const experience: PlanningProjectableExperience = {
+      id: 'poi-metadata-hours',
+      durationMinutes: 60,
+      metadata: {
+        openingHours: {
+          status: 'known',
+          rangesByWeekday: {
+            1: [{ startMinutesFromMidnight: 600, endMinutesFromMidnight: 700 }],
+          },
+        },
+      },
+      components: [venue('g', 1, 2)],
+    };
+
+    expect(
+      normalize([
+        experience,
+      ]).candidates[0].components[0].visit?.openingHoursByDay.map(
+        (day) => day.status,
+      ),
+    ).toEqual(['UNKNOWN', 'UNKNOWN']);
+  });
+
   it('projects a composite as one candidate whose components keep their order', () => {
     const [candidate] = normalize([
       {
