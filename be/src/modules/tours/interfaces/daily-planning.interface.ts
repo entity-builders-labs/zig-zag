@@ -70,8 +70,19 @@ export interface LegacyExperienceDurationProvenance {
   evidenceBacked: false;
 }
 
-/** Group 27 adds the evidence-backed knowledge projection and FALLBACK_POLICY. */
-export type PlanningDurationProvenance = LegacyExperienceDurationProvenance;
+export interface GeoEntityVisitDurationProvenance {
+  source: 'GEO_ENTITY_VISIT_DURATION';
+  evidenceBacked: true;
+  geoEntityId: string;
+  authorityClass: string | null;
+  evidenceQuality: string | null;
+  evidence: unknown;
+  resolverVersion: string;
+  resolvedAt: string;
+}
+export type PlanningDurationProvenance =
+  | LegacyExperienceDurationProvenance
+  | GeoEntityVisitDurationProvenance;
 
 export interface PlanningDuration {
   minutes: number;
@@ -83,9 +94,20 @@ export interface LegacyExperienceOpeningHoursProvenance {
   evidenceBacked: false;
 }
 
-/** Group 26 adds GeoEntity opening-hours knowledge provenance. */
+export interface GeoEntityOpeningHoursProvenance {
+  source: 'GEO_ENTITY_OPENING_HOURS';
+  evidenceBacked: true;
+  geoEntityId: string;
+  provider: string;
+  sourceRecordRef: string | null;
+  parserVersion: string | null;
+  retrievedAt: string;
+  timezone: string | null;
+  scheduleVersion: number | null;
+}
 export type PlanningOpeningHoursProvenance =
-  LegacyExperienceOpeningHoursProvenance;
+  | LegacyExperienceOpeningHoursProvenance
+  | GeoEntityOpeningHoursProvenance;
 
 export interface PlanningOpeningWindow {
   startMinutesFromMidnight: number;

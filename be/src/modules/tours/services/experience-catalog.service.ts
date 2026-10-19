@@ -2,11 +2,13 @@ import { catalogMatchFacts } from '../utils/experience-match-facts.util';
 import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 import { Injectable, Inject, Logger, Optional } from '@nestjs/common';
 import {
+  ExperienceComponentParticipation,
   ExperienceComponentResolutionReason,
   ExperienceStatus,
   GeoEntityKind,
   Prisma,
 } from '@prisma/client';
+import { singlePlaceCompositionSignature } from '../utils/single-place-composition-signature.util';
 import { PrismaService } from '@core/database/prisma.service';
 import {
   IPlacesApiService,
@@ -291,6 +293,113 @@ export class ExperienceCatalogService {
     @Optional()
     private readonly corroborationService?: StructuredCandidateCorroborationService,
   ) {}
+
+  /**
+   * Materializes canonical one-place Experiences from admitted PLACE
+   * GeoEntities in a destination window. This is deliberately independent of
+   * source proposals, L2 assertions, and mutable enrichment facts.
+   */
+  async composeAdmittedPlacesWithinScope(input: {
+    latitude: number;
+    longitude: number;
+    radiusMeters: number;
+  }): Promise<string[]> {
+    const candidates = await this.prisma.$queryRaw<Array<{ id: string }>>`
+      SELECT g.id
+      FROM "geo_entity" g
+      JOIN "geo_entity_admission" a ON a."geoEntityId" = g.id
+      WHERE g.kind = ${GeoEntityKind.PLACE}::"GeoEntityKind"
+        AND a.outcome = 'ADMITTED'::"AdmissionOutcome"
+        AND g.latitude IS NOT NULL AND g.longitude IS NOT NULL
+        AND g.latitude BETWEEN -90 AND 90
+        AND g.longitude BETWEEN -180 AND 180
+        AND ST_DWithin(
+          ST_SetSRID(ST_MakePoint(g.longitude, g.latitude), 4326)::geography,
+          ST_SetSRID(ST_MakePoint(${input.longitude}::float8, ${input.latitude}::float8), 4326)::geography,
+          ${input.radiusMeters}::float8
+        )
+        AND NOT EXISTS (
+          SELECT 1 FROM "geo_entity_relation" r
+          WHERE r."childId" = g.id AND r.type = 'PART_OF'::"GeoEntityRelationType"
+            AND r."visitUnitClassification" IS DISTINCT FROM
+              'CHILD_INDEPENDENTLY_VISITABLE'::"VisitUnitClassification"
+        )
+      ORDER BY g.id`;
+
+    const composed: string[] = [];
+    for (const { id } of candidates) {
+      const signature = singlePlaceCompositionSignature(id);
+      await this.prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`experience:composition:${signature}`}))`;
+        const entity = await tx.geoEntity.findUnique({
+          where: { id },
+          include: { admission: true },
+        });
+        if (
+          !entity ||
+          entity.kind !== GeoEntityKind.PLACE ||
+          entity.admission?.outcome !== 'ADMITTED'
+        ) {
+          return;
+        }
+        const experience = await tx.experience.upsert({
+          where: { compositionSignature: signature },
+          create: {
+            canonicalName: entity.name,
+            status: ExperienceStatus.VERIFIED,
+            latitude: entity.latitude,
+            longitude: entity.longitude,
+            compositionSignature: signature,
+            components: {
+              create: {
+                geoEntityId: entity.id,
+                sourcePosition: 0,
+                sourceName: entity.name,
+                order: 0,
+                required: true,
+                resolutionState: 'RESOLVED',
+                participation: ExperienceComponentParticipation.VISIT,
+              },
+            },
+          },
+          update: {
+            canonicalName: entity.name,
+            latitude: entity.latitude,
+            longitude: entity.longitude,
+          },
+          select: { id: true },
+        });
+        const existing = await tx.experienceComponent.findMany({
+          where: { experienceId: experience.id },
+          select: { id: true, sourcePosition: true },
+        });
+        const canonical = existing.find((row) => row.sourcePosition === 0);
+        if (canonical) {
+          await tx.experienceComponent.update({
+            where: { id: canonical.id },
+            data: {
+              geoEntityId: entity.id,
+              sourceName: entity.name,
+              order: 0,
+              required: true,
+              resolutionState: 'RESOLVED',
+              resolutionReason: null,
+              participation: ExperienceComponentParticipation.VISIT,
+              role: null,
+            },
+          });
+          const extras = existing.filter((row) => row.id !== canonical.id);
+          if (extras.length) {
+            await tx.experienceComponent.deleteMany({
+              where: { id: { in: extras.map((row) => row.id) } },
+            });
+          }
+        }
+        composed.push(experience.id);
+      });
+    }
+    return [...new Set(composed)].sort();
+  }
 
   async acquireNearbyAsExperiences(input: {
     latitude: number;

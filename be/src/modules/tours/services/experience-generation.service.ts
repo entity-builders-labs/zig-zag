@@ -550,6 +550,15 @@ export class ExperienceGenerationService {
       plan,
       executionLedger,
     );
+    // Structured POI persistence owns admission and canonical C14 facts; this
+    // explicit composition step materializes only the admitted visit units.
+    const compositionWindow =
+      context.geographicScope.kind === 'POINT_RADIUS'
+        ? context.geographicScope
+        : boundingBoxToCenterRadius(context.geographicScope.boundary.geometry);
+    await this.experienceCatalog.composeAdmittedPlacesWithinScope(
+      compositionWindow,
+    );
     for (const [provider, result] of Object.entries(
       execution.providerResults,
     )) {
@@ -1157,6 +1166,10 @@ export class ExperienceGenerationService {
         'generating',
         `Buscando Experiences verificadas en la zona (radio ${Math.round(radius / 1000)}km)...`,
       );
+
+      // Compose already-persisted admitted catalog entries before the first
+      // snapshot as well as after every acquisition execution above.
+      await this.experienceCatalog.composeAdmittedPlacesWithinScope(searchArea);
 
       // ── INITIAL_CATALOG_SNAPSHOT ──
       let snapshot = await this.withTimeout(
