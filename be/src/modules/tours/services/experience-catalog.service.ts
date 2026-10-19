@@ -1018,9 +1018,7 @@ export class ExperienceCatalogService {
       longitude: lon,
       distance: distanceKm,
       duration:
-        legacyDurationMinutes == null
-          ? undefined
-          : legacyDurationMinutes / 60,
+        legacyDurationMinutes == null ? undefined : legacyDurationMinutes / 60,
       durationMinutes: legacyDurationMinutes,
       openingHours: isStructuredComposition ? null : experience.openingHours,
       themes: this.stringList(metadata.themes),
@@ -1360,7 +1358,11 @@ export class ExperienceCatalogService {
             },
           },
         });
-        await this.persistTargetObservations(tx, created.id, targetObservations);
+        await this.persistTargetObservations(
+          tx,
+          created.id,
+          targetObservations,
+        );
         return created;
       } catch (error) {
         // Defense in depth: the advisory lock above should make this
