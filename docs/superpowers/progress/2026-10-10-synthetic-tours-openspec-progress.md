@@ -115,7 +115,9 @@ amendment (2026-10-11); no production code yet.**
   admission policy + OSM/Wikidata adapters, dead acquisition authorities
   removed, destination-scope discovery derived from adapter signals; 36.1-36.2
   done — live admission rule wired into the resolver, S3-A replay passes with
-  the 16 Tour stops admitted).
+  the 16 Tour stops admitted; 35.1 + 38.1-38.2 done — parent/child visit-unit
+  policy (C5) and structured identity reconciliation (C8) as unit-tested
+  canonical primitives).
 - P-D7 reframed (2026-10-14) in design ("P-D7 preference-first
   objective"), `tour-planning` spec (objective, preference-utility
   boundary, accessibility need vs preference, allowed modes hard), tasks
@@ -200,8 +202,15 @@ candidates, 1173 admitted / 1539 rejected (1411 INSUFFICIENT_ADMISSION_EVIDENCE,
 amenity:place_of_worship 371, tourism:artwork 252, amenity:marketplace 19,
 tourism:picnic_site 4, tourism:attraction 2 [Caminito + Puente de la Mujer, both
 ROUTEs], tourism:yes 1) — intended R4-D3 consequence. La Bombonera stays absent
-(stadiums outside signal-bearing keys). Next: 35.1 (parent/child visit units) or
-38.1 (identity reconciliation). Do not start 25.8 or production code.
+(stadiums outside signal-bearing keys). 35.1/38.1/38.2 done (2026-10-19):
+parent/child visit-unit policy (C5) and structured identity reconciliation (C8)
+as unit-tested canonical primitives; the admission/identity track (35-38) is
+complete. S3-A identity replay: Caminito / Plaza de Mayo / Puente de la Mujer
+node-vs-way/relation pairs stay separate (no shared QID; the recording carries
+center-only geometry, so no structural correspondence) — recorded as
+POSSIBLE_DUPLICATE NAME_ONLY. Next: planning-track P3 (26.x opening-hours) or
+P4 (27.x visit-duration), then wiring 39-41. Do not start 25.8 or production
+code.
 
 1. Owner reviewed the A/B/C completion report (2026-10-16) and resolved
    the pending 25.7 design questions (target-level knowledge keyed by
