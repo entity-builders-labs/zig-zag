@@ -184,6 +184,16 @@ describe('buildPoisWithinAreaQuery', () => {
 
     expect(query).toContain('nwr["highway"="corridor"]["name"](area.a)');
   });
+
+  it('retrieves heritage-tagged records (signal-bearing key) and never selects ordinary shops', () => {
+    const query = buildPoisWithinAreaQuery({
+      osmType: 'relation',
+      osmId: 2223069,
+    });
+
+    expect(query).toContain('nwr["heritage"]["name"](area.a)');
+    expect(query).not.toContain('["shop"]');
+  });
 });
 
 describe('buildPoisQuery', () => {
@@ -196,6 +206,7 @@ describe('buildPoisQuery', () => {
 
     expect(query).toContain('(around:2500,-34.6201,-58.3715)');
     expect(query).toContain('nwr["historic"]["name"]');
+    expect(query).toContain('nwr["heritage"]["name"]');
     expect(query).toContain(
       'nwr["leisure"~"^(park|square|beach_resort)$"]["name"]',
     );

@@ -13,7 +13,7 @@ integrations/
 │   │   ├── google-places-api.service.ts     # Direct Google Places API calls
 │   │   ├── geoapify-places-api.service.ts   # Direct Geoapify API calls (alternative provider)
 │   │   └── cached-places-api.service.ts     # Cache wrapper (implements IPlacesApiService)
-│   └── utils/catalog-acquisition-plan.util.ts, catalog-place-taxonomy.ts, price-level.util.ts
+│   └── utils/price-level.util.ts
 ├── osm/
 │   ├── services/
 │   │   ├── nominatim-api.service.ts, cached-nominatim-api.service.ts  # Destination boundary resolution

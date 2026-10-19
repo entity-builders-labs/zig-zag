@@ -8,6 +8,10 @@ import {
   QueryHighwaysByNameParams,
   OverpassSelector,
 } from '../interfaces/overpass.interface';
+import {
+  OSM_ADMISSION_DISCOVERY_SELECTORS,
+  OsmAdmissionDiscoverySelector,
+} from './osm-admission-adapter';
 
 const MAX_NAME_LENGTH = 200;
 
@@ -33,21 +37,10 @@ const FEATURES_NEAR_MAX_RADIUS_METERS = 8000;
 // identity-negative NOT_FOUND.
 export const HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS = 50_000;
 
-// Zig-Zag's product scope is tourist EXPERIENCES, not businesses -- an
-// accommodation is never itself a component of one (hotels are explicitly
-// out of scope; see the 2026-09-18 product-scope clarification). OSM's
-// bare `tourism=*` wildcard used below also matches every accommodation
-// subtype, which live-verified against the real Buenos Aires local pool
-// made up fully a third of it (259/779 = 33% `tourism=hotel` alone, 40%
-// once hostels/guest_houses/apartments/motels are included) --
-// polluting the candidate pool with real, non-touristic businesses that
-// then become spurious fuzzy-match targets (e.g. a real "Recoleta
-// Cemetery" hint matching "Hotel Urban Suites Recoleta" purely because
-// both real places happen to be tagged with the shared "Recoleta" word).
-// This is a category-level exclusion grounded in OSM's own standard
-// `tourism=*` value vocabulary -- not a per-name/per-language word list.
-const NON_EXPERIENCE_TOURISM_VALUES =
-  'hotel|hostel|guest_house|motel|apartment|camp_site|caravan_site|chalet|wilderness_hut';
+// Accommodation tourism values and the destination-scope POI selector list
+// live in the OSM admission adapter (osm-admission-adapter.ts) — the single
+// source for the OSM tag → signal/exclusion mapping (design C7, task 37.1).
+// Nothing else maintains a hand-written tourism selector or exclusion list.
 
 export function sanitizeOverpassTagToken(token: string): string {
   if (typeof token !== 'string' || !OVERPASS_TAG_TOKEN.test(token)) {
@@ -118,32 +111,51 @@ export function buildContainingBoundaryQuery({
 
 // Radius-based sibling of buildPoisWithinAreaQuery, for a point-scale
 // destination (no real OSM area/relation to scope a `map_to_area` query
-// against) — same tag filters, `around:radius,lat,lon` instead of an area
+// against) — same tag selectors, `around:radius,lat,lon` instead of an area
 // reference. See ExperienceProposalResolverService's own use of this: a
 // destination that degraded to point-scale has no real osmId to query
 // "within", so lookupPoisWithin/lookupStreetsWithin must not be used for it.
+
+/** Renders one destination-scope discovery selector to Overpass tag filters. */
+function poiSelectorFilters(selector: OsmAdmissionDiscoverySelector): string {
+  const { key } = selector;
+  const filters: string[] = [];
+  if (selector.includeValues && selector.includeValues.length > 0) {
+    filters.push(
+      selector.includeValues.length === 1
+        ? `["${key}"="${selector.includeValues[0]}"]`
+        : `["${key}"~"^(${selector.includeValues.join('|')})$"]`,
+    );
+  } else {
+    filters.push(`["${key}"]`);
+  }
+  if (selector.excludeValues && selector.excludeValues.length > 0) {
+    filters.push(`["${key}"!~"^(${selector.excludeValues.join('|')})$"]`);
+  }
+  return filters.join('');
+}
+
+/** One `nwr[...]["name"]<scope>` line for a discovery selector. */
+function poiSelectorLine(
+  selector: OsmAdmissionDiscoverySelector,
+  scope: string,
+): string {
+  return `nwr${poiSelectorFilters(selector)}["name"]${scope}`;
+}
+
 export function buildPoisQuery({
   latitude,
   longitude,
   radiusMeters,
 }: QueryStreetsParams): string {
   const around = `(around:${radiusMeters},${latitude},${longitude})`;
+  const lines = OSM_ADMISSION_DISCOVERY_SELECTORS.map(
+    (selector) => `  ${poiSelectorLine(selector, around)}`,
+  );
   return [
     '[out:json][timeout:25];',
     '(',
-    `  nwr["tourism"]["tourism"!~"^(${NON_EXPERIENCE_TOURISM_VALUES})$"]["name"]${around};`,
-    `  nwr["amenity"~"^(marketplace|place_of_worship)$"]["name"]${around};`,
-    `  nwr["historic"]["name"]${around};`,
-    `  nwr["leisure"~"^(park|square|beach_resort)$"]["name"]${around};`,
-    `  nwr["natural"="beach"]["name"]${around};`,
-    // Named indoor pedestrian galleries/arcades -- real, historic shopping
-    // passages (e.g. Buenos Aires' "Galería Güemes", 1915) are commonly
-    // tagged ONLY highway=corridor + indoor=yes in OSM, with no
-    // tourism/historic/amenity/leisure tag at all, so they never entered
-    // the pool before. Live-verified: a 15km-radius scan around Buenos
-    // Aires turned up only 6 real named corridors total, all genuine
-    // galleries/passages -- a narrow category, not name-specific noise.
-    `  nwr["highway"="corridor"]["name"]${around};`,
+    ...lines,
     ');',
     'out tags center;',
   ].join('\n');
@@ -248,19 +260,16 @@ export function buildPoisWithinAreaQuery({
   osmType,
   osmId,
 }: QueryByIdParams): string {
+  const scope = '(area.a)';
+  const lines = OSM_ADMISSION_DISCOVERY_SELECTORS.map(
+    (selector) => `  ${poiSelectorLine(selector, scope)}`,
+  );
   return [
     '[out:json][timeout:30];',
     `${osmType}(${osmId});`,
     'map_to_area->.a;',
     '(',
-    `  nwr["tourism"]["tourism"!~"^(${NON_EXPERIENCE_TOURISM_VALUES})$"]["name"](area.a);`,
-    '  nwr["amenity"~"^(marketplace|place_of_worship)$"]["name"](area.a);',
-    '  nwr["historic"]["name"](area.a);',
-    '  nwr["leisure"~"^(park|square|beach_resort)$"]["name"](area.a);',
-    '  nwr["natural"="beach"]["name"](area.a);',
-    // See buildPoisQuery's identical addition for the real-evidence
-    // rationale (named indoor pedestrian galleries/arcades).
-    '  nwr["highway"="corridor"]["name"](area.a);',
+    ...lines,
     ');',
     'out tags center;',
   ].join('\n');
