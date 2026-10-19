@@ -111,7 +111,9 @@ amendment (2026-10-11); no production code yet.**
 - tasks.md groups 24-43: planning track 25-34, admission/identity track
   35-38, wiring 39-41, validation 42, retirement 43 (24.1, 24.3-24.10, 31.1-31.2,
   32.0-32.1 done; 33.2 added for the planner sidecar runtime; 24.11 done,
-  25.2 and 33.0 (G-P7-U) added).
+  25.2 and 33.0 (G-P7-U) added; 37.1-37.2 done — canonical structured
+  admission policy + OSM/Wikidata adapters, dead acquisition authorities
+  removed, destination-scope discovery derived from adapter signals).
 - P-D7 reframed (2026-10-14) in design ("P-D7 preference-first
   objective"), `tour-planning` spec (objective, preference-utility
   boundary, accessibility need vs preference, allowed modes hard), tasks
@@ -184,6 +186,11 @@ amendment (2026-10-11); no production code yet.**
 - The change must not be archived until groups 24-43 are complete.
 
 ## Next authorized action
+
+37.1/37.2 done (2026-10-19): canonical structured admission policy +
+OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope
+discovery derived from adapter signals. Next: 36.1/36.2 (admission gate) or
+35.1 (parent/child). Do not start 25.8 or production code.
 
 1. Owner reviewed the A/B/C completion report (2026-10-16) and resolved
    the pending 25.7 design questions (target-level knowledge keyed by
