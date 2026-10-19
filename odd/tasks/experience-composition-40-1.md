@@ -11,7 +11,7 @@ Acceptance: production DB integration exercises composition, persistence and C14
 
 ## Tasks
 
-- T1 — S1 — inline — in progress — completion commit pending
+- T1 — S1 — inline — complete — implementation in `4d620934` and `7a8714b0`; final evidence is recorded in the OpenSpec task and track progress.
 
 ## Log
 
@@ -24,4 +24,5 @@ Use only task 40.1; database credentials from the configured repository `.env` a
 - WIP checkpoint: `b8c06796`.
 - C14 composition/projection work unit: `4d620934`.
 - PostgreSQL target and repository disposable guard verified before integration reset; current database confirmed as `zigzag_39_test`.
-- Production integration and targeted unit tests pass; final gates remain pending.
+- Final DB integration passed on `zigzag_39_test`; targeted tests passed 113/113; typecheck, changed-file ESLint, strict OpenSpec validation, and diff check passed. The independent verifier's metadata fallback finding was fixed and rechecked.
+- Clean-worktree preflight passed: WRITE AUTHORIZED / INTEGRATION READY. No Prisma schema migration was needed for 40.1.

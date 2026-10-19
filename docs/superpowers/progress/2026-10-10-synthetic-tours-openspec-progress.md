@@ -13,9 +13,10 @@ Repository: `entity-builders-labs/zig-zag`
 
 ## Current execution verdict
 
-**ACTIVE — `gap-driven-destination-knowledge` spike 3 ACCEPTED; revision 4
-(production cutover contract) planned in the same change. Tasks 39.0/39.1 are
-implemented and validated; completion commit `228c6357` is local.**
+**ACTIVE — `gap-driven-destination-knowledge` revision 4 production cutover.
+Tasks 39.0/39.1 and 40.1 are implemented and validated locally; 40.1 code is in
+`4d620934` and `7a8714b0`; completion evidence is recorded in this progress
+update.**
 
 - Spike 1 (`spikes/gap-driven-destination-knowledge-2026-10-10/`): web-first
   discovery, 0 grounded (preserved).
@@ -93,9 +94,9 @@ implemented and validated; completion commit `228c6357` is local.**
 
 ## Current checkpoint
 
-**OS6 — revision 4 cutover contract planned, including the planning
-amendment (2026-10-11); tasks 39.0/39.1 completed locally in commit
-`228c6357` after preserving checkpoint `1c75e5a7` and `bc83614f`.**
+**OS6 — revision 4 cutover contract; tasks 39.0/39.1 and 40.1 completed locally.
+Task 40.1 implementation commits: `4d620934`, `7a8714b0`; final task/evidence
+status is recorded in the current OpenSpec task and progress sections.**
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -193,18 +194,18 @@ amendment (2026-10-11); tasks 39.0/39.1 completed locally in commit
 
 ## Next authorized action
 
-Tasks 39.0 and 39.1 completed and validated on 2026-10-19 against the disposable
-database `zigzag_39_test`. C14 migration reset and generation passed; the
-production destination-scope `STRUCTURED_POI` path now discovers and persists
-structured candidates without an Experience proposal, using canonical C8
-identity, C5 visit-unit, and C7 admission policies. DB integration coverage
-verified admission/provenance, identity evidence, PART_OF relations, opening
-hours, explicit-only durations, provider failure semantics, and zero
-LLM/search/fetch calls. Do not start task 40. Completion commit is `228c6357`;
-the post-commit RDD assessment was medium with `review_due=false`
-(`under_budget`). Final clean-worktree preflight and push remain pending.
-The push target is authorized; the remote authorization contract still
-requires the user to specify which credential/session to use.
+Tasks 39.0/39.1 and 40.1 are complete locally. Task 40.1 composes one reusable
+Experience per admitted standalone PLACE with a stable signature and required
+VISIT component; its C14 duration/hours projections preserve provenance,
+missing/UNKNOWN semantics, and ignore metadata hours. DB integration on
+`zigzag_39_test` passed, as did 113 targeted tests, typecheck, changed-file
+ESLint, strict OpenSpec validation, and diff check. Independent verification
+found and prompted removal of the normalizer's metadata-hours fallback. The
+documentation completion commit is the current pending action. Clean-worktree
+preflight passed WRITE AUTHORIZED / INTEGRATION READY; rerun it after committing,
+then push the completed branch to
+`origin/feat/synthetic-tours-openspec`, then stop. Do not start task 40.2 or
+41.x.
 
 37.1/37.2 done (2026-10-19): canonical structured admission policy +
 OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope
@@ -252,6 +253,10 @@ do not start 25.8 or task 40+.
    separate sub-branch.
 
 ## Open findings / blockers
+
+- Task 40.2 remains open: the evidence-backed global duration fallback value
+  and calibration evidence are unresolved. Do not implement that planner
+  fallback in task 40.1 or start 40.2 in this pass.
 
 - P11 / G-P5 evidence: `spikes/planner-comparison-2026-10-12/` and `g-p5/`.
   P-D5 resolved (OR-Tools Routing). Operational requirement for task 33.2 /
