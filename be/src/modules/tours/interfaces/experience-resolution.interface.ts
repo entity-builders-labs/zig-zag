@@ -16,6 +16,7 @@ import {
 } from './component-identity-context.interface';
 import { DedupeEvidence } from '../utils/experience-dedupe.util';
 import { SourceKnowledgeReconciliation } from '../utils/source-knowledge-reconciliation.policy';
+import { StructuredPlaceAdmissionRecord } from '../admission/structured-place-admission';
 import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 import { OsmCandidate } from '@integrations/osm/services/osm-places.service';
 import {
@@ -879,6 +880,13 @@ export interface ResolvedGeoEntity {
   role: 'area' | 'waypoint' | 'route' | 'venue';
   /** Canonical physical kind of the resolved object, when resolved. */
   kind?: GeoEntityKind;
+  /**
+   * Raw OSM tags, carried through from the provider record for OSM-sourced
+   * PLACE entities (the `EntityCandidate.persistenceMetadata.tags` shape).
+   * Consumed ONLY by the structured admission evaluation (task 36.1) — never
+   * by target semantics (see EntityCandidate.persistenceMetadata).
+   */
+  tags?: Record<string, string>;
   expectedType?: string;
   status: ResolvedGeoEntityStatus;
   reason?: string;
@@ -920,6 +928,11 @@ export interface ResolvedExperienceCandidate {
   dedupeCandidates?: string[];
   /** What a SAME observation taught the canonical Experience's members. */
   sourceKnowledgeReconciliation?: SourceKnowledgeReconciliation;
+  /**
+   * Structured admission records for the candidate's resolved PLACE
+   * components (task 36.1). Transient trace/audit fact; never persisted.
+   */
+  structuredAdmission?: StructuredPlaceAdmissionRecord[];
 }
 
 export interface ExperienceResolutionRequest {

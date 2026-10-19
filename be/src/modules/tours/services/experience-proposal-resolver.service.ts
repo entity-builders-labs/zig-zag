@@ -70,6 +70,11 @@ import {
   sourceMemberResolutions,
 } from '../utils/component-resolution-facts.util';
 import { decideSourceCompositionAdmission } from '../utils/experience-source-membership.policy';
+import {
+  evaluateStructuredPlaceAdmission,
+  rejectionReason,
+  StructuredPlaceAdmissionRecord,
+} from '../admission/structured-place-admission';
 import { persistableUnresolvedReason } from '../utils/component-deficit-classification.policy';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { calculateDistance } from '@shared/utils/distance.utils';
@@ -635,6 +640,28 @@ export class ExperienceProposalResolverService
           };
         }
 
+        // Structured admission (task 36.1): only an admitted PLACE may proceed
+        // to ordinary single-place Experience composition. Evaluated from
+        // canonical provider facts (OSM tags) — never preference relevance,
+        // duration, opening hours, ranking, web research or LLM output.
+        const structuredAdmission =
+          this.structuredAdmissionForCandidate(candidate);
+        const admissionRejections = [
+          ...new Set(
+            structuredAdmission
+              .map(rejectionReason)
+              .filter((reason): reason is string => !!reason),
+          ),
+        ];
+        if (admissionRejections.length > 0) {
+          return {
+            ...candidate,
+            status: 'rejected' as const,
+            rejectionReasons: admissionRejections,
+            structuredAdmission,
+          };
+        }
+
         const traitDefinitionIds =
           await this.catalog.resolveOrCreateTraitDefinitions(
             candidate.candidate.traits,
@@ -751,6 +778,7 @@ export class ExperienceProposalResolverService
           experienceId: experience.id,
           dedupeDecision: (experience as any).dedupeDecision,
           dedupeEvidence: (experience as any).dedupeEvidence,
+          structuredAdmission,
           ...('sourceKnowledgeReconciliation' in experience
             ? {
                 sourceKnowledgeReconciliation:
@@ -2118,6 +2146,46 @@ export class ExperienceProposalResolverService
     };
   }
 
+  /**
+   * Raw OSM tags surfaced by the provider record for an OSM-sourced candidate.
+   * Consumed only by the structured admission evaluation (task 36.1).
+   */
+  private osmTagsOf(
+    candidate: EntityCandidate,
+  ): Record<string, string> | undefined {
+    const metadata = candidate.persistenceMetadata as
+      | { tags?: Record<string, string> }
+      | undefined;
+    return metadata && typeof metadata === 'object' && metadata.tags
+      ? metadata.tags
+      : undefined;
+  }
+
+  /**
+   * Structured admission (task 36.1) for every resolved PLACE component that
+   * carries raw OSM tags. Entities without tags (e.g. legacy Geoapify echo
+   * records) are not gated here — the retired geoapify path handles them until
+   * task 43.1 removes it. Deterministic, provider-fact-only, never
+   * preference/duration/hours/ranking/web/LLM evidence.
+   */
+  private structuredAdmissionForCandidate(
+    candidate: ResolvedExperienceCandidate,
+  ): StructuredPlaceAdmissionRecord[] {
+    return candidate.resolvedEntities
+      .filter(
+        (entity) =>
+          entity.status === 'resolved' &&
+          entity.kind === 'PLACE' &&
+          (entity.role === 'venue' || entity.role === 'waypoint') &&
+          entity.tags !== undefined &&
+          Object.keys(entity.tags).length > 0,
+      )
+      .map((entity) => evaluateStructuredPlaceAdmission({ tags: entity.tags }))
+      .filter(
+        (record) => record.signals.length > 0 || record.exclusions.length > 0,
+      );
+  }
+
   private async persistVerifiedCandidate(
     candidate: EntityCandidate,
   ): Promise<ResolvedGeoEntity> {
@@ -2182,6 +2250,7 @@ export class ExperienceProposalResolverService
       addressConfirmed: candidate.addressConfirmed,
       nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       adminContext: candidate.adminContext,
+      tags: this.osmTagsOf(candidate),
       status: 'resolved',
       geoEntityId: geo.id,
     };
@@ -2215,6 +2284,7 @@ export class ExperienceProposalResolverService
       addressConfirmed: candidate.addressConfirmed,
       nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       adminContext: candidate.adminContext,
+      tags: this.osmTagsOf(candidate),
       status: 'resolved',
       geoEntityId,
     };
@@ -2263,6 +2333,7 @@ export class ExperienceProposalResolverService
       addressConfirmed: candidate.addressConfirmed,
       nameEvidenceMultiplicity: candidate.nameEvidenceMultiplicity,
       adminContext: candidate.adminContext,
+      tags: this.osmTagsOf(candidate),
       status: 'resolved',
       geoEntityId,
     };
@@ -2699,7 +2770,10 @@ export class ExperienceProposalResolverService
       structuralKind: structuralKindFromOsmTags(matched.tags),
       upstreamDatasets: ['openstreetmap'],
       persistenceMetadata: { tags: matched.tags },
-      targetObservations: osmTargetFacts({ id: matched.id, tags: matched.tags }),
+      targetObservations: osmTargetFacts({
+        id: matched.id,
+        tags: matched.tags,
+      }),
     };
   }
 
