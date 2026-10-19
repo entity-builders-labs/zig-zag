@@ -20,8 +20,8 @@ Scope guard: implement only S1 and S2. Do not start tasks 40.x, 41.x, 42.x, 43.x
 
 ## Tasks
 
-- T39.0 — S1 — inline — complete; clean C14 migration reset, Prisma generation, typecheck, and direct SQL constraint tests passed on `zigzag_39_test`; completion commit pending.
-- T39.1 — S2 — inline — complete; production destination-scope router, structured acquisition/persistence, and production-path DB integration matrix passed; completion commit pending.
+- T39.0 — S1 — inline — complete; clean C14 migration reset, Prisma generation, typecheck, and direct SQL constraint tests passed on `zigzag_39_test`; completion commit `228c6357`.
+- T39.1 — S2 — inline — complete; production destination-scope router, structured acquisition/persistence, and production-path DB integration matrix passed; completion commit `228c6357`.
 
 Risk: item 1 (additive database schema migration and C14 persisted contracts); item 3 (shared acquisition-plan routing contract).
 
@@ -264,5 +264,7 @@ remaining blockers before task 40
 - Independent item-1 verification completed its bounded correction/recheck;
   the C14 admission provenance and C8 OSM label-role identity findings are
   resolved. Separate Wikidata facts routing is optional under task 37.2.
-- Completion commit and final clean-worktree preflight remain to be run;
-  remote push still requires the explicitly authorized credential/session.
+- Completion commit: `228c6357`. Post-commit RDD assessment was medium,
+  `review_due=false` (`under_budget`). Final clean-worktree preflight and push
+  remain; the remote authorization contract still requires the user to specify
+  the credential/session for the already-authorized target push.

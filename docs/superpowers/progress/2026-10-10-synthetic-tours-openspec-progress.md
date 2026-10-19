@@ -14,7 +14,8 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current execution verdict
 
 **ACTIVE — `gap-driven-destination-knowledge` spike 3 ACCEPTED; revision 4
-(production cutover contract) planned in the same change.**
+(production cutover contract) planned in the same change. Tasks 39.0/39.1 are
+implemented and validated; completion commit `228c6357` is local.**
 
 - Spike 1 (`spikes/gap-driven-destination-knowledge-2026-10-10/`): web-first
   discovery, 0 grounded (preserved).
@@ -93,8 +94,8 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current checkpoint
 
 **OS6 — revision 4 cutover contract planned, including the planning
-amendment (2026-10-11); tasks 39.0/39.1 completed locally from checkpoint
-`1c75e5a7` after preserving `bc83614f`.**
+amendment (2026-10-11); tasks 39.0/39.1 completed locally in commit
+`228c6357` after preserving checkpoint `1c75e5a7` and `bc83614f`.**
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -199,8 +200,11 @@ structured candidates without an Experience proposal, using canonical C8
 identity, C5 visit-unit, and C7 admission policies. DB integration coverage
 verified admission/provenance, identity evidence, PART_OF relations, opening
 hours, explicit-only durations, provider failure semantics, and zero
-LLM/search/fetch calls. Do not start task 40. Completion commit, final preflight,
-and authorized push remain pending.
+LLM/search/fetch calls. Do not start task 40. Completion commit is `228c6357`;
+the post-commit RDD assessment was medium with `review_due=false`
+(`under_budget`). Final clean-worktree preflight and push remain pending.
+The push target is authorized; the remote authorization contract still
+requires the user to specify which credential/session to use.
 
 37.1/37.2 done (2026-10-19): canonical structured admission policy +
 OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope
