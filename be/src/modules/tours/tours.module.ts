@@ -41,6 +41,7 @@ import { PlanningCandidateNormalizerService } from './services/planning-candidat
 import { TourPlanningFeasibilityValidatorService } from './services/tour-planning-feasibility-validator.service';
 import { PreferenceInterpreterService } from './services/preference-interpreter.service';
 import { ExperienceProposalResolverService } from './services/experience-proposal-resolver.service';
+import { StructuredKnowledgePersistenceService } from './services/structured-knowledge-persistence.service';
 import { ExperienceCatalogService } from './services/experience-catalog.service';
 import { CatalogKnowledgeAdministrationService } from './services/catalog-knowledge-administration.service';
 import { ExperienceAcquisitionService } from './services/experience-acquisition.service';
@@ -143,6 +144,7 @@ import { MediaModule } from '../media/media.module';
     TourPlanningFeasibilityValidatorService,
     PreferenceInterpreterService,
     ExperienceProposalResolverService,
+    StructuredKnowledgePersistenceService,
     ExperienceCatalogService,
     CatalogKnowledgeAdministrationService,
     ExperienceAcquisitionService,

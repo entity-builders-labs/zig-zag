@@ -75,6 +75,7 @@ import {
   rejectionReason,
   StructuredPlaceAdmissionRecord,
 } from '../admission/structured-place-admission';
+import { StructuredKnowledgePersistenceService } from './structured-knowledge-persistence.service';
 import { persistableUnresolvedReason } from '../utils/component-deficit-classification.policy';
 import { GeoEntityHint } from '../interfaces/experience-discovery.interface';
 import { calculateDistance } from '@shared/utils/distance.utils';
@@ -462,6 +463,8 @@ export class ExperienceProposalResolverService
     @Optional()
     @Inject(COMPONENT_LOCALITY_GROUNDER)
     private readonly localityGrounder?: ComponentLocalityGrounder,
+    @Optional()
+    private readonly knowledge?: StructuredKnowledgePersistenceService,
   ) {
     this.identityVerifier = new IdentityVerifier();
     this.identityEvidenceCollector = new IdentityEvidenceCollector(wikidata);
@@ -661,6 +664,9 @@ export class ExperienceProposalResolverService
             structuredAdmission,
           };
         }
+
+        // Persist the destination-independent admission evaluation (task 39.1).
+        await this.persistCandidateAdmission(candidate);
 
         const traitDefinitionIds =
           await this.catalog.resolveOrCreateTraitDefinitions(
@@ -2184,6 +2190,34 @@ export class ExperienceProposalResolverService
       .filter(
         (record) => record.signals.length > 0 || record.exclusions.length > 0,
       );
+  }
+
+  /**
+   * Persists the GeoEntityAdmission evaluation for every resolved PLACE
+   * component (task 39.1). Only destination-independent outcomes are stored;
+   * preference relevance, duration, opening hours, ranking, web and LLM are
+   * never inputs. No-op when the persistence service is not wired.
+   */
+  private async persistCandidateAdmission(
+    candidate: ResolvedExperienceCandidate,
+  ): Promise<void> {
+    if (!this.knowledge) return;
+    for (const entity of candidate.resolvedEntities) {
+      if (
+        entity.status !== 'resolved' ||
+        entity.kind !== 'PLACE' ||
+        !entity.geoEntityId
+      ) {
+        continue;
+      }
+      if (entity.role !== 'venue' && entity.role !== 'waypoint') continue;
+      if (!entity.tags || Object.keys(entity.tags).length === 0) continue;
+      const record = evaluateStructuredPlaceAdmission({ tags: entity.tags });
+      if (record.signals.length === 0 && record.exclusions.length === 0) {
+        continue;
+      }
+      await this.knowledge.upsertAdmission(entity.geoEntityId, record);
+    }
   }
 
   private async persistVerifiedCandidate(

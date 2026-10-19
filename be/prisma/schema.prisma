@@ -13,14 +13,14 @@ datasource db {
 // Experience identity: a provider identity belongs to a GeoEntity, while an
 // Experience describes what a traveller can do with one or more entities.
 model GeoEntity {
-  id                     String                           @id @default(uuid())
-  name                   String
-  kind                   GeoEntityKind
-  latitude               Float?
-  longitude              Float?
-  geometry               Json?
-  address                String?
-  metadata               Json?
+  id                      String                           @id @default(uuid())
+  name                    String
+  kind                    GeoEntityKind
+  latitude                Float?
+  longitude               Float?
+  geometry                Json?
+  address                 String?
+  metadata                Json?
   /// Verified hint memory (NOT an alias engine): the exact component-hint
   /// texts that previously resolved VERIFIED to THIS GeoEntity through
   /// external acquisition, stored verbatim. Never inferred from string
@@ -32,18 +32,25 @@ model GeoEntity {
   /// hint, when, and whether it was revoked) lives in
   /// `GeoEntityVerifiedHintAssertion`; a key stays here only while at least
   /// one active assertion supports it.
-  verifiedHintNames      String[]                         @default([])
+  verifiedHintNames       String[]                         @default([])
   /// `normalizeGeoName(verifiedHintNames[i])` -- positionally aligned with
   /// `verifiedHintNames` (a DB CHECK enforces equal cardinality) and
   /// deduplicated by key. The GIN index serves the `@>` lookup in
   /// `ExperienceCatalogService.findGeoEntityCandidatesForHint`.
-  verifiedHintNameKeys   String[]                         @default([])
-  identities             GeoEntityIdentity[]
-  components             ExperienceComponent[]
-  verifiedHintAssertions GeoEntityVerifiedHintAssertion[]
-  targetObservations    GeoEntityTargetObservation[]
-  createdAt              DateTime                         @default(now())
-  updatedAt              DateTime                         @updatedAt
+  verifiedHintNameKeys    String[]                         @default([])
+  identities              GeoEntityIdentity[]
+  components              ExperienceComponent[]
+  verifiedHintAssertions  GeoEntityVerifiedHintAssertion[]
+  targetObservations      GeoEntityTargetObservation[]
+  admission               GeoEntityAdmission?
+  openingHours            GeoEntityOpeningHours?
+  visitDuration           GeoEntityVisitDuration?
+  childRelations          GeoEntityRelation[]              @relation("RelationChild")
+  parentRelations         GeoEntityRelation[]              @relation("RelationParent")
+  traversalFromComponents ExperienceComponent[]            @relation("TraversalFrom")
+  traversalToComponents   ExperienceComponent[]            @relation("TraversalTo")
+  createdAt               DateTime                         @default(now())
+  updatedAt               DateTime                         @updatedAt
 
   @@index([kind])
   @@index([latitude, longitude])
@@ -52,13 +59,17 @@ model GeoEntity {
 }
 
 model GeoEntityIdentity {
-  id          String    @id @default(uuid())
-  geoEntityId String
-  provider    String
-  externalId  String
-  geoEntity   GeoEntity @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id                String            @id @default(uuid())
+  geoEntityId       String
+  provider          String
+  externalId        String
+  /// Merge decision of this identity attachment (null on legacy rows).
+  linkRule          IdentityLinkRule?
+  linkPolicyVersion String?
+  linkEvidence      Json?
+  geoEntity         GeoEntity         @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
 
   @@unique([provider, externalId])
   @@index([geoEntityId])
@@ -126,14 +137,14 @@ model GeoEntityTargetObservation {
 /// Provider-owned Overture Places runtime index. It is acquisition evidence,
 /// never canonical GeoEntity state, and import never creates GeoEntities.
 model OverturePlaceIndex {
-  id                String    @id @default(uuid())
+  id                String                      @id @default(uuid())
   importSessionId   String
   featureId         String
   countryCode       String
   partitionKey      String
   name              String
   normalizedName    String
-  alternateNames    String[]  @default([])
+  alternateNames    String[]                    @default([])
   latitude          Float
   longitude         Float
   address           String?
@@ -142,8 +153,8 @@ model OverturePlaceIndex {
   upstreamUpdatedAt DateTime?
   license           String?
   lastSeenAt        DateTime
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
+  createdAt         DateTime                    @default(now())
+  updatedAt         DateTime                    @updatedAt
   importSession     OverturePlacesImportSession @relation(fields: [importSessionId], references: [id], onDelete: Cascade)
 
   @@unique([importSessionId, featureId])
@@ -154,31 +165,31 @@ model OverturePlaceIndex {
 /// Provider-owned import lifecycle and published snapshot authority. A session
 /// becomes visible to runtime lookup only after every expected page succeeds.
 model OverturePlacesImportSession {
-  id             String   @id
-  countryCode    String
-  partitionKey   String
-  release        String
-  completeness   String
+  id                     String               @id
+  countryCode            String
+  partitionKey           String
+  release                String
+  completeness           String
   expectedSourceCoverage String
-  sourceUri      String
-  licenseNotice  String?
-  expectedPageKeys String[] @default([])
-  completedPageKeys String[] @default([])
-  failedPartitionKeys String[] @default([])
-  status         String
+  sourceUri              String
+  licenseNotice          String?
+  expectedPageKeys       String[]             @default([])
+  completedPageKeys      String[]             @default([])
+  failedPartitionKeys    String[]             @default([])
+  status                 String
   /// WGS84 extent inside which an OPERATIONAL_AOI import holds every
   /// release record (RW4-ID-CORRESPONDENCE-1). Null for a country import.
-  extentWest     Float?
-  extentSouth    Float?
-  extentEast     Float?
-  extentNorth    Float?
-  manifest       Json?
-  startedAt      DateTime @default(now())
-  finalizedAt    DateTime?
-  publishedAt    DateTime?
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
-  places         OverturePlaceIndex[]
+  extentWest             Float?
+  extentSouth            Float?
+  extentEast             Float?
+  extentNorth            Float?
+  manifest               Json?
+  startedAt              DateTime             @default(now())
+  finalizedAt            DateTime?
+  publishedAt            DateTime?
+  createdAt              DateTime             @default(now())
+  updatedAt              DateTime             @updatedAt
+  places                 OverturePlaceIndex[]
 
   @@index([countryCode, status, publishedAt])
   @@map("overture_places_import_session")
@@ -190,6 +201,10 @@ model Experience {
   description              String?
   durationMinutes          Int?
   price                    Float?
+  /// Versioned hash of the ordered constitutive components (GeoEntity id,
+  /// participation, traversal bounds) [+ facet key]; null for
+  /// source-extracted/legacy Experiences.
+  compositionSignature     String?                     @unique
   status                   ExperienceStatus            @default(PENDING)
   qualityScore             Float?
   latitude                 Float?
@@ -232,30 +247,47 @@ model Experience {
 ///  - UNRESOLVED => geoEntityId null, resolutionSource null, and
 ///                  sourceName, sourcePosition, resolutionReason set.
 model ExperienceComponent {
-  id               String                               @id @default(uuid())
-  experienceId     String
+  id                       String                               @id @default(uuid())
+  experienceId             String
   /// Null only while the source member is UNRESOLVED.
-  geoEntityId      String?
+  geoEntityId              String?
   /// 0-based position of this member in the source-declared composition,
   /// assigned once at persistence and never renumbered. It is the member's
   /// identity inside its Experience. Null only on rows persisted before
   /// source members were recorded (legacy; never fabricated).
-  sourcePosition   Int?
+  sourcePosition           Int?
   /// The member's component hint name: the source wording the resolver
   /// looked up and that hint memory learns. Null only on legacy rows: never
   /// backfilled from `GeoEntity.name`.
-  sourceName       String?
-  order            Int?
-  role             String?
-  required         Boolean                              @default(true)
-  resolutionState  ExperienceComponentResolutionState   @default(RESOLVED)
+  sourceName               String?
+  order                    Int?
+  role                     String?
+  required                 Boolean                              @default(true)
+  resolutionState          ExperienceComponentResolutionState   @default(RESOLVED)
   /// Why an UNRESOLVED member has no GeoEntity. Only PARTIAL-eligible
   /// (missing-knowledge) reasons exist in this enum.
-  resolutionReason ExperienceComponentResolutionReason?
+  resolutionReason         ExperienceComponentResolutionReason?
   /// Who linked a RESOLVED member. Null when unknown (legacy rows).
-  resolutionSource CatalogKnowledgeSource?
-  experience       Experience                           @relation(fields: [experienceId], references: [id], onDelete: Cascade)
-  geoEntity        GeoEntity?                           @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  resolutionSource         CatalogKnowledgeSource?
+  /// Typed participation of the member (VISIT / TRAVERSE). Written by the
+  /// structured composer; null on legacy rows and read through the
+  /// participation migration strategy (venue/waypoint → VISIT, route →
+  /// TRAVERSE, area → none yet). Never encodes GeoEntity.kind.
+  participation            ExperienceComponentParticipation?
+  traversalFromGeoEntityId String?
+  traversalToGeoEntityId   String?
+  traversalFromLatitude    Float?
+  traversalFromLongitude   Float?
+  traversalToLatitude      Float?
+  traversalToLongitude     Float?
+  traversalDirected        Boolean?
+  traversalGeometry        Json?
+  traversalGeometrySource  String?
+  traversalResolvedAt      DateTime?
+  experience               Experience                           @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  geoEntity                GeoEntity?                           @relation(fields: [geoEntityId], references: [id], onDelete: Restrict)
+  traversalFrom            GeoEntity?                           @relation("TraversalFrom", fields: [traversalFromGeoEntityId], references: [id], onDelete: Restrict)
+  traversalTo              GeoEntity?                           @relation("TraversalTo", fields: [traversalToGeoEntityId], references: [id], onDelete: Restrict)
 
   @@unique([experienceId, sourcePosition])
   @@index([experienceId, resolutionState])
@@ -369,6 +401,167 @@ enum ExperienceStatus {
   ARCHIVED
 }
 
+/// Destination-independent structured admission outcome (design C14).
+enum AdmissionOutcome {
+  ADMITTED
+  EXCLUDED_CATEGORY
+  INSUFFICIENT_ADMISSION_EVIDENCE
+}
+
+/// Canonical, provider-neutral admission signal (C6/C7).
+enum AdmissionSignal {
+  EXPLICIT_VISITOR_CLASSIFICATION
+  HISTORIC_CLASSIFICATION
+  HERITAGE_DESIGNATION
+  VISITABLE_PLACE_CLASS
+  ENCYCLOPEDIC_NOTABILITY
+  PROVIDER_PROMINENCE
+}
+
+/// Canonical admission exclusion class (C6/C7).
+enum AdmissionExclusion {
+  ADMINISTRATIVE_OR_LOCALITY
+  ROAD_OR_ROUTE_AS_PLACE
+  INFORMATION_OR_SIGNAGE
+  TRANSPORT_SERVICE
+  TECHNICAL_INFRASTRUCTURE
+  ACCOMMODATION
+}
+
+enum GeoEntityRelationType {
+  PART_OF
+}
+
+enum RelationEvidenceSource {
+  PROVIDER_SITE_MEMBERSHIP
+  ENCYCLOPEDIC_PART_OF
+  DECLARED_CONTAINMENT
+}
+
+enum VisitUnitClassification {
+  CHILD_REQUIRES_PARENT_VISIT
+  CHILD_INDEPENDENTLY_VISITABLE
+  AMBIGUOUS_PARENT_RELATIONSHIP
+}
+
+enum OpeningHoursStatus {
+  KNOWN
+  UNKNOWN
+}
+
+enum VisitDurationStatus {
+  RESOLVED
+  CONFLICTING
+  INSUFFICIENT_EVIDENCE
+}
+
+enum DurationAuthorityClass {
+  STRUCTURED_PROVIDER
+  OFFICIAL_SITE
+  OFFICIAL_TOURISM_OR_INSTITUTIONAL
+  REFERENCE_TRAVEL
+  USER_GENERATED
+  GROUNDED_SYNTHESIS
+}
+
+enum ExperienceComponentParticipation {
+  VISIT
+  TRAVERSE
+}
+
+enum IdentityLinkRule {
+  FIRST_IDENTITY
+  SAME_PROVIDER_ID
+  SHARED_ENCYCLOPEDIC_ID
+  PROVIDER_STRUCTURAL_RELATION
+  PROVIDER_CROSS_LINK
+  STRUCTURAL_CORRESPONDENCE
+}
+
+enum TourReadinessVerdict {
+  READY
+  PLANNER_LIMITED
+}
+
+/// One structured admission evaluation of a PLACE GeoEntity (0..1). Only
+/// destination-independent outcomes are stored; OUTSIDE_DESTINATION and the
+/// pre-identity rejections (NO_NAME / NO_COORDINATES / NO_CANONICAL_IDENTITY /
+/// DUPLICATE_OF) are never persisted here.
+model GeoEntityAdmission {
+  geoEntityId   String               @id
+  outcome       AdmissionOutcome
+  rule          String
+  signals       AdmissionSignal[]    @default([])
+  exclusions    AdmissionExclusion[] @default([])
+  policyVersion String
+  evidence      Json
+  evaluatedAt   DateTime
+  geoEntity     GeoEntity            @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+
+  @@index([outcome, policyVersion])
+  @@map("geo_entity_admission")
+}
+
+/// N:M PART_OF relationship between two GeoEntities. `visitUnitClassification`
+/// is set only on a direct visit-parent relationship; null for deeper or
+/// non-visit relationships kept as knowledge only.
+model GeoEntityRelation {
+  id                      String                   @id @default(uuid())
+  childId                 String
+  parentId                String
+  type                    GeoEntityRelationType
+  evidenceSource          RelationEvidenceSource
+  evidence                Json
+  visitUnitClassification VisitUnitClassification?
+  classificationVersion   String?
+  evaluatedAt             DateTime
+  child                   GeoEntity                @relation("RelationChild", fields: [childId], references: [id], onDelete: Cascade)
+  parent                  GeoEntity                @relation("RelationParent", fields: [parentId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, parentId, type])
+  @@index([parentId, type])
+  @@index([childId, visitUnitClassification])
+  @@map("geo_entity_relation")
+}
+
+/// Physical opening hours of a GeoEntity (0..1). Owned by the GeoEntity, not
+/// the Experience.
+model GeoEntityOpeningHours {
+  geoEntityId     String             @id
+  status          OpeningHoursStatus
+  timezone        String?
+  schedule        Json?
+  scheduleVersion Int?
+  source          String
+  sourceRecordRef String?
+  sourceRaw       String?
+  parserVersion   String?
+  retrievedAt     DateTime
+  geoEntity       GeoEntity          @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+
+  @@index([retrievedAt])
+  @@map("geo_entity_opening_hours")
+}
+
+/// Visit-duration knowledge of a PLACE GeoEntity (0..1). FALLBACK is never
+/// stored — applied at projection by the P-D2-F policy.
+model GeoEntityVisitDuration {
+  geoEntityId     String                  @id
+  status          VisitDurationStatus
+  minMinutes      Int?
+  typicalMinutes  Int?
+  maxMinutes      Int?
+  authorityClass  DurationAuthorityClass?
+  evidenceQuality String?
+  evidence        Json
+  resolverVersion String
+  resolvedAt      DateTime
+  geoEntity       GeoEntity               @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+
+  @@index([status, resolvedAt])
+  @@map("geo_entity_visit_duration")
+}
+
 model User {
   id               String       @id @default(uuid())
   email            String       @unique
@@ -442,6 +635,12 @@ model Tour {
   prompt String? // The original prompt used
   query  String? // Search query if applicable
 
+  // Readiness verdict (R4-D4) and planner snapshots (null on legacy tours).
+  readinessVerdict    TourReadinessVerdict?
+  timezone            String?
+  planningContext     Json?
+  planningDiagnostics Json?
+
   // Categories - array of category names (e.g., "walking", "history", "food")
   categories String[] @default([])
 
@@ -471,6 +670,7 @@ model TourExperience {
   duration           Float?
   notes              String?
   travelFromPrevious Json?
+  endTime            DateTime?
   tour               Tour                      @relation(fields: [tourId], references: [id], onDelete: Cascade)
   experience         Experience                @relation(fields: [experienceId], references: [id], onDelete: Restrict)
   components         TourExperienceComponent[]
@@ -484,17 +684,21 @@ model TourExperience {
 }
 
 model TourExperienceComponent {
-  id               String         @id @default(uuid())
+  id               String                            @id @default(uuid())
   tourExperienceId String
   geoEntityId      String
   order            Int?
   role             String?
-  required         Boolean        @default(true)
+  required         Boolean                           @default(true)
   name             String
   latitude         Float?
   longitude        Float?
   geometry         Json?
-  tourExperience   TourExperience @relation(fields: [tourExperienceId], references: [id], onDelete: Cascade)
+  participation    ExperienceComponentParticipation?
+  plannedStart     DateTime?
+  plannedEnd       DateTime?
+  planningEvidence Json?
+  tourExperience   TourExperience                    @relation(fields: [tourExperienceId], references: [id], onDelete: Cascade)
 
   @@index([tourExperienceId])
   @@map("tour_experience_component")
