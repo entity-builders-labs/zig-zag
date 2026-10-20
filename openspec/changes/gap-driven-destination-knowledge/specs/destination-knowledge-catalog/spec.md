@@ -88,7 +88,7 @@ Every Experience SHALL reference what justifies each required component: the str
 - **THEN** its PART_OF relation, its visit-unit classification and the structured evidence for both can be enumerated from the catalog
 
 ### Requirement: Knowledge is owned by the entity it describes
-Admission evaluations, direct PART_OF relationships with their visit-unit classification, physical opening hours and reusable visit-duration knowledge SHALL be stored as knowledge of the canonical GeoEntity, each with its own version, timestamp and provenance, and SHALL NOT create another place identity or catalog. Bounded traversals SHALL be stored on the ExperienceComponent and planning results only in the Tour snapshot.
+Admission evaluations, direct PART_OF relationships, physical opening hours, reusable visit-duration knowledge and structured prominence evidence SHALL be stored as knowledge of the canonical GeoEntity with version, timestamp and provenance. They SHALL NOT create another place identity or catalog. Bounded traversals SHALL be stored on the ExperienceComponent and planning results only in the Tour snapshot.
 
 #### Scenario: Re-evaluation under a new admission policy
 - **WHEN** the admission policy version changes
@@ -97,6 +97,17 @@ Admission evaluations, direct PART_OF relationships with their visit-unit classi
 #### Scenario: Derived child states are not stored
 - **WHEN** a parent site's admission changes from not admitted to admitted
 - **THEN** its REQUIRES_PARENT_VISIT children read as SUB_FEATURE_OF without any child record being rewritten
+
+#### Scenario: Prominence belongs to canonical geography
+- **WHEN** a structured provider supplies a prominence fact for a canonical place
+- **THEN** the fact and its source provenance are persisted as GeoEntity knowledge without changing the GeoEntity identity or its admission evaluation
+
+### Requirement: Prominence uses its canonical typed contract
+GeoEntity prominence evidence SHALL follow `structured-catalog-prominence`; it SHALL NOT be hidden in metadata, stored as an Experience field or represented as a universal quality score.
+
+#### Scenario: Prominence does not create another catalog
+- **WHEN** prominence evidence is attached to a place
+- **THEN** it remains GeoEntity knowledge and the existing catalog and identity remain authoritative
 
 ### Requirement: Catalog-first reads
 Every generation SHALL read a catalog snapshot for the destination before any research, and SHALL plan only from a snapshot read after the last knowledge write of that generation, including reusable composition writes.

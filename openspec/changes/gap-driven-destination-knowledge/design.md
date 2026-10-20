@@ -1860,7 +1860,7 @@ provider adapters, recorded with each admission):
 | Signal | Strength | Typical provider sources |
 |---|---|---|
 | EXPLICIT_VISITOR_CLASSIFICATION — the provider classifies the place in its own attraction / sight / cultural-visit taxonomy | decisive | OSM `tourism=*` values that denote a standalone visitor destination (attraction, museum, gallery, viewpoint, zoo, aquarium, theme_park, ...), other providers' attraction/culture branches, Wikidata class under a visitor-attraction root |
-| HISTORIC_CLASSIFICATION — the provider classifies the place as a historic feature | decisive | OSM `historic=*`, Wikidata class under a historic-site root |
+| HISTORIC_CLASSIFICATION — the provider classifies the place as a historic feature | supporting | OSM `historic=*`, Wikidata class under a historic-site root |
 | HERITAGE_DESIGNATION — an official heritage designation | decisive | Wikidata P1435, OSM `heritage=*` |
 | VISITABLE_PLACE_CLASS — the base or secondary category describes a place the public typically visits (open space, worship, venue, market, cemetery, ...) | supporting | provider category / alternate taxonomy |
 | ENCYCLOPEDIC_NOTABILITY — a linked encyclopedic item with its own articles | supporting | Wikidata item linked by strong identity, with sitelinks |
@@ -1881,11 +1881,26 @@ name, coordinates and destination containment:
 
 1. A non-overridable exclusion (below) rejects.
 2. At least one **decisive** signal admits — including over an overridable
-   exclusion (a heritage-designated station, a historic pharmacy).
+   exclusion (an explicitly visitor-classified or heritage-designated
+   station). HISTORIC_CLASSIFICATION is supporting evidence and never admits
+   by itself.
 3. Otherwise a **VISITABLE_PLACE_CLASS** plus at least one independent
    notability signal (ENCYCLOPEDIC_NOTABILITY or PROVIDER_PROMINENCE) admits,
    unless an overridable exclusion applies.
 4. Otherwise the place is rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
+
+VISITABLE_PLACE_CLASS and HISTORIC_CLASSIFICATION are supporting evidence
+only. Descriptive, thematic or classification evidence alone never proves
+that a GeoEntity is independently visitable as an Experience. A descriptive
+classification may contribute only when combined with independent canonical
+notability evidence; independently established own-visit-unit evidence under
+C5 may provide that evidence where available. Explicit visitor-destination
+classification and heritage designation remain decisive. This rule applies
+uniformly across provider-neutral canonical evidence and place classes: no
+provider taxonomy value, object class, name, destination, preference,
+duration, LLM or web result receives a special domain rule. Provider
+adapters map their source facts; if the source does not establish a canonical
+fact, its value remains UNKNOWN.
 
 VISITABLE_PLACE_CLASS is supporting evidence only. Its mapping is not
 required to be exhaustive and absence from it is never a rejection reason by
@@ -1912,12 +1927,13 @@ an exclusion class does, and the overridable ones yield to decisive
 evidence. Expected outcomes, with no named place in policy:
 
 - ordinary pharmacy, no other signal → INSUFFICIENT_ADMISSION_EVIDENCE;
-  pharmacy with heritage or historic classification → admitted;
-- ordinary transit stop → EXCLUDED_CATEGORY (TRANSPORT_SERVICE); historic or
-  heritage-designated station → admitted;
+  pharmacy with heritage designation → admitted; historic classification
+  alone → INSUFFICIENT_ADMISSION_EVIDENCE;
+- ordinary transit stop → EXCLUDED_CATEGORY (TRANSPORT_SERVICE); explicitly
+  visitor-classified or heritage-designated station → admitted;
 - individual tomb with a structured parent cemetery → SUB_FEATURE_OF (C5);
-- named cemetery or stadium with an encyclopedic item, or with a visitor /
-  historic classification or heritage designation → admitted (as a parent
+- named cemetery or stadium with an encyclopedic item, or with a visitor
+  classification or heritage designation → admitted (as a parent
   site where C5 applies);
 - ordinary neighbourhood stadium or garden with no notability signal → not
   admitted.
@@ -1966,6 +1982,10 @@ downstream enrichment or specialized semantic Experience decisions.
   tests import or export it, never copy it. An architecture test fails if a
   second exclusion list, admission whitelist or tag-selector literal exists
   outside the policy and the adapter mappings.
+- The same canonical vocabulary exposes typed prominence evidence kinds for
+  ranking, but prominence ordering is a separate policy from admission. An
+  admission signal reused as evidence is referenced rather than remapped;
+  ranking cannot decide admission or write an admission evaluation.
 
 ### C8. Structured identity reconciliation
 
@@ -2012,12 +2032,16 @@ identity and admission-policy shortfalls route to no acquisition.
 
 ### C10. Ranking and providers (recorded, not cutover work)
 
-- Spike 3 ranking (`ranking-spike3-1`) is sufficient as the baseline.
-  Recorded issues: Mercado de San Telmo ranked low (marketplace weight 3);
-  Casa Rosada and Cabildo carry weak `tourism=yes`; duplicates affected
-  ordering (C8 fixes the identity part); OSM offers no importance signal. No
-  L2 research is added for ranking. Ranking work waits until C2-C8 land;
-  richer structured signals and optional enrichment may follow, non-blocking.
+- Spike 3 ranking (`ranking-spike3-1`) remains the baseline for budgeted
+  meaning-gap candidate offering, not a meaningful production order for
+  request-specific Experience candidates. The measured Buenos Aires smoke
+  confirms the latter has no quality order: Mercado de San Telmo ranked low
+  in the spike (marketplace weight 3); Casa Rosada and Cabildo carry weak
+  `tourism=yes`; duplicates affected ordering (C8 fixes the identity part);
+  OSM offers no importance signal. No L2 research is added for ranking.
+  Structured prominence for request-specific Experience candidates is now
+  specified by C17; it is separate from R5's bounded research-candidate
+  offering and from preference relevance.
 - No Geoapify, Overture, Google Places or other POI provider is added by
   the cutover. The provider-class abstraction stays; providers are activated
   by measured destination coverage. Provider insufficiency stays
@@ -2203,6 +2227,39 @@ model GeoEntityAdmission {                       // 0..1 per GeoEntity (PLACE)
   @@index([outcome, policyVersion])
   @@map("geo_entity_admission")
 }
+
+enum ProminenceEvidenceKind {
+  ENCYCLOPEDIC_SITELINK_COUNT ENCYCLOPEDIC_LANGUAGE_SITELINK
+  HERITAGE_DESIGNATION EXPLICIT_VISITOR_CLASSIFICATION PROVIDER_PROMINENCE
+}
+model GeoEntityProminenceEvidence {               // 0..N per GeoEntity
+  id                String   @id @default(uuid())
+  geoEntityId       String
+  kind              ProminenceEvidenceKind
+  sourceProvider    String
+  providerIdentity  String
+  sourceRecordId    String
+  fieldPath         String
+  numericValue      Int?
+  textValue         String?
+  languageCode      String?
+  authority         String?
+  designationLevel  String?
+  providerMetric    String?
+  comparisonScope   String?
+  observedAt        DateTime
+  policyVersion     String
+  geoEntity         GeoEntity @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  @@unique([geoEntityId, kind, sourceProvider, sourceRecordId, fieldPath])
+  @@index([geoEntityId, kind])
+  @@map("geo_entity_prominence_evidence")
+}
+// Per-kind shape checks keep heterogeneous facts typed: sitelink facts carry
+// numericValue (and optional languageCode); heritage facts carry authority /
+// designationLevel; visitor-class facts carry textValue; provider prominence
+// carries providerMetric and comparisonScope plus its source value. No JSON
+// metadata key or universal score participates in ordering. An empty evidence
+// set projects as UNKNOWN; it is not a negative value.
 
 enum GeoEntityRelationType { PART_OF }
 enum RelationEvidenceSource { PROVIDER_SITE_MEMBERSHIP  ENCYCLOPEDIC_PART_OF  DECLARED_CONTAINMENT }
@@ -2915,6 +2972,68 @@ gates):
 - do not expose internal matrices or the pair cache unless the product
   intentionally requires it.
 
+### C17. Structured prominence, separate from admission and preference
+
+The Buenos Aires revision-4 smoke (HEAD `5f6d40660445ee5a791df67a881f923760e25357`)
+found that 975 candidates were admitted and 967 Experiences composed, including
+331 historic tombs, 253 memorials, 38 monuments and 30 artworks, with no
+meaningful quality order. This is evidence that C6's decisive historic signal
+is too broad and that catalog prominence is not currently consumed by the
+production Experience candidate path.
+
+**Canonical evidence vocabulary.** Reuse the provider-neutral evidence kinds
+`ENCYCLOPEDIC_NOTABILITY`, `HERITAGE_DESIGNATION`,
+`EXPLICIT_VISITOR_CLASSIFICATION`, and `PROVIDER_PROMINENCE` already defined
+around C6/C7. Prominence evidence is a typed structured fact with its source,
+provider identity, source field/record, observed value and observation time;
+the evidence is not an admission result or an Experience score. A Wikidata
+QID establishes identity only. It establishes encyclopedic notability only
+when the identity-linked provider supplies article/sitelink facts. Missing
+evidence is `UNKNOWN`, not a negative value or a fabricated default.
+
+Evidence semantics:
+
+| Evidence | Claim and authority | Missing / comparison semantics | Persistence stability |
+|---|---|---|---|
+| Identity-linked Wikipedia/Wikidata sitelinks | The linked encyclopedic item has recorded language-article links; Wikidata is authoritative for its own sitelink statements, not visitor quality | May be absent; UNKNOWN. Compare recorded counts as that typed fact; no cutoff or QID-only inference | Persist observed count/language and observation time; link counts can change |
+| Heritage designation/level | A structured source records a designation value; an explicit issuer/authority is required to claim an official level. An OSM `heritage=*` tag proves the mapped record carries that tag, not independent legal authority | May be absent; UNKNOWN. Compare levels only within a source-defined comparable authority/scale | Persist the value, source, any issuing authority and observation time; do not assume levels are globally comparable |
+| Explicit visitor-destination classification | The provider classifies the place in a standalone visitor-destination class; this evidences visitor orientation, not popularity | May be absent; UNKNOWN. Reuse the canonical admission fact; do not remap in ranking | Persist the provider fact with source version/observation time; it may be corrected |
+| Provider prominence | A provider actually returns an importance/rank/popularity fact, scoped to its metric/query context | May be absent; UNKNOWN. Compare only within the same documented provider metric and scope; never synthesize for OSM | Persist only with retrieval time and comparison scope; volatile ranks are not timeless facts |
+| Historic classification | The provider classifies a historic feature; this is not proof of prominence by itself | May be absent; UNKNOWN; object-level historic evidence is supporting only per amended C6 | Persist the observed structured class and source provenance; corrections remain versioned |
+
+Do not create a universal numeric score or threshold. The versioned
+prominence ordering policy compares typed evidence lexicographically: source-
+defined heritage level where comparable; explicit visitor-destination
+classification; provider-native prominence only within its documented
+comparison scope; identity-linked sitelink facts; then other admitted
+structured evidence. Historic classification alone does not elevate an
+object. Incomparable or absent evidence stays UNKNOWN and ties break by
+canonical identity. Any change to this precedence requires a policy-version
+change and a recorded evidence rationale.
+
+**Ownership and consumption.** Persist structured prominence evidence as
+GeoEntity-keyed knowledge with typed evidence kind, provider identity,
+source field/record, value, timestamp and policy version. Admission remains
+owned by `GeoEntityAdmission`; prominence does not mutate identity, visit-unit,
+admission, preference relevance or planning readiness. A request-specific
+Experience-candidate ordering reads the underlying GeoEntity evidence and
+orders only otherwise valid Experiences. It is transient to that request and
+records the policy version/evidence references; it does not persist editorial
+rank on the reusable Experience. User preference relevance remains a
+separate ranking concern. Lower-ranked admitted Experiences remain valid and
+available; prominence never becomes another admission gate except the
+historic-object evidence requirement in C6.
+
+**Gastronomy and relationship follow-up.** Candidate supply is separate from
+prominence: add structured acquisition coverage for historic cafés, markets,
+food halls, notable restaurants/parrillas, cafés and bakeries through
+provider-neutral routing; ordinary venue category alone does not admit.
+Separately diagnose the smoke's 953 child-class facts, 951 parent-class
+facts, 92 membership hints and zero persisted relations by retaining raw and
+normalized parent/member IDs, identity correspondence, match decisions, and
+upsert outcomes. The current smoke does not establish which edge in that
+path failed.
+
 ### Superseded by revision 4
 
 | Revision 3 statement | Replaced by |
@@ -2967,10 +3086,13 @@ gates):
   embeddings, LLM or web authority. Supersedes the earlier recommendation
   to keep a child independent when its parent is not admitted. Contract:
   design C5.
-- **R4-D3. RESOLVED (owner, 2026-10-11): structured visitability/notability
+- **R4-D3. AMENDED (owner-requested, 2026-10-20; measured BA smoke): structured visitability/notability
   instead of an exhaustive tourism-type allowlist.** Ordinary admission is
   decided by canonical structured admission signals (C6) with a small
-  generic exclusion policy; categories are evidence, not the authority;
+  generic exclusion policy; descriptive/classification evidence alone is
+  insufficient, HISTORIC_CLASSIFICATION is supporting rather than decisive,
+  and admission requires independent canonical evidence where no decisive
+  visitor/heritage signal exists; categories are evidence, not the authority;
   provider tags map to signals at adapters; discovery selectors are
   acquisition strategy, not admission truth (C7); structured Wikidata facts
   participate without becoming L2. The earlier "add gardens and theatres"
@@ -3154,8 +3276,10 @@ gates):
   tourism/category signal; structured heritage/historic designation; provider
   importance/rank/popularity where available; spatial diversity (demoting
   redundant nearby candidates); Wikidata sitelinks only as a weak secondary
-  signal / tie-breaker. No LLM, embeddings, web evidence or L2 assertions in
-  core ranking. This supersedes the S4 ordering, which listed sitelinks first.
+  signal / tie-breaker. This governs budgeted candidate offering, not
+  request-specific Experience prominence ordering; C17 defines that separate
+  ordering. No LLM, embeddings, web evidence or L2 assertions in core ranking.
+  This supersedes the S4 ordering, which listed sitelinks first.
 
 ---
 

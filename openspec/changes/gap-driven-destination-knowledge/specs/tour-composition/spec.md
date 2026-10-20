@@ -14,6 +14,17 @@ Tour composition SHALL select only Experiences present in the final catalog snap
 - **WHEN** a selection includes an identity that was not offered
 - **THEN** the whole selection is rejected and no part of it is salvaged into a plan
 
+### Requirement: Structured prominence orders valid Experience candidates
+Experience candidate ordering SHALL consume canonical GeoEntity prominence per `structured-catalog-prominence`, only for otherwise valid candidates. It SHALL remain request-specific and SHALL NOT alter identity, visit unit, admission, preference relevance, planning readiness or reusable Experience state. UNKNOWN SHALL NOT be negative evidence.
+
+#### Scenario: Low-prominence Experience remains valid
+- **WHEN** a valid Experience has UNKNOWN or lower prominence than another valid candidate
+- **THEN** it may rank lower for the request but remains in the valid candidate set and is not rejected or removed from the catalog
+
+#### Scenario: Preference relevance remains separate
+- **WHEN** request-specific selection combines catalog prominence with user preference relevance
+- **THEN** the two signals remain separately typed and traceable, and preference relevance never changes admission
+
 ### Requirement: Request-specific composition stays in the Tour
 Selection, stop trimming, day assignment, ordering and travel between Experiences for one request SHALL be persisted only in the Tour snapshot, and SHALL NOT create or modify catalog Experiences.
 

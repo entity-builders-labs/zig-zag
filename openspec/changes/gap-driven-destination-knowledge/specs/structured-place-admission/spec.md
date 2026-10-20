@@ -23,7 +23,7 @@ A PLACE GeoEntity admitted by the structured admission policy SHALL be eligible 
 - **THEN** it is admitted and can be the VISIT component of a single-place Experience
 
 ### Requirement: Admission is decided by structured evidence, not a category whitelist
-The admission policy SHALL NOT require membership of a base category in an exhaustive list of tourism categories. A place SHALL be admitted when it carries a decisive structured signal (provider visitor-attraction classification, historic classification or heritage designation), or a visitable-place class plus an independent notability signal (identity-linked encyclopedic item or provider prominence). Otherwise it SHALL be rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
+The admission policy SHALL NOT require membership of a base category in an exhaustive list. A place SHALL be admitted on an explicit visitor-destination classification or heritage designation, or a visitable-place class plus independent notability. HISTORIC_CLASSIFICATION is supporting evidence only. Otherwise it SHALL be rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
 
 #### Scenario: Ordinary pharmacy
 - **WHEN** a pharmacy carries no historic, heritage, visitor-classification or notability signal
@@ -32,6 +32,29 @@ The admission policy SHALL NOT require membership of a base category in an exhau
 #### Scenario: Historic pharmacy
 - **WHEN** a pharmacy carries a heritage designation
 - **THEN** it is admitted
+
+#### Scenario: Bare historic object
+- **WHEN** a tomb, memorial, monument or person memorial has only a historic classification
+- **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
+
+### Requirement: Descriptive classification is not independent visit evidence
+Descriptive, thematic or classification evidence alone SHALL NOT establish independent visitability; HISTORIC_CLASSIFICATION is supporting evidence only. Admission SHALL require an explicit visitor-destination classification or heritage designation, or descriptive classification combined with independent canonical notability evidence. Independently established C5 own-visit-unit evidence MAY contribute where available. QID identity alone is not notability.
+
+#### Scenario: Descriptive classification without independent evidence
+- **WHEN** a GeoEntity has only descriptive/classification evidence, including a historic classification, and no independent visitor, heritage, notability or own-visit-unit evidence
+- **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
+
+#### Scenario: Classification with independent visitor evidence
+- **WHEN** a GeoEntity with descriptive classification also has an explicit visitor-destination classification
+- **THEN** it is admitted on that visitor-destination signal, not on historic classification alone
+
+#### Scenario: Classification with verified notability
+- **WHEN** a GeoEntity has a descriptive classification and identity-linked encyclopedic notability evidence
+- **THEN** it is admitted by the combined canonical evidence, while a QID without those facts remains insufficient
+
+#### Scenario: Classification with an independently established visit unit
+- **WHEN** a GeoEntity has descriptive classification and C5 independently establishes its own visit unit from per-instance structured evidence
+- **THEN** that canonical visit-unit fact may supply independent visitability evidence without making it a general admission signal
 
 #### Scenario: Notable stadium
 - **WHEN** a named stadium inside the destination is linked to an encyclopedic item with its own articles
@@ -45,12 +68,20 @@ The admission policy SHALL NOT require membership of a base category in an exhau
 - **WHEN** a named sculpture carries only `tourism=artwork` and no historic or heritage classification, encyclopedic notability, provider prominence or parent-site relationship
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
+#### Scenario: Multiple descriptive classifications remain supporting evidence
+- **WHEN** a GeoEntity carries artwork and historic classifications but no independent visitor, heritage, notability or own-visit-unit evidence
+- **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
+
 ### Requirement: The visitable-place mapping is never a whitelist
 The visitable-place class mapping SHALL be supporting evidence only. It SHALL NOT be required to be exhaustive, and absence of a category from it SHALL NOT by itself reject a place.
 
 #### Scenario: Unusual category with decisive evidence
-- **WHEN** a bookstore, whose category is absent from the visitable-place mapping, carries a historic classification
-- **THEN** it is admitted
+- **WHEN** a bookstore, whose category is absent from the visitable-place mapping, carries an explicit visitor-destination classification
+- **THEN** it is admitted regardless of its absence from the mapping
+
+#### Scenario: Historic classification does not replace evidence
+- **WHEN** a bookstore carries a historic classification but no visitor-destination, heritage, independent notability or own-visit-unit evidence
+- **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 ### Requirement: Admission signals are canonical and recorded
 Admission signals SHALL be provider-neutral typed facts produced by provider adapters from provider categories, alternate taxonomies, encyclopedic classes and statements, heritage designations, prominence values and structured relationships. Each admission record SHALL list the signals it relied on and the rule that admitted it.
@@ -76,8 +107,8 @@ The admission policy SHALL keep a small, provider-neutral set of exclusion class
 ### Requirement: Only service exclusions yield to decisive evidence
 Transport-service, technical-infrastructure and accommodation exclusions SHALL yield to a decisive structured signal. Administrative/locality, road/route, information/signage and grouped sub-feature exclusions SHALL always reject.
 
-#### Scenario: Historic station
-- **WHEN** a railway station carries a heritage designation or historic classification
+#### Scenario: Visitor-classified or heritage-designated station
+- **WHEN** a railway station carries an explicit visitor-destination classification or heritage designation
 - **THEN** it is admitted despite the transport-service exclusion
 
 #### Scenario: Hotel
@@ -96,7 +127,7 @@ Admission signal types and strengths, the admission rule, exclusion classes and 
 - **THEN** admission and every test observe the change without any other edit
 
 ### Requirement: Provider taxonomies map at the provider boundary
-Provider tags and taxonomies SHALL be translated into canonical admission signals, exclusion classes and place classes only at the provider adapter boundary; downstream components SHALL reason over canonical signals and classes, not provider tags.
+Provider tags and taxonomies SHALL be translated into canonical admission signals, exclusion classes and place classes only at the provider adapter boundary; downstream components SHALL reason over canonical signals and classes, not provider tags. Admission behavior SHALL be provider-neutral and SHALL NOT special-case provider taxonomy values, place classes, names, destinations, preferences, duration, LLM output or web results.
 
 #### Scenario: Duplicate vocabulary introduced
 - **WHEN** a module outside the provider adapter mappings defines its own list of excluded or admissible provider category values

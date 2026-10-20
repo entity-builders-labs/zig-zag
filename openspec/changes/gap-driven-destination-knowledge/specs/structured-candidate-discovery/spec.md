@@ -94,6 +94,21 @@ Provider query selectors SHALL be acquisition strategy derived from the adapter'
 - **WHEN** shops inside the destination carry no signal-bearing attribute
 - **THEN** discovery need not retrieve them, and their absence is not recorded as a rejection
 
+### Requirement: Structured gastronomy candidate coverage
+Destination-scope discovery SHALL include provider-neutral structured gastronomy coverage from enabled providers. Candidate discovery SHALL NOT make ordinary food-venue classification an admission signal or relax admission globally; source limitations SHALL be recorded separately from admission.
+
+#### Scenario: Food venue discovery does not imply admission
+- **WHEN** a structured source returns an ordinary café or restaurant in destination scope
+- **THEN** it becomes a discovered candidate and is evaluated by the unchanged canonical admission policy
+
+#### Scenario: Gastronomy coverage is reported
+- **WHEN** the enabled structured sources are exhausted for a destination
+- **THEN** discovered counts and coverage limitations for historic cafés, markets, food halls, notable restaurants/parrillas, cafés and bakeries are recorded separately from admission and ranking outcomes
+
+#### Scenario: Gastronomy selectors remain provider-neutral
+- **WHEN** enabled providers use different source taxonomies for those food-place classes
+- **THEN** each adapter maps them to canonical candidate facts and routing does not branch on provider identity
+
 ### Requirement: Area-scoped discovery needs a known extent
 Discovery scoped to an area SHALL use only areas whose extent is a provider boundary. An area with unknown extent SHALL NOT scope place or route discovery.
 
