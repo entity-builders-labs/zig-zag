@@ -41,10 +41,13 @@ describe('OSM admission adapter (task 37.1)', () => {
     );
   });
 
-  it('maps historic=* to decisive HISTORIC_CLASSIFICATION', () => {
-    expect(signalTypes({ historic: 'monument' })).toContain(
-      'HISTORIC_CLASSIFICATION',
-    );
+  it('maps historic provider data to supporting HISTORIC_CLASSIFICATION', () => {
+    expect(
+      osmTagsToAdmissionFacts({ historic: 'monument' }).signals,
+    ).toContainEqual({
+      type: 'HISTORIC_CLASSIFICATION',
+      strength: 'supporting',
+    });
   });
 
   it('maps heritage=* to decisive HERITAGE_DESIGNATION, including a heritage-tagged pharmacy', () => {

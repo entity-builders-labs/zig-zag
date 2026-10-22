@@ -7,6 +7,7 @@ import { derivePreferenceUtility } from '../../../src/modules/tours/utils/prefer
 import { PreferenceUtilityResult } from '../../../src/modules/tours/interfaces/preference-utility.interface';
 import { composableExperience } from '../../../src/modules/tours/fixtures/composable-experience.fixture';
 import { planningDaysFixture } from '../../../src/modules/tours/fixtures/planning-input.fixture';
+import { STRUCTURED_ADMISSION_POLICY_VERSION } from '../../../src/modules/tours/admission/structured-admission-policy';
 import { closeDb, getPrisma, resetDb } from '../support/test-db';
 
 const scope = { latitude: -34.6, longitude: -58.38, radiusMeters: 2_000 };
@@ -36,10 +37,10 @@ async function createAdmittedPlace(
     data: {
       geoEntityId: entity.id,
       outcome: 'ADMITTED',
-      rule: 'structured-admission-v1',
+      rule: STRUCTURED_ADMISSION_POLICY_VERSION,
       signals: ['EXPLICIT_VISITOR_CLASSIFICATION'],
       exclusions: [],
-      policyVersion: 'structured-admission-v1',
+      policyVersion: STRUCTURED_ADMISSION_POLICY_VERSION,
       evidence: { provider: 'openstreetmap', externalId },
       evaluatedAt: new Date('2026-10-19T00:00:00.000Z'),
     },

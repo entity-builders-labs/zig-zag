@@ -18,6 +18,7 @@ import {
   AdmissionSignalEvidence,
   isAdmissionExclusionPersisted,
   isRouteExclusion,
+  STRUCTURED_ADMISSION_POLICY_VERSION,
 } from '../admission/structured-admission-policy';
 
 /**
@@ -116,7 +117,7 @@ export class StructuredKnowledgePersistenceService {
       create: {
         geoEntityId,
         outcome: toAdmissionOutcome(record),
-        rule: 'structured-admission-v1',
+        rule: STRUCTURED_ADMISSION_POLICY_VERSION,
         signals: record.signals as AdmissionSignal[],
         exclusions: record.exclusions
           .map(toAdmissionExclusion)
@@ -127,7 +128,7 @@ export class StructuredKnowledgePersistenceService {
       },
       update: {
         outcome: toAdmissionOutcome(record),
-        rule: 'structured-admission-v1',
+        rule: STRUCTURED_ADMISSION_POLICY_VERSION,
         signals: record.signals as AdmissionSignal[],
         exclusions: record.exclusions
           .map(toAdmissionExclusion)

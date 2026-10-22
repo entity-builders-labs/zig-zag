@@ -37,7 +37,7 @@ export const ADMISSION_SIGNAL_STRENGTHS: Readonly<
   Record<AdmissionSignalType, AdmissionSignalStrength>
 > = {
   EXPLICIT_VISITOR_CLASSIFICATION: 'decisive',
-  HISTORIC_CLASSIFICATION: 'decisive',
+  HISTORIC_CLASSIFICATION: 'supporting',
   HERITAGE_DESIGNATION: 'decisive',
   VISITABLE_PLACE_CLASS: 'supporting',
   ENCYCLOPEDIC_NOTABILITY: 'supporting',
@@ -46,11 +46,11 @@ export const ADMISSION_SIGNAL_STRENGTHS: Readonly<
 
 export const DECISIVE_ADMISSION_SIGNALS: readonly AdmissionSignalType[] = [
   'EXPLICIT_VISITOR_CLASSIFICATION',
-  'HISTORIC_CLASSIFICATION',
   'HERITAGE_DESIGNATION',
 ];
 
 export const SUPPORTING_ADMISSION_SIGNALS: readonly AdmissionSignalType[] = [
+  'HISTORIC_CLASSIFICATION',
   'VISITABLE_PLACE_CLASS',
   'ENCYCLOPEDIC_NOTABILITY',
   'PROVIDER_PROMINENCE',
@@ -133,7 +133,7 @@ export const DEFAULT_VISIT_UNITS: Readonly<
 export type CanonicalPlaceClass = string;
 
 /** Versioned policy identity; bump when the rule or vocabulary changes. */
-export const STRUCTURED_ADMISSION_POLICY_VERSION = 'structured-admission-v1';
+export const STRUCTURED_ADMISSION_POLICY_VERSION = 'structured-admission-v2';
 
 export type AdmissionRejectionReason =
   | 'EXCLUDED_CATEGORY'
@@ -171,16 +171,19 @@ export function evaluateAdmissionRule(
     return { admitted: true, signals: [...present].sort() };
   }
 
-  // 3. A visitable place class plus an independent notability signal admits,
-  //    unless an overridable exclusion applies.
+  // 3. Descriptive place classifications plus an independent notability
+  //    signal admit, unless an overridable exclusion applies. Classification
+  //    evidence alone (including HISTORIC_CLASSIFICATION) is never decisive.
   if (exclusionSet.size > 0) {
     return { admitted: false, reason: 'EXCLUDED_CATEGORY' };
   }
-  const visitable = present.has('VISITABLE_PLACE_CLASS');
+  const classified =
+    present.has('VISITABLE_PLACE_CLASS') ||
+    present.has('HISTORIC_CLASSIFICATION');
   const notable =
     present.has('ENCYCLOPEDIC_NOTABILITY') ||
     present.has('PROVIDER_PROMINENCE');
-  if (visitable && notable) {
+  if (classified && notable) {
     return { admitted: true, signals: [...present].sort() };
   }
 

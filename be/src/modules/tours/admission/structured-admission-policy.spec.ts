@@ -8,11 +8,13 @@ import {
 } from './structured-admission-policy';
 
 describe('structured admission policy (design C6/C7)', () => {
-  it('assigns decisive strength only to the three decisive signal types', () => {
+  it('assigns decisive strength only to visitor and heritage signal types', () => {
     expect(ADMISSION_SIGNAL_STRENGTHS.EXPLICIT_VISITOR_CLASSIFICATION).toBe(
       'decisive',
     );
-    expect(ADMISSION_SIGNAL_STRENGTHS.HISTORIC_CLASSIFICATION).toBe('decisive');
+    expect(ADMISSION_SIGNAL_STRENGTHS.HISTORIC_CLASSIFICATION).toBe(
+      'supporting',
+    );
     expect(ADMISSION_SIGNAL_STRENGTHS.HERITAGE_DESIGNATION).toBe('decisive');
     expect(ADMISSION_SIGNAL_STRENGTHS.VISITABLE_PLACE_CLASS).toBe('supporting');
     expect(ADMISSION_SIGNAL_STRENGTHS.ENCYCLOPEDIC_NOTABILITY).toBe(
@@ -38,7 +40,7 @@ describe('structured admission policy (design C6/C7)', () => {
 
   it('admits a decisive signal on its own', () => {
     expect(s(['EXPLICIT_VISITOR_CLASSIFICATION']).admitted).toBe(true);
-    expect(s(['HISTORIC_CLASSIFICATION']).admitted).toBe(true);
+    expect(s(['HISTORIC_CLASSIFICATION']).admitted).toBe(false);
     expect(s(['HERITAGE_DESIGNATION']).admitted).toBe(true);
   });
 
@@ -66,6 +68,19 @@ describe('structured admission policy (design C6/C7)', () => {
     expect(s(['VISITABLE_PLACE_CLASS', 'PROVIDER_PROMINENCE']).admitted).toBe(
       true,
     );
+  });
+
+  it('a historic classification plus independent notability admits', () => {
+    expect(
+      s(['HISTORIC_CLASSIFICATION', 'ENCYCLOPEDIC_NOTABILITY']).admitted,
+    ).toBe(true);
+  });
+
+  it('multiple descriptive classifications without notability are insufficient', () => {
+    expect(s(['HISTORIC_CLASSIFICATION', 'VISITABLE_PLACE_CLASS'])).toEqual({
+      admitted: false,
+      reason: 'INSUFFICIENT_ADMISSION_EVIDENCE',
+    });
   });
 
   it('a bare visitable class without notability is insufficient (ordinary park)', () => {
