@@ -9,21 +9,21 @@ depend on web research or tourism assertions.
 ## ADDED Requirements
 
 ### Requirement: Versioned structured admission policy
-Admission of an ordinary PLACE candidate SHALL be decided by a deterministic, versioned admission policy over structured provider evidence: canonical provider identity, a name, coordinates, containment in the destination, provider-backed existence, and sufficient structured evidence of independent visitability or notability. No language model, web evidence or tourism assertion SHALL take part.
+Admission of an ordinary PLACE candidate SHALL be decided by a deterministic, versioned admission policy over structured provider evidence: canonical provider identity, a name, coordinates, containment in the destination, provider-backed existence, and sufficient canonical admission/notability evidence available at the admission stage. No language model, web evidence or tourism assertion SHALL take part.
 
 #### Scenario: Same evidence, same decision
 - **WHEN** the same canonical candidate is evaluated twice under the same policy version
 - **THEN** both evaluations return the same admission decision, reason and signals
 
 ### Requirement: Admitted places are eligible without tourism assertions
-A PLACE GeoEntity admitted by the structured admission policy SHALL be eligible for ordinary single-place Experience composition with zero L2 tourism assertions. Admission SHALL be an evaluation recorded about the GeoEntity, never a separate place entity or catalog.
+A PLACE GeoEntity admitted by the structured admission policy SHALL be eligible for ordinary single-place Experience composition with zero L2 tourism assertions only when the independent C5 visit-unit evaluation says it is independently visitable with no parent restriction. The C5 outcome SHALL NOT change admission. Admission SHALL be an evaluation recorded about the GeoEntity, never a separate place entity or catalog.
 
 #### Scenario: Museum from a structured provider
 - **WHEN** a canonical museum inside Buenos Aires is classified by its provider as a visitor attraction, has a name and coordinates, and no tourism assertion exists for it
 - **THEN** it is admitted and can be the VISIT component of a single-place Experience
 
 ### Requirement: Admission is decided by structured evidence, not a category whitelist
-The admission policy SHALL NOT require membership of a base category in an exhaustive list. A place SHALL be admitted on an explicit visitor-destination classification or heritage designation, or a visitable-place class plus independent notability. HISTORIC_CLASSIFICATION is supporting evidence only. Otherwise it SHALL be rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
+The admission policy SHALL NOT require membership of a base category in an exhaustive list. A place SHALL be admitted on an explicit visitor-destination classification or heritage designation, or a descriptive classification plus independent canonical notability evidence. HISTORIC_CLASSIFICATION is supporting evidence only. Otherwise it SHALL be rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
 
 #### Scenario: Ordinary pharmacy
 - **WHEN** a pharmacy carries no historic, heritage, visitor-classification or notability signal
@@ -37,11 +37,11 @@ The admission policy SHALL NOT require membership of a base category in an exhau
 - **WHEN** a tomb, memorial, monument or person memorial has only a historic classification
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
-### Requirement: Descriptive classification is not independent visit evidence
-Descriptive, thematic or classification evidence alone SHALL NOT establish independent visitability; HISTORIC_CLASSIFICATION is supporting evidence only. Admission SHALL require an explicit visitor-destination classification or heritage designation, or descriptive classification combined with independent canonical notability evidence. Independently established C5 own-visit-unit evidence MAY contribute where available. QID identity alone is not notability.
+### Requirement: Descriptive classification is not sufficient admission evidence
+Descriptive, thematic or classification evidence alone SHALL NOT establish admission; HISTORIC_CLASSIFICATION is supporting evidence only. Admission SHALL require an explicit visitor-destination classification or heritage designation, or descriptive classification combined with independent canonical admission/notability evidence available at the admission stage. C5 visit-unit outcomes SHALL NOT be admission evidence. QID identity alone is not notability.
 
 #### Scenario: Descriptive classification without independent evidence
-- **WHEN** a GeoEntity has only descriptive/classification evidence, including a historic classification, and no independent visitor, heritage, notability or own-visit-unit evidence
+- **WHEN** a GeoEntity has only descriptive/classification evidence, including a historic classification, and no independent visitor, heritage or notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 #### Scenario: Classification with independent visitor evidence
@@ -52,9 +52,9 @@ Descriptive, thematic or classification evidence alone SHALL NOT establish indep
 - **WHEN** a GeoEntity has a descriptive classification and identity-linked encyclopedic notability evidence
 - **THEN** it is admitted by the combined canonical evidence, while a QID without those facts remains insufficient
 
-#### Scenario: Classification with an independently established visit unit
-- **WHEN** a GeoEntity has descriptive classification and C5 independently establishes its own visit unit from per-instance structured evidence
-- **THEN** that canonical visit-unit fact may supply independent visitability evidence without making it a general admission signal
+#### Scenario: Visit-unit classification does not affect admission
+- **WHEN** C5 independently establishes a GeoEntity as its own visit unit but it has no sufficient canonical admission evidence
+- **THEN** the visit-unit outcome does not change its admission decision
 
 #### Scenario: Notable stadium
 - **WHEN** a named stadium inside the destination is linked to an encyclopedic item with its own articles
@@ -69,7 +69,7 @@ Descriptive, thematic or classification evidence alone SHALL NOT establish indep
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 #### Scenario: Multiple descriptive classifications remain supporting evidence
-- **WHEN** a GeoEntity carries artwork and historic classifications but no independent visitor, heritage, notability or own-visit-unit evidence
+- **WHEN** a GeoEntity carries artwork and historic classifications but no independent visitor, heritage or notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 ### Requirement: The visitable-place mapping is never a whitelist
@@ -80,7 +80,7 @@ The visitable-place class mapping SHALL be supporting evidence only. It SHALL NO
 - **THEN** it is admitted regardless of its absence from the mapping
 
 #### Scenario: Historic classification does not replace evidence
-- **WHEN** a bookstore carries a historic classification but no visitor-destination, heritage, independent notability or own-visit-unit evidence
+- **WHEN** a bookstore carries a historic classification but no visitor-destination, heritage or independent notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 ### Requirement: Admission signals are canonical and recorded

@@ -1884,19 +1884,23 @@ name, coordinates and destination containment:
    exclusion (an explicitly visitor-classified or heritage-designated
    station). HISTORIC_CLASSIFICATION is supporting evidence and never admits
    by itself.
-3. Otherwise a **VISITABLE_PLACE_CLASS** plus at least one independent
-   notability signal (ENCYCLOPEDIC_NOTABILITY or PROVIDER_PROMINENCE) admits,
-   unless an overridable exclusion applies.
+3. Otherwise a descriptive classification signal
+   (VISITABLE_PLACE_CLASS or HISTORIC_CLASSIFICATION) plus at least one
+   independent canonical notability signal (ENCYCLOPEDIC_NOTABILITY or
+   PROVIDER_PROMINENCE) admits, unless an overridable exclusion applies.
 4. Otherwise the place is rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
 
 VISITABLE_PLACE_CLASS and HISTORIC_CLASSIFICATION are supporting evidence
 only. Descriptive, thematic or classification evidence alone never proves
 that a GeoEntity is independently visitable as an Experience. A descriptive
 classification may contribute only when combined with independent canonical
-notability evidence; independently established own-visit-unit evidence under
-C5 may provide that evidence where available. Explicit visitor-destination
-classification and heritage designation remain decisive. This rule applies
-uniformly across provider-neutral canonical evidence and place classes: no
+admission/notability evidence available at this stage. C5 visit-unit outcomes
+are not admission evidence and are evaluated independently. Standalone
+Experience eligibility requires both an ADMITTED evaluation and an
+independently visitable visit-unit outcome with no parent restriction.
+Explicit visitor-destination classification and heritage designation remain
+decisive. This rule applies uniformly across provider-neutral canonical
+evidence and place classes: no
 provider taxonomy value, object class, name, destination, preference,
 duration, LLM or web result receives a special domain rule. Provider
 adapters map their source facts; if the source does not establish a canonical
@@ -3021,8 +3025,9 @@ orders only otherwise valid Experiences. It is transient to that request and
 records the policy version/evidence references; it does not persist editorial
 rank on the reusable Experience. User preference relevance remains a
 separate ranking concern. Lower-ranked admitted Experiences remain valid and
-available; prominence never becomes another admission gate except the
-historic-object evidence requirement in C6.
+available; prominence never becomes another admission gate except as
+independent canonical notability evidence for descriptive classifications
+under C6.
 
 **Gastronomy and relationship follow-up.** Candidate supply is separate from
 prominence: add structured acquisition coverage for historic cafés, markets,

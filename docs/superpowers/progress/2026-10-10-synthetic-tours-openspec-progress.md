@@ -14,9 +14,9 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current execution verdict
 
 **ACTIVE — `gap-driven-destination-knowledge` revision 4 production cutover.
-Tasks 39.0/39.1 and 40.1 are implemented and validated locally; 40.1 code is in
-`4d620934` and `7a8714b0`; completion evidence is recorded in this progress
-update.**
+Tasks 39.0/39.1, 39.2 and 40.1 are implemented and validated locally; 39.2
+source checkpoint is `a3c2837a`, and completion evidence is recorded in the
+OpenSpec task and this progress update.**
 
 - Spike 1 (`spikes/gap-driven-destination-knowledge-2026-10-10/`): web-first
   discovery, 0 grounded (preserved).
@@ -94,9 +94,9 @@ update.**
 
 ## Current checkpoint
 
-**OS6 — revision 4 cutover contract; tasks 39.0/39.1 and 40.1 completed locally.
-Task 40.1 implementation commits: `4d620934`, `7a8714b0`; final task/evidence
-status is recorded in the current OpenSpec task and progress sections.**
+**OS6 — revision 4 cutover contract; tasks 39.0/39.1, 39.2 and 40.1 completed
+locally. Task 39.2 source checkpoint: `a3c2837a`; task 40.1 implementation
+commits: `4d620934`, `7a8714b0`.**
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -194,18 +194,19 @@ status is recorded in the current OpenSpec task and progress sections.**
 
 ## Next authorized action
 
-Tasks 39.0/39.1 and 40.1 are complete locally. Task 40.1 composes one reusable
-Experience per admitted standalone PLACE with a stable signature and required
-VISIT component; its C14 duration/hours projections preserve provenance,
-missing/UNKNOWN semantics, and ignore metadata hours. DB integration on
-`zigzag_39_test` passed, as did 113 targeted tests, typecheck, changed-file
-ESLint, strict OpenSpec validation, and diff check. Independent verification
-found and prompted removal of the normalizer's metadata-hours fallback. The
-documentation completion commit is the current pending action. Clean-worktree
-preflight passed WRITE AUTHORIZED / INTEGRATION READY; rerun it after committing,
-then push the completed branch to
-`origin/feat/synthetic-tours-openspec`, then stop. Do not start task 40.2 or
-41.x.
+Tasks 39.0/39.1, 39.2 and 40.1 are complete locally. Task 39.2 keeps
+HISTORIC_CLASSIFICATION supporting, admits from canonical visitor/heritage or
+descriptive-plus-notability evidence, and does not consume C5 outcomes;
+standalone Experience eligibility remains ADMITTED AND independently visitable
+with no parent restriction. Its 27 targeted admission/provider tests, typecheck,
+changed-file ESLint, strict OpenSpec validation and diff check passed. The
+backend unit-suite failure in `experience-generation.acquisition-orchestration`
+(6 tests) reproduces unchanged at baseline `552dac54`. A separate C14 integration
+test was blocked before reset because the configured database was not
+`zigzag_39_test`. The remaining action is a bounded documentation completion
+commit, clean-worktree preflight, normal push to
+`origin/feat/synthetic-tours-openspec`, remote-HEAD verification, then stop.
+Do not start task 39.3 or task 40.2.
 
 37.1/37.2 done (2026-10-19): canonical structured admission policy +
 OSM/Wikidata adapters; dead acquisition authorities removed; destination-scope
