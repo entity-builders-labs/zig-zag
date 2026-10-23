@@ -4,6 +4,8 @@ import { StructuredPoiCatalogAcquisitionService } from '../../../src/modules/tou
 import { StructuredKnowledgePersistenceService } from '../../../src/modules/tours/services/structured-knowledge-persistence.service';
 import { ExperienceCatalogService } from '../../../src/modules/tours/services/experience-catalog.service';
 import { STRUCTURED_PROMINENCE_POLICY_VERSION } from '../../../src/modules/tours/prominence/structured-prominence.policy';
+import { ExperienceAcquisitionPlannerService } from '../../../src/modules/tours/services/experience-acquisition-planner.service';
+import { ExperienceAcquisitionService } from '../../../src/modules/tours/services/experience-acquisition.service';
 import { closeDb, getPrisma, resetDb } from '../support/test-db';
 
 const destination = {
@@ -325,5 +327,112 @@ describe('tour-generation integration · structured prominence evidence (task 39
     expect(
       clearedEntity.prominenceEvidence.map((row: any) => row.kind),
     ).toEqual(['EXPLICIT_VISITOR_CLASSIFICATION']);
+  });
+
+  it('an unavailable encyclopedic lookup cannot revoke an admission that rested on that evidence; a resolved absence re-evaluates it', async () => {
+    const features: Feature[] = [
+      {
+        osmType: 'node',
+        osmId: 8,
+        tags: { historic: 'memorial', wikidata: 'Q8' },
+      },
+    ];
+    const admitted = await acquire(
+      features,
+      wikidataOutcome({ facts: [{ qid: 'Q8', articles: ['es', 'en'] }] }),
+    );
+    expect(
+      (await entityFor(admitted.prisma, 'osm:node:8')).admission.outcome,
+    ).toBe('ADMITTED');
+
+    const outage = await acquire(features, wikidataOutcome({ failed: ['Q8'] }));
+    const kept = await entityFor(outage.prisma, 'osm:node:8');
+    expect(kept.admission.outcome).toBe('ADMITTED');
+    expect(kept.admission.signals).toEqual(
+      expect.arrayContaining(['ENCYCLOPEDIC_NOTABILITY']),
+    );
+    expect((kept.admission.evidence as any).signalEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          signal: 'ENCYCLOPEDIC_NOTABILITY',
+          provider: 'wikidata',
+          externalId: 'Q8',
+          value: 2,
+        }),
+      ]),
+    );
+
+    const resolvedAbsent = await acquire(
+      features,
+      wikidataOutcome({ missing: ['Q8'] }),
+    );
+    expect(
+      (await entityFor(resolvedAbsent.prisma, 'osm:node:8')).admission.outcome,
+    ).toBe('INSUFFICIENT_ADMISSION_EVIDENCE');
+  });
+
+  it('the production planner routes entity facts through the executor into persisted evidence', async () => {
+    const prisma = await getPrisma();
+    const wikidata = wikidataOutcome({
+      facts: [{ qid: 'Q9', articles: ['es'] }],
+    });
+    const provider = new StructuredPoiAcquisitionProvider(
+      osmFeatures([
+        {
+          osmType: 'node',
+          osmId: 9,
+          tags: { tourism: 'museum', wikidata: 'Q9' },
+        },
+      ]),
+      wikidata as any,
+    );
+    const catalog = new ExperienceCatalogService(prisma, {} as any);
+    const acquisition = new ExperienceAcquisitionService(
+      catalog,
+      {} as any,
+      undefined,
+      undefined,
+      { synthesizeProposals: jest.fn() } as any,
+      undefined,
+      undefined,
+      { search: jest.fn() } as any,
+      { extract: jest.fn() } as any,
+      undefined,
+      { fetch: jest.fn() } as any,
+      undefined,
+      provider,
+      new StructuredPoiCatalogAcquisitionService(
+        prisma,
+        catalog,
+        new StructuredKnowledgePersistenceService(prisma),
+      ),
+    );
+    const plan = new ExperienceAcquisitionPlannerService().buildAcquisitionPlan(
+      {
+        destination,
+        deficits: [
+          {
+            origin: 'global_capacity',
+            reason: 'Fixture capacity gap',
+            currentEligibleCount: 0,
+            requiredEligibleCount: 1,
+          },
+        ],
+      },
+    );
+
+    const result: any = await acquisition.executePlan(plan);
+
+    expect(wikidata.lookupStructuredEntityFacts).toHaveBeenCalledWith(['Q9']);
+    expect(result.providerResults.structured_poi.provenance).toMatchObject({
+      entityFacts: { status: 'SUCCEEDED', requested: 1, known: 1 },
+    });
+    const entity = await entityFor(prisma, 'osm:node:9');
+    expect(
+      entity.prominenceEvidence.map((row: any) => row.kind).sort(),
+    ).toEqual([
+      'ENCYCLOPEDIC_SITELINK_COUNT',
+      'EXPLICIT_VISITOR_CLASSIFICATION',
+    ]);
   });
 });

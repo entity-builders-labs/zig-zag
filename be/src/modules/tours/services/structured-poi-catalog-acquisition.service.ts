@@ -7,6 +7,7 @@ import {
   ParentSiteCandidate,
 } from '../admission/parent-site-visit-unit.policy';
 import {
+  ADMISSION_SIGNAL_STRENGTHS,
   admissionSignal,
   evaluateAdmissionRule,
 } from '../admission/structured-admission-policy';
@@ -83,6 +84,57 @@ export class StructuredPoiCatalogAcquisitionService {
     private readonly catalog: ExperienceCatalogService,
     private readonly knowledge: StructuredKnowledgePersistenceService,
   ) {}
+
+  /**
+   * The encyclopedic admission evidence previously recorded for the items
+   * whose lookup is UNAVAILABLE in this run. A resolved observation (KNOWN or
+   * NOT_FOUND) always replaces it; nothing is invented when no prior
+   * evaluation exists.
+   */
+  private async retainedEncyclopedicEvidence(
+    geoEntityId: string,
+    group: readonly StructuredPoiCandidate[],
+  ): Promise<
+    Array<AdmissionSignalEvidence & { provider: string; externalId: string }>
+  > {
+    const unavailable = new Set(
+      group.flatMap((candidate) =>
+        candidate.entityFacts?.status === 'UNAVAILABLE'
+          ? [candidate.entityFacts.qid]
+          : [],
+      ),
+    );
+    if (unavailable.size === 0) return [];
+    const prior = await this.prisma.geoEntityAdmission.findUnique({
+      where: { geoEntityId },
+      select: { evidence: true },
+    });
+    const recorded = (prior?.evidence as { signalEvidence?: unknown } | null)
+      ?.signalEvidence;
+    if (!Array.isArray(recorded)) return [];
+    return recorded.flatMap((entry) => {
+      const fact = entry as Partial<
+        AdmissionSignalEvidence & { provider: string; externalId: string }
+      >;
+      return fact.provider === 'wikidata' &&
+        typeof fact.externalId === 'string' &&
+        unavailable.has(fact.externalId) &&
+        typeof fact.signal === 'string' &&
+        fact.signal in ADMISSION_SIGNAL_STRENGTHS &&
+        typeof fact.field === 'string' &&
+        (typeof fact.value === 'string' || typeof fact.value === 'number')
+        ? [
+            {
+              signal: fact.signal,
+              field: fact.field,
+              value: fact.value,
+              provider: fact.provider,
+              externalId: fact.externalId,
+            },
+          ]
+        : [];
+    });
+  }
 
   async persist(
     candidates: readonly StructuredPoiCandidate[],
@@ -239,7 +291,19 @@ export class StructuredPoiCatalogAcquisitionService {
               : undefined,
         }),
       );
-      const signals = [...new Set(evaluations.flatMap((item) => item.signals))];
+      // Unavailable is not absence: an encyclopedic lookup that failed this
+      // run keeps the evidence the previous evaluation recorded for that
+      // item, so a provider outage cannot revoke an admission (C17).
+      const retainedEvidence = await this.retainedEncyclopedicEvidence(
+        geoEntityId,
+        group,
+      );
+      const signals = [
+        ...new Set([
+          ...evaluations.flatMap((item) => item.signals),
+          ...retainedEvidence.map((fact) => fact.signal),
+        ]),
+      ];
       const exclusions = [
         ...new Set(evaluations.flatMap((item) => item.exclusions)),
       ];
@@ -247,18 +311,20 @@ export class StructuredPoiCatalogAcquisitionService {
         policyVersion: evaluations[0].policyVersion,
         signals,
         exclusions,
-        signalEvidence: evaluations.flatMap((evaluation, index) => [
-          ...evaluation.signalEvidence.map((fact) => ({
-            ...fact,
-            provider: 'openstreetmap',
-            externalId: group[index].evidenceKey,
-          })),
-          ...evaluation.encyclopedicSignalEvidence.map((fact) => ({
-            ...fact,
-            provider: 'wikidata',
-            externalId: group[index].entityFacts!.qid,
-          })),
-        ]),
+        signalEvidence: evaluations
+          .flatMap((evaluation, index) => [
+            ...evaluation.signalEvidence.map((fact) => ({
+              ...fact,
+              provider: 'openstreetmap',
+              externalId: group[index].evidenceKey,
+            })),
+            ...evaluation.encyclopedicSignalEvidence.map((fact) => ({
+              ...fact,
+              provider: 'wikidata',
+              externalId: group[index].entityFacts!.qid,
+            })),
+          ])
+          .concat(retainedEvidence),
         // Provider-attributed above; nothing remains unattributed.
         encyclopedicSignalEvidence: [] as AdmissionSignalEvidence[],
         decision: evaluateAdmissionRule(
