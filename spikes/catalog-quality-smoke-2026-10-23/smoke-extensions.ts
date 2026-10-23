@@ -3,6 +3,7 @@
  * measures the pre-change HEAD and the post-change workstream. Diagnostics
  * only; nothing here feeds production decisions.
  */
+import axios from 'axios';
 import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { OsmPlacesService } from '../../be/src/modules/integrations/osm/services/osm-places.service';
@@ -36,8 +37,54 @@ export function buildPlan(
         currentEligibleCount: 0,
         requiredEligibleCount: 1,
       },
+      // Scenario interests: history, architecture, gastronomy. Only a typed
+      // target with declared structured coverage changes the structured
+      // route; the others keep their legacy routes (not executed here).
+      ...['history', 'architecture', 'gastronomy'].map((key) => ({
+        origin: 'preference_facet',
+        dimension: 'theme',
+        key,
+        reason: `Smoke scenario facet ${key}`,
+      })),
     ],
   } as any);
+}
+
+/**
+ * Source inventory of food venue classes in the scope, linked or not (count
+ * only, local Overpass). Diagnostic for source-coverage limitations.
+ */
+export async function measureFoodInventory(
+  overpassUrl: string,
+  scope: { latitude: number; longitude: number },
+  radiusMeters: number,
+) {
+  const around = `(around:${radiusMeters},${scope.latitude},${scope.longitude})`;
+  const classes: Array<[string, string]> = [
+    ['amenity', 'cafe'],
+    ['amenity', 'restaurant'],
+    ['amenity', 'food_court'],
+    ['amenity', 'marketplace'],
+    ['shop', 'bakery'],
+  ];
+  const out: Record<string, { named: number; withWikidata: number }> = {};
+  for (const [key, value] of classes) {
+    const query = (extra: string) =>
+      `[out:json][timeout:60];nwr["${key}"="${value}"]["name"]${extra}${around};out count;`;
+    const total = async (extra: string) => {
+      const response = await axios.post(
+        overpassUrl,
+        new URLSearchParams({ data: query(extra) }).toString(),
+        { headers: { 'Content-Type': 'application/x-www-form-urlencoded' } },
+      );
+      return Number(response.data?.elements?.[0]?.tags?.total ?? NaN);
+    };
+    out[`${key}=${value}`] = {
+      named: await total(''),
+      withWikidata: await total('["wikidata"]'),
+    };
+  }
+  return out;
 }
 
 export async function readProminence(prisma: any) {

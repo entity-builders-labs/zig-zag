@@ -298,7 +298,13 @@ async function main() {
   );
   const composedSet = new Set(composedEntityIds);
   const gastronomy = {
+    sourceInventory: await smokeExtensions.measureFoodInventory(
+      overpassUrl,
+      DESTINATION,
+      Math.min(DESTINATION.radiusMeters, 8000),
+    ),
     candidates: foodCandidates.length,
+    candidatesWithWikidata: foodCandidates.filter((c) => c.tags.wikidata).length,
     byType: count(foodCandidates, (c) => foodType(c.tags)),
     admitted: foodCandidates.filter(
       (c) => outcomeByKey.get(c.id)?.admissionOutcome === 'ADMITTED',
@@ -401,6 +407,13 @@ async function main() {
       overpass: overpassUrl,
       acquisitionMs,
       externalHosts: hosts,
+      structuredRoute:
+        (plan as any).sourcePlans?.find((p: any) => p.provider === 'structured_poi')
+          ?.structuredPoi ?? null,
+      structuredProvenance: {
+        baseDiscovery: structured.provenance.baseDiscovery ?? null,
+        coverage: structured.provenance.coverage ?? null,
+      },
     },
     funnel,
     admittedByClass: bucketize(admitted),

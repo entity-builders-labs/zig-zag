@@ -1,0 +1,1739 @@
+{
+  "label": "head-39-2",
+  "head": "5839b77bb673a2c82a6a8ec9647164cd544daeba",
+  "dirty": true,
+  "runtime": {
+    "database": "zigzag_39_test",
+    "destinationScope": {
+      "destinationName": "Buenos Aires",
+      "destinationCountry": "Argentina",
+      "destinationCountryCode": "AR",
+      "latitude": -34.6161845,
+      "longitude": -58.4332979,
+      "radiusMeters": 13420.134076587048
+    },
+    "overpass": "http://localhost:12345/api/interpreter",
+    "acquisitionMs": 38700,
+    "externalHosts": {
+      "localhost:12345": 1
+    }
+  },
+  "funnel": {
+    "rawResultCount": 3159,
+    "structuredCandidates": 3159,
+    "canonicalIdentities": 3147,
+    "persistedGeoEntities": 3147,
+    "identityConflicts": 0,
+    "possibleDuplicatePairs": 3520,
+    "possibleDuplicateReasons": {
+      "NAME_ONLY": 3517,
+      "CONFLICTING_QID": 3
+    },
+    "visitUnitOutcomes": {
+      "NO_PARENT_RELATIONSHIP": 3159
+    },
+    "persistedRelations": 0,
+    "relationClassifications": {},
+    "admissionOutcomes": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 2113,
+      "EXCLUDED_CATEGORY": 720,
+      "ADMITTED": 314
+    },
+    "admitted": 314,
+    "rejected": 2833,
+    "composed": 314,
+    "withDuration": 0
+  },
+  "admittedByClass": {
+    "tombs": 1,
+    "memorials": 2,
+    "monuments": 3,
+    "artworks": 0,
+    "museums": 143,
+    "visitorAttractions": 108,
+    "heritageTagged": 30,
+    "placesOfWorship": 6,
+    "parks": 5,
+    "foodRelated": 2
+  },
+  "composedByClass": {
+    "tombs": 1,
+    "memorials": 2,
+    "monuments": 3,
+    "artworks": 0,
+    "museums": 143,
+    "visitorAttractions": 108,
+    "heritageTagged": 30,
+    "placesOfWorship": 6,
+    "parks": 5,
+    "foodRelated": 2
+  },
+  "rejectionReasonsByClass": {
+    "tombs": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 330
+    },
+    "memorials": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 252,
+      "EXCLUDED_CATEGORY": 1
+    },
+    "monuments": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 34
+    },
+    "artworks": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 295
+    },
+    "museums": {},
+    "visitorAttractions": {
+      "EXCLUDED_CATEGORY": 2
+    },
+    "heritageTagged": {},
+    "placesOfWorship": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 376
+    },
+    "parks": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 790,
+      "EXCLUDED_CATEGORY": 3
+    },
+    "foodRelated": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 22,
+      "EXCLUDED_CATEGORY": 1
+    }
+  },
+  "prominence": {
+    "implemented": false,
+    "persistedFacts": 0,
+    "composedKnown": 0,
+    "composedUnknown": 314,
+    "composedByEvidenceKind": {}
+  },
+  "edgeDiagnostics": {
+    "childClassFacts": {
+      "venue": 429,
+      "artwork": 525
+    },
+    "childClassTagBasis": {
+      "amenity=place_of_worship": 382,
+      "shop=*": 8,
+      "historic=memorial": 229,
+      "amenity=restaurant": 1,
+      "tourism=artwork": 296,
+      "amenity=cafe": 2,
+      "amenity=bench": 1,
+      "amenity=marketplace": 21,
+      "amenity=events_venue": 1,
+      "amenity=social_centre": 1,
+      "amenity=arts_centre": 2,
+      "amenity=library": 1,
+      "amenity=townhall": 1,
+      "amenity=theatre": 1,
+      "amenity=community_centre": 1,
+      "amenity=social_facility": 2,
+      "amenity=fountain": 1,
+      "amenity=planetarium": 1,
+      "amenity=research_institute": 1,
+      "amenity=courthouse": 1
+    },
+    "parentClassFacts": {
+      "museum": 145,
+      "park_or_complex": 805,
+      "cemetery": 1
+    },
+    "parentGeometryByClass": {
+      "museum": {
+        "node:Point": 109,
+        "way:Point": 32,
+        "relation:Point": 4
+      },
+      "park_or_complex": {
+        "node:Point": 5,
+        "way:Point": 726,
+        "relation:Point": 74
+      },
+      "cemetery": {
+        "way:Point": 1
+      }
+    },
+    "relationsWithMembers": 92,
+    "membershipEdges": 400,
+    "memberTypes": {
+      "node": 12,
+      "way": 388
+    },
+    "edgeDecisions": {
+      "MEMBER_NOT_A_DISCOVERED_CANDIDATE": 391,
+      "MEMBER_HAS_NO_CHILD_CLASS": 9
+    },
+    "persistedRelations": 0,
+    "sampleEdges": [
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836661",
+        "memberName": "Plazoleta Larrazábal",
+        "childClass": null,
+        "childGeoEntityId": "12cff7d2-b999-4c38-ae17-8b724561bc6a",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836660",
+        "memberName": "Plazoleta Oliden",
+        "childClass": null,
+        "childGeoEntityId": "2d7a9ae8-b8dc-41cd-94d9-585eddb02885",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836659",
+        "memberName": "Plazoleta Murguiondo",
+        "childClass": null,
+        "childGeoEntityId": "36e48bb3-d515-4ad9-853e-35b53e46b229",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836658",
+        "memberName": "Plazoleta Martiniano Leguizamon",
+        "childClass": null,
+        "childGeoEntityId": "693188c8-bcac-4f5d-af67-2c90933f6946",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836657",
+        "memberName": "Plazoleta Cafayate",
+        "childClass": null,
+        "childGeoEntityId": "cffeaa21-0c45-4f1d-b206-9ea7804bb5dc",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:554301649",
+        "memberName": "Plazoleta Ismael Chukri",
+        "childClass": null,
+        "childGeoEntityId": "65e4ed3f-e8f2-449d-8c0a-0c8ea62a57fb",
+        "parentGeoEntityId": "e8acd104-af4f-44bb-b0c6-07ccd6e61f4c",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:2337969",
+        "parentName": "Casa Rosada",
+        "parentClass": null,
+        "member": "osm:way:185738988",
+        "memberName": "Casa Rosada",
+        "childClass": null,
+        "childGeoEntityId": "77b2627f-9d09-4bdb-a809-647f8f71e0c0",
+        "parentGeoEntityId": "6e028386-8991-40fc-af09-e9a08af1aa31",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:6582137",
+        "parentName": "Plaza Herrera",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:185040829",
+        "memberName": "Plaza Herrera",
+        "childClass": null,
+        "childGeoEntityId": "4fc76177-1f93-4ea3-943e-ca434032d993",
+        "parentGeoEntityId": "a94f3bf8-2ef4-4b2d-815a-edf9257dbe15",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:6827113",
+        "parentName": "Plaza Grand Bourg",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:147938686",
+        "memberName": "Instituto Sanmartiniano",
+        "childClass": null,
+        "childGeoEntityId": "225bcb40-d48a-4208-ad60-a108967d9125",
+        "parentGeoEntityId": "9c3ce7d9-69c2-4c28-8ec6-e2b9af0b0dc4",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      }
+    ]
+  },
+  "gastronomy": {
+    "candidates": 25,
+    "byType": {
+      "amenity=marketplace": 21,
+      "amenity=cafe": 2,
+      "amenity=restaurant": 1,
+      "shop=bakery": 1
+    },
+    "admitted": 2,
+    "experiences": [
+      "Club Español",
+      "El Hipopótamo"
+    ],
+    "rejectionReasons": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 22,
+      "EXCLUDED_CATEGORY": 1
+    }
+  },
+  "preferenceUtility": {
+    "policyVersion": "preference-utility-v1",
+    "semanticRanking": {
+      "status": "not_requested",
+      "requestedCandidateCount": 0,
+      "indexedCandidateCount": 0
+    },
+    "facets": [
+      "theme:history",
+      "theme:architecture",
+      "theme:gastronomy",
+      "local_character:traditional",
+      "tourism_intensity:iconic"
+    ]
+  },
+  "top30": [
+    {
+      "rank": 1,
+      "name": "Claustro Santa Catalina de Siena",
+      "experienceId": "000ef504-43e3-47fc-8e49-01f8d0b8c718",
+      "geoEntityId": "2d9fa42d-08c7-4dbd-a219-758be334dd52",
+      "identities": [
+        "openstreetmap:osm:relation:1137019",
+        "wikidata:Q6021390"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 2,
+      "name": "Instituto Sanmartiniano",
+      "experienceId": "003372ca-714a-4dad-a3c3-7c82e836077c",
+      "geoEntityId": "225bcb40-d48a-4208-ad60-a108967d9125",
+      "identities": [
+        "openstreetmap:osm:way:147938686",
+        "wikidata:Q7414874"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 3,
+      "name": "Bagley",
+      "experienceId": "0061d27f-f87e-427f-ba98-a24e893e31fe",
+      "geoEntityId": "ecee1da6-92d0-47a8-b4bc-e8237aced7a1",
+      "identities": [
+        "openstreetmap:osm:node:7170386685"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 4,
+      "name": "Santa Catalina de Siena",
+      "experienceId": "02523d0b-4b11-4719-a8d5-352ee77b831e",
+      "geoEntityId": "e739dec2-795b-4540-9318-59bba14ae485",
+      "identities": [
+        "openstreetmap:osm:way:150610054"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "placesOfWorship"
+      ],
+      "classTags": {
+        "amenity": "place_of_worship",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 5,
+      "name": "thames:",
+      "experienceId": "02dd7a41-26fd-4da6-94fd-40b4f37af7d0",
+      "geoEntityId": "02b407d2-ec48-4fdf-83b5-734dacb2f4a0",
+      "identities": [
+        "openstreetmap:osm:way:1207652930"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "gallery"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 6,
+      "name": "FOLA (Fototeca latinoamericana)",
+      "experienceId": "02f4bbc2-8ff6-4321-82c0-653860f00e97",
+      "geoEntityId": "da4ca468-f912-4586-8772-3ea4f0cc707d",
+      "identities": [
+        "openstreetmap:osm:node:5169515631"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "gallery"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 7,
+      "name": "Museo del Cine Pablo Ducrós Hicken",
+      "experienceId": "0458cc6d-f6d8-40bb-b52d-f1a1b2e2f9c1",
+      "geoEntityId": "75666d8e-fe24-4f1d-bce7-4946c4298a85",
+      "identities": [
+        "openstreetmap:osm:node:7674547012",
+        "wikidata:Q6034410"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 8,
+      "name": "Galería Forma",
+      "experienceId": "046ca671-56e4-447d-b650-83acea037f4f",
+      "geoEntityId": "4df36831-e658-4a8c-97d5-9ccf772213b8",
+      "identities": [
+        "openstreetmap:osm:way:1207652922"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "gallery"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 9,
+      "name": "(experiencia) Hiedra",
+      "experienceId": "05e31066-38b6-4a8f-a10f-557c95228335",
+      "geoEntityId": "aa17dd1c-8ac0-4fce-a2f0-e8c431c80533",
+      "identities": [
+        "openstreetmap:osm:way:455287804"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "gallery"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 10,
+      "name": "Museo de la Mujer",
+      "experienceId": "0616ee38-843e-4c01-9b0a-7fde0b17bdf8",
+      "geoEntityId": "38ed706d-5c01-4bd1-a0d6-79a21843025a",
+      "identities": [
+        "openstreetmap:osm:node:5452358819",
+        "wikidata:Q30902113"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 11,
+      "name": "Pequeño puente",
+      "experienceId": "06d34574-a3a8-47f7-a515-453536947cd9",
+      "geoEntityId": "6fb3f3a8-c1e5-4244-ade2-ab13a7f3a4ff",
+      "identities": [
+        "openstreetmap:osm:node:11023688305"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "viewpoint"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 12,
+      "name": "Museo del antiguo recinto del Congreso Nacional",
+      "experienceId": "0812dd20-50d1-4a17-bdbc-40e1b0e2ce8d",
+      "geoEntityId": "8e1efdbf-5464-4b80-8aa5-ea473d2e75f2",
+      "identities": [
+        "openstreetmap:osm:node:6433376874",
+        "wikidata:Q65391605"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 13,
+      "name": "Museo Barrio de Flores",
+      "experienceId": "08afe031-5bd8-49bf-bd0d-436b0bbe8e25",
+      "geoEntityId": "e4317598-e5f8-47e7-860a-b052d0c6426e",
+      "identities": [
+        "openstreetmap:osm:node:6049539349",
+        "wikidata:Q65483961"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 14,
+      "name": "Museo Parlamentario",
+      "experienceId": "09eed652-8be7-4a49-9c79-76bf7ac91050",
+      "geoEntityId": "1c12bd0e-d99e-4d56-bbaf-96a224e85b07",
+      "identities": [
+        "openstreetmap:osm:node:5982044685",
+        "wikidata:Q84513466"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 15,
+      "name": "Museo Judío de Buenos Aires",
+      "experienceId": "0b78abcb-e065-4b03-ade8-fb430f85e986",
+      "geoEntityId": "9bf53885-e5d1-44d8-b8be-656eed70167d",
+      "identities": [
+        "wikidata:Q64764388",
+        "openstreetmap:osm:node:4293917798"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 16,
+      "name": "Dirección General de Aduanas",
+      "experienceId": "0bffd13f-98a1-4b98-a530-e069cd39db41",
+      "geoEntityId": "564c551b-8a3d-4e4c-b826-cea30c01b1ee",
+      "identities": [
+        "openstreetmap:osm:way:28734617",
+        "wikidata:Q830898"
+      ],
+      "structuredClass": [
+        "heritageTagged"
+      ],
+      "classTags": {
+        "amenity": "community_centre",
+        "heritage": "4",
+        "historic": "building"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 17,
+      "name": "Buenos Aires Museo",
+      "experienceId": "0cf51d41-de9e-4d87-afc0-ca02db42ad86",
+      "geoEntityId": "e6ae5242-273c-4f2b-bb33-94a622b01bed",
+      "identities": [
+        "openstreetmap:osm:node:12407562686"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 18,
+      "name": "Museo Nacional Ferroviario",
+      "experienceId": "0d354cd4-ce5b-4e67-a1c9-acd2020ed91a",
+      "geoEntityId": "c140c485-62e9-430a-a43c-330cc4e49dab",
+      "identities": [
+        "openstreetmap:osm:node:247464344",
+        "wikidata:Q17623075"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 19,
+      "name": "Museo Sadaic 'Vicente López y Planes'",
+      "experienceId": "0d9155f1-bab8-454f-8639-b23c038a9bc2",
+      "geoEntityId": "d759c812-16be-4479-a829-515527a536e1",
+      "identities": [
+        "openstreetmap:osm:node:6438930117",
+        "wikidata:Q65393761"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 20,
+      "name": "Museo Casa de Batato Barea",
+      "experienceId": "0dfb0855-616f-4dfd-8391-6d830644121c",
+      "geoEntityId": "9d29ecea-d116-4669-8517-3e3f8956f495",
+      "identities": [
+        "openstreetmap:osm:node:5981895609",
+        "wikidata:Q63589326"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 21,
+      "name": "Casa Histórica 'Isaac Fernández Blanco'",
+      "experienceId": "0e2ad719-0fd9-4ddf-a5e3-f45c6e619346",
+      "geoEntityId": "15a72ce0-7335-4110-bdde-9ee1f012c8ac",
+      "identities": [
+        "openstreetmap:osm:node:6417122475",
+        "wikidata:Q84513459"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 22,
+      "name": "Monumento a los Caídos en Malvinas",
+      "experienceId": "0f966dd4-45de-4146-aa0e-dbae741de417",
+      "geoEntityId": "670b6033-24ee-4113-9d9e-138f3265eddc",
+      "identities": [
+        "openstreetmap:osm:node:667537028",
+        "wikidata:Q1946552"
+      ],
+      "structuredClass": [
+        "memorials",
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "historic": "memorial",
+        "memorial": "war_memorial",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 23,
+      "name": "Museo de Arte Escenográfico \"Botica del Ángel\"",
+      "experienceId": "10e58c4d-1048-4e5c-b959-a31ce3557907",
+      "geoEntityId": "60de13c5-3703-4482-b6e6-c31940c615d9",
+      "identities": [
+        "openstreetmap:osm:node:10720991605"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 24,
+      "name": "Museo Anconetani del Acordeón",
+      "experienceId": "1181a5b4-325d-41b2-967b-8ea71ab64679",
+      "geoEntityId": "9d6b65da-52a0-4cc3-921d-6414ac020da7",
+      "identities": [
+        "openstreetmap:osm:node:4516412371",
+        "wikidata:Q65483841"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 25,
+      "name": "Fundación Andreani",
+      "experienceId": "1330414e-3058-41bc-9b64-928a2c3578fb",
+      "geoEntityId": "04f03390-7ac5-4e13-a2b3-1a267fcdd699",
+      "identities": [
+        "openstreetmap:osm:way:668789557"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "tourism": "gallery"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 26,
+      "name": "Museo Notarial Argentino",
+      "experienceId": "137530ad-6b30-4907-9164-acaedfec0fe1",
+      "geoEntityId": "4bfe28db-a6b5-4d07-ad7f-069e7d18acc6",
+      "identities": [
+        "openstreetmap:osm:node:6439749320",
+        "wikidata:Q65483033"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 27,
+      "name": "Museo Notario 'Roberto Mario Arata'",
+      "experienceId": "15138ed0-25ef-4c0f-8310-ddd3143e983e",
+      "geoEntityId": "2f9b3d34-97d0-4359-a133-10507827bb4b",
+      "identities": [
+        "openstreetmap:osm:node:6415316628",
+        "wikidata:Q63442129"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 28,
+      "name": "Museo Histórico de la ARCA",
+      "experienceId": "15cd02db-6a35-49cf-b8ca-691a5b680302",
+      "geoEntityId": "3f62613f-aded-4b1f-beff-042fcf618c56",
+      "identities": [
+        "openstreetmap:osm:node:6439722697",
+        "wikidata:Q65482215"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 29,
+      "name": "Museo Aduana Buenos Aires",
+      "experienceId": "17f4d1e3-9502-404e-a6b8-829030887081",
+      "geoEntityId": "54485502-3c55-4239-a4bd-013b957689f8",
+      "identities": [
+        "openstreetmap:osm:node:13695505565"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 30,
+      "name": "Carousel",
+      "experienceId": "185a2d82-912b-4276-b482-2f45933c0c9a",
+      "geoEntityId": "d6decdaa-b3d0-4d6d-b7a9-7ecbb014d185",
+      "identities": [
+        "openstreetmap:osm:way:237316714"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    }
+  ]
+}

@@ -14,9 +14,10 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current execution verdict
 
 **ACTIVE — `gap-driven-destination-knowledge` revision 4 production cutover.
-Tasks 39.0/39.1, 39.2 and 40.1 are implemented and validated locally; 39.2
-source checkpoint is `a3c2837a`, and completion evidence is recorded in the
-OpenSpec task and this progress update.**
+Tasks 39.0–39.7 and 40.1 are implemented and validated locally. The 39.7
+repeat Buenos Aires catalog smoke verdict is APPROACH_PARTIALLY_VALIDATED
+(`spikes/catalog-quality-smoke-2026-10-23/RESULTS.md`); task 40.2 stays
+blocked.**
 
 - Spike 1 (`spikes/gap-driven-destination-knowledge-2026-10-10/`): web-first
   discovery, 0 grounded (preserved).
@@ -94,9 +95,11 @@ OpenSpec task and this progress update.**
 
 ## Current checkpoint
 
-**OS6 — revision 4 cutover contract; tasks 39.0/39.1, 39.2 and 40.1 completed
-locally. Task 39.2 source checkpoint: `a3c2837a`; task 40.1 implementation
-commits: `4d620934`, `7a8714b0`.**
+**OS6 — revision 4 cutover contract; tasks 39.0–39.7 and 40.1 completed
+locally. 39.3–39.7 commits (2026-10-23): `b42a20d9` harness, `de998159` +
+`c5ec74ed` prominence evidence, `4acc9bc7` prominence ordering, `8fa024ef`
+parent containment, `9502220c` gastronomy coverage; smoke evidence in
+`spikes/catalog-quality-smoke-2026-10-23/`.**
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -194,7 +197,19 @@ commits: `4d620934`, `7a8714b0`.**
 
 ## Next authorized action
 
-Tasks 39.0/39.1, 39.2 and 40.1 are complete locally. Task 39.2 keeps
+Tasks 39.3–39.7 are complete (2026-10-23). The 39.7 smoke is
+APPROACH_PARTIALLY_VALIDATED: composed noise fell (tombs 331→1, memorials
+253→19), parent/child relations 0→347, food Experiences 3→37, and the top 30
+holds 12 A / 17 B / 1 C / 0 D with typed explanations. Remaining blockers:
+prominence policy v1 puts heritage presence before encyclopedic notability
+(Obelisco #97, MNBA #99, MALBA #104), preference relevance is inert for
+structured Experiences (no themes, null quality), and duration knowledge is 0.
+Next authorized action: owner decision on an evidence-backed prominence
+precedence revision (policy v2) and the structured-Experience preference
+facts gap; 40.2 is not eligible (no evidence-backed duration sample). Do not
+start 40.2.
+
+Previous (39.2): Tasks 39.0/39.1, 39.2 and 40.1 are complete locally. Task 39.2 keeps
 HISTORIC_CLASSIFICATION supporting, admits from canonical visitor/heritage or
 descriptive-plus-notability evidence, and does not consume C5 outcomes;
 standalone Experience eligibility remains ADMITTED AND independently visitable
@@ -255,9 +270,10 @@ do not start 25.8 or task 40+.
 
 ## Open findings / blockers
 
-- Task 40.2 remains open: the evidence-backed global duration fallback value
-  and calibration evidence are unresolved. Do not implement that planner
-  fallback in task 40.1 or start 40.2 in this pass.
+- Task 40.2 remains open and blocked after the 39.7 review (2026-10-23):
+  duration knowledge is 0 and task 27.3 has not run, and catalog-quality
+  blockers remain (prominence precedence; inert preference relevance for
+  structured Experiences). Do not start 40.2.
 
 - P11 / G-P5 evidence: `spikes/planner-comparison-2026-10-12/` and `g-p5/`.
   P-D5 resolved (OR-Tools Routing). Operational requirement for task 33.2 /

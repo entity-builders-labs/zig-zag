@@ -1,0 +1,2644 @@
+{
+  "label": "after-39-6",
+  "head": "9502220c2c964afdbfa4b98229fa62462713c2f8",
+  "dirty": true,
+  "runtime": {
+    "database": "zigzag_39_test",
+    "destinationScope": {
+      "destinationName": "Buenos Aires",
+      "destinationCountry": "Argentina",
+      "destinationCountryCode": "AR",
+      "latitude": -34.6161845,
+      "longitude": -58.4332979,
+      "radiusMeters": 13420.134076587048
+    },
+    "overpass": "http://localhost:12345/api/interpreter",
+    "acquisitionMs": 85215,
+    "externalHosts": {
+      "localhost:12345": 16,
+      "www.wikidata.org": 17
+    },
+    "structuredRoute": {
+      "radiusMeters": 13420.134076587048,
+      "sourceClass": "STRUCTURED_POI",
+      "routingPolicyVersion": "gap-source-routing-v2",
+      "baseDiscovery": true,
+      "coverage": [
+        "FOOD_AND_DRINK"
+      ],
+      "entityFacts": {
+        "sourceClass": "STRUCTURED_ENTITY_FACTS",
+        "provider": "wikidata"
+      }
+    },
+    "structuredProvenance": {
+      "baseDiscovery": true,
+      "coverage": [
+        "FOOD_AND_DRINK"
+      ]
+    }
+  },
+  "funnel": {
+    "rawResultCount": 3193,
+    "structuredCandidates": 3193,
+    "canonicalIdentities": 3181,
+    "persistedGeoEntities": 3181,
+    "identityConflicts": 0,
+    "possibleDuplicatePairs": 3520,
+    "possibleDuplicateReasons": {
+      "NAME_ONLY": 3517,
+      "CONFLICTING_QID": 3
+    },
+    "visitUnitOutcomes": {
+      "NO_PARENT_RELATIONSHIP": 2844,
+      "SUB_FEATURE_OF": 344,
+      "INDEPENDENTLY_VISITABLE": 5
+    },
+    "persistedRelations": 347,
+    "relationDiagnostics": {
+      "membershipEdges": 400,
+      "membershipMatches": 0,
+      "parentAreasAvailable": 835,
+      "containmentMatches": 349,
+      "containmentWithoutDeclaredClass": 315,
+      "upsertAttempts": 349,
+      "upsertSucceeded": 349
+    },
+    "relationEvidenceSources": {
+      "DECLARED_CONTAINMENT": 347
+    },
+    "entityFacts": {
+      "sourceClass": "STRUCTURED_ENTITY_FACTS",
+      "status": "SUCCEEDED",
+      "requested": 833,
+      "known": 833,
+      "notFound": 0,
+      "unavailable": 0,
+      "observedAt": "2026-10-23T23:23:58.810Z"
+    },
+    "parentAreas": {
+      "requested": 837,
+      "resolved": 835,
+      "failed": 0
+    },
+    "relationClassifications": {
+      "CHILD_REQUIRES_PARENT_VISIT": 342,
+      "CHILD_INDEPENDENTLY_VISITABLE": 5
+    },
+    "admissionOutcomes": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 1780,
+      "EXCLUDED_CATEGORY": 719,
+      "ADMITTED": 682
+    },
+    "admitted": 682,
+    "rejected": 2499,
+    "composed": 516,
+    "withDuration": 0
+  },
+  "admittedByClass": {
+    "tombs": 166,
+    "memorials": 19,
+    "monuments": 11,
+    "artworks": 18,
+    "museums": 143,
+    "visitorAttractions": 108,
+    "heritageTagged": 30,
+    "placesOfWorship": 36,
+    "parks": 96,
+    "foodRelated": 37
+  },
+  "composedByClass": {
+    "tombs": 1,
+    "memorials": 19,
+    "monuments": 11,
+    "artworks": 17,
+    "museums": 143,
+    "visitorAttractions": 108,
+    "heritageTagged": 30,
+    "placesOfWorship": 36,
+    "parks": 94,
+    "foodRelated": 37
+  },
+  "rejectionReasonsByClass": {
+    "tombs": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 165
+    },
+    "memorials": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 235,
+      "EXCLUDED_CATEGORY": 1
+    },
+    "monuments": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 26
+    },
+    "artworks": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 277
+    },
+    "museums": {},
+    "visitorAttractions": {
+      "EXCLUDED_CATEGORY": 2
+    },
+    "heritageTagged": {},
+    "placesOfWorship": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 346
+    },
+    "parks": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 699,
+      "EXCLUDED_CATEGORY": 3
+    },
+    "foodRelated": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 21,
+      "EXCLUDED_CATEGORY": 1
+    }
+  },
+  "prominence": {
+    "implemented": true,
+    "persistedFacts": 996,
+    "composedKnown": 516,
+    "composedUnknown": 0,
+    "composedByEvidenceKind": {
+      "HERITAGE_DESIGNATION": 95,
+      "EXPLICIT_VISITOR_CLASSIFICATION": 294,
+      "ENCYCLOPEDIC_SITELINK_COUNT": 296
+    }
+  },
+  "edgeDiagnostics": {
+    "childClassFacts": {
+      "venue": 463,
+      "artwork": 525,
+      "grave": 333
+    },
+    "childClassTagBasis": {
+      "amenity=place_of_worship": 382,
+      "amenity=cafe": 16,
+      "shop=*": 8,
+      "historic=memorial": 229,
+      "amenity=restaurant": 21,
+      "tourism=artwork": 296,
+      "historic=tomb": 333,
+      "amenity=bench": 1,
+      "amenity=marketplace": 21,
+      "amenity=events_venue": 1,
+      "amenity=social_centre": 1,
+      "amenity=arts_centre": 2,
+      "amenity=library": 1,
+      "amenity=townhall": 1,
+      "amenity=theatre": 1,
+      "amenity=community_centre": 1,
+      "amenity=social_facility": 2,
+      "amenity=fountain": 1,
+      "amenity=planetarium": 1,
+      "amenity=research_institute": 1,
+      "amenity=courthouse": 1
+    },
+    "parentClassFacts": {
+      "museum": 145,
+      "park_or_complex": 805,
+      "cemetery": 1
+    },
+    "parentGeometryByClass": {
+      "museum": {
+        "node:Point": 109,
+        "way:Point": 32,
+        "relation:Point": 4
+      },
+      "park_or_complex": {
+        "node:Point": 5,
+        "way:Point": 726,
+        "relation:Point": 74
+      },
+      "cemetery": {
+        "way:Point": 1
+      }
+    },
+    "relationsWithMembers": 92,
+    "membershipEdges": 400,
+    "memberTypes": {
+      "node": 12,
+      "way": 388
+    },
+    "edgeDecisions": {
+      "MEMBER_NOT_A_DISCOVERED_CANDIDATE": 391,
+      "MEMBER_HAS_NO_CHILD_CLASS": 9
+    },
+    "persistedRelations": 347,
+    "sampleEdges": [
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836661",
+        "memberName": "Plazoleta Larrazábal",
+        "childClass": null,
+        "childGeoEntityId": "29697b9c-99f7-46fe-af72-3c86bf829a20",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836660",
+        "memberName": "Plazoleta Oliden",
+        "childClass": null,
+        "childGeoEntityId": "4b180270-119d-4224-9206-2426190235ff",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836659",
+        "memberName": "Plazoleta Murguiondo",
+        "childClass": null,
+        "childGeoEntityId": "41158845-b92c-42ad-a683-877ad67299bc",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836658",
+        "memberName": "Plazoleta Martiniano Leguizamon",
+        "childClass": null,
+        "childGeoEntityId": "d9f330cd-35bd-47cb-bbbf-dae4cab93a0a",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:736836657",
+        "memberName": "Plazoleta Cafayate",
+        "childClass": null,
+        "childGeoEntityId": "4b7b2a78-b716-4579-a6b9-17a655c5f4f6",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:1909865",
+        "parentName": "Boulevard Riestra",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:554301649",
+        "memberName": "Plazoleta Ismael Chukri",
+        "childClass": null,
+        "childGeoEntityId": "749a1507-7d64-4d2f-b084-67b4e483e5b8",
+        "parentGeoEntityId": "6e5442f9-b499-4c07-a9d6-ac9c0be60445",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:2337969",
+        "parentName": "Casa Rosada",
+        "parentClass": null,
+        "member": "osm:way:185738988",
+        "memberName": "Casa Rosada",
+        "childClass": null,
+        "childGeoEntityId": "efdf4388-2596-4969-b08d-2856441bf4bd",
+        "parentGeoEntityId": "4c802a71-e4d6-4af7-8544-c56236a6efcc",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:6582137",
+        "parentName": "Plaza Herrera",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:185040829",
+        "memberName": "Plaza Herrera",
+        "childClass": null,
+        "childGeoEntityId": "25ee2b6e-490c-4bd5-9416-769cdfb8d3c7",
+        "parentGeoEntityId": "323c1d99-d2b1-42b4-ab49-181d47b70df6",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      },
+      {
+        "parent": "osm:relation:6827113",
+        "parentName": "Plaza Grand Bourg",
+        "parentClass": "park_or_complex",
+        "member": "osm:way:147938686",
+        "memberName": "Instituto Sanmartiniano",
+        "childClass": null,
+        "childGeoEntityId": "87d335ca-e73b-467c-8eaa-bd6f4c5f0fe7",
+        "parentGeoEntityId": "68f5ab37-4632-4e51-9073-d04fd1f1364a",
+        "decision": "MEMBER_HAS_NO_CHILD_CLASS",
+        "relationPersisted": false
+      }
+    ]
+  },
+  "gastronomy": {
+    "sourceInventory": {
+      "amenity=cafe": {
+        "named": 1548,
+        "withWikidata": 16
+      },
+      "amenity=restaurant": {
+        "named": 2323,
+        "withWikidata": 21
+      },
+      "amenity=food_court": {
+        "named": 5,
+        "withWikidata": 0
+      },
+      "amenity=marketplace": {
+        "named": 21,
+        "withWikidata": 2
+      },
+      "shop=bakery": {
+        "named": 630,
+        "withWikidata": 0
+      }
+    },
+    "candidates": 59,
+    "candidatesWithWikidata": 39,
+    "byType": {
+      "amenity=restaurant": 21,
+      "amenity=marketplace": 21,
+      "amenity=cafe": 16,
+      "shop=bakery": 1
+    },
+    "admitted": 37,
+    "experiences": [
+      "Café Tortoni",
+      "Café La Biela",
+      "Club Español",
+      "Banchero",
+      "El Cuartito",
+      "Mar Azul",
+      "Las Cuartetas",
+      "La Americana",
+      "La Poesía",
+      "Las Violetas",
+      "Bar Británico",
+      "El Hipopótamo",
+      "Barbaro",
+      "Cafe de Garcia",
+      "Bar Seddon",
+      "Los 36 Billares",
+      "Café de los Angelitos",
+      "Casal de Catalunya",
+      "Petit Colón",
+      "Don Julio",
+      "London City",
+      "El Gato Negro",
+      "Café Palacio",
+      "La Giralda Cafetería",
+      "Güerrín",
+      "El Preferido de Palermo",
+      "Pippo",
+      "La Puerto Rico",
+      "Miramar",
+      "Mercado de San Telmo",
+      "El Tokio",
+      "La Esquina de Anibal Troilo",
+      "Mercado San Cristobal",
+      "Esquina Homero Manzi",
+      "Confiteria Ideal",
+      "Pulpería Quilapán",
+      "Le Caravelle"
+    ],
+    "rejectionReasons": {
+      "INSUFFICIENT_ADMISSION_EVIDENCE": 21,
+      "EXCLUDED_CATEGORY": 1
+    }
+  },
+  "preferenceUtility": {
+    "policyVersion": "preference-utility-v2",
+    "semanticRanking": {
+      "status": "not_requested",
+      "requestedCandidateCount": 0,
+      "indexedCandidateCount": 0
+    },
+    "facets": [
+      "theme:history",
+      "theme:architecture",
+      "theme:gastronomy",
+      "local_character:traditional",
+      "tourism_intensity:iconic"
+    ]
+  },
+  "top30": [
+    {
+      "rank": 1,
+      "name": "Teatro Colón",
+      "experienceId": "8cb85315-e472-4f70-9861-71b471d1db65",
+      "geoEntityId": "1d833d2f-0e9d-4967-bafc-56379003a1d4",
+      "identities": [
+        "openstreetmap:osm:way:23633911",
+        "wikidata:Q827401"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "amenity": "theatre",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:23633911",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q827401",
+          "field": "sitelinks",
+          "value": 37
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q827401",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 2,
+      "name": "Palacio Barolo",
+      "experienceId": "f99ca108-e961-4874-9abf-b66e5dc76e53",
+      "geoEntityId": "b9f314c2-bb97-488b-bf47-d69e41abda9e",
+      "identities": [
+        "openstreetmap:osm:way:1386044833",
+        "wikidata:Q571763"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:1386044833",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q571763",
+          "field": "sitelinks",
+          "value": 28
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q571763",
+          "field": "claims.P1435.Q55209364",
+          "value": "Q55209364"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q571763",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 3,
+      "name": "Cementerio de la Recoleta",
+      "experienceId": "072d9cd9-060f-4e2a-9ea9-2605e23ca4e9",
+      "geoEntityId": "0a692c8d-0885-45ad-8ccd-8cbdda6b8ba0",
+      "identities": [
+        "openstreetmap:osm:way:183842128",
+        "wikidata:Q831322"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "4",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:183842128",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:183842128",
+          "field": "tags.heritage",
+          "value": "4"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q831322",
+          "field": "sitelinks",
+          "value": 24
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 327
+      }
+    },
+    {
+      "rank": 4,
+      "name": "Jardín Botánico Carlos Thays",
+      "experienceId": "e258ba36-1de2-4eef-9ef6-38ad71448579",
+      "geoEntityId": "a5d49af9-f4be-4664-a5d3-3d6921b910d9",
+      "identities": [
+        "openstreetmap:osm:way:9937501",
+        "wikidata:Q831148"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "4",
+        "leisure": "garden",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:9937501",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:9937501",
+          "field": "tags.heritage",
+          "value": "4"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q831148",
+          "field": "sitelinks",
+          "value": 18
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 5,
+      "name": "Edificio Kavanagh",
+      "experienceId": "491453dc-304a-4584-93ae-4c88c758c27d",
+      "geoEntityId": "2ead8eb7-b0ac-4330-8d5b-79c806c3ce26",
+      "identities": [
+        "openstreetmap:osm:way:102440659",
+        "wikidata:Q375910"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:102440659",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q375910",
+          "field": "sitelinks",
+          "value": 16
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q375910",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q375910",
+          "field": "claims.P1435.Q56637937",
+          "value": "Q56637937"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 6,
+      "name": "Cabildo de Buenos Aires",
+      "experienceId": "d975c44d-b808-45fa-9a96-eb8826a83f55",
+      "geoEntityId": "4e269b20-3090-4854-a93b-f7b01393c5f2",
+      "identities": [
+        "openstreetmap:osm:node:767690911",
+        "openstreetmap:osm:way:293947112",
+        "wikidata:Q1024829"
+      ],
+      "structuredClass": [
+        "heritageTagged"
+      ],
+      "classTags": {
+        "tourism": "yes",
+        "heritage": "4",
+        "historic": "building"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY",
+          "VISITABLE_PLACE_CLASS",
+          "HISTORIC_CLASSIFICATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:767690911",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q1024829",
+          "field": "sitelinks",
+          "value": 16
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q1024829",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q1024829",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:293947112",
+          "field": "tags.heritage",
+          "value": "4"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 7,
+      "name": "Buque Museo Corbeta A.R.A. Uruguay",
+      "experienceId": "0b74e310-a93a-4a51-b3e4-dd250b605f84",
+      "geoEntityId": "c66738a7-6ff8-44e6-808f-11f61fb0d99e",
+      "identities": [
+        "openstreetmap:osm:way:173065616",
+        "wikidata:Q143615"
+      ],
+      "structuredClass": [
+        "museums",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "historic": "ship",
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:173065616",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:173065616",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q143615",
+          "field": "sitelinks",
+          "value": 10
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q143615",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 8,
+      "name": "Hotel de Inmigrantes",
+      "experienceId": "2fad6ff1-48b3-4ec8-bf94-f2ff9a9453d5",
+      "geoEntityId": "602b3a44-a465-4727-8399-b0ff6ed68d48",
+      "identities": [
+        "openstreetmap:osm:way:34609151",
+        "wikidata:Q9005010"
+      ],
+      "structuredClass": [],
+      "classTags": {
+        "historic": "yes"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "HISTORIC_CLASSIFICATION",
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q9005010",
+          "field": "sitelinks",
+          "value": 9
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q9005010",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q9005010",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 9,
+      "name": "Puente Transbordador Nicolás Avellaneda",
+      "experienceId": "9ab53615-c76d-4447-96a2-396c2d3add70",
+      "geoEntityId": "551a013d-90b4-4bb3-abcf-e3ce22a95423",
+      "identities": [
+        "openstreetmap:osm:way:256715723",
+        "wikidata:Q1138028"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:256715723",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:256715723",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q1138028",
+          "field": "sitelinks",
+          "value": 9
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q1138028",
+          "field": "claims.P1435.Q55209364",
+          "value": "Q55209364"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q1138028",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 10,
+      "name": "Buque Museo Fragata A.R.A. 'Presidente Sarmiento'",
+      "experienceId": "588c1761-aeae-43ea-b4fb-e5bff48a6310",
+      "geoEntityId": "1036175c-cee5-4c37-a0bf-06a1e22d523d",
+      "identities": [
+        "openstreetmap:osm:way:173065810",
+        "wikidata:Q296436"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "historic": "ship",
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:173065810",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q296436",
+          "field": "sitelinks",
+          "value": 8
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q296436",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 11,
+      "name": "Plaza Dorrego",
+      "experienceId": "46499e88-a9d7-41d8-a8de-e09756a8e9b3",
+      "geoEntityId": "e44a6dcb-8b4e-45e8-a8c4-d31a6818ea0d",
+      "identities": [
+        "openstreetmap:osm:way:31364659",
+        "wikidata:Q3392154"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "parks"
+      ],
+      "classTags": {
+        "leisure": "park",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:31364659",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q3392154",
+          "field": "sitelinks",
+          "value": 6
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q3392154",
+          "field": "claims.P1435.Q55784439",
+          "value": "Q55784439"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 12,
+      "name": "Confitería El Molino",
+      "experienceId": "60d12687-2744-49cd-98a4-9503663a9645",
+      "geoEntityId": "72775d92-fe20-472d-aa8c-2b251d55df71",
+      "identities": [
+        "openstreetmap:osm:way:708071953",
+        "wikidata:Q1125324"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "historic": "yes",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:708071953",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q1125324",
+          "field": "sitelinks",
+          "value": 6
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q1125324",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 13,
+      "name": "Basílica de San Francisco",
+      "experienceId": "8a7b7745-b13e-44d3-a7f4-9f84acfb875c",
+      "geoEntityId": "79cf5d4b-f412-4b2f-8431-30c4488489db",
+      "identities": [
+        "openstreetmap:osm:relation:2354152",
+        "openstreetmap:osm:way:321205687",
+        "wikidata:Q4579815"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "placesOfWorship",
+        "parks"
+      ],
+      "classTags": {
+        "amenity": "place_of_worship",
+        "tourism": "attraction",
+        "leisure": "park"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:relation:2354152",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q4579815",
+          "field": "sitelinks",
+          "value": 6
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q4579815",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 14,
+      "name": "Museo Mitre",
+      "experienceId": "279d706e-376f-419a-8e64-d2a996f2af1d",
+      "geoEntityId": "cb0651fb-be8d-4901-a58a-6f857df72ccf",
+      "identities": [
+        "openstreetmap:osm:way:204263802",
+        "wikidata:Q1290362"
+      ],
+      "structuredClass": [
+        "museums",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "historic": "building",
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:204263802",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:204263802",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q1290362",
+          "field": "sitelinks",
+          "value": 5
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q1290362",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 15,
+      "name": "Manzana de las Luces",
+      "experienceId": "f5f4acac-e8b0-4656-8a14-4e0a672d3f01",
+      "geoEntityId": "b57d0fb6-82ca-48a5-9d16-2c52a65b5aa0",
+      "identities": [
+        "openstreetmap:osm:relation:3228119",
+        "wikidata:Q263127"
+      ],
+      "structuredClass": [
+        "museums",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:relation:3228119",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:relation:3228119",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q263127",
+          "field": "sitelinks",
+          "value": 5
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q263127",
+          "field": "claims.P1435.Q55784439",
+          "value": "Q55784439"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q263127",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 16,
+      "name": "Ecoparque",
+      "experienceId": "77706f6c-51fa-4c2c-ba4b-b60c0861d894",
+      "geoEntityId": "46835f86-b2db-46f2-b2f3-a83e03359237",
+      "identities": [
+        "openstreetmap:osm:relation:13880533",
+        "wikidata:Q220023"
+      ],
+      "structuredClass": [
+        "parks"
+      ],
+      "classTags": {
+        "leisure": "park",
+        "tourism": "zoo"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:relation:13880533",
+          "field": "tags.tourism",
+          "value": "tourism=zoo"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q220023",
+          "field": "sitelinks",
+          "value": 4
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q220023",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 17,
+      "name": "Museo Casa Carlos Gardel",
+      "experienceId": "1d0459ef-42a5-4a09-a64f-0106d8581657",
+      "geoEntityId": "c6a47339-8841-45bf-9981-83163ee1018b",
+      "identities": [
+        "openstreetmap:osm:way:619211859",
+        "wikidata:Q21480852"
+      ],
+      "structuredClass": [
+        "museums",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "historic": "building",
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:619211859",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:way:619211859",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q21480852",
+          "field": "sitelinks",
+          "value": 3
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q21480852",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 18,
+      "name": "Instituto Sanmartiniano",
+      "experienceId": "9fb0d63e-7154-4e7f-a29d-e4a23e6665f1",
+      "geoEntityId": "87d335ca-e73b-467c-8eaa-bd6f4c5f0fe7",
+      "identities": [
+        "openstreetmap:osm:way:147938686",
+        "wikidata:Q7414874"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:147938686",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q7414874",
+          "field": "sitelinks",
+          "value": 3
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q7414874",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 19,
+      "name": "Museo del Banco Central",
+      "experienceId": "71ec3001-5605-4fe8-bbbb-f1ee8d80e33d",
+      "geoEntityId": "6bc9ddde-cdd0-4d9e-aaec-c51cd36d0401",
+      "identities": [
+        "openstreetmap:osm:relation:9272843",
+        "wikidata:Q21328724"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:relation:9272843",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q21328724",
+          "field": "sitelinks",
+          "value": 2
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q21328724",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q21328724",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 20,
+      "name": "Museo Histórico y Numismático del Banco de la Nación Argentina",
+      "experienceId": "8e965321-9cae-4b3f-839d-aaa2a2b5c15b",
+      "geoEntityId": "a1068f0e-01b7-46d1-b99f-f70928fa7296",
+      "identities": [
+        "openstreetmap:osm:node:6439099721",
+        "wikidata:Q64658366"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:6439099721",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q64658366",
+          "field": "sitelinks",
+          "value": 2
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q64658366",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q64658366",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 21,
+      "name": "Antigua Sede del Congreso Nacional",
+      "experienceId": "45f35c25-172a-4124-8eb3-e8cbaf983f5d",
+      "geoEntityId": "bbe8a234-14c8-449b-bc3a-98d156928244",
+      "identities": [
+        "openstreetmap:osm:node:2892504247",
+        "wikidata:Q16488551"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "heritageTagged"
+      ],
+      "classTags": {
+        "heritage": "2",
+        "historic": "yes",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HISTORIC_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:2892504247",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "openstreetmap:osm:node:2892504247",
+          "field": "tags.heritage",
+          "value": "2"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q16488551",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q16488551",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 22,
+      "name": "La Librería de Avila",
+      "experienceId": "4f300325-55ea-4aa1-953e-eb912596f71f",
+      "geoEntityId": "b39633ee-fecb-4bf6-b396-ace4cdebb3f9",
+      "identities": [
+        "openstreetmap:osm:node:3348571875",
+        "wikidata:Q5974908"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "shop": "books",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:3348571875",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q5974908",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q5974908",
+          "field": "claims.P1435.Q55784439",
+          "value": "Q55784439"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q5974908",
+          "field": "claims.P1435.Q55808085",
+          "value": "Q55808085"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 23,
+      "name": "Museo del antiguo recinto del Congreso Nacional",
+      "experienceId": "7b9ec1a2-6371-48d5-b996-3de5df4648ae",
+      "geoEntityId": "ab81988b-8727-48e5-98f9-404966c2e0ff",
+      "identities": [
+        "openstreetmap:osm:node:6433376874",
+        "wikidata:Q65391605"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:6433376874",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q65391605",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q65391605",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 24,
+      "name": "Club Español",
+      "experienceId": "96af5a06-bb1a-4546-b757-0892d49507a4",
+      "geoEntityId": "df25213d-e450-4e9c-b275-2b142d45c862",
+      "identities": [
+        "openstreetmap:osm:node:694078616",
+        "wikidata:Q5640527"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "foodRelated"
+      ],
+      "classTags": {
+        "amenity": "restaurant",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:694078616",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q5640527",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q5640527",
+          "field": "claims.P1435.Q55209364",
+          "value": "Q55209364"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q5640527",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 25,
+      "name": "Biblioteca Nacional Mariano Moreno",
+      "experienceId": "a0b143a7-c28d-4aca-ba65-41f979b0b24c",
+      "geoEntityId": "4b16acd8-1e69-4b2a-9ec6-e9e163686acf",
+      "identities": [
+        "openstreetmap:osm:way:18514760",
+        "wikidata:Q130374034"
+      ],
+      "structuredClass": [
+        "visitorAttractions"
+      ],
+      "classTags": {
+        "amenity": "library",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:18514760",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q130374034",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q130374034",
+          "field": "claims.P1435.Q1847467",
+          "value": "Q1847467"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 26,
+      "name": "Museo Fotográfico Simik",
+      "experienceId": "b630fa80-d7be-42c2-a5d4-08f8c8e59c42",
+      "geoEntityId": "34a97891-910d-4eb9-9dd8-d80a0f46169f",
+      "identities": [
+        "openstreetmap:osm:node:5405921752",
+        "wikidata:Q6033370"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:5405921752",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q6033370",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q6033370",
+          "field": "claims.P1435.Q55209364",
+          "value": "Q55209364"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q6033370",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 27,
+      "name": "Museo Casa Rosada",
+      "experienceId": "f31ff715-ea3b-4f08-8e10-391e0cca29a6",
+      "geoEntityId": "55b0a112-9bc2-4daa-b1cc-d3e94735b6c3",
+      "identities": [
+        "openstreetmap:osm:way:176333994",
+        "wikidata:Q6034386"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION",
+          "ENCYCLOPEDIC_NOTABILITY"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:176333994",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "ENCYCLOPEDIC_SITELINK_COUNT",
+          "source": "wikidata:Q6034386",
+          "field": "sitelinks",
+          "value": 1
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q6034386",
+          "field": "claims.P1435.Q55784439",
+          "value": "Q55784439"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q6034386",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 28,
+      "name": "El Hipopótamo",
+      "experienceId": "33fbe2dc-81a6-4923-bdaf-9d97e828be63",
+      "geoEntityId": "00ce4f02-d2bb-49c2-9534-f7d8a467019d",
+      "identities": [
+        "openstreetmap:osm:node:2038426439",
+        "wikidata:Q56826669"
+      ],
+      "structuredClass": [
+        "visitorAttractions",
+        "foodRelated"
+      ],
+      "classTags": {
+        "amenity": "cafe",
+        "tourism": "attraction"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "VISITABLE_PLACE_CLASS",
+          "HERITAGE_DESIGNATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:2038426439",
+          "field": "tags.tourism",
+          "value": "tourism=attraction"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q56826669",
+          "field": "claims.P1435.Q5664697",
+          "value": "Q5664697"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 29,
+      "name": "Museo Criollo de los Corrales",
+      "experienceId": "72bfa623-28c8-481d-ae1c-e9ec4e71226f",
+      "geoEntityId": "8fd59c82-6493-421e-b458-f9bcc39d44b1",
+      "identities": [
+        "openstreetmap:osm:node:5617667887",
+        "wikidata:Q65391603"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:node:5617667887",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q65391603",
+          "field": "claims.P1435.Q55784185",
+          "value": "Q55784185"
+        },
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "wikidata:Q65391603",
+          "field": "claims.P31.Q33506",
+          "value": "Q33506"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    },
+    {
+      "rank": 30,
+      "name": "Casa Museo Bernardo Houssay",
+      "experienceId": "7d6993f0-b1ac-4e62-9cf3-cc04714d08ff",
+      "geoEntityId": "83a7ad9c-aeac-4ca9-8373-e3be791869ef",
+      "identities": [
+        "openstreetmap:osm:way:868115392",
+        "wikidata:Q55970747"
+      ],
+      "structuredClass": [
+        "museums"
+      ],
+      "classTags": {
+        "tourism": "museum"
+      },
+      "admission": {
+        "outcome": "ADMITTED",
+        "signals": [
+          "EXPLICIT_VISITOR_CLASSIFICATION",
+          "HERITAGE_DESIGNATION"
+        ],
+        "policyVersion": "structured-admission-v2"
+      },
+      "prominenceEvidence": [
+        {
+          "kind": "EXPLICIT_VISITOR_CLASSIFICATION",
+          "source": "openstreetmap:osm:way:868115392",
+          "field": "tags.tourism",
+          "value": "tourism=museum"
+        },
+        {
+          "kind": "HERITAGE_DESIGNATION",
+          "source": "wikidata:Q55970747",
+          "field": "claims.P1435.Q55784439",
+          "value": "Q55784439"
+        }
+      ],
+      "preference": {
+        "directEvidence": 0,
+        "inferredEvidence": 0,
+        "avoidance": {
+          "directConflict": 0,
+          "inferredConflict": 0
+        },
+        "softAnchor": false,
+        "semantic": {
+          "status": "UNKNOWN",
+          "reason": "EMPTY_QUERY"
+        },
+        "quality": {
+          "status": "UNKNOWN",
+          "reason": "NO_QUALITY_SIGNAL"
+        }
+      },
+      "orderReasonVsNext": {
+        "decidedBy": "CANONICAL_IDENTITY_TIE_BREAK"
+      },
+      "parentChild": {
+        "childRelations": 0,
+        "parentRelations": 0
+      }
+    }
+  ]
+}
