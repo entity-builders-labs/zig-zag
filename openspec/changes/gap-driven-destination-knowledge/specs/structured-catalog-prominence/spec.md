@@ -89,6 +89,14 @@ an editorial rank on a reusable Experience.
 - **THEN** the candidate with positive evidence orders first, and an UNKNOWN
   candidate never orders below a candidate whose value is a known zero
 
+#### Scenario: Dense heritage presence does not dominate notability
+- **WHEN** one valid candidate carries only a heritage designation of
+  unspecified or subnational scope and another carries stronger encyclopedic
+  notability with no designation
+- **THEN** the more notable candidate orders first, while an
+  international-scope designation still precedes and heritage scope still
+  separates candidates with equal notability
+
 #### Scenario: Lower-ranked candidate remains valid
 - **WHEN** one valid Experience ranks below another for a request
 - **THEN** it remains admitted, composable and available in the catalog

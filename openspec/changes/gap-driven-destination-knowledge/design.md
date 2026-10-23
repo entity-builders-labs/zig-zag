@@ -3106,6 +3106,45 @@ food-related candidates (21 marketplaces). Precisions:
   The unlinked inventory in the scope is measured as a source-coverage
   limitation, not compensated.
 
+**Prominence v2 (owner-approved 2026-10-23, task 39.8).** *Why v1 failed:*
+the 39.7 smoke (`spikes/catalog-quality-smoke-2026-10-23/RESULTS.md`, code
+`9502220c`) showed that heritage *presence* as the first lexicographic level
+lets dense, heterogeneous designations dominate: 95 composed places carry a
+heritage fact (mostly local protection values of Wikidata P1435 and OSM
+`heritage=4`), so every one of them precedes any un-designated landmark —
+Obelisco #97, Catedral Metropolitana #98, Museo Nacional de Bellas Artes #99,
+MALBA #104, Caminito #245, Puente de la Mujer #262 — although those carry
+much stronger encyclopedic notability. The top 30 had no garbage (12 A /
+17 B / 1 C / 0 D), so the defect is ordering, not admission.
+
+*v2 semantics* (`prominence-v2`, single authority
+`prominence/structured-prominence.policy.ts`):
+
+- Heritage facts carry a typed canonical `heritageScope` normalized at the
+  provider adapter: `INTERNATIONAL`, `NATIONAL`, `SUBNATIONAL`, or
+  `UNSPECIFIED` when the source does not expose the designating authority's
+  scope. OSM: `heritage=1` → INTERNATIONAL, `2` → NATIONAL, `3`–`11` →
+  SUBNATIONAL (the OSM `heritage` value is the administrative level of the
+  protecting authority), anything else UNSPECIFIED. Wikidata: the P1435
+  World Heritage Site designation → INTERNATIONAL; other P1435 values →
+  UNSPECIFIED (the designation item's jurisdiction is not acquired, so no
+  level is claimed).
+- Lexicographic levels: (1) international-scope heritage presence; (2)
+  language-Wikipedia article sitelink count; (3) heritage scope rank
+  (NATIONAL > SUBNATIONAL = UNSPECIFIED presence > none); (4) explicit
+  visitor classification presence; (5) provider prominence (inert); then
+  canonical identity. At every level a KNOWN positive value precedes a
+  candidate without one, and UNKNOWN never orders below a known zero.
+- Unchanged: provider-neutral evidence and provenance, no numeric score or
+  threshold, no place or destination rules, QID alone is identity only,
+  admission/identity/composition untouched, preference relevance prior to
+  prominence in the utility (`preference-utility-v3` records the new
+  prominence version).
+- *Expected observable effect:* dense local designations no longer outrank
+  strongly notable landmarks; heritage still separates candidates with
+  equal encyclopedic notability, and a rare international designation still
+  leads.
+
 **Gastronomy and relationship follow-up.** Candidate supply is separate from
 prominence: add structured acquisition coverage for historic cafés, markets,
 food halls, notable restaurants/parrillas, cafés and bakeries through
@@ -3115,6 +3154,44 @@ facts, 92 membership hints and zero persisted relations by retaining raw and
 normalized parent/member IDs, identity correspondence, match decisions, and
 upsert outcomes. The current smoke does not establish which edge in that
 path failed.
+
+### C18. Structured preference relevance facts (task 39.9, 2026-10-23)
+
+*Problem (measured, 39.7):* structured Experiences never respond to stated
+interests. `ExperienceMatchFacts` is produced by one adapter per raw
+representation, but structured compositions have no persisted
+classification (no typed themes) and no legacy `qualityScore`, and
+`isStrongFacetMatch` requires KNOWN quality ≥ 3/5. Every facet therefore
+misses and the order is catalog prominence alone.
+
+*Contract (reusing existing owners, no new ranking authority):*
+
+- **Catalog-side typed facts.** Structured provider adapters emit typed
+  observations on the closed assertion-target schema into the existing
+  GeoEntity-keyed `GeoEntityTargetObservation` (stable `sourceFactId` =
+  provider record + field; state SATISFIES only — absence is UNKNOWN, never
+  DOES_NOT_SATISFY). The mapping is a versioned catalog-side classification
+  of provider *classes* to typed concept identities (the catalog half of
+  task 25.8's shared concept space), declared once in each adapter: historic
+  classification or a heritage designation → `theme:history`; historic
+  building-type classes and places of worship → `theme:architecture`; food
+  venue classes → `theme:gastronomy`, `theme:food` and `intent:food`;
+  galleries and artworks → `theme:art`. No text, name, keyword or alias
+  matching; concepts without a structured class (local character, tourism
+  intensity/iconic) stay UNKNOWN.
+- **Projection.** The catalog projection's single match-facts adapter adds
+  the SATISFIES targets of the required components' reconciled target
+  knowledge to the semantic facts; HARD eligibility keeps reading the same
+  reconciled knowledge.
+- **Strong-match quality gate.** `isStrongFacetMatch` accepts either KNOWN
+  quality ≥ the floor or canonical structured admission (every required VISIT
+  component ADMITTED, C6) as the quality condition. No quality score is
+  fabricated and no legacy metadata is copied; UNKNOWN quality without
+  admission still never strong-matches.
+- **Separation.** Preference relevance stays a typed utility level prior to
+  prominence; prominence evidence never becomes a relevance fact (iconic
+  intent is not inferred from prominence), and relevance never becomes
+  admission evidence.
 
 ### Superseded by revision 4
 

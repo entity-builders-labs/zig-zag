@@ -119,3 +119,21 @@ Every generation SHALL read a catalog snapshot for the destination before any re
 #### Scenario: Knowledge written during generation
 - **WHEN** grounding persists new knowledge during a generation and reusable composition recomposes affected Experiences
 - **THEN** Tour composition and planning use a snapshot read after the recomposition writes
+
+### Requirement: Structured classes yield typed relevance facts
+Structured provider classes SHALL be translated at the provider adapter into
+typed target observations on the closed preference schema, stored as
+GeoEntity knowledge with a stable source-fact identity. Only positive
+observations are produced from a class; absence SHALL remain UNKNOWN. These
+facts SHALL NOT be derived from names, text, keywords, prominence or
+admission outcomes.
+
+#### Scenario: Food venue class supports the gastronomy concept
+- **WHEN** a structured provider classifies a place as a café
+- **THEN** the GeoEntity carries a SATISFIES observation for the gastronomy
+  theme with the provider record and field as its source fact
+
+#### Scenario: Prominence is not relevance
+- **WHEN** a place has strong prominence evidence but no structured class
+  for a requested concept
+- **THEN** no relevance fact is produced for that concept
