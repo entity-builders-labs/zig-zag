@@ -3029,6 +3029,57 @@ available; prominence never becomes another admission gate except as
 independent canonical notability evidence for descriptive classifications
 under C6.
 
+**Implementation precision (tasks 39.3/39.4, 2026-10-23).** Measured on the
+post-39.2 HEAD `5839b77b` with the local smoke harness
+(`spikes/catalog-quality-smoke-2026-10-23/`): the production STRUCTURED_POI
+path never reached the identity-linked encyclopedic provider (the planner
+passed `wikidata: false` to the router), so no ENCYCLOPEDIC_NOTABILITY or
+Wikidata heritage fact could exist, and the 314 composed Experiences were
+ordered by canonical identity alone. The following precisions bind 39.3/39.4:
+
+- *Acquisition.* The router's existing STRUCTURED_ENTITY_FACTS strategy is
+  taken whenever the identity-linked encyclopedic provider is configured; it
+  runs inside the STRUCTURED_POI execution for the QIDs those candidates
+  carry (a dependent batch, not a separate discovery). Its typed facts feed
+  both the canonical admission signals (C6 combination rule; nothing new is
+  decisive) and GeoEntity prominence evidence. A failed batch leaves those
+  QIDs UNKNOWN and is recorded with the acquisition outcome; it never
+  becomes a negative fact or fails the OSM discovery.
+- *Sitelink semantics.* ENCYCLOPEDIC_SITELINK_COUNT counts only the linked
+  item's language-Wikipedia article sitelinks (the adapter recognizes the
+  provider's Wikipedia site family; Commons, Wikiquote, Wikivoyage and other
+  projects are not encyclopedic articles). A resolved item with zero such
+  links yields no notability signal and no prominence row.
+- *Heritage.* Wikidata P1435 values and OSM `heritage=*` records are
+  persisted as HERITAGE_DESIGNATION rows with their designation value;
+  `authority` is filled only when the source names an issuer
+  (`heritage:operator`), so no official level is claimed otherwise. Policy
+  v1 compares heritage by recorded presence only; levels are not compared
+  until an issuer-scoped scale is acquired.
+- *Ordering semantics.* Prominence policy `structured-prominence-order-v1`
+  is a total preorder over typed per-level values: heritage presence, then
+  explicit visitor classification presence, then provider prominence (no
+  enabled provider supplies one; the level is inert), then the
+  language-article sitelink count. At each level a KNOWN positive value
+  precedes a candidate without one, and a candidate whose evidence is
+  UNKNOWN is never placed below one with a known zero/absent value: both
+  carry no positive evidence and tie. Absence therefore never acts as
+  negative evidence; it only lacks the positive evidence another candidate
+  has. Incomparable values tie at that level. Composite Experiences read the
+  union of their required VISIT components' evidence.
+- *Composition with preference utility.* Preference relevance stays prior:
+  `preference-utility-v2` orders by explicit evidence, avoidance, soft
+  anchor and semantic affinity exactly as v1, then by structured prominence,
+  then generic quality, then identity. Prominence therefore orders only
+  candidates that preference relevance does not separate; it never
+  overrides a stated preference. Known limitation: once semantic affinity
+  is KNOWN for most candidates, its continuous values leave few ties for
+  prominence to order.
+- *Explainability.* The typed per-level prominence profile, its evidence
+  references and the deciding comparison level between adjacent candidates
+  are exposed with the utility breakdown; no numeric prominence score is
+  computed or persisted.
+
 **Gastronomy and relationship follow-up.** Candidate supply is separate from
 prominence: add structured acquisition coverage for historic cafés, markets,
 food halls, notable restaurants/parrillas, cafés and bakeries through

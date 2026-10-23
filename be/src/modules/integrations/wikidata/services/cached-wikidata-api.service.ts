@@ -8,6 +8,7 @@ import {
   WikidataLookupOutcome,
   WikidataNearbyPlace,
   WikidataPhysicalLocation,
+  WikidataStructuredLookupOutcome,
 } from '../interfaces/wikidata.interface';
 
 /**
@@ -157,6 +158,13 @@ export class CachedWikidataApiService implements IWikidataApiService {
     radiusMeters: number,
   ): Promise<WikidataNearbyPlace[]> {
     return this.realService.findNearbyPlaces(latitude, longitude, radiusMeters);
+  }
+
+  /** Not cached: structured facts carry their own observation time. */
+  lookupStructuredEntityFacts(
+    qids: string[],
+  ): Promise<WikidataStructuredLookupOutcome> {
+    return this.realService.lookupStructuredEntityFacts(qids);
   }
 
   /** Not cached: a small, structural lookup made only for record equivalence. */

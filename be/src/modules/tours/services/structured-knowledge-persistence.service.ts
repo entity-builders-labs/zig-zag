@@ -20,6 +20,10 @@ import {
   isRouteExclusion,
   STRUCTURED_ADMISSION_POLICY_VERSION,
 } from '../admission/structured-admission-policy';
+import {
+  ProminenceEvidenceFact,
+  STRUCTURED_PROMINENCE_POLICY_VERSION,
+} from '../prominence/structured-prominence.policy';
 
 /**
  * Persists the GeoEntity-keyed structured knowledge of design C14 (task 39.1):
@@ -217,6 +221,105 @@ export class StructuredKnowledgePersistenceService {
         linkPolicyVersion: link.linkPolicyVersion,
         linkEvidence: link.linkEvidence as object,
       },
+    });
+  }
+
+  /**
+   * Replaces the GeoEntity's prominence evidence for exactly the source
+   * records whose observation completed (design C17, task 39.3). Rows of
+   * other records — including an encyclopedic item whose lookup was
+   * unavailable this run — are left untouched; an empty observation stores
+   * nothing (UNKNOWN), never a zero or negative row. Identity, admission and
+   * Experience state are not read or written here.
+   */
+  async replaceProminenceEvidence(
+    geoEntityId: string,
+    observation: {
+      observedSources: Array<{
+        sourceProvider: string;
+        sourceRecordId: string;
+      }>;
+      facts: readonly ProminenceEvidenceFact[];
+    },
+  ): Promise<void> {
+    const observed = new Set(
+      observation.observedSources.map(
+        (source) => `${source.sourceProvider}|${source.sourceRecordId}`,
+      ),
+    );
+    const facts = observation.facts.filter((fact) =>
+      observed.has(`${fact.sourceProvider}|${fact.sourceRecordId}`),
+    );
+    const keyOf = (fact: {
+      kind: string;
+      sourceProvider: string;
+      sourceRecordId: string;
+      fieldPath: string;
+    }) =>
+      [
+        fact.kind,
+        fact.sourceProvider,
+        fact.sourceRecordId,
+        fact.fieldPath,
+      ].join('|');
+    const wanted = new Map(facts.map((fact) => [keyOf(fact), fact]));
+    await this.prisma.$transaction(async (tx) => {
+      const existing = await tx.geoEntityProminenceEvidence.findMany({
+        where: {
+          geoEntityId,
+          OR: observation.observedSources.map((source) => ({
+            sourceProvider: source.sourceProvider,
+            sourceRecordId: source.sourceRecordId,
+          })),
+        },
+        select: {
+          id: true,
+          kind: true,
+          sourceProvider: true,
+          sourceRecordId: true,
+          fieldPath: true,
+        },
+      });
+      const stale = existing.filter((row) => !wanted.has(keyOf(row)));
+      if (stale.length > 0) {
+        await tx.geoEntityProminenceEvidence.deleteMany({
+          where: { id: { in: stale.map((row) => row.id) } },
+        });
+      }
+      for (const fact of wanted.values()) {
+        const data = {
+          providerIdentity: fact.providerIdentity,
+          numericValue: fact.numericValue ?? null,
+          textValue: fact.textValue ?? null,
+          languageCode: fact.languageCode ?? null,
+          authority: fact.authority ?? null,
+          designationLevel: fact.designationLevel ?? null,
+          providerMetric: fact.providerMetric ?? null,
+          comparisonScope: fact.comparisonScope ?? null,
+          observedAt: fact.observedAt,
+          policyVersion: STRUCTURED_PROMINENCE_POLICY_VERSION,
+        };
+        await tx.geoEntityProminenceEvidence.upsert({
+          where: {
+            geoEntityId_kind_sourceProvider_sourceRecordId_fieldPath: {
+              geoEntityId,
+              kind: fact.kind,
+              sourceProvider: fact.sourceProvider,
+              sourceRecordId: fact.sourceRecordId,
+              fieldPath: fact.fieldPath,
+            },
+          },
+          create: {
+            geoEntityId,
+            kind: fact.kind,
+            sourceProvider: fact.sourceProvider,
+            sourceRecordId: fact.sourceRecordId,
+            fieldPath: fact.fieldPath,
+            ...data,
+          },
+          update: data,
+        });
+      }
     });
   }
 }

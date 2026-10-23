@@ -9,7 +9,7 @@ describe('ExperienceAcquisitionPlannerService · structured POI route', () => {
     requiredEligibleCount: 10,
   };
 
-  it('routes a capacity gap to STRUCTURED_POI using only a resolved destination window', () => {
+  it('routes a capacity gap to STRUCTURED_POI with its dependent STRUCTURED_ENTITY_FACTS batch, using only a resolved destination window', () => {
     const plan = planner.buildAcquisitionPlan({
       destination: {
         destinationName: 'Buenos Aires',
@@ -26,6 +26,10 @@ describe('ExperienceAcquisitionPlannerService · structured POI route', () => {
         radiusMeters: 5_000,
         sourceClass: 'STRUCTURED_POI',
         routingPolicyVersion: 'gap-source-routing-v1',
+        entityFacts: {
+          sourceClass: 'STRUCTURED_ENTITY_FACTS',
+          provider: 'wikidata',
+        },
       },
     });
     expect(plan.sourcePlans.map((source) => source.provider)).toEqual([

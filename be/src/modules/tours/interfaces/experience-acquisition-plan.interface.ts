@@ -71,6 +71,15 @@ export interface StructuredPoiSourcePlanPayload {
   radiusMeters: number;
   sourceClass: 'STRUCTURED_POI';
   routingPolicyVersion: string;
+  /**
+   * The router's dependent STRUCTURED_ENTITY_FACTS strategy (design C17): the
+   * identity-linked encyclopedic facts of the QIDs the STRUCTURED_POI
+   * candidates carry. Absent when the route does not include it.
+   */
+  entityFacts?: {
+    sourceClass: 'STRUCTURED_ENTITY_FACTS';
+    provider: 'wikidata';
+  };
 }
 
 export interface WikivoyageSourcePlan {

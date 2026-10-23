@@ -82,6 +82,13 @@ an editorial rank on a reusable Experience.
 - **THEN** the candidates remain incomparable on prominence and use the
   neutral deterministic tie-break, with UNKNOWN preserved
 
+#### Scenario: Known positive evidence precedes missing evidence
+- **WHEN** one valid candidate has KNOWN positive evidence at a prominence
+  level and another has UNKNOWN or zero evidence at that level, with all
+  higher levels equal
+- **THEN** the candidate with positive evidence orders first, and an UNKNOWN
+  candidate never orders below a candidate whose value is a known zero
+
 #### Scenario: Lower-ranked candidate remains valid
 - **WHEN** one valid Experience ranks below another for a request
 - **THEN** it remains admitted, composable and available in the catalog

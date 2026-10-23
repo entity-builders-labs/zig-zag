@@ -53,6 +53,9 @@ describe('structured admission authority (design C7, task 37.1)', () => {
       'modules/tours/admission/structured-admission-policy.ts',
       'modules/integrations/osm/utils/osm-admission-adapter.ts',
       'modules/integrations/wikidata/utils/wikidata-admission-adapter.ts',
+      // C17 prominence kinds reuse the canonical evidence names; the
+      // prominence policy is their single owner (it never decides admission).
+      'modules/tours/prominence/structured-prominence.policy.ts',
     ]);
     const vocabulary =
       /'(EXPLICIT_VISITOR_CLASSIFICATION|HISTORIC_CLASSIFICATION|HERITAGE_DESIGNATION|VISITABLE_PLACE_CLASS|ENCYCLOPEDIC_NOTABILITY|PROVIDER_PROMINENCE|ADMINISTRATIVE_OR_LOCALITY|ROAD_OR_ROUTE|INFORMATION_OR_SIGNAGE|SUB_FEATURE|TRANSPORT_SERVICE|TECHNICAL_INFRASTRUCTURE|ACCOMMODATION)'/;

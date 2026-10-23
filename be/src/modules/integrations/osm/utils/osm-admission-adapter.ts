@@ -9,6 +9,7 @@ import {
   ParentPlaceClass,
 } from '@tours/admission/structured-admission-policy';
 import { PerInstanceEvidence } from '@tours/admission/parent-site-visit-unit.policy';
+import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
 
 export interface OsmVisitUnitFacts {
   childClass?: ChildPlaceClass;
@@ -232,6 +233,54 @@ export function osmTagsToAdmissionFacts(
   }
 
   return { signals, signalEvidence, exclusions, placeClasses };
+}
+
+/**
+ * OSM → typed prominence evidence (design C17, task 39.3). It references the
+ * canonical admission evidence rather than remapping tags: a heritage record
+ * (with its issuer only when `heritage:operator` names one) and an explicit
+ * visitor-destination classification. OSM supplies no provider prominence,
+ * and a `wikidata` tag is identity only.
+ */
+export function osmTagsToProminenceEvidence(
+  tags: Record<string, string> | undefined,
+  sourceRecordId: string,
+  observedAt: Date,
+): ProminenceEvidenceFact[] {
+  const t = tags ?? {};
+  const base = {
+    sourceProvider: 'openstreetmap',
+    providerIdentity: sourceRecordId,
+    sourceRecordId,
+    observedAt,
+  };
+  return osmTagsToAdmissionFacts(t).signalEvidence.flatMap(
+    (evidence): ProminenceEvidenceFact[] => {
+      if (evidence.signal === 'HERITAGE_DESIGNATION') {
+        const operator = t['heritage:operator']?.trim();
+        return [
+          {
+            ...base,
+            kind: 'HERITAGE_DESIGNATION',
+            fieldPath: `tags.${evidence.field}`,
+            designationLevel: String(evidence.value),
+            ...(operator ? { authority: operator } : {}),
+          },
+        ];
+      }
+      if (evidence.signal === 'EXPLICIT_VISITOR_CLASSIFICATION') {
+        return [
+          {
+            ...base,
+            kind: 'EXPLICIT_VISITOR_CLASSIFICATION',
+            fieldPath: `tags.${evidence.field}`,
+            textValue: `${evidence.field}=${evidence.value}`,
+          },
+        ];
+      }
+      return [];
+    },
+  );
 }
 
 /**

@@ -536,4 +536,84 @@ describe('WikidataApiService', () => {
       expect(mockedAxios.get).not.toHaveBeenCalled();
     });
   });
+
+  describe('lookupStructuredEntityFacts (task 39.3)', () => {
+    it('returns P31, P1435 and URL-bearing sitelinks in one wbgetentities call per batch', async () => {
+      service = await setup();
+      mockedAxios.get.mockResolvedValueOnce(
+        mockWbGetEntities({
+          Q1: {
+            id: 'Q1',
+            claims: {
+              P31: [
+                {
+                  mainsnak: {
+                    snaktype: 'value',
+                    datavalue: { value: { id: 'Q33506' } },
+                  },
+                },
+              ],
+              P1435: [
+                {
+                  mainsnak: {
+                    snaktype: 'value',
+                    datavalue: { value: { id: 'Q900' } },
+                  },
+                },
+                { mainsnak: { snaktype: 'novalue' } },
+              ],
+            },
+            sitelinks: {
+              eswiki: {
+                site: 'eswiki',
+                url: 'https://es.wikipedia.org/wiki/X',
+              },
+              commonswiki: {
+                site: 'commonswiki',
+                url: 'https://commons.wikimedia.org/wiki/X',
+              },
+            },
+          },
+          Q2: { id: 'Q2', missing: '' },
+        }),
+      );
+
+      const outcome = await service.lookupStructuredEntityFacts([
+        'Q2',
+        'Q1',
+        'Q1',
+        'bad',
+      ]);
+
+      expect(mockedAxios.get).toHaveBeenCalledTimes(1);
+      expect(mockedAxios.get.mock.calls[0][1]?.params).toMatchObject({
+        action: 'wbgetentities',
+        ids: 'Q1|Q2',
+        props: 'claims|sitelinks/urls',
+      });
+      expect(outcome.facts.get('Q1')).toEqual({
+        qid: 'Q1',
+        instanceOf: ['Q33506'],
+        heritageDesignations: ['Q900'],
+        sitelinks: [
+          { site: 'commonswiki', url: 'https://commons.wikimedia.org/wiki/X' },
+          { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/X' },
+        ],
+      });
+      expect([...outcome.missingQids]).toEqual(['Q2']);
+      expect(outcome.failedQids.size).toBe(0);
+      expect(outcome.observedAt).toBeInstanceOf(Date);
+    });
+
+    it('reports a failed batch as failedQids (UNKNOWN), never as missing items', async () => {
+      service = await setup();
+      mockedAxios.get.mockRejectedValueOnce(new Error('503'));
+
+      const outcome = await service.lookupStructuredEntityFacts(['Q1']);
+
+      expect(outcome.facts.size).toBe(0);
+      expect(outcome.missingQids.size).toBe(0);
+      expect([...outcome.failedQids]).toEqual(['Q1']);
+    });
+  });
 });

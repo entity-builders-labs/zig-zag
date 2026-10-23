@@ -89,4 +89,123 @@ describe('StructuredPoiAcquisitionProvider', () => {
     expect(result.status).toBe('failed');
     expect(osm.lookupFeaturesNear).not.toHaveBeenCalled();
   });
+
+  describe('dependent STRUCTURED_ENTITY_FACTS batch (task 39.3)', () => {
+    const osmWith = (tags: Record<string, string>[]) =>
+      ({
+        lookupFeaturesNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          rawResultCount: tags.length,
+          value: tags.map((t, index) => ({
+            id: `osm:node:${index + 1}`,
+            name: `Place ${index + 1}`,
+            osmType: 'node',
+            osmId: index + 1,
+            geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
+            tags: t,
+          })),
+        }),
+      }) as unknown as OsmPlacesService;
+
+    it('attaches KNOWN, NOT_FOUND and UNAVAILABLE outcomes per QID and records the batch outcome', async () => {
+      const wikidata = {
+        lookupStructuredEntityFacts: jest.fn().mockResolvedValue({
+          facts: new Map([
+            [
+              'Q1',
+              {
+                qid: 'Q1',
+                instanceOf: [],
+                heritageDesignations: [],
+                sitelinks: [
+                  { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/A' },
+                ],
+              },
+            ],
+          ]),
+          missingQids: new Set(['Q2']),
+          failedQids: new Set(['Q3']),
+          observedAt: new Date('2026-10-23T00:00:00Z'),
+        }),
+      };
+      const provider = new StructuredPoiAcquisitionProvider(
+        osmWith([
+          { historic: 'memorial', wikidata: 'Q1' },
+          { historic: 'memorial', wikidata: 'Q2' },
+          { historic: 'memorial', wikidata: 'Q3' },
+          { historic: 'memorial' },
+        ]),
+        wikidata as any,
+      );
+
+      const result = await provider.acquire(destination, {
+        radiusMeters: 5_000,
+        entityFacts: { sourceClass: 'STRUCTURED_ENTITY_FACTS' },
+      });
+
+      expect(wikidata.lookupStructuredEntityFacts).toHaveBeenCalledWith([
+        'Q1',
+        'Q2',
+        'Q3',
+      ]);
+      expect(result.status).toBe('success');
+      expect(result.value.map((c) => c.entityFacts?.status)).toEqual([
+        'KNOWN',
+        'NOT_FOUND',
+        'UNAVAILABLE',
+        undefined,
+      ]);
+      expect(result.value[0].entityFacts).toMatchObject({
+        admission: { sitelinkCount: 1 },
+        prominence: [{ kind: 'ENCYCLOPEDIC_SITELINK_COUNT', numericValue: 1 }],
+      });
+      expect(result.provenance).toMatchObject({
+        entityFacts: {
+          sourceClass: 'STRUCTURED_ENTITY_FACTS',
+          status: 'PARTIAL',
+          requested: 3,
+          known: 1,
+          notFound: 1,
+          unavailable: 1,
+        },
+      });
+    });
+
+    it('an unavailable encyclopedic provider never fails OSM discovery; QIDs stay UNAVAILABLE', async () => {
+      const provider = new StructuredPoiAcquisitionProvider(
+        osmWith([{ tourism: 'museum', wikidata: 'Q9' }]),
+      );
+      const result = await provider.acquire(destination, {
+        radiusMeters: 5_000,
+        entityFacts: { sourceClass: 'STRUCTURED_ENTITY_FACTS' },
+      });
+      expect(result.status).toBe('success');
+      expect(result.value[0].entityFacts).toEqual({
+        status: 'UNAVAILABLE',
+        qid: 'Q9',
+      });
+      expect(result.value[0].prominenceEvidence).toEqual([
+        expect.objectContaining({
+          kind: 'EXPLICIT_VISITOR_CLASSIFICATION',
+          textValue: 'tourism=museum',
+        }),
+      ]);
+      expect(result.provenance).toMatchObject({
+        entityFacts: { status: 'FAILED', unavailable: 1 },
+      });
+    });
+
+    it('does not call the encyclopedic provider when the route did not plan it', async () => {
+      const wikidata = { lookupStructuredEntityFacts: jest.fn() };
+      const provider = new StructuredPoiAcquisitionProvider(
+        osmWith([{ tourism: 'museum', wikidata: 'Q9' }]),
+        wikidata as any,
+      );
+      const result = await provider.acquire(destination, {
+        radiusMeters: 5_000,
+      });
+      expect(wikidata.lookupStructuredEntityFacts).not.toHaveBeenCalled();
+      expect(result.value[0].entityFacts).toBeUndefined();
+    });
+  });
 });

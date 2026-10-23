@@ -74,6 +74,35 @@ export interface WikidataNearbyPlace {
   longitude: number;
 }
 
+/**
+ * Raw structured statements of one identity-linked Wikidata item, as returned
+ * by the provider (task 39.3). Provider semantics end at the Wikidata admission
+ * adapter; this shape carries no interpretation beyond the provider's own
+ * fields.
+ */
+export interface WikidataStructuredEntityFacts {
+  qid: string;
+  /** Direct P31 (instance of) value QIDs. */
+  instanceOf: string[];
+  /** P1435 (heritage designation) value QIDs. */
+  heritageDesignations: string[];
+  /** Every sitelink the item records, with the provider-supplied article URL. */
+  sitelinks: Array<{ site: string; url?: string }>;
+}
+
+/**
+ * Keeps provider failures distinct from a resolved item and from an unknown
+ * QID: a failed batch leaves its QIDs UNKNOWN, never a negative fact.
+ */
+export interface WikidataStructuredLookupOutcome {
+  facts: Map<string, WikidataStructuredEntityFacts>;
+  /** QIDs the provider reported as missing items. */
+  missingQids: Set<string>;
+  /** QIDs whose batch failed; their facts are UNKNOWN. */
+  failedQids: Set<string>;
+  observedAt: Date;
+}
+
 export interface IWikidataApiService {
   lookupEntitySummaries(qids: string[]): Promise<WikidataLookupOutcome>;
 
@@ -111,4 +140,13 @@ export interface IWikidataApiService {
   lookupPhysicalLocation(
     qids: string[],
   ): Promise<Map<string, WikidataPhysicalLocation>>;
+
+  /**
+   * Structured statements (P31, P1435, sitelinks with URLs) for identity-
+   * linked items, batched. Never throws: a failed batch is reported in
+   * `failedQids` and those facts stay UNKNOWN.
+   */
+  lookupStructuredEntityFacts(
+    qids: string[],
+  ): Promise<WikidataStructuredLookupOutcome>;
 }

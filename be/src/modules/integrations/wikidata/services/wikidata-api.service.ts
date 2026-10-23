@@ -7,6 +7,8 @@ import {
   WikidataLookupOutcome,
   WikidataNearbyPlace,
   WikidataPhysicalLocation,
+  WikidataStructuredEntityFacts,
+  WikidataStructuredLookupOutcome,
 } from '../interfaces/wikidata.interface';
 
 const DEFAULT_WIKIDATA_API_URL = 'https://www.wikidata.org/w/api.php';
@@ -43,6 +45,48 @@ interface WbGetClaimsResponse {
       claims?: Record<string, Array<{ mainsnak?: { snaktype?: string } }>>;
     }
   >;
+}
+
+interface WbStructuredEntitiesResponse {
+  entities?: Record<
+    string,
+    {
+      id: string;
+      missing?: string;
+      claims?: Record<
+        string,
+        Array<{
+          mainsnak?: {
+            snaktype?: string;
+            datavalue?: { value?: { id?: string } };
+          };
+        }>
+      >;
+      sitelinks?: Record<string, { site: string; url?: string }>;
+    }
+  >;
+}
+
+const QID_PATTERN = /^Q\d+$/;
+
+function claimValueIds(
+  claims: NonNullable<
+    NonNullable<WbStructuredEntitiesResponse['entities']>[string]['claims']
+  >,
+  property: string,
+): string[] {
+  return [
+    ...new Set(
+      (claims[property] ?? []).flatMap((claim) => {
+        const id = claim.mainsnak?.datavalue?.value?.id;
+        return claim.mainsnak?.snaktype === 'value' &&
+          typeof id === 'string' &&
+          QID_PATTERN.test(id)
+          ? [id]
+          : [];
+      }),
+    ),
+  ].sort();
 }
 
 interface WikipediaExtractsResponse {
@@ -159,6 +203,61 @@ export class WikidataApiService implements IWikidataApiService {
       }
     }
     return located;
+  }
+
+  async lookupStructuredEntityFacts(
+    qids: string[],
+  ): Promise<WikidataStructuredLookupOutcome> {
+    const observedAt = new Date();
+    const facts = new Map<string, WikidataStructuredEntityFacts>();
+    const missingQids = new Set<string>();
+    const failedQids = new Set<string>();
+    const uniqueQids = Array.from(new Set(qids))
+      .filter((qid) => QID_PATTERN.test(qid))
+      .sort();
+    for (const batch of chunk(uniqueQids, MAX_IDS_PER_BATCH)) {
+      try {
+        const response = await axios.get<WbStructuredEntitiesResponse>(
+          this.apiUrl,
+          {
+            params: {
+              action: 'wbgetentities',
+              ids: batch.join('|'),
+              props: 'claims|sitelinks/urls',
+              format: 'json',
+            },
+            headers: { 'User-Agent': USER_AGENT },
+          },
+        );
+        const entities = response.data?.entities ?? {};
+        for (const qid of batch) {
+          const entity = entities[qid];
+          if (!entity) {
+            failedQids.add(qid);
+            continue;
+          }
+          if (entity.missing !== undefined) {
+            missingQids.add(qid);
+            continue;
+          }
+          const claims = entity.claims ?? {};
+          facts.set(qid, {
+            qid,
+            instanceOf: claimValueIds(claims, 'P31'),
+            heritageDesignations: claimValueIds(claims, 'P1435'),
+            sitelinks: Object.values(entity.sitelinks ?? {})
+              .map((link) => ({ site: link.site, url: link.url }))
+              .sort((a, b) => a.site.localeCompare(b.site)),
+          });
+        }
+      } catch (error) {
+        this.logger.warn(
+          `wbgetentities structured facts batch failed: ${(error as Error).message}`,
+        );
+        batch.forEach((qid) => failedQids.add(qid));
+      }
+    }
+    return { facts, missingQids, failedQids, observedAt };
   }
 
   private async resolveBatch(

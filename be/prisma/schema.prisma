@@ -45,6 +45,7 @@ model GeoEntity {
   admission               GeoEntityAdmission?
   openingHours            GeoEntityOpeningHours?
   visitDuration           GeoEntityVisitDuration?
+  prominenceEvidence      GeoEntityProminenceEvidence[]
   childRelations          GeoEntityRelation[]              @relation("RelationChild")
   parentRelations         GeoEntityRelation[]              @relation("RelationParent")
   traversalFromComponents ExperienceComponent[]            @relation("TraversalFrom")
@@ -500,6 +501,43 @@ model GeoEntityAdmission {
 
   @@index([outcome, policyVersion])
   @@map("geo_entity_admission")
+}
+
+/// Structured prominence evidence kind (C17). Prominence is separate from
+/// identity, admission, preference relevance and planning readiness.
+enum ProminenceEvidenceKind {
+  ENCYCLOPEDIC_SITELINK_COUNT
+  ENCYCLOPEDIC_LANGUAGE_SITELINK
+  HERITAGE_DESIGNATION
+  EXPLICIT_VISITOR_CLASSIFICATION
+  PROVIDER_PROMINENCE
+}
+
+/// One typed structured prominence fact of a GeoEntity (0..N, design C14/C17).
+/// An empty set projects as UNKNOWN; it is never a negative value. No
+/// universal score is stored.
+model GeoEntityProminenceEvidence {
+  id               String                 @id @default(uuid())
+  geoEntityId      String
+  kind             ProminenceEvidenceKind
+  sourceProvider   String
+  providerIdentity String
+  sourceRecordId   String
+  fieldPath        String
+  numericValue     Int?
+  textValue        String?
+  languageCode     String?
+  authority        String?
+  designationLevel String?
+  providerMetric   String?
+  comparisonScope  String?
+  observedAt       DateTime
+  policyVersion    String
+  geoEntity        GeoEntity              @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+
+  @@unique([geoEntityId, kind, sourceProvider, sourceRecordId, fieldPath])
+  @@index([geoEntityId, kind])
+  @@map("geo_entity_prominence_evidence")
 }
 
 /// N:M PART_OF relationship between two GeoEntities. `visitUnitClassification`

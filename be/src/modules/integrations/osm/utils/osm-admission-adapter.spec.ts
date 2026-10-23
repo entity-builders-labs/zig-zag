@@ -1,6 +1,7 @@
 import {
   osmTagsToAdmissionFacts,
   OSM_ADMISSION_DISCOVERY_SELECTORS,
+  osmTagsToProminenceEvidence,
 } from './osm-admission-adapter';
 
 const signalTypes = (tags: Record<string, string>) =>
@@ -98,5 +99,56 @@ describe('OSM admission adapter (task 37.1)', () => {
       'natural',
       'highway',
     ]);
+  });
+});
+
+describe('osmTagsToProminenceEvidence (task 39.3)', () => {
+  const observedAt = new Date('2026-10-23T00:00:00Z');
+
+  it('a wikidata tag or a historic class alone yields no prominence fact', () => {
+    expect(
+      osmTagsToProminenceEvidence(
+        { historic: 'memorial', wikidata: 'Q1' },
+        'osm:node:1',
+        observedAt,
+      ),
+    ).toEqual([]);
+  });
+
+  it('records heritage with its issuer only when the record names one, and an explicit visitor class', () => {
+    expect(
+      osmTagsToProminenceEvidence(
+        { tourism: 'museum', heritage: '2', 'heritage:operator': 'cnmlbh' },
+        'osm:way:7',
+        observedAt,
+      ),
+    ).toEqual([
+      {
+        kind: 'EXPLICIT_VISITOR_CLASSIFICATION',
+        sourceProvider: 'openstreetmap',
+        providerIdentity: 'osm:way:7',
+        sourceRecordId: 'osm:way:7',
+        fieldPath: 'tags.tourism',
+        textValue: 'tourism=museum',
+        observedAt,
+      },
+      {
+        kind: 'HERITAGE_DESIGNATION',
+        sourceProvider: 'openstreetmap',
+        providerIdentity: 'osm:way:7',
+        sourceRecordId: 'osm:way:7',
+        fieldPath: 'tags.heritage',
+        designationLevel: '2',
+        authority: 'cnmlbh',
+        observedAt,
+      },
+    ]);
+    expect(
+      osmTagsToProminenceEvidence(
+        { heritage: 'yes' },
+        'osm:node:8',
+        observedAt,
+      )[0],
+    ).not.toHaveProperty('authority');
   });
 });

@@ -194,11 +194,17 @@ export class ExperienceAcquisitionPlannerService {
       ? this.acquisitionRouter.route({
           gapType: 'PLACE_CANDIDATES',
           destination: input.destination,
-          availability: { openstreetmap: true, wikidata: false },
+          // Both structured integrations need no credential and are always
+          // configured; an outage is reported by the executing provider as a
+          // typed FAILED/UNKNOWN outcome, never decided here.
+          availability: { openstreetmap: true, wikidata: true },
         })
       : undefined;
     const structuredPoiStrategy = placeRoute?.strategies.find(
       (strategy) => strategy.sourceClass === 'STRUCTURED_POI',
+    );
+    const entityFactsStrategy = placeRoute?.strategies.find(
+      (strategy) => strategy.sourceClass === 'STRUCTURED_ENTITY_FACTS',
     );
     if (structuredPoiStrategy && placeRoute) {
       sourcePlans.push({
@@ -207,6 +213,14 @@ export class ExperienceAcquisitionPlannerService {
           radiusMeters: input.destination.radiusMeters!,
           sourceClass: 'STRUCTURED_POI',
           routingPolicyVersion: placeRoute.policyVersion,
+          ...(entityFactsStrategy
+            ? {
+                entityFacts: {
+                  sourceClass: 'STRUCTURED_ENTITY_FACTS' as const,
+                  provider: 'wikidata' as const,
+                },
+              }
+            : {}),
         },
       });
     }

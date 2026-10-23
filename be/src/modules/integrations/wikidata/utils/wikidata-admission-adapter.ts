@@ -1,7 +1,10 @@
 import {
   AdmissionSignal,
+  AdmissionSignalEvidence,
   admissionSignal,
 } from '@tours/admission/structured-admission-policy';
+import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
+import { WikidataStructuredEntityFacts } from '../interfaces/wikidata.interface';
 
 /**
  * Wikidata → canonical admission mapping (design C7, task 37.1). The Wikidata
@@ -54,4 +57,123 @@ export function wikidataFactsToAdmissionSignals(
     signals.push(admissionSignal('ENCYCLOPEDIC_NOTABILITY'));
   }
   return signals;
+}
+
+/** Admission evidence for the signals above, with the provider field read. */
+export function wikidataFactsToAdmissionSignalEvidence(
+  facts: WikidataAdmissionFacts,
+): AdmissionSignalEvidence[] {
+  const evidence: AdmissionSignalEvidence[] = [];
+  for (const qid of facts.instanceOf ?? []) {
+    if (WIKIDATA_VISITOR_ATTRACTION_ROOTS.includes(qid)) {
+      evidence.push({
+        signal: 'EXPLICIT_VISITOR_CLASSIFICATION',
+        field: 'claims.P31',
+        value: qid,
+      });
+    }
+    if (WIKIDATA_HISTORIC_SITE_ROOTS.includes(qid)) {
+      evidence.push({
+        signal: 'HISTORIC_CLASSIFICATION',
+        field: 'claims.P31',
+        value: qid,
+      });
+    }
+  }
+  for (const designation of facts.heritageDesignation ?? []) {
+    evidence.push({
+      signal: 'HERITAGE_DESIGNATION',
+      field: 'claims.P1435',
+      value: designation,
+    });
+  }
+  if ((facts.sitelinkCount ?? 0) > 0) {
+    evidence.push({
+      signal: 'ENCYCLOPEDIC_NOTABILITY',
+      field: 'sitelinks',
+      value: facts.sitelinkCount!,
+    });
+  }
+  return evidence;
+}
+
+/**
+ * Language-Wikipedia article sitelinks of an item (task 39.3). Only the
+ * provider's Wikipedia site family is an encyclopedic article; Commons,
+ * Wikiquote, Wikivoyage and other projects are not. Recognized from the
+ * provider-supplied article URL host; a sitelink without a URL is not counted.
+ */
+export function wikipediaArticleSitelinks(
+  facts: WikidataStructuredEntityFacts,
+): Array<{ site: string; languageCode: string }> {
+  return facts.sitelinks.flatMap((link) => {
+    if (!link.url) return [];
+    let host: string;
+    try {
+      host = new URL(link.url).hostname;
+    } catch {
+      return [];
+    }
+    const match = /^([a-z0-9-]+)\.wikipedia\.org$/.exec(host);
+    return match ? [{ site: link.site, languageCode: match[1] }] : [];
+  });
+}
+
+/** Raw structured statements → canonical admission facts. */
+export function wikidataStructuredFactsToAdmissionFacts(
+  facts: WikidataStructuredEntityFacts,
+): WikidataAdmissionFacts {
+  return {
+    instanceOf: facts.instanceOf,
+    heritageDesignation: facts.heritageDesignations,
+    sitelinkCount: wikipediaArticleSitelinks(facts).length,
+  };
+}
+
+/**
+ * Raw structured statements → typed prominence evidence (design C17). The QID
+ * alone yields nothing: a fact is emitted only for a statement the item
+ * actually records. Zero Wikipedia articles yields no sitelink fact (UNKNOWN
+ * downstream, never a negative value). P1435 values carry no issuer here, so
+ * no `authority` is claimed.
+ */
+export function wikidataStructuredFactsToProminenceEvidence(
+  facts: WikidataStructuredEntityFacts,
+  observedAt: Date,
+): ProminenceEvidenceFact[] {
+  const base = {
+    sourceProvider: 'wikidata',
+    providerIdentity: facts.qid,
+    sourceRecordId: facts.qid,
+    observedAt,
+  };
+  const evidence: ProminenceEvidenceFact[] = [];
+  const articles = wikipediaArticleSitelinks(facts);
+  if (articles.length > 0) {
+    evidence.push({
+      ...base,
+      kind: 'ENCYCLOPEDIC_SITELINK_COUNT',
+      fieldPath: 'sitelinks',
+      numericValue: articles.length,
+    });
+  }
+  for (const designation of facts.heritageDesignations) {
+    evidence.push({
+      ...base,
+      kind: 'HERITAGE_DESIGNATION',
+      fieldPath: `claims.P1435.${designation}`,
+      designationLevel: designation,
+    });
+  }
+  for (const qid of facts.instanceOf) {
+    if (WIKIDATA_VISITOR_ATTRACTION_ROOTS.includes(qid)) {
+      evidence.push({
+        ...base,
+        kind: 'EXPLICIT_VISITOR_CLASSIFICATION',
+        fieldPath: `claims.P31.${qid}`,
+        textValue: qid,
+      });
+    }
+  }
+  return evidence;
 }

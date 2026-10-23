@@ -11,6 +11,7 @@ import {
   osmTagsToAdmissionFacts,
 } from '@integrations/osm/utils/osm-admission-adapter';
 import {
+  wikidataFactsToAdmissionSignalEvidence,
   wikidataFactsToAdmissionSignals,
   WikidataAdmissionFacts,
 } from '@integrations/wikidata/utils/wikidata-admission-adapter';
@@ -28,7 +29,10 @@ import {
 export interface StructuredPlaceAdmissionRecord {
   policyVersion: string;
   signals: AdmissionSignalType[];
+  /** OSM-adapter evidence (provider-attributed by the caller). */
   signalEvidence: AdmissionSignalEvidence[];
+  /** Identity-linked encyclopedic evidence, when facts were acquired. */
+  encyclopedicSignalEvidence: AdmissionSignalEvidence[];
   exclusions: AdmissionExclusionClass[];
   decision: AdmissionDecision;
 }
@@ -63,6 +67,9 @@ export function evaluateStructuredPlaceAdmissionFacts(input: {
     policyVersion: STRUCTURED_ADMISSION_POLICY_VERSION,
     signals: signals.map((signal) => signal.type),
     signalEvidence: [...osm.signalEvidence],
+    encyclopedicSignalEvidence: wikidataFactsToAdmissionSignalEvidence(
+      input.wikidataFacts ?? {},
+    ),
     exclusions: [...osm.exclusions],
     decision,
   };

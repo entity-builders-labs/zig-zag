@@ -20,7 +20,10 @@ import { PARENT_SITE_VISIT_UNIT_POLICY_VERSION } from '../admission/parent-site-
 import { ExperienceCatalogService } from './experience-catalog.service';
 import { StructuredKnowledgePersistenceService } from './structured-knowledge-persistence.service';
 import { StructuredPoiCandidate } from '../providers/structured-poi-acquisition.provider';
-import { AdmissionDecision } from '../admission/structured-admission-policy';
+import {
+  AdmissionDecision,
+  AdmissionSignalEvidence,
+} from '../admission/structured-admission-policy';
 
 function toIdentityLinkRule(basis: string | undefined): IdentityLinkRule {
   switch (basis) {
@@ -230,6 +233,10 @@ export class StructuredPoiCatalogAcquisitionService {
       const evaluations = group.map((candidate) =>
         evaluateStructuredPlaceAdmissionFacts({
           osmFacts: candidate.admissionFacts,
+          wikidataFacts:
+            candidate.entityFacts?.status === 'KNOWN'
+              ? candidate.entityFacts.admission
+              : undefined,
         }),
       );
       const signals = [...new Set(evaluations.flatMap((item) => item.signals))];
@@ -240,13 +247,20 @@ export class StructuredPoiCatalogAcquisitionService {
         policyVersion: evaluations[0].policyVersion,
         signals,
         exclusions,
-        signalEvidence: evaluations.flatMap((evaluation, index) =>
-          evaluation.signalEvidence.map((fact) => ({
+        signalEvidence: evaluations.flatMap((evaluation, index) => [
+          ...evaluation.signalEvidence.map((fact) => ({
             ...fact,
             provider: 'openstreetmap',
             externalId: group[index].evidenceKey,
           })),
-        ),
+          ...evaluation.encyclopedicSignalEvidence.map((fact) => ({
+            ...fact,
+            provider: 'wikidata',
+            externalId: group[index].entityFacts!.qid,
+          })),
+        ]),
+        // Provider-attributed above; nothing remains unattributed.
+        encyclopedicSignalEvidence: [] as AdmissionSignalEvidence[],
         decision: evaluateAdmissionRule(
           signals.map(admissionSignal),
           exclusions,
@@ -362,6 +376,10 @@ export class StructuredPoiCatalogAcquisitionService {
         identities,
         signalEvidence: admissionEvidenceByGeoEntityId.get(geoEntityId),
       });
+      await this.knowledge.replaceProminenceEvidence(
+        geoEntityId,
+        prominenceObservation(group),
+      );
       const hoursCandidate = group.find(
         (candidate) => candidate.openingHoursEvidence,
       );
@@ -442,6 +460,37 @@ export class StructuredPoiCatalogAcquisitionService {
       possibleDuplicates: reconciled.possibleDuplicates,
     };
   }
+}
+
+/**
+ * The prominence evidence observed for one canonical group, and the source
+ * records whose observation this run completed. Only those records' rows are
+ * replaced: an UNAVAILABLE encyclopedic lookup keeps previously persisted
+ * evidence untouched (unavailable is not absence).
+ */
+function prominenceObservation(group: readonly StructuredPoiCandidate[]) {
+  const observedSources = new Map<
+    string,
+    { sourceProvider: string; sourceRecordId: string }
+  >();
+  const facts = group.flatMap((candidate) => {
+    observedSources.set(`openstreetmap|${candidate.evidenceKey}`, {
+      sourceProvider: 'openstreetmap',
+      sourceRecordId: candidate.evidenceKey,
+    });
+    const entity = candidate.entityFacts;
+    if (entity && entity.status !== 'UNAVAILABLE') {
+      observedSources.set(`wikidata|${entity.qid}`, {
+        sourceProvider: 'wikidata',
+        sourceRecordId: entity.qid,
+      });
+    }
+    return [
+      ...candidate.prominenceEvidence,
+      ...(entity?.status === 'KNOWN' ? entity.prominence : []),
+    ];
+  });
+  return { observedSources: [...observedSources.values()], facts };
 }
 
 function candidateQidFor(
