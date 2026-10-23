@@ -158,6 +158,8 @@ const DEFAULT_MAX_STREETS_RADIUS_METERS = 2500;
 // reach than a walkable-streets query, but still bounded so a single union
 // query can never aim an unbounded `around:` at a shared Overpass instance.
 const DEFAULT_MAX_FEATURES_RADIUS_METERS = 8000;
+// Ids per `out geom` request when fetching parent-site area geometries.
+const AREA_GEOMETRY_BATCH = 200;
 @Injectable()
 export class OsmPlacesService {
   private readonly logger = new Logger(OsmPlacesService.name);
@@ -322,6 +324,63 @@ export class OsmPlacesService {
         rawResultCount: 0,
       };
     }
+  }
+
+  /**
+   * Full area geometry (Polygon/MultiPolygon only) of already-discovered
+   * ways/relations, keyed by `osm:<type>:<id>` (task 39.5). Bounded batches;
+   * never throws: a failed batch reports its ids in `failedIds` and those
+   * areas stay UNKNOWN (no containment is derived from them).
+   */
+  async lookupAreaGeometries(ids: readonly string[]): Promise<{
+    status: 'success' | 'partial' | 'failed';
+    value: Map<string, GeoJsonGeometry>;
+    failedIds: string[];
+  }> {
+    const elements = [...new Set(ids)].flatMap((id) => {
+      const [, type, ref] = id.split(':');
+      const osmId = Number(ref);
+      return (type === 'way' || type === 'relation') &&
+        Number.isSafeInteger(osmId) &&
+        osmId > 0
+        ? [{ id, osmType: type as 'way' | 'relation', osmId }]
+        : [];
+    });
+    const value = new Map<string, GeoJsonGeometry>();
+    const failedIds: string[] = [];
+    for (let start = 0; start < elements.length; start += AREA_GEOMETRY_BATCH) {
+      const batch = elements.slice(start, start + AREA_GEOMETRY_BATCH);
+      try {
+        const returned = await this.overpassApi.queryElementGeometries({
+          elements: batch.map(({ osmType, osmId }) => ({ osmType, osmId })),
+        });
+        for (const element of returned) {
+          if (!isValidOsmIdentity(element?.type, element?.id)) continue;
+          const geometry = overpassElementToGeoJson(element);
+          if (
+            geometry &&
+            (geometry.type === 'Polygon' || geometry.type === 'MultiPolygon')
+          ) {
+            value.set(`osm:${element.type}:${element.id}`, geometry);
+          }
+        }
+      } catch (error: any) {
+        this.logger.warn(
+          `Overpass area geometry batch failed: ${error?.message ?? String(error)}`,
+        );
+        failedIds.push(...batch.map((element) => element.id));
+      }
+    }
+    return {
+      status:
+        failedIds.length === 0
+          ? 'success'
+          : failedIds.length === elements.length
+            ? 'failed'
+            : 'partial',
+      value,
+      failedIds,
+    };
   }
 
   /**

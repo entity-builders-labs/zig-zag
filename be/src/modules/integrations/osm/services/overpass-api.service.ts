@@ -10,6 +10,7 @@ import {
   QueryByIdParams,
   QueryAdminBoundariesWithinAreaParams,
   QueryFeaturesNearParams,
+  QueryElementGeometriesParams,
   QueryHighwaysByNameParams,
 } from '../interfaces/overpass.interface';
 import {
@@ -20,6 +21,7 @@ import {
   buildPoisWithinAreaQuery,
   buildPoisQuery,
   buildFeaturesNearQuery,
+  buildElementGeometriesQuery,
   buildHighwaysByNameQuery,
   buildContainingAdminBoundariesQuery,
 } from '../utils/overpass-query.util';
@@ -241,5 +243,11 @@ export class OverpassApiService implements IOverpassApiService {
     params: QueryContainingBoundaryParams,
   ): Promise<OverpassElement[]> {
     return this.execute(buildContainingAdminBoundariesQuery(params));
+  }
+
+  async queryElementGeometries(
+    params: QueryElementGeometriesParams,
+  ): Promise<OverpassElement[]> {
+    return this.execute(buildElementGeometriesQuery(params));
   }
 }

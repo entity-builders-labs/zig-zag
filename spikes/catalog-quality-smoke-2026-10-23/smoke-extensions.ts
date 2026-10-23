@@ -7,14 +7,20 @@ import { Prisma } from '@prisma/client';
 import { ConfigService } from '@nestjs/config';
 import { OsmPlacesService } from '../../be/src/modules/integrations/osm/services/osm-places.service';
 import { osmTagsToVisitUnitFacts } from '../../be/src/modules/integrations/osm/utils/osm-admission-adapter';
+import { WikidataApiService } from '../../be/src/modules/integrations/wikidata/services/wikidata-api.service';
 import { StructuredPoiAcquisitionProvider } from '../../be/src/modules/tours/providers/structured-poi-acquisition.provider';
 import { ExperienceAcquisitionPlannerService } from '../../be/src/modules/tours/services/experience-acquisition-planner.service';
 
 export function buildStructuredPoiProvider(
   osmPlaces: OsmPlacesService,
-  _config: ConfigService,
+  config: ConfigService,
 ): StructuredPoiAcquisitionProvider {
-  return new StructuredPoiAcquisitionProvider(osmPlaces);
+  // The production wiring injects the identity-linked encyclopedic provider
+  // (task 39.3); the pre-39.3 constructor ignores the extra argument.
+  const Provider = StructuredPoiAcquisitionProvider as unknown as new (
+    ...args: unknown[]
+  ) => StructuredPoiAcquisitionProvider;
+  return new Provider(osmPlaces, new WikidataApiService(config));
 }
 
 export function buildPlan(

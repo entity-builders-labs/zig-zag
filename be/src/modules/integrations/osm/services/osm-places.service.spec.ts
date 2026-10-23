@@ -21,6 +21,7 @@ describe('OsmPlacesService', () => {
       queryFeaturesNear: jest.fn(),
       queryHighwaysByName: jest.fn(),
       queryContainingAdminBoundaries: jest.fn(),
+      queryElementGeometries: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -475,6 +476,64 @@ describe('OsmPlacesService', () => {
         status: 'failed',
         value: [],
         failureReason: 'down',
+      });
+    });
+  });
+
+  describe('lookupAreaGeometries: full area geometry of discovered ways and relations', () => {
+    const closedWay = (id: number): OverpassElement =>
+      ({
+        type: 'way',
+        id,
+        geometry: [
+          { lat: 0, lon: 0 },
+          { lat: 0, lon: 1 },
+          { lat: 1, lon: 1 },
+          { lat: 0, lon: 0 },
+        ],
+      }) as OverpassElement;
+
+    it('returns polygon areas keyed by evidence id and ignores nodes and non-areas', async () => {
+      service = await setup();
+      overpassApi.queryElementGeometries.mockResolvedValue([
+        closedWay(7),
+        {
+          type: 'way',
+          id: 8,
+          geometry: [
+            { lat: 0, lon: 0 },
+            { lat: 0, lon: 1 },
+          ],
+        } as OverpassElement,
+      ]);
+
+      const result = await service.lookupAreaGeometries([
+        'osm:way:7',
+        'osm:way:8',
+        'osm:node:5',
+      ]);
+
+      expect(overpassApi.queryElementGeometries).toHaveBeenCalledWith({
+        elements: [
+          { osmType: 'way', osmId: 7 },
+          { osmType: 'way', osmId: 8 },
+        ],
+      });
+      expect([...result.value.keys()]).toEqual(['osm:way:7']);
+      expect(result.value.get('osm:way:7')?.type).toBe('Polygon');
+      expect(result).toMatchObject({ status: 'success', failedIds: [] });
+    });
+
+    it('reports a failed batch as UNKNOWN areas without throwing', async () => {
+      service = await setup();
+      overpassApi.queryElementGeometries.mockRejectedValue(new Error('504'));
+
+      const result = await service.lookupAreaGeometries(['osm:way:7']);
+
+      expect(result).toEqual({
+        status: 'failed',
+        value: new Map(),
+        failedIds: ['osm:way:7'],
       });
     });
   });

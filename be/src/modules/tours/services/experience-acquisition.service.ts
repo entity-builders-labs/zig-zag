@@ -655,6 +655,8 @@ export class ExperienceAcquisitionService {
                       structuredPoiPersistence.candidateOutcomes,
                     possibleDuplicates:
                       structuredPoiPersistence.possibleDuplicates,
+                    relationDiagnostics:
+                      structuredPoiPersistence.relationDiagnostics,
                   },
                 },
               };

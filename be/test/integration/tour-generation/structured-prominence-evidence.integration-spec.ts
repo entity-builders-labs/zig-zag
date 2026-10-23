@@ -426,6 +426,9 @@ describe('tour-generation integration · structured prominence evidence persiste
     expect(wikidata.lookupStructuredEntityFacts).toHaveBeenCalledWith(['Q9']);
     expect(result.providerResults.structured_poi.provenance).toMatchObject({
       entityFacts: { status: 'SUCCEEDED', requested: 1, known: 1 },
+      persistence: {
+        relationDiagnostics: { upsertAttempts: 0, upsertSucceeded: 0 },
+      },
     });
     const entity = await entityFor(prisma, 'osm:node:9');
     expect(

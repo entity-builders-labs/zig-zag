@@ -22,6 +22,7 @@ describe('CachedOverpassApiService', () => {
       queryFeaturesNear: jest.fn(),
       queryHighwaysByName: jest.fn(),
       queryContainingAdminBoundaries: jest.fn(),
+      queryElementGeometries: jest.fn(),
     };
   });
 

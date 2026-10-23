@@ -376,6 +376,10 @@ async function main() {
       (o: any) => o.visitUnitOutcome ?? 'NO_PARENT_RELATIONSHIP',
     ),
     persistedRelations: relations.length,
+    relationDiagnostics: persistenceResult.relationDiagnostics ?? null,
+    relationEvidenceSources: count(relations, (r) => r.evidenceSource),
+    entityFacts: structured.provenance.entityFacts ?? null,
+    parentAreas: structured.provenance.parentAreas ?? null,
     relationClassifications: count(
       relations,
       (r) => r.visitUnitClassification ?? 'UNCLASSIFIED',

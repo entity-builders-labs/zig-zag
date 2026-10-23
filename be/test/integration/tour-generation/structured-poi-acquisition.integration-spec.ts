@@ -61,6 +61,13 @@ describe('tour-generation integration · destination structured POI path', () =>
               rawResultCount: features.length,
             },
       ),
+      // No parent-site area geometry in this fixture: containment is
+      // covered by structured-parent-containment.integration-spec.ts.
+      lookupAreaGeometries: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: new Map(),
+        failedIds: [],
+      }),
     } as unknown as OsmPlacesService;
     const provider = new StructuredPoiAcquisitionProvider(osmPlaces);
     const catalog = new ExperienceCatalogService(prisma, {} as any);

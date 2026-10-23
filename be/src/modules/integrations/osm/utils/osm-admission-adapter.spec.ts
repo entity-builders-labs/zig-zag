@@ -2,6 +2,7 @@ import {
   osmTagsToAdmissionFacts,
   OSM_ADMISSION_DISCOVERY_SELECTORS,
   osmTagsToProminenceEvidence,
+  osmTagsToVisitUnitFacts,
 } from './osm-admission-adapter';
 
 const signalTypes = (tags: Record<string, string>) =>
@@ -10,7 +11,7 @@ const signalTypes = (tags: Record<string, string>) =>
 const exclusions = (tags: Record<string, string>) =>
   osmTagsToAdmissionFacts(tags).exclusions;
 
-describe('OSM admission adapter (task 37.1)', () => {
+describe('OSM tags → canonical admission signals, exclusions and place classes', () => {
   it('maps tourism=artwork to supporting VISITABLE_PLACE_CLASS, never decisive visitor classification', () => {
     const facts = osmTagsToAdmissionFacts({
       tourism: 'artwork',
@@ -102,7 +103,7 @@ describe('OSM admission adapter (task 37.1)', () => {
   });
 });
 
-describe('osmTagsToProminenceEvidence (task 39.3)', () => {
+describe('osmTagsToProminenceEvidence: OSM heritage and visitor-destination tags → typed prominence facts', () => {
   const observedAt = new Date('2026-10-23T00:00:00Z');
 
   it('a wikidata tag or a historic class alone yields no prominence fact', () => {
@@ -150,5 +151,13 @@ describe('osmTagsToProminenceEvidence (task 39.3)', () => {
         observedAt,
       )[0],
     ).not.toHaveProperty('authority');
+  });
+});
+
+describe('osmTagsToVisitUnitFacts: tomb child class', () => {
+  it('classifies historic=tomb as a grave child, so a tomb inside a cemetery can be recognized as part of it', () => {
+    expect(osmTagsToVisitUnitFacts({ historic: 'tomb' }).childClass).toBe(
+      'grave',
+    );
   });
 });

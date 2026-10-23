@@ -48,7 +48,9 @@ export function osmTagsToVisitUnitFacts(
   const childClass: ChildPlaceClass | undefined =
     t.tourism === 'artwork' || t.historic === 'memorial'
       ? 'artwork'
-      : t.amenity === 'grave_yard' || t.historic === 'grave_yard'
+      : t.amenity === 'grave_yard' ||
+          t.historic === 'grave_yard' ||
+          t.historic === 'tomb'
         ? 'grave'
         : t.amenity !== undefined ||
             t.shop !== undefined ||

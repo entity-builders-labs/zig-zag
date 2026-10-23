@@ -57,6 +57,11 @@ export interface StructuredPoiCandidate extends SourceObservation {
   prominenceEvidence: ProminenceEvidenceFact[];
   /** Present only when the candidate carries a QID and entity facts were planned. */
   entityFacts?: StructuredEntityFactsOutcome;
+  /**
+   * Full area geometry of a parent-site candidate (way/relation with a
+   * parent class), for design C5 containment. Absent = UNKNOWN area.
+   */
+  parentAreaGeometry?: OsmCandidate['geometry'];
 }
 
 function discoverySelectors(): OverpassSelector[] {
@@ -169,6 +174,7 @@ export class StructuredPoiAcquisitionProvider {
     const entityFacts = options.entityFacts
       ? await this.attachEntityFacts(value)
       : undefined;
+    const parentAreas = await this.attachParentAreas(value);
 
     return {
       status: 'success',
@@ -181,7 +187,37 @@ export class StructuredPoiAcquisitionProvider {
         rawResultCount: lookup.rawResultCount,
         candidateCount: value.length,
         ...(entityFacts ? { entityFacts } : {}),
+        parentAreas,
       },
+    };
+  }
+
+  /**
+   * Fetches the full area geometry of parent-site candidates (task 39.5):
+   * discovery returns way/relation centers only, so C5 containment had no
+   * area to test. A failed lookup leaves those areas UNKNOWN.
+   */
+  private async attachParentAreas(candidates: StructuredPoiCandidate[]) {
+    const parents = candidates.filter(
+      (candidate) =>
+        candidate.visitUnitFacts.parentClass !== undefined &&
+        candidate.osmType !== 'node',
+    );
+    if (parents.length === 0) {
+      return { requested: 0, resolved: 0, failed: 0 };
+    }
+    const lookup = await this.osmPlaces.lookupAreaGeometries(
+      parents.map((candidate) => candidate.evidenceKey),
+    );
+    for (const candidate of parents) {
+      const geometry = lookup.value.get(candidate.evidenceKey);
+      if (geometry) candidate.parentAreaGeometry = geometry;
+    }
+    return {
+      requested: parents.length,
+      resolved: parents.filter((candidate) => candidate.parentAreaGeometry)
+        .length,
+      failed: lookup.failedIds.length,
     };
   }
 

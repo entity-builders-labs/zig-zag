@@ -11,6 +11,7 @@ import {
   buildHighwaysByNameQuery,
   HIGHWAYS_BY_NAME_OPERATIONAL_MAX_RADIUS_METERS,
   buildContainingAdminBoundariesQuery,
+  buildElementGeometriesQuery,
 } from './overpass-query.util';
 
 describe('sanitizeOverpassName', () => {
@@ -408,5 +409,37 @@ describe('buildContainingAdminBoundariesQuery', () => {
     expect(query).toContain('rel(pivot.a)["boundary"="administrative"];');
     expect(query).toContain('out tags;');
     expect(query).not.toContain('out geom');
+  });
+});
+
+describe('buildElementGeometriesQuery: full geometry by exact way/relation id', () => {
+  it('requests full geometry of exact, deduplicated way and relation ids', () => {
+    expect(
+      buildElementGeometriesQuery({
+        elements: [
+          { osmType: 'way', osmId: 9 },
+          { osmType: 'relation', osmId: 3 },
+          { osmType: 'way', osmId: 2 },
+          { osmType: 'way', osmId: 9 },
+        ],
+      }),
+    ).toBe(
+      [
+        '[out:json][timeout:60];',
+        '(',
+        '  way(id:2,9);',
+        '  relation(id:3);',
+        ');',
+        'out geom;',
+      ].join('\n'),
+    );
+  });
+
+  it('refuses an empty or invalid id set instead of querying everything', () => {
+    expect(() =>
+      buildElementGeometriesQuery({
+        elements: [{ osmType: 'way', osmId: -1 }],
+      }),
+    ).toThrow('requires at least one id');
   });
 });

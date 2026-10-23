@@ -101,6 +101,11 @@ export interface QueryAdminBoundariesWithinAreaParams extends QueryByIdParams {
 // queryAdminBoundariesWithinArea, queryStreetsWithinArea, queryPoisWithinArea)
 // operate on an already-known boundary id to explore its administrative
 // subdivisions, streets, and POIs.
+/** Exact way/relation ids whose full area geometry is requested. */
+export interface QueryElementGeometriesParams {
+  elements: Array<{ osmType: 'way' | 'relation'; osmId: number }>;
+}
+
 export interface IOverpassApiService {
   queryBoundaryByName(
     params: QueryBoundaryByNameParams,
@@ -128,5 +133,9 @@ export interface IOverpassApiService {
   // the admin-hierarchy facts destination compatibility is decided from.
   queryContainingAdminBoundaries(
     params: QueryContainingBoundaryParams,
+  ): Promise<OverpassElement[]>;
+  // Full `out geom` area geometry of already-discovered ways/relations by id.
+  queryElementGeometries(
+    params: QueryElementGeometriesParams,
   ): Promise<OverpassElement[]>;
 }

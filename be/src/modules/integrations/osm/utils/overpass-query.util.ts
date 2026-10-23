@@ -6,6 +6,7 @@ import {
   QueryAdminBoundariesWithinAreaParams,
   QueryFeaturesNearParams,
   QueryHighwaysByNameParams,
+  QueryElementGeometriesParams,
   OverpassSelector,
 } from '../interfaces/overpass.interface';
 import {
@@ -222,6 +223,42 @@ function buildSelectorLines(
   return prefixes.map(
     (prefix) => `${prefix}${tagFilter}${nameFilter}${around};`,
   );
+}
+
+/**
+ * Full area geometry of already-discovered ways/relations, by exact id
+ * (task 39.5): the parent-site areas design C5 containment needs, which the
+ * lightweight `out body center` discovery query deliberately omits.
+ */
+export function buildElementGeometriesQuery({
+  elements,
+}: QueryElementGeometriesParams): string {
+  const ids = (type: 'way' | 'relation') =>
+    [
+      ...new Set(
+        elements
+          .filter(
+            (element) =>
+              element.osmType === type &&
+              Number.isSafeInteger(element.osmId) &&
+              element.osmId > 0,
+          )
+          .map((element) => element.osmId),
+      ),
+    ].sort((a, b) => a - b);
+  const ways = ids('way');
+  const relations = ids('relation');
+  if (ways.length + relations.length === 0) {
+    throw new Error('buildElementGeometriesQuery requires at least one id');
+  }
+  return [
+    '[out:json][timeout:60];',
+    '(',
+    ...(ways.length ? [`  way(id:${ways.join(',')});`] : []),
+    ...(relations.length ? [`  relation(id:${relations.join(',')});`] : []),
+    ');',
+    'out geom;',
+  ].join('\n');
 }
 
 export function buildBoundaryByIdQuery({

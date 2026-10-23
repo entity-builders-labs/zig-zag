@@ -6,8 +6,10 @@ import {
   evaluateChildVisitUnit,
   ParentSiteCandidate,
 } from '../admission/parent-site-visit-unit.policy';
+import { geometryContainsPoint } from '@integrations/osm/utils/geojson-containment.util';
 import {
   ADMISSION_SIGNAL_STRENGTHS,
+  DEFAULT_VISIT_UNITS,
   admissionSignal,
   evaluateAdmissionRule,
 } from '../admission/structured-admission-policy';
@@ -75,6 +77,16 @@ export interface StructuredPoiPersistenceResult {
   possibleDuplicates: ReturnType<
     typeof reconcileStructuredRecords
   >['possibleDuplicates'];
+  /** Edge-level visit-unit relation diagnostics (task 39.5). */
+  relationDiagnostics: {
+    membershipEdges: number;
+    membershipMatches: number;
+    parentAreasAvailable: number;
+    containmentMatches: number;
+    containmentWithoutDeclaredClass: number;
+    upsertAttempts: number;
+    upsertSucceeded: number;
+  };
 }
 
 @Injectable()
@@ -346,6 +358,33 @@ export class StructuredPoiCatalogAcquisitionService {
     }
 
     const subFeatureEntityIds = new Set<string>();
+    const relationDiagnostics: StructuredPoiPersistenceResult['relationDiagnostics'] =
+      {
+        membershipEdges: [...byId.values()].reduce(
+          (total, parent) => total + (parent.memberIds?.length ?? 0),
+          0,
+        ),
+        membershipMatches: 0,
+        parentAreasAvailable: 0,
+        containmentMatches: 0,
+        containmentWithoutDeclaredClass: 0,
+        upsertAttempts: 0,
+        upsertSucceeded: 0,
+      };
+    // Design C5 basis (2): parent-site areas for geometric containment.
+    const parentAreas = [...byId.values()].flatMap((parent) =>
+      parent.parentAreaGeometry && parent.visitUnitFacts.parentClass
+        ? [
+            {
+              parent,
+              parentClass: parent.visitUnitFacts.parentClass,
+              area: parent.parentAreaGeometry,
+              bbox: geometryBounds(parent.parentAreaGeometry),
+            },
+          ]
+        : [],
+    );
+    relationDiagnostics.parentAreasAvailable = parentAreas.length;
     for (const child of byId.values()) {
       const childId = persistedIds.get(child.evidenceKey);
       const childFacts = child.visitUnitFacts;
@@ -359,12 +398,52 @@ export class StructuredPoiCatalogAcquisitionService {
         const parentId = persistedIds.get(parent.evidenceKey);
         const parentClass = parent.visitUnitFacts.parentClass;
         if (!parentId || !parentClass || parentId === childId) continue;
+        relationDiagnostics.membershipMatches++;
         parents.push({
           candidate: parent,
           policyInput: {
             parentId,
             parentClass,
             basis: { kind: 'EXPLICIT_PROVIDER_RELATIONSHIP' },
+          },
+        });
+      }
+      const point =
+        child.osmGeometry.type === 'Point'
+          ? child.osmGeometry.coordinates
+          : undefined;
+      for (const { parent, parentClass, area, bbox } of point
+        ? parentAreas
+        : []) {
+        const parentId = persistedIds.get(parent.evidenceKey);
+        if (!parentId || parentId === childId) continue;
+        if (parents.some((item) => item.policyInput.parentId === parentId)) {
+          continue;
+        }
+        const [longitude, latitude] = point!;
+        if (
+          longitude < bbox.minLon ||
+          longitude > bbox.maxLon ||
+          latitude < bbox.minLat ||
+          latitude > bbox.maxLat ||
+          !geometryContainsPoint(area, longitude, latitude)
+        ) {
+          continue;
+        }
+        // Containment establishes a relationship only with a declared
+        // (child class, parent class) relationship class (C5); otherwise it
+        // is the CONTAINMENT_WITHOUT_RELATIONSHIP diagnostic.
+        if (!DEFAULT_VISIT_UNITS[`${childFacts.childClass}:${parentClass}`]) {
+          relationDiagnostics.containmentWithoutDeclaredClass++;
+          continue;
+        }
+        relationDiagnostics.containmentMatches++;
+        parents.push({
+          candidate: parent,
+          policyInput: {
+            parentId,
+            parentClass,
+            basis: { kind: 'CONTAINMENT' },
           },
         });
       }
@@ -397,18 +476,29 @@ export class StructuredPoiCatalogAcquisitionService {
       }
       for (const parent of parents) {
         const parentId = parent.policyInput.parentId;
+        const contained = parent.policyInput.basis.kind === 'CONTAINMENT';
+        relationDiagnostics.upsertAttempts++;
         await this.knowledge.upsertRelation({
           childId,
           parentId,
-          evidenceSource: 'PROVIDER_SITE_MEMBERSHIP',
+          evidenceSource: contained
+            ? 'DECLARED_CONTAINMENT'
+            : 'PROVIDER_SITE_MEMBERSHIP',
           evidence: {
             provider: 'openstreetmap',
             parent: parent.candidate.evidenceKey,
             member: child.evidenceKey,
+            basis: parent.policyInput.basis.kind,
+            ...(contained
+              ? {
+                  relationshipClass: `${childFacts.childClass}:${parent.policyInput.parentClass}`,
+                }
+              : {}),
           },
           visitUnitClassification: classification,
           classificationVersion: PARENT_SITE_VISIT_UNIT_POLICY_VERSION,
         });
+        relationDiagnostics.upsertSucceeded++;
       }
       if (outcome.outcome === 'SUB_FEATURE_OF') {
         subFeatureEntityIds.add(childId);
@@ -524,6 +614,7 @@ export class StructuredPoiCatalogAcquisitionService {
         a.externalId.localeCompare(b.externalId),
       ),
       possibleDuplicates: reconciled.possibleDuplicates,
+      relationDiagnostics,
     };
   }
 }
@@ -557,6 +648,21 @@ function prominenceObservation(group: readonly StructuredPoiCandidate[]) {
     ];
   });
   return { observedSources: [...observedSources.values()], facts };
+}
+
+function geometryBounds(geometry: GeoJsonGeometry) {
+  const points: number[][] =
+    geometry.type === 'Polygon'
+      ? geometry.coordinates.flat()
+      : geometry.type === 'MultiPolygon'
+        ? geometry.coordinates.flat(2)
+        : [];
+  return {
+    minLon: Math.min(...points.map((p) => p[0])),
+    maxLon: Math.max(...points.map((p) => p[0])),
+    minLat: Math.min(...points.map((p) => p[1])),
+    maxLat: Math.max(...points.map((p) => p[1])),
+  };
 }
 
 function candidateQidFor(
