@@ -10,7 +10,7 @@ const signalTypes = (
   facts: Parameters<typeof wikidataFactsToAdmissionSignals>[0],
 ) => wikidataFactsToAdmissionSignals(facts).map((signal) => signal.type);
 
-describe('Wikidata admission adapter (task 37.1)', () => {
+describe('Wikidata facts → canonical admission signals', () => {
   it('maps a museum root class (Q33506) to decisive EXPLICIT_VISITOR_CLASSIFICATION', () => {
     expect(signalTypes({ instanceOf: ['Q33506'] })).toContain(
       'EXPLICIT_VISITOR_CLASSIFICATION',
@@ -38,7 +38,7 @@ describe('Wikidata admission adapter (task 37.1)', () => {
   });
 });
 
-describe('Wikidata structured facts → admission and prominence (task 39.3)', () => {
+describe('Wikidata structured statements → admission facts and typed prominence evidence', () => {
   const observedAt = new Date('2026-10-23T00:00:00Z');
   const item = (overrides: Record<string, unknown> = {}) => ({
     qid: 'Q10',

@@ -29,7 +29,7 @@ const heritage = () =>
 const visitorClass = () =>
   fact('EXPLICIT_VISITOR_CLASSIFICATION', { textValue: 'class-x' });
 
-describe('structured prominence policy (design C17, tasks 39.3/39.4)', () => {
+describe('structured prominence profile and lexicographic ordering', () => {
   it('projects absent evidence as UNKNOWN at every level, versioned', () => {
     expect(unknownProminenceProfile()).toEqual({
       policyVersion: STRUCTURED_PROMINENCE_POLICY_VERSION,

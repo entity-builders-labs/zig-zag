@@ -537,7 +537,7 @@ describe('WikidataApiService', () => {
     });
   });
 
-  describe('lookupStructuredEntityFacts (task 39.3)', () => {
+  describe('lookupStructuredEntityFacts: instance-of, heritage designation and sitelink statements', () => {
     it('returns P31, P1435 and URL-bearing sitelinks in one wbgetentities call per batch', async () => {
       service = await setup();
       mockedAxios.get.mockResolvedValueOnce(

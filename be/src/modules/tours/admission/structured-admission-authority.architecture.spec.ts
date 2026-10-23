@@ -28,7 +28,7 @@ function productionFiles(dir: string): string[] {
 const read = (path: string) => readFileSync(path, 'utf8');
 const rel = (path: string) => relative(SRC_ROOT, path);
 
-describe('structured admission authority (design C7, task 37.1)', () => {
+describe('structured admission has a single policy authority', () => {
   const modules = productionFiles(join(SRC_ROOT, 'modules'));
 
   it('removed hand-maintained admission authorities never reappear', () => {

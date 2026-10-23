@@ -90,7 +90,7 @@ describe('StructuredPoiAcquisitionProvider', () => {
     expect(osm.lookupFeaturesNear).not.toHaveBeenCalled();
   });
 
-  describe('dependent STRUCTURED_ENTITY_FACTS batch (task 39.3)', () => {
+  describe('encyclopedic entity facts fetched for the QIDs of discovered places', () => {
     const osmWith = (tags: Record<string, string>[]) =>
       ({
         lookupFeaturesNear: jest.fn().mockResolvedValue({

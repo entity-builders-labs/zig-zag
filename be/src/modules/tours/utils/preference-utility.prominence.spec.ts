@@ -55,7 +55,7 @@ function derive(
   });
 }
 
-describe('preference utility · structured prominence level (task 39.4)', () => {
+describe('preference utility orders by structured prominence only where preference relevance ties', () => {
   it('orders strong prominence evidence before UNKNOWN when every preference level is equal', () => {
     const result = derive([
       composableExperience({ id: 'a-unknown' }),

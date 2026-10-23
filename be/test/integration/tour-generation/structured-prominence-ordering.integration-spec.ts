@@ -13,7 +13,7 @@ const destination = {
   radiusMeters: 5_000,
 };
 
-describe('tour-generation integration · structured prominence ordering (task 39.4)', () => {
+describe('tour-generation integration · catalog Experiences ordered by persisted prominence', () => {
   beforeEach(async () => resetDb());
 
   afterAll(async () => closeDb());

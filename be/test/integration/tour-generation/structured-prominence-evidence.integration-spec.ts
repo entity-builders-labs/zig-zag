@@ -70,7 +70,7 @@ function wikidataOutcome(input: {
   };
 }
 
-describe('tour-generation integration · structured prominence evidence (task 39.3)', () => {
+describe('tour-generation integration · structured prominence evidence persisted on the canonical GeoEntity', () => {
   beforeEach(async () => resetDb());
 
   afterAll(async () => closeDb());
@@ -137,7 +137,7 @@ describe('tour-generation integration · structured prominence evidence (task 39
     ).resolves.toMatchObject({ geoEntityId: entity.id });
   });
 
-  it('persists encyclopedic evidence with its provenance and lets descriptive + notability admit per C6', async () => {
+  it('persists encyclopedic evidence with its provenance; a heritage designation admits the place', async () => {
     const observedAt = new Date('2026-10-23T11:00:00Z');
     const { prisma } = await acquire(
       [

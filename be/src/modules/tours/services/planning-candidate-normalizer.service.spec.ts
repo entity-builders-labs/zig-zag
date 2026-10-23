@@ -486,7 +486,7 @@ describe('PlanningCandidateNormalizerService', () => {
       ...overrides,
     });
 
-    it('projects C14 duration and provenance without reading the legacy duration', () => {
+    it('projects persisted GeoEntity visit duration and its provenance without reading the legacy Experience duration', () => {
       const result = normalize([structured()]);
       expect(result.candidates[0].components[0].visit?.duration).toEqual({
         minutes: 75,
@@ -503,7 +503,7 @@ describe('PlanningCandidateNormalizerService', () => {
       });
     });
 
-    it('keeps absent C14 duration missing despite a legacy Experience duration', () => {
+    it('keeps a missing persisted GeoEntity visit duration missing despite a legacy Experience duration', () => {
       const experience = structured({
         components: [
           {
@@ -524,7 +524,7 @@ describe('PlanningCandidateNormalizerService', () => {
       });
     });
 
-    it('keeps UNKNOWN C14 hours UNKNOWN instead of reading metadata hours', () => {
+    it('keeps UNKNOWN persisted GeoEntity opening hours UNKNOWN instead of reading metadata hours', () => {
       const candidate = normalize([structured()]).candidates[0];
       expect(candidate.components[0].visit?.openingHoursByDay[0]).toEqual({
         status: 'UNKNOWN',
@@ -542,7 +542,7 @@ describe('PlanningCandidateNormalizerService', () => {
       });
     });
 
-    it('keeps missing C14 hours UNKNOWN despite legacy opening-hours values', () => {
+    it('keeps missing persisted GeoEntity opening hours UNKNOWN despite legacy opening-hours values', () => {
       const experience = structured({
         components: [
           {
