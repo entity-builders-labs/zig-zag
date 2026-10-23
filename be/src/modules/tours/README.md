@@ -64,10 +64,14 @@ The primary flow when a user creates a tour from the mobile app wizard:
      with `HARD_CONSTRAINT_UNENFORCEABLE`
      (`utils/hard-constraint-enforceability.util.ts`)
    - Derives the canonical preference utility once per catalog snapshot
-     (`services/preference-utility.service.ts`, `preference-utility-v1`):
+     (`services/preference-utility.service.ts`, `preference-utility-v2`):
      a numeric breakdown, the lexicographic order and a within-request
      rank. Composition, the overlap filter, planning and the trace consume
-     it; the greedy planner orders by rank and never scores preference
+     it; the greedy planner orders by rank and never scores preference.
+     Structured catalog prominence (`prominence/structured-prominence.policy.ts`,
+     design C17) orders only what preference relevance ties: after semantic
+     affinity, before generic quality; each assessment carries the typed
+     prominence profile and the level that placed it after its predecessor
    - Discovers candidate Experiences with grounded search, through acquisition
      work units (`utils/acquisition-strategy-selector.util.ts`): each open
      `intent:walk` / `intent:route_like` deficit has its own unit

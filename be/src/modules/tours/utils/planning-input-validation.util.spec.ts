@@ -36,7 +36,8 @@ const codes = (candidates: PlanningExperienceCandidate[]) =>
 
 describe('validatePlanningInput — candidates', () => {
   it('reports a missing duration as an input error, never a default', () => {
-    const withoutDuration = singleVisitCandidate({ preferenceRank: 1,
+    const withoutDuration = singleVisitCandidate({
+      preferenceRank: 1,
       experienceId: 'no-duration',
     });
     withoutDuration.components[0].visit = null;
@@ -63,18 +64,21 @@ describe('validatePlanningInput — candidates', () => {
   });
 
   it('reports a duration without provenance, or without positive minutes, as MISSING_REQUIRED_DURATION', () => {
-    const noProvenance = singleVisitCandidate({ preferenceRank: 3,
+    const noProvenance = singleVisitCandidate({
+      preferenceRank: 3,
       experienceId: 'no-provenance',
     });
     noProvenance.components[0].visit!.duration = {
       minutes: 60,
       provenance: undefined as never,
     };
-    const zero = singleVisitCandidate({ preferenceRank: 4,
+    const zero = singleVisitCandidate({
+      preferenceRank: 4,
       experienceId: 'zero',
       durationMinutes: 0,
     });
-    const composite = legacyCompositeCandidate({ preferenceRank: 5,
+    const composite = legacyCompositeCandidate({
+      preferenceRank: 5,
       experienceId: 'composite-nan',
       durationMinutes: Number.NaN,
       footprints: [point(0, 0), point(0, 0.001)],
@@ -87,7 +91,8 @@ describe('validatePlanningInput — candidates', () => {
   });
 
   it('accepts a composite as one candidate only when its components keep ascending order', () => {
-    const ordered = legacyCompositeCandidate({ preferenceRank: 6,
+    const ordered = legacyCompositeCandidate({
+      preferenceRank: 6,
       experienceId: 'walk',
       footprints: [point(0, 0), point(0, 0.001), point(0, 0.002)],
     });
@@ -145,7 +150,8 @@ describe('validatePlanningInput — candidates', () => {
   });
 
   it('reports opening hours that do not cover every planning day', () => {
-    const misaligned = singleVisitCandidate({ preferenceRank: 10,
+    const misaligned = singleVisitCandidate({
+      preferenceRank: 10,
       experienceId: 'misaligned',
       openingHoursByDay: [
         ...unknownHoursByDay(1),
@@ -272,7 +278,9 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
       solver.solve(
         planningInputFixture({
           dayCount: 1,
-          candidates: [singleVisitCandidate({ preferenceRank: 11, experienceId: 'a' })],
+          candidates: [
+            singleVisitCandidate({ preferenceRank: 11, experienceId: 'a' }),
+          ],
           mobility: mobilityFixture({
             allowedTransportationModes: [TransportationMode.CYCLING],
           }),
@@ -284,14 +292,19 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
   it('refuses inputs it cannot plan honestly instead of ignoring them', async () => {
     const anchored = planningInputFixture({
       dayCount: 1,
-      candidates: [singleVisitCandidate({ preferenceRank: 12, experienceId: 'a' })],
+      candidates: [
+        singleVisitCandidate({ preferenceRank: 12, experienceId: 'a' }),
+      ],
     });
     anchored.days[0].startAnchor = { label: 'Hotel', footprint: point(0, 0) };
     await expect(solver.solve(anchored)).rejects.toThrow(
       UnsupportedPlanningInputError,
     );
 
-    const timeline = singleVisitCandidate({ preferenceRank: 13, experienceId: 'walk' });
+    const timeline = singleVisitCandidate({
+      preferenceRank: 13,
+      experienceId: 'walk',
+    });
     timeline.components.push({
       ...timeline.components[0],
       order: 1,
@@ -307,7 +320,9 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
       solver.solve(
         planningInputFixture({
           dayCount: 1,
-          candidates: [singleVisitCandidate({ preferenceRank: 14, experienceId: 'a' })],
+          candidates: [
+            singleVisitCandidate({ preferenceRank: 14, experienceId: 'a' }),
+          ],
           policies: {
             rankingPolicyVersion: 'any',
             objectivePolicyVersion: 'preference-objective-v1',
@@ -326,7 +341,10 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
     const solution = await solver.solve(
       planningInputFixture({
         dayCount: 1,
-        candidates: [broken, singleVisitCandidate({ preferenceRank: 16, experienceId: 'ok' })],
+        candidates: [
+          broken,
+          singleVisitCandidate({ preferenceRank: 16, experienceId: 'ok' }),
+        ],
       }),
     );
     expect(solution.inputErrors).toEqual([
@@ -340,7 +358,7 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
     ).toEqual(['ok']);
     expect(solution.unselected).toEqual([]);
     expect(solution.metadata.policies).toMatchObject({
-      rankingPolicyVersion: 'preference-utility-v1',
+      rankingPolicyVersion: 'preference-utility-v2',
       objectivePolicyVersion: 'greedy-preference-rank-v1',
     });
   });
@@ -352,7 +370,9 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
     });
     foreign.preference = { ...foreign.preference, policyVersion: 'other-v9' };
     await expect(
-      solver.solve(planningInputFixture({ dayCount: 1, candidates: [foreign] })),
+      solver.solve(
+        planningInputFixture({ dayCount: 1, candidates: [foreign] }),
+      ),
     ).rejects.toThrow(/preference policy other-v9/);
 
     await expect(
@@ -361,7 +381,11 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
           dayCount: 1,
           candidates: [
             singleVisitCandidate({ preferenceRank: 1, experienceId: 'x' }),
-            singleVisitCandidate({ preferenceRank: 1, experienceId: 'y', lng: 0.001 }),
+            singleVisitCandidate({
+              preferenceRank: 1,
+              experienceId: 'y',
+              lng: 0.001,
+            }),
           ],
         }),
       ),

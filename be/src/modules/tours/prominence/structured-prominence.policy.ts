@@ -191,3 +191,47 @@ export function compareProminence(
 export function unknownProminenceProfile(): ProminenceProfile {
   return prominenceProfile([]);
 }
+
+/** The persisted GeoEntityProminenceEvidence columns the projection reads. */
+export interface ProminenceEvidenceRow {
+  kind: ProminenceEvidenceKind;
+  sourceProvider: string;
+  providerIdentity: string;
+  sourceRecordId: string;
+  fieldPath: string;
+  numericValue: number | null;
+  textValue: string | null;
+  languageCode: string | null;
+  authority: string | null;
+  designationLevel: string | null;
+  providerMetric: string | null;
+  comparisonScope: string | null;
+  observedAt: Date;
+}
+
+/** Persisted row → typed fact; a null column stays absent, never defaulted. */
+export function prominenceFactFromRow(
+  row: ProminenceEvidenceRow,
+): ProminenceEvidenceFact {
+  return {
+    kind: row.kind,
+    sourceProvider: row.sourceProvider,
+    providerIdentity: row.providerIdentity,
+    sourceRecordId: row.sourceRecordId,
+    fieldPath: row.fieldPath,
+    observedAt: row.observedAt,
+    ...(row.numericValue !== null ? { numericValue: row.numericValue } : {}),
+    ...(row.textValue !== null ? { textValue: row.textValue } : {}),
+    ...(row.languageCode !== null ? { languageCode: row.languageCode } : {}),
+    ...(row.authority !== null ? { authority: row.authority } : {}),
+    ...(row.designationLevel !== null
+      ? { designationLevel: row.designationLevel }
+      : {}),
+    ...(row.providerMetric !== null
+      ? { providerMetric: row.providerMetric }
+      : {}),
+    ...(row.comparisonScope !== null
+      ? { comparisonScope: row.comparisonScope }
+      : {}),
+  };
+}

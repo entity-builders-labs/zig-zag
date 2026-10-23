@@ -109,6 +109,6 @@ describe('PreferenceUtilityService semantic batch', () => {
       softAnchor: true,
     });
     expect(result.semanticRanking.status).toBe('not_requested');
-    expect(result.policyVersion).toBe('preference-utility-v1');
+    expect(result.policyVersion).toBe('preference-utility-v2');
   });
 });

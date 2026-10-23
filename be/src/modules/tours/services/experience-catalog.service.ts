@@ -8,6 +8,11 @@ import {
   GeoEntityKind,
   Prisma,
 } from '@prisma/client';
+import {
+  ProminenceEvidenceRow,
+  prominenceFactFromRow,
+  prominenceProfile,
+} from '../prominence/structured-prominence.policy';
 import { singlePlaceCompositionSignature } from '../utils/single-place-composition-signature.util';
 import { PrismaService } from '@core/database/prisma.service';
 import {
@@ -634,6 +639,7 @@ export class ExperienceCatalogService {
                 targetObservations: true,
                 openingHours: true,
                 visitDuration: true,
+                prominenceEvidence: true,
               },
             },
           },
@@ -747,7 +753,11 @@ export class ExperienceCatalogService {
       where: { id: { in: ids }, status: ExperienceStatus.VERIFIED },
       include: {
         components: {
-          include: { geoEntity: { include: { targetObservations: true } } },
+          include: {
+            geoEntity: {
+              include: { targetObservations: true, prominenceEvidence: true },
+            },
+          },
         },
         traits: { include: { traitDefinition: true } },
       },
@@ -946,6 +956,7 @@ export class ExperienceCatalogService {
             resolverVersion: string;
             resolvedAt: Date | string;
           } | null;
+          prominenceEvidence?: ProminenceEvidenceRow[];
         } | null;
         [key: string]: any;
       }>;
@@ -1048,6 +1059,24 @@ export class ExperienceCatalogService {
         qualityScore: experience.qualityScore,
         durationMinutes: legacyDurationMinutes,
       }),
+      /**
+       * Typed structured prominence (design C17) read from the canonical
+       * GeoEntity evidence of the required VISIT components. Transient
+       * request input; never persisted on the Experience.
+       */
+      prominence: prominenceProfile(
+        experience.components
+          .filter(
+            (component) =>
+              component.required !== false &&
+              component.participation !== 'TRAVERSE',
+          )
+          .flatMap((component) =>
+            (component.geoEntity?.prominenceEvidence ?? []).map(
+              prominenceFactFromRow,
+            ),
+          ),
+      ),
       compositionCompleteness: sourceCompositionCompleteness(experience),
       /** Source-membership counts (trace/audit only; never planner input). */
       sourceMembership: {

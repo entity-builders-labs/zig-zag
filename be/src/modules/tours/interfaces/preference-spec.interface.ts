@@ -189,6 +189,11 @@ export interface ComposableExperience {
   explorationFacts?: ExplorationSignalInput;
   /** Typed preference-matching facts, adapted once by the catalog. */
   matchFacts: import('./experience-match-facts.interface').ExperienceMatchFacts;
+  /**
+   * Structured catalog prominence (design C17) read from the canonical
+   * GeoEntity evidence; absent means UNKNOWN at every level.
+   */
+  prominence?: import('../prominence/structured-prominence.policy').ProminenceProfile;
 }
 
 /** Per-facet retrieval result: strong/weak candidate ids, strongest-first. */

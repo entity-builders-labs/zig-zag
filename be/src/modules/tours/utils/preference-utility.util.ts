@@ -6,6 +6,8 @@ import {
 import {
   GenericQuality,
   PREFERENCE_UTILITY_POLICY_VERSION,
+  PreferenceOrderDecision,
+  PreferenceOrderLevel,
   PreferenceUtilityAssessment,
   PreferenceUtilityBreakdown,
   PreferenceUtilityResult,
@@ -15,6 +17,12 @@ import { semanticTargetKey } from '../preferences/preference-assertion.interface
 import { candidateMatchesPreferenceFacet } from './preference-facet-matching.util';
 import { isStrongFacetMatch } from './preference-strong-match.util';
 import { SemanticSimilarityResult } from '@shared/ai/interfaces/embedding-index.interface';
+import {
+  compareProminence,
+  ProminenceLevel,
+  STRUCTURED_PROMINENCE_POLICY_VERSION,
+  unknownProminenceProfile,
+} from '../prominence/structured-prominence.policy';
 
 /**
  * Sums of importance (× confidence) are compared with this tolerance so that
@@ -57,7 +65,7 @@ function genericQuality(experience: ComposableExperience): GenericQuality {
 function assess(
   experience: ComposableExperience,
   input: PreferenceUtilityInput,
-): Omit<PreferenceUtilityAssessment, 'rank' | 'levelRank'> {
+): Omit<PreferenceUtilityAssessment, 'rank' | 'levelRank' | 'orderDecision'> {
   let directEvidence = 0;
   let inferredEvidence = 0;
   const matchedFacets: string[] = [];
@@ -105,6 +113,7 @@ function assess(
     breakdown,
     matchedFacets,
     avoidedTargets,
+    prominence: experience.prominence ?? unknownProminenceProfile(),
   };
 }
 
@@ -145,11 +154,37 @@ export function compareExplicitPreference(
   y: PreferenceUtilityBreakdown,
 ): number {
   return (
-    descending(x.directEvidence, y.directEvidence) ||
-    descending(x.inferredEvidence, y.inferredEvidence) ||
-    descending(-x.avoidance.directConflict, -y.avoidance.directConflict) ||
-    descending(-x.avoidance.inferredConflict, -y.avoidance.inferredConflict)
+    explicitPreferenceLevels(x, y).find(([, order]) => order !== 0)?.[1] ?? 0
   );
+}
+
+/** Levels 1–3 as named comparisons, in canonical order (one definition). */
+function explicitPreferenceLevels(
+  x: PreferenceUtilityBreakdown,
+  y: PreferenceUtilityBreakdown,
+): Array<
+  [
+    (
+      | 'DIRECT_EVIDENCE'
+      | 'INFERRED_EVIDENCE'
+      | 'DIRECT_AVOIDANCE'
+      | 'INFERRED_AVOIDANCE'
+    ),
+    number,
+  ]
+> {
+  return [
+    ['DIRECT_EVIDENCE', descending(x.directEvidence, y.directEvidence)],
+    ['INFERRED_EVIDENCE', descending(x.inferredEvidence, y.inferredEvidence)],
+    [
+      'DIRECT_AVOIDANCE',
+      descending(-x.avoidance.directConflict, -y.avoidance.directConflict),
+    ],
+    [
+      'INFERRED_AVOIDANCE',
+      descending(-x.avoidance.inferredConflict, -y.avoidance.inferredConflict),
+    ],
+  ];
 }
 
 /**
@@ -203,25 +238,56 @@ export function derivePreferenceUtility(
     }
   }
 
+  /**
+   * The canonical lexicographic comparison; also names the deciding level so
+   * every adjacent pair in the order is explainable.
+   */
+  const decideLevels = (
+    a: (typeof assessed)[number],
+    b: (typeof assessed)[number],
+  ): {
+    order: number;
+    level?: Exclude<PreferenceOrderLevel, 'EXPERIENCE_ID'>;
+    prominenceLevel?: ProminenceLevel;
+  } => {
+    const x = a.breakdown;
+    const y = b.breakdown;
+    const levels: Array<
+      [Exclude<PreferenceOrderLevel, 'EXPERIENCE_ID' | 'PROMINENCE'>, number]
+    > = [
+      ...explicitPreferenceLevels(x, y),
+      ['SOFT_ANCHOR', descending(Number(x.softAnchor), Number(y.softAnchor))],
+      [
+        'SEMANTIC_AFFINITY',
+        descending(
+          semanticKey.get(a.experienceId)!,
+          semanticKey.get(b.experienceId)!,
+        ),
+      ],
+    ];
+    for (const [level, order] of levels) {
+      if (order !== 0) return { order, level };
+    }
+    const prominence = compareProminence(a.prominence, b.prominence);
+    if (prominence.order !== 0) {
+      return {
+        order: prominence.order,
+        level: 'PROMINENCE',
+        prominenceLevel: prominence.decidingLevel,
+      };
+    }
+    const quality = descending(
+      qualityKey.get(a.experienceId)!,
+      qualityKey.get(b.experienceId)!,
+    );
+    return quality !== 0
+      ? { order: quality, level: 'GENERIC_QUALITY' }
+      : { order: 0 };
+  };
   const compareLevels = (
     a: (typeof assessed)[number],
     b: (typeof assessed)[number],
-  ): number => {
-    const x = a.breakdown;
-    const y = b.breakdown;
-    return (
-      compareExplicitPreference(x, y) ||
-      descending(Number(x.softAnchor), Number(y.softAnchor)) ||
-      descending(
-        semanticKey.get(a.experienceId)!,
-        semanticKey.get(b.experienceId)!,
-      ) ||
-      descending(
-        qualityKey.get(a.experienceId)!,
-        qualityKey.get(b.experienceId)!,
-      )
-    );
-  };
+  ): number => decideLevels(a, b).order;
 
   const ordered = [...assessed].sort(
     (a, b) =>
@@ -230,10 +296,30 @@ export function derivePreferenceUtility(
   const byId = new Map<string, PreferenceUtilityAssessment>();
   let levelRank = 0;
   ordered.forEach((item, index) => {
-    if (index === 0 || compareLevels(ordered[index - 1], item) !== 0) {
+    const previous = index === 0 ? undefined : ordered[index - 1];
+    const decision = previous ? decideLevels(previous, item) : undefined;
+    if (!previous || decision!.order !== 0) {
       levelRank += 1;
     }
-    byId.set(item.experienceId, { ...item, rank: index + 1, levelRank });
+    const orderDecision: PreferenceOrderDecision = !previous
+      ? { after: null, decidedBy: 'FIRST' }
+      : decision!.level === 'PROMINENCE'
+        ? {
+            after: previous.experienceId,
+            decidedBy: 'PROMINENCE',
+            prominenceLevel: decision!.prominenceLevel!,
+            prominencePolicyVersion: STRUCTURED_PROMINENCE_POLICY_VERSION,
+          }
+        : {
+            after: previous.experienceId,
+            decidedBy: decision!.level ?? 'EXPERIENCE_ID',
+          };
+    byId.set(item.experienceId, {
+      ...item,
+      rank: index + 1,
+      levelRank,
+      orderDecision,
+    });
   });
   return {
     policyVersion: PREFERENCE_UTILITY_POLICY_VERSION,

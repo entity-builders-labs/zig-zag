@@ -310,6 +310,10 @@ export function recordFinalSelectionStep(
           composition: selected.has(id) ? 'SELECTED' : 'RESERVOIR',
           preferenceRank: assessment?.rank ?? null,
           preference: assessment?.breakdown ?? null,
+          // Typed C17 profile + the level that placed it after its
+          // predecessor: answers "why did A outrank B" without a score.
+          prominence: assessment?.prominence ?? null,
+          orderDecision: assessment?.orderDecision ?? null,
         },
       };
     }),
