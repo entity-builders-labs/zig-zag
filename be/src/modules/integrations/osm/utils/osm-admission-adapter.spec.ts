@@ -3,7 +3,9 @@ import {
   OSM_ADMISSION_DISCOVERY_SELECTORS,
   osmTagsToProminenceEvidence,
   osmTagsToVisitUnitFacts,
+  osmCoverageDiscoverySelectors,
 } from './osm-admission-adapter';
+import { evaluateAdmissionRule } from '@tours/admission/structured-admission-policy';
 
 const signalTypes = (tags: Record<string, string>) =>
   osmTagsToAdmissionFacts(tags).signals.map((signal) => signal.type);
@@ -71,8 +73,21 @@ describe('OSM tags → canonical admission signals, exclusions and place classes
     );
   });
 
-  it('maps an ordinary shop to no admission signal (not required)', () => {
-    expect(signalTypes({ shop: 'bakery', name: 'La Panadería' })).toEqual([]);
+  it('maps an ordinary non-food shop to no admission signal', () => {
+    expect(signalTypes({ shop: 'clothes', name: 'La Tienda' })).toEqual([]);
+  });
+
+  it('never admits a bakery from its venue class alone', () => {
+    expect(
+      evaluateAdmissionRule(
+        osmTagsToAdmissionFacts({ shop: 'bakery', name: 'La Panadería' })
+          .signals,
+        [],
+      ),
+    ).toEqual({
+      admitted: false,
+      reason: 'INSUFFICIENT_ADMISSION_EVIDENCE',
+    });
   });
 
   it('maps a highway to the ROAD_OR_ROUTE exclusion, except highway=corridor', () => {
@@ -159,5 +174,41 @@ describe('osmTagsToVisitUnitFacts: tomb child class', () => {
     expect(osmTagsToVisitUnitFacts({ historic: 'tomb' }).childClass).toBe(
       'grave',
     );
+  });
+});
+
+describe('food-and-drink discovery coverage and food venue admission evidence', () => {
+  it('requests food venue classes only together with an encyclopedic identity link', () => {
+    expect(osmCoverageDiscoverySelectors(['FOOD_AND_DRINK'])).toEqual([
+      { key: 'amenity', value: 'cafe', requireKeys: ['wikidata'] },
+      { key: 'amenity', value: 'restaurant', requireKeys: ['wikidata'] },
+      { key: 'amenity', value: 'food_court', requireKeys: ['wikidata'] },
+      { key: 'amenity', value: 'marketplace', requireKeys: ['wikidata'] },
+      { key: 'shop', value: 'bakery', requireKeys: ['wikidata'] },
+    ]);
+    expect(osmCoverageDiscoverySelectors([])).toEqual([]);
+  });
+
+  it('treats a food venue class as supporting evidence that never admits on its own', () => {
+    for (const tags of [
+      { amenity: 'cafe' },
+      { amenity: 'restaurant', cuisine: 'grill' },
+      { amenity: 'food_court' },
+      { shop: 'bakery' },
+    ]) {
+      expect(signalTypes(tags)).toEqual(['VISITABLE_PLACE_CLASS']);
+    }
+  });
+
+  it('keeps destination-wide base discovery free of ordinary food venue classes', () => {
+    const amenity = OSM_ADMISSION_DISCOVERY_SELECTORS.find(
+      (selector) => selector.key === 'amenity',
+    );
+    expect(amenity?.includeValues).toEqual(['marketplace', 'place_of_worship']);
+    expect(
+      OSM_ADMISSION_DISCOVERY_SELECTORS.some(
+        (selector) => selector.key === 'shop',
+      ),
+    ).toBe(false);
   });
 });

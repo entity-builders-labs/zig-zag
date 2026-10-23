@@ -1,7 +1,15 @@
+/**
+ * Canonical structured place-class coverage a typed gap can request from
+ * STRUCTURED_POI. Provider adapters map it to their own classes.
+ */
+export type StructuredPlaceCoverage = 'FOOD_AND_DRINK';
+
 export interface SourceCapabilityRoute {
   wikivoyageSections?: Array<'SEE' | 'DO' | 'EAT'>;
   placesTypes?: string[];
   webKeywords?: string[];
+  /** Structured place-class coverage this typed target can be acquired with. */
+  structuredPlaceCoverage?: StructuredPlaceCoverage[];
 }
 
 /**
@@ -31,6 +39,13 @@ export const SOURCE_CAPABILITY_ROUTES: Record<
     wikivoyageSections: ['EAT'],
     placesTypes: ['restaurant', 'bakery', 'cafe'],
     webKeywords: ['food', 'restaurants'],
+    structuredPlaceCoverage: ['FOOD_AND_DRINK'],
+  },
+  // An existing vocabulary key that previously had no route (web fallback
+  // only); its legacy web behavior is kept and structured coverage added.
+  'theme:gastronomy': {
+    webKeywords: ['gastronomy'],
+    structuredPlaceCoverage: ['FOOD_AND_DRINK'],
   },
   'theme:culture': {
     wikivoyageSections: ['SEE'],
@@ -81,6 +96,7 @@ export const SOURCE_CAPABILITY_ROUTES: Record<
     wikivoyageSections: ['EAT'],
     placesTypes: ['cafe', 'restaurant'],
     webKeywords: ['food', 'dining'],
+    structuredPlaceCoverage: ['FOOD_AND_DRINK'],
   },
   'intent:nightlife': {
     wikivoyageSections: ['DO'],

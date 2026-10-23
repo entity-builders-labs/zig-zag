@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { ExperienceDiscoveryScope } from '../interfaces/experience-discovery.interface';
+import { StructuredPlaceCoverage } from '../constants/acquisition-source-routing';
 
-export const ACQUISITION_ROUTING_POLICY_VERSION = 'gap-source-routing-v1';
+export const ACQUISITION_ROUTING_POLICY_VERSION = 'gap-source-routing-v2';
 
 export type AcquisitionGapType =
   | 'AREA_CANDIDATES'
@@ -22,6 +23,10 @@ export type AcquisitionSourceClass =
 export interface AcquisitionStrategy {
   sourceClass: AcquisitionSourceClass;
   provider: 'openstreetmap' | 'wikidata' | 'web_evidence';
+  /** STRUCTURED_POI only: destination-wide base discovery (capacity gap). */
+  baseDiscovery?: boolean;
+  /** STRUCTURED_POI only: typed place-class coverage requested by facet gaps. */
+  coverage?: StructuredPlaceCoverage[];
 }
 
 export interface AcquisitionRoute {
@@ -40,19 +45,28 @@ export class ExperienceAcquisitionRouter {
       openstreetmap: boolean;
       wikidata: boolean;
     };
+    /** Whether a destination-wide capacity gap asks for base discovery. */
+    baseDiscovery?: boolean;
+    /** Typed coverage from facet gaps (canonical capability table). */
+    coverage?: readonly StructuredPlaceCoverage[];
   }): AcquisitionRoute {
+    const baseDiscovery = input.baseDiscovery ?? true;
+    const coverage = [...new Set(input.coverage ?? [])].sort();
     const strategies: AcquisitionStrategy[] =
       input.gapType === 'PLACE_CANDIDATES' &&
       Number.isFinite(input.destination.latitude) &&
       Number.isFinite(input.destination.longitude) &&
       Number.isFinite(input.destination.radiusMeters) &&
-      (input.destination.radiusMeters ?? 0) > 0
+      (input.destination.radiusMeters ?? 0) > 0 &&
+      (baseDiscovery || coverage.length > 0)
         ? [
             ...(input.availability.openstreetmap
               ? [
                   {
                     sourceClass: 'STRUCTURED_POI' as const,
                     provider: 'openstreetmap' as const,
+                    baseDiscovery,
+                    coverage,
                   },
                 ]
               : []),

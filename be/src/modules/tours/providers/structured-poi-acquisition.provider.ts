@@ -1,6 +1,10 @@
 import { Inject, Injectable, Optional } from '@nestjs/common';
 import { OsmPlacesService } from '@integrations/osm/services/osm-places.service';
-import { OSM_ADMISSION_DISCOVERY_SELECTORS } from '@integrations/osm/utils/osm-admission-adapter';
+import {
+  OSM_ADMISSION_DISCOVERY_SELECTORS,
+  osmCoverageDiscoverySelectors,
+} from '@integrations/osm/utils/osm-admission-adapter';
+import { StructuredPlaceCoverage } from '../constants/acquisition-source-routing';
 import { OverpassSelector } from '@integrations/osm/interfaces/overpass.interface';
 import {
   AcquisitionProviderResult,
@@ -89,6 +93,10 @@ export class StructuredPoiAcquisitionProvider {
     destination: ExperienceDiscoveryScope,
     options: {
       radiusMeters: number;
+      /** Destination-wide base discovery; defaults to true. */
+      baseDiscovery?: boolean;
+      /** Gap-scoped place-class coverage. */
+      coverage?: readonly StructuredPlaceCoverage[];
       entityFacts?: { sourceClass: 'STRUCTURED_ENTITY_FACTS' };
     },
   ): Promise<AcquisitionProviderResult<StructuredPoiCandidate>> {
@@ -110,7 +118,10 @@ export class StructuredPoiAcquisitionProvider {
       latitude as number,
       longitude as number,
       options.radiusMeters,
-      discoverySelectors(),
+      [
+        ...(options.baseDiscovery === false ? [] : discoverySelectors()),
+        ...osmCoverageDiscoverySelectors(options.coverage ?? []),
+      ],
     );
     if (lookup.status === 'failed') {
       return {
@@ -184,6 +195,8 @@ export class StructuredPoiAcquisitionProvider {
         status: 'SUCCEEDED',
         destinationName: destination.destinationName,
         radiusMeters: options.radiusMeters,
+        baseDiscovery: options.baseDiscovery !== false,
+        coverage: [...(options.coverage ?? [])],
         rawResultCount: lookup.rawResultCount,
         candidateCount: value.length,
         ...(entityFacts ? { entityFacts } : {}),

@@ -3080,6 +3080,32 @@ ordered by canonical identity alone. The following precisions bind 39.3/39.4:
   are exposed with the utility breakdown; no numeric prominence score is
   computed or persisted.
 
+**Implementation precision (task 39.6, 2026-10-23).** Measured: the typed
+target `theme:gastronomy` had no entry in the canonical source-capability
+table (it fell back to web keywords), preference-facet deficits never
+reached STRUCTURED_POI (only a global-capacity gap did), and the base OSM
+selectors carry no food-venue class, so the post-39.2 run supplied 25
+food-related candidates (21 marketplaces). Precisions:
+
+- *Routing.* The canonical capability table gains a typed
+  `structuredPlaceCoverage` capability; `theme:food`, `intent:food` and the
+  existing vocabulary key `theme:gastronomy` (previously unrouted; no new
+  concept identity is created) declare `FOOD_AND_DRINK`. A preference-facet
+  deficit with structured coverage now routes PLACE_CANDIDATES to
+  STRUCTURED_POI with that coverage (`gap-source-routing-v2`); destination-wide
+  base discovery still runs only for a global-capacity gap. Legacy
+  places/web routes for those targets are unchanged.
+- *Coverage mapping.* The OSM adapter maps `FOOD_AND_DRINK` to food venue
+  classes (cafés, restaurants, food courts, marketplaces, bakeries) that
+  carry an encyclopedic identity link. Those classes become supporting
+  VISITABLE_PLACE_CLASS evidence: an ordinary venue class alone never
+  admits; it admits only with independent canonical notability or a
+  decisive signal (C6). Venues without an identity link are not fetched:
+  their decisive-signal subset (visitor classification, heritage) is
+  already covered by base discovery, and the rest could only be rejected.
+  The unlinked inventory in the scope is measured as a source-coverage
+  limitation, not compensated.
+
 **Gastronomy and relationship follow-up.** Candidate supply is separate from
 prominence: add structured acquisition coverage for historic cafés, markets,
 food halls, notable restaurants/parrillas, cafés and bakeries through

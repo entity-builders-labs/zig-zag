@@ -204,6 +204,9 @@ function buildSelectorLines(
     selector.value === undefined
       ? `["${key}"]`
       : `["${key}"="${sanitizeOverpassTagToken(selector.value)}"]`;
+  const requiredFilters = (selector.requireKeys ?? [])
+    .map((required) => `["${sanitizeOverpassTagToken(required)}"]`)
+    .join('');
   const nameFilter = selector.requireName === false ? '' : '["name"]';
 
   const allTypes: Array<'node' | 'way' | 'relation'> = [
@@ -221,7 +224,8 @@ function buildSelectorLines(
   const prefixes = requested.length === allTypes.length ? ['nwr'] : requested;
 
   return prefixes.map(
-    (prefix) => `${prefix}${tagFilter}${nameFilter}${around};`,
+    (prefix) =>
+      `${prefix}${tagFilter}${requiredFilters}${nameFilter}${around};`,
   );
 }
 

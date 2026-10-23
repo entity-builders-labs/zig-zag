@@ -190,16 +190,33 @@ export class ExperienceAcquisitionPlannerService {
 
     const sourcePlans: SourcePlan[] = [];
     const destName = input.destination.destinationName?.trim() || '';
-    const placeRoute = hasDestinationPlaceGap
-      ? this.acquisitionRouter.route({
-          gapType: 'PLACE_CANDIDATES',
-          destination: input.destination,
-          // Both structured integrations need no credential and are always
-          // configured; an outage is reported by the executing provider as a
-          // typed FAILED/UNKNOWN outcome, never decided here.
-          availability: { openstreetmap: true, wikidata: true },
-        })
-      : undefined;
+    // Facet gaps whose typed target declares structured coverage (canonical
+    // capability table) also route to STRUCTURED_POI, scoped to that coverage.
+    const structuredCoverage = [
+      ...new Set(
+        deficits.flatMap((deficit) =>
+          deficit.origin === 'preference_facet'
+            ? (lookupSourceCapabilityRoute(
+                deficitDimension(deficit),
+                deficitKey(deficit),
+              )?.structuredPlaceCoverage ?? [])
+            : [],
+        ),
+      ),
+    ];
+    const placeRoute =
+      hasDestinationPlaceGap || structuredCoverage.length > 0
+        ? this.acquisitionRouter.route({
+            gapType: 'PLACE_CANDIDATES',
+            destination: input.destination,
+            baseDiscovery: hasDestinationPlaceGap,
+            coverage: structuredCoverage,
+            // Both structured integrations need no credential and are always
+            // configured; an outage is reported by the executing provider as a
+            // typed FAILED/UNKNOWN outcome, never decided here.
+            availability: { openstreetmap: true, wikidata: true },
+          })
+        : undefined;
     const structuredPoiStrategy = placeRoute?.strategies.find(
       (strategy) => strategy.sourceClass === 'STRUCTURED_POI',
     );
@@ -213,6 +230,8 @@ export class ExperienceAcquisitionPlannerService {
           radiusMeters: input.destination.radiusMeters!,
           sourceClass: 'STRUCTURED_POI',
           routingPolicyVersion: placeRoute.policyVersion,
+          baseDiscovery: structuredPoiStrategy.baseDiscovery ?? true,
+          coverage: structuredPoiStrategy.coverage ?? [],
           ...(entityFactsStrategy
             ? {
                 entityFacts: {

@@ -10,6 +10,7 @@ import {
 } from '@tours/admission/structured-admission-policy';
 import { PerInstanceEvidence } from '@tours/admission/parent-site-visit-unit.policy';
 import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
+import { StructuredPlaceCoverage } from '@tours/constants/acquisition-source-routing';
 
 export interface OsmVisitUnitFacts {
   childClass?: ChildPlaceClass;
@@ -136,7 +137,27 @@ const OSM_INFORMATION_TOURISM_VALUES = new Set(['information']);
 const OSM_VISITABLE_AMENITY_VALUES = new Set([
   'marketplace',
   'place_of_worship',
+  ...['cafe', 'restaurant', 'food_court'],
 ]);
+
+/**
+ * Food-and-drink venue classes. Supporting evidence only: an ordinary venue
+ * class never admits on its own (C6); it needs independent notability or a
+ * decisive signal.
+ */
+const OSM_FOOD_AND_DRINK_CLASSES: ReadonlyArray<{
+  key: string;
+  value: string;
+}> = [
+  { key: 'amenity', value: 'cafe' },
+  { key: 'amenity', value: 'restaurant' },
+  { key: 'amenity', value: 'food_court' },
+  { key: 'amenity', value: 'marketplace' },
+  { key: 'shop', value: 'bakery' },
+];
+
+/** Shop values the public typically visits (supporting visitable class). */
+const OSM_VISITABLE_SHOP_VALUES = new Set(['bakery']);
 
 /** Leisure values the public typically visits (supporting visitable class). */
 const OSM_VISITABLE_LEISURE_VALUES = new Set([
@@ -214,6 +235,10 @@ export function osmTagsToAdmissionFacts(
   if (t.amenity !== undefined && OSM_VISITABLE_AMENITY_VALUES.has(t.amenity)) {
     addSignal('VISITABLE_PLACE_CLASS', 'amenity', t.amenity);
     placeClasses.push(`amenity:${t.amenity}`);
+  }
+  if (t.shop !== undefined && OSM_VISITABLE_SHOP_VALUES.has(t.shop)) {
+    addSignal('VISITABLE_PLACE_CLASS', 'shop', t.shop);
+    placeClasses.push(`shop:${t.shop}`);
   }
   if (t.leisure !== undefined && OSM_VISITABLE_LEISURE_VALUES.has(t.leisure)) {
     addSignal('VISITABLE_PLACE_CLASS', 'leisure', t.leisure);
@@ -298,6 +323,23 @@ export interface OsmAdmissionDiscoverySelector {
   includeValues?: readonly string[];
   /** Values to exclude from a bare-key selector. */
   excludeValues?: readonly string[];
+}
+
+/**
+ * Gap-scoped discovery coverage (canonical coverage → OSM classes). Food venue classes are requested only with an encyclopedic
+ * identity link: their decisive-signal subset (visitor classification,
+ * heritage) is already reached by base discovery, and an unlinked ordinary
+ * venue could only be rejected (its class alone never admits).
+ */
+export function osmCoverageDiscoverySelectors(
+  coverage: readonly StructuredPlaceCoverage[],
+): Array<{ key: string; value: string; requireKeys: string[] }> {
+  return coverage.includes('FOOD_AND_DRINK')
+    ? OSM_FOOD_AND_DRINK_CLASSES.map((klass) => ({
+        ...klass,
+        requireKeys: ['wikidata'],
+      }))
+    : [];
 }
 
 export const OSM_ADMISSION_DISCOVERY_SELECTORS: readonly OsmAdmissionDiscoverySelector[] =

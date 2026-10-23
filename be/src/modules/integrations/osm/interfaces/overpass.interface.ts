@@ -63,6 +63,8 @@ export interface OverpassSelector {
   elementTypes?: Array<'node' | 'way' | 'relation'>;
   /** Defaults to true — an unnamed feature can't become an identifiable Experience. */
   requireName?: boolean;
+  /** Additional tag keys that must be present (presence filters). */
+  requireKeys?: string[];
 }
 
 export interface QueryFeaturesNearParams {

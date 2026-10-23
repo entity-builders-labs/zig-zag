@@ -25,7 +25,9 @@ describe('ExperienceAcquisitionPlannerService · structured POI route', () => {
       structuredPoi: {
         radiusMeters: 5_000,
         sourceClass: 'STRUCTURED_POI',
-        routingPolicyVersion: 'gap-source-routing-v1',
+        routingPolicyVersion: 'gap-source-routing-v2',
+        baseDiscovery: true,
+        coverage: [],
         entityFacts: {
           sourceClass: 'STRUCTURED_ENTITY_FACTS',
           provider: 'wikidata',
@@ -43,6 +45,90 @@ describe('ExperienceAcquisitionPlannerService · structured POI route', () => {
       deficits: [deficit],
     });
 
+    expect(
+      plan.sourcePlans.some((source) => source.provider === 'structured_poi'),
+    ).toBe(false);
+  });
+
+  it('routes a gastronomy preference gap to food-and-drink structured coverage without destination-wide base discovery', () => {
+    const plan = planner.buildAcquisitionPlan({
+      destination: {
+        destinationName: 'Buenos Aires',
+        latitude: -34.6,
+        longitude: -58.38,
+        radiusMeters: 5_000,
+      },
+      deficits: [
+        {
+          origin: 'preference_facet',
+          dimension: 'theme',
+          key: 'gastronomy',
+          reason: 'No strong gastronomy match',
+        },
+      ],
+    });
+
+    expect(
+      plan.sourcePlans.find((source) => source.provider === 'structured_poi'),
+    ).toEqual({
+      provider: 'structured_poi',
+      structuredPoi: {
+        radiusMeters: 5_000,
+        sourceClass: 'STRUCTURED_POI',
+        routingPolicyVersion: 'gap-source-routing-v2',
+        baseDiscovery: false,
+        coverage: ['FOOD_AND_DRINK'],
+        entityFacts: {
+          sourceClass: 'STRUCTURED_ENTITY_FACTS',
+          provider: 'wikidata',
+        },
+      },
+    });
+  });
+
+  it('combines base discovery and food coverage when both gaps are present', () => {
+    const plan = planner.buildAcquisitionPlan({
+      destination: {
+        destinationName: 'Buenos Aires',
+        latitude: -34.6,
+        longitude: -58.38,
+        radiusMeters: 5_000,
+      },
+      deficits: [
+        deficit,
+        {
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'food',
+          reason: 'No strong food match',
+        },
+      ],
+    });
+    const structured = plan.sourcePlans.find(
+      (source) => source.provider === 'structured_poi',
+    );
+    expect(structured).toMatchObject({
+      structuredPoi: { baseDiscovery: true, coverage: ['FOOD_AND_DRINK'] },
+    });
+  });
+
+  it('does not route a facet gap without structured coverage to structured discovery', () => {
+    const plan = planner.buildAcquisitionPlan({
+      destination: {
+        destinationName: 'Buenos Aires',
+        latitude: -34.6,
+        longitude: -58.38,
+        radiusMeters: 5_000,
+      },
+      deficits: [
+        {
+          origin: 'preference_facet',
+          dimension: 'intent',
+          key: 'walk',
+          reason: 'No walk',
+        },
+      ],
+    });
     expect(
       plan.sourcePlans.some((source) => source.provider === 'structured_poi'),
     ).toBe(false);

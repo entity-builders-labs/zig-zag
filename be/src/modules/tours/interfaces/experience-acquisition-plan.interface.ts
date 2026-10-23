@@ -71,6 +71,10 @@ export interface StructuredPoiSourcePlanPayload {
   radiusMeters: number;
   sourceClass: 'STRUCTURED_POI';
   routingPolicyVersion: string;
+  /** Destination-wide base discovery (a global capacity gap). */
+  baseDiscovery: boolean;
+  /** Typed place-class coverage requested by preference-facet gaps. */
+  coverage: import('../constants/acquisition-source-routing').StructuredPlaceCoverage[];
   /**
    * The router's dependent STRUCTURED_ENTITY_FACTS strategy (design C17): the
    * identity-linked encyclopedic facts of the QIDs the STRUCTURED_POI

@@ -208,4 +208,55 @@ describe('StructuredPoiAcquisitionProvider', () => {
       expect(result.value[0].entityFacts).toBeUndefined();
     });
   });
+
+  describe('gap-scoped food-and-drink coverage', () => {
+    const emptyOsm = () =>
+      ({
+        lookupFeaturesNear: jest.fn().mockResolvedValue({
+          status: 'success',
+          rawResultCount: 0,
+          value: [],
+        }),
+      }) as unknown as OsmPlacesService;
+
+    it('queries only identity-linked food venue classes when no capacity gap asks for base discovery', async () => {
+      const osm = emptyOsm();
+      const result = await new StructuredPoiAcquisitionProvider(osm).acquire(
+        destination,
+        {
+          radiusMeters: 5_000,
+          baseDiscovery: false,
+          coverage: ['FOOD_AND_DRINK'],
+        },
+      );
+
+      const selectors = (osm.lookupFeaturesNear as jest.Mock).mock.calls[0][3];
+      expect(selectors).toEqual([
+        { key: 'amenity', value: 'cafe', requireKeys: ['wikidata'] },
+        { key: 'amenity', value: 'restaurant', requireKeys: ['wikidata'] },
+        { key: 'amenity', value: 'food_court', requireKeys: ['wikidata'] },
+        { key: 'amenity', value: 'marketplace', requireKeys: ['wikidata'] },
+        { key: 'shop', value: 'bakery', requireKeys: ['wikidata'] },
+      ]);
+      expect(result.provenance).toMatchObject({
+        baseDiscovery: false,
+        coverage: ['FOOD_AND_DRINK'],
+      });
+    });
+
+    it('adds the coverage selectors after the base selectors when both are requested', async () => {
+      const osm = emptyOsm();
+      await new StructuredPoiAcquisitionProvider(osm).acquire(destination, {
+        radiusMeters: 5_000,
+        coverage: ['FOOD_AND_DRINK'],
+      });
+      const selectors = (osm.lookupFeaturesNear as jest.Mock).mock.calls[0][3];
+      expect(selectors[0]).toEqual({ key: 'tourism' });
+      expect(
+        selectors
+          .slice(-5)
+          .every((s: any) => s.requireKeys?.[0] === 'wikidata'),
+      ).toBe(true);
+    });
+  });
 });

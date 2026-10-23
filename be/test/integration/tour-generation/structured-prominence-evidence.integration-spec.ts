@@ -438,4 +438,87 @@ describe('tour-generation integration · structured prominence evidence persiste
       'EXPLICIT_VISITOR_CLASSIFICATION',
     ]);
   });
+
+  it('a gastronomy preference gap acquires identity-linked food venues and admits only the notable ones', async () => {
+    const prisma = await getPrisma();
+    const osm = {
+      lookupFeaturesNear: jest.fn().mockResolvedValue({
+        status: 'success',
+        rawResultCount: 2,
+        value: [
+          {
+            id: 'osm:node:61',
+            name: 'Notable cafe',
+            osmType: 'node',
+            osmId: 61,
+            geometry: { type: 'Point', coordinates: [-58.38, -34.6] },
+            tags: { amenity: 'cafe', wikidata: 'Q61' },
+          },
+          {
+            id: 'osm:node:62',
+            name: 'Linked bakery without articles',
+            osmType: 'node',
+            osmId: 62,
+            geometry: { type: 'Point', coordinates: [-58.381, -34.6] },
+            tags: { shop: 'bakery', wikidata: 'Q62' },
+          },
+        ],
+      }),
+      lookupAreaGeometries: jest.fn(),
+    } as unknown as OsmPlacesService;
+    const wikidata = wikidataOutcome({
+      facts: [{ qid: 'Q61', articles: ['es', 'en'] }, { qid: 'Q62' }],
+    });
+    const catalog = new ExperienceCatalogService(prisma, {} as any);
+    const acquisition = new ExperienceAcquisitionService(
+      catalog,
+      {} as any,
+      undefined,
+      undefined,
+      { synthesizeProposals: jest.fn() } as any,
+      undefined,
+      undefined,
+      {
+        search: jest.fn().mockResolvedValue({ status: 'success', value: [] }),
+      } as any,
+      { extract: jest.fn() } as any,
+      undefined,
+      { fetch: jest.fn() } as any,
+      undefined,
+      new StructuredPoiAcquisitionProvider(osm, wikidata as any),
+      new StructuredPoiCatalogAcquisitionService(
+        prisma,
+        catalog,
+        new StructuredKnowledgePersistenceService(prisma),
+      ),
+    );
+    const plan = new ExperienceAcquisitionPlannerService().buildAcquisitionPlan(
+      {
+        destination,
+        deficits: [
+          {
+            origin: 'preference_facet',
+            dimension: 'theme',
+            key: 'gastronomy',
+            reason: 'No strong gastronomy match',
+          },
+        ],
+      },
+    );
+
+    const result: any = await acquisition.executePlan(plan);
+
+    expect(
+      (osm.lookupFeaturesNear as jest.Mock).mock.calls[0][3].every(
+        (selector: any) => selector.requireKeys?.includes('wikidata'),
+      ),
+    ).toBe(true);
+    expect(result.providerResults.structured_poi.status).toBe('success');
+    expect((await entityFor(prisma, 'osm:node:61')).admission.outcome).toBe(
+      'ADMITTED',
+    );
+    expect((await entityFor(prisma, 'osm:node:62')).admission.outcome).toBe(
+      'INSUFFICIENT_ADMISSION_EVIDENCE',
+    );
+  });
 });

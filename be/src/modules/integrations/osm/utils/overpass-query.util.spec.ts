@@ -443,3 +443,17 @@ describe('buildElementGeometriesQuery: full geometry by exact way/relation id', 
     ).toThrow('requires at least one id');
   });
 });
+
+describe('buildFeaturesNearQuery: selectors with required companion tags', () => {
+  it('adds a presence filter per required key after the class filter', () => {
+    const query = buildFeaturesNearQuery({
+      latitude: -34.6,
+      longitude: -58.38,
+      radiusMeters: 1000,
+      selectors: [{ key: 'amenity', value: 'cafe', requireKeys: ['wikidata'] }],
+    });
+    expect(query).toContain(
+      'nwr["amenity"="cafe"]["wikidata"]["name"](around:1000,-34.6,-58.38);',
+    );
+  });
+});
