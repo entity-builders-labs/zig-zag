@@ -370,3 +370,66 @@ The verdict stays partial because the identity-link validity of
 encyclopedic evidence is still unresolved in admission (finding 1) and for
 located mis-links (finding 2), and because 40.2's duration prerequisite is
 unmet.
+
+## 39.11/39.12 — trusted external-identity evidence
+
+The final smoke used the same harness and destination scope as the validation
+record committed at `abf88981` (source snapshot `aca68ed4`). Local Docker
+Overpass was `localhost:12345`; the disposable database was
+`zigzag_39_test`; Wikidata was the already-configured `wbgetentities`
+provider. The local Nominatim service at `localhost:8088` resolved Buenos
+Aires to `-34.6095579,-58.3887904`; the harness retains its existing fixed
+scope at `-34.6161845,-58.4332979` so the catalog comparison remains like for
+like. The smoke's host ledger confirms 16 local Overpass and 17 Wikidata
+requests; it made no public Overpass, web-search, web-fetch or LLM calls.
+Artifacts: `summary-after-39-10.json`, `catalog-smoke-after-39-11.json`,
+`full-order-after-39-10.json`, and `catalog-smoke-after-39-11-full-order.json`.
+
+| Metric | `abf88981` baseline | after 39.11 | Change |
+|---|---:|---:|---:|
+| admitted GeoEntities | 682 | 335 | -347 |
+| composed Experiences | 516 | 335 | -181 |
+| prominence facts persisted | 793 | 405 | -388 |
+| tomb Experiences | 1 | 1 | 0 |
+| memorial Experiences | 19 | 2 | -17 |
+| gastronomy Experiences | 37 | 4 | -33 |
+| identity conflicts / possible duplicates | 0 / 3,520 | 0 / 3,520 | unchanged |
+
+Person/concept QIDs without usable spatial correspondence remain attached as
+identity links but contribute no linked semantic facts; the adapter regression
+test covers a person QID with no coordinates and verifies empty admission,
+prominence and preference output. Spatially consistent facts remain usable;
+gross conflict is rejected; missing geography is UNKNOWN. Untrusted linked
+facts therefore do not elevate sitelink prominence or provide preference
+themes. The persisted catalog delta is 347 fewer admissions and 181 fewer
+composed Experiences versus the baseline; this is a material supply/admission
+reduction and includes entries that previously depended on untrusted linked
+facts. Existing decisive visitor classification remains admitted without
+encyclopedic facts.
+
+The Lakewood false-prominence failure is fixed: `Plazoleta Ciudad de Lakewood`
+was baseline rank 1 with no interests and is absent from the post-change
+order; `Casa Rosada` is now rank 1. The reviewed main top 30 contains no
+obvious garbage, but several landmark positions changed substantially in the
+no-interest profile: Obelisco 6→216, Museo Nacional de Bellas Artes 9→250,
+MALBA 22→311, Caminito 302→83, Teatro Colón 2→225, and Catedral Metropolitana
+8→3. In preference profiles, gastronomy changes the first four to El Preferido
+de Palermo, Don Julio, El Hipopótamo and Club Español; art ranks MNBA #36 and
+MALBA #47 (baseline #1/#3). Ranking remains preference-responsive, but
+gastronomy supply and landmark ordering are materially reduced/shifted.
+
+Tomb composition did not regress (1→1); memorials fell 19→2, monuments 11→5,
+artworks 17→1, places of worship 36→14 and parks 94→12. These are admission
+losses where linked facts lacked trusted spatial correspondence, not
+place-specific exceptions; no other admission path was changed. Caminito ↔
+Puente de la Mujer remains a split identity: the smoke reports 400 membership
+edges but no membership matches, and no existing strong structural evidence
+satisfies the canonical identity contract. It remains unresolved for a later
+identity task.
+
+**APPROACH_PARTIALLY_VALIDATED.** The unrelated Lakewood prominence is gone,
+the main top 30 remains clean, independently decisive visitor evidence still
+admits, and preference ranking remains responsive. However, the material
+admission/composition reduction, memorial and gastronomy losses, and major
+landmark rank shifts fail the gate's no-admission-regression/stable-major-
+quality conditions. Keep 40.2 blocked; this workstream does not start it.
