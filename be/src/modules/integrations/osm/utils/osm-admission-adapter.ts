@@ -14,6 +14,7 @@ import {
   ProminenceEvidenceFact,
 } from '@tours/prominence/structured-prominence.policy';
 import { StructuredPlaceCoverage } from '@tours/constants/acquisition-source-routing';
+import { TargetObservationFact } from '@tours/preferences/target-knowledge.interface';
 
 export interface OsmVisitUnitFacts {
   childClass?: ChildPlaceClass;
@@ -326,6 +327,71 @@ export function osmTagsToProminenceEvidence(
       return [];
     },
   );
+}
+
+/** Historic classes that are buildings or built structures (architecture). */
+const OSM_HISTORIC_ARCHITECTURE_VALUES = new Set([
+  'building',
+  'castle',
+  'church',
+  'palace',
+  'manor',
+  'tower',
+  'city_gate',
+  'fort',
+  'monastery',
+]);
+
+/**
+ * OSM classes → typed concept observations on the closed preference schema
+ * (design C18). A versioned catalog-side classification of provider classes:
+ * class identity only — never names, text or keywords. Only positive
+ * observations are produced; absence stays UNKNOWN.
+ */
+export function osmTagsToTargetObservations(
+  tags: Record<string, string> | undefined,
+  sourceRecordId: string,
+): TargetObservationFact[] {
+  const t = tags ?? {};
+  const observations: TargetObservationFact[] = [];
+  const add = (
+    field: string,
+    value: string,
+    dimension: 'theme' | 'intent',
+    key: string,
+  ) =>
+    observations.push({
+      target: { dimension, key },
+      observation: {
+        sourceFactId: `${sourceRecordId}#${field}=${value}>${dimension}:${key}`,
+        state: 'SATISFIES',
+      },
+    });
+
+  if (t.historic !== undefined) add('historic', t.historic, 'theme', 'history');
+  else if (t.heritage !== undefined)
+    add('heritage', t.heritage, 'theme', 'history');
+  if (
+    t.historic !== undefined &&
+    OSM_HISTORIC_ARCHITECTURE_VALUES.has(t.historic)
+  ) {
+    add('historic', t.historic, 'theme', 'architecture');
+  }
+  if (t.amenity === 'place_of_worship') {
+    add('amenity', t.amenity, 'theme', 'architecture');
+  }
+  const food = OSM_FOOD_AND_DRINK_CLASSES.find(
+    (klass) => t[klass.key] === klass.value,
+  );
+  if (food) {
+    add(food.key, food.value, 'theme', 'gastronomy');
+    add(food.key, food.value, 'theme', 'food');
+    add(food.key, food.value, 'intent', 'food');
+  }
+  if (t.tourism === 'gallery' || t.tourism === 'artwork') {
+    add('tourism', t.tourism, 'theme', 'art');
+  }
+  return observations;
 }
 
 /**

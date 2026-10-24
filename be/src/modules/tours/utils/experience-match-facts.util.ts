@@ -144,8 +144,23 @@ export function catalogMatchFacts(row: {
   qualityScore: number | null;
   durationMinutes: number | null;
 }): ExperienceMatchFacts {
+  const targetKnowledge = targetKnowledgeOf(row.components);
+  // Theme and intent targets that reconciled structured observations satisfy
+  // are typed semantic facts of the Experience (design C18).
+  const satisfied = (dimension: string) =>
+    targetKnowledge.flatMap((component) =>
+      Object.entries(component.byTarget).flatMap(([targetKey, knowledge]) =>
+        knowledge.state === 'SATISFIES' && targetKey.startsWith(`${dimension}:`)
+          ? [targetKey.slice(dimension.length + 1)]
+          : [],
+      ),
+    );
   return {
-    semantic: semanticFacts(row),
+    semantic: semanticFacts({
+      themes: [...row.themes, ...satisfied(PREFERENCE_DIMENSIONS.THEME)],
+      intents: [...row.intents, ...satisfied(PREFERENCE_DIMENSIONS.INTENT)],
+      dimensionedTraits: row.dimensionedTraits,
+    }),
     classificationState: classificationState(row.classification),
     hasResolvedGeography: hasResolvedGeography(row.components),
     qualityScore: knownQuality(row.qualityScore),
@@ -154,8 +169,38 @@ export function catalogMatchFacts(row: {
       Number.isFinite(row.durationMinutes)
         ? row.durationMinutes
         : null,
-    targetKnowledge: targetKnowledgeOf(row.components),
+    targetKnowledge,
+    structuredAdmission: structuredAdmissionOf(row.components),
   };
+}
+
+/** ADMITTED only when every required VISIT component's place is ADMITTED. */
+function structuredAdmissionOf(
+  components: readonly unknown[],
+): 'ADMITTED' | null {
+  const visits = components.filter((component) => {
+    if (!component || typeof component !== 'object') return false;
+    const { required, participation } = component as {
+      required?: unknown;
+      participation?: unknown;
+    };
+    return required !== false && participation !== 'TRAVERSE';
+  });
+  if (visits.length === 0) return null;
+  return visits.every((component) => {
+    const geoEntity = (component as { geoEntity?: unknown }).geoEntity;
+    const admission =
+      geoEntity && typeof geoEntity === 'object'
+        ? (geoEntity as { admission?: unknown }).admission
+        : undefined;
+    return (
+      !!admission &&
+      typeof admission === 'object' &&
+      (admission as { outcome?: unknown }).outcome === 'ADMITTED'
+    );
+  })
+    ? 'ADMITTED'
+    : null;
 }
 
 /**

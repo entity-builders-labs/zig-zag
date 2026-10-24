@@ -3180,9 +3180,10 @@ misses and the order is catalog prominence alone.
   matching; concepts without a structured class (local character, tourism
   intensity/iconic) stay UNKNOWN.
 - **Projection.** The catalog projection's single match-facts adapter adds
-  the SATISFIES targets of the required components' reconciled target
-  knowledge to the semantic facts; HARD eligibility keeps reading the same
-  reconciled knowledge.
+  the theme and intent targets that the components' reconciled target
+  knowledge SATISFIES to the semantic facts (other dimensions keep their
+  existing sources, so soft accessibility/dietary matching is unchanged);
+  HARD eligibility keeps reading the same reconciled knowledge.
 - **Strong-match quality gate.** `isStrongFacetMatch` accepts either KNOWN
   quality ≥ the floor or canonical structured admission (every required VISIT
   component ADMITTED, C6) as the quality condition. No quality score is

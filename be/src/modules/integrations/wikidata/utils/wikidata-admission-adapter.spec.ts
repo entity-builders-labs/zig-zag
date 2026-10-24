@@ -4,6 +4,7 @@ import {
   wikidataStructuredFactsToAdmissionFacts,
   wikidataStructuredFactsToProminenceEvidence,
   wikipediaArticleSitelinks,
+  wikidataStructuredFactsToTargetObservations,
 } from './wikidata-admission-adapter';
 
 const signalTypes = (
@@ -155,5 +156,28 @@ describe('Wikidata heritage designations: scope', () => {
       ['Q9259', 'INTERNATIONAL'],
       ['Q900', 'UNSPECIFIED'],
     ]);
+  });
+});
+
+describe('Wikidata structured statements → typed concept observations', () => {
+  it('maps a heritage designation to the history theme and yields nothing for a bare QID', () => {
+    const facts = (heritageDesignations: string[]) => ({
+      qid: 'Q7',
+      instanceOf: [] as string[],
+      heritageDesignations,
+      sitelinks: [{ site: 'eswiki', url: 'https://es.wikipedia.org/wiki/X' }],
+    });
+    expect(
+      wikidataStructuredFactsToTargetObservations(facts(['Q900'])),
+    ).toEqual([
+      {
+        target: { dimension: 'theme', key: 'history' },
+        observation: {
+          sourceFactId: 'wikidata:Q7#P1435>theme:history',
+          state: 'SATISFIES',
+        },
+      },
+    ]);
+    expect(wikidataStructuredFactsToTargetObservations(facts([]))).toEqual([]);
   });
 });

@@ -5,6 +5,7 @@ import {
 } from '@tours/admission/structured-admission-policy';
 import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
 import { WikidataStructuredEntityFacts } from '../interfaces/wikidata.interface';
+import { TargetObservationFact } from '@tours/preferences/target-knowledge.interface';
 
 /**
  * Wikidata → canonical admission mapping (design C7, task 37.1). The Wikidata
@@ -191,4 +192,25 @@ export function wikidataStructuredFactsToProminenceEvidence(
     }
   }
   return evidence;
+}
+
+/**
+ * Structured statements → typed concept observations (design C18): a recorded
+ * heritage designation supports the history theme. Positive only; a bare QID
+ * or sitelinks produce nothing (prominence is not relevance).
+ */
+export function wikidataStructuredFactsToTargetObservations(
+  facts: WikidataStructuredEntityFacts,
+): TargetObservationFact[] {
+  return facts.heritageDesignations.length > 0
+    ? [
+        {
+          target: { dimension: 'theme', key: 'history' },
+          observation: {
+            sourceFactId: `wikidata:${facts.qid}#P1435>theme:history`,
+            state: 'SATISFIES',
+          },
+        },
+      ]
+    : [];
 }

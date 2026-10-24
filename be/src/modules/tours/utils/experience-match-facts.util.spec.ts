@@ -58,6 +58,7 @@ describe('experience match-facts adapters', () => {
       qualityScore: null,
       durationMinutes: null,
       targetKnowledge: [{ byTarget: {} }],
+      structuredAdmission: null,
     });
     expect(
       catalogMatchFacts({
@@ -133,7 +134,12 @@ describe('experience match-facts adapters', () => {
                 state: 'DOES_NOT_SATISFY',
                 sourceFactId: 'b',
               },
-              { dimension: 'trait', key: 'x', state: 'SATISFIES', sourceFactId: 'c' },
+              {
+                dimension: 'trait',
+                key: 'x',
+                state: 'SATISFIES',
+                sourceFactId: 'c',
+              },
             ],
           },
         },
@@ -174,5 +180,95 @@ describe('experience match-facts adapters', () => {
       intents: ['visit'],
       dimensionedFacts: [],
     });
+  });
+
+  it('adds theme and intent targets that structured observations satisfy to the semantic facts', () => {
+    const facts = catalogMatchFacts({
+      themes: [],
+      intents: [],
+      dimensionedTraits: [],
+      classification: undefined,
+      components: [
+        {
+          geoEntity: {
+            latitude: -34.6,
+            longitude: -58.4,
+            targetObservations: [
+              {
+                dimension: 'theme',
+                key: 'gastronomy',
+                state: 'SATISFIES',
+                sourceFactId: 'osm:node:1#amenity=cafe>theme:gastronomy',
+              },
+              {
+                dimension: 'intent',
+                key: 'food',
+                state: 'SATISFIES',
+                sourceFactId: 'osm:node:1#amenity=cafe>intent:food',
+              },
+              {
+                dimension: 'theme',
+                key: 'history',
+                state: 'INCONCLUSIVE',
+                sourceFactId: 'other:1',
+              },
+              {
+                dimension: 'accessibility',
+                key: 'wheelchair_access',
+                state: 'SATISFIES',
+                sourceFactId: 'osm:node:1:wheelchair',
+              },
+            ],
+          },
+        },
+      ],
+      qualityScore: null,
+      durationMinutes: null,
+    });
+    expect(facts.semantic).toEqual({
+      themes: ['gastronomy'],
+      intents: ['food'],
+      dimensionedFacts: [],
+    });
+  });
+
+  it('reports structured admission only when every required visit component is admitted', () => {
+    const component = (
+      outcome: string | null,
+      extra: Record<string, unknown> = {},
+    ) => ({
+      ...extra,
+      geoEntity: {
+        latitude: -34.6,
+        longitude: -58.4,
+        admission: outcome ? { outcome } : null,
+      },
+    });
+    const admissionOf = (components: unknown[]) =>
+      catalogMatchFacts({
+        themes: [],
+        intents: [],
+        dimensionedTraits: [],
+        classification: undefined,
+        components,
+        qualityScore: null,
+        durationMinutes: null,
+      }).structuredAdmission;
+
+    expect(admissionOf([component('ADMITTED')])).toBe('ADMITTED');
+    expect(
+      admissionOf([
+        component('ADMITTED'),
+        component('INSUFFICIENT_ADMISSION_EVIDENCE'),
+      ]),
+    ).toBeNull();
+    expect(admissionOf([component(null)])).toBeNull();
+    expect(
+      admissionOf([
+        component('ADMITTED'),
+        component(null, { participation: 'TRAVERSE' }),
+      ]),
+    ).toBe('ADMITTED');
+    expect(admissionOf([])).toBeNull();
   });
 });

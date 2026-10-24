@@ -536,6 +536,15 @@ export class StructuredPoiCatalogAcquisitionService {
         geoEntityId,
         prominenceObservation(group),
       );
+      await this.catalog.recordTargetObservations(
+        geoEntityId,
+        group.flatMap((candidate) => [
+          ...candidate.targetObservations,
+          ...(candidate.entityFacts?.status === 'KNOWN'
+            ? candidate.entityFacts.targetObservations
+            : []),
+        ]),
+      );
       const hoursCandidate = group.find(
         (candidate) => candidate.openingHoursEvidence,
       );

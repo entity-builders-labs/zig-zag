@@ -640,6 +640,7 @@ export class ExperienceCatalogService {
                 openingHours: true,
                 visitDuration: true,
                 prominenceEvidence: true,
+                admission: { select: { outcome: true } },
               },
             },
           },
@@ -755,7 +756,11 @@ export class ExperienceCatalogService {
         components: {
           include: {
             geoEntity: {
-              include: { targetObservations: true, prominenceEvidence: true },
+              include: {
+                targetObservations: true,
+                prominenceEvidence: true,
+                admission: { select: { outcome: true } },
+              },
             },
           },
         },
@@ -1426,6 +1431,21 @@ export class ExperienceCatalogService {
         throw error;
       }
     });
+  }
+
+  /**
+   * Records provider target observations for an existing GeoEntity (design
+   * C18), one per stable source-fact identity, through the same upsert the
+   * place materialization path uses.
+   */
+  async recordTargetObservations(
+    geoEntityId: string,
+    facts: readonly TargetObservationFact[],
+  ): Promise<void> {
+    if (facts.length === 0) return;
+    await this.prisma.$transaction((tx) =>
+      this.persistTargetObservations(tx, geoEntityId, facts),
+    );
   }
 
   /**

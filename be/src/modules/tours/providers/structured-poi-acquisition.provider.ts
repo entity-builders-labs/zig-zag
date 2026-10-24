@@ -21,12 +21,17 @@ import {
   osmTagsToVisitDurationEvidence,
   osmTagsToVisitUnitFacts,
 } from '@integrations/osm/utils/osm-admission-adapter';
-import { osmTagsToProminenceEvidence } from '@integrations/osm/utils/osm-admission-adapter';
+import {
+  osmTagsToProminenceEvidence,
+  osmTagsToTargetObservations,
+} from '@integrations/osm/utils/osm-admission-adapter';
+import { TargetObservationFact } from '../preferences/target-knowledge.interface';
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 import {
   WikidataAdmissionFacts,
   wikidataStructuredFactsToAdmissionFacts,
   wikidataStructuredFactsToProminenceEvidence,
+  wikidataStructuredFactsToTargetObservations,
 } from '@integrations/wikidata/utils/wikidata-admission-adapter';
 import { ProminenceEvidenceFact } from '../prominence/structured-prominence.policy';
 
@@ -43,6 +48,7 @@ export type StructuredEntityFactsOutcome =
       qid: string;
       admission: WikidataAdmissionFacts;
       prominence: ProminenceEvidenceFact[];
+      targetObservations: TargetObservationFact[];
     }
   | { status: 'NOT_FOUND' | 'UNAVAILABLE'; qid: string };
 
@@ -59,6 +65,8 @@ export interface StructuredPoiCandidate extends SourceObservation {
   visitDurationEvidence?: OsmVisitDurationEvidence;
   /** Typed OSM prominence evidence of this record (heritage, visitor class). */
   prominenceEvidence: ProminenceEvidenceFact[];
+  /** Typed concept observations of this record's structured classes (C18). */
+  targetObservations: TargetObservationFact[];
   /** Present only when the candidate carries a QID and entity facts were planned. */
   entityFacts?: StructuredEntityFactsOutcome;
   /**
@@ -179,6 +187,10 @@ export class StructuredPoiAcquisitionProvider {
           `osm:${candidate.osmType}:${candidate.osmId}`,
           observedAt,
         ),
+        targetObservations: osmTagsToTargetObservations(
+          candidate.tags,
+          `osm:${candidate.osmType}:${candidate.osmId}`,
+        ),
         originationCapabilities: [],
       }),
     );
@@ -275,6 +287,8 @@ export class StructuredPoiAcquisitionProvider {
               facts,
               outcome!.observedAt,
             ),
+            targetObservations:
+              wikidataStructuredFactsToTargetObservations(facts),
           }
         : {
             status: outcome?.missingQids.has(qid) ? 'NOT_FOUND' : 'UNAVAILABLE',

@@ -54,8 +54,12 @@ export function isStrongFacetMatch(
   }
   // UNKNOWN quality never gets a magic default: it fails the floor and the
   // candidate stays at most a weak match.
+  // Canonical structured admission (design C18) satisfies the quality
+  // condition for structured places; no quality score is fabricated.
   const qualityFloor = policy.qualityFloor ?? DEFAULT_QUALITY_FLOOR;
-  if (facts.qualityScore === null || facts.qualityScore < qualityFloor) {
+  const clearsQualityFloor =
+    facts.qualityScore !== null && facts.qualityScore >= qualityFloor;
+  if (!clearsQualityFloor && facts.structuredAdmission !== 'ADMITTED') {
     return false;
   }
   // Only an explicit degraded classification is known-thin evidence; no

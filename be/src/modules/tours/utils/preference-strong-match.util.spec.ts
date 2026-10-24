@@ -192,4 +192,50 @@ describe('preference-strong-match.util', () => {
       expect(isStrongFacetMatch(asFacts(experience), facet())).toBe(true);
     });
   });
+
+  describe('canonical structured admission as the quality condition', () => {
+    const structured = (admission: string | null) =>
+      asFacts({
+        components: [
+          {
+            geoEntity: {
+              latitude: -34.6,
+              longitude: -58.38,
+              admission: admission ? { outcome: admission } : null,
+              targetObservations: [
+                {
+                  dimension: 'theme',
+                  key: 'history',
+                  state: 'SATISFIES',
+                  sourceFactId: 'osm:node:1#historic=building>theme:history',
+                },
+              ],
+            },
+          },
+        ],
+      });
+
+    it('strong-matches an admitted structured place without any quality score', () => {
+      expect(isStrongFacetMatch(structured('ADMITTED'), facet())).toBe(true);
+    });
+
+    it('does not strong-match an unadmitted place with unknown quality', () => {
+      expect(
+        isStrongFacetMatch(
+          structured('INSUFFICIENT_ADMISSION_EVIDENCE'),
+          facet(),
+        ),
+      ).toBe(false);
+      expect(isStrongFacetMatch(structured(null), facet())).toBe(false);
+    });
+
+    it('still requires the concept itself to match', () => {
+      expect(
+        isStrongFacetMatch(
+          structured('ADMITTED'),
+          facet({ key: 'gastronomy' }),
+        ),
+      ).toBe(false);
+    });
+  });
 });

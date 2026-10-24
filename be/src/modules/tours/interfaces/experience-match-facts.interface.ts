@@ -48,6 +48,12 @@ export interface ExperienceMatchFacts {
    * catalog projection boundary; consumers aggregate, never re-reconcile.
    */
   targetKnowledge: readonly ExperienceTargetKnowledge[];
+  /**
+   * Canonical structured admission (design C18): ADMITTED when every
+   * required VISIT component's GeoEntity is ADMITTED (C6); null otherwise.
+   * It satisfies the strong-match quality condition without a quality score.
+   */
+  structuredAdmission: 'ADMITTED' | null;
 }
 
 /**

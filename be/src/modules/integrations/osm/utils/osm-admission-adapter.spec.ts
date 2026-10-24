@@ -4,6 +4,7 @@ import {
   osmTagsToProminenceEvidence,
   osmTagsToVisitUnitFacts,
   osmCoverageDiscoverySelectors,
+  osmTagsToTargetObservations,
 } from './osm-admission-adapter';
 import { evaluateAdmissionRule } from '@tours/admission/structured-admission-policy';
 
@@ -234,5 +235,62 @@ describe('osmTagsToProminenceEvidence: heritage scope from the protecting author
     expect(scopeOf('yes')).toBe('UNSPECIFIED');
     expect(scopeOf('12')).toBe('UNSPECIFIED');
     expect(scopeOf('2;4')).toBe('UNSPECIFIED');
+  });
+});
+
+describe('osmTagsToTargetObservations: structured classes → typed concept observations', () => {
+  const targets = (tags: Record<string, string>) =>
+    osmTagsToTargetObservations(tags, 'osm:node:5').map(
+      (fact) => `${fact.target.dimension}:${fact.target.key}`,
+    );
+
+  it('maps historic and heritage classes to the history theme', () => {
+    expect(targets({ historic: 'memorial' })).toEqual(['theme:history']);
+    expect(targets({ heritage: '2' })).toEqual(['theme:history']);
+  });
+
+  it('maps historic building types and places of worship to architecture', () => {
+    expect(targets({ historic: 'building' })).toEqual([
+      'theme:history',
+      'theme:architecture',
+    ]);
+    expect(targets({ amenity: 'place_of_worship' })).toEqual([
+      'theme:architecture',
+    ]);
+  });
+
+  it('maps food venue classes to gastronomy, food and the food intent', () => {
+    for (const tags of [
+      { amenity: 'cafe' },
+      { shop: 'bakery' },
+      { amenity: 'marketplace' },
+    ]) {
+      expect(targets(tags)).toEqual([
+        'theme:gastronomy',
+        'theme:food',
+        'intent:food',
+      ]);
+    }
+  });
+
+  it('maps galleries and artworks to the art theme', () => {
+    expect(targets({ tourism: 'gallery' })).toEqual(['theme:art']);
+    expect(targets({ tourism: 'artwork' })).toEqual(['theme:art']);
+  });
+
+  it('records only positive observations with a stable source-fact identity per class and concept', () => {
+    expect(
+      osmTagsToTargetObservations({ amenity: 'cafe' }, 'osm:node:5')[0],
+    ).toEqual({
+      target: { dimension: 'theme', key: 'gastronomy' },
+      observation: {
+        sourceFactId: 'osm:node:5#amenity=cafe>theme:gastronomy',
+        state: 'SATISFIES',
+      },
+    });
+    expect(targets({ tourism: 'attraction', name: 'Historic cafe' })).toEqual(
+      [],
+    );
+    expect(targets({ wikidata: 'Q1' })).toEqual([]);
   });
 });
