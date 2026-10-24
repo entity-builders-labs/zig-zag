@@ -3870,15 +3870,51 @@ own linked observations; it must not remove or overwrite independent source
 observations. Trusted Wikidata observations may enrich relevance, not supply
 the only relevance for these structured place facts.
 
-Popularity/reputation is separate from encyclopedic notability and is not
-admission evidence in this revision. Current implementation inspection found
-Google Places rating and review-count fields in a separate provider path and a
-`POPULARITY` request ordering option, but no persisted candidate rank in the
-structured OSM catalog path. Geoapify exposes raw popularity in its provider
-response but currently drops it during its `PlaceData` mapping. No unified
-provider-neutral reputation fact is introduced here; any future cross-provider
-reputation capability remains separate from admission and encyclopedic
-notability.
+Popularity/reputation is separate from encyclopedic notability and is never
+admission evidence. Current implementation inspection found Google Places
+rating and review-count fields in a separate provider path and a `POPULARITY`
+request ordering option, but no persisted candidate rank in the structured
+OSM catalog path. Geoapify exposes raw popularity in its provider response but
+currently drops it during its `PlaceData` mapping. This amendment adds a
+bounded Groq grounded-web reputation experiment only after structured
+admission; it does not add Google Places, Foursquare or Gemini Maps to the
+experiment.
+
+The existing Groq grounded-search implementation is currently used during
+Experience acquisition, not for post-admission evaluation. Repository code
+configures the Groq model as `openai/gpt-oss-120b` and the `browser_search`
+tool. The spike must verify those settings at execution time rather than copy
+deprecated model/tool assumptions. The model is a search/orchestration and
+evidence-normalization mechanism; it must not produce an opaque quality score.
+
+The reputation contract is provider-neutral and separate from
+`GeoEntityTargetObservation` (which represents preference compatibility):
+
+```text
+ReputationKnowledge =
+  KNOWN { evidence: [typed reputation facts with source provenance] }
+  | UNKNOWN
+```
+
+Initial evidence types are `OFFICIAL_TOURISM_MENTION`,
+`REPEATED_TRAVEL_GUIDE_RECOMMENDATION`, `REPUTABLE_EDITORIAL_MENTION`, and
+`CURRENT_VENUE_PRESENCE`. Each positive fact needs a returned source citation
+and enough provenance to inspect the source. Unsupported, uncited, ambiguous-
+identity or mismatched-identity assertions produce `UNKNOWN`, not free-form
+ranking authority. The spike records source category, matching outcome,
+latency, returned token usage and provider-reported cost when available. No
+canonical reputation cache exists for this path; the spike reports cache
+availability and actual hit/miss counts without claiming reuse.
+
+The experiment is bounded to an offered shortlist of roughly 50–100 admitted
+Buenos Aires Experiences, stratified across current top and middle ordering,
+gastronomy and low-prominence candidates; diagnostic named places are included
+only when present in the measured sample. It does not query all discovered
+POIs. Only if returned grounded evidence has measured coverage and reliable
+identity matching may the typed evidence affect ranking, as a separate,
+deterministic, explainable ranking dimension. `UNKNOWN` is neutral; reputation
+cannot grant/revoke admission, replace Wikidata prominence, alter preference
+observations, or make planning-ready claims. No desired rank is hardcoded.
 
 ### Implementation and validation sequence
 
@@ -3893,7 +3929,11 @@ notability.
    independent evidence can admit without Wikidata; visitor/heritage paths
    survive unknown Wikidata; historic-only objects remain rejected or
    parent-represented; C5 and single-place composition remain separate.
-4. Rerun the Buenos Aires smoke and compare with the unchanged 39.11/39.12
-   artifacts for restored supply, composition quality, preferences,
-   prominence, and the historic-object regression counts. Keep 40.2 blocked
-   until the catalog-quality gate passes.
+4. Run the bounded grounded-reputation sample after admission recovery; retain
+   typed evidence only when citations support the fact and the canonical
+   identity matches. Apply it to ranking only if the measured sample supports
+   useful coverage and reliable matches; otherwise keep it UNKNOWN/diagnostic.
+5. Rerun the Buenos Aires smoke and compare with unchanged 39.11/39.12
+   artifacts for restored supply, reputation coverage, ranking reasons,
+   preferences, prominence and historic-object regression counts. Keep 40.2
+   blocked until the catalog-quality gate passes.

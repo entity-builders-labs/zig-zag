@@ -69,6 +69,15 @@ identity, visit unit, admission, preference relevance or planning readiness.
 The transient ordering records policy/evidence references and SHALL NOT persist
 an editorial rank on a reusable Experience.
 
+Grounded reputation remains a separate optional ranking dimension and SHALL
+NOT be merged into encyclopedic prominence.
+
+#### Scenario: Reputation remains separate from encyclopedic prominence
+- **WHEN** an Experience has grounded visitor-reputation evidence but no
+  Wikidata prominence evidence
+- **THEN** the reputation fact remains separately typed and cannot fabricate
+  or alter encyclopedic prominence
+
 #### Scenario: Prominence comparison is evidence-based
 - **WHEN** two valid candidates have comparable positive structured prominence
   evidence

@@ -169,11 +169,11 @@ Revision 4 (production cutover after spike 3 ACCEPT):
   timeline. Admission is an evaluation of a GeoEntity; Experiences are
   updated in place with stable identity (no content-revision subsystem).
 
-Out of scope: new research providers (Groq, native grounded LLM search),
-narrative generation, LLM enrichment, ranking redesign around semantic
-research, new structured POI providers (Geoapify, Overture, Google Places),
-frontend, verifier tuning. Production code changes happen only through
-`/opsx:apply` of the revision 4 task groups.
+Out of scope: narrative generation, general-purpose LLM enrichment, new
+structured POI providers (Geoapify, Overture, Google Places), frontend and
+verifier tuning. A bounded experimental Groq grounded-reputation path is added
+only for already-admitted shortlisted Experiences under task 39.16; it is not
+general acquisition/research and does not participate in admission.
 
 ## Capabilities
 
@@ -188,6 +188,9 @@ frontend, verifier tuning. Production code changes happen only through
 - `structured-catalog-prominence`: typed prominence and preference evidence
   remain separate from admission; trusted Wikidata facts enrich ordering and
   relevance without becoming eligibility requirements.
+- `grounded-reputation`: bounded, post-admission, source-grounded reputation
+  evidence is an optional ranking dimension, distinct from encyclopedic
+  prominence, admission, preference relevance and planning readiness.
 - `knowledge-enrichment`: optional, reusable semantic/tourism enrichment
   downstream of admission.
 - `knowledge-readiness`: deterministic readiness over schedulable structured

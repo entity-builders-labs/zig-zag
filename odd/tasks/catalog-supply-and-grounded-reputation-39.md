@@ -26,7 +26,7 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Do not start 40.2. Commit bounded work units and push to the existing feature upstream only after gates.
 
 ## Tasks
-- T0 — S1–S4 — inline — update active OpenSpec first with independent visitability, preference independence and bounded grounded reputation capability/tasks; validate and commit spec checkpoint.
+- T0 — S1–S4 — inline — complete active OpenSpec update with independent visitability, preference independence and bounded grounded reputation capability/tasks; strict validation passed. Spec checkpoint commit pending.
 - T1 — S1–S2 — inline — implement 39.13/39.14 with tests; commit evidence after focused/suite checks. Risk: item 3 (canonical admission and preference evidence contracts are shared by adapters and catalog consumers).
 - T2 — S3 — inline — run a bounded Groq grounded-reputation sample; add only the smallest typed post-admission spike and record measured evidence, with UNKNOWN neutral.
 - T3 — S4 — inline — rerun local Buenos Aires smoke and record 39.15 evidence without rewriting 39.11/39.12; keep 40.2 blocked.
@@ -59,3 +59,8 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Spec-only optional-Wikidata amendment committed as `fdb63a68` after exact-file inspection; 39.11/39.12 history remains intact.
 - `git fetch origin --prune` and `scripts/agent-preflight` passed: WRITE AUTHORIZED and INTEGRATION READY. Three file-overlap warnings remain visible and are not write blockers.
 - Read-only code map: admission policy is `be/src/modules/tours/admission/structured-admission-policy.ts`; target observations encode preference compatibility, not reputation; Groq currently uses `openai/gpt-oss-120b` + `browser_search` in acquisition, not post-admission ranking.
+
+### L3 — Owner direction (2026-10-24)
+- The validation goal is `Restore legitimate admission without making Wikidata mandatory, then test whether grounded web reputation provides the missing quality signal.`
+- Wikidata, reputation, prominence, preference relevance and planning readiness remain separate; reputation is post-admission, ranking-only, typed/provenance-backed and UNKNOWN when unsupported.
+- Add the bounded Groq reputation capability/task before implementing it; no Google Places, Foursquare or Gemini Maps; do not start 40.2.
