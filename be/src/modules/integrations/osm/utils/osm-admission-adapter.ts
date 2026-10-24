@@ -15,6 +15,38 @@ import {
 } from '@tours/prominence/structured-prominence.policy';
 import { StructuredPlaceCoverage } from '@tours/constants/acquisition-source-routing';
 import { TargetObservationFact } from '@tours/preferences/target-knowledge.interface';
+import { ReconciliationGeometry } from '@tours/utils/structured-identity-reconciliation.policy';
+import { GeoJsonGeometry } from '@shared/geo/geojson-geometry';
+
+/** Normalize OSM geometry to the canonical identity-correspondence shape. */
+export function osmGeometryToReconciliationGeometry(
+  geometry: GeoJsonGeometry,
+): ReconciliationGeometry | undefined {
+  if (geometry.type === 'Point') {
+    return {
+      kind: 'POINT',
+      longitude: geometry.coordinates[0],
+      latitude: geometry.coordinates[1],
+    };
+  }
+  if (geometry.type !== 'Polygon' && geometry.type !== 'MultiPolygon') {
+    return undefined;
+  }
+  const points =
+    geometry.type === 'Polygon'
+      ? geometry.coordinates.flat()
+      : geometry.coordinates.flat(2);
+  if (points.length === 0) return undefined;
+  const longitudes = points.map(([longitude]) => longitude);
+  const latitudes = points.map(([, latitude]) => latitude);
+  return {
+    kind: 'AREA',
+    west: Math.min(...longitudes),
+    south: Math.min(...latitudes),
+    east: Math.max(...longitudes),
+    north: Math.max(...latitudes),
+  };
+}
 
 export interface OsmVisitUnitFacts {
   childClass?: ChildPlaceClass;

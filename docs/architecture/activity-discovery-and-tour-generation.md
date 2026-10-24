@@ -2805,10 +2805,17 @@ policy. Categories remain positive, exclusion, compatibility,
 parent/sub-feature and ranking evidence and provider-query selectors, but
 never the admission authority alone.
 
-Structured Wikidata facts (classes under adapter-held root classes, heritage
-designation, sitelinks) are authoritative structured admission evidence about
-an identity-linked entity; they create no L2 assertion, need no research,
-web or LLM call, and never establish thematic relevance.
+External identity-linked semantic evidence may influence admission,
+prominence or preference relevance only when the linked external entity is
+spatially consistent with the canonical GeoEntity. A provider identifier
+alone is identity/link evidence, not semantic evidence. The provider adapter
+interprets its own spatial claims and emits one canonical spatial-correspondence
+outcome (`CONSISTENT`, `AMBIGUOUS`, `CONFLICTING` or `UNKNOWN`); all domain
+consumers reuse that outcome. Only `CONSISTENT` evidence is trusted. Missing
+spatial evidence remains `UNKNOWN`, never a negative fact. In particular, a
+Wikidata QID without usable geographic correspondence remains link evidence
+but contributes no encyclopedic notability, prominence or preference facts.
+These facts create no L2 assertion and need no research, web or LLM call.
 
 **Single admission-policy source.** One versioned structured admission
 policy defines signal types and strengths, the admission rule, exclusion

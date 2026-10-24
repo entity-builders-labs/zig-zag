@@ -1441,11 +1441,18 @@ export class ExperienceCatalogService {
   async recordTargetObservations(
     geoEntityId: string,
     facts: readonly TargetObservationFact[],
+    options: { replaceSourceFactPrefixes?: readonly string[] } = {},
   ): Promise<void> {
-    if (facts.length === 0) return;
-    await this.prisma.$transaction((tx) =>
-      this.persistTargetObservations(tx, geoEntityId, facts),
-    );
+    if (facts.length === 0 && !options.replaceSourceFactPrefixes?.length)
+      return;
+    await this.prisma.$transaction(async (tx) => {
+      for (const prefix of options.replaceSourceFactPrefixes ?? []) {
+        await tx.geoEntityTargetObservation.deleteMany({
+          where: { geoEntityId, sourceFactId: { startsWith: prefix } },
+        });
+      }
+      await this.persistTargetObservations(tx, geoEntityId, facts);
+    });
   }
 
   /**

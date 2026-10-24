@@ -12,8 +12,20 @@ export const STRUCTURED_IDENTITY_RECONCILIATION_VERSION =
   'structured-identity-v1';
 
 export type ReconciliationGeometry =
-  | { kind: 'POINT'; latitude: number; longitude: number }
+  | {
+      kind: 'POINT';
+      latitude: number;
+      longitude: number;
+      /** Source-reported uncertainty, normalized to meters by its adapter. */
+      uncertaintyRadiusMeters?: number;
+    }
   | { kind: 'AREA'; west: number; south: number; east: number; north: number };
+
+export type SpatialCorrespondenceOutcome =
+  | 'CONSISTENT'
+  | 'AMBIGUOUS'
+  | 'CONFLICTING'
+  | 'UNKNOWN';
 
 export interface ReconciliationRecord {
   id: string;
@@ -91,6 +103,79 @@ function geometryCorresponds(
   if (a.kind === 'POINT' && b.kind === 'AREA') return pointInArea(a, b);
   if (a.kind === 'AREA' && b.kind === 'POINT') return pointInArea(b, a);
   return false;
+}
+
+const EARTH_MEAN_RADIUS_METERS = 6_371_008.8;
+
+function pointDistanceMeters(
+  a: Extract<ReconciliationGeometry, { kind: 'POINT' }>,
+  b: Extract<ReconciliationGeometry, { kind: 'POINT' }>,
+): number {
+  const radians = (degrees: number) => (degrees * Math.PI) / 180;
+  const latitudeDelta = radians(b.latitude - a.latitude);
+  const longitudeDelta = radians(b.longitude - a.longitude);
+  const haversine =
+    Math.sin(latitudeDelta / 2) ** 2 +
+    Math.cos(radians(a.latitude)) *
+      Math.cos(radians(b.latitude)) *
+      Math.sin(longitudeDelta / 2) ** 2;
+  return (
+    2 *
+    EARTH_MEAN_RADIUS_METERS *
+    Math.atan2(Math.sqrt(haversine), Math.sqrt(1 - haversine))
+  );
+}
+
+function areasOverlap(
+  a: Extract<ReconciliationGeometry, { kind: 'AREA' }>,
+  b: Extract<ReconciliationGeometry, { kind: 'AREA' }>,
+): boolean {
+  return !(
+    a.east < b.west ||
+    b.east < a.west ||
+    a.north < b.south ||
+    b.north < a.south
+  );
+}
+
+/**
+ * Classifies whether external identity-linked spatial evidence corresponds to
+ * canonical GeoEntity geometry. Point tolerance comes only from the linked
+ * source's normalized uncertainty; this policy adds no global distance limit.
+ */
+export function classifySpatialCorrespondence(
+  canonical: ReconciliationGeometry | undefined,
+  linked: ReconciliationGeometry | undefined,
+): SpatialCorrespondenceOutcome {
+  if (!canonical || !linked) return 'UNKNOWN';
+
+  if (canonical.kind === 'POINT' && linked.kind === 'POINT') {
+    const precision = linked.uncertaintyRadiusMeters;
+    if (precision === undefined) return 'AMBIGUOUS';
+    if (!Number.isFinite(precision) || precision < 0) return 'UNKNOWN';
+    return pointDistanceMeters(canonical, linked) <= precision
+      ? 'CONSISTENT'
+      : 'CONFLICTING';
+  }
+
+  if (canonical.kind === 'POINT' && linked.kind === 'AREA') {
+    return pointInArea(canonical, linked) ? 'CONSISTENT' : 'CONFLICTING';
+  }
+  if (canonical.kind === 'AREA' && linked.kind === 'POINT') {
+    return pointInArea(linked, canonical) ? 'CONSISTENT' : 'CONFLICTING';
+  }
+
+  if (canonical.kind === 'AREA' && linked.kind === 'AREA') {
+    const equal =
+      canonical.west === linked.west &&
+      canonical.south === linked.south &&
+      canonical.east === linked.east &&
+      canonical.north === linked.north;
+    if (equal) return 'CONSISTENT';
+    return areasOverlap(canonical, linked) ? 'AMBIGUOUS' : 'CONFLICTING';
+  }
+
+  return 'UNKNOWN';
 }
 
 function classesCompatible(

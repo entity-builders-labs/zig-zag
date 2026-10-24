@@ -17,6 +17,7 @@ import {
   OsmVisitDurationEvidence,
   OsmVisitUnitFacts,
   osmTagsToAdmissionFacts,
+  osmGeometryToReconciliationGeometry,
   osmTagsToOpeningHoursEvidence,
   osmTagsToVisitDurationEvidence,
   osmTagsToVisitUnitFacts,
@@ -29,10 +30,9 @@ import { TargetObservationFact } from '../preferences/target-knowledge.interface
 import { IWikidataApiService } from '@integrations/wikidata/interfaces/wikidata.interface';
 import {
   WikidataAdmissionFacts,
-  wikidataStructuredFactsToAdmissionFacts,
-  wikidataStructuredFactsToProminenceEvidence,
-  wikidataStructuredFactsToTargetObservations,
+  wikidataStructuredFactsToCanonicalEvidence,
 } from '@integrations/wikidata/utils/wikidata-admission-adapter';
+import { SpatialCorrespondenceOutcome } from '../utils/structured-identity-reconciliation.policy';
 import { ProminenceEvidenceFact } from '../prominence/structured-prominence.policy';
 
 /**
@@ -46,6 +46,7 @@ export type StructuredEntityFactsOutcome =
   | {
       status: 'KNOWN';
       qid: string;
+      spatialCorrespondence: SpatialCorrespondenceOutcome;
       admission: WikidataAdmissionFacts;
       prominence: ProminenceEvidenceFact[];
       targetObservations: TargetObservationFact[];
@@ -278,17 +279,21 @@ export class StructuredPoiAcquisitionProvider {
       const qid = candidate.canonicalIdentity?.wikidataQid;
       if (!qid) continue;
       const facts = outcome?.facts.get(qid);
-      candidate.entityFacts = facts
+      const linkedEvidence = facts
+        ? wikidataStructuredFactsToCanonicalEvidence(
+            facts,
+            osmGeometryToReconciliationGeometry(candidate.osmGeometry),
+            outcome!.observedAt,
+          )
+        : undefined;
+      candidate.entityFacts = linkedEvidence
         ? {
             status: 'KNOWN',
             qid,
-            admission: wikidataStructuredFactsToAdmissionFacts(facts),
-            prominence: wikidataStructuredFactsToProminenceEvidence(
-              facts,
-              outcome!.observedAt,
-            ),
-            targetObservations:
-              wikidataStructuredFactsToTargetObservations(facts),
+            spatialCorrespondence: linkedEvidence.spatialCorrespondence,
+            admission: linkedEvidence.admissionFacts,
+            prominence: linkedEvidence.prominenceEvidence,
+            targetObservations: linkedEvidence.targetObservations,
           }
         : {
             status: outcome?.missingQids.has(qid) ? 'NOT_FOUND' : 'UNAVAILABLE',

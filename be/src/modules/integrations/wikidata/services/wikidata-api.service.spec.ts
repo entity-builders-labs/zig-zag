@@ -553,7 +553,20 @@ describe('WikidataApiService', () => {
                   },
                 },
               ],
-              P625: [{ mainsnak: { snaktype: 'value' } }],
+              P625: [
+                {
+                  mainsnak: {
+                    snaktype: 'value',
+                    datavalue: {
+                      value: {
+                        latitude: -34.6037,
+                        longitude: -58.3816,
+                        precision: 0.001,
+                      },
+                    },
+                  },
+                },
+              ],
               P1435: [
                 {
                   mainsnak: {
@@ -596,7 +609,13 @@ describe('WikidataApiService', () => {
         qid: 'Q1',
         instanceOf: ['Q33506'],
         heritageDesignations: ['Q900'],
-        hasCoordinateLocation: true,
+        coordinateLocations: [
+          {
+            latitude: -34.6037,
+            longitude: -58.3816,
+            precisionDegrees: 0.001,
+          },
+        ],
         sitelinks: [
           { site: 'commonswiki', url: 'https://commons.wikimedia.org/wiki/X' },
           { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/X' },

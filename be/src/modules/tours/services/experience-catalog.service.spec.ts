@@ -49,6 +49,26 @@ describe('ExperienceCatalogService.upsertGeoEntity', () => {
     return prisma;
   }
 
+  it('replaces linked observations only for a completed external-identity lookup', async () => {
+    const prisma: any = withTransaction({
+      geoEntityTargetObservation: {
+        deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
+      },
+    });
+    const service = new ExperienceCatalogService(prisma, {} as any);
+
+    await service.recordTargetObservations('geo-1', [], {
+      replaceSourceFactPrefixes: ['wikidata:Q123#'],
+    });
+
+    expect(prisma.geoEntityTargetObservation.deleteMany).toHaveBeenCalledWith({
+      where: {
+        geoEntityId: 'geo-1',
+        sourceFactId: { startsWith: 'wikidata:Q123#' },
+      },
+    });
+  });
+
   it('creates a new GeoEntity when no identity exists yet and nothing nearby matches', async () => {
     const prisma: any = withTransaction({
       geoEntityIdentity: { findUnique: jest.fn().mockResolvedValue(null) },

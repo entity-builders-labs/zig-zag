@@ -86,12 +86,13 @@ export interface WikidataStructuredEntityFacts {
   instanceOf: string[];
   /** P1435 (heritage designation) value QIDs. */
   heritageDesignations: string[];
-  /**
-   * Whether the item records a coordinate location (P625): a physically
-   * located entity. An item without one (a person, a concept) is not the
-   * place itself, so its statements are not the place's facts.
-   */
-  hasCoordinateLocation: boolean;
+  /** Raw P625 locations; coordinate interpretation stays in the adapter. */
+  coordinateLocations: Array<{
+    latitude: number;
+    longitude: number;
+    /** Wikidata's source-reported angular precision, in degrees. */
+    precisionDegrees?: number;
+  }>;
   /** Every sitelink the item records, with the provider-supplied article URL. */
   sitelinks: Array<{ site: string; url?: string }>;
 }

@@ -1,5 +1,7 @@
 import {
+  classifySpatialCorrespondence,
   reconcileStructuredRecords,
+  ReconciliationGeometry,
   ReconciliationRecord,
 } from './structured-identity-reconciliation.policy';
 
@@ -236,5 +238,70 @@ describe('structured identity reconciliation (design C8)', () => {
     expect(result.merges.map((m) => m.basis)).toEqual([
       'STRUCTURAL_RELATIONSHIP',
     ]);
+  });
+});
+
+describe('canonical spatial correspondence for linked identity evidence', () => {
+  const geoEntity: ReconciliationGeometry = {
+    kind: 'POINT',
+    latitude: -34.6037,
+    longitude: -58.3816,
+  };
+
+  it('marks linked coordinates within their reported precision as consistent', () => {
+    expect(
+      classifySpatialCorrespondence(geoEntity, {
+        kind: 'POINT',
+        latitude: -34.6037,
+        longitude: -58.3815,
+        uncertaintyRadiusMeters: 20,
+      }),
+    ).toBe('CONSISTENT');
+  });
+
+  it('marks a Buenos Aires entity linked to a United States location as conflicting', () => {
+    expect(
+      classifySpatialCorrespondence(geoEntity, {
+        kind: 'POINT',
+        latitude: 39.7392,
+        longitude: -104.9903,
+        uncertaintyRadiusMeters: 30,
+      }),
+    ).toBe('CONFLICTING');
+  });
+
+  it('keeps partially overlapping area correspondence ambiguous', () => {
+    expect(
+      classifySpatialCorrespondence(
+        {
+          kind: 'AREA',
+          west: -58.5,
+          south: -34.8,
+          east: -58.3,
+          north: -34.6,
+        },
+        {
+          kind: 'AREA',
+          west: -58.4,
+          south: -34.7,
+          east: -58.2,
+          north: -34.5,
+        },
+      ),
+    ).toBe('AMBIGUOUS');
+  });
+
+  it('keeps missing linked spatial evidence unknown', () => {
+    expect(classifySpatialCorrespondence(geoEntity, undefined)).toBe('UNKNOWN');
+  });
+
+  it('does not treat point coordinates without precision as sufficient correspondence', () => {
+    expect(
+      classifySpatialCorrespondence(geoEntity, {
+        kind: 'POINT',
+        latitude: -34.6037,
+        longitude: -58.3815,
+      }),
+    ).toBe('AMBIGUOUS');
   });
 });

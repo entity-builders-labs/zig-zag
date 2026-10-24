@@ -56,7 +56,9 @@ function wikidataOutcome(input: {
             qid: item.qid,
             instanceOf: [] as string[],
             heritageDesignations: item.heritage ?? [],
-            hasCoordinateLocation: true,
+            coordinateLocations: [
+              { latitude: -34.6, longitude: -58.38, precisionDegrees: 0.001 },
+            ],
             sitelinks: (item.articles ?? []).map((language) => ({
               site: `${language}wiki`,
               url: `https://${language}.wikipedia.org/wiki/Fixture`,

@@ -25,6 +25,18 @@ describe('structured place admission evidence combination', () => {
     });
   });
 
+  it('keeps an independently decisive visitor classification without linked notability', () => {
+    const result = evaluateStructuredPlaceAdmissionFacts({
+      osmFacts: osmTagsToAdmissionFacts({ tourism: 'attraction' }),
+      wikidataFacts: {},
+    });
+
+    expect(result.decision).toEqual({
+      admitted: true,
+      signals: ['EXPLICIT_VISITOR_CLASSIFICATION'],
+    });
+  });
+
   it('does not treat a QID identity by itself as admission evidence', () => {
     const result = evaluateStructuredPlaceAdmissionFacts({
       osmFacts: osmTagsToAdmissionFacts({ wikidata: 'Q123' }),

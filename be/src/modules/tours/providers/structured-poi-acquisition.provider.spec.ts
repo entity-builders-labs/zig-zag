@@ -117,7 +117,13 @@ describe('StructuredPoiAcquisitionProvider', () => {
                 qid: 'Q1',
                 instanceOf: [],
                 heritageDesignations: [],
-                hasCoordinateLocation: true,
+                coordinateLocations: [
+                  {
+                    latitude: -34.6,
+                    longitude: -58.38,
+                    precisionDegrees: 0.001,
+                  },
+                ],
                 sitelinks: [
                   { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/A' },
                 ],

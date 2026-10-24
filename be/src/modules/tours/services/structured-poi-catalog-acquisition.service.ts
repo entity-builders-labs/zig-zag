@@ -544,6 +544,14 @@ export class StructuredPoiCatalogAcquisitionService {
             ? candidate.entityFacts.targetObservations
             : []),
         ]),
+        {
+          replaceSourceFactPrefixes: group.flatMap((candidate) =>
+            candidate.entityFacts &&
+            candidate.entityFacts.status !== 'UNAVAILABLE'
+              ? [`wikidata:${candidate.entityFacts.qid}#`]
+              : [],
+          ),
+        },
       );
       const hoursCandidate = group.find(
         (candidate) => candidate.openingHoursEvidence,

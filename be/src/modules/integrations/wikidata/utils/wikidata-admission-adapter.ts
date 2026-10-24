@@ -6,6 +6,11 @@ import {
 import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
 import { WikidataStructuredEntityFacts } from '../interfaces/wikidata.interface';
 import { TargetObservationFact } from '@tours/preferences/target-knowledge.interface';
+import {
+  classifySpatialCorrespondence,
+  ReconciliationGeometry,
+  SpatialCorrespondenceOutcome,
+} from '@tours/utils/structured-identity-reconciliation.policy';
 
 /**
  * Wikidata → canonical admission mapping (design C7, task 37.1). The Wikidata
@@ -47,6 +52,13 @@ export interface WikidataAdmissionFacts {
   heritageDesignation?: readonly string[];
   /** Number of sitelinks; > 0 is encyclopedic notability. */
   sitelinkCount?: number;
+}
+
+export interface CanonicalWikidataLinkedEvidence {
+  spatialCorrespondence: SpatialCorrespondenceOutcome;
+  admissionFacts: WikidataAdmissionFacts;
+  prominenceEvidence: ProminenceEvidenceFact[];
+  targetObservations: TargetObservationFact[];
 }
 
 export function wikidataFactsToAdmissionSignals(
@@ -131,7 +143,7 @@ export function wikipediaArticleSitelinks(
 }
 
 /** Raw structured statements → canonical admission facts. */
-export function wikidataStructuredFactsToAdmissionFacts(
+function structuredFactsToAdmissionFacts(
   facts: WikidataStructuredEntityFacts,
 ): WikidataAdmissionFacts {
   return {
@@ -148,14 +160,10 @@ export function wikidataStructuredFactsToAdmissionFacts(
  * downstream, never a negative value). P1435 values carry no issuer here, so
  * no `authority` is claimed.
  */
-export function wikidataStructuredFactsToProminenceEvidence(
+function structuredFactsToProminenceEvidence(
   facts: WikidataStructuredEntityFacts,
   observedAt: Date,
 ): ProminenceEvidenceFact[] {
-  // An identity link to an item that is not a physically located entity (a
-  // person or concept the place commemorates) carries that entity's
-  // notability, not the place's (prominence-v2).
-  if (!facts.hasCoordinateLocation) return [];
   const base = {
     sourceProvider: 'wikidata',
     providerIdentity: facts.qid,
@@ -203,10 +211,10 @@ export function wikidataStructuredFactsToProminenceEvidence(
  * heritage designation supports the history theme. Positive only; a bare QID
  * or sitelinks produce nothing (prominence is not relevance).
  */
-export function wikidataStructuredFactsToTargetObservations(
+function structuredFactsToTargetObservations(
   facts: WikidataStructuredEntityFacts,
 ): TargetObservationFact[] {
-  return facts.hasCoordinateLocation && facts.heritageDesignations.length > 0
+  return facts.heritageDesignations.length > 0
     ? [
         {
           target: { dimension: 'theme', key: 'history' },
@@ -217,4 +225,86 @@ export function wikidataStructuredFactsToTargetObservations(
         },
       ]
     : [];
+}
+
+function p625Point(
+  location: WikidataStructuredEntityFacts['coordinateLocations'][number],
+): ReconciliationGeometry | undefined {
+  if (
+    !Number.isFinite(location.latitude) ||
+    location.latitude < -90 ||
+    location.latitude > 90 ||
+    !Number.isFinite(location.longitude) ||
+    location.longitude < -180 ||
+    location.longitude > 180
+  ) {
+    return undefined;
+  }
+  const precision = location.precisionDegrees;
+  const uncertaintyRadiusMeters =
+    precision !== undefined && Number.isFinite(precision) && precision >= 0
+      ? (precision * Math.PI * 6_371_008.8) / 180
+      : undefined;
+  return {
+    kind: 'POINT',
+    latitude: location.latitude,
+    longitude: location.longitude,
+    ...(uncertaintyRadiusMeters !== undefined
+      ? { uncertaintyRadiusMeters }
+      : {}),
+  };
+}
+
+function linkedEntitySpatialCorrespondence(
+  canonicalGeometry: ReconciliationGeometry | undefined,
+  facts: WikidataStructuredEntityFacts,
+): SpatialCorrespondenceOutcome {
+  const locations = facts.coordinateLocations
+    .map(p625Point)
+    .filter(
+      (
+        geometry,
+      ): geometry is Extract<ReconciliationGeometry, { kind: 'POINT' }> =>
+        geometry?.kind === 'POINT',
+    );
+  if (locations.length === 0) return 'UNKNOWN';
+
+  const distinctLocations = new Map(
+    locations.map((location) => [
+      `${location.latitude}|${location.longitude}`,
+      location,
+    ]),
+  );
+  if (distinctLocations.size > 1) return 'AMBIGUOUS';
+  const [linkedGeometry] = distinctLocations.values();
+  return classifySpatialCorrespondence(canonicalGeometry, linkedGeometry);
+}
+
+/**
+ * Normalize one linked Wikidata entity once. Its canonical spatial outcome is
+ * the sole trust decision for every linked semantic consumer.
+ */
+export function wikidataStructuredFactsToCanonicalEvidence(
+  facts: WikidataStructuredEntityFacts,
+  canonicalGeometry: ReconciliationGeometry | undefined,
+  observedAt: Date,
+): CanonicalWikidataLinkedEvidence {
+  const spatialCorrespondence = linkedEntitySpatialCorrespondence(
+    canonicalGeometry,
+    facts,
+  );
+  if (spatialCorrespondence !== 'CONSISTENT') {
+    return {
+      spatialCorrespondence,
+      admissionFacts: {},
+      prominenceEvidence: [],
+      targetObservations: [],
+    };
+  }
+  return {
+    spatialCorrespondence,
+    admissionFacts: structuredFactsToAdmissionFacts(facts),
+    prominenceEvidence: structuredFactsToProminenceEvidence(facts, observedAt),
+    targetObservations: structuredFactsToTargetObservations(facts),
+  };
 }
