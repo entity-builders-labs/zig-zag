@@ -34,6 +34,15 @@ reproduced identities, keys, ranking and Tour with zero POI rediscovery.
 Experiences and a useful Tour without tourism-relevance research.** The
 admission/research architecture is closed.
 
+Owner correction after the 39.11/39.12 smoke (2026-10-24): the trusted-link
+gate reduced admission from 682 to 335 and composition from 516 to 335 because
+the current fallback admission rule made linked Wikidata notability a de facto
+prerequisite for many classified places. Preserve spatial trust for linked
+semantics, but restore admission authority to provider-neutral structured
+evidence that independently establishes a visitable destination. Wikidata is
+optional enrichment/corroboration; the measured 39.11/39.12 outcomes remain
+historical evidence in `tasks.md` and the smoke results.
+
 Revision 4 turns the remaining spike 3 findings into the production-cutover
 contract. They are planning, modeling and policy defects, not knowledge
 defects: readiness blamed missing knowledge for a planner-feasibility
@@ -52,13 +61,20 @@ merged records.
   → structured admission → ranking → single-place Experience → deterministic
   planner → Tour, with no web research.
 - **Structured place admission:** an explicit, versioned policy over
-  structured provider evidence (identity, coordinates, category, destination
-  containment, provider-backed existence, basic completeness) decides whether
-  an ordinary PLACE may be composed. Enrichment failure never revokes it.
+  structured provider evidence (identity, coordinates, destination
+  containment, provider-backed existence and basic completeness) decides
+  whether an ordinary PLACE is admitted. Explicit visitor classification and
+  qualifying heritage designation remain decisive; otherwise a compatible
+  place/venue classification must be accompanied by distinct canonical
+  evidence of independent visitability. Classification alone is never that
+  evidence. Optional enrichment failure never revokes independently supported
+  admission.
 - **Trusted external identity evidence:** a provider identifier alone is not
-  semantic evidence; linked notability, prominence and preference facts are
-  usable only when the linked entity is spatially consistent with the
-  canonical GeoEntity, using one canonical correspondence authority.
+  semantic evidence; Wikidata may add identity corroboration, structured
+  semantics, encyclopedic notability and prominence only when its linked
+  entity is spatially consistent with the canonical GeoEntity, using one
+  canonical correspondence authority. Wikidata is not required for admission
+  or base structured preference relevance.
 - **AREA_RELEVANCE no longer gates POI discovery:** destination-level
   structured POI discovery is allowed directly; areas organize, cluster and
   rank but do not gate.
@@ -121,16 +137,18 @@ Revision 4 (production cutover after spike 3 ACCEPT):
 - **Parent sites and sub-features:** structured relationship/containment
   evidence groups sub-features under an admitted parent site; the planner
   receives the parent.
-- **Structured visitability/notability admission (R4-D3):** ordinary
-  admission no longer depends on an exhaustive tourism-category allowlist. A
-  place is admitted on decisive structured signals (provider visitor or
-  historic classification, heritage designation) or a visitable-place class
-  plus independent notability (encyclopedic item, provider prominence),
-  subject to a small generic exclusion policy whose transport, technical and
-  accommodation classes yield to decisive evidence. Stadiums, cemeteries,
-  gardens, theatres or a historic pharmacy qualify through evidence, never
-  one-by-one exceptions. Structured Wikidata facts are admission evidence,
-  not L2 research.
+- **Structured visitability/notability admission (R4-D3, amended by the
+  2026-10-24 owner correction):** ordinary admission does not depend on an
+  exhaustive category allowlist or on Wikidata. Explicit visitor
+  classification and qualifying heritage designation remain decisive. A
+  separate provider-neutral independent-visitability fact may support
+  admission with a compatible place/venue classification; a classification
+  alone, including historic/theme classification, remains insufficient.
+  Trusted encyclopedic notability remains optional positive evidence, never
+  the only viable admission route for broad legitimate place classes. Generic
+  exclusions and C5 parent/sub-feature rules continue to protect against
+  object-level noise. Wikidata remains optional structured enrichment, not
+  L2 research or admission authority.
 - **Single source of truth** for the structured admission policy; provider
   taxonomies map to canonical signals at adapters; discovery selectors are
   acquisition strategy, broad enough not to hide notable places by base
@@ -167,6 +185,9 @@ frontend, verifier tuning. Production code changes happen only through
 - `structured-place-admission`: versioned structured admission policy for
   ordinary PLACE candidates, typed rejections, retained provenance,
   non-revocable by enrichment outcomes.
+- `structured-catalog-prominence`: typed prominence and preference evidence
+  remain separate from admission; trusted Wikidata facts enrich ordering and
+  relevance without becoming eligibility requirements.
 - `knowledge-enrichment`: optional, reusable semantic/tourism enrichment
   downstream of admission.
 - `knowledge-readiness`: deterministic readiness over schedulable structured
@@ -222,8 +243,8 @@ None (no OpenSpec capability specs exist yet in this repository).
   added to their READMEs.
 - New spike 3 directory under `spikes/`, reusing spike 1/2 modules read-only.
 - Spikes 1-3: no change to production code, Prisma, APIs or frontend.
-- Providers for spike 3: local OSM (Overpass/Nominatim) and public Wikidata;
-  no LLM or web search on the core path.
+- Providers for spike 3: local OSM (Overpass/Nominatim) and optional public
+  Wikidata enrichment; no LLM or web search on the core path.
 - Revision 4 cutover (only via `/opsx:apply`, after the owner decisions in
   design.md): backend readiness, the planning track (planning contract,
 opening hours, visit duration, per-mode travel estimation, typed

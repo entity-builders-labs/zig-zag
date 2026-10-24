@@ -101,13 +101,16 @@ an editorial rank on a reusable Experience.
 - **WHEN** one valid Experience ranks below another for a request
 - **THEN** it remains admitted, composable and available in the catalog
 
+#### Scenario: Unknown prominence does not invalidate an Experience
+- **WHEN** an admitted Experience has no acquired prominence evidence or its optional provider is unavailable
+- **THEN** prominence remains UNKNOWN and the Experience remains valid, composable and available in the catalog
+
 ### Requirement: Linked semantic facts require trusted external identity
-Prominence and preference relevance SHALL reuse admission's canonical
-external-identity trust decision. A linked entity may contribute sitelinks,
-encyclopedic prominence or structured preference observations only when
-correspondence is `CONSISTENT`. Other outcomes contribute none; missing
-evidence remains UNKNOWN. Identifiers alone are not semantic evidence, and
-provider field interpretation stays at adapters.
+Linked semantic facts SHALL use the canonical spatial-correspondence trust
+authority independently of admission. Only `CONSISTENT` links contribute
+semantic, prominence or preference facts; missing remains UNKNOWN. Identity
+alone is not semantic evidence, and linked facts are not an admission
+requirement.
 
 #### Scenario: Unrelated linked entity does not elevate prominence
 - **WHEN** an identity-linked external item has no usable spatial
@@ -132,3 +135,30 @@ provider field interpretation stays at adapters.
   preferences
 - **THEN** preference relevance remains a separately typed signal and never
   becomes admission evidence or is persisted as catalog prominence
+
+### Requirement: Base structured preference evidence does not require Wikidata
+Typed non-Wikidata preference observations SHALL remain usable for
+independently admitted GeoEntities regardless of Wikidata availability.
+Trusted linked facts may add observations but SHALL NOT delete or overwrite
+independent source facts. Preference remains separate from admission and
+prominence.
+
+#### Scenario: Structured venue relevance without Wikidata
+- **WHEN** an independently admitted food venue, art venue, historic place or
+  historic building has a mapped non-Wikidata structured target observation
+  and no usable Wikidata semantics
+- **THEN** its typed gastronomy, art, history or architecture observation
+  remains available to preference ranking
+
+#### Scenario: Untrusted Wikidata does not erase base preference evidence
+- **WHEN** an OSM/provider observation supports a preference target but a
+  linked Wikidata entity has UNKNOWN or CONFLICTING correspondence
+- **THEN** the OSM/provider observation remains persisted and usable while
+  only the linked Wikidata observation is unavailable
+
+#### Scenario: Preference changes ordering of admitted structured places
+- **WHEN** a request selects a supported preference dimension for two
+  independently admitted places with different typed non-Wikidata target
+  observations
+- **THEN** the matching place may rank higher for that request without any
+  Wikidata dependency or fabricated quality score

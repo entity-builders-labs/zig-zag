@@ -9,7 +9,7 @@ depend on web research or tourism assertions.
 ## ADDED Requirements
 
 ### Requirement: Versioned structured admission policy
-Admission of an ordinary PLACE candidate SHALL be decided by a deterministic, versioned admission policy over structured provider evidence: canonical provider identity, a name, coordinates, containment in the destination, provider-backed existence, and sufficient canonical admission/notability evidence available at the admission stage. No language model, web evidence or tourism assertion SHALL take part.
+Admission SHALL use a deterministic, versioned policy over canonical structured evidence that the GeoEntity is a legitimate independently visitable destination/venue. Wikidata MAY add positive evidence but SHALL NOT be required. Language models, web evidence and tourism assertions SHALL NOT participate.
 
 #### Scenario: Same evidence, same decision
 - **WHEN** the same canonical candidate is evaluated twice under the same policy version
@@ -23,10 +23,10 @@ A PLACE GeoEntity admitted by the structured admission policy SHALL be eligible 
 - **THEN** it is admitted and can be the VISIT component of a single-place Experience
 
 ### Requirement: Admission is decided by structured evidence, not a category whitelist
-The admission policy SHALL NOT require membership of a base category in an exhaustive list. A place SHALL be admitted on an explicit visitor-destination classification or heritage designation, or a descriptive classification plus independent canonical notability evidence. HISTORIC_CLASSIFICATION is supporting evidence only. Otherwise it SHALL be rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
+Admission SHALL preserve explicit visitor-classification and qualifying heritage paths, and support compatible classification with distinct independent-visitability evidence. Trusted encyclopedic notability MAY add positive evidence but SHALL NOT be the only route for a broad class. Historic classification alone is insufficient; otherwise reject with INSUFFICIENT_ADMISSION_EVIDENCE.
 
 #### Scenario: Ordinary pharmacy
-- **WHEN** a pharmacy carries no historic, heritage, visitor-classification or notability signal
+- **WHEN** a pharmacy carries no historic, heritage, visitor-classification, independent-visitability or trusted-notability signal
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 #### Scenario: Historic pharmacy
@@ -38,10 +38,10 @@ The admission policy SHALL NOT require membership of a base category in an exhau
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 ### Requirement: Descriptive classification is not sufficient admission evidence
-Descriptive, thematic or classification evidence alone SHALL NOT establish admission; HISTORIC_CLASSIFICATION is supporting evidence only. Admission SHALL require an explicit visitor-destination classification or heritage designation, or descriptive classification combined with independent canonical admission/notability evidence available at the admission stage. C5 visit-unit outcomes SHALL NOT be admission evidence. QID identity alone is not notability.
+Descriptive/theme classification alone SHALL NOT establish admission. A place/venue class is distinct from `INDEPENDENT_VISITABILITY_EVIDENCE`; C5 outcomes are not admission evidence. Trusted notability MAY add evidence but is optional, and QID identity alone is not notability.
 
 #### Scenario: Descriptive classification without independent evidence
-- **WHEN** a GeoEntity has only descriptive/classification evidence, including a historic classification, and no independent visitor, heritage or notability evidence
+- **WHEN** a GeoEntity has only descriptive/classification evidence, including a historic classification, and no independent visitor, heritage, visitability or trusted-notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 #### Scenario: Classification with independent visitor evidence
@@ -50,7 +50,7 @@ Descriptive, thematic or classification evidence alone SHALL NOT establish admis
 
 #### Scenario: Classification with verified notability
 - **WHEN** a GeoEntity has a descriptive classification and identity-linked encyclopedic notability evidence
-- **THEN** it is admitted by the combined canonical evidence, while a QID without those facts remains insufficient
+- **THEN** trusted notability MAY add a positive admission signal, while QID identity alone remains insufficient and independently supported admission does not depend on it
 
 #### Scenario: Visit-unit classification does not affect admission
 - **WHEN** C5 independently establishes a GeoEntity as its own visit unit but it has no sufficient canonical admission evidence
@@ -72,6 +72,26 @@ Descriptive, thematic or classification evidence alone SHALL NOT establish admis
 - **WHEN** a GeoEntity carries artwork and historic classifications but no independent visitor, heritage or notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
+### Requirement: Place classification and independent visitability are distinct evidence
+`PLACE/VENUE_CLASSIFICATION` SHALL describe what a GeoEntity is.
+`INDEPENDENT_VISITABILITY_EVIDENCE` SHALL be a separate provider-neutral
+typed fact with provenance. Classification alone SHALL NOT produce this
+fact; compatible classification plus independent evidence MAY satisfy
+admission. C5 `CHILD_INDEPENDENTLY_VISITABLE` SHALL remain relationship-
+specific, not admission evidence.
+
+#### Scenario: Venue/place class without independent evidence
+- **WHEN** a food venue, park or place of worship has only its place/venue classification and no explicit visitor classification, qualifying heritage designation, independent-visitability fact or trusted optional notability
+- **THEN** classification alone does not admit the GeoEntity
+
+#### Scenario: Classified place with independent visitability evidence and no Wikidata
+- **WHEN** a compatible place/venue classification is accompanied by source-backed `INDEPENDENT_VISITABILITY_EVIDENCE` for that GeoEntity and Wikidata is absent, unavailable or UNKNOWN
+- **THEN** the GeoEntity is admitted without using its class name as a whitelist or relying on Wikidata
+
+#### Scenario: C5 child outcome is not admission evidence
+- **WHEN** C5 classifies a child as `CHILD_INDEPENDENTLY_VISITABLE` but the child's admission evidence is otherwise insufficient
+- **THEN** the child remains unadmitted; C5 does not change the admission decision
+
 ### Requirement: The visitable-place mapping is never a whitelist
 The visitable-place class mapping SHALL be supporting evidence only. It SHALL NOT be required to be exhaustive, and absence of a category from it SHALL NOT by itself reject a place.
 
@@ -80,22 +100,22 @@ The visitable-place class mapping SHALL be supporting evidence only. It SHALL NO
 - **THEN** it is admitted regardless of its absence from the mapping
 
 #### Scenario: Historic classification does not replace evidence
-- **WHEN** a bookstore carries a historic classification but no visitor-destination, heritage or independent notability evidence
+- **WHEN** a bookstore carries a historic classification but no visitor-destination, heritage, independent-visitability or trusted-notability evidence
 - **THEN** it is rejected with INSUFFICIENT_ADMISSION_EVIDENCE
 
 ### Requirement: Admission signals are canonical and recorded
-Admission signals SHALL be provider-neutral typed facts produced by provider adapters from provider categories, alternate taxonomies, encyclopedic classes and statements, heritage designations, prominence values and structured relationships. Each admission record SHALL list the signals it relied on and the rule that admitted it.
+Admission signals SHALL be provider-neutral typed facts normalized by adapters. Classification and independent-visitability evidence remain distinct. Prominence, popularity, reputation and rank are not admission evidence in this change. Admission records list the relied-on facts and rule.
 
-#### Scenario: Tracing an admission
-- **WHEN** a cemetery is admitted
-- **THEN** its admission record lists, for example, the visitable-place class and the encyclopedic notability signal with their provider sources
+#### Scenario: Tracing an admission without Wikidata
+- **WHEN** a GeoEntity is admitted by independent visitor/venue evidence while Wikidata is absent or UNKNOWN
+- **THEN** its admission record lists the canonical visitability evidence, compatible classification and provider provenance without inventing an encyclopedic signal
 
 ### Requirement: Structured encyclopedic facts are admission evidence, not research
-Structured facts from an identity-linked encyclopedic provider (classes, heritage designations, article links) MAY act as admission signals. They SHALL NOT create L2 assertions, SHALL NOT establish thematic relevance, and SHALL NOT require any search, page fetch or language model call.
+Trusted linked encyclopedic facts MAY add positive admission evidence, but are optional. They SHALL NOT create L2 assertions or require search, page fetch or language-model calls. Wikidata preference facts follow the typed preference-observation contract.
 
 #### Scenario: Heritage designation from an encyclopedic provider
 - **WHEN** a place's linked encyclopedic item records a heritage designation
-- **THEN** the place is admitted with that signal and no L2 assertion or research call exists
+- **THEN** the trusted designation may add a positive admission signal and no L2 assertion or research call exists; absence of that designation does not revoke other supported admission
 
 ### Requirement: Small generic exclusion policy
 The admission policy SHALL keep a small, provider-neutral set of exclusion classes: administrative or locality records, roads or routes as places, information points and signage, children whose visit unit is not themselves (SUB_FEATURE_OF, PARENT_NOT_ADMITTED, AMBIGUOUS_PARENT_RELATIONSHIP), transport-service features, technical infrastructure and accommodation. A base category that is usually non-touristic SHALL NOT reject a place unless it maps to an exclusion class.
@@ -148,11 +168,15 @@ An admission decision SHALL record the provider identities, the structured field
 - **THEN** the admission record of its place lists the provider records and fields that admitted it
 
 ### Requirement: Enrichment outcomes never revoke admission
-Absence, failure, provider outage, verifier failure, insufficient corroboration or staleness of enrichment SHALL NOT revoke or block the admission of a place that the structured policy admitted. Admission SHALL change only when the structured evidence or the admission policy changes.
+Absence, failure, provider outage, `UNKNOWN`, verifier failure, insufficient corroboration or staleness of optional enrichment SHALL NOT revoke or block admission supported by independent structured evidence. Admission SHALL change only when canonical admission evidence or the admission policy changes.
 
 #### Scenario: Enrichment research fails
 - **WHEN** research about an admitted place ends with INSUFFICIENT_CORROBORATION
 - **THEN** the place remains admitted and its single-place Experience remains offered to tour composition
+
+#### Scenario: Wikidata is unavailable for an independently supported venue
+- **WHEN** a place/venue classification and distinct independent-visitability evidence admit a GeoEntity but Wikidata lookup is absent, failed or UNKNOWN
+- **THEN** admission, valid Experience composition and non-Wikidata preference observations remain unchanged
 
 ### Requirement: Parent relationships need structured evidence
 A parent relationship SHALL be established only by an explicit provider relationship (site or relation membership, a "part of" property) pointing at a canonical place-site candidate, or by containment inside the parent's provider geometry together with a relationship class declared in the canonical policy. Relationships to areas, districts, routes, collections or designations SHALL NOT be parent-site relationships.
@@ -235,10 +259,11 @@ Planner rejections, unscheduled outcomes, travel-estimate availability and UNKNO
 
 ### Requirement: Encyclopedic notability requires trusted external identity
 An external identifier alone SHALL be link evidence, not semantic evidence.
-Linked `ENCYCLOPEDIC_NOTABILITY` may influence admission only when the
-canonical spatial-correspondence authority reports `CONSISTENT`. Provider
+Linked `ENCYCLOPEDIC_NOTABILITY` may add positive admission evidence only when
+the canonical spatial-correspondence authority reports `CONSISTENT`; it is
+optional and not required for independently supported admission. Provider
 coordinate interpretation stays in adapters. Other correspondence outcomes
-make linked notability unavailable, not negative; other decisive admission
+make linked notability unavailable, not negative; all independent admission
 signals remain unchanged.
 
 #### Scenario: Person identifier without geographic correspondence

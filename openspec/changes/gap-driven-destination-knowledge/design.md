@@ -3782,3 +3782,118 @@ trust decision gates encyclopedic notability, sitelinks/prominence and
 structured preference observations. Admission still accepts other existing
 decisive evidence independently, including explicit visitor classification
 and qualifying heritage designation.
+
+## Admission authority correction after 39.11/39.12 (owner decision, 2026-10-24)
+
+The 39.11 spatial trust boundary remains authoritative for consumption of
+linked Wikidata semantics. The admission role is corrected: Wikidata is
+optional enrichment/corroboration, not a prerequisite for admission, valid
+Experience existence, preference relevance or catalog retention. The
+previous smoke and task evidence remain unchanged; this amendment changes the
+target architecture, not the historical result.
+
+### Admission evidence distinction
+
+Admission answers whether this canonical GeoEntity is a legitimate,
+independently visitable destination/venue. The canonical evidence model MUST
+keep these separate:
+
+- `PLACE/VENUE_CLASSIFICATION`: describes what the GeoEntity is. It is
+  contextual/supporting evidence and is not, by itself, proof that the
+  GeoEntity is an independently visitable destination.
+- `INDEPENDENT_VISITABILITY_EVIDENCE`: typed, provenance-bearing, provider-
+  neutral evidence that supports the independent-visitability claim for this
+  specific GeoEntity. A provider adapter may emit it only when source facts
+  directly establish independent visitor/venue use; it may not derive it from
+  a class name, a name/keyword, city context, popularity, a model, duration,
+  preference, or an arbitrary score/threshold. A compatible place/venue
+  classification supplies the class context but is not the visitability
+  authority.
+
+The canonical admission policy remains provider-neutral. The existing
+`EXPLICIT_VISITOR_CLASSIFICATION` and qualifying `HERITAGE_DESIGNATION` paths
+remain decisive. The additional route is a compatible place/venue
+classification plus `INDEPENDENT_VISITABILITY_EVIDENCE`. Trusted encyclopedic
+notability may remain an additional positive signal for candidate-specific
+cases, but no broad legitimate place class may depend on it as its only
+non-visitor, non-heritage route. Absence, failure, `UNKNOWN`, or an untrusted
+Wikidata link never revokes admission supported through independent structured
+evidence. `QID` alone remains identity evidence, not notability.
+
+Do not promote C5 `CHILD_INDEPENDENTLY_VISITABLE` into admission evidence. C5
+classifies a child's relationship to a direct parent and remains
+relationship-specific. A single-place Experience still requires both an
+admitted GeoEntity and an independent valid visit-unit/composition outcome
+with no parent restriction.
+
+### Source evidence and scope
+
+Food venues, parks and places of worship are evidence cases for mapping and
+tests because their supply fell in the 39.11 smoke; they are not domain
+special-cases or automatic admission allowlist entries. Adapters must identify
+which current source facts, if any, establish independent visitability for a
+specific classified entity. If a class has no such evidence, that class alone
+does not satisfy the new route; do not substitute Wikidata, rating/review
+counts, inferred access, or descriptive tags as a default.
+
+The 39.11 smoke changed admitted candidates from 682 to 335 and composed
+Experiences from 516 to 335. Museums (143), explicit visitor attractions
+(108), and heritage-tagged places (30) remained stable, while food-related
+places (37→4), parks (96→12), places of worship (36→14), memorials (19→2),
+and monuments (11→5) fell. These overlapping class totals do not partition
+the 347 admission loss by signal. The recorded 39.10 evidence identified 200
+admissions (35 composed) relying on notability of unlocated linked items; the
+smoke artifacts do not retain per-GeoEntity signal combinations, so the exact
+exclusive Wikidata-only count for the full delta is unavailable. See the
+unchanged evidence in
+`spikes/catalog-quality-smoke-2026-10-23/RESULTS.md`.
+
+Historic/theme classifications alone remain supporting, not admission
+authority. A tomb, memorial, monument, artwork or similar descriptive object
+does not become a standalone Experience merely from its class. Preserve the
+39.2 noise correction and C5 parent/site behavior; the new admission path
+must not restore the earlier 331 tomb / 253 memorial outcome or equivalent
+object-level noise.
+
+### Optional enrichment, relevance and prominence
+
+Wikidata may supply identity corroboration, structured semantic facts,
+encyclopedic notability and prominence, but every linked semantic fact remains
+behind the single canonical spatial-correspondence trust decision. It adds
+evidence only; it does not grant eligibility by proxy. Prominence `UNKNOWN`
+keeps an otherwise admitted Experience valid.
+
+Existing typed OSM/provider preference observations (gastronomy, art, history
+and architecture) remain usable for independently admitted GeoEntities
+without Wikidata. A missing/failed/untrusted Wikidata lookup may omit only its
+own linked observations; it must not remove or overwrite independent source
+observations. Trusted Wikidata observations may enrich relevance, not supply
+the only relevance for these structured place facts.
+
+Popularity/reputation is separate from encyclopedic notability and is not
+admission evidence in this revision. Current implementation inspection found
+Google Places rating and review-count fields in a separate provider path and a
+`POPULARITY` request ordering option, but no persisted candidate rank in the
+structured OSM catalog path. Geoapify exposes raw popularity in its provider
+response but currently drops it during its `PlaceData` mapping. No unified
+provider-neutral reputation fact is introduced here; any future cross-provider
+reputation capability remains separate from admission and encyclopedic
+notability.
+
+### Implementation and validation sequence
+
+1. Add typed canonical independent-visitability evidence distinct from
+   classification; map only directly supported source facts at adapters and
+   keep the admission policy provider-neutral.
+2. Ensure already-admitted non-Wikidata structured observations are persisted
+   and projected into preference relevance when Wikidata is absent or
+   untrusted; retain linked observations only under the existing consistency
+   rule.
+3. Verify that food/park/place-of-worship classes alone do not admit; paired
+   independent evidence can admit without Wikidata; visitor/heritage paths
+   survive unknown Wikidata; historic-only objects remain rejected or
+   parent-represented; C5 and single-place composition remain separate.
+4. Rerun the Buenos Aires smoke and compare with the unchanged 39.11/39.12
+   artifacts for restored supply, composition quality, preferences,
+   prominence, and the historic-object regression counts. Keep 40.2 blocked
+   until the catalog-quality gate passes.
