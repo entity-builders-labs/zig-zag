@@ -329,6 +329,13 @@ export function osmTagsToProminenceEvidence(
   );
 }
 
+/** Museum subtypes whose collections are historical (history theme). */
+const OSM_HISTORY_MUSEUM_VALUES = new Set([
+  'history',
+  'local_history',
+  'military',
+]);
+
 /** Historic classes that are buildings or built structures (architecture). */
 const OSM_HISTORIC_ARCHITECTURE_VALUES = new Set([
   'building',
@@ -390,6 +397,12 @@ export function osmTagsToTargetObservations(
   }
   if (t.tourism === 'gallery' || t.tourism === 'artwork') {
     add('tourism', t.tourism, 'theme', 'art');
+  }
+  if (t.tourism === 'museum' && t.museum === 'art') {
+    add('museum', t.museum, 'theme', 'art');
+  }
+  if (t.tourism === 'museum' && OSM_HISTORY_MUSEUM_VALUES.has(t.museum ?? '')) {
+    add('museum', t.museum!, 'theme', 'history');
   }
   return observations;
 }

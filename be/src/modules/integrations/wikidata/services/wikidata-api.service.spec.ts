@@ -553,6 +553,7 @@ describe('WikidataApiService', () => {
                   },
                 },
               ],
+              P625: [{ mainsnak: { snaktype: 'value' } }],
               P1435: [
                 {
                   mainsnak: {
@@ -595,6 +596,7 @@ describe('WikidataApiService', () => {
         qid: 'Q1',
         instanceOf: ['Q33506'],
         heritageDesignations: ['Q900'],
+        hasCoordinateLocation: true,
         sitelinks: [
           { site: 'commonswiki', url: 'https://commons.wikimedia.org/wiki/X' },
           { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/X' },

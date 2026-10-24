@@ -294,3 +294,26 @@ describe('osmTagsToTargetObservations: structured classes → typed concept obse
     expect(targets({ wikidata: 'Q1' })).toEqual([]);
   });
 });
+
+describe('osmTagsToTargetObservations: museum subtypes', () => {
+  const targets = (tags: Record<string, string>) =>
+    osmTagsToTargetObservations(tags, 'osm:way:3').map(
+      (fact) => `${fact.target.dimension}:${fact.target.key}`,
+    );
+
+  it('maps art museums to the art theme and history museums to the history theme', () => {
+    expect(targets({ tourism: 'museum', museum: 'art' })).toEqual([
+      'theme:art',
+    ]);
+    for (const subtype of ['history', 'local_history', 'military']) {
+      expect(targets({ tourism: 'museum', museum: subtype })).toEqual([
+        'theme:history',
+      ]);
+    }
+  });
+
+  it('derives no concept from a museum without a subtype or with another subtype', () => {
+    expect(targets({ tourism: 'museum' })).toEqual([]);
+    expect(targets({ tourism: 'museum', museum: 'science' })).toEqual([]);
+  });
+});

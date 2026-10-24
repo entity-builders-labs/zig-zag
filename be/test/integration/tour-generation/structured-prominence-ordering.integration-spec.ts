@@ -51,6 +51,7 @@ describe('tour-generation integration · catalog Experiences ordered by persiste
               qid: 'Q2',
               instanceOf: [],
               heritageDesignations: [],
+              hasCoordinateLocation: true,
               sitelinks: ['es', 'en', 'de'].map((language) => ({
                 site: `${language}wiki`,
                 url: `https://${language}.wikipedia.org/wiki/Fixture`,

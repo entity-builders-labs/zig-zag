@@ -152,6 +152,10 @@ export function wikidataStructuredFactsToProminenceEvidence(
   facts: WikidataStructuredEntityFacts,
   observedAt: Date,
 ): ProminenceEvidenceFact[] {
+  // An identity link to an item that is not a physically located entity (a
+  // person or concept the place commemorates) carries that entity's
+  // notability, not the place's (prominence-v2).
+  if (!facts.hasCoordinateLocation) return [];
   const base = {
     sourceProvider: 'wikidata',
     providerIdentity: facts.qid,
@@ -202,7 +206,7 @@ export function wikidataStructuredFactsToProminenceEvidence(
 export function wikidataStructuredFactsToTargetObservations(
   facts: WikidataStructuredEntityFacts,
 ): TargetObservationFact[] {
-  return facts.heritageDesignations.length > 0
+  return facts.hasCoordinateLocation && facts.heritageDesignations.length > 0
     ? [
         {
           target: { dimension: 'theme', key: 'history' },

@@ -245,6 +245,9 @@ export class WikidataApiService implements IWikidataApiService {
             qid,
             instanceOf: claimValueIds(claims, 'P31'),
             heritageDesignations: claimValueIds(claims, 'P1435'),
+            hasCoordinateLocation: (claims.P625 ?? []).some(
+              (claim) => claim.mainsnak?.snaktype === 'value',
+            ),
             sitelinks: Object.values(entity.sitelinks ?? {})
               .map((link) => ({ site: link.site, url: link.url }))
               .sort((a, b) => a.site.localeCompare(b.site)),

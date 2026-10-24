@@ -117,6 +117,7 @@ describe('StructuredPoiAcquisitionProvider', () => {
                 qid: 'Q1',
                 instanceOf: [],
                 heritageDesignations: [],
+                hasCoordinateLocation: true,
                 sitelinks: [
                   { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/A' },
                 ],

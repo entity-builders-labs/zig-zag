@@ -45,6 +45,7 @@ describe('Wikidata structured statements → admission facts and typed prominenc
     qid: 'Q10',
     instanceOf: [] as string[],
     heritageDesignations: [] as string[],
+    hasCoordinateLocation: true,
     sitelinks: [] as Array<{ site: string; url?: string }>,
     ...overrides,
   });
@@ -83,6 +84,7 @@ describe('Wikidata structured statements → admission facts and typed prominenc
     const facts = item({
       instanceOf: ['Q33506', 'Q5'],
       heritageDesignations: ['Q900'],
+      hasCoordinateLocation: true,
       sitelinks: [{ site: 'eswiki', url: 'https://es.wikipedia.org/wiki/A' }],
     });
     expect(
@@ -146,6 +148,7 @@ describe('Wikidata heritage designations: scope', () => {
         qid: 'Q1',
         instanceOf: [],
         heritageDesignations: designations,
+        hasCoordinateLocation: true,
         sitelinks: [],
       },
       observedAt,
@@ -165,6 +168,7 @@ describe('Wikidata structured statements → typed concept observations', () => 
       qid: 'Q7',
       instanceOf: [] as string[],
       heritageDesignations,
+      hasCoordinateLocation: true,
       sitelinks: [{ site: 'eswiki', url: 'https://es.wikipedia.org/wiki/X' }],
     });
     expect(
@@ -179,5 +183,40 @@ describe('Wikidata structured statements → typed concept observations', () => 
       },
     ]);
     expect(wikidataStructuredFactsToTargetObservations(facts([]))).toEqual([]);
+  });
+});
+
+describe('Wikidata facts of an item that is not a physically located place', () => {
+  const observedAt = new Date('2026-10-24T00:00:00Z');
+  const subjectItem = {
+    qid: 'Q8007',
+    instanceOf: ['Q5'],
+    heritageDesignations: ['Q900'],
+    hasCoordinateLocation: false,
+    sitelinks: [
+      { site: 'enwiki', url: 'https://en.wikipedia.org/wiki/Subject' },
+      { site: 'eswiki', url: 'https://es.wikipedia.org/wiki/Subject' },
+    ],
+  };
+
+  it('yields no prominence evidence: its articles describe another entity, not the place', () => {
+    expect(
+      wikidataStructuredFactsToProminenceEvidence(subjectItem, observedAt),
+    ).toEqual([]);
+  });
+
+  it('yields no relevance observations either', () => {
+    expect(wikidataStructuredFactsToTargetObservations(subjectItem)).toEqual(
+      [],
+    );
+  });
+
+  it('still emits prominence for a physically located item', () => {
+    expect(
+      wikidataStructuredFactsToProminenceEvidence(
+        { ...subjectItem, hasCoordinateLocation: true },
+        observedAt,
+      ).map((fact) => fact.kind),
+    ).toEqual(['ENCYCLOPEDIC_SITELINK_COUNT', 'HERITAGE_DESIGNATION']);
   });
 });

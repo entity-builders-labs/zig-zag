@@ -3140,6 +3140,17 @@ much stronger encyclopedic notability. The top 30 had no garbage (12 A /
   admission/identity/composition untouched, preference relevance prior to
   prominence in the utility (`preference-utility-v3` records the new
   prominence version).
+- *Identity-link validity (39.10 finding, 2026-10-24):* the first v2 smoke
+  put statues at the top — "Franklin Delano Roosevelt" (191 articles),
+  "Estatua de Ana Frank" (132), "M4 Sherman" — because their OSM `wikidata`
+  tag links the commemorated person or concept (P31 Q5, no coordinate
+  location), not the monument. Wikidata prominence facts and relevance
+  observations are therefore emitted only from an identity-linked item that
+  records a coordinate location (P625), i.e. a physically located entity;
+  otherwise the item's statements describe another entity. Admission is
+  deliberately unchanged in this pass (owner instruction); the same link
+  still contributes ENCYCLOPEDIC_NOTABILITY to admission — recorded as an
+  open finding.
 - *Expected observable effect:* dense local designations no longer outrank
   strongly notable landmarks; heritage still separates candidates with
   equal encyclopedic notability, and a rare international designation still
@@ -3176,7 +3187,9 @@ misses and the order is catalog prominence alone.
   classification or a heritage designation → `theme:history`; historic
   building-type classes and places of worship → `theme:architecture`; food
   venue classes → `theme:gastronomy`, `theme:food` and `intent:food`;
-  galleries and artworks → `theme:art`. No text, name, keyword or alias
+  galleries, artworks and art museums (`museum=art`) → `theme:art`;
+  history museums (`museum=history|local_history|military`) →
+  `theme:history`. No text, name, keyword or alias
   matching; concepts without a structured class (local character, tourism
   intensity/iconic) stay UNKNOWN.
 - **Projection.** The catalog projection's single match-facts adapter adds
