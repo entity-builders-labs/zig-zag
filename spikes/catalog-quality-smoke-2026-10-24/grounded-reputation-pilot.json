@@ -1,0 +1,759 @@
+{
+  "label": "bounded-groq-grounded-reputation-pilot",
+  "smokeHead": "b1caad64d741f18a7ee0c8de8e77f804898b2818",
+  "selectedProvider": "groq",
+  "serviceModel": "openai/gpt-oss-120b",
+  "tool": "browser_search",
+  "candidateLimit": 9,
+  "candidatesRequested": 9,
+  "eligibleCandidatesNotQueried": [
+    "Café Tortoni"
+  ],
+  "cache": {
+    "available": false,
+    "hits": 0,
+    "misses": 9
+  },
+  "records": [
+    {
+      "candidate": "Casa Rosada",
+      "stratum": "current top",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:03:14.404Z",
+      "latencyMs": 40329,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "applied",
+      "usage": {
+        "queue_time": 5.019659355,
+        "prompt_tokens": 145218,
+        "prompt_time": 7.862752965,
+        "completion_tokens": 1893,
+        "completion_time": 4.389220469,
+        "total_tokens": 147111,
+        "total_time": 12.251973434,
+        "prompt_tokens_details": {
+          "cached_tokens": 26624
+        },
+        "completion_tokens_details": {
+          "reasoning_tokens": 1302
+        }
+      },
+      "providerReportedCost": null,
+      "citationMarkers": [
+        {
+          "sourceIndex": 1,
+          "lines": "L4-L10"
+        },
+        {
+          "sourceIndex": 1,
+          "lines": "L15-L18"
+        },
+        {
+          "sourceIndex": 1,
+          "lines": "L20-L25"
+        },
+        {
+          "sourceIndex": 2,
+          "lines": "L4-L10"
+        },
+        {
+          "sourceIndex": 2,
+          "lines": "L15-L18"
+        },
+        {
+          "sourceIndex": 8,
+          "lines": "L9-L13"
+        },
+        {
+          "sourceIndex": 8,
+          "lines": "L35-L38"
+        }
+      ],
+      "sources": [
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Buenos Aires for free! | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/article/buenos-aires-free",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Must-see attractions | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/recorrido/must-see-attractions",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Presidencia de la Nación",
+          "url": "https://www.argentina.gob.ar/secretariageneral/museo-casa-rosada/horarios-e-informacion",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Casa Rosada Museum | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/casa-rosada-museum",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Casa de Gobierno, Casa Rosada | Sitio oficial de turismo de la Ciudad de Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/es/otros-establecimientos/casa-de-gobierno-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "10am | Historic Quarter | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/10am-historic-quarter",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Presidencia de la Nación",
+          "url": "https://www.argentina.gob.ar/secretariageneral/museo-casa-rosada/visita-el-museo-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Imperdibles | Sitio oficial de turismo de la Ciudad de Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/es/recorrido/imperdibles",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 0,
+          "title": "Presidencia de la Nación",
+          "url": "https://www.argentina.gob.ar/secretariageneral/museo-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 1,
+          "title": "turismo.buenosaires.gob.ar - viewing lines [0 - 49] of 49",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": "L0: L1: URL: https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada L2: Casa Rosada \\| Official English Website for the City of Buenos Aires L3: L4: # Casa Rosada L5: L6: The emblematic pink governmental palace. L7: L8: Dominating the **Plaza de Mayo**, the Casa Rosada - or pink house - is the seat L9: of the Argentine national government and houses the"
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Casa Rosada | Buenos Aires, Argentina | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/casa-rosada/394473",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Museo Casa Rosada | Buenos Aires, Argentina | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/museo-casa-rosada/1273790",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Top Buenos Aires Attractions | Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/in/argentina/buenos-aires",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Top 12 free activities in Buenos Aires",
+          "url": "https://www.lonelyplanet.com/articles/top-free-things-to-do-in-buenos-aires",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Frommers | Casa Rosada & The Presidential Museum",
+          "url": "https://www.frommers.com/destinations/buenos-aires/attractions/casa-rosada--the-presidential-museum/",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Discover attractions in Buenos Aires | Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest?slug=argentina%2Fbuenos-aires",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Top Argentina Attractions",
+          "url": "https://www.lonelyplanet.com/points-of-interest/in/argentina",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "9 Unmissable Buenos Aires Landmarks and Historic Sights",
+          "url": "https://www.getyourguide.com/explorer/buenos-aires-ttd1/landmarks-in-buenos-aires/",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "Plaza de Mayo | Buenos Aires, Argentina | Attractions - Lonely Planet",
+          "url": "https://www.lonelyplanet.com/points-of-interest/plaza-de-mayo/394627",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 2,
+          "title": "The short story: Casa Rosada - LandingPad BA",
+          "url": "https://landingpadba.com/short-story-casa-rosada/",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 3,
+          "title": "www.lonelyplanet.com - viewing lines [0 - 35] of 35",
+          "url": "https://www.lonelyplanet.com/points-of-interest/casa-rosada/394473",
+          "excerpt": "L0: L1: URL: https://www.lonelyplanet.com/points-of-interest/casa-rosada/394473 L2: Casa Rosada \\| Buenos Aires, Argentina \\| Attractions - Lonely Planet L3: L4: # Casa Rosada L5: L6: miralex/Getty Images L7: L8: Named for its distinctive color **Casa Rosada** is the seat of the national L9: government and houses the office of the President. It is closed to "
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Eva Perón's Buenos Aires",
+          "url": "https://www.nytimes.com/2012/03/11/travel/eva-perons-buenos-aires.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "In Argentina, U.S. Tech Billionaire Peter Thiel Finds An Escape - The New York Times",
+          "url": "https://www.nytimes.com/2026/05/28/world/americas/peter-thiel-argentina.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "New President Introduces Big Economic and Labor Changes for Argentina",
+          "url": "https://archive.nytimes.com/www.nytimes.com/library/world/americas/030800argentina-econ.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Casa Rosada",
+          "url": "https://en.wikipedia.org/wiki/Casa_Rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Argentine Coup",
+          "url": "https://www.nytimes.com/1943/06/06/archives/argentine-coup.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Frondizi Likely to Gain Prestige Because of Eisenhower's Visit - The New York Times",
+          "url": "https://www.nytimes.com/1960/02/27/archives/frondizi-likely-to-gain-prestige-because-of-eisenhowers-visit.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "De la Rúa, la promesa frustrada de una Argentina aburrida - The New York Times",
+          "url": "https://www.nytimes.com/es/2019/07/10/espanol/opinion/argentina-de-la-rua.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Argentina",
+          "url": "https://www.nytimes.com/topic/destination/argentina",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 4,
+          "title": "Evita's Buenos Aires - NYTimes.com",
+          "url": "https://archive.nytimes.com/query.nytimes.com/gst/fullpage-9B02E4D81039F932A25750C0A9649D8B63.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 6,
+          "title": "www.nytimes.com - viewing lines [0 - 2] of 2",
+          "url": "https://www.nytimes.com/2023/03/02/travel/buenos-aires-argentina-travel.html",
+          "excerpt": "L0: L1: URL: https://www.nytimes.com/2023/03/02/travel/buenos-aires-argentina-travel.html L2: You do not have access to this site."
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Entrevista de la BBC con Javier Milei: \"Lloran por el reconocimiento internacional que tengo”",
+          "url": "https://www.youtube.com/watch?v=XvM5-ikaxi8",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "BBC Audio | World Questions | Buenos Aires",
+          "url": "https://www.bbc.com/audio/play/w3ct3hnt",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Milei cambia el nombre al Salón de las Mujeres de la Casa Rosada en el día en el que miles marcharon en Buenos Aires por el Día de la Mujer  - BBC News Mundo",
+          "url": "https://www.bbc.com/mundo/articles/c72key7z4j3o",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Casa Rosada",
+          "url": "https://en.wikipedia.org/wiki/Casa_Rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "El detalle en el despacho de Javier Milei que sorprendió a la BBC",
+          "url": "https://www.c5n.com/politica/el-detalle-el-despacho-javier-milei-que-sorprendio-la-bbc-n156933",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Casa Rosada",
+          "url": "https://www.casarosada.gob.ar/",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Por qué el multimillonario tecnológico Peter Thiel se instaló en Argentina y cuál es su relación con el gobierno de Milei - BBC News Mundo",
+          "url": "https://www.bbc.com/mundo/articles/c932qq7x07xo",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "La polémica que desató en Argentina la decisión de Macri de descolgar los cuadros de Kirchner y Chávez de la Casa Rosada  - BBC News Mundo",
+          "url": "https://www.bbc.com/mundo/noticias/2016/02/160202_argentina_cuadros_kirchner_chavez_vs",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "New Argentina leader finds fix in Kirchner Twitter spat - BBC News",
+          "url": "https://www.bbc.com/news/world-latin-america-35171711",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 7,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 8,
+          "title": "www.nytimes.com - viewing lines [0 - 227] of 227",
+          "url": "https://www.nytimes.com/2026/05/28/world/americas/peter-thiel-argentina.html",
+          "excerpt": "L0: L1: URL: https://www.nytimes.com/2026/05/28/world/americas/peter-thiel-argentina.html L2: In Argentina, U.S. Tech Billionaire Peter Thiel Finds An Escape - The New York L3: Times L4: L5: # Why Peter Thiel Is Decamping to the End of the World L6: L7: The billionaire’s new roots in Argentina are said to be partly motivated by L8: concerns about the future "
+        },
+        {
+          "tool": "browser.find",
+          "toolIndex": 9,
+          "title": "www.nytimes.com",
+          "url": "https://www.nytimes.com/2023/03/02/travel/buenos-aires-argentina-travel.html",
+          "excerpt": "No `find` results for pattern: `Casa Rosada`"
+        },
+        {
+          "tool": "browser.find",
+          "toolIndex": 10,
+          "title": "www.nytimes.com",
+          "url": "https://www.nytimes.com/2023/03/02/travel/buenos-aires-argentina-travel.html",
+          "excerpt": "No `find` results for pattern: `casa rosada`"
+        },
+        {
+          "tool": "browser.find",
+          "toolIndex": 11,
+          "title": "www.nytimes.com",
+          "url": "https://www.nytimes.com/2023/03/02/travel/buenos-aires-argentina-travel.html",
+          "excerpt": "No `find` results for pattern: `Presidential`"
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Conocé a los Granaderos de Casa Rosada",
+          "url": "https://www.casarosada.gob.ar/informacion/actividad-oficial/9-noticias/35429-conoce-a-los-granaderos-de-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Casa Rosada",
+          "url": "https://www.casarosada.gob.ar/",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "History of the Argentine Government House (Casa Rosada)",
+          "url": "https://www.casarosada.gob.ar/international/argentine-government-house/history",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Un coronel del general Milani y guardián de los secretos de Cristina, sigue a cargo de la seguridad de la Casa de Moneda",
+          "url": "https://www.clarin.com/politica/coronel-general-milani-guardian-secretos-cristina-sigue-cargo-seguridad-casa-moneda_0_gfO6Bptv5a.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "HISTORIA",
+          "url": "https://www.casarosada.gob.ar/la-casa-rosada/historia",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Presidencia de la Nación",
+          "url": "https://www.argentina.gob.ar/secretariageneral/museo-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Casa Rosada",
+          "url": "https://es.wikipedia.org/wiki/Casa_Rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Presidencia de la Nación",
+          "url": "https://www.argentina.gob.ar/secretariageneral/museo-casa-rosada/visita-el-museo-casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 12,
+          "title": "Visit to the Pink House - Buenos Aires",
+          "url": "https://www.welcomeargentina.com/ciudadbuenosaires/visit_casa_rosada.html",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 14,
+          "title": "en.wikipedia.org - viewing lines [0 - 282] of 282",
+          "url": "https://en.wikipedia.org/wiki/Casa_Rosada",
+          "excerpt": "L0: L1: URL: https://en.wikipedia.org/wiki/Casa_Rosada L2: Casa Rosada L3: L4: Casa Rosada Main façade as seen from Plaza de Mayo Location within Buenos Aires L5: Alternative names Casa de Gobierno L6: L7: (\"House of Government\")General information Type Official workplace of the L8: President of Argentina Architectural style Italianate– Eclectic Location L9:"
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "BBC Audio | World Questions | Buenos Aires",
+          "url": "https://www.bbc.com/audio/play/w3ct3hnt",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Milei cambia el nombre al Salón de las Mujeres de la Casa Rosada en el día en el que miles marcharon en Buenos Aires por el Día de la Mujer  - BBC News Mundo",
+          "url": "https://www.bbc.com/mundo/articles/c72key7z4j3o",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/otros-establecimientos/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Casa Rosada | Official English Website for the City of Buenos Aires",
+          "url": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "El detalle en el despacho de Javier Milei que sorprendió a la BBC",
+          "url": "https://www.c5n.com/politica/el-detalle-el-despacho-javier-milei-que-sorprendio-la-bbc-n156933",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Casa Rosada",
+          "url": "https://en.wikipedia.org/wiki/Casa_Rosada",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Por qué el multimillonario tecnológico Peter Thiel se instaló en Argentina y cuál es su relación con el gobierno de Milei - BBC News Mundo",
+          "url": "https://www.bbc.com/mundo/articles/c932qq7x07xo",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Argentina ex-leader Kirchner to be buried - BBC News",
+          "url": "https://www.bbc.com/news/world-latin-america-11654291",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Argentina Plaza de Mayo: Rights group turns 40 - BBC News",
+          "url": "https://www.bbc.com/news/world-latin-america-39767842",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.search",
+          "toolIndex": 15,
+          "title": "Argentines mourn former President Nestor Kirchner - BBC News",
+          "url": "https://www.bbc.com/news/world-latin-america-11641908",
+          "excerpt": ""
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 18,
+          "title": "www.bbc.com - viewing lines [0 - 2] of 2",
+          "url": "https://www.bbc.com/news/world-latin-america-56712345",
+          "excerpt": "L0: L1: URL: https://www.bbc.com/news/world-latin-america-56712345 L2: You do not have access to this site."
+        },
+        {
+          "tool": "browser.open",
+          "toolIndex": 19,
+          "title": "www.frommers.com - viewing lines [0 - 85] of 85",
+          "url": "https://www.frommers.com/destinations/buenos-aires/attractions/casa-rosada--the-presidential-museum/",
+          "excerpt": "L0: L1: URL: L2: https://www.frommers.com/destinations/buenos-aires/attractions/casa-rosada--the-presidential-museum/ L3: Casa Rosada & The Presidential Museum \\| Frommer's L4: L5: # Casa Rosada & The Presidential Museum L6: L7: Frommer's Staff L8: L9: Perhaps the most photographed building in Buenos Aires, the Casa Rosada is the L10: main presence on the Pl"
+        }
+      ],
+      "groundedAnswer": "**Official tourism recommendation** – The City of Buenos Aires’ official tourism portal lists the Casa Rosada as a highlighted attraction and notes that “Free guided tours in English and Spanish” are available, with a reservation link and a passport required【1†L4-L10】【1†L15-L18】.  \n\n**Current official venue presence** – The same official page describes the Casa Rosada Museum behind the palace, its opening days (Wednesday‑Sunday and public holidays) and that “Entry is free”【1†L20-L25】.  \n\n**Travel‑guide recommendation (Lonely Planet)** – Lonely Planet’s attraction entry for Casa Rosada calls it an “emblematic pink governmental palace” and states that “Free guided tours” are offered on Fridays, Saturdays and Sundays at 4 pm【2†L4-L10】【2†L15-L18】.  \n\n**Reputable editorial mention (Frommer’s)** – Frommer’s (a well‑known travel‑guide publisher) describes Casa Rosada as “perhaps the most photographed building in Buenos Aires” and notes that it “is now also open to the public on weekends, with free tours on the hour Saturdays and Sundays from 10 am to 6 pm”【8†L9-L13】【8†L35-L38】.  \n\nThese sources together provide independent, official, guide‑book and editorial evidence that Casa Rosada is a visitor‑accessible place in Buenos Aires, Argentina.",
+      "reputationKnowledge": {
+        "status": "KNOWN",
+        "evidence": [
+          {
+            "type": "OFFICIAL_TOURISM_MENTION",
+            "sourceTitle": "Casa Rosada | Official English Website for the City of Buenos Aires",
+            "sourceUrl": "https://turismo.buenosaires.gob.ar/en/atractivo/casa-rosada",
+            "citation": "【1†L4-L10】",
+            "identityCheck": "Exact canonical place name and Buenos Aires official tourism page match the admitted GeoEntity."
+          }
+        ]
+      },
+      "sourceValidation": "Citation resolves to the returned browser.open result for the exact official City of Buenos Aires tourism page; other model claims were not promoted."
+    },
+    {
+      "candidate": "Plaza Dorrego",
+      "stratum": "middle / secondary",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:04:49.746Z",
+      "latencyMs": 231,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Don Julio",
+      "stratum": "gastronomy",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:05:44.980Z",
+      "latencyMs": 181,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "El Hipopótamo",
+      "stratum": "gastronomy / secondary",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:06:40.183Z",
+      "latencyMs": 250,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Obelisco",
+      "stratum": "low prominence diagnostic",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:07:35.437Z",
+      "latencyMs": 222,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Teatro Colón",
+      "stratum": "diagnostic",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:08:30.663Z",
+      "latencyMs": 203,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Museo Nacional de Bellas Artes",
+      "stratum": "diagnostic / art",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:09:25.871Z",
+      "latencyMs": 252,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Museo de Arte Latinoamericano de Buenos Aires (MALBA)",
+      "stratum": "diagnostic / art",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:10:21.126Z",
+      "latencyMs": 286,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    },
+    {
+      "candidate": "Caminito",
+      "stratum": "diagnostic",
+      "admittedBeforeQuery": true,
+      "startedAt": "2026-10-24T13:11:16.422Z",
+      "latencyMs": 402,
+      "provider": "groq",
+      "model": "openai/gpt-oss-120b",
+      "groundingStatus": "failed",
+      "failureReason": "groq_error_429",
+      "usage": null,
+      "providerReportedCost": null,
+      "citationMarkers": [],
+      "sources": [],
+      "groundedAnswer": "",
+      "reputationKnowledge": {
+        "status": "UNKNOWN",
+        "reason": "Awaiting source-to-citation identity review; model assertions alone are not ranking evidence."
+      }
+    }
+  ],
+  "measurement": {
+    "groundedMatches": 1,
+    "unknownResults": 8,
+    "sourceCitationCoverage": "1/9 candidate responses returned cite markers and corresponding source URLs",
+    "uniqueCitedSources": 3,
+    "acceptedEvidenceFacts": 1,
+    "identityMismatches": 0,
+    "identityUnverifiedFailures": 8,
+    "sourceCategoriesObserved": [
+      "official city tourism",
+      "national government",
+      "travel guide/editorial",
+      "aggregator search results"
+    ],
+    "providerReportedCost": "unavailable",
+    "tokenUsageTotal": 147111,
+    "rankingIntegration": "not integrated; coverage and successful query rate are insufficient"
+  }
+}

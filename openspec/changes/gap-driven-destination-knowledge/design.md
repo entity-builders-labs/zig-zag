@@ -3928,6 +3928,16 @@ deterministic, explainable ranking dimension. `UNKNOWN` is neutral; reputation
 cannot grant/revoke admission, replace Wikidata prominence, alter preference
 observations, or make planning-ready claims. No desired rank is hardcoded.
 
+The 2026-10-24 bounded pilot queried nine already-composed candidates using the
+existing Groq adapter: one source-reviewed official tourism mention was usable,
+while eight requests failed with HTTP 429. The successful response used
+147,111 reported tokens; provider-reported cost and a reusable cache were
+unavailable. Coverage is not sufficient to justify ranking integration, so
+the capability remains diagnostic and no production reputation ranking path is
+added. Full measurements, including the excluded pre-admission Café Tortoni
+exploration deviation, are recorded in
+`spikes/catalog-quality-smoke-2026-10-24/RESULTS.md`.
+
 ### Implementation and validation sequence
 
 1. Add typed canonical independent-visitability evidence distinct from

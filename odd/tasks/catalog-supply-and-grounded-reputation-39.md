@@ -26,10 +26,10 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Do not start 40.2. Commit bounded work units and push to the existing feature upstream only after gates.
 
 ## Tasks
-- T0 — S1–S4 — inline — complete active OpenSpec update with independent visitability, preference independence and bounded grounded reputation capability/tasks; strict validation passed. Spec checkpoint commit pending.
-- T1 — S1–S2 — inline — implement 39.13/39.14 with tests; complete focused/suite and independent high-risk verification; record commit evidence. Risk: items 1 and 3 (additive persisted Prisma enum contract and shared canonical admission/preference evidence).
-- T2 — S3 — inline — run a bounded Groq grounded-reputation sample; add only the smallest typed post-admission spike and record measured evidence, with UNKNOWN neutral.
-- T3 — S4 — inline — rerun local Buenos Aires smoke and record 39.15 evidence without rewriting 39.11/39.12; keep 40.2 blocked.
+- T0 — S1–S4 — inline — complete active OpenSpec update with independent visitability, preference independence and bounded grounded reputation capability/tasks; strict validation passed. Commit `7afdfc91`.
+- T1 — S1–S2 — inline — implement 39.13/39.14 with tests; complete focused/suite and independent high-risk verification; record commit evidence. Risk: items 1 and 3 (additive persisted Prisma enum contract and shared canonical admission/preference evidence). Complete in `b1caad64`; verifier and focused checks passed.
+- T2 — S3 — inline — run a bounded Groq grounded-reputation sample; add only the smallest typed post-admission spike and record measured evidence, with UNKNOWN neutral. Complete as diagnostic-only: 9 eligible candidate queries, one validated fact and eight rate-limited UNKNOWN; no ranking integration.
+- T3 — S4 — inline — rerun local Buenos Aires smoke and record 39.15 evidence without rewriting 39.11/39.12; keep 40.2 blocked. Complete with `APPROACH_PARTIALLY_VALIDATED`; no final push authorized.
 
 ## Log
 
@@ -70,3 +70,9 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Removed Wikidata identity as a prerequisite for food discovery and verified canonical gastronomy observations persist for a no-QID restaurant.
 - Independent verifier passed against `7afdfc91`; parent spot-check passed. Focused tests: 10 suites/122 tests; disposable DB integration: 3 tests; Prisma, typecheck, ESLint, OpenSpec strict validation and diff checks passed.
 - Replay diagnostic: 2,712 candidates / 701 admitted, with only 4 carrying the new explicit-access evidence. This is not Buenos Aires smoke evidence; measure class-level recovery and quality in 39.15 before broadening the canonical source evidence.
+
+### L5 — Grounded reputation and final smoke (2026-10-24)
+- Final local smoke: 339 admitted/composed vs 335 in 39.12; gastronomy candidates rose 59→4,479 but Experiences remained 4. Tombs/memorials/monuments/artworks stayed 1/2/5/1; 132 Experiences lack Wikidata identity and 207 have it. Preference profiles respond, but several landmark ranks shifted materially. Full report: `spikes/catalog-quality-smoke-2026-10-24/RESULTS.md`.
+- Reputation pilot queried only 9 already-composed eligible Experiences. One Casa Rosada official-tourism fact was source-reviewed; eight Groq calls returned HTTP 429. The successful response used 147,111 tokens, cost was unavailable, and no canonical cache exists. Evidence coverage did not justify ranking integration.
+- Process deviation disclosed: two exploratory Café Tortoni calls were made before verifying composition; the candidate was absent and those results were excluded. The pilot script now filters by composed order.
+- Final verdict `APPROACH_PARTIALLY_VALIDATED`; no push and no 40.2.
