@@ -64,7 +64,7 @@ The primary flow when a user creates a tour from the mobile app wizard:
      with `HARD_CONSTRAINT_UNENFORCEABLE`
      (`utils/hard-constraint-enforceability.util.ts`)
    - Derives the canonical preference utility once per catalog snapshot
-     (`services/preference-utility.service.ts`, `preference-utility-v2`):
+     (`services/preference-utility.service.ts`, `preference-utility-v3`):
      a numeric breakdown, the lexicographic order and a within-request
      rank. Composition, the overlap filter, planning and the trace consume
      it; the greedy planner orders by rank and never scores preference.

@@ -9,7 +9,10 @@ import {
   ParentPlaceClass,
 } from '@tours/admission/structured-admission-policy';
 import { PerInstanceEvidence } from '@tours/admission/parent-site-visit-unit.policy';
-import { ProminenceEvidenceFact } from '@tours/prominence/structured-prominence.policy';
+import {
+  HeritageScope,
+  ProminenceEvidenceFact,
+} from '@tours/prominence/structured-prominence.policy';
 import { StructuredPlaceCoverage } from '@tours/constants/acquisition-source-routing';
 
 export interface OsmVisitUnitFacts {
@@ -263,6 +266,20 @@ export function osmTagsToAdmissionFacts(
 }
 
 /**
+ * OSM `heritage=*` carries the administrative level of the protecting
+ * authority: 1 international, 2 national, 3-11 subnational. Any other value
+ * exposes no authority level, so no scope is claimed (prominence-v2).
+ */
+function osmHeritageScope(value: string): HeritageScope {
+  if (!/^\d{1,2}$/.test(value)) return 'UNSPECIFIED';
+  const level = Number(value);
+  if (level === 1) return 'INTERNATIONAL';
+  if (level === 2) return 'NATIONAL';
+  if (level >= 3 && level <= 11) return 'SUBNATIONAL';
+  return 'UNSPECIFIED';
+}
+
+/**
  * OSM → typed prominence evidence (design C17, task 39.3). It references the
  * canonical admission evidence rather than remapping tags: a heritage record
  * (with its issuer only when `heritage:operator` names one) and an explicit
@@ -291,6 +308,7 @@ export function osmTagsToProminenceEvidence(
             kind: 'HERITAGE_DESIGNATION',
             fieldPath: `tags.${evidence.field}`,
             designationLevel: String(evidence.value),
+            heritageScope: osmHeritageScope(String(evidence.value)),
             ...(operator ? { authority: operator } : {}),
           },
         ];

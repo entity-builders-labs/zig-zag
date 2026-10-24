@@ -516,8 +516,18 @@ enum ProminenceEvidenceKind {
 /// One typed structured prominence fact of a GeoEntity (0..N, design C14/C17).
 /// An empty set projects as UNKNOWN; it is never a negative value. No
 /// universal score is stored.
+/// Canonical scope of a heritage designation, normalized by the provider
+/// adapter (prominence-v2). UNSPECIFIED: the source does not expose the
+/// designating authority's scope.
+enum HeritageDesignationScope {
+  INTERNATIONAL
+  NATIONAL
+  SUBNATIONAL
+  UNSPECIFIED
+}
+
 model GeoEntityProminenceEvidence {
-  id               String                 @id @default(uuid())
+  id               String                    @id @default(uuid())
   geoEntityId      String
   kind             ProminenceEvidenceKind
   sourceProvider   String
@@ -529,11 +539,12 @@ model GeoEntityProminenceEvidence {
   languageCode     String?
   authority        String?
   designationLevel String?
+  heritageScope    HeritageDesignationScope?
   providerMetric   String?
   comparisonScope  String?
   observedAt       DateTime
   policyVersion    String
-  geoEntity        GeoEntity              @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
+  geoEntity        GeoEntity                 @relation(fields: [geoEntityId], references: [id], onDelete: Cascade)
 
   @@unique([geoEntityId, kind, sourceProvider, sourceRecordId, fieldPath])
   @@index([geoEntityId, kind])

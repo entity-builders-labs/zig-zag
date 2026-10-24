@@ -95,22 +95,27 @@ describe('tour-generation integration · catalog Experiences ordered by persiste
     const nameOf = (id: string) =>
       (experiences as any[]).find((experience) => experience.id === id)
         .canonicalName;
+    // prominence-v2: encyclopedic notability before a national designation
+    // without articles; the designation still precedes no evidence at all.
     expect(utility.order.map(nameOf)).toEqual([
-      'Fixture museum 3',
       'Fixture museum 2',
+      'Fixture museum 3',
       'Fixture museum 1',
     ]);
-    const [heritageId, sitelinkId, unknownId] = utility.order;
-    expect(utility.byId.get(sitelinkId)!.orderDecision).toMatchObject({
-      after: heritageId,
-      decidedBy: 'PROMINENCE',
-      prominenceLevel: 'HERITAGE_DESIGNATION',
-    });
-    expect(utility.byId.get(unknownId)!.orderDecision).toMatchObject({
+    const [sitelinkId, heritageId, unknownId] = utility.order;
+    expect(utility.byId.get(heritageId)!.orderDecision).toMatchObject({
       after: sitelinkId,
       decidedBy: 'PROMINENCE',
       prominenceLevel: 'ENCYCLOPEDIC_SITELINKS',
     });
+    expect(utility.byId.get(unknownId)!.orderDecision).toMatchObject({
+      after: heritageId,
+      decidedBy: 'PROMINENCE',
+      prominenceLevel: 'HERITAGE_SCOPE',
+    });
+    expect(
+      utility.byId.get(heritageId)!.prominence.heritageDesignation,
+    ).toMatchObject({ status: 'KNOWN', strongestScope: 'NATIONAL' });
     expect(
       utility.byId.get(sitelinkId)!.prominence.encyclopedicSitelinks,
     ).toEqual({

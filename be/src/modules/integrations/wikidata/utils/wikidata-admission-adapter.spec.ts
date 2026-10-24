@@ -103,6 +103,7 @@ describe('Wikidata structured statements → admission facts and typed prominenc
         sourceRecordId: 'Q10',
         fieldPath: 'claims.P1435.Q900',
         designationLevel: 'Q900',
+        heritageScope: 'UNSPECIFIED',
         observedAt,
       },
       {
@@ -132,6 +133,27 @@ describe('Wikidata structured statements → admission facts and typed prominenc
       },
       { signal: 'HERITAGE_DESIGNATION', field: 'claims.P1435', value: 'Q900' },
       { signal: 'ENCYCLOPEDIC_NOTABILITY', field: 'sitelinks', value: 3 },
+    ]);
+  });
+});
+
+describe('Wikidata heritage designations: scope', () => {
+  const observedAt = new Date('2026-10-24T00:00:00Z');
+  const scopes = (designations: string[]) =>
+    wikidataStructuredFactsToProminenceEvidence(
+      {
+        qid: 'Q1',
+        instanceOf: [],
+        heritageDesignations: designations,
+        sitelinks: [],
+      },
+      observedAt,
+    ).map((fact) => [fact.designationLevel, fact.heritageScope]);
+
+  it('marks the World Heritage Site designation as international and claims no scope for others', () => {
+    expect(scopes(['Q9259', 'Q900'])).toEqual([
+      ['Q9259', 'INTERNATIONAL'],
+      ['Q900', 'UNSPECIFIED'],
     ]);
   });
 });

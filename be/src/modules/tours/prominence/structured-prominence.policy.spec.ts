@@ -24,8 +24,13 @@ const sitelinks = (count: number, record = 'record-1') =>
     numericValue: count,
     sourceRecordId: record,
   });
-const heritage = () =>
-  fact('HERITAGE_DESIGNATION', { designationLevel: 'level-x' });
+const heritage = (
+  heritageScope: ProminenceEvidenceFact['heritageScope'] = 'UNSPECIFIED',
+) =>
+  fact('HERITAGE_DESIGNATION', {
+    designationLevel: `designation-${heritageScope}`,
+    heritageScope,
+  });
 const visitorClass = () =>
   fact('EXPLICIT_VISITOR_CLASSIFICATION', { textValue: 'class-x' });
 
@@ -80,43 +85,69 @@ describe('structured prominence profile and lexicographic ordering', () => {
     });
   });
 
-  it('compares levels lexicographically: heritage, then visitor class, then sitelinks', () => {
-    const heritageOnly = prominenceProfile([heritage()]);
-    const visitorWithManyLinks = prominenceProfile([
-      visitorClass(),
-      sitelinks(80),
-    ]);
-    expect(compareProminence(heritageOnly, visitorWithManyLinks)).toEqual({
-      order: -1,
-      decidingLevel: 'HERITAGE_DESIGNATION',
-    });
+  it('does not let a heritage designation of unspecified, subnational or national scope beat stronger encyclopedic notability', () => {
+    for (const scope of ['UNSPECIFIED', 'SUBNATIONAL', 'NATIONAL'] as const) {
+      expect(
+        compareProminence(
+          prominenceProfile([heritage(scope), sitelinks(4)]),
+          prominenceProfile([sitelinks(30)]),
+        ),
+      ).toEqual({ order: 26, decidingLevel: 'ENCYCLOPEDIC_SITELINKS' });
+    }
+  });
+
+  it('keeps an international-scope designation ahead of any sitelink count', () => {
+    expect(
+      compareProminence(
+        prominenceProfile([heritage('INTERNATIONAL')]),
+        prominenceProfile([sitelinks(90)]),
+      ),
+    ).toEqual({ order: -1, decidingLevel: 'INTERNATIONAL_HERITAGE' });
+  });
+
+  it('uses heritage scope to separate candidates with equal encyclopedic notability', () => {
+    expect(
+      compareProminence(
+        prominenceProfile([heritage('NATIONAL'), sitelinks(5)]),
+        prominenceProfile([heritage('SUBNATIONAL'), sitelinks(5)]),
+      ),
+    ).toEqual({ order: -1, decidingLevel: 'HERITAGE_SCOPE' });
+    expect(
+      compareProminence(
+        prominenceProfile([heritage('UNSPECIFIED'), sitelinks(5)]),
+        prominenceProfile([sitelinks(5)]),
+      ),
+    ).toEqual({ order: -1, decidingLevel: 'HERITAGE_SCOPE' });
+  });
+
+  it('treats an unspecified-scope designation as equal to a subnational one', () => {
+    expect(
+      compareProminence(
+        prominenceProfile([heritage('UNSPECIFIED')]),
+        prominenceProfile([heritage('SUBNATIONAL')]),
+      ),
+    ).toEqual({ order: 0 });
+  });
+
+  it('orders visitor classification after heritage scope and before identity', () => {
     expect(
       compareProminence(
         prominenceProfile([visitorClass()]),
-        prominenceProfile([sitelinks(80)]),
-      ).decidingLevel,
-    ).toBe('EXPLICIT_VISITOR_CLASSIFICATION');
+        unknownProminenceProfile(),
+      ),
+    ).toEqual({ order: -1, decidingLevel: 'EXPLICIT_VISITOR_CLASSIFICATION' });
     expect(
       compareProminence(
-        prominenceProfile([sitelinks(12)]),
-        prominenceProfile([sitelinks(5)]),
-      ),
-    ).toEqual({ order: -7, decidingLevel: 'ENCYCLOPEDIC_SITELINKS' });
+        prominenceProfile([heritage('SUBNATIONAL')]),
+        prominenceProfile([visitorClass()]),
+      ).decidingLevel,
+    ).toBe('HERITAGE_SCOPE');
   });
 
-  it('heritage values from different sources are not compared: presence only in v1', () => {
+  it('records the strongest heritage scope with every designation reference', () => {
     expect(
-      compareProminence(
-        prominenceProfile([
-          fact('HERITAGE_DESIGNATION', { designationLevel: '1' }),
-        ]),
-        prominenceProfile([
-          fact('HERITAGE_DESIGNATION', {
-            designationLevel: '4',
-            sourceProvider: 'provider-b',
-          }),
-        ]),
-      ),
-    ).toEqual({ order: 0 });
+      prominenceProfile([heritage('SUBNATIONAL'), heritage('NATIONAL')])
+        .heritageDesignation,
+    ).toMatchObject({ status: 'KNOWN', strongestScope: 'NATIONAL' });
   });
 });

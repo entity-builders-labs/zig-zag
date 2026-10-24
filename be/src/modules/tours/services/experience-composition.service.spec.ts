@@ -68,7 +68,7 @@ describe('ExperienceCompositionService (consumer of the preference utility)', ()
         ],
         preferenceSpec,
         preferenceUtility: {
-          policyVersion: 'preference-utility-v2',
+          policyVersion: 'preference-utility-v3',
           order: [],
           byId: new Map(),
           semanticRanking: {

@@ -26,7 +26,7 @@
  *
  * The median is an ordering projection only: the breakdown keeps UNKNOWN.
  */
-export const PREFERENCE_UTILITY_POLICY_VERSION = 'preference-utility-v2';
+export const PREFERENCE_UTILITY_POLICY_VERSION = 'preference-utility-v3';
 
 /** The level that placed a candidate after its predecessor (explainability). */
 export type PreferenceOrderLevel =

@@ -107,7 +107,7 @@ describe('CHAR-5 ranking/planner boundary', () => {
       expect(field in normalized).toBe(false);
     }
     expect(normalized.preference).toEqual({
-      policyVersion: 'preference-utility-v2',
+      policyVersion: 'preference-utility-v3',
       rank: 1,
       breakdown: {
         directEvidence: 1,

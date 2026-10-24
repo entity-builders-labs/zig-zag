@@ -294,6 +294,7 @@ export class StructuredKnowledgePersistenceService {
           languageCode: fact.languageCode ?? null,
           authority: fact.authority ?? null,
           designationLevel: fact.designationLevel ?? null,
+          heritageScope: fact.heritageScope ?? null,
           providerMetric: fact.providerMetric ?? null,
           comparisonScope: fact.comparisonScope ?? null,
           observedAt: fact.observedAt,

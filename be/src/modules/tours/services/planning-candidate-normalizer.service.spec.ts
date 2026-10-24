@@ -355,7 +355,7 @@ describe('PlanningCandidateNormalizerService', () => {
     ];
     const [best, second] = normalize(experiences).candidates;
     expect(best.preference).toEqual({
-      policyVersion: 'preference-utility-v2',
+      policyVersion: 'preference-utility-v3',
       rank: 1,
       breakdown: expect.objectContaining({
         quality: { status: 'KNOWN', score: 4.7 },

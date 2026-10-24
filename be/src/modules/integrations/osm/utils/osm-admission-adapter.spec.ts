@@ -155,6 +155,7 @@ describe('osmTagsToProminenceEvidence: OSM heritage and visitor-destination tags
         sourceRecordId: 'osm:way:7',
         fieldPath: 'tags.heritage',
         designationLevel: '2',
+        heritageScope: 'NATIONAL',
         authority: 'cnmlbh',
         observedAt,
       },
@@ -210,5 +211,28 @@ describe('food-and-drink discovery coverage and food venue admission evidence', 
         (selector) => selector.key === 'shop',
       ),
     ).toBe(false);
+  });
+});
+
+describe('osmTagsToProminenceEvidence: heritage scope from the protecting authority level', () => {
+  const observedAt = new Date('2026-10-24T00:00:00Z');
+  const scopeOf = (value: string) =>
+    osmTagsToProminenceEvidence(
+      { heritage: value },
+      'osm:node:9',
+      observedAt,
+    )[0].heritageScope;
+
+  it('maps level 1 to international, 2 to national and 3-11 to subnational', () => {
+    expect(scopeOf('1')).toBe('INTERNATIONAL');
+    expect(scopeOf('2')).toBe('NATIONAL');
+    expect(scopeOf('4')).toBe('SUBNATIONAL');
+    expect(scopeOf('11')).toBe('SUBNATIONAL');
+  });
+
+  it('claims no scope for values that are not an administrative level', () => {
+    expect(scopeOf('yes')).toBe('UNSPECIFIED');
+    expect(scopeOf('12')).toBe('UNSPECIFIED');
+    expect(scopeOf('2;4')).toBe('UNSPECIFIED');
   });
 });

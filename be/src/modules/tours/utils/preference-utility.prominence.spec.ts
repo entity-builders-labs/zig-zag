@@ -25,9 +25,14 @@ const sitelinks = (count: number) =>
   prominenceProfile([
     fact('ENCYCLOPEDIC_SITELINK_COUNT', { numericValue: count }),
   ]);
-const heritage = () =>
+const heritage = (
+  heritageScope: ProminenceEvidenceFact['heritageScope'] = 'UNSPECIFIED',
+) =>
   prominenceProfile([
-    fact('HERITAGE_DESIGNATION', { designationLevel: 'designation-1' }),
+    fact('HERITAGE_DESIGNATION', {
+      designationLevel: 'designation-1',
+      heritageScope,
+    }),
   ]);
 
 const historyFacet: RequestedFacet = {
@@ -87,15 +92,29 @@ describe('preference utility orders by structured prominence only where preferen
     });
   });
 
-  it('compares typed levels lexicographically (heritage before sitelink count)', () => {
+  it('orders stronger encyclopedic notability before a designation of unspecified scope', () => {
+    const result = derive([
+      composableExperience({ id: 'heritage', prominence: heritage() }),
+      composableExperience({ id: 'links', prominence: sitelinks(90) }),
+    ]);
+    expect(result.order).toEqual(['links', 'heritage']);
+    expect(result.byId.get('heritage')!.orderDecision).toMatchObject({
+      decidedBy: 'PROMINENCE',
+      prominenceLevel: 'ENCYCLOPEDIC_SITELINKS',
+    });
+  });
+
+  it('keeps an international designation first', () => {
     const result = derive([
       composableExperience({ id: 'links', prominence: sitelinks(90) }),
-      composableExperience({ id: 'heritage', prominence: heritage() }),
+      composableExperience({
+        id: 'world-heritage',
+        prominence: heritage('INTERNATIONAL'),
+      }),
     ]);
-    expect(result.order).toEqual(['heritage', 'links']);
+    expect(result.order).toEqual(['world-heritage', 'links']);
     expect(result.byId.get('links')!.orderDecision).toMatchObject({
-      decidedBy: 'PROMINENCE',
-      prominenceLevel: 'HERITAGE_DESIGNATION',
+      prominenceLevel: 'INTERNATIONAL_HERITAGE',
     });
   });
 

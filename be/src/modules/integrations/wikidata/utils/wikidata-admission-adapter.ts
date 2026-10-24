@@ -29,6 +29,16 @@ export const WIKIDATA_VISITOR_ATTRACTION_ROOTS: readonly string[] = ['Q33506'];
  */
 export const WIKIDATA_HISTORIC_SITE_ROOTS: readonly string[] = [];
 
+/**
+ * P1435 designation items whose designating authority is international
+ * (prominence-v2). Other designations carry no acquired jurisdiction, so
+ * their scope stays UNSPECIFIED rather than claimed.
+ */
+export const WIKIDATA_INTERNATIONAL_HERITAGE_DESIGNATIONS: readonly string[] = [
+  // World Heritage Site
+  'Q9259',
+];
+
 export interface WikidataAdmissionFacts {
   /** Resolved P31 / P279* class QIDs (already rooted). */
   instanceOf?: readonly string[];
@@ -163,6 +173,11 @@ export function wikidataStructuredFactsToProminenceEvidence(
       kind: 'HERITAGE_DESIGNATION',
       fieldPath: `claims.P1435.${designation}`,
       designationLevel: designation,
+      heritageScope: WIKIDATA_INTERNATIONAL_HERITAGE_DESIGNATIONS.includes(
+        designation,
+      )
+        ? 'INTERNATIONAL'
+        : 'UNSPECIFIED',
     });
   }
   for (const qid of facts.instanceOf) {

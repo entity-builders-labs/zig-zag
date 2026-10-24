@@ -13,8 +13,30 @@
  */
 
 /** Versioned identity of the ordering policy; bump on any precedence change. */
-export const STRUCTURED_PROMINENCE_POLICY_VERSION =
-  'structured-prominence-order-v1';
+export const STRUCTURED_PROMINENCE_POLICY_VERSION = 'prominence-v2';
+
+/**
+ * Canonical scope of a heritage designation, normalized by the provider
+ * adapter. UNSPECIFIED: the source does not expose the designating
+ * authority's scope, so no level is claimed.
+ */
+export type HeritageScope =
+  | 'INTERNATIONAL'
+  | 'NATIONAL'
+  | 'SUBNATIONAL'
+  | 'UNSPECIFIED';
+
+/**
+ * Rank of a heritage scope on the canonical scale. An UNSPECIFIED designation
+ * counts as presence at the lowest designation rank: never below absence,
+ * never claimed as a higher authority.
+ */
+const HERITAGE_SCOPE_RANK: Readonly<Record<HeritageScope, number>> = {
+  INTERNATIONAL: 3,
+  NATIONAL: 2,
+  SUBNATIONAL: 1,
+  UNSPECIFIED: 1,
+};
 
 /** Canonical prominence evidence kinds (mirror the Prisma enum). */
 export type ProminenceEvidenceKind =
@@ -42,6 +64,8 @@ export interface ProminenceEvidenceFact {
   languageCode?: string;
   authority?: string;
   designationLevel?: string;
+  /** Required on HERITAGE_DESIGNATION facts. */
+  heritageScope?: HeritageScope;
   providerMetric?: string;
   comparisonScope?: string;
   observedAt: Date;
@@ -59,6 +83,14 @@ export type PresenceLevel =
   | { status: 'KNOWN'; refs: ProminenceEvidenceRef[] }
   | { status: 'UNKNOWN' };
 
+export type HeritageLevel =
+  | {
+      status: 'KNOWN';
+      strongestScope: HeritageScope;
+      refs: ProminenceEvidenceRef[];
+    }
+  | { status: 'UNKNOWN' };
+
 export type CountLevel =
   | { status: 'KNOWN'; count: number; refs: ProminenceEvidenceRef[] }
   | { status: 'UNKNOWN' };
@@ -66,18 +98,20 @@ export type CountLevel =
 /** Per-level typed prominence profile of one candidate. */
 export interface ProminenceProfile {
   policyVersion: string;
-  heritageDesignation: PresenceLevel;
+  heritageDesignation: HeritageLevel;
   explicitVisitorClassification: PresenceLevel;
   /** No enabled provider supplies one; inert in policy v1. */
   providerProminence: { status: 'UNKNOWN' };
   encyclopedicSitelinks: CountLevel;
 }
 
+/** prominence-v2 comparison levels, in precedence order. */
 export type ProminenceLevel =
-  | 'HERITAGE_DESIGNATION'
+  | 'INTERNATIONAL_HERITAGE'
+  | 'ENCYCLOPEDIC_SITELINKS'
+  | 'HERITAGE_SCOPE'
   | 'EXPLICIT_VISITOR_CLASSIFICATION'
-  | 'PROVIDER_PROMINENCE'
-  | 'ENCYCLOPEDIC_SITELINKS';
+  | 'PROVIDER_PROMINENCE';
 
 function refOf(fact: ProminenceEvidenceFact): ProminenceEvidenceRef {
   return {
@@ -110,6 +144,29 @@ function presence(
     : { status: 'UNKNOWN' };
 }
 
+function heritageLevel(
+  facts: readonly ProminenceEvidenceFact[],
+): HeritageLevel {
+  const designations = facts.filter(
+    (fact) => fact.kind === 'HERITAGE_DESIGNATION',
+  );
+  if (designations.length === 0) return { status: 'UNKNOWN' };
+  const strongestScope = designations
+    .map((fact) => fact.heritageScope ?? 'UNSPECIFIED')
+    .reduce((best, scope) =>
+      HERITAGE_SCOPE_RANK[scope] > HERITAGE_SCOPE_RANK[best] ||
+      (HERITAGE_SCOPE_RANK[scope] === HERITAGE_SCOPE_RANK[best] &&
+        best === 'UNSPECIFIED')
+        ? scope
+        : best,
+    );
+  return {
+    status: 'KNOWN',
+    strongestScope,
+    refs: designations.map(refOf).sort(byRef),
+  };
+}
+
 /**
  * Projects typed facts (of one place, or the union of an Experience's required
  * VISIT components) into the per-level profile. Sitelink counts of distinct
@@ -127,7 +184,7 @@ export function prominenceProfile(
   const strongest = Math.max(0, ...sitelinkFacts.map((f) => f.numericValue!));
   return {
     policyVersion: STRUCTURED_PROMINENCE_POLICY_VERSION,
-    heritageDesignation: presence(facts, 'HERITAGE_DESIGNATION'),
+    heritageDesignation: heritageLevel(facts),
     explicitVisitorClassification: presence(
       facts,
       'EXPLICIT_VISITOR_CLASSIFICATION',
@@ -144,26 +201,33 @@ export function prominenceProfile(
   };
 }
 
-/** Ordering key of one level: a positive value, or 0 for no positive evidence. */
+/**
+ * prominence-v2 ordering keys: a positive value per level, or 0 for no
+ * positive evidence (absence and UNKNOWN tie, never negative). Dense local
+ * heritage no longer dominates encyclopedic notability; an international
+ * designation still leads and heritage scope separates equal notability.
+ */
 function levelKeys(
   profile: ProminenceProfile,
 ): Array<[ProminenceLevel, number]> {
+  const heritageRank =
+    profile.heritageDesignation.status === 'KNOWN'
+      ? HERITAGE_SCOPE_RANK[profile.heritageDesignation.strongestScope]
+      : 0;
   return [
-    [
-      'HERITAGE_DESIGNATION',
-      profile.heritageDesignation.status === 'KNOWN' ? 1 : 0,
-    ],
-    [
-      'EXPLICIT_VISITOR_CLASSIFICATION',
-      profile.explicitVisitorClassification.status === 'KNOWN' ? 1 : 0,
-    ],
-    ['PROVIDER_PROMINENCE', 0],
+    ['INTERNATIONAL_HERITAGE', heritageRank === 3 ? 1 : 0],
     [
       'ENCYCLOPEDIC_SITELINKS',
       profile.encyclopedicSitelinks.status === 'KNOWN'
         ? profile.encyclopedicSitelinks.count
         : 0,
     ],
+    ['HERITAGE_SCOPE', heritageRank],
+    [
+      'EXPLICIT_VISITOR_CLASSIFICATION',
+      profile.explicitVisitorClassification.status === 'KNOWN' ? 1 : 0,
+    ],
+    ['PROVIDER_PROMINENCE', 0],
   ];
 }
 
@@ -204,6 +268,7 @@ export interface ProminenceEvidenceRow {
   languageCode: string | null;
   authority: string | null;
   designationLevel: string | null;
+  heritageScope: HeritageScope | null;
   providerMetric: string | null;
   comparisonScope: string | null;
   observedAt: Date;
@@ -227,6 +292,7 @@ export function prominenceFactFromRow(
     ...(row.designationLevel !== null
       ? { designationLevel: row.designationLevel }
       : {}),
+    ...(row.heritageScope !== null ? { heritageScope: row.heritageScope } : {}),
     ...(row.providerMetric !== null
       ? { providerMetric: row.providerMetric }
       : {}),

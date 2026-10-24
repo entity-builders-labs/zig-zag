@@ -358,7 +358,7 @@ describe('GreedyDailyPlanningSolver input boundary', () => {
     ).toEqual(['ok']);
     expect(solution.unselected).toEqual([]);
     expect(solution.metadata.policies).toMatchObject({
-      rankingPolicyVersion: 'preference-utility-v2',
+      rankingPolicyVersion: 'preference-utility-v3',
       objectivePolicyVersion: 'greedy-preference-rank-v1',
     });
   });

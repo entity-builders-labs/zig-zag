@@ -182,4 +182,85 @@ describe('tour-generation integration · C14 database constraints', () => {
       await prisma.experience.count({ where: { compositionSignature: null } }),
     ).toBe(1);
   });
+
+  it('enforces the per-kind shape of prominence evidence and the heritage scope', async () => {
+    const prisma = await prismaPromise;
+    const place = await prisma.geoEntity.create({
+      data: { name: 'Prominence shape test', kind: 'PLACE' },
+    });
+    const insert = (
+      id: string,
+      kind: string,
+      columns: {
+        numericValue?: number | null;
+        textValue?: string | null;
+        designationLevel?: string | null;
+        heritageScope?: string | null;
+        providerMetric?: string | null;
+        comparisonScope?: string | null;
+      },
+    ) =>
+      prisma.$executeRaw(Prisma.sql`
+        INSERT INTO geo_entity_prominence_evidence
+          (id, "geoEntityId", kind, "sourceProvider", "providerIdentity",
+           "sourceRecordId", "fieldPath", "numericValue", "textValue",
+           "designationLevel", "heritageScope", "providerMetric",
+           "comparisonScope", "observedAt", "policyVersion")
+        VALUES (${id}, ${place.id}, ${kind}::"ProminenceEvidenceKind", 'p', 'i',
+          ${id}, 'f', ${columns.numericValue ?? null},
+          ${columns.textValue ?? null}, ${columns.designationLevel ?? null},
+          ${columns.heritageScope ?? null}::"HeritageDesignationScope",
+          ${columns.providerMetric ?? null}, ${columns.comparisonScope ?? null},
+          NOW(), 'test')
+      `);
+
+    await expect(
+      insert('no-count', 'ENCYCLOPEDIC_SITELINK_COUNT', {}),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_sitelink_shape/);
+    await expect(
+      insert('negative-count', 'ENCYCLOPEDIC_SITELINK_COUNT', {
+        numericValue: -1,
+      }),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_sitelink_shape/);
+    await expect(
+      insert('no-language', 'ENCYCLOPEDIC_LANGUAGE_SITELINK', {
+        numericValue: 1,
+      }),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_language_sitelink_shape/);
+    await expect(
+      insert('no-designation', 'HERITAGE_DESIGNATION', {
+        heritageScope: 'NATIONAL',
+      }),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_heritage_shape/);
+    await expect(
+      insert('no-scope', 'HERITAGE_DESIGNATION', { designationLevel: '2' }),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_heritage_scope_shape/);
+    await expect(
+      insert('scope-on-sitelink', 'ENCYCLOPEDIC_SITELINK_COUNT', {
+        numericValue: 3,
+        heritageScope: 'NATIONAL',
+      }),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_heritage_scope_shape/);
+    await expect(
+      insert('no-class', 'EXPLICIT_VISITOR_CLASSIFICATION', {}),
+    ).rejects.toThrow(/geo_entity_prominence_evidence_visitor_class_shape/);
+    await expect(
+      insert('unscoped-rank', 'PROVIDER_PROMINENCE', { numericValue: 3 }),
+    ).rejects.toThrow(
+      /geo_entity_prominence_evidence_provider_prominence_shape/,
+    );
+
+    await insert('valid-heritage', 'HERITAGE_DESIGNATION', {
+      designationLevel: '2',
+      heritageScope: 'NATIONAL',
+    });
+    await insert('valid-count', 'ENCYCLOPEDIC_SITELINK_COUNT', {
+      numericValue: 0,
+    });
+    expect(
+      await prisma.geoEntityProminenceEvidence.count({
+        where: { geoEntityId: place.id },
+      }),
+    ).toBe(2);
+  });
 });
