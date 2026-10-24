@@ -232,3 +232,38 @@ Planner rejections, unscheduled outcomes, travel-estimate availability and UNKNO
 #### Scenario: Repeatedly unscheduled place
 - **WHEN** an admitted place is rejected by the planner for OPENING_HOURS in several consecutive generations
 - **THEN** its admission outcome and admission record are unchanged
+
+### Requirement: Encyclopedic notability requires trusted external identity
+An external identifier alone SHALL be link evidence, not semantic evidence.
+Linked `ENCYCLOPEDIC_NOTABILITY` may influence admission only when the
+canonical spatial-correspondence authority reports `CONSISTENT`. Provider
+coordinate interpretation stays in adapters. Other correspondence outcomes
+make linked notability unavailable, not negative; other decisive admission
+signals remain unchanged.
+
+#### Scenario: Person identifier without geographic correspondence
+- **WHEN** an OSM object links to a person QID and the adapter has no usable
+  geographic correspondence for that linked entity
+- **THEN** the QID may remain as raw/link evidence, but it contributes no
+  encyclopedic admission evidence and absence remains UNKNOWN
+
+#### Scenario: Spatially consistent linked entity
+- **WHEN** a linked external entity has usable spatial evidence and the
+  canonical correspondence authority reports `CONSISTENT`
+- **THEN** its mapped encyclopedic notability may contribute to admission
+
+#### Scenario: Grossly conflicting linked geography
+- **WHEN** a linked external entity's spatial evidence is grossly inconsistent
+  with the GeoEntity, such as a Buenos Aires place linked to an entity located
+  in the United States
+- **THEN** correspondence is `CONFLICTING` and linked notability is ignored
+
+#### Scenario: Missing spatial evidence
+- **WHEN** no usable spatial evidence is available for a linked entity
+- **THEN** correspondence is `UNKNOWN`, not a negative identity decision, and
+  linked notability is unavailable
+
+#### Scenario: Independent visitor classification
+- **WHEN** a GeoEntity has an explicit visitor classification and its linked
+  entity's notability is untrusted
+- **THEN** the GeoEntity remains admitted by visitor classification

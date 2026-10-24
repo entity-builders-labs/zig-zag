@@ -55,6 +55,10 @@ merged records.
   structured provider evidence (identity, coordinates, category, destination
   containment, provider-backed existence, basic completeness) decides whether
   an ordinary PLACE may be composed. Enrichment failure never revokes it.
+- **Trusted external identity evidence:** a provider identifier alone is not
+  semantic evidence; linked notability, prominence and preference facts are
+  usable only when the linked entity is spatially consistent with the
+  canonical GeoEntity, using one canonical correspondence authority.
 - **AREA_RELEVANCE no longer gates POI discovery:** destination-level
   structured POI discovery is allowed directly; areas organize, cluster and
   rank but do not gate.

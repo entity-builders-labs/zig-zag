@@ -3761,3 +3761,24 @@ and deletes the superseded pipeline and catalog contents.
 
 - Exact K, prominence weights, buffer and budgets: chosen in spike 2 and
   recorded with rationale; they do not change the tasks.
+
+## Trusted external-identity evidence (owner decision, 2026-10-24)
+
+An external identifier is identity/link evidence, not semantic evidence by
+itself. Linked semantic evidence may influence admission, prominence or
+preference relevance only when the linked entity is spatially consistent with
+the canonical GeoEntity. Reuse or extend the existing canonical geometry /
+identity correspondence authority and its typed outcome; do not introduce a
+second comparator or a global distance threshold. The canonical outcomes must
+preserve `CONSISTENT`, `AMBIGUOUS`, `CONFLICTING` and `UNKNOWN` semantics.
+
+Provider interpretation stays at adapters. In particular, Wikidata `P625`
+interpretation belongs in the Wikidata adapter; consumers receive only
+canonical spatial-correspondence evidence/outcome. A QID without usable
+geographic correspondence is retained as link evidence when appropriate, but
+cannot contribute linked notability, prominence, admission or preference
+facts. Unknown correspondence remains unknown, never negative. One canonical
+trust decision gates encyclopedic notability, sitelinks/prominence and
+structured preference observations. Admission still accepts other existing
+decisive evidence independently, including explicit visitor classification
+and qualifying heritage designation.

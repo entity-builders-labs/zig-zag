@@ -101,6 +101,32 @@ an editorial rank on a reusable Experience.
 - **WHEN** one valid Experience ranks below another for a request
 - **THEN** it remains admitted, composable and available in the catalog
 
+### Requirement: Linked semantic facts require trusted external identity
+Prominence and preference relevance SHALL reuse admission's canonical
+external-identity trust decision. A linked entity may contribute sitelinks,
+encyclopedic prominence or structured preference observations only when
+correspondence is `CONSISTENT`. Other outcomes contribute none; missing
+evidence remains UNKNOWN. Identifiers alone are not semantic evidence, and
+provider field interpretation stays at adapters.
+
+#### Scenario: Unrelated linked entity does not elevate prominence
+- **WHEN** an identity-linked external item has no usable spatial
+  correspondence or is spatially conflicting with its GeoEntity
+- **THEN** its sitelinks and encyclopedic prominence do not elevate the
+  candidate's ordering
+
+#### Scenario: Untrusted linked entity contributes no preference themes
+- **WHEN** structured preference observations would be derived from an
+  identity-linked entity whose correspondence is not `CONSISTENT`
+- **THEN** those observations are unavailable and cannot increase preference
+  relevance
+
+#### Scenario: Consistent linked semantic evidence remains usable
+- **WHEN** the canonical spatial-correspondence authority reports
+  `CONSISTENT` for a linked external entity
+- **THEN** its explicitly mapped prominence and preference evidence remains
+  usable
+
 #### Scenario: Preference relevance is not prominence
 - **WHEN** request-specific selection also evaluates the user's stated
   preferences
