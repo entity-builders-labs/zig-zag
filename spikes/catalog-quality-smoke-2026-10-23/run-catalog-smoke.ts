@@ -249,6 +249,69 @@ async function main() {
     softAnchorIds: [],
   });
 
+  // Alternative typed interest profiles over the same catalog snapshot:
+  // no interests isolates catalog prominence; single-theme profiles show
+  // interest-driven reordering. Fixed typed selections, no LLM.
+  const LANDMARKS = [
+    'Obelisco',
+    'Museo Nacional de Bellas Artes',
+    'Museo de Arte Latinoamericano de Buenos Aires (MALBA)',
+    'Caminito',
+    'Teatro Colón',
+    'Cementerio de la Recoleta',
+    'Café Tortoni',
+    'Catedral Metropolitana',
+    'Puente de la Mujer',
+  ];
+  const nameById = new Map(
+    experiences.map((e: any) => [e.id, e.canonicalName as string]),
+  );
+  const profiles: Record<string, unknown> = {};
+  for (const [profile, interests] of [
+    ['no-interests', []],
+    ['history-architecture-gastronomy', ['history', 'architecture', 'gastronomy']],
+    ['gastronomy', ['gastronomy']],
+    ['art', ['art']],
+  ] as Array<[string, string[]]>) {
+    const spec = buildPreferenceSpec(
+      {
+        days: 3,
+        intent: { interests, explorationStyle: 'balanced' },
+        mobility: { travelPace: 'moderate' },
+      } as any,
+      {
+        assertions: [],
+        unresolvedConcepts: [],
+        anchoredPlaces: [],
+        positiveSemanticQuery: '',
+      } as any,
+    );
+    const utility = await new PreferenceUtilityService({} as any).derive({
+      experiences: experiences as any,
+      preferenceSpec: spec,
+      softAnchorIds: [],
+    });
+    const rankOf = (name: string) => {
+      const index = utility.order.findIndex((id) => nameById.get(id) === name);
+      return index === -1 ? null : index + 1;
+    };
+    profiles[profile] = {
+      facets: spec.facets.map((f) => `${f.dimension}:${f.key}`),
+      landmarkRanks: Object.fromEntries(LANDMARKS.map((n) => [n, rankOf(n)])),
+      top20: utility.order.slice(0, 20).map((id) => {
+        const assessment = utility.byId.get(id)!;
+        return {
+          name: nameById.get(id),
+          matchedFacets: assessment.matchedFacets,
+          decidedByVsPrevious: assessment.orderDecision,
+        };
+      }),
+      strongMatchCount: [...utility.byId.values()].filter(
+        (a) => a.matchedFacets.length > 0,
+      ).length,
+    };
+  }
+
   // --- Read back canonical persisted state ---
   const entities = await prisma.geoEntity.findMany({
     include: {
@@ -440,6 +503,7 @@ async function main() {
       facets: preferenceSpec.facets.map((f) => `${f.dimension}:${f.key}`),
     },
     top30: top,
+    profiles,
   };
   writeFileSync(
     path.join(outDir, `catalog-smoke-${label}.json`),

@@ -249,3 +249,124 @@ real data:
 
 Policy v1's precedence still misplaces un-designated landmarks, and
 preference relevance does not yet act on structured Experiences.
+
+---
+
+# Validation smoke after prominence-v2 and structured relevance (39.8–39.10)
+
+The code is at `aca68ed4` and the summary is in `summary-after-39-10.json`.
+The environment is the same as the 39.7 run: `zigzag_39_test`, local Overpass
+and Wikidata `wbgetentities` (17 requests), with no web, search or LLM path.
+The harness now also orders the same catalog snapshot under four typed
+interest profiles.
+
+## Landmark ranks
+
+| landmark | 39.7 (v1) | after: no interests | after: history + architecture + gastronomy | after: gastronomy | after: art |
+|---|---|---|---|---|---|
+| Obelisco | 97 | **6** | 53 | 43 | 74 |
+| Museo Nacional de Bellas Artes | 99 | **9** | 221 | 46 | **1** |
+| MALBA | 104 | **22** | 226 | 58 | **3** |
+| Caminito | 245 | 302 | 354 | 303 | 339 |
+| Teatro Colón | 1 | 2 | 49 | 39 | 70 |
+| Cementerio de la Recoleta | 3 | 7 | 54 | 44 | 75 |
+| Café Tortoni | 33 | 21 | **3** | **1** | 87 |
+| Catedral Metropolitana | 98 | **8** | 55 | 45 | 76 |
+
+What changed, and why:
+
+- **Catalog prominence alone (no interests).** Heritage presence no longer
+  dominates encyclopedic notability. The no-interests top 20 is Teatro Colón,
+  Casa Rosada, Palacio Barolo, Plaza de Mayo, Obelisco, Recoleta, Catedral,
+  MNBA, Jardín Botánico, Museo Histórico Nacional, Kavanagh, Cabildo, El
+  Ateneo Grand Splendid and others. Each placement names its deciding level.
+  Heritage still separates places with equal notability (HERITAGE_SCOPE
+  decisions, for example the Catedral).
+- **Interests change the order for typed reasons.**
+  - History + architecture + gastronomy: places matching two stated
+    interests lead, ordered by DIRECT_EVIDENCE (Confitería Ideal, Cabildo,
+    Tortoni, Legislatura, the basilicas).
+  - Gastronomy: the 37 food Experiences lead, Tortoni first.
+  - Art: art museums lead (MNBA #1, MALBA #3, Moderno, Fortabat).
+  - The number of strong matches went from 0 in 39.7 to 219, 37 and 68
+    under these profiles. No quality score is involved; the matches come
+    from persisted typed observations plus canonical admission.
+- **Caminito and Puente de la Mujer did not move**, and the cause is
+  identity, not prominence. Their QID and articles sit on the
+  street/bridge way, which is excluded as ROAD_OR_ROUTE. The composed
+  attraction node has no QID, and identity reconciliation correctly refuses
+  a name-only merge.
+- **One defect was found and fixed during this run.** The first v2 run put
+  statues first: "Franklin Delano Roosevelt" had 191 articles, "Estatua de
+  Ana Frank" 132 and "M4 Sherman" 54. Their OSM `wikidata` tag links the
+  commemorated person or object, not the monument. Wikidata prominence and
+  relevance facts now require a physically located item (P625), in commit
+  `aca68ed4`.
+
+## Non-regression
+
+The catalog funnel is identical to 39.7: 682 admitted, 516 composed and 347
+relations. Composed tombs stay at 1, memorials at 19, monuments at 11 and
+artworks at 17.
+
+Prominence for composed Experiences:
+
+- KNOWN for 481 and UNKNOWN for 35.
+- Sitelink count KNOWN for 259.
+- Heritage KNOWN for 95.
+- Visitor classification KNOWN for 294.
+
+## Top 30 under the 39.7 profile
+
+The profile is history, architecture and gastronomy plus traditional local
+character and iconic, the latter two having no typed facts. The tally is
+**7 A, 23 B, 0 C and 0 D**.
+
+- **A:** Cabildo, Café Tortoni, Basílica del Pilar, Palacio Libertad (CCK),
+  Museo Casa Carlos Gardel, Café La Biela, Mercado de San Telmo.
+- **B:** Confitería Ideal, Legislatura, Basílica de San Francisco, Basílica
+  del Rosario, Museo Mitre, Las Violetas, San José de Flores, Palacio de
+  Gobierno, Casa de la Cultura, La Americana, Catedral San Juan Bautista,
+  Aduanas, El Gato Negro, San Pedro Telmo, Club Español, Café de García,
+  Iglesia Santa Cruz, Petit Colón, Esquina Homero Manzi, Los 36 Billares, El
+  Preferido de Palermo, Café de los Angelitos, Banchero.
+
+The list leans on cafés. The reason is that the city's "bares notables"
+register is a heritage designation, so those cafés match both history and
+gastronomy. The top 30 contains no garbage.
+
+## Remaining findings
+
+1. **Admission still trusts unlocated identity links.** This was deliberately
+   left unchanged under the owner's "do not change admission" instruction.
+   - 200 admitted places rest only on the notability of a linked item that
+     is not physically located (a person or concept).
+   - 35 of them are composed Experiences; the rest are cemetery
+     sub-features.
+   - Applying the same P625 rule to admission needs an owner decision.
+2. **A located but wrong link still leaks into prominence.** "Plazoleta
+   Ciudad de Lakewood" links the US city item, which has a coordinate, and
+   ranks #1 with no interests. A geometric-consistency check on the explicit
+   identity link (the linked item's coordinate against the place) would be
+   needed. It is a new identity rule, not attempted here.
+3. **Identity split between a route and its attraction node** (Caminito,
+   Puente de la Mujer).
+4. **Duration knowledge is still 0** and task 27.3 has not run, so 40.2's
+   calibration sample is still empty.
+
+## Verdict
+
+**APPROACH_PARTIALLY_VALIDATED**
+
+The ordering and relevance architecture is validated on real data:
+
+- landmarks move for evidence-backed reasons;
+- heritage is useful without dominating;
+- requested interests reorder valid structured Experiences with typed
+  explanations;
+- the catalog cleanup holds and the top 30 has no garbage.
+
+The verdict stays partial because the identity-link validity of
+encyclopedic evidence is still unresolved in admission (finding 1) and for
+located mis-links (finding 2), and because 40.2's duration prerequisite is
+unmet.
