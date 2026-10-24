@@ -58,4 +58,49 @@ describe('structured place admission evidence combination', () => {
       reason: 'INSUFFICIENT_ADMISSION_EVIDENCE',
     });
   });
+
+  it('admits a compatible venue class with explicit independent public visitability and no Wikidata', () => {
+    const result = evaluateStructuredPlaceAdmissionFacts({
+      osmFacts: osmTagsToAdmissionFacts({
+        amenity: 'restaurant',
+        access: 'customers',
+      }),
+    });
+
+    expect(result.decision).toMatchObject({ admitted: true });
+    expect(result.signals).toEqual(
+      expect.arrayContaining([
+        'PLACE_VENUE_CLASSIFICATION',
+        'INDEPENDENT_VISITABILITY_EVIDENCE',
+      ]),
+    );
+  });
+
+  it('does not let explicit access turn a classified historic object into a venue', () => {
+    const result = evaluateStructuredPlaceAdmissionFacts({
+      osmFacts: osmTagsToAdmissionFacts({
+        historic: 'memorial',
+        access: 'yes',
+      }),
+    });
+
+    expect(result.decision).toEqual({
+      admitted: false,
+      reason: 'INSUFFICIENT_ADMISSION_EVIDENCE',
+    });
+  });
+
+  it('does not let explicit access turn artwork into an independently visitable venue', () => {
+    const result = evaluateStructuredPlaceAdmissionFacts({
+      osmFacts: osmTagsToAdmissionFacts({
+        tourism: 'artwork',
+        access: 'yes',
+      }),
+    });
+
+    expect(result.decision).toEqual({
+      admitted: false,
+      reason: 'INSUFFICIENT_ADMISSION_EVIDENCE',
+    });
+  });
 });

@@ -3810,6 +3810,18 @@ keep these separate:
   classification supplies the class context but is not the visitability
   authority.
 
+The current OSM adapter's direct access evidence is `access=yes`,
+`access=permissive`, `access=customers`, or corresponding pedestrian values
+`foot=yes`, `foot=permissive`, `foot=customers`, `foot=designated`. Explicit
+pedestrian access takes precedence over general access; a restrictive or
+missing access value does not create positive visitability evidence. These
+meanings follow the [OSM Access key](https://wiki.openstreetmap.org/wiki/Key:access):
+`customers` covers customers/visitors of a feature, while `yes` and
+`permissive` express public access (with permissive revocable by the owner).
+The provider adapter translates these raw tags; domain policy sees only the
+canonical evidence pair. Historic/artwork classification does not become a
+place/venue class merely because it has an access tag.
+
 The canonical admission policy remains provider-neutral. The existing
 `EXPLICIT_VISITOR_CLASSIFICATION` and qualifying `HERITAGE_DESIGNATION` paths
 remain decisive. The additional route is a compatible place/venue
@@ -3920,7 +3932,9 @@ observations, or make planning-ready claims. No desired rank is hardcoded.
 
 1. Add typed canonical independent-visitability evidence distinct from
    classification; map only directly supported source facts at adapters and
-   keep the admission policy provider-neutral.
+   keep the admission policy provider-neutral. In OSM, explicit public,
+   permissive, customer/visitor or pedestrian access is separate from the
+   already mapped place/venue class; no raw OSM class reaches domain policy.
 2. Ensure already-admitted non-Wikidata structured observations are persisted
    and projected into preference relevance when Wikidata is absent or
    untrusted; retain linked observations only under the existing consistency

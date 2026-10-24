@@ -27,6 +27,67 @@ describe('OSM tags → canonical admission signals, exclusions and place classes
     expect(facts.signals).not.toContainEqual(
       expect.objectContaining({ type: 'EXPLICIT_VISITOR_CLASSIFICATION' }),
     );
+    expect(facts.signals).not.toContainEqual(
+      expect.objectContaining({ type: 'PLACE_VENUE_CLASSIFICATION' }),
+    );
+  });
+
+  it('normalizes explicit public visitor access as independent evidence, separate from class', () => {
+    const facts = osmTagsToAdmissionFacts({
+      amenity: 'restaurant',
+      access: 'customers',
+    });
+
+    expect(facts.signals).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ type: 'PLACE_VENUE_CLASSIFICATION' }),
+        expect.objectContaining({ type: 'INDEPENDENT_VISITABILITY_EVIDENCE' }),
+      ]),
+    );
+    expect(facts.signalEvidence).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          signal: 'INDEPENDENT_VISITABILITY_EVIDENCE',
+          field: 'access',
+          value: 'customers',
+        }),
+      ]),
+    );
+  });
+
+  it('does not infer independent visitability from a venue class or absent access data', () => {
+    for (const tags of [
+      { amenity: 'restaurant' },
+      { leisure: 'park' },
+      { amenity: 'place_of_worship' },
+    ]) {
+      const facts = osmTagsToAdmissionFacts(tags);
+      expect(facts.signals).toContainEqual(
+        expect.objectContaining({ type: 'PLACE_VENUE_CLASSIFICATION' }),
+      );
+      expect(facts.signals).not.toContainEqual(
+        expect.objectContaining({ type: 'INDEPENDENT_VISITABILITY_EVIDENCE' }),
+      );
+    }
+  });
+
+  it('does not normalize restricted access as independent visitability', () => {
+    for (const access of ['no', 'private', 'permit', 'destination']) {
+      expect(
+        osmTagsToAdmissionFacts({ amenity: 'cafe', access }).signals,
+      ).not.toContainEqual(
+        expect.objectContaining({ type: 'INDEPENDENT_VISITABILITY_EVIDENCE' }),
+      );
+    }
+    expect(
+      osmTagsToAdmissionFacts({
+        amenity: 'restaurant',
+        access: 'yes',
+        foot: 'no',
+      }).signals,
+    ).not.toContainEqual(
+      expect.objectContaining({ type: 'INDEPENDENT_VISITABILITY_EVIDENCE' }),
+    );
   });
 
   it('maps tourism=museum to decisive EXPLICIT_VISITOR_CLASSIFICATION', () => {
@@ -180,25 +241,29 @@ describe('osmTagsToVisitUnitFacts: tomb child class', () => {
 });
 
 describe('food-and-drink discovery coverage and food venue admission evidence', () => {
-  it('requests food venue classes only together with an encyclopedic identity link', () => {
+  it('requests food venue classes without requiring an encyclopedic identity link', () => {
     expect(osmCoverageDiscoverySelectors(['FOOD_AND_DRINK'])).toEqual([
-      { key: 'amenity', value: 'cafe', requireKeys: ['wikidata'] },
-      { key: 'amenity', value: 'restaurant', requireKeys: ['wikidata'] },
-      { key: 'amenity', value: 'food_court', requireKeys: ['wikidata'] },
-      { key: 'amenity', value: 'marketplace', requireKeys: ['wikidata'] },
-      { key: 'shop', value: 'bakery', requireKeys: ['wikidata'] },
+      { key: 'amenity', value: 'cafe' },
+      { key: 'amenity', value: 'restaurant' },
+      { key: 'amenity', value: 'food_court' },
+      { key: 'amenity', value: 'marketplace' },
+      { key: 'shop', value: 'bakery' },
     ]);
     expect(osmCoverageDiscoverySelectors([])).toEqual([]);
   });
 
-  it('treats a food venue class as supporting evidence that never admits on its own', () => {
+  it('keeps a food venue class distinct from visitability evidence', () => {
     for (const tags of [
       { amenity: 'cafe' },
       { amenity: 'restaurant', cuisine: 'grill' },
       { amenity: 'food_court' },
       { shop: 'bakery' },
     ]) {
-      expect(signalTypes(tags)).toEqual(['VISITABLE_PLACE_CLASS']);
+      expect(signalTypes(tags)).toContain('VISITABLE_PLACE_CLASS');
+      expect(signalTypes(tags)).toContain('PLACE_VENUE_CLASSIFICATION');
+      expect(signalTypes(tags)).not.toContain(
+        'INDEPENDENT_VISITABILITY_EVIDENCE',
+      );
     }
   });
 
@@ -212,6 +277,18 @@ describe('food-and-drink discovery coverage and food venue admission evidence', 
         (selector) => selector.key === 'shop',
       ),
     ).toBe(false);
+  });
+
+  it('admits park and place-of-worship classes only when independent access evidence exists', () => {
+    for (const tags of [
+      { leisure: 'park', access: 'yes' },
+      { amenity: 'place_of_worship', access: 'permissive' },
+    ]) {
+      const facts = osmTagsToAdmissionFacts(tags);
+      expect(
+        evaluateAdmissionRule(facts.signals, facts.exclusions).admitted,
+      ).toBe(true);
+    }
   });
 });
 

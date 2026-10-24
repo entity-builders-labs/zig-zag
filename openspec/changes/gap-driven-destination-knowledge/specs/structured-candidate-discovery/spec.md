@@ -95,11 +95,15 @@ Provider query selectors SHALL be acquisition strategy derived from the adapter'
 - **THEN** discovery need not retrieve them, and their absence is not recorded as a rejection
 
 ### Requirement: Structured gastronomy candidate coverage
-Destination-scope discovery SHALL include provider-neutral structured gastronomy coverage from enabled providers. Candidate discovery SHALL NOT make ordinary food-venue classification an admission signal or relax admission globally; source limitations SHALL be recorded separately from admission.
+Destination-scope discovery SHALL include provider-neutral structured gastronomy coverage from enabled providers without requiring a Wikidata identity link. Candidate discovery SHALL NOT make ordinary food-venue classification an admission signal or relax admission globally; source limitations SHALL be recorded separately from admission.
 
 #### Scenario: Food venue discovery does not imply admission
 - **WHEN** a structured source returns an ordinary café or restaurant in destination scope
 - **THEN** it becomes a discovered candidate and is evaluated by the unchanged canonical admission policy
+
+#### Scenario: Food venue coverage does not require Wikidata
+- **WHEN** a gastronomy coverage query searches enabled structured providers
+- **THEN** food-venue candidates are discoverable without a Wikidata identifier, and admission still requires its own canonical evidence
 
 #### Scenario: Gastronomy coverage is reported
 - **WHEN** the enabled structured sources are exhausted for a destination

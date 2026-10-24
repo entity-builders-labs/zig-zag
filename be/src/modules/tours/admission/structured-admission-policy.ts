@@ -16,6 +16,8 @@ export type AdmissionSignalType =
   | 'HISTORIC_CLASSIFICATION'
   | 'HERITAGE_DESIGNATION'
   | 'VISITABLE_PLACE_CLASS'
+  | 'PLACE_VENUE_CLASSIFICATION'
+  | 'INDEPENDENT_VISITABILITY_EVIDENCE'
   | 'ENCYCLOPEDIC_NOTABILITY'
   | 'PROVIDER_PROMINENCE';
 
@@ -40,6 +42,8 @@ export const ADMISSION_SIGNAL_STRENGTHS: Readonly<
   HISTORIC_CLASSIFICATION: 'supporting',
   HERITAGE_DESIGNATION: 'decisive',
   VISITABLE_PLACE_CLASS: 'supporting',
+  PLACE_VENUE_CLASSIFICATION: 'supporting',
+  INDEPENDENT_VISITABILITY_EVIDENCE: 'supporting',
   ENCYCLOPEDIC_NOTABILITY: 'supporting',
   PROVIDER_PROMINENCE: 'supporting',
 };
@@ -52,6 +56,8 @@ export const DECISIVE_ADMISSION_SIGNALS: readonly AdmissionSignalType[] = [
 export const SUPPORTING_ADMISSION_SIGNALS: readonly AdmissionSignalType[] = [
   'HISTORIC_CLASSIFICATION',
   'VISITABLE_PLACE_CLASS',
+  'PLACE_VENUE_CLASSIFICATION',
+  'INDEPENDENT_VISITABILITY_EVIDENCE',
   'ENCYCLOPEDIC_NOTABILITY',
   'PROVIDER_PROMINENCE',
 ];
@@ -133,7 +139,7 @@ export const DEFAULT_VISIT_UNITS: Readonly<
 export type CanonicalPlaceClass = string;
 
 /** Versioned policy identity; bump when the rule or vocabulary changes. */
-export const STRUCTURED_ADMISSION_POLICY_VERSION = 'structured-admission-v2';
+export const STRUCTURED_ADMISSION_POLICY_VERSION = 'structured-admission-v3';
 
 export type AdmissionRejectionReason =
   | 'EXCLUDED_CATEGORY'
@@ -171,12 +177,21 @@ export function evaluateAdmissionRule(
     return { admitted: true, signals: [...present].sort() };
   }
 
-  // 3. Descriptive place classifications plus an independent notability
-  //    signal admit, unless an overridable exclusion applies. Classification
-  //    evidence alone (including HISTORIC_CLASSIFICATION) is never decisive.
+  // 3. A compatible place/venue class plus an independently grounded public-
+  //    visitability fact can admit. Descriptive classes (including historic
+  //    objects and VISITABLE_PLACE_CLASS) are not this venue-class evidence.
   if (exclusionSet.size > 0) {
     return { admitted: false, reason: 'EXCLUDED_CATEGORY' };
   }
+  if (
+    present.has('PLACE_VENUE_CLASSIFICATION') &&
+    present.has('INDEPENDENT_VISITABILITY_EVIDENCE')
+  ) {
+    return { admitted: true, signals: [...present].sort() };
+  }
+
+  // 4. Trusted encyclopedic notability or existing provider prominence remain
+  //    optional positive evidence alongside a descriptive place class.
   const classified =
     present.has('VISITABLE_PLACE_CLASS') ||
     present.has('HISTORIC_CLASSIFICATION');
@@ -187,6 +202,6 @@ export function evaluateAdmissionRule(
     return { admitted: true, signals: [...present].sort() };
   }
 
-  // 4. Otherwise the place is rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
+  // 5. Otherwise the place is rejected with INSUFFICIENT_ADMISSION_EVIDENCE.
   return { admitted: false, reason: 'INSUFFICIENT_ADMISSION_EVIDENCE' };
 }

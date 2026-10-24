@@ -27,7 +27,7 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 
 ## Tasks
 - T0 — S1–S4 — inline — complete active OpenSpec update with independent visitability, preference independence and bounded grounded reputation capability/tasks; strict validation passed. Spec checkpoint commit pending.
-- T1 — S1–S2 — inline — implement 39.13/39.14 with tests; commit evidence after focused/suite checks. Risk: item 3 (canonical admission and preference evidence contracts are shared by adapters and catalog consumers).
+- T1 — S1–S2 — inline — implement 39.13/39.14 with tests; complete focused/suite and independent high-risk verification; record commit evidence. Risk: items 1 and 3 (additive persisted Prisma enum contract and shared canonical admission/preference evidence).
 - T2 — S3 — inline — run a bounded Groq grounded-reputation sample; add only the smallest typed post-admission spike and record measured evidence, with UNKNOWN neutral.
 - T3 — S4 — inline — rerun local Buenos Aires smoke and record 39.15 evidence without rewriting 39.11/39.12; keep 40.2 blocked.
 
@@ -64,3 +64,9 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - The validation goal is `Restore legitimate admission without making Wikidata mandatory, then test whether grounded web reputation provides the missing quality signal.`
 - Wikidata, reputation, prominence, preference relevance and planning readiness remain separate; reputation is post-admission, ranking-only, typed/provenance-backed and UNKNOWN when unsupported.
 - Add the bounded Groq reputation capability/task before implementing it; no Google Places, Foursquare or Gemini Maps; do not start 40.2.
+
+### L4 — T1 implementation and verification (2026-10-24)
+- Added provider-neutral paired class/independent-visitability admission evidence; OSM adapter maps only explicit public/customer foot/access semantics. Class-only and historic/artwork safeguards remain supporting-only.
+- Removed Wikidata identity as a prerequisite for food discovery and verified canonical gastronomy observations persist for a no-QID restaurant.
+- Independent verifier passed against `7afdfc91`; parent spot-check passed. Focused tests: 10 suites/122 tests; disposable DB integration: 3 tests; Prisma, typecheck, ESLint, OpenSpec strict validation and diff checks passed.
+- Replay diagnostic: 2,712 candidates / 701 admitted, with only 4 carrying the new explicit-access evidence. This is not Buenos Aires smoke evidence; measure class-level recovery and quality in 39.15 before broadening the canonical source evidence.

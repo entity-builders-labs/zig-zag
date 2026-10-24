@@ -226,7 +226,7 @@ describe('StructuredPoiAcquisitionProvider', () => {
         }),
       }) as unknown as OsmPlacesService;
 
-    it('queries only identity-linked food venue classes when no capacity gap asks for base discovery', async () => {
+    it('queries food venue classes without requiring Wikidata when no capacity gap asks for base discovery', async () => {
       const osm = emptyOsm();
       const result = await new StructuredPoiAcquisitionProvider(osm).acquire(
         destination,
@@ -239,11 +239,11 @@ describe('StructuredPoiAcquisitionProvider', () => {
 
       const selectors = (osm.lookupFeaturesNear as jest.Mock).mock.calls[0][3];
       expect(selectors).toEqual([
-        { key: 'amenity', value: 'cafe', requireKeys: ['wikidata'] },
-        { key: 'amenity', value: 'restaurant', requireKeys: ['wikidata'] },
-        { key: 'amenity', value: 'food_court', requireKeys: ['wikidata'] },
-        { key: 'amenity', value: 'marketplace', requireKeys: ['wikidata'] },
-        { key: 'shop', value: 'bakery', requireKeys: ['wikidata'] },
+        { key: 'amenity', value: 'cafe' },
+        { key: 'amenity', value: 'restaurant' },
+        { key: 'amenity', value: 'food_court' },
+        { key: 'amenity', value: 'marketplace' },
+        { key: 'shop', value: 'bakery' },
       ]);
       expect(result.provenance).toMatchObject({
         baseDiscovery: false,
@@ -259,11 +259,13 @@ describe('StructuredPoiAcquisitionProvider', () => {
       });
       const selectors = (osm.lookupFeaturesNear as jest.Mock).mock.calls[0][3];
       expect(selectors[0]).toEqual({ key: 'tourism' });
-      expect(
-        selectors
-          .slice(-5)
-          .every((s: any) => s.requireKeys?.[0] === 'wikidata'),
-      ).toBe(true);
+      expect(selectors.slice(-5)).toEqual([
+        { key: 'amenity', value: 'cafe' },
+        { key: 'amenity', value: 'restaurant' },
+        { key: 'amenity', value: 'food_court' },
+        { key: 'amenity', value: 'marketplace' },
+        { key: 'shop', value: 'bakery' },
+      ]);
     });
   });
 });

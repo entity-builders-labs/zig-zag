@@ -88,6 +88,10 @@ specific, not admission evidence.
 - **WHEN** a compatible place/venue classification is accompanied by source-backed `INDEPENDENT_VISITABILITY_EVIDENCE` for that GeoEntity and Wikidata is absent, unavailable or UNKNOWN
 - **THEN** the GeoEntity is admitted without using its class name as a whitelist or relying on Wikidata
 
+#### Scenario: Explicit access is adapter-normalized, not inferred from class
+- **WHEN** an OSM record has a compatible place/venue class and `access=yes`, `access=permissive`, `access=customers`, or `foot=yes`, `foot=permissive`, `foot=customers`, `foot=designated`
+- **THEN** its adapter may emit independent visitability evidence; missing or restrictive access and descriptive object classifications alone do not satisfy the admission pair
+
 #### Scenario: C5 child outcome is not admission evidence
 - **WHEN** C5 classifies a child as `CHILD_INDEPENDENTLY_VISITABLE` but the child's admission evidence is otherwise insufficient
 - **THEN** the child remains unadmitted; C5 does not change the admission decision

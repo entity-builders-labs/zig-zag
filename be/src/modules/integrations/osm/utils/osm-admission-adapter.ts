@@ -177,9 +177,8 @@ const OSM_VISITABLE_AMENITY_VALUES = new Set([
 ]);
 
 /**
- * Food-and-drink venue classes. Supporting evidence only: an ordinary venue
- * class never admits on its own (C6); it needs independent notability or a
- * decisive signal.
+ * Food-and-drink venue classes. Classification and visitability remain
+ * distinct: class membership alone is not admission evidence.
  */
 const OSM_FOOD_AND_DRINK_CLASSES: ReadonlyArray<{
   key: string;
@@ -200,6 +199,17 @@ const OSM_VISITABLE_LEISURE_VALUES = new Set([
   'park',
   'square',
   'beach_resort',
+]);
+
+/** OSM access facts that directly indicate public/visitor use of a feature. */
+const OSM_INDEPENDENT_VISIT_ACCESS_VALUES = new Set([
+  'yes',
+  'permissive',
+  'customers',
+]);
+const OSM_INDEPENDENT_FOOT_ACCESS_VALUES = new Set([
+  ...OSM_INDEPENDENT_VISIT_ACCESS_VALUES,
+  'designated',
 ]);
 
 export interface OsmAdmissionFacts {
@@ -233,6 +243,30 @@ export function osmTagsToAdmissionFacts(
     signals.push(admissionSignal(signal));
     signalEvidence.push({ signal, field, value });
   };
+  const addPlaceVenueClassification = (field: string, value: string) =>
+    addSignal('PLACE_VENUE_CLASSIFICATION', field, value);
+
+  // Access is only independent visitability evidence when the source states
+  // public, permissive, or customer/visitor access. An explicit pedestrian
+  // restriction overrides the general access value; missing access is UNKNOWN.
+  const rawFootAccess = t.foot?.trim();
+  const rawGeneralAccess = t.access?.trim();
+  const footAccess = rawFootAccess?.toLowerCase();
+  const generalAccess = rawGeneralAccess?.toLowerCase();
+  if (
+    footAccess &&
+    rawFootAccess &&
+    OSM_INDEPENDENT_FOOT_ACCESS_VALUES.has(footAccess)
+  ) {
+    addSignal('INDEPENDENT_VISITABILITY_EVIDENCE', 'foot', rawFootAccess);
+  } else if (
+    !footAccess &&
+    generalAccess &&
+    rawGeneralAccess &&
+    OSM_INDEPENDENT_VISIT_ACCESS_VALUES.has(generalAccess)
+  ) {
+    addSignal('INDEPENDENT_VISITABILITY_EVIDENCE', 'access', rawGeneralAccess);
+  }
 
   // Structural exclusions first (a record is not an ordinary PLACE).
   if (t.boundary !== undefined) exclusions.push('ADMINISTRATIVE_OR_LOCALITY');
@@ -270,18 +304,22 @@ export function osmTagsToAdmissionFacts(
   }
   if (t.amenity !== undefined && OSM_VISITABLE_AMENITY_VALUES.has(t.amenity)) {
     addSignal('VISITABLE_PLACE_CLASS', 'amenity', t.amenity);
+    addPlaceVenueClassification('amenity', t.amenity);
     placeClasses.push(`amenity:${t.amenity}`);
   }
   if (t.shop !== undefined && OSM_VISITABLE_SHOP_VALUES.has(t.shop)) {
     addSignal('VISITABLE_PLACE_CLASS', 'shop', t.shop);
+    addPlaceVenueClassification('shop', t.shop);
     placeClasses.push(`shop:${t.shop}`);
   }
   if (t.leisure !== undefined && OSM_VISITABLE_LEISURE_VALUES.has(t.leisure)) {
     addSignal('VISITABLE_PLACE_CLASS', 'leisure', t.leisure);
+    addPlaceVenueClassification('leisure', t.leisure);
     placeClasses.push(`leisure:${t.leisure}`);
   }
   if (t.natural === 'beach') {
     addSignal('VISITABLE_PLACE_CLASS', 'natural', t.natural);
+    addPlaceVenueClassification('natural', t.natural);
     placeClasses.push('natural:beach');
   }
   if (t.highway === 'corridor') {
@@ -455,18 +493,17 @@ export interface OsmAdmissionDiscoverySelector {
 }
 
 /**
- * Gap-scoped discovery coverage (canonical coverage → OSM classes). Food venue classes are requested only with an encyclopedic
- * identity link: their decisive-signal subset (visitor classification,
- * heritage) is already reached by base discovery, and an unlinked ordinary
- * venue could only be rejected (its class alone never admits).
+ * Gap-scoped discovery coverage (canonical coverage → OSM classes). Food
+ * venues remain discoverable without Wikidata; admission separately requires
+ * source-backed independent visitability evidence.
  */
 export function osmCoverageDiscoverySelectors(
   coverage: readonly StructuredPlaceCoverage[],
-): Array<{ key: string; value: string; requireKeys: string[] }> {
+): Array<{ key: string; value: string }> {
   return coverage.includes('FOOD_AND_DRINK')
     ? OSM_FOOD_AND_DRINK_CLASSES.map((klass) => ({
-        ...klass,
-        requireKeys: ['wikidata'],
+        key: klass.key,
+        value: klass.value,
       }))
     : [];
 }

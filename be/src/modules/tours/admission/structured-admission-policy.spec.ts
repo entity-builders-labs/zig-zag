@@ -17,6 +17,12 @@ describe('structured admission policy (design C6/C7)', () => {
     );
     expect(ADMISSION_SIGNAL_STRENGTHS.HERITAGE_DESIGNATION).toBe('decisive');
     expect(ADMISSION_SIGNAL_STRENGTHS.VISITABLE_PLACE_CLASS).toBe('supporting');
+    expect(ADMISSION_SIGNAL_STRENGTHS.PLACE_VENUE_CLASSIFICATION).toBe(
+      'supporting',
+    );
+    expect(ADMISSION_SIGNAL_STRENGTHS.INDEPENDENT_VISITABILITY_EVIDENCE).toBe(
+      'supporting',
+    );
     expect(ADMISSION_SIGNAL_STRENGTHS.ENCYCLOPEDIC_NOTABILITY).toBe(
       'supporting',
     );
@@ -68,6 +74,26 @@ describe('structured admission policy (design C6/C7)', () => {
     expect(s(['VISITABLE_PLACE_CLASS', 'PROVIDER_PROMINENCE']).admitted).toBe(
       true,
     );
+  });
+
+  it('admits only the combination of venue classification and independent visitability', () => {
+    expect(
+      s(['PLACE_VENUE_CLASSIFICATION', 'INDEPENDENT_VISITABILITY_EVIDENCE'])
+        .admitted,
+    ).toBe(true);
+    expect(s(['PLACE_VENUE_CLASSIFICATION']).admitted).toBe(false);
+    expect(s(['INDEPENDENT_VISITABILITY_EVIDENCE']).admitted).toBe(false);
+  });
+
+  it('does not turn descriptive or historic classifications into venues', () => {
+    expect(
+      s(['HISTORIC_CLASSIFICATION', 'INDEPENDENT_VISITABILITY_EVIDENCE'])
+        .admitted,
+    ).toBe(false);
+    expect(
+      s(['VISITABLE_PLACE_CLASS', 'INDEPENDENT_VISITABILITY_EVIDENCE'])
+        .admitted,
+    ).toBe(false);
   });
 
   it('a historic classification plus independent notability admits', () => {

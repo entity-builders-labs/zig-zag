@@ -375,4 +375,79 @@ describe('tour-generation integration · destination structured POI path', () =>
     expect(result.structuredPoiPersistence).toBeUndefined();
     expect(await prisma.geoEntity.count()).toBe(0);
   });
+
+  it('admits and persists an independently visitable food venue with OSM preference facts and no Wikidata', async () => {
+    const prisma = await getPrisma();
+    const restaurant = osm('node', 111, 'Public restaurant', {
+      amenity: 'restaurant',
+      access: 'customers',
+      cuisine: 'grill',
+    });
+    const osmPlaces = {
+      lookupFeaturesNear: jest.fn().mockResolvedValue({
+        status: 'success',
+        rawResultCount: 1,
+        value: [restaurant],
+      }),
+      lookupAreaGeometries: jest.fn().mockResolvedValue({
+        status: 'success',
+        value: new Map(),
+        failedIds: [],
+      }),
+    } as unknown as OsmPlacesService;
+    const provider = new StructuredPoiAcquisitionProvider(osmPlaces);
+    const acquired = await provider.acquire(destination, {
+      radiusMeters: 5_000,
+      baseDiscovery: false,
+      coverage: ['FOOD_AND_DRINK'],
+    });
+    expect(acquired.status).toBe('success');
+    expect(acquired.value).toHaveLength(1);
+    expect(acquired.value[0].entityFacts).toBeUndefined();
+    expect(
+      acquired.value[0].targetObservations.map(
+        (fact) => `${fact.target.dimension}:${fact.target.key}`,
+      ),
+    ).toEqual(['theme:gastronomy', 'theme:food', 'intent:food']);
+
+    const catalog = new ExperienceCatalogService(prisma, {} as any);
+    const persistence = new StructuredPoiCatalogAcquisitionService(
+      prisma,
+      catalog,
+      new StructuredKnowledgePersistenceService(prisma),
+    );
+    await persistence.persist(acquired.value);
+
+    const entity = await prisma.geoEntity.findFirstOrThrow({
+      where: { name: 'Public restaurant' },
+    });
+    expect(
+      await prisma.geoEntityAdmission.findUniqueOrThrow({
+        where: { geoEntityId: entity.id },
+      }),
+    ).toMatchObject({
+      outcome: 'ADMITTED',
+      signals: expect.arrayContaining([
+        'PLACE_VENUE_CLASSIFICATION',
+        'INDEPENDENT_VISITABILITY_EVIDENCE',
+      ]),
+    });
+    expect(
+      await prisma.geoEntityTargetObservation.findMany({
+        where: { geoEntityId: entity.id },
+        orderBy: { key: 'asc' },
+      }),
+    ).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          dimension: 'theme',
+          key: 'gastronomy',
+          state: 'SATISFIES',
+          sourceFactId: expect.stringContaining(
+            'osm:node:111#amenity=restaurant',
+          ),
+        }),
+      ]),
+    );
+  });
 });
