@@ -212,9 +212,11 @@ remain 1 tomb / 2 memorials / 5 monuments / 1 artwork. The Groq reputation
 pilot yielded one reviewed fact from nine eligible candidates; eight requests
 were rate-limited. Current verdict remains `APPROACH_PARTIALLY_VALIDATED`.
 Next authorized action: complete Foursquare tasks 39.17/39.18 after the
-Foursquare Service API key is configured locally; compare typed reputation
-ranking without changing admission and rerun the local BA smoke. Do not start
-40.2.
+Foursquare account has API credits; the configured local key received HTTP 429
+(`Your account has no API credits remaining`) on one Place Search access probe.
+No sample reputation fields or costs were measured. Do not retry until credits
+are available; then compare typed reputation ranking without changing
+admission and rerun the local BA smoke. Do not start 40.2.
 
 Previous (39.3–39.7): Tasks 39.3–39.7 are complete (2026-10-23). The 39.7 smoke is
 APPROACH_PARTIALLY_VALIDATED: composed noise fell (tombs 331→1, memorials
@@ -291,9 +293,9 @@ do not start 25.8 or task 40+.
 
 - Task 40.2 remains blocked after the 39.10 smoke (2026-10-24): owner review
   pending; identity-link validity is not yet applied to admission.
-- Tasks 39.17/39.18 are pending. The required Foursquare Service API key is
-  currently absent; do not make unauthenticated calls or claim provider
-  coverage. Keep secrets out of Git and chat.
+- Tasks 39.17/39.18 are pending. A configured local Foursquare key returned
+  HTTP 429 because the account has no API credits; do not retry until credits
+  are available or claim provider coverage. Keep secrets out of Git and chat.
 - Task 40.2 remains open and blocked after the 39.7 review (2026-10-23):
   duration knowledge is 0 and task 27.3 has not run, and catalog-quality
   blockers remain (prominence precedence; inert preference relevance for

@@ -3960,6 +3960,15 @@ usage/billing evidence; do not assume Pro quotas apply to Premium fields.
 Sources: [Places Response Fields](https://docs.foursquare.com/fsq-developers-places/reference/response-fields),
 [Foursquare Places pricing](https://foursquare.com/pricing/).
 
+Initial access probe (2026-10-25): the configured local service key was used
+for one Place Search request (`2025-06-17`, Buenos Aires, `Teatro Colón`,
+requesting identity, geography, categories and reputation fields). The API
+returned HTTP 429 with `Your account has no API credits remaining`; response
+rate-limit headers reported zero. No result fields, match, rating, popularity,
+plan tier or billable cost could be measured. This is an access/billing
+blocker, not evidence that the provider is unavailable or unuseful. Do not
+retry or expand the sample until credits are available.
+
 For every sample item, record canonical name, coordinates and canonical
 category/class alongside the candidate Foursquare place id, name, coordinates
 and categories, endpoint/match method, outcome and evidence. Same-name matches
