@@ -1,5 +1,5 @@
 # Catalog supply and grounded reputation
-Objective: recover independently supported Experience supply, then evaluate optional grounded-web reputation without starting 40.2.
+Objective: recover independently supported Experience supply, preserve the completed grounded-web reputation experiment as historical evidence, then evaluate bounded Foursquare reputation without starting 40.2.
 Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runner: Jest, backend tooling and local Buenos Aires smoke. Forecast: 900–1,600 authored lines, excluding generated files.
 
 ## Specs
@@ -14,22 +14,30 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Reuse `GeoEntityTargetObservation` for canonical preference observations only.
 - Preserve gastronomy, art, history and architecture relevance without Wikidata; do not fabricate `qualityScore`.
 
-### S3 — Grounded reputation is separate
+### S3 — Optional reputation is separate
 - Exact separation: `admission != prominence != reputation != preference relevance != planning readiness`.
-- Reputation is post-admission, bounded to a shortlist, provider-neutral, typed, citation/provenance-backed, ranking-only and `UNKNOWN` when unsupported.
-- No opaque LLM score, no admission authority, no Google Places/Foursquare/Gemini Maps, and no reliance on `GeoEntityTargetObservation` as reputation storage.
-- Verify current Groq model/tool configuration and report sample coverage, matches, UNKNOWN, sources, identity mismatches, latency, token/cost data if available, and cache behavior.
+- Reputation is post-admission, bounded to a shortlist, provider-neutral, typed, provenance-backed, ranking-only and `UNKNOWN` when unsupported.
+- No opaque score, no admission authority, no reputation in `GeoEntityTargetObservation`, and no production ranking authority until the experiment justifies it.
+- Preserve the completed Groq pilot as historical evidence; the new bounded Foursquare spike measures current endpoint/version, match accuracy, rating/popularity coverage, billing, latency and cache behavior.
 
 ### S4 — Validation and delivery
-- Preserve 39.11/39.12 evidence. Run local Overpass/Nominatim with Argentina dataset and disposable `zigzag_39_test`; Wikidata optional, Groq only for bounded reputation, no public Overpass/Nominatim or Gemini Maps.
+- Preserve 39.11/39.12 and prior 39.15/39.16 evidence. Run local Overpass/Nominatim with Argentina dataset and disposable `zigzag_39_test`; Wikidata optional, Foursquare only for bounded post-admission reputation, no Groq reputation, public Overpass/Nominatim or Gemini Maps in the new comparison.
 - Measure admission/composition, Wikidata dependence, historic-object counts, gastronomy, reputation outcomes, four preference profiles and evidence-based top 30 ranking reasons.
 - Do not start 40.2. Commit bounded work units and push to the existing feature upstream only after gates.
+
+### S5 — Foursquare reputation spike
+- Query only already-admitted/composed Experiences; reputation never creates catalog identity or admission. Normalize rating/popularity into provider-neutral typed facts with provider, external place id, observation time, source field and scale; `UNKNOWN` is neutral.
+- Audit canonical and returned identities, coordinates and categories; reject conflicting geography and keep ambiguity `UNKNOWN`. Reuse canonical identity/spatial authority and add no arbitrary threshold or place-specific exception.
+- Compare existing production ordering with a bounded experimental typed ranking after existing preference and prominence dimensions; do not add an opaque scalar or enable production ranking authority.
+- Report endpoint/version, match and field coverage, Pro/Premium billing, calls, latency, cache and cost; rerun the local Buenos Aires smoke and preserve earlier measurements.
 
 ## Tasks
 - T0 — S1–S4 — inline — complete active OpenSpec update with independent visitability, preference independence and bounded grounded reputation capability/tasks; strict validation passed. Commit `7afdfc91`.
 - T1 — S1–S2 — inline — implement 39.13/39.14 with tests; complete focused/suite and independent high-risk verification; record commit evidence. Risk: items 1 and 3 (additive persisted Prisma enum contract and shared canonical admission/preference evidence). Complete in `b1caad64`; verifier and focused checks passed.
 - T2 — S3 — inline — run a bounded Groq grounded-reputation sample; add only the smallest typed post-admission spike and record measured evidence, with UNKNOWN neutral. Complete as diagnostic-only: 9 eligible candidate queries, one validated fact and eight rate-limited UNKNOWN; no ranking integration.
 - T3 — S4 — inline — rerun local Buenos Aires smoke and record 39.15 evidence without rewriting 39.11/39.12; keep 40.2 blocked. Complete with `APPROACH_PARTIALLY_VALIDATED`; no final push authorized.
+- T4 — S3–S5 — inline — add Foursquare reputation contract/task to active OpenSpec first; run task 39.17 as a bounded post-admission Places API experiment and compare typed ranking evidence without production authority. Pending Foursquare API credentials.
+- T5 — S4–S5 — inline — rerun local Buenos Aires smoke per task 39.18, record the catalog and reputation verdicts, run gates, commit and push only after required evidence is complete. Do not start 40.2.
 
 ## Log
 
@@ -76,3 +84,9 @@ Branch: `feat/synthetic-tours-openspec`; delivery: `feature-branch-chain`; runne
 - Reputation pilot queried only 9 already-composed eligible Experiences. One Casa Rosada official-tourism fact was source-reviewed; eight Groq calls returned HTTP 429. The successful response used 147,111 tokens, cost was unavailable, and no canonical cache exists. Evidence coverage did not justify ranking integration.
 - Process deviation disclosed: two exploratory Café Tortoni calls were made before verifying composition; the candidate was absent and those results were excluded. The pilot script now filters by composed order.
 - Final verdict `APPROACH_PARTIALLY_VALIDATED`; no push and no 40.2.
+
+### L6 — Foursquare reputation direction (2026-10-25)
+- Owner replaces the inconclusive Groq follow-up with a bounded Foursquare reputation spike. The completed Groq result remains historical and unchanged; no Foursquare output may influence admission or create catalog entities.
+- Current official Foursquare docs identify Places API version `2025-06-17`; Place Match documents English-speaking country support, so Argentina should use a supported search/matching path. Rating, popularity and veracity metadata are Premium fields; published Premium pricing implies $1.875 per 100 calls if that rate applies. Capture account/billing evidence rather than assuming plan access.
+- OpenSpec updated and passed `openspec validate --changes --strict` and `git diff --check` before product implementation. New tasks: 39.17 bounded Foursquare experiment and 39.18 final local smoke.
+- No Foursquare API key/configuration is currently present in `.env` or the process environment, and repository code has no Foursquare adapter. Live provider measurement is blocked until the secret is configured locally; do not put credentials in Git or chat.

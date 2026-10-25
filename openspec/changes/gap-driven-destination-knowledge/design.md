@@ -3887,10 +3887,11 @@ admission evidence. Current implementation inspection found Google Places
 rating and review-count fields in a separate provider path and a `POPULARITY`
 request ordering option, but no persisted candidate rank in the structured
 OSM catalog path. Geoapify exposes raw popularity in its provider response but
-currently drops it during its `PlaceData` mapping. This amendment adds a
-bounded Groq grounded-web reputation experiment only after structured
-admission; it does not add Google Places, Foursquare or Gemini Maps to the
-experiment.
+currently drops it during its `PlaceData` mapping. Task 39.16's Groq
+grounded-web reputation experiment is complete and retained as historical
+evidence. Task 39.17 replaces it as the next reputation experiment with a
+bounded Foursquare enrichment of already-composed Experiences; Foursquare is
+not added to the OSM catalog acquisition path.
 
 The existing Groq grounded-search implementation is currently used during
 Experience acquisition, not for post-admission evaluation. Repository code
@@ -3918,15 +3919,73 @@ latency, returned token usage and provider-reported cost when available. No
 canonical reputation cache exists for this path; the spike reports cache
 availability and actual hit/miss counts without claiming reuse.
 
-The experiment is bounded to an offered shortlist of roughly 50–100 admitted
-Buenos Aires Experiences, stratified across current top and middle ordering,
-gastronomy and low-prominence candidates; diagnostic named places are included
-only when present in the measured sample. It does not query all discovered
-POIs. Only if returned grounded evidence has measured coverage and reliable
-identity matching may the typed evidence affect ranking, as a separate,
-deterministic, explainable ranking dimension. `UNKNOWN` is neutral; reputation
-cannot grant/revoke admission, replace Wikidata prominence, alter preference
-observations, or make planning-ready claims. No desired rank is hardcoded.
+The completed Groq pilot was bounded to nine already-composed candidates and
+did not justify ranking integration; its measurements and disclosed
+pre-admission Café Tortoni exploration remain unchanged in
+`spikes/catalog-quality-smoke-2026-10-24/RESULTS.md`.
+
+### Foursquare reputation spike (task 39.17)
+
+Foursquare is tested only as an optional post-admission enrichment provider.
+The canonical GeoEntity remains the catalog and identity owner. No Foursquare
+search result may create a GeoEntity, Experience or admission signal. The
+provider adapter normalizes source-specific responses into a provider-neutral
+reputation record and provenance; raw response JSON is diagnostic input only,
+never ranking authority. `UNKNOWN`, unavailable data, missing fields, failed
+requests or uncertain identity leave admission and composition unchanged.
+
+The current Foursquare Places API reference specifies version
+`2025-06-17`. Its Place Match endpoint currently documents support only for
+English-speaking countries, so the Buenos Aires Argentina sample must not
+assume that endpoint works. Use the current Place Search endpoint with
+canonical name and coordinates as search inputs when supported, retain its
+candidate response fields, and measure identity matching explicitly. Search
+results are enrichment candidates, not a replacement place catalog.
+The selected API version, endpoint and returned contract must be captured in
+the run evidence. Sources: [Place Match](https://docs.foursquare.com/fsq-developers-places/reference/place-match),
+[Place Search](https://docs.foursquare.com/fsq-developers-places/reference/place-search),
+[Places Response Fields](https://docs.foursquare.com/fsq-developers-places/reference/response-fields).
+
+Current response-field documentation places `rating` (0–10), `popularity`
+(0–1 foot-traffic measure over a recent six-month span) and `veracity_rating`
+(1–5 source-data reliability metadata) in Places Premium. Rating and
+popularity are separate typed facts, each retaining provider, provider place
+identifier, observation time, source field and scale. `veracity_rating` is
+captured as source-quality context only; it is not itself tourist popularity,
+admission evidence or a ranking score. Foursquare's pricing page currently
+lists $18.75 CPM for 0–100,000 Premium calls ($1.875 per 100 calls at that
+published rate), while other official pricing pages describe different free
+Pro quotas. The spike must report the account's actual endpoint tier and
+usage/billing evidence; do not assume Pro quotas apply to Premium fields.
+Sources: [Places Response Fields](https://docs.foursquare.com/fsq-developers-places/reference/response-fields),
+[Foursquare Places pricing](https://foursquare.com/pricing/).
+
+For every sample item, record canonical name, coordinates and canonical
+category/class alongside the candidate Foursquare place id, name, coordinates
+and categories, endpoint/match method, outcome and evidence. Same-name matches
+with conflicting geography are rejected; multiple plausible candidates are
+ambiguous. Reuse the existing canonical identity/spatial-correspondence
+authority where it can decide consistency. Do not introduce a new arbitrary
+global distance threshold or place-specific exception. If existing canonical
+evidence cannot establish a sufficiently consistent match, record reputation
+as `UNKNOWN`.
+
+The sample is roughly 50–100 already-composed Buenos Aires Experiences when
+the account/runtime allows, stratified across top, middle, gastronomy,
+museums/attractions and secondary/niche places; include the requested
+diagnostics when present, without hardcoding expected matches or ranks. Record
+attempts, matched/ambiguous/rejected/unmatched counts, rating/popularity
+present/missing counts, Premium vs Pro calls, cache hits/misses or cache
+unavailability, latency, actual/estimated cost and evidence quality. The
+ranking comparison is experimental only: preserve existing preference levels
+and structured prominence as higher-priority dimensions, then compare known
+reputation rating and popularity as separate lexicographic dimensions before
+generic quality and identity tie-breaks. Rating is compared only with rating,
+popularity only with popularity; no scalar reputation score is created.
+`UNKNOWN` uses the existing within-tier neutral ordering behavior and never
+acts as negative evidence. Explanations identify which typed dimension and
+provenance caused any changed order. No production ranking authority is
+enabled by this spike.
 
 The 2026-10-24 bounded pilot queried nine already-composed candidates using the
 existing Groq adapter: one source-reviewed official tourism mention was usable,
@@ -3953,11 +4012,13 @@ exploration deviation, are recorded in
    independent evidence can admit without Wikidata; visitor/heritage paths
    survive unknown Wikidata; historic-only objects remain rejected or
    parent-represented; C5 and single-place composition remain separate.
-4. Run the bounded grounded-reputation sample after admission recovery; retain
-   typed evidence only when citations support the fact and the canonical
-   identity matches. Apply it to ranking only if the measured sample supports
-   useful coverage and reliable matches; otherwise keep it UNKNOWN/diagnostic.
-5. Rerun the Buenos Aires smoke and compare with unchanged 39.11/39.12
-   artifacts for restored supply, reputation coverage, ranking reasons,
-   preferences, prominence and historic-object regression counts. Keep 40.2
+4. Preserve the completed 39.16 Groq reputation pilot as diagnostic historical
+   evidence. Run the bounded 39.17 Foursquare spike only after composition;
+   retain typed facts only when the Foursquare place is spatially consistent
+   with the canonical GeoEntity. Compare ranking with an explicit typed
+   reputation dimension, but do not enable production ranking authority from
+   the experiment.
+5. Run task 39.18's local Buenos Aires smoke and compare with unchanged
+   39.11/39.12 and 39.15 artifacts for supply, reputation coverage, ranking
+   reasons, preferences, prominence and historic-object regressions. Keep 40.2
    blocked until the catalog-quality gate passes.

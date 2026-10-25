@@ -14,11 +14,12 @@ Repository: `entity-builders-labs/zig-zag`
 ## Current execution verdict
 
 **ACTIVE — `gap-driven-destination-knowledge` revision 4 production cutover.
-Tasks 39.0–39.10 and 40.1 are implemented and validated locally. The 39.10
-validation smoke (prominence-v2 + structured relevance) verdict is
-APPROACH_PARTIALLY_VALIDATED
-(`spikes/catalog-quality-smoke-2026-10-23/RESULTS.md`); task 40.2 stays
-blocked pending owner review.**
+Tasks 39.0–39.10, 39.13–39.16 and 40.1 are implemented and validated locally.
+The latest local catalog smoke remains `APPROACH_PARTIALLY_VALIDATED`
+(`spikes/catalog-quality-smoke-2026-10-24/RESULTS.md`). The owner has
+authorized a bounded Foursquare reputation spike as tasks 39.17–39.18; it is
+optional, post-admission, ranking-only and does not change the catalog owner.
+Task 40.2 remains blocked.**
 
 - Spike 1 (`spikes/gap-driven-destination-knowledge-2026-10-10/`): web-first
   discovery, 0 grounded (preserved).
@@ -101,6 +102,13 @@ locally. 39.3–39.7 commits (2026-10-23): `b42a20d9` harness, `de998159` +
 `c5ec74ed` prominence evidence, `4acc9bc7` prominence ordering, `8fa024ef`
 parent containment, `9502220c` gastronomy coverage; smoke evidence in
 `spikes/catalog-quality-smoke-2026-10-23/`.**
+
+**Latest catalog checkpoint:** tasks 39.13/39.14 committed as `b1caad64`;
+39.15/39.16 smoke and Groq pilot evidence committed as `de03b37c`. The new
+Foursquare contract/tasks 39.17–39.18 passed strict OpenSpec validation on
+2026-10-25. No Foursquare credential/configuration is present in `.env` or the
+process environment; live API measurement is blocked until it is configured
+locally. No product code has been changed for Foursquare.
 
 - Spike 3 ACCEPT recorded in proposal, design (C1-C13), specs and the
   canonical section; spike 3 README/runs unchanged.
@@ -198,17 +206,15 @@ parent containment, `9502220c` gastronomy coverage; smoke evidence in
 
 ## Next authorized action
 
-Tasks 39.8–39.10 are complete (2026-10-24): prominence-v2 (`2f78f624`,
-`aca68ed4`) and structured preference relevance (`f343c40b`). Validation
-smoke: Obelisco 97→6, MNBA 99→9, MALBA 104→22 (no-interest profile); art
-profile MNBA #1/MALBA #3; interests now reorder structured Experiences
-(strong matches 0→219/37/68); main top 30 is 7 A / 23 B / 0 C / 0 D.
-Open findings for the owner: 200 admissions (35 composed) rest on an
-unlocated linked item's notability (admission unchanged by instruction);
-a located mis-link still ranks first with no interests; route/attraction
-identity split (Caminito); duration knowledge 0. Next authorized action:
-owner review of the 39.10 smoke and a decision on applying identity-link
-validity to admission. Do not start 40.2.
+Tasks 39.13–39.16 are complete locally. Latest smoke: 339 admitted/composed
+vs 335 in 39.12, 4 gastronomy Experiences unchanged, and historic counts
+remain 1 tomb / 2 memorials / 5 monuments / 1 artwork. The Groq reputation
+pilot yielded one reviewed fact from nine eligible candidates; eight requests
+were rate-limited. Current verdict remains `APPROACH_PARTIALLY_VALIDATED`.
+Next authorized action: complete Foursquare tasks 39.17/39.18 after the
+Foursquare Service API key is configured locally; compare typed reputation
+ranking without changing admission and rerun the local BA smoke. Do not start
+40.2.
 
 Previous (39.3–39.7): Tasks 39.3–39.7 are complete (2026-10-23). The 39.7 smoke is
 APPROACH_PARTIALLY_VALIDATED: composed noise fell (tombs 331→1, memorials
@@ -285,6 +291,9 @@ do not start 25.8 or task 40+.
 
 - Task 40.2 remains blocked after the 39.10 smoke (2026-10-24): owner review
   pending; identity-link validity is not yet applied to admission.
+- Tasks 39.17/39.18 are pending. The required Foursquare Service API key is
+  currently absent; do not make unauthenticated calls or claim provider
+  coverage. Keep secrets out of Git and chat.
 - Task 40.2 remains open and blocked after the 39.7 review (2026-10-23):
   duration knowledge is 0 and task 27.3 has not run, and catalog-quality
   blockers remain (prominence precedence; inert preference relevance for

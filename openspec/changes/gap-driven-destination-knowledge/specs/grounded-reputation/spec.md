@@ -1,66 +1,73 @@
 ## Purpose
 
-Evaluate optional, grounded web reputation for already-admitted Experiences as
-a separate ranking signal. This capability is experimental and does not make
-web research a requirement for admission, composition, preference relevance or
-planning.
+Evaluate optional provider-neutral reputation and popularity evidence for
+already-admitted Experiences as a separate ranking dimension. The completed
+39.16 Groq-grounding pilot is historical evidence. The bounded Foursquare
+spike in 39.17 evaluates structured reputation enrichment without making any
+provider or reputation fact a requirement for admission, composition,
+preference relevance or planning.
 
 ## ADDED Requirements
 
-### Requirement: Reputation is post-admission and bounded
-Grounded reputation acquisition SHALL accept only independently admitted
-Experiences and SHALL operate on a bounded competitive shortlist, not every
-discovered POI. Reputation SHALL NOT participate in admission or revoke an
-Experience when absent, failed, unsupported or `UNKNOWN`.
+### Requirement: Reputation is optional and post-admission
 
-#### Scenario: No query for unadmitted candidates
-- **WHEN** a candidate has no admitted Experience
-- **THEN** the grounded-reputation path does not query it
+Reputation enrichment SHALL accept only independently admitted and composed
+Experiences from a bounded competitive shortlist. It SHALL NOT participate in
+discovery or admission, create a GeoEntity or Experience, or revoke an
+Experience when unavailable, failed, missing, unsupported or `UNKNOWN`.
 
-#### Scenario: Only shortlisted Experiences are queried
-- **WHEN** the catalog contains more discovered POIs than the competitive
-  reputation shortlist
-- **THEN** grounded research is limited to the offered admitted shortlist
+#### Scenario: No enrichment for an unadmitted candidate
+- **WHEN** a candidate has no independently admitted and composed Experience
+- **THEN** the reputation provider is not queried for that candidate
 
 #### Scenario: Reputation failure preserves the Experience
-- **WHEN** the grounding provider is unavailable, fails or returns no usable
+- **WHEN** the reputation provider is unavailable, fails, or returns no usable
   evidence for an admitted Experience
-- **THEN** reputation is `UNKNOWN` and the Experience remains admitted,
-  composed and available
+- **THEN** reputation is `UNKNOWN` and admission, composition and catalog
+  presence remain unchanged
 
-### Requirement: Reputation facts are typed, grounded and provenance-backed
-Reputation SHALL be provider-neutral `KNOWN { evidence } | UNKNOWN`. Each
-positive fact SHALL reference a returned grounding source and retain
-inspectable provenance. Unsupported, uncited or identity-ambiguous claims
-SHALL produce `UNKNOWN`. Free-form prose and opaque model-generated numeric
-scores SHALL NOT be ranking authority.
+### Requirement: Reputation facts are typed and provenance-backed
 
-#### Scenario: Citation-backed positive fact
-- **WHEN** returned grounding sources establish a typed reputation fact for
-  the same canonical Experience identity
-- **THEN** the fact is `KNOWN` with its source citation and provenance
+Reputation SHALL be represented by a provider-neutral `KNOWN { facts } | UNKNOWN`
+contract. Each known fact SHALL identify its canonical GeoEntity, fact kind,
+value and scale, provider, provider place identifier, observation time and
+source field. Provider-specific response fields SHALL be normalized at the
+adapter; raw provider JSON and free-form prose SHALL NOT be ranking authority.
 
-### Requirement: Reputation evidence uses an approved typed vocabulary
-Initial evidence types SHALL be `OFFICIAL_TOURISM_MENTION`,
-`REPEATED_TRAVEL_GUIDE_RECOMMENDATION`, `REPUTABLE_EDITORIAL_MENTION` and
-`CURRENT_VENUE_PRESENCE`. Additional types require an OpenSpec revision.
+#### Scenario: Normalize rating and popularity independently
+- **WHEN** a provider returns a supported reputation rating, popularity
+  measure, or both for a consistently matched canonical place
+- **THEN** each available fact is represented as its own typed, scaled fact
+  with provider and source-field provenance
 
-#### Scenario: Reputation type is explicit
-- **WHEN** a source supports a positive reputation fact
-- **THEN** the normalized fact uses an approved evidence type rather than a
-  free-form category
+#### Scenario: Missing provider fields remain unknown
+- **WHEN** one or more reputation fields are missing, unavailable or
+  unsupported
+- **THEN** only those facts are `UNKNOWN`; missing data is not negative
+  evidence and does not overwrite other known facts
 
-#### Scenario: No returned source supports the claim
-- **WHEN** a model assertion has no corresponding returned source citation
-- **THEN** the assertion is discarded and reputation is `UNKNOWN` if no other
-  supported fact remains
+### Requirement: External reputation identity must be spatially consistent
 
-#### Scenario: Wrong or ambiguous place identity
-- **WHEN** returned sources refer to a different or ambiguous real-world place
-- **THEN** those sources contribute no reputation evidence and cannot affect
-  ranking
+The reputation adapter SHALL consume external facts only when the matched
+place is spatially consistent with the canonical GeoEntity under the
+applicable canonical identity authority. Ambiguous, conflicting, unmatched
+or insufficiently supported identity SHALL yield `UNKNOWN`. Matching SHALL
+NOT rely on name alone, place-specific exceptions or arbitrary global
+distance thresholds.
+
+#### Scenario: One spatially consistent place match
+- **WHEN** one external place is established as spatially consistent with the
+  canonical GeoEntity by the applicable canonical identity authority
+- **THEN** its supported reputation facts may be consumed
+
+#### Scenario: Ambiguous or geographically conflicting match
+- **WHEN** multiple external places remain plausible, or a same-name place
+  has conflicting geography or category evidence
+- **THEN** no linked reputation fact affects ranking and reputation remains
+  `UNKNOWN`
 
 ### Requirement: Reputation remains distinct from other catalog concerns
+
 Reputation SHALL remain separate from admission, encyclopedic prominence,
 preference relevance and planning readiness. It SHALL NOT be stored in
 `GeoEntityTargetObservation` or used to fabricate a legacy `qualityScore`.
@@ -69,8 +76,8 @@ notability/prominence; its absence SHALL NOT erase non-Wikidata preference
 observations.
 
 #### Scenario: Reputation does not establish admission
-- **WHEN** a candidate has grounded reputation evidence but lacks independent
-  structured admission evidence
+- **WHEN** a candidate has reputation facts but lacks independent structured
+  admission evidence
 - **THEN** the candidate remains unadmitted
 
 #### Scenario: Preference facts remain independent
@@ -78,50 +85,70 @@ observations.
   architecture observations and no Wikidata enrichment
 - **THEN** those observations remain usable independently of reputation
 
-### Requirement: Reputation may affect ranking only when evidence is usable
-Only validated typed reputation evidence MAY affect ranking, as a separate,
-deterministic and explainable dimension among valid Experiences. `UNKNOWN` is
-neutral and SHALL NOT invalidate an Experience or substitute for
-encyclopedic prominence or preference relevance. Ranking explanations SHALL
-expose the typed reputation evidence that changed ordering.
+### Requirement: Reputation ranking is experimental, neutral and explainable
+
+Only validated typed reputation facts MAY affect the bounded ranking
+comparison as separate dimensions. Preference relevance and structured
+prominence SHALL retain precedence; rating and popularity SHALL not be
+combined into a scalar. `UNKNOWN` is neutral under the current within-tier
+unknown behavior. The spike SHALL NOT enable production ranking authority.
 
 #### Scenario: Unknown reputation is neutral
-- **WHEN** one admitted Experience has `UNKNOWN` reputation
-- **THEN** missing reputation alone does not lower its admission or assign a
-  negative ranking fact
+- **WHEN** reputation is unknown for an admitted Experience
+- **THEN** missing reputation does not lower admission or create a negative
+  ranking fact
 
-#### Scenario: Ranking explains grounded reputation effect
-- **WHEN** supported reputation evidence changes ordering between admitted
-  Experiences
-- **THEN** the ranking reason identifies its typed evidence and source
-  provenance, not a free-form model score
+#### Scenario: Preference relevance remains higher priority
+- **WHEN** two candidates differ on an existing preference-relevance level
+  and reputation facts favor the candidate with lower preference relevance
+- **THEN** the reputation experiment does not reverse their preference-level
+  order
 
-### Requirement: The experiment reports measured grounding quality
-The Buenos Aires experiment SHALL use a bounded, stratified sample of roughly
-50–100 admitted Experiences when runtime/cost permits. It SHALL report
-queries, grounded matches, `UNKNOWN`, citation/source coverage, identity
-mismatches, evidence/source categories, latency, token usage, provider-reported
-cost when available, and cache availability plus actual hit/miss behavior.
-Absence of a reusable cache SHALL be reported, not concealed by a synthetic
-cache result.
+#### Scenario: Ranking explains a reputation-driven order change
+- **WHEN** known reputation changes ordering among candidates tied on all
+  higher-priority preference and prominence dimensions
+- **THEN** the explanation identifies the rating or popularity fact and its
+  provider/source-field provenance
 
-#### Scenario: Sample is representative and bounded
-- **WHEN** a reputation experiment is run
-- **THEN** the sample includes current top, middle, gastronomy and
-  low-prominence candidates, plus named diagnostics when present, without
-  querying every discovered POI or hardcoding desired ranks
+### Requirement: The Foursquare experiment is bounded and measured
 
-#### Scenario: Provider configuration and measurements are captured
-- **WHEN** the Groq grounded-web path is measured
-- **THEN** the actual configured model/tool, latency, token usage and
-  available cost/cache fields are recorded from the run rather than assumed
+The Buenos Aires experiment SHALL use a bounded shortlist of already-composed
+Experiences and report reputation coverage, match outcomes, call/billing
+details, cache behavior, latency and actual/estimated cost. It SHALL capture
+canonical and external identity evidence sufficient to audit attempted
+matches.
 
-### Requirement: Reputation experiment does not change admission or planning
-The grounded-reputation capability SHALL remain off the discovery/admission
-and planning critical paths. It SHALL NOT be required for Experience existence
-and SHALL NOT supply duration, opening hours, identity or visit-unit facts.
+#### Scenario: The shortlist is bounded and stratified
+- **WHEN** the measured catalog has more eligible Experiences than the
+  enrichment shortlist
+- **THEN** only the bounded stratified shortlist is queried, with diagnostics
+  included only when they are already composed
+
+#### Scenario: The shortlist covers catalog strata
+- **WHEN** enough composed candidates and budget are available
+- **THEN** the roughly 50–100 candidate sample includes top, middle,
+  gastronomy, museum/attraction and secondary/niche places, with requested
+  diagnostics when present and no hardcoded desired matches or ranks
+
+#### Scenario: The run records provider coverage and cost
+- **WHEN** the bounded provider experiment completes
+- **THEN** the evidence records rating/popularity present and missing counts,
+  match outcomes, API calls by billing tier, cache hits/misses or cache
+  unavailability, latency, identity mismatches and actual/estimated cost
+
+#### Scenario: Provider billing and field availability are explicit
+- **WHEN** the Foursquare experiment returns or omits reputation fields
+- **THEN** the report records the selected API version, endpoint, actual
+  rating/popularity availability, billing tier and observed or estimated
+  cost, without assuming a legacy API contract
+
+### Requirement: Reputation does not change admission or planning
+
+The reputation capability SHALL remain off discovery/admission and planning
+critical paths. It SHALL NOT supply visit-duration, opening-hours, identity or
+visit-unit facts.
 
 #### Scenario: Planning remains independent
-- **WHEN** grounded reputation is missing or unavailable
+- **WHEN** reputation is missing or unavailable
 - **THEN** duration, opening-hours, routing and planning-readiness behavior
   remain unchanged

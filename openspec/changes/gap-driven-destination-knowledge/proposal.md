@@ -170,10 +170,12 @@ Revision 4 (production cutover after spike 3 ACCEPT):
   updated in place with stable identity (no content-revision subsystem).
 
 Out of scope: narrative generation, general-purpose LLM enrichment, new
-structured POI providers (Geoapify, Overture, Google Places), frontend and
-verifier tuning. A bounded experimental Groq grounded-reputation path is added
-only for already-admitted shortlisted Experiences under task 39.16; it is not
-general acquisition/research and does not participate in admission.
+structured POI catalog authorities (Geoapify, Overture, Google Places),
+frontend and verifier tuning. Task 39.16 preserves the completed Groq
+grounded-reputation pilot as historical evidence. A bounded Foursquare
+reputation spike under task 39.17 may enrich only already-admitted Experiences;
+it is not a POI catalog/acquisition authority and does not participate in
+admission.
 
 ## Capabilities
 
@@ -188,9 +190,10 @@ general acquisition/research and does not participate in admission.
 - `structured-catalog-prominence`: typed prominence and preference evidence
   remain separate from admission; trusted Wikidata facts enrich ordering and
   relevance without becoming eligibility requirements.
-- `grounded-reputation`: bounded, post-admission, source-grounded reputation
-  evidence is an optional ranking dimension, distinct from encyclopedic
-  prominence, admission, preference relevance and planning readiness.
+- `grounded-reputation`: bounded, post-admission, provider-neutral typed
+  reputation facts are optional experimental ranking dimensions, distinct
+  from encyclopedic prominence, admission, preference relevance and planning
+  readiness.
 - `knowledge-enrichment`: optional, reusable semantic/tourism enrichment
   downstream of admission.
 - `knowledge-readiness`: deterministic readiness over schedulable structured
